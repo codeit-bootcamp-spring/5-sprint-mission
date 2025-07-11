@@ -18,19 +18,19 @@
 # 요구사항
 ## 기본 요구사항
 ### 프로젝트 초기화
--  [ ] IntelliJ를 통해 다음의 조건으로 Java 프로젝트를 생성합니다.
-    - [ ] IntelliJ에서 제공하는 프로젝트 템플릿 중 Java를 선택합니다.
-    - [ ] 프로젝트의 경로는 스프린트 미션 리포지토리의 경로와 같게 설정합니다.
+-  [x] IntelliJ를 통해 다음의 조건으로 Java 프로젝트를 생성합니다.
+    - [x] IntelliJ에서 제공하는 프로젝트 템플릿 중 Java를 선택합니다.
+    - [x] 프로젝트의 경로는 스프린트 미션 리포지토리의 경로와 같게 설정합니다.
     - 예를 들어 스프린트 미션 리포지토리의 경로가 `/some/path/1-sprint-mission` 이라면:
         - Name은 `1-sprint-mission`
         - Location은 `/some/path`<br>
           으로 설정합니다.
-    - [ ] `Create Git Repository` 옵션은 체크하지 않습니다.
-    - [ ] Build system은 Gradle을 사용합니다. Gradle DSL은 Groovy를 사용합니다.
-    - [ ] JDK 17을 선택합니다.
-    - [ ] GroupId는 `com.sprint.mission`로 설정합니다.
-    - [ ] ArtifactId는 수정하지 않습니다.
-    - [ ] `.gitignore`에 IntelliJ와 관련된 파일이 형상관리 되지 않도록 `.idea`디렉토리를 추가합니다.
+    - [x] `Create Git Repository` 옵션은 체크하지 않습니다.
+    - [x] Build system은 Gradle을 사용합니다. Gradle DSL은 Groovy를 사용합니다.
+    - [x] JDK 17을 선택합니다.
+    - [x] GroupId는 `com.sprint.mission`로 설정합니다.
+    - [x] ArtifactId는 수정하지 않습니다.
+    - [x] `.gitignore`에 IntelliJ와 관련된 파일이 형상관리 되지 않도록 `.idea`디렉토리를 추가합니다.
 ```
     ...
     .idea
