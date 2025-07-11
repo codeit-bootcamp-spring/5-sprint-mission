@@ -118,6 +118,9 @@ public class JavaApplication {
                     case 8:
                         changePhoneNumber();
                         continue;
+                    case 9:
+                        addFriend();
+                        continue;
                     case 24:
                         break whileLoop;
                     default:
@@ -436,5 +439,40 @@ public class JavaApplication {
         }
         userService.updatePhoneNumber(me, phoneNumber);
         me.setPhoneNumber(phoneNumber);
+    }
+
+    private void addFriend() {
+        System.out.println("\nx. 뒤로가기");
+        while (true) {
+            System.out.print("추가할 친구의 이메일: ");
+            String email = sc.nextLine();
+
+            if (email.equals("x")) {
+                return;
+            }
+
+            User friend = userService.findByEmail(email);
+
+            if (friend == me) {
+                System.out.println("뭐야 나잖아");
+                continue;
+            }
+
+            if (friend == null) {
+                System.out.println("존재하지 않는 이메일입니다.");
+                continue;
+            }
+
+            List<User> friends = me.getFriends();
+
+            if (friends == null) {
+                friends = new ArrayList<>();
+            }
+
+            friends.add(friend);
+            userService.updateFriends(me, friends);
+            me.setFriends(friends);
+            break;
+        }
     }
 }
