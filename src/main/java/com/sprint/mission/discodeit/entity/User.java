@@ -17,9 +17,12 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                '}';
+        final StringBuffer sb = new StringBuffer("User{");
+        sb.append("id=").append(id);
+        sb.append(", createdAt='").append(createdAt).append('\'');
+        sb.append(", updatedAt='").append(updatedAt).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 
     public static void main(String[] args) {
