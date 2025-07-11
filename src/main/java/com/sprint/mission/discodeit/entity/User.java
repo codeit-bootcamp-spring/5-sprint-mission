@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class User {
     private UUID id;
-    private String password;
+    private String password1;
 
     public User(UUID id) {
         this.id = id;
