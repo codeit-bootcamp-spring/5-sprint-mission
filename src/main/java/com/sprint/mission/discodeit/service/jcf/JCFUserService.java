@@ -52,7 +52,7 @@ public class JCFUserService implements UserService {
     @Override
     public void updateEmail( User user, String email) {
         data.stream()
-                .filter(u1 -> u1.getId().equals(user.getId()))
+                .filter(u -> u.getId().equals(user.getId()))
                 .findFirst()
                 .ifPresent(u -> {
                     u.setEmail(email);

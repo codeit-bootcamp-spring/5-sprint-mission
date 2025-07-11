@@ -8,8 +8,8 @@ public class Message {
     private final UUID id;
     private long createdAt;
     private long updatedAt;
-    private User sender;
-    private User receiver;
+    private final User sender;
+    private final User receiver;
     private String content;
     private List<File> files;
     private Survey survey;
@@ -63,16 +63,8 @@ public class Message {
         return sender;
     }
 
-    public void setSender(User sender) {
-        this.sender = sender;
-    }
-
     public User getReceiver() {
         return receiver;
-    }
-
-    public void setReceiver(User receiver) {
-        this.receiver = receiver;
     }
 
     public String getContent() {
