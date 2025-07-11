@@ -73,9 +73,9 @@ public class JavaApplication {
             System.out.println("6. 생년월일 변경");
             System.out.println("7. 이메일로 소식 받기 변경");
             System.out.println("8. 휴대폰 번호 등록/변경");
-            System.out.println("9. 친구 추가");
-            System.out.println("10. 친구 삭제");
-            System.out.println("11. 친구 목록 보기");
+            System.out.println("9. 친구 목록 보기");
+            System.out.println("10. 친구 추가");
+            System.out.println("11. 친구 삭제");
             System.out.println("12. 서버 만들기");
             System.out.println("13. 서버 삭제");
             System.out.println("14. 서버 참가");
@@ -119,7 +119,13 @@ public class JavaApplication {
                         changePhoneNumber();
                         continue;
                     case 9:
+                        showFriends();
+                        continue;
+                    case 10:
                         addFriend();
+                        continue;
+                    case 11:
+                        deleteFriend();
                         continue;
                     case 24:
                         break whileLoop;
@@ -441,6 +447,15 @@ public class JavaApplication {
         me.setPhoneNumber(phoneNumber);
     }
 
+    private void showFriends() {
+        List<User> friends = me.getFriends();
+        if (friends == null) {
+            System.out.println("친구 없음");
+        } else {
+            System.out.println("\n" + friends);
+        }
+    }
+
     private void addFriend() {
         System.out.println("\nx. 뒤로가기");
         while (true) {
@@ -473,6 +488,41 @@ public class JavaApplication {
             userService.updateFriends(me, friends);
             me.setFriends(friends);
             break;
+        }
+    }
+
+    private void deleteFriend() {
+        List<User> friends = me.getFriends();
+
+        if (friends == null) {
+            System.out.println("친구 없음");
+        } else {
+            System.out.println("친구 목록: " + me.getFriends());
+        }
+
+        System.out.println("\nx. 뒤로가기");
+        while (true) {
+            System.out.print("삭제할 친구의 이메일: ");
+            String email = sc.nextLine();
+
+            if (email.equals("x")) {
+                return;
+            }
+
+            if (friends == null) {
+                friends = new ArrayList<>();
+            }
+
+            for (User friend : friends) {
+                if (friend.getEmail().equals(email)) {
+                    friends.remove(friend);
+                    userService.updateFriends(me, friends);
+                    me.setFriends(friends);
+                    return;
+                }
+            }
+
+            System.out.println("친구 목록에 존재하지 않는 이메일입니다.\n");
         }
     }
 }
