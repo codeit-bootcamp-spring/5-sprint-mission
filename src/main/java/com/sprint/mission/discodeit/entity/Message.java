@@ -1,15 +1,20 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public class Message {
-    private UUID id;
-    private long createdAt;
+    private final UUID id;
+    private final long createdAt;
     private long updatedAt;
+    private String content;
+    private User sender;
+    private User receiver;
 
-    public Message(UUID id, long createdAt) {
-        this.id = id;
-        this.createdAt = createdAt;
+    public Message() {
+        id = UUID.randomUUID();
+        createdAt = Instant.now().getEpochSecond();
+        updatedAt = createdAt;
     }
 
     public UUID getId() {
@@ -22,17 +27,5 @@ public class Message {
 
     public long getUpdatedAt() {
         return updatedAt;
-    }
-
-    public void updateId(UUID id) {
-        this.id = id;
-    }
-
-    public void updateCreatedAt(long createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void updateUpdatedAt(long updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }
