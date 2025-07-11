@@ -51,14 +51,13 @@ public class JavaApplication {
                         showAllUsers();
                         continue;
                     case 9:
-                        System.out.println("프로그램 종료.");
+                        System.out.println("프로그램 종료.\n");
                         return;
                     default:
-                        System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
+                        System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.\n");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("숫자를 입력해주세요.");
-                System.out.println();
+                System.out.println("숫자를 입력해주세요.\n");
             }
         }
     }
@@ -122,11 +121,10 @@ public class JavaApplication {
                     case 24:
                         break whileLoop;
                     default:
-                        System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
+                        System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.\n");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("숫자를 입력해주세요.");
-                System.out.println();
+                System.out.println("숫자를 입력해주세요.\n");
             }
         }
     }
@@ -142,12 +140,12 @@ public class JavaApplication {
             List<User> users = userService.findAll();
             for (User user : users) {
                 if (user.getEmail().equals(email)) {
-                    System.out.println("중복된 이메일입니다. 다시 입력해주세요.");
+                    System.out.println("중복된 이메일입니다. 다시 입력해주세요.\n");
                     continue whileLoop;
                 }
             }
             if (!email.matches(emailRegex)) {
-                System.out.println("잘못된 형식입니다. 다시 입력해주세요.");
+                System.out.println("잘못된 형식입니다. 다시 입력해주세요.\n");
                 continue;
             }
             break;
@@ -163,7 +161,7 @@ public class JavaApplication {
             if (!username.isEmpty()) {
                 break;
             } else {
-                System.out.println("사용자명은 필수입니다.");
+                System.out.println("사용자명은 필수입니다.\n");
             }
         }
 
@@ -174,7 +172,7 @@ public class JavaApplication {
             System.out.print("비밀번호 : ");
             password = sc.nextLine();
             if (!password.matches(passwordRegex)) {
-                System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.");
+                System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.\n");
                 continue;
             }
             break;
@@ -196,15 +194,15 @@ public class JavaApplication {
                 birthDate = LocalDate.of(year, month, day);
                 break;
             } catch (NumberFormatException e) {
-                System.out.println("숫자 형식이 올바르지 않습니다. 다시 입력해주세요.");
+                System.out.println("숫자 형식이 올바르지 않습니다. 다시 입력해주세요.\n");
             } catch (DateTimeException e) {
-                System.out.println("유효하지 않은 날짜입니다. 다시 입력하세요.");
+                System.out.println("유효하지 않은 날짜입니다. 다시 입력하세요.\n");
             }
         }
 
         boolean isSubscribedToNewsletter;
         while (true) {
-            System.out.print("이메일로 소식 받기(y/n) : ");
+            System.out.print("이메일로 소식 받기(y/n): ");
             String yn = sc.nextLine();
             yn = yn.toLowerCase();
             if (yn.equals("y")) {
@@ -214,17 +212,17 @@ public class JavaApplication {
                 isSubscribedToNewsletter = false;
                 break;
             } else {
-                System.out.println("y 또는 n을 입력해주세요.");
+                System.out.println("y 또는 n을 입력해주세요.\n");
             }
         }
 
         User user = new User(email, nickname, username, password, birthDate, isSubscribedToNewsletter);
         boolean result = userService.registerUser(user);
         if (result) {
-            System.out.println("성공적으로 회원가입을 완료하였습니다.");
+            System.out.println("성공적으로 회원가입을 완료하였습니다.\n");
             return;
         }
-        System.out.println("다시 시도해 주세요.");
+        System.out.println("다시 시도해 주세요.\n");
     }
 
     private void login() {
@@ -245,11 +243,11 @@ public class JavaApplication {
 
             User user = userService.loginUser(email, password);
             if (user == null) {
-                System.out.println("다시 입력해 주세요.");
+                System.out.println("다시 입력해 주세요.\n");
                 continue;
             }
             me = user;
-            System.out.println(user.getUsername() + "님, 환영합니다!");
+            System.out.println("\n" + user.getUsername() + "님, 환영합니다!\n");
             break;
         }
         afterLoginMenu();
@@ -261,7 +259,7 @@ public class JavaApplication {
 
         User user = userService.findByEmail(email);
         if (user == null) {
-            System.out.println("등록된 회원이 없습니다.");
+            System.out.println("등록된 회원이 없습니다.\n");
         } else {
             System.out.println(user);
         }
@@ -275,7 +273,7 @@ public class JavaApplication {
     }
 
     private void showMe() {
-        System.out.println(me);
+        System.out.println("\n" + me);
     }
 
     private void changeEmail() {
@@ -291,18 +289,18 @@ public class JavaApplication {
             if (email.equals("x")) {
                 return;
             } else if (email.equals(me.getEmail())) {
-                System.out.println("같은 이메일입니다.");
+                System.out.println("같은 이메일입니다.\n");
                 continue;
             }
             List<User> users = userService.findAll();
             for (User user : users) {
                 if (user.getEmail().equals(email)) {
-                    System.out.println("중복된 이메일입니다. 다시 입력해주세요.");
+                    System.out.println("중복된 이메일입니다. 다시 입력해주세요.\n");
                     continue whileLoop;
                 }
             }
             if (!email.matches(emailPattern)) {
-                System.out.println("잘못된 형식입니다. 다시 입력해주세요.");
+                System.out.println("잘못된 형식입니다. 다시 입력해주세요.\n");
                 continue;
             }
             userService.updateEmail(me, email);
@@ -349,12 +347,12 @@ public class JavaApplication {
             if (password.equals("x")) {
                 return;
             } else if (password.equals(me.getPassword())) {
-                System.out.println("같은 비밀번호입니다.");
+                System.out.println("같은 비밀번호입니다.\n");
                 continue;
             }
 
             if (!password.matches(passwordRegex)) {
-                System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.");
+                System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.\n");
                 continue;
             }
             userService.updatePassword(me, password);
@@ -394,9 +392,9 @@ public class JavaApplication {
                 birthDate = LocalDate.of(year, month, day);
                 break;
             } catch (NumberFormatException e) {
-                System.out.println("숫자 형식이 올바르지 않습니다. 다시 입력해주세요.");
+                System.out.println("숫자 형식이 올바르지 않습니다. 다시 입력해주세요.\n");
             } catch (DateTimeException e) {
-                System.out.println("유효하지 않은 날짜입니다. 다시 입력해주세요.");
+                System.out.println("유효하지 않은 날짜입니다. 다시 입력해주세요.\n");
             }
         }
         userService.updateBirthDate(me, birthDate);
@@ -421,7 +419,7 @@ public class JavaApplication {
                 isSubscribedToNewsletter = false;
                 break;
             } else {
-                System.out.println("y 또는 n을 입력해주세요.");
+                System.out.println("y 또는 n을 입력해주세요.\n");
             }
         }
         userService.updateIsSubscribedToNewLetter(me, isSubscribedToNewsletter);
