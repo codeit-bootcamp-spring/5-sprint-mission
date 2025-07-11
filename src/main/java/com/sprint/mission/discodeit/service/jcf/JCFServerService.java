@@ -25,14 +25,15 @@ public class JCFServerService implements ServerService {
     }
 
     @Override
-    public void createServer(Server server) {
+    public boolean createServer(Server server) {
         boolean exists = data.stream()
                 .anyMatch(s -> s.getId().equals(server.getId()));
         if (exists) {
             System.out.println("중복된 id가 존재합니다.");
-            return;
+            return false;
         }
         data.add(server);
+        return true;
     }
 
     @Override

@@ -23,14 +23,15 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public void createChannel(Channel channel) {
+    public boolean createChannel(Channel channel) {
         boolean exists = data.stream()
                 .anyMatch(c -> c.getId().equals(channel.getId()));
         if (exists) {
             System.out.println("중복된 id가 존재합니다.");
-            return;
+            return false;
         }
         data.add(channel);
+        return true;
     }
 
     @Override

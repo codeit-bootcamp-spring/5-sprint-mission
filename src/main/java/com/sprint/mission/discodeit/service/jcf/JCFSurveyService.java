@@ -21,14 +21,15 @@ public class JCFSurveyService implements SurveyService {
     }
 
     @Override
-    public void createSurvey(Survey survey) {
+    public boolean createSurvey(Survey survey) {
         boolean exists = data.stream()
                 .anyMatch(s -> s.getId().equals(survey.getId()));
         if (exists) {
             System.out.println("중복된 id가 존재합니다.");
-            return;
+            return false;
         }
         data.add(survey);
+        return true;
     }
 
     @Override

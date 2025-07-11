@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ChannelService {
-    void createChannel(Channel channel);
+    boolean createChannel(Channel channel);
 
     Channel findById(UUID id);
 

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ServerService {
-    void createServer(Server server);
+    boolean createServer(Server server);
 
     Server findById(UUID id);
 

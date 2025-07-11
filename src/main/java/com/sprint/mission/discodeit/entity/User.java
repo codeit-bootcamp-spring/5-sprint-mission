@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.enums.Item;
 import com.sprint.mission.discodeit.enums.NitroPlan;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,40 +13,42 @@ public class User {
     private long createdAt;
     private long updatedAt;
     private String email;
-    private String password;
-    private String phoneNumber;
-    private String username;
     private String nickname;
-    private LocalDate birthDay;
+    private String username;
+    private String password;
+    private LocalDate birthDate;
     private boolean isSubscribedToNewsletter;
+    private String phoneNumber;
     private List<User> friends;
-    private NitroPlan nitroPlan;
-    private List<Item> items;
     private Server[] servers;
     private List<List<Message>> dmRooms;
+    private NitroPlan nitroPlan;
+    private List<Item> items;
 
-    public User(String email, String password, String phoneNumber, String username, String nickname, LocalDate birthDay,
-                boolean isSubscribedToNewsletter, List<User> friends, NitroPlan nitroPlan, List<Item> items, Server[] servers,
-                List<List<Message>> dmRooms) {
+    public User(String email, String nickname, String username, String password, LocalDate birthDate,
+                boolean isSubscribedToNewsletter, String phoneNumber, List<User> friends, Server[] servers,
+                List<List<Message>> dmRooms, NitroPlan nitroPlan, List<Item> items) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
         this.email = email;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-        this.username = username;
         this.nickname = nickname;
-        this.birthDay = birthDay;
+        this.username = username;
+        this.password = password;
+        this.birthDate = birthDate;
         this.isSubscribedToNewsletter = isSubscribedToNewsletter;
+        this.phoneNumber = phoneNumber;
         this.friends = friends;
-        this.nitroPlan = nitroPlan;
-        this.items = items;
         this.servers = servers;
         this.dmRooms = dmRooms;
+        this.nitroPlan = nitroPlan;
+        this.items = items;
     }
 
-    public User(String email, String password, String username, LocalDate birthDay) {
-        this(email, password, null, username, username, birthDay, false, null, NitroPlan.NONE, null, null, null);
+    public User(String email, String nickname, String username, String password, LocalDate birthDate,
+                boolean isSubscribedToNewsletter) {
+        this(email, nickname, username, password, birthDate, isSubscribedToNewsletter, null, null,
+                null, null, null, null);
     }
 
     public UUID getId() {
@@ -108,12 +111,12 @@ public class User {
         this.nickname = nickname;
     }
 
-    public LocalDate getBirthDay() {
-        return birthDay;
+    public LocalDate getBirthDate() {
+        return birthDate;
     }
 
-    public void setBirthDay(LocalDate birthDay) {
-        this.birthDay = birthDay;
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 
     public boolean isSubscribedToNewsletter() {
@@ -162,5 +165,22 @@ public class User {
 
     public void setDmRooms(List<List<Message>> dmRooms) {
         this.dmRooms = dmRooms;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" + "email='" + email + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", birthDate=" + birthDate +
+                ", isSubscribedToNewsletter=" + isSubscribedToNewsletter +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", friends=" + friends +
+                ", servers=" + Arrays.toString(servers) +
+                ", dmRooms=" + dmRooms +
+                ", nitroPlan=" + nitroPlan +
+                ", items=" + items +
+                '}';
     }
 }

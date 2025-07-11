@@ -26,14 +26,23 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void registerUser(User user) {
+    public boolean registerUser(User user) {
         boolean exists = data.stream()
                 .anyMatch(u -> u.getId().equals(user.getId()));
         if (exists) {
             System.out.println("중복된 id가 존재합니다.");
-            return;
+            return false;
         }
         data.add(user);
+        return true;
+    }
+
+    @Override
+    public User loginUser(String email, String password) {
+        return data.stream()
+                .filter(u -> u.getEmail().equals(email) && u.getPassword().equals(password))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -105,12 +114,12 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void updateBirthDay(User user, LocalDate birthDay) {
+    public void updateBirthDate(User user, LocalDate birthDate) {
         data.stream()
                 .filter(u -> u.getId().equals(user.getId()))
                 .findFirst()
                 .ifPresent(u -> {
-                    u.setBirthDay(birthDay);
+                    u.setBirthDate(birthDate);
                     u.setUpdatedAt(System.currentTimeMillis());
                 });
     }

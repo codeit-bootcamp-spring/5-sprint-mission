@@ -23,14 +23,15 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public void createMessage(Message message) {
+    public boolean createMessage(Message message) {
         boolean exists = data.stream()
                 .anyMatch(m -> m.getId().equals(message.getId()));
         if (exists) {
             System.out.println("중복된 id가 존재합니다.");
-            return;
+            return false;
         }
         data.add(message);
+        return true;
     }
 
     @Override

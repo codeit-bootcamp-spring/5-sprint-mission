@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    void registerUser(User user);
+    boolean registerUser(User user);
+
+    User loginUser(String email, String password);
 
     User findById(UUID id);
 
@@ -27,7 +29,7 @@ public interface UserService {
 
     void updateNickname(User user, String nickname);
 
-    void updateBirthDay(User user, LocalDate birthDay);
+    void updateBirthDate(User user, LocalDate birthDate);
 
     void updateSubscription(User user, boolean isSubscribedToNewsletter);
 

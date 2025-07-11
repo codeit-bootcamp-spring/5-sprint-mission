@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface SurveyService {
-    void createSurvey(Survey survey);
+    boolean createSurvey(Survey survey);
 
     Survey findById(UUID id);
 
