@@ -11,10 +11,13 @@ public class Message {
     private User sender;
     private User receiver;
 
-    public Message() {
+    public Message(User sender, User receiver, String content) {
         id = UUID.randomUUID();
         createdAt = Instant.now().getEpochSecond();
         updatedAt = createdAt;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.content = content;
     }
 
     public UUID getId() {
