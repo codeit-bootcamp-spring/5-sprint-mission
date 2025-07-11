@@ -2,13 +2,13 @@ package com.sprint.mission.discodeit.entity;
 
 import java.util.UUID;
 
-public class User {
+public class Message {
 
     private final UUID id;
     private final Long createdAt;
     private Long updatedAt;
 
-    public User() {
+    public Message() {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
@@ -32,7 +32,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "Message{" +
                 "id=" + id +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
