@@ -27,7 +27,8 @@ public class JavaApplication {
             System.out.println("=====***** 메인 메뉴 *****=====");
             System.out.println("1. 회원가입");
             System.out.println("2. 로그인");
-            System.out.println("3. 같은 이름 회원 찾기");
+            System.out.println("3. 이메일로 회원 찾기");
+            System.out.println("4. 모든 회원 보기");
             System.out.println("9. 종료");
             System.out.print("메뉴 번호 입력 : ");
 
@@ -40,6 +41,9 @@ public class JavaApplication {
                         continue;
                     case 2:
                         login();
+                        continue;
+                    case 3:
+                        findUserByEmail();
                         continue;
                     case 9:
                         System.out.println("프로그램 종료.");
@@ -200,5 +204,17 @@ public class JavaApplication {
             break;
         }
         afterLoginMenu();
+    }
+
+    private void findUserByEmail() {
+        System.out.print("이메일 : ");
+        String email = sc.nextLine().strip();
+
+        User user = userService.findByEmail(email);
+        if (user == null) {
+            System.out.println("등록된 회원이 없습니다.");
+        } else {
+            System.out.println(user);
+        }
     }
 }
