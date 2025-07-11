@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'application'
 }
 
 group = 'com.sprint.mission'
@@ -10,9 +9,6 @@ repositories {
     mavenCentral()
 }
 
-application {
-    mainClass = 'com.sprint.mission.discodeit.entity.User'
-}
 
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
