@@ -8,7 +8,6 @@ import java.util.UUID;
 
 public class JavaApplication {
     public static void main(String[] args) {
-        // 서비스 생성 (메모리 기반 구현체 사용)
         UserService userService = new JCFUserService();
         ChannelService channelService = new JCFChannelService();
         MessageService messageService = new JCFMessageService();
