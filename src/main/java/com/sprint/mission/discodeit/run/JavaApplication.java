@@ -45,6 +45,9 @@ public class JavaApplication {
                     case 3:
                         findUserByEmail();
                         continue;
+                    case 4:
+                        showAllUsers();
+                        continue;
                     case 9:
                         System.out.println("프로그램 종료.");
                         return;
@@ -115,7 +118,6 @@ public class JavaApplication {
 
         System.out.print("별명(선택) : ");
         String nickname = sc.nextLine();
-        if (nickname.isEmpty()) { nickname = null; }
 
         String username;
         while (true) {
@@ -214,6 +216,13 @@ public class JavaApplication {
         if (user == null) {
             System.out.println("등록된 회원이 없습니다.");
         } else {
+            System.out.println(user);
+        }
+    }
+
+    private void showAllUsers() {
+        List<User> users = userService.findAll();
+        for (User user : users) {
             System.out.println(user);
         }
     }

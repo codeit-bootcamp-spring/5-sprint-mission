@@ -47,7 +47,7 @@ public class User {
 
     public User(String email, String nickname, String username, String password, LocalDate birthDate,
                 boolean isSubscribedToNewsletter) {
-        this(email, nickname, username, password, birthDate, isSubscribedToNewsletter, null, null,
+        this(email, nickname, username, password, birthDate, isSubscribedToNewsletter, "", null,
                 null, null, null, null);
     }
 
