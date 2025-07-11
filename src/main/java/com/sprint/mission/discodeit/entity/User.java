@@ -3,21 +3,36 @@ package com.sprint.mission.discodeit.entity;
 import java.util.UUID;
 
 public class User {
-    private final UUID id;
+    private UUID id;
+    private long createdAt;
+    private long updatedAt;
 
-    public User(UUID id) {
+    public User(UUID id, long createdAt) {
+        this.id = id;
+        this.createdAt = createdAt;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void updateId(UUID id) {
         this.id = id;
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("User{");
-        sb.append("id=").append(id);
-        sb.append('}');
-        return sb.toString();
+    public void updateCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public static void main(String[] args) {
-        System.out.println("Hello World!");
+    public void updateUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
