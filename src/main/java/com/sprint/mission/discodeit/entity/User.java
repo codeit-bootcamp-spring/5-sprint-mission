@@ -119,11 +119,11 @@ public class User {
         this.birthDate = birthDate;
     }
 
-    public boolean isSubscribedToNewsletter() {
+    public boolean getIsSubscribedToNewsletter() {
         return isSubscribedToNewsletter;
     }
 
-    public void setSubscribedToNewsletter(boolean subscribedToNewsletter) {
+    public void setIsSubscribedToNewsletter(boolean subscribedToNewsletter) {
         isSubscribedToNewsletter = subscribedToNewsletter;
     }
 

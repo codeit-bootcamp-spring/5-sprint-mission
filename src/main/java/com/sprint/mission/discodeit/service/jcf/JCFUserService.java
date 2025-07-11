@@ -133,12 +133,12 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void updateSubscription(User user, boolean isSubscribedToNewsletter) {
+    public void updateIsSubscribedToNewLetter(User user, boolean isSubscribedToNewsletter) {
         data.stream()
                 .filter(u -> u.getId().equals(user.getId()))
                 .findFirst()
                 .ifPresent(u -> {
-                    u.setSubscribedToNewsletter(isSubscribedToNewsletter);
+                    u.setIsSubscribedToNewsletter(isSubscribedToNewsletter);
                     u.setUpdatedAt(System.currentTimeMillis());
                 });
     }

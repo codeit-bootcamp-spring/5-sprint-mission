@@ -33,7 +33,7 @@ public interface UserService {
 
     void updateBirthDate(User user, LocalDate birthDate);
 
-    void updateSubscription(User user, boolean isSubscribedToNewsletter);
+    void updateIsSubscribedToNewLetter(User user, boolean isSubscribedToNewsletter);
 
     void updateFriends(User user, List<User> friends);
 
