@@ -29,11 +29,25 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public void update(UUID id, String name, String description, int count) {
+    public void update(UUID id, String name, String description) {
         Channel channel = channels.get(id);
         if (channel != null) {
-            channel.update(name, description, count);
+            channel.update(name, description);
         }
+    }
+
+    @Override
+    public boolean addUser(UUID channelId, UUID userId) {
+        Channel channel = channels.get(channelId);
+        if (channel == null) return false;
+        return channel.addUser(userId);
+    }
+
+    @Override
+    public boolean removeUser(UUID id, UUID userId) {
+        Channel channel = channels.get(id);
+        if (channel == null) return false;
+        return channel.removeUser(userId);
     }
 
     @Override

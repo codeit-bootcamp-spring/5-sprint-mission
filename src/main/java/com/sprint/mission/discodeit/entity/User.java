@@ -1,11 +1,14 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class User {
 
     private final UUID id;
     private final Long createdAt;
+    private final List<UUID> channelIds =  new ArrayList<>(); // 채널에도 유저의 UUID를 모아놓은 것처럼 유저에도 참가한 채널의 UUID 담을 수 있는 리스트 선언
     private Long updatedAt;
     private String name;
     private int age;
@@ -22,6 +25,7 @@ public class User {
     // 반환 함수들
     public UUID getId() { return id; }
     public Long getCreatedAt() { return createdAt; }
+    public List<UUID> getChannelIds() { return channelIds; }
     public Long getUpdatedAt() { return updatedAt; }
     public String getName() { return name; }
     public int getAge() { return age; }
@@ -33,6 +37,28 @@ public class User {
         this.updatedAt = System.currentTimeMillis();
     }
 
+    // 채널 참가
+    public boolean joinChannel(UUID channelId) {
+        if (this.channelIds.contains(channelId)) {
+            return false;
+        }
+
+        channelIds.add(channelId);
+        this.updatedAt = System.currentTimeMillis(); // 채널 추가할 때도 시간 업데이트
+        return true;
+    }
+
+    // 채널 퇴장
+    public boolean leaveChannel(UUID channelId) {
+        if (!this.channelIds.contains(channelId)) {
+            return false;
+        }
+
+        channelIds.remove(channelId);
+        this.updatedAt = System.currentTimeMillis();
+        return true;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -41,6 +67,7 @@ public class User {
                 ", updatedAt=" + updatedAt +
                 ", name='" + name + '\'' +
                 ", age=" + age +
+                ", channelIds=" + channelIds +
                 '}';
     }
 }

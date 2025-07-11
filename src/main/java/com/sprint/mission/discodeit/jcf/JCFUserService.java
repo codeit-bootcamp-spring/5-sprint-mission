@@ -37,6 +37,20 @@ public class JCFUserService implements UserService {
     }
 
     @Override
+    public boolean joinChannel(UUID id, UUID channelId) {
+        User user = users.get(id);
+        if (user == null) return false;
+        return user.joinChannel(channelId);
+    }
+
+    @Override
+    public boolean leaveChannel(UUID id, UUID channelId) {
+        User user = users.get(id);
+        if (user == null) return false;
+        return user.leaveChannel(channelId);
+    }
+
+    @Override
     public void delete(UUID id) {
         users.remove(id);
     }
