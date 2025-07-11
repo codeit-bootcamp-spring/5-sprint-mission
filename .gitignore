@@ -59,7 +59,6 @@ cmake-build-*/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
-*.iws
 *.iml
 *.ipr
 out/
