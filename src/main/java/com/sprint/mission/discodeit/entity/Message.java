@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.io.File;
+import java.util.List;
 import java.util.UUID;
 
 public class Message {
@@ -10,11 +11,11 @@ public class Message {
     private User sender;
     private User receiver;
     private String content;
-    private File[] files;
+    private List<File> files;
     private Survey survey;
-    private Message[] replies;
+    private List<Message> replies;
 
-    public Message(User sender, User receiver, String content, File[] files, Survey survey, Message[] replies) {
+    public Message(User sender, User receiver, String content, List<File> files, Survey survey, List<Message> replies) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
@@ -26,11 +27,11 @@ public class Message {
         this.replies = replies;
     }
 
-    public Message(User sender, User receiver, String content, File[] files, Survey survey) {
+    public Message(User sender, User receiver, String content, List<File> files, Survey survey) {
         this(sender, receiver, content, files, survey, null);
     }
 
-    public Message(User sender, User receiver, String content, File[] files) {
+    public Message(User sender, User receiver, String content, List<File> files) {
         this(sender, receiver, content, files, null, null);
     }
 
@@ -82,11 +83,11 @@ public class Message {
         this.content = content;
     }
 
-    public File[] getFiles() {
+    public List<File> getFiles() {
         return files;
     }
 
-    public void setFiles(File[] files) {
+    public void setFiles(List<File> files) {
         this.files = files;
     }
 
@@ -98,11 +99,11 @@ public class Message {
         this.survey = survey;
     }
 
-    public Message[] getReplies() {
+    public List<Message> getReplies() {
         return replies;
     }
 
-    public void setReplies(Message[] replies) {
+    public void setReplies(List<Message> replies) {
         this.replies = replies;
     }
 }

@@ -3,20 +3,21 @@ package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.enums.ServerLevel;
 import com.sprint.mission.discodeit.enums.ServerPerk;
 
+import java.util.List;
 import java.util.UUID;
 
 public class Server {
     private final UUID id;
     private long createdAt;
     private long updatedAt;
-    private Channel[] channels;
+    private List<Channel> channels;
     private User[] members;
     private User owner;
     private long boost;
     private ServerLevel level;
-    private ServerPerk[] perks;
+    private List<ServerPerk> perks;
 
-    public Server(Channel[] channels, long boost, ServerLevel level, ServerPerk[] perks) {
+    public Server(List<Channel> channels, long boost, ServerLevel level, List<ServerPerk> perks) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
@@ -26,15 +27,15 @@ public class Server {
         this.perks = perks;
     }
 
-    public Server(Channel[] channels, long boost, ServerLevel level) {
+    public Server(List<Channel> channels, long boost, ServerLevel level) {
         this(channels, boost, level, null);
     }
 
-    public Server(Channel[] channels, long boost) {
+    public Server(List<Channel> channels, long boost) {
         this(channels, boost, ServerLevel.ONE, null);
     }
 
-    public Server(Channel[] channels) {
+    public Server(List<Channel> channels) {
         this(channels, 0, ServerLevel.ONE, null);
     }
 
@@ -58,11 +59,11 @@ public class Server {
         this.updatedAt = updatedAt;
     }
 
-    public Channel[] getChannels() {
+    public List<Channel> getChannels() {
         return channels;
     }
 
-    public void setChannels(Channel[] channels) {
+    public void setChannels(List<Channel> channels) {
         this.channels = channels;
     }
 
@@ -98,11 +99,11 @@ public class Server {
         this.level = level;
     }
 
-    public ServerPerk[] getPerks() {
+    public List<ServerPerk> getPerks() {
         return perks;
     }
 
-    public void setPerks(ServerPerk[] perks) {
+    public void setPerks(List<ServerPerk> perks) {
         this.perks = perks;
     }
 }

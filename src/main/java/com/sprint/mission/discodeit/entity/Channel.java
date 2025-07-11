@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.enums.ChannelCategory;
 
+import java.util.List;
 import java.util.UUID;
 
 public class Channel {
@@ -11,9 +12,9 @@ public class Channel {
     private String name;
     private ChannelCategory category;
     private boolean isPublic;
-    private User[] allowedUsers;
+    private List<User> allowedUsers;
 
-    public Channel(String name, ChannelCategory category, boolean isPublic, User[] allowedUsers) {
+    public Channel(String name, ChannelCategory category, boolean isPublic, List<User> allowedUsers) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
@@ -71,11 +72,11 @@ public class Channel {
         isPublic = aPublic;
     }
 
-    public User[] getAllowedUsers() {
+    public List<User> getAllowedUsers() {
         return allowedUsers;
     }
 
-    public void setAllowedUsers(User[] allowedUsers) {
+    public void setAllowedUsers(List<User> allowedUsers) {
         this.allowedUsers = allowedUsers;
     }
 }

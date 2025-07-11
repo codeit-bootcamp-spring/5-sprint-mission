@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.enums.Item;
 import com.sprint.mission.discodeit.enums.NitroPlan;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public class User {
@@ -17,15 +18,15 @@ public class User {
     private String nickname;
     private LocalDate birthDay;
     private boolean isSubscribedToNewsletter;
-    private User[] friends;
+    private List<User> friends;
     private NitroPlan nitroPlan;
-    private Item[] items;
+    private List<Item> items;
     private Server[] servers;
-    private Message[][] dmRooms;
+    private List<List<Message>> dmRooms;
 
     public User(String email, String password, String phoneNumber, String username, String nickname, LocalDate birthDay,
-                boolean isSubscribedToNewsletter, User[] friends, NitroPlan nitroPlan, Item[] items, Server[] servers,
-                Message[][] dmRooms) {
+                boolean isSubscribedToNewsletter, List<User> friends, NitroPlan nitroPlan, List<Item> items, Server[] servers,
+                List<List<Message>> dmRooms) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
@@ -123,11 +124,11 @@ public class User {
         isSubscribedToNewsletter = subscribedToNewsletter;
     }
 
-    public User[] getFriends() {
+    public List<User> getFriends() {
         return friends;
     }
 
-    public void setFriends(User[] friends) {
+    public void setFriends(List<User> friends) {
         this.friends = friends;
     }
 
@@ -139,11 +140,11 @@ public class User {
         this.nitroPlan = nitroPlan;
     }
 
-    public Item[] getItems() {
+    public List<Item> getItems() {
         return items;
     }
 
-    public void setItems(Item[] items) {
+    public void setItems(List<Item> items) {
         this.items = items;
     }
 
@@ -155,11 +156,11 @@ public class User {
         this.servers = servers;
     }
 
-    public Message[][] getDmRooms() {
+    public List<List<Message>> getDmRooms() {
         return dmRooms;
     }
 
-    public void setDmRooms(Message[][] dmRooms) {
+    public void setDmRooms(List<List<Message>> dmRooms) {
         this.dmRooms = dmRooms;
     }
 }

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.util.List;
 import java.util.UUID;
 
 public class Survey {
@@ -7,11 +8,11 @@ public class Survey {
     private long createdAt;
     private long updatedAt;
     private String question;
-    private String[] answers;
+    private List<String> answers;
     private long duration;
     private boolean isDuplicateResponseAllowed;
 
-    public Survey(String question, String[] answers, long duration, boolean isDuplicateResponseAllowed) {
+    public Survey(String question, List<String> answers, long duration, boolean isDuplicateResponseAllowed) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
@@ -49,11 +50,11 @@ public class Survey {
         this.question = question;
     }
 
-    public String[] getAnswers() {
+    public List<String> getAnswers() {
         return answers;
     }
 
-    public void setAnswers(String[] answers) {
+    public void setAnswers(List<String> answers) {
         this.answers = answers;
     }
 
