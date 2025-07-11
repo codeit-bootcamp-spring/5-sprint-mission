@@ -49,7 +49,7 @@ public class JavaApplication {
         System.out.println(" 전체 채널 목록: " + channelService.findAll());
 
         // 수정
-        channel.updateName("과제 채널");
+        channel.updateName("과제 채팅방");
         channelService.update(channel.getId(), channel);
         System.out.println(" 채널명 수정 후 조회: " + channelService.findById(channel.getId()));
 
