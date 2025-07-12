@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.enums.ChannelCategory;
+import com.sprint.mission.discodeit.enums.channelEntity.ChannelCategory;
 
 import java.util.List;
 import java.util.UUID;

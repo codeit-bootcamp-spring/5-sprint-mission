@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.enums.Item;
-import com.sprint.mission.discodeit.enums.NitroPlan;
+import com.sprint.mission.discodeit.enums.userEntity.Item;
+import com.sprint.mission.discodeit.enums.userEntity.NitroPlan;
+import com.sprint.mission.discodeit.enums.userEntity.Status;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -24,6 +25,7 @@ public class User {
     private List<List<Message>> dmRooms;
     private NitroPlan nitroPlan;
     private List<Item> items;
+    private Status status;
 
     public User(String email, String nickname, String username, String password, LocalDate birthDate,
                 boolean isSubscribedToNewsletter, String phoneNumber, List<User> friends, Server[] servers,

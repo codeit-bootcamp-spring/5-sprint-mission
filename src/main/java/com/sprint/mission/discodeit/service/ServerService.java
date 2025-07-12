@@ -3,8 +3,8 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Server;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.ServerLevel;
-import com.sprint.mission.discodeit.enums.ServerPerk;
+import com.sprint.mission.discodeit.enums.serverEntity.ServerLevel;
+import com.sprint.mission.discodeit.enums.serverEntity.ServerPerk;
 
 import java.util.List;
 import java.util.UUID;

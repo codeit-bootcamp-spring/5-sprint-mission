@@ -3,8 +3,8 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.Server;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.Item;
-import com.sprint.mission.discodeit.enums.NitroPlan;
+import com.sprint.mission.discodeit.enums.userEntity.Item;
+import com.sprint.mission.discodeit.enums.userEntity.NitroPlan;
 
 import java.time.LocalDate;
 import java.util.List;

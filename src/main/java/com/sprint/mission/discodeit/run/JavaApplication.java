@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.run;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Server;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.ChannelCategory;
+import com.sprint.mission.discodeit.enums.channelEntity.ChannelCategory;
 import com.sprint.mission.discodeit.service.jcf.*;
 
 import java.time.DateTimeException;

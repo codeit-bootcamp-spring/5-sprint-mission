@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.ChannelCategory;
+import com.sprint.mission.discodeit.enums.channelEntity.ChannelCategory;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.util.ArrayList;
