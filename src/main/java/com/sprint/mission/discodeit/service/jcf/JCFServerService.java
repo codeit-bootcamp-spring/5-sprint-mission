@@ -88,7 +88,7 @@ public class JCFServerService implements ServerService {
     }
 
     @Override
-    public void updateIsPublic(Server server, Boolean isPublic) {
+    public void updateIsPublic(Server server, boolean isPublic) {
         data.stream()
                 .filter(s -> s.getId().equals(server.getId()))
                 .findFirst()

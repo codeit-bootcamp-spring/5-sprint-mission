@@ -24,7 +24,7 @@ public interface ServerService extends Service {
 
     void updateName(Server server, String name);
 
-    void updateIsPublic(Server server, Boolean isPublic);
+    void updateIsPublic(Server server, boolean isPublic);
 
     void updateChannels(Server server, List<Channel> channels);
 

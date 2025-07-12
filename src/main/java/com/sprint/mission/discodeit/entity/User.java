@@ -190,7 +190,7 @@ public class User {
         return isVerified;
     }
 
-    public void setVerified(Boolean verified) {
+    public void setVerified(boolean verified) {
         isVerified = verified;
     }
 
@@ -198,7 +198,7 @@ public class User {
         return isDeactivated;
     }
 
-    public void setDeactivated(Boolean deactivated) {
+    public void setDeactivated(boolean deactivated) {
         isDeactivated = deactivated;
     }
 
@@ -206,7 +206,7 @@ public class User {
         return isBanned;
     }
 
-    public void setBanned(Boolean banned) {
+    public void setBanned(boolean banned) {
         isBanned = banned;
     }
 
