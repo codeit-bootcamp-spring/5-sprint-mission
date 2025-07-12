@@ -9,7 +9,7 @@ import com.sprint.mission.discodeit.enums.serverEntity.ServerPerk;
 import java.util.List;
 import java.util.UUID;
 
-public interface ServerService {
+public interface ServerService extends Service {
     boolean createServer(Server server);
 
     Server findById(UUID id);

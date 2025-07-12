@@ -1,16 +1,15 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.Server;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.enums.userEntity.Item;
 import com.sprint.mission.discodeit.enums.userEntity.NitroPlan;
+import com.sprint.mission.discodeit.enums.userEntity.Status;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-public interface UserService {
+public interface UserService extends Service {
     boolean registerUser(User user);
 
     User loginUser(String email, String password);
@@ -20,6 +19,8 @@ public interface UserService {
     User findByEmail(String email);
 
     List<User> findAll();
+
+    void deleteById(UUID id);
 
     void updateEmail(User user, String email);
 
@@ -33,17 +34,27 @@ public interface UserService {
 
     void updateBirthDate(User user, LocalDate birthDate);
 
-    void updateIsSubscribedToNewLetter(User user, boolean isSubscribedToNewsletter);
+    void updateIsSubscribedToNewsletter(User user, boolean isSubscribedToNewsletter);
 
     void updateFriends(User user, List<User> friends);
+
+    void updateServers(User user, List<Server> servers);
+
+    void updateChatRooms(User user, List<ChatRoom> chatRooms);
 
     void updateNitroPlan(User user, NitroPlan nitroPlan);
 
     void updateItems(User user, List<Item> items);
 
-    void updateServers(User user, Server[] servers);
+    void updateStatus(User user, Status status);
 
-    void updateDmRooms(User user, List<List<Message>> dmRooms);
+    void updateAvatarUrl(User user, String avatarUrl);
 
-    void deleteById(UUID id);
+    void updateBio(User user, String bio);
+
+    void updateIsVerified(User user, boolean isVerified);
+
+    void updateIsDeactivated(User user, boolean isDeactivated);
+
+    void updateIsBanned(User user, boolean isBanned);
 }

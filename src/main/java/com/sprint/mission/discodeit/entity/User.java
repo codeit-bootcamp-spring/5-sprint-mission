@@ -30,10 +30,6 @@ public class User {
     private boolean isDeactivated;
     private boolean isBanned;
 
-    public User(String email, String username, String password, LocalDate birthDate, boolean isSubscribedToNewsletter) {
-        this(email, username, password, birthDate, isSubscribedToNewsletter, null);
-    }
-
     public User(String email, String username, String password, LocalDate birthDate, boolean isSubscribedToNewsletter, String nickname) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();

@@ -7,7 +7,7 @@ import com.sprint.mission.discodeit.enums.channelEntity.ChannelCategory;
 import java.util.List;
 import java.util.UUID;
 
-public interface ChannelService {
+public interface ChannelService extends Service {
     boolean createChannel(Channel channel);
 
     Channel findById(UUID id);

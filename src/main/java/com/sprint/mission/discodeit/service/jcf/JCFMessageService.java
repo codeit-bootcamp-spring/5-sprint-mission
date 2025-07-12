@@ -23,6 +23,12 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
+    // @VisibleForTesting
+    public void reset() {
+        JCFMessageService.getInstance().data.clear();
+    }
+
+    @Override
     public boolean createMessage(Message message) {
         boolean exists = data.stream()
                 .anyMatch(m -> m.getId().equals(message.getId()));

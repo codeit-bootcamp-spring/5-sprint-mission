@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.service.jcf;
 
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.ChatRoom;
 import com.sprint.mission.discodeit.entity.Server;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.userEntity.Item;
 import com.sprint.mission.discodeit.enums.userEntity.NitroPlan;
+import com.sprint.mission.discodeit.enums.userEntity.Status;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.time.LocalDate;
@@ -17,12 +18,19 @@ public class JCFUserService implements UserService {
 
     private final List<User> data;
 
+
     private JCFUserService() {
         data = new ArrayList<User>();
     }
 
     public static JCFUserService getInstance() {
         return instance;
+    }
+
+    @Override
+    // @VisibleForTesting
+    public void reset() {
+        JCFUserService.getInstance().data.clear();
     }
 
     @Override
@@ -133,12 +141,12 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void updateIsSubscribedToNewLetter(User user, boolean isSubscribedToNewsletter) {
+    public void updateIsSubscribedToNewsletter(User user, boolean isSubscribedToNewsletter) {
         data.stream()
                 .filter(u -> u.getId().equals(user.getId()))
                 .findFirst()
                 .ifPresent(u -> {
-                    u.setIsSubscribedToNewsletter(isSubscribedToNewsletter);
+                    u.setSubscribedToNewsletter(isSubscribedToNewsletter);
                     u.setUpdatedAt(System.currentTimeMillis());
                 });
     }
@@ -177,7 +185,73 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void updateServers(User user, Server[] servers) {
+    public void updateStatus(User user, Status status) {
+        data.stream()
+                .filter(u -> u.getId().equals(user.getId()))
+                .findFirst()
+                .ifPresent(u -> {
+                    u.setStatus(status);
+                    u.setUpdatedAt(System.currentTimeMillis());
+                });
+    }
+
+    @Override
+    public void updateAvatarUrl(User user, String avatarUrl) {
+        data.stream()
+                .filter(u -> u.getId().equals(user.getId()))
+                .findFirst()
+                .ifPresent(u -> {
+                    u.setAvatarUrl(avatarUrl);
+                    u.setUpdatedAt(System.currentTimeMillis());
+                });
+    }
+
+    @Override
+    public void updateBio(User user, String bio) {
+        data.stream()
+                .filter(u -> u.getId().equals(user.getId()))
+                .findFirst()
+                .ifPresent(u -> {
+                    u.setBio(bio);
+                    u.setUpdatedAt(System.currentTimeMillis());
+                });
+    }
+
+    @Override
+    public void updateIsVerified(User user, boolean isVerified) {
+        data.stream()
+                .filter(u -> u.getId().equals(user.getId()))
+                .findFirst()
+                .ifPresent(u -> {
+                    u.setVerified(isVerified);
+                    u.setUpdatedAt(System.currentTimeMillis());
+                });
+    }
+
+    @Override
+    public void updateIsDeactivated(User user, boolean isDeactivated) {
+        data.stream()
+                .filter(u -> u.getId().equals(user.getId()))
+                .findFirst()
+                .ifPresent(u -> {
+                    u.setDeactivated(isDeactivated);
+                    u.setUpdatedAt(System.currentTimeMillis());
+                });
+    }
+
+    @Override
+    public void updateIsBanned(User user, boolean isBanned) {
+        data.stream()
+                .filter(u -> u.getId().equals(user.getId()))
+                .findFirst()
+                .ifPresent(u -> {
+                    u.setBanned(isBanned);
+                    u.setUpdatedAt(System.currentTimeMillis());
+                });
+    }
+
+    @Override
+    public void updateServers(User user, List<Server> servers) {
         data.stream()
                 .filter(u -> u.getId().equals(user.getId()))
                 .findFirst()
@@ -188,12 +262,12 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void updateDmRooms(User user, List<List<Message>> dmRooms) {
+    public void updateChatRooms(User user, List<ChatRoom> chatRooms) {
         data.stream()
                 .filter(u -> u.getId().equals(user.getId()))
                 .findFirst()
                 .ifPresent(u -> {
-                    u.setChatRooms(dmRooms);
+                    u.setChatRooms(chatRooms);
                     u.setUpdatedAt(System.currentTimeMillis());
                 });
     }

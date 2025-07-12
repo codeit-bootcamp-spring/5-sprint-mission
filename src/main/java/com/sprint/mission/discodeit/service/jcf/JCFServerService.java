@@ -25,6 +25,12 @@ public class JCFServerService implements ServerService {
     }
 
     @Override
+    // @VisibleForTesting
+    public void reset() {
+        JCFServerService.getInstance().data.clear();
+    }
+
+    @Override
     public boolean createServer(Server server) {
         boolean exists = data.stream()
                 .anyMatch(s -> s.getId().equals(server.getId()));

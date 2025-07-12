@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.entity.Survey;
 import java.util.List;
 import java.util.UUID;
 
-public interface SurveyService {
+public interface SurveyService extends Service {
     boolean createSurvey(Survey survey);
 
     Survey findById(UUID id);

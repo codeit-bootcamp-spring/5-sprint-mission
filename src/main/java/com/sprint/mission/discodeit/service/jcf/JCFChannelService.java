@@ -23,6 +23,12 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
+    // @VisibleForTesting
+    public void reset() {
+        JCFChannelService.getInstance().data.clear();
+    }
+
+    @Override
     public boolean createChannel(Channel channel) {
         boolean exists = data.stream()
                 .anyMatch(c -> c.getId().equals(channel.getId()));

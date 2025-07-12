@@ -21,6 +21,12 @@ public class JCFSurveyService implements SurveyService {
     }
 
     @Override
+    // @VisibleForTesting
+    public void reset() {
+        JCFSurveyService.getInstance().data.clear();
+    }
+
+    @Override
     public boolean createSurvey(Survey survey) {
         boolean exists = data.stream()
                 .anyMatch(s -> s.getId().equals(survey.getId()));

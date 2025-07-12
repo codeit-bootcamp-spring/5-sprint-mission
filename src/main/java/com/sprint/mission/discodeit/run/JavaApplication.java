@@ -8,7 +8,9 @@ import com.sprint.mission.discodeit.service.jcf.*;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class JavaApplication {
     public static void main(String[] args) {
@@ -22,7 +24,7 @@ public class JavaApplication {
     private final JCFServerService serverService = JCFServerService.getInstance();
     private final JCFSurveyService surveyService = JCFSurveyService.getInstance();
     // private User me;
-    private User me = new User("1", "1", "1", "1", LocalDate.of(1995, 4, 10), true); // 테스트용
+    private User me = new User("1", "1", "1", LocalDate.of(1995, 4, 10), true, "1"); // 테스트용
 
     private void mainMenu() {
         System.out.println("========== Discodeit ==========");
@@ -277,7 +279,7 @@ public class JavaApplication {
             }
         }
 
-        User user = new User(email, nickname, username, password, birthDate, isSubscribedToNewsletter);
+        User user = new User(email, username, password, birthDate, isSubscribedToNewsletter, nickname);
         boolean result = userService.registerUser(user);
         if (result) {
             System.out.println("성공적으로 회원가입을 완료하였습니다.\n");
@@ -464,7 +466,7 @@ public class JavaApplication {
 
     private void changeIsSubscribedToNewsletter () {
         System.out.println("\nx. 뒤로가기");
-        System.out.println("현재 이메일 소식 수신 여부: " + me.getIsSubscribedToNewsletter());
+        System.out.println("현재 이메일 소식 수신 여부: " + me.isSubscribedToNewsletter());
 
         boolean isSubscribedToNewsletter;
         while (true) {
@@ -483,8 +485,8 @@ public class JavaApplication {
                 System.out.println("y 또는 n을 입력해주세요.\n");
             }
         }
-        userService.updateIsSubscribedToNewLetter(me, isSubscribedToNewsletter);
-        me.setIsSubscribedToNewsletter(isSubscribedToNewsletter);
+        userService.updateIsSubscribedToNewsletter(me, isSubscribedToNewsletter);
+        me.setSubscribedToNewsletter(isSubscribedToNewsletter);
     }
 
     private void changePhoneNumber () {
