@@ -5,13 +5,11 @@ import com.sprint.mission.discodeit.enums.userEntity.NitroPlan;
 import com.sprint.mission.discodeit.enums.userEntity.Status;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class User {
     private final UUID id;
-    private long createdAt;
+    private final long createdAt;
     private long updatedAt;
     private String email;
     private String nickname;
@@ -21,36 +19,39 @@ public class User {
     private boolean isSubscribedToNewsletter;
     private String phoneNumber;
     private List<User> friends;
-    private Server[] servers;
-    private List<List<Message>> dmRooms;
+    private List<Server> servers;
+    private List<ChatRoom> chatRooms;
     private NitroPlan nitroPlan;
     private List<Item> items;
     private Status status;
+    private String avatarUrl;
+    private String bio;
+    private boolean isVerified;
+    private boolean isDeactivated;
+    private boolean isBanned;
 
-    public User(String email, String nickname, String username, String password, LocalDate birthDate,
-                boolean isSubscribedToNewsletter, String phoneNumber, List<User> friends, Server[] servers,
-                List<List<Message>> dmRooms, NitroPlan nitroPlan, List<Item> items) {
+    public User(String email, String username, String password, LocalDate birthDate, boolean isSubscribedToNewsletter) {
+        this(email, username, password, birthDate, isSubscribedToNewsletter, null);
+    }
+
+    public User(String email, String username, String password, LocalDate birthDate, boolean isSubscribedToNewsletter, String nickname) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = this.createdAt;
+
         this.email = email;
-        this.nickname = nickname;
         this.username = username;
         this.password = password;
         this.birthDate = birthDate;
         this.isSubscribedToNewsletter = isSubscribedToNewsletter;
-        this.phoneNumber = phoneNumber;
-        this.friends = friends;
-        this.servers = servers;
-        this.dmRooms = dmRooms;
-        this.nitroPlan = nitroPlan;
-        this.items = items;
-    }
+        this.nickname = nickname;
 
-    public User(String email, String nickname, String username, String password, LocalDate birthDate,
-                boolean isSubscribedToNewsletter) {
-        this(email, nickname, username, password, birthDate, isSubscribedToNewsletter, "", null,
-                null, null, null, null);
+        this.friends = new ArrayList<>();
+        this.servers = new ArrayList<>();
+        this.chatRooms = new ArrayList<>();
+        this.nitroPlan = NitroPlan.NONE;
+        this.items = new ArrayList<>();
+        this.status = Status.OFFLINE;
     }
 
     public UUID getId() {
@@ -59,10 +60,6 @@ public class User {
 
     public long getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(long createdAt) {
-        this.createdAt = createdAt;
     }
 
     public long getUpdatedAt() {
@@ -81,20 +78,12 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getUsername() {
@@ -105,12 +94,12 @@ public class User {
         this.username = username;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getPassword() {
+        return password;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public LocalDate getBirthDate() {
@@ -121,12 +110,20 @@ public class User {
         this.birthDate = birthDate;
     }
 
-    public boolean getIsSubscribedToNewsletter() {
+    public boolean isSubscribedToNewsletter() {
         return isSubscribedToNewsletter;
     }
 
-    public void setIsSubscribedToNewsletter(boolean subscribedToNewsletter) {
+    public void setSubscribedToNewsletter(boolean subscribedToNewsletter) {
         isSubscribedToNewsletter = subscribedToNewsletter;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public List<User> getFriends() {
@@ -135,6 +132,22 @@ public class User {
 
     public void setFriends(List<User> friends) {
         this.friends = friends;
+    }
+
+    public List<Server> getServers() {
+        return servers;
+    }
+
+    public void setServers(List<Server> servers) {
+        this.servers = servers;
+    }
+
+    public List<ChatRoom> getChatRooms() {
+        return chatRooms;
+    }
+
+    public void setChatRooms(List<ChatRoom> chatRooms) {
+        this.chatRooms = chatRooms;
     }
 
     public NitroPlan getNitroPlan() {
@@ -153,25 +166,74 @@ public class User {
         this.items = items;
     }
 
-    public Server[] getServers() {
-        return servers;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setServers(Server[] servers) {
-        this.servers = servers;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
-    public List<List<Message>> getDmRooms() {
-        return dmRooms;
+    public String getAvatarUrl() {
+        return avatarUrl;
     }
 
-    public void setDmRooms(List<List<Message>> dmRooms) {
-        this.dmRooms = dmRooms;
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public boolean getVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(Boolean verified) {
+        isVerified = verified;
+    }
+
+    public boolean getDeactivated() {
+        return isDeactivated;
+    }
+
+    public void setDeactivated(Boolean deactivated) {
+        isDeactivated = deactivated;
+    }
+
+    public boolean getBanned() {
+        return isBanned;
+    }
+
+    public void setBanned(Boolean banned) {
+        isBanned = banned;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override
     public String toString() {
-        return "User{" + "email='" + email + '\'' +
+        return "User{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", email='" + email + '\'' +
                 ", nickname='" + nickname + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
@@ -179,10 +241,16 @@ public class User {
                 ", isSubscribedToNewsletter=" + isSubscribedToNewsletter +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", friends=" + friends +
-                ", servers=" + Arrays.toString(servers) +
-                ", dmRooms=" + dmRooms +
+                ", servers=" + servers +
+                ", dmRooms=" + chatRooms +
                 ", nitroPlan=" + nitroPlan +
                 ", items=" + items +
+                ", status=" + status +
+                ", avatarUrl='" + avatarUrl + '\'' +
+                ", bio='" + bio + '\'' +
+                ", isVerified=" + isVerified +
+                ", isDeactivated=" + isDeactivated +
+                ", isBanned=" + isBanned +
                 '}';
     }
 }

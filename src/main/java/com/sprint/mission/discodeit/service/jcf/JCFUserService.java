@@ -193,7 +193,7 @@ public class JCFUserService implements UserService {
                 .filter(u -> u.getId().equals(user.getId()))
                 .findFirst()
                 .ifPresent(u -> {
-                    u.setDmRooms(dmRooms);
+                    u.setChatRooms(dmRooms);
                     u.setUpdatedAt(System.currentTimeMillis());
                 });
     }
