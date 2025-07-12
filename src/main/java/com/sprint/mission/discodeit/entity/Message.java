@@ -8,15 +8,13 @@ public class Message {
     private final long createdAt;
     private long updatedAt;
     private String content;
-    private User sender;
-    private User receiver;
+    private String senderId;
 
-    public Message(User sender, User receiver, String content) {
+    public Message(String content, String senderId) {
         id = UUID.randomUUID();
         createdAt = Instant.now().getEpochSecond();
         updatedAt = createdAt;
-        this.sender = sender;
-        this.receiver = receiver;
+        this.senderId = senderId;
         this.content = content;
     }
 
@@ -30,5 +28,31 @@ public class Message {
 
     public long getUpdatedAt() {
         return updatedAt;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getSender() {
+        return senderId;
+    }
+
+    public boolean updateContent(String content) {
+        if (this.content == content) {
+            return false;
+        }
+        this.content = content;
+        updatedAt = Instant.now().getEpochSecond();
+        return true;
+    }
+
+    public boolean updateSender(String senderId) {
+        if (this.senderId == senderId) {
+            return false;
+        }
+        this.senderId = senderId;
+        updatedAt = Instant.now().getEpochSecond();
+        return true;
     }
 }

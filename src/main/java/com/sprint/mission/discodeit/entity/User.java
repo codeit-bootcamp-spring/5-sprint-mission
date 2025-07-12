@@ -56,13 +56,22 @@ public class User {
         return true;
     }
 
-    public void updateChannels(Channel channel) {
+    public boolean addChannel(Channel channel) { // 나중에 User 삭제할때 deleteUser 쓸 것.
+        if (this.channels.contains(channel)) {
+            return false;
+        }
+        this.channels.add(channel);
+        updatedAt = Instant.now().getEpochSecond();
+        return true;
+
+    }
+
+    public boolean deleteChannel(Channel channel) {
         if (this.channels.contains(channel)) {
             this.channels.remove(channel);
             updatedAt = Instant.now().getEpochSecond();
-        } else {
-            channels.add(channel);
-            updatedAt = Instant.now().getEpochSecond();
+            return true;
         }
+        return false;
     }
 }
