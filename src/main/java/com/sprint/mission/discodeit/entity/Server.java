@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.enums.serverEntity.ServerLevel;
 import com.sprint.mission.discodeit.enums.serverEntity.ServerPerk;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,27 +23,14 @@ public class Server {
     public Server(String name, User owner, boolean isPublic, List<User> members, List<Channel> channels, long boost, ServerLevel level, List<ServerPerk> perks) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = this.createdAt;
         this.name = name;
         this.owner = owner;
         this.isPublic = isPublic;
         this.members = members;
         this.channels = channels;
-        this.boost = boost;
-        this.level = level;
-        this.perks = perks;
-    }
-
-    public Server(String name, User owner, boolean isPublic, List<User> members, List<Channel> channels, long boost, ServerLevel level) {
-        this(name, owner, isPublic, members, channels, boost, level, null);
-    }
-
-    public Server(String name, User owner, boolean isPublic, List<User> members, List<Channel> channels, long boost) {
-        this(name, owner, isPublic, members, channels, boost, ServerLevel.ONE, null);
-    }
-
-    public Server(String name, User owner, boolean isPublic, List<User> members, List<Channel> channels) {
-        this(name, owner, isPublic, members, channels, 0, ServerLevel.ONE, null);
+        this.level = ServerLevel.ONE;
+        this.perks = new ArrayList<>();
     }
 
     public UUID getId() {

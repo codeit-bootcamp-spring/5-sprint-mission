@@ -186,7 +186,7 @@ public class User {
         this.bio = bio;
     }
 
-    public boolean getVerified() {
+    public boolean isVerified() {
         return isVerified;
     }
 
@@ -194,7 +194,7 @@ public class User {
         isVerified = verified;
     }
 
-    public boolean getDeactivated() {
+    public boolean isDeactivated() {
         return isDeactivated;
     }
 
@@ -202,7 +202,7 @@ public class User {
         isDeactivated = deactivated;
     }
 
-    public boolean getBanned() {
+    public boolean isBanned() {
         return isBanned;
     }
 
@@ -238,7 +238,7 @@ public class User {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", friends=" + friends +
                 ", servers=" + servers +
-                ", dmRooms=" + chatRooms +
+                ", chatRooms=" + chatRooms +
                 ", nitroPlan=" + nitroPlan +
                 ", items=" + items +
                 ", status=" + status +
