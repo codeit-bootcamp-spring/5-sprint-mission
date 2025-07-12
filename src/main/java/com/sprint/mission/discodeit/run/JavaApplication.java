@@ -1,6 +1,9 @@
 package com.sprint.mission.discodeit.run;
 
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Server;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.enums.ChannelCategory;
 import com.sprint.mission.discodeit.service.jcf.*;
 
 import java.time.DateTimeException;
@@ -62,7 +65,7 @@ public class JavaApplication {
         }
     }
 
-    public void afterLoginMenu() {
+    private void userMenu() {
         whileLoop: while (true) {
             System.out.println("*** 회원 메뉴 ***");
             System.out.println("1. 내 정보 보기");
@@ -76,19 +79,21 @@ public class JavaApplication {
             System.out.println("9. 친구 목록 보기");
             System.out.println("10. 친구 추가");
             System.out.println("11. 친구 삭제");
-            System.out.println("12. 서버 만들기");
-            System.out.println("13. 서버 삭제");
-            System.out.println("14. 서버 참가");
-            System.out.println("15. 서버 나가기");
-            System.out.println("16. 다이렉트 메시지 목록 보기");
-            System.out.println("17. 다이렉트 메시지 보내기");
-            System.out.println("18. 다이렉트 메시지 보기");
-            System.out.println("19. 다이렉트 메시지 수정하기");
-            System.out.println("20. 니트로 플랜 구독하기");
-            System.out.println("21. 아이템 구매하기");
-            System.out.println("22. 계정 삭제하기");
-            System.out.println("23. 로그아웃");
-            System.out.println("24. 뒤로가기");
+            System.out.println("12. 모든 서버 조회");
+            System.out.println("13. 서버 만들기");
+            System.out.println("14. 서버 삭제");
+            System.out.println("15. 서버 참가");
+            System.out.println("16. 서버 나가기");
+            System.out.println("17. 서버 열기");
+            System.out.println("18. 다이렉트 메시지 목록 보기");
+            System.out.println("19. 다이렉트 메시지 보내기");
+            System.out.println("20. 다이렉트 메시지 보기");
+            System.out.println("21. 다이렉트 메시지 수정하기");
+            System.out.println("22. 니트로 플랜 구독하기");
+            System.out.println("23. 아이템 구매하기");
+            System.out.println("24. 계정 삭제하기");
+            System.out.println("25. 로그아웃");
+            System.out.println("99. 뒤로가기");
             System.out.print("메뉴 번호 선택 : ");
 
             try {
@@ -127,7 +132,25 @@ public class JavaApplication {
                     case 11:
                         deleteFriend();
                         continue;
-                    case 24:
+                    case 12:
+                        showServers();
+                        continue;
+                    case 13:
+                        createServer();
+                        continue;
+                    case 14:
+                        deleteServer();
+                        continue;
+                    case 15:
+                        joinServer();
+                        continue;
+                    case 16:
+                        exitServer();
+                        continue;
+                    case 17:
+                        openServer();
+                        continue;
+                    case 99:
                         break whileLoop;
                     default:
                         System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.\n");
@@ -138,6 +161,35 @@ public class JavaApplication {
         }
     }
 
+    private void serverMenu() {
+        while (true) {
+            System.out.println("=====***** 서버 메뉴 *****=====");
+            System.out.println("1. 서버 정보 조회");
+            System.out.println("2. 서버 주인 변경");
+            System.out.println("3. 공개 여부 변경");
+            System.out.println("4. 회원 추방");
+            System.out.println("5. 채널들 조회");
+            System.out.println("6. 채널 생성");
+            System.out.println("7. 채널 수정");
+            System.out.println("8. 채널 삭제");
+            System.out.println("99. 뒤로가기");
+            System.out.print("메뉴 번호 입력: ");
+
+            try {
+                int menuNum = Integer.parseInt(sc.nextLine());
+
+                switch (menuNum) {
+                    case 99:
+                        System.out.println("프로그램 종료.\n");
+                        return;
+                    default:
+                        System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.\n");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("숫자를 입력해주세요.\n");
+            }
+        }
+    }
 
     private void register() {
         String email;
@@ -259,7 +311,7 @@ public class JavaApplication {
             System.out.println("\n" + user.getUsername() + "님, 환영합니다!\n");
             break;
         }
-        afterLoginMenu();
+        userMenu();
     }
 
     private void findUserByEmail() {
@@ -524,5 +576,254 @@ public class JavaApplication {
 
             System.out.println("친구 목록에 존재하지 않는 이메일입니다.\n");
         }
+    }
+
+    private void showServers() {
+        System.out.println("\n" + serverService.findAll());
+    }
+
+    private void createServer() {
+        System.out.println("\nx. 뒤로가기");
+        while (true) {
+            System.out.print("서버 이름: ");
+            String name = sc.nextLine();
+
+            if (name.equals("x")) {
+                return;
+            }
+
+            boolean isPublic;
+            while (true) {
+                System.out.print("공개 여부(y/n): ");
+                String yn = sc.nextLine();
+                yn = yn.toLowerCase();
+                if (yn.equals("x")) {
+                    return;
+                } else if (yn.equals("y")) {
+                    isPublic = true;
+                    break;
+                } else if (yn.equals("n")) {
+                    isPublic = false;
+                    break;
+                } else {
+                    System.out.println("y 또는 n을 입력해주세요.\n");
+                }
+            }
+
+            List<Channel> defaultChannels = List.of(
+                    new Channel("일반", "채팅 채널", ChannelCategory.CHAT, true),
+                    new Channel("일반", "음성 채널", ChannelCategory.VOICE, true)
+            );
+
+            List<User> members = new ArrayList<>();
+            members.add(me);
+
+            Server server = new Server(name, me, isPublic, members, defaultChannels);
+
+            boolean result = serverService.createServer(server);
+            if (result) {
+                System.out.println(server.getName() + " 서버가 생성되었습니다.\n");
+                return;
+            }
+            System.out.println("다시 시도해 주세요.\n");
+        }
+    }
+
+    private void deleteServer() {
+        List<Server> servers = serverService.findAll();
+
+        System.out.println("\nx. 뒤로가기");
+
+        if (servers == null) {
+            System.out.println("서버 없음");
+            return;
+        } else {
+            System.out.println("서버 목록: ");
+            for (int i = 0; i < servers.size(); i++) {
+                System.out.println(i + 1 + ". " + servers.get(i));
+            }
+        }
+
+        while (true) {
+            System.out.print("삭제할 서버 번호: ");
+            String indexStr = sc.nextLine();
+
+            if (indexStr.equals("x")) {
+                return;
+            }
+
+            int index;
+
+            try {
+                index = Integer.parseInt(indexStr);
+            } catch (NumberFormatException e) {
+                System.out.println("숫자를 입력해주세요.\n");
+                continue;
+            }
+
+            if (index < 1 || index > servers.size()) {
+                System.out.println("유효한 서버 번호를 입력해주세요.\n");
+                continue;
+            }
+
+            Server server = servers.get(index - 1);
+
+            if (!server.getOwner().getId().equals(me.getId())) {
+                System.out.println("삭제할 권한이 없습니다.");
+                continue;
+            }
+
+            serverService.deleteById(server.getId());
+            System.out.println(server.getName() + " 서버가 삭제되었습니다.");
+            break;
+        }
+    }
+
+    private void joinServer() {
+        List<Server> servers = serverService.findPublicServers();
+
+        System.out.println("\nx. 뒤로가기");
+
+        if (servers == null) {
+            System.out.println("서버 없음");
+            return;
+        } else {
+            System.out.println("서버 목록: ");
+            for (int i = 0; i < servers.size(); i++) {
+                System.out.println(i + 1 + ". " + servers.get(i));
+            }
+        }
+
+        whileLoop: while (true) {
+            System.out.print("들어갈 서버 번호: ");
+            String indexStr = sc.nextLine();
+
+            if (indexStr.equals("x")) {
+                return;
+            }
+
+            int index;
+
+            try {
+                index = Integer.parseInt(indexStr);
+            } catch (NumberFormatException e) {
+                System.out.println("숫자를 입력해주세요.\n");
+                continue;
+            }
+
+            if (index < 1 || index > servers.size()) {
+                System.out.println("유효한 서버 번호를 입력해주세요.\n");
+                continue;
+            }
+
+            Server server = servers.get(index - 1);
+
+            List<User> members = server.getMembers();
+
+            for (User member : members) {
+                if (member.getId().equals(me.getId())) {
+                    System.out.println("이미 들어간 서버입니다.");
+                    continue whileLoop;
+                }
+            }
+
+            serverService.deleteById(server.getId());
+            System.out.println(server.getName() + " 서버에 입장했습니다.");
+            break;
+        }
+    }
+
+    private void exitServer() {
+        List<Server> servers = serverService.findServersJoined(me);
+
+        System.out.println("\nx. 뒤로가기");
+
+        if (servers == null) {
+            System.out.println("서버 없음");
+            return;
+        } else {
+            System.out.println("서버 목록: ");
+            for (int i = 0; i < servers.size(); i++) {
+                System.out.println(i + 1 + ". " + servers.get(i));
+            }
+        }
+
+        while (true) {
+            System.out.print("나갈 서버 번호: ");
+            String indexStr = sc.nextLine();
+
+            if (indexStr.equals("x")) {
+                return;
+            }
+
+            int index;
+
+            try {
+                index = Integer.parseInt(indexStr);
+            } catch (NumberFormatException e) {
+                System.out.println("숫자를 입력해주세요.\n");
+                continue;
+            }
+
+            if (index < 1 || index > servers.size()) {
+                System.out.println("유효한 서버 번호를 입력해주세요.\n");
+                continue;
+            }
+
+            Server server = servers.get(index - 1);
+
+            List<User> members = server.getMembers();
+
+            members.remove(me);
+
+            serverService.updateMembers(server, members);
+            System.out.println(server.getName() + " 서버에서 퇴장했습니다.\n");
+            break;
+        }
+    }
+
+    private void openServer() {
+        List<Server> servers = serverService.findServersJoined(me);
+
+        System.out.println("\nx. 뒤로가기");
+
+        if (servers == null) {
+            System.out.println("서버 없음");
+            return;
+        } else {
+            System.out.println("서버 목록: ");
+            for (int i = 0; i < servers.size(); i++) {
+                System.out.println(i + 1 + ". " + servers.get(i));
+            }
+        }
+
+        while (true) {
+            System.out.print("열 서버 번호: ");
+            String indexStr = sc.nextLine();
+
+            if (indexStr.equals("x")) {
+                return;
+            }
+
+            int index;
+
+            try {
+                index = Integer.parseInt(indexStr);
+            } catch (NumberFormatException e) {
+                System.out.println("숫자를 입력해주세요.\n");
+                continue;
+            }
+
+            if (index < 1 || index > servers.size()) {
+                System.out.println("유효한 서버 번호를 입력해주세요.\n");
+                continue;
+            }
+
+            Server server = servers.get(index - 1);
+            System.out.println(server.getName() + " 서버를 열었습니다.\n");
+            break;
+        }
+
+        serverMenu();
     }
 }

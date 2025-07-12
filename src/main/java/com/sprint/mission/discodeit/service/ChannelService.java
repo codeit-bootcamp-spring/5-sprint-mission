@@ -16,6 +16,8 @@ public interface ChannelService {
 
     void updateName(Channel channel, String name);
 
+    void updateGroupName(Channel channel, String groupName);
+
     void updateChannelCategory(Channel channel, ChannelCategory category);
 
     void updateIsPublic(Channel channel, boolean isPublic);

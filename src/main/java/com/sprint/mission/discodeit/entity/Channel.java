@@ -10,22 +10,24 @@ public class Channel {
     private long createdAt;
     private long updatedAt;
     private String name;
+    private String groupName;
     private ChannelCategory category;
     private boolean isPublic;
     private List<User> allowedUsers;
 
-    public Channel(String name, ChannelCategory category, boolean isPublic, List<User> allowedUsers) {
+    public Channel(String name, String groupName, ChannelCategory category, boolean isPublic, List<User> allowedUsers) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
         this.name = name;
+        this.groupName = groupName;
         this.category = category;
         this.isPublic = isPublic;
         this.allowedUsers = allowedUsers;
     }
 
-    public Channel(String name, ChannelCategory category, boolean isPublic) {
-        this(name, category, isPublic, null);
+    public Channel(String name, String groupName, ChannelCategory category, boolean isPublic) {
+        this(name, groupName, category, isPublic, null);
     }
 
     public UUID getId() {
@@ -54,6 +56,14 @@ public class Channel {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     public ChannelCategory getCategory() {

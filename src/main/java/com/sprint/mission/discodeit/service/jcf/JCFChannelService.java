@@ -59,6 +59,17 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
+    public void updateGroupName(Channel channel, String groupName) {
+        data.stream()
+                .filter(c -> c.getId().equals(channel.getId()))
+                .findFirst()
+                .ifPresent(c -> {
+                    c.setGroupName(groupName);
+                    c.setUpdatedAt(System.currentTimeMillis());
+                });
+    }
+
+    @Override
     public void updateChannelCategory(Channel channel, ChannelCategory category) {
         data.stream()
                 .filter(c -> c.getId().equals(channel.getId()))

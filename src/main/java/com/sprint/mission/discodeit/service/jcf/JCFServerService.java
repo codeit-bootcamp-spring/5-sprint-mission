@@ -50,6 +50,49 @@ public class JCFServerService implements ServerService {
     }
 
     @Override
+    public List<Server> findPublicServers() {
+        return data.stream()
+                .filter(Server::isPublic)
+                .toList();
+    }
+
+    @Override
+    public List<Server> findServersOwnedByUser(User user) {
+        return data.stream()
+                .filter(s -> s.getOwner().getId().equals(user.getId()))
+                .toList();
+    }
+
+    @Override
+    public List<Server> findServersJoined(User user) {
+        return data.stream()
+                .filter(s -> s.getMembers().contains(user))
+                .toList();
+    }
+
+    @Override
+    public void updateName(Server server, String name) {
+        data.stream()
+                .filter(s -> s.getId().equals(server.getId()))
+                .findFirst()
+                .ifPresent(s -> {
+                    s.setName(name);
+                    s.setUpdatedAt(System.currentTimeMillis());
+                });
+    }
+
+    @Override
+    public void updateIsPublic(Server server, Boolean isPublic) {
+        data.stream()
+                .filter(s -> s.getId().equals(server.getId()))
+                .findFirst()
+                .ifPresent(s -> {
+                    s.setPublic(isPublic);
+                    s.setUpdatedAt(System.currentTimeMillis());
+                });
+    }
+
+    @Override
     public void updateChannels(Server server, List<Channel> channels) {
         data.stream()
                 .filter(s -> s.getId().equals(server.getId()))
@@ -67,6 +110,17 @@ public class JCFServerService implements ServerService {
                 .findFirst()
                 .ifPresent(s -> {
                     s.setOwner(owner);
+                    s.setUpdatedAt(System.currentTimeMillis());
+                });
+    }
+
+    @Override
+    public void updateMembers(Server server, List<User> members) {
+        data.stream()
+                .filter(s -> s.getId().equals(server.getId()))
+                .findFirst()
+                .ifPresent(s -> {
+                    s.setMembers(members);
                     s.setUpdatedAt(System.currentTimeMillis());
                 });
     }
