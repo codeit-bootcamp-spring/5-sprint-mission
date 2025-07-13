@@ -99,3 +99,4 @@ class Message extends user {
         updateTimestamp();
     }
 }
+
