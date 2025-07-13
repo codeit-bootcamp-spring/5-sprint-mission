@@ -49,6 +49,8 @@ public class User {
     public String toString() {
         final StringBuilder sb = new StringBuilder("User{");
         sb.append("id=").append(id);
+        sb.append(", createAt=").append(createAt);
+        sb.append(", updateAt=").append(updateAt);
         sb.append('}');
         return sb.toString();
     }
