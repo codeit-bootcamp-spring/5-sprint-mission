@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public class Survey {
     private final UUID id;
-    private long createdAt;
+    private final long createdAt;
     private long updatedAt;
     private String question;
     private List<String> answers;
@@ -15,7 +15,7 @@ public class Survey {
     public Survey(String question, List<String> answers, long duration, boolean isDuplicateResponseAllowed) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = this.createdAt;
         this.question = question;
         this.answers = answers;
         this.duration = duration;
@@ -28,10 +28,6 @@ public class Survey {
 
     public long getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(long createdAt) {
-        this.createdAt = createdAt;
     }
 
     public long getUpdatedAt() {

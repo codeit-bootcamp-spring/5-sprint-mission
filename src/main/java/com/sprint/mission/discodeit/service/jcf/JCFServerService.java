@@ -2,32 +2,24 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Server;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.serverEntity.ServerLevel;
 import com.sprint.mission.discodeit.enums.serverEntity.ServerPerk;
 import com.sprint.mission.discodeit.service.ServerService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
-public class JCFServerService implements ServerService {
+public class JCFServerService extends JCFService<Server> implements ServerService {
     private static final JCFServerService instance = new JCFServerService();
-
-    private final List<Server> data;
-
-    private JCFServerService() {
-        data = new ArrayList<Server>();
-    }
 
     public static JCFServerService getInstance() {
         return instance;
     }
 
     @Override
-    // @VisibleForTesting
-    public void reset() {
-        JCFServerService.getInstance().data.clear();
+    protected boolean idEquals(Server server, UUID id) {
+        return server.getId().equals(id);
     }
 
     @Override
@@ -43,19 +35,6 @@ public class JCFServerService implements ServerService {
     }
 
     @Override
-    public Server findById(UUID id) {
-        return data.stream()
-                .filter(s -> s.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public List<Server> findAll() {
-        return data;
-    }
-
-    @Override
     public List<Server> findPublicServers() {
         return data.stream()
                 .filter(Server::isPublic)
@@ -63,112 +42,95 @@ public class JCFServerService implements ServerService {
     }
 
     @Override
-    public List<Server> findServersOwnedByUser(User user) {
+    public List<Server> findServersOwnedByUser(UUID userId) {
         return data.stream()
-                .filter(s -> s.getOwner().getId().equals(user.getId()))
+                .filter(s -> s.getOwnerId().equals(userId))
                 .toList();
     }
 
     @Override
-    public List<Server> findServersJoined(User user) {
+    public List<Server> findServersJoined(UUID userId) {
         return data.stream()
-                .filter(s -> s.getMembers().contains(user))
+                .filter(s -> s.getMembers().contains(userId))
                 .toList();
     }
 
     @Override
-    public void updateName(Server server, String name) {
-        data.stream()
-                .filter(s -> s.getId().equals(server.getId()))
-                .findFirst()
-                .ifPresent(s -> {
-                    s.setName(name);
-                    s.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void update(UUID serverId, Consumer<Server> updater) {
+        Server s = findById(serverId);
+        if (s != null) {
+            updater.accept(s);
+            s.setUpdatedAt(System.currentTimeMillis());
+        }
     }
 
     @Override
-    public void updateIsPublic(Server server, boolean isPublic) {
-        data.stream()
-                .filter(s -> s.getId().equals(server.getId()))
-                .findFirst()
-                .ifPresent(s -> {
-                    s.setPublic(isPublic);
-                    s.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void updateName(UUID serverId, String name) {
+        update(serverId, s -> s.setName(name));
     }
 
     @Override
-    public void updateChannels(Server server, List<Channel> channels) {
-        data.stream()
-                .filter(s -> s.getId().equals(server.getId()))
-                .findFirst()
-                .ifPresent(s -> {
-                    s.setChannels(channels);
-                    s.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void addChannel(UUID serverId, Channel channel) {
+        update(serverId, s -> s.addChannel(channel));
     }
 
     @Override
-    public void updateOwner(Server server, User owner) {
-        data.stream()
-                .filter(s -> s.getId().equals(server.getId()))
-                .findFirst()
-                .ifPresent(s -> {
-                    s.setOwner(owner);
-                    s.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void removeChannel(UUID serverId, Channel channel) {
+        update(serverId, s -> s.removeChannel(channel));
     }
 
     @Override
-    public void updateMembers(Server server, List<User> members) {
-        data.stream()
-                .filter(s -> s.getId().equals(server.getId()))
-                .findFirst()
-                .ifPresent(s -> {
-                    s.setMembers(members);
-                    s.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void clearChannels(UUID serverId) {
+        update(serverId, Server::clearChannels);
     }
 
     @Override
-    public void updateBoost(Server server, long boost) {
-        data.stream()
-                .filter(s -> s.getId().equals(server.getId()))
-                .findFirst()
-                .ifPresent(s -> {
-                    s.setBoost(boost);
-                    s.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void addMember(UUID serverId, UUID memberId) {
+        update(serverId, s -> s.addMember(memberId));
     }
 
     @Override
-    public void updateServerLevel(Server server, ServerLevel level) {
-        data.stream()
-                .filter(s -> s.getId().equals(server.getId()))
-                .findFirst()
-                .ifPresent(s -> {
-                    s.setLevel(level);
-                    s.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void removeMember(UUID serverId, UUID memberId) {
+        update(serverId, s -> s.removeMember(memberId));
     }
 
     @Override
-    public void updatePerks(Server server, List<ServerPerk> perks) {
-        data.stream()
-                .filter(s -> s.getId().equals(server.getId()))
-                .findFirst()
-                .ifPresent(s -> {
-                    s.setPerks(perks);
-                    s.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void clearMembers(UUID serverId) {
+        update(serverId, Server::clearMembers);
     }
 
     @Override
-    public void deleteById(UUID id) {
-        data.stream()
-                .filter(s -> s.getId().equals(id))
-                .findFirst()
-                .ifPresent(data::remove);
+    public void addPerk(UUID serverId, ServerPerk perk) {
+        update(serverId, s -> s.addPerk(perk));
+    }
+
+    @Override
+    public void removePerk(UUID serverId, ServerPerk perk) {
+        update(serverId, s -> s.removePerk(perk));
+    }
+
+    @Override
+    public void clearPerks(UUID serverId) {
+        update(serverId, Server::clearPerks);
+    }
+
+    @Override
+    public void updatePublic(UUID serverId, boolean isPublic) {
+        update(serverId, s -> s.setPublic(isPublic));
+    }
+
+    @Override
+    public void updateOwnerId(UUID serverId, UUID ownerId) {
+        update(serverId, s -> s.setOwnerId(ownerId));
+    }
+
+    @Override
+    public void updateBoost(UUID serverId, long boost) {
+        update(serverId, s -> s.setBoost(boost));
+    }
+
+    @Override
+    public void updateServerLevel(UUID serverId, ServerLevel level) {
+        update(serverId, s -> s.setLevel(level));
     }
 }

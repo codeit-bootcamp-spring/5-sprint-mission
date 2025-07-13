@@ -3,34 +3,32 @@ package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.enums.serverEntity.ServerLevel;
 import com.sprint.mission.discodeit.enums.serverEntity.ServerPerk;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Server {
     private final UUID id;
-    private long createdAt;
+    private final long createdAt;
     private long updatedAt;
     private String name;
-    private List<Channel> channels;
-    private List<User> members;
-    private User owner;
+    private final List<Channel> channels;
+    private final Set<UUID> members;
+    private UUID ownerId;
     private boolean isPublic;
     private long boost;
     private ServerLevel level;
-    private List<ServerPerk> perks;
+    private final Set<ServerPerk> perks;
 
-    public Server(String name, User owner, boolean isPublic, List<User> members, List<Channel> channels, long boost, ServerLevel level, List<ServerPerk> perks) {
+    public Server(String name, UUID ownerId, boolean isPublic, Set<UUID> membersId, List<Channel> channels) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = this.createdAt;
         this.name = name;
-        this.owner = owner;
+        this.ownerId = ownerId;
         this.isPublic = isPublic;
-        this.members = members;
-        this.channels = channels;
+        this.members = new HashSet<>(membersId);
+        this.channels = new ArrayList<>(channels);
         this.level = ServerLevel.ONE;
-        this.perks = new ArrayList<>();
+        this.perks = new HashSet<>();
     }
 
     public UUID getId() {
@@ -39,10 +37,6 @@ public class Server {
 
     public long getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(long createdAt) {
-        this.createdAt = createdAt;
     }
 
     public long getUpdatedAt() {
@@ -65,32 +59,48 @@ public class Server {
         return isPublic;
     }
 
-    public void setPublic(boolean aPublic) {
-        isPublic = aPublic;
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public List<Channel> getChannels() {
-        return channels;
+        return Collections.unmodifiableList(channels);
     }
 
-    public void setChannels(List<Channel> channels) {
-        this.channels = channels;
+    public void addChannel(Channel channel) {
+        channels.add(channel);
     }
 
-    public List<User> getMembers() {
-        return members;
+    public void removeChannel(Channel channel) {
+        channels.remove(channel);
     }
 
-    public void setMembers(List<User> members) {
-        this.members = members;
+    public void clearChannels() {
+        channels.clear();
     }
 
-    public User getOwner() {
-        return owner;
+    public Set<UUID> getMembers() {
+        return Collections.unmodifiableSet(members);
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void addMember(UUID memberId) {
+        members.add(memberId);
+    }
+
+    public void removeMember(UUID memberId) {
+        members.remove(memberId);
+    }
+
+    public void clearMembers() {
+        members.clear();
+    }
+
+    public UUID getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(UUID ownerId) {
+        this.ownerId = ownerId;
     }
 
     public long getBoost() {
@@ -109,19 +119,33 @@ public class Server {
         this.level = level;
     }
 
-    public List<ServerPerk> getPerks() {
-        return perks;
+    public Set<ServerPerk> getPerks() {
+        return Collections.unmodifiableSet(perks);
     }
 
-    public void setPerks(List<ServerPerk> perks) {
-        this.perks = perks;
+    public void addPerk(ServerPerk perk) {
+        perks.add(perk);
+    }
+
+    public void removePerk(ServerPerk perk) {
+        perks.remove(perk);
+    }
+
+    public void clearPerks() {
+        perks.clear();
     }
 
     @Override
     public String toString() {
-        return "Server{" + "name='" + name + '\'' +
-                ", owner=" + owner.getUsername() +
+        return "Server{" +
+                "name='" + name + '\'' +
+                ", channels=" + channels +
+                ", members=" + members +
+                ", ownerId=" + ownerId +
                 ", isPublic=" + isPublic +
+                ", level=" + level +
+                ", perks=" + perks +
+                ", boost=" + boost +
                 '}';
     }
 }

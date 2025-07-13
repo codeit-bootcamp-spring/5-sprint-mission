@@ -1,29 +1,24 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.channelEntity.ChannelCategory;
 
-import java.util.List;
 import java.util.UUID;
 
-public interface ChannelService extends Service {
+public interface ChannelService extends Service<Channel> {
     boolean createChannel(Channel channel);
 
-    Channel findById(UUID id);
+    void updateName(UUID channelId, String name);
 
-    List<Channel> findAll();
+    void updateGroupName(UUID channelId, String groupName);
 
-    void updateName(Channel channel, String name);
+    void updateChannelCategory(UUID channelId, ChannelCategory category);
 
-    void updateGroupName(Channel channel, String groupName);
+    void updatePublic(UUID channelId, boolean isPublic);
 
-    void updateChannelCategory(Channel channel, ChannelCategory category);
+    void addJoinedUser(UUID channelId, UUID userId);
 
-    void updateIsPublic(Channel channel, boolean isPublic);
+    void removeJoinedUser(UUID channelId, UUID userId);
 
-    void updateAllowedUsers(Channel channel, List<User> allowedUsers);
-
-    void deleteById(UUID id);
-
+    void clearJoinedUsers(UUID channelId);
 }

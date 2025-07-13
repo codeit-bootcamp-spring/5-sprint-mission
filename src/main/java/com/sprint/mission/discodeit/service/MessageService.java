@@ -7,20 +7,18 @@ import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
-public interface MessageService extends Service {
+public interface MessageService extends Service<Message> {
     boolean createMessage(Message message);
 
-    Message findById(UUID id);
+    void updateContent(UUID messageId, String content);
 
-    List<Message> findAll();
+    void updateFiles(UUID messageId, List<File> files);
 
-    void updateContent(Message message, String content);
+    void updateSurvey(UUID messageId, Survey survey);
 
-    void updateFiles(Message message, List<File> files);
+    void addReply(UUID messageId, UUID replyId);
 
-    void updateSurvey(Message message, Survey survey);
+    void removeReply(UUID messageId, UUID replyId);
 
-    void updateReplies(Message message, List<Message> replies);
-
-    void deleteById(UUID id);
+    void clearReplies(UUID messageId);
 }

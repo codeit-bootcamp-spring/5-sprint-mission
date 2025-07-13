@@ -8,9 +8,7 @@ import com.sprint.mission.discodeit.service.jcf.*;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class JavaApplication {
     public static void main(String[] args) {
@@ -197,7 +195,8 @@ public class JavaApplication {
         String email;
         String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
-        whileLoop: while (true) {
+        whileLoop:
+        while (true) {
             System.out.print("이메일 : ");
             email = sc.nextLine();
             List<User> users = userService.findAll();
@@ -346,7 +345,8 @@ public class JavaApplication {
         System.out.println("\nx. 뒤로가기");
         System.out.println("현재 이메일: " + me.getEmail());
 
-        whileLoop: while (true) {
+        whileLoop:
+        while (true) {
             System.out.print("변경할 이메일: ");
             email = sc.nextLine().strip();
             if (email.equals("x")) {
@@ -366,13 +366,13 @@ public class JavaApplication {
                 System.out.println("잘못된 형식입니다. 다시 입력해주세요.\n");
                 continue;
             }
-            userService.updateEmail(me, email);
+            userService.updateEmail(me.getId(), email);
             me.setEmail(email);
             break;
         }
     }
 
-    private void changeNickname () {
+    private void changeNickname() {
         System.out.println("\nx. 뒤로가기");
         System.out.println("현재 별명: " + me.getNickname());
         System.out.print("변경할 별명: ");
@@ -380,11 +380,11 @@ public class JavaApplication {
         if (nickname.equals("x")) {
             return;
         }
-        userService.updateNickname(me, nickname);
+        userService.updateNickname(me.getId(), nickname);
         me.setNickname(nickname);
     }
 
-    private void changeUsername () {
+    private void changeUsername() {
         System.out.println("\nx. 뒤로가기");
         System.out.println("현재 사용자명: " + me.getUsername());
         System.out.print("변경할 사용자명: ");
@@ -392,11 +392,11 @@ public class JavaApplication {
         if (username.equals("x")) {
             return;
         }
-        userService.updateUsername(me, username);
+        userService.updateUsername(me.getId(), username);
         me.setUsername(username);
     }
 
-    private void changePassword () {
+    private void changePassword() {
         String password;
         String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()_+]{8,}$";
 
@@ -418,13 +418,13 @@ public class JavaApplication {
                 System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.\n");
                 continue;
             }
-            userService.updatePassword(me, password);
+            userService.updatePassword(me.getId(), password);
             me.setPassword(password);
             break;
         }
     }
 
-    private void changeBirthDate () {
+    private void changeBirthDate() {
         System.out.println("\nx. 뒤로가기");
         System.out.println("현재 생년월일: " + me.getBirthDate());
         LocalDate birthDate;
@@ -460,11 +460,11 @@ public class JavaApplication {
                 System.out.println("유효하지 않은 날짜입니다. 다시 입력해주세요.\n");
             }
         }
-        userService.updateBirthDate(me, birthDate);
+        userService.updateBirthDate(me.getId(), birthDate);
         me.setBirthDate(birthDate);
     }
 
-    private void changeIsSubscribedToNewsletter () {
+    private void changeIsSubscribedToNewsletter() {
         System.out.println("\nx. 뒤로가기");
         System.out.println("현재 이메일 소식 수신 여부: " + me.isSubscribedToNewsletter());
 
@@ -485,11 +485,11 @@ public class JavaApplication {
                 System.out.println("y 또는 n을 입력해주세요.\n");
             }
         }
-        userService.updateIsSubscribedToNewsletter(me, isSubscribedToNewsletter);
+        userService.updateSubscribedToNewsletter(me.getId(), isSubscribedToNewsletter);
         me.setSubscribedToNewsletter(isSubscribedToNewsletter);
     }
 
-    private void changePhoneNumber () {
+    private void changePhoneNumber() {
         System.out.println("\nx. 뒤로가기");
         System.out.println("현재 휴대폰 번호: " + me.getPhoneNumber());
         System.out.print("변경할 휴대폰 번호 : ");
@@ -497,16 +497,22 @@ public class JavaApplication {
         if (phoneNumber.equals("x")) {
             return;
         }
-        userService.updatePhoneNumber(me, phoneNumber);
+        userService.updatePhoneNumber(me.getId(), phoneNumber);
         me.setPhoneNumber(phoneNumber);
     }
 
     private void showFriends() {
-        List<User> friends = me.getFriends();
+        Set<UUID> friends = me.getFriends();
         if (friends == null) {
-            System.out.println("친구 없음");
+            System.out.println("\n친구 없음");
         } else {
-            System.out.println("\n" + friends);
+            System.out.println();
+            System.out.print("[");
+            friends.forEach(f -> {
+                userService.findById(f);
+                System.out.print(f + ", ");
+            });
+            System.out.println("]");
         }
     }
 
@@ -514,7 +520,7 @@ public class JavaApplication {
         System.out.println("\nx. 뒤로가기");
         while (true) {
             System.out.print("추가할 친구의 이메일: ");
-            String email = sc.nextLine();
+            String email = sc.nextLine().strip();
 
             if (email.equals("x")) {
                 return;
@@ -522,34 +528,30 @@ public class JavaApplication {
 
             User friend = userService.findByEmail(email);
 
-            if (friend == me) {
-                System.out.println("뭐야 나잖아");
-                continue;
-            }
-
             if (friend == null) {
                 System.out.println("존재하지 않는 이메일입니다.");
                 continue;
             }
 
-            List<User> friends = me.getFriends();
-
-            if (friends == null) {
-                friends = new ArrayList<>();
+            if (me.equals(friend)) {
+                System.out.println("뭐야 나잖아");
+                continue;
             }
 
-            friends.add(friend);
-            userService.updateFriends(me, friends);
-            me.setFriends(friends);
+            UUID friendId = friend.getId();
+
+            userService.addFriend(me.getId(), friendId);
+            me.addFriend(friendId);
             break;
         }
     }
 
     private void deleteFriend() {
-        List<User> friends = me.getFriends();
+        Set<UUID> friendsId = me.getFriends();
 
-        if (friends == null) {
+        if (friendsId.isEmpty()) {
             System.out.println("친구 없음");
+            return;
         } else {
             System.out.println("친구 목록: " + me.getFriends());
         }
@@ -563,15 +565,10 @@ public class JavaApplication {
                 return;
             }
 
-            if (friends == null) {
-                friends = new ArrayList<>();
-            }
-
-            for (User friend : friends) {
-                if (friend.getEmail().equals(email)) {
-                    friends.remove(friend);
-                    userService.updateFriends(me, friends);
-                    me.setFriends(friends);
+            for (UUID friendId : friendsId) {
+                if (userService.findById(friendId).getEmail().equals(email)) {
+                    userService.removeFriend(me.getId(), friendId);
+                    me.removeFriend(friendId);
                     return;
                 }
             }
@@ -617,10 +614,10 @@ public class JavaApplication {
                     new Channel("일반", "음성 채널", ChannelCategory.VOICE, true)
             );
 
-            List<User> members = new ArrayList<>();
-            members.add(me);
+            Set<UUID> members = new HashSet<>();
+            members.add(me.getId());
 
-            Server server = new Server(name, me, isPublic, members, defaultChannels);
+            Server server = new Server(name, me.getId(), isPublic, members, defaultChannels);
 
             boolean result = serverService.createServer(server);
             if (result) {
@@ -670,7 +667,7 @@ public class JavaApplication {
 
             Server server = servers.get(index - 1);
 
-            if (!server.getOwner().getId().equals(me.getId())) {
+            if (!server.getOwnerId().equals(me.getId())) {
                 System.out.println("삭제할 권한이 없습니다.");
                 continue;
             }
@@ -696,7 +693,8 @@ public class JavaApplication {
             }
         }
 
-        whileLoop: while (true) {
+        whileLoop:
+        while (true) {
             System.out.print("들어갈 서버 번호: ");
             String indexStr = sc.nextLine();
 
@@ -720,10 +718,10 @@ public class JavaApplication {
 
             Server server = servers.get(index - 1);
 
-            List<User> members = server.getMembers();
+            Set<UUID> members = server.getMembers();
 
-            for (User member : members) {
-                if (member.getId().equals(me.getId())) {
+            for (UUID memberId : members) {
+                if (memberId.equals(me.getId())) {
                     System.out.println("이미 들어간 서버입니다.");
                     continue whileLoop;
                 }
@@ -736,7 +734,7 @@ public class JavaApplication {
     }
 
     private void exitServer() {
-        List<Server> servers = serverService.findServersJoined(me);
+        List<Server> servers = serverService.findServersJoined(me.getId());
 
         System.out.println("\nx. 뒤로가기");
 
@@ -774,18 +772,15 @@ public class JavaApplication {
 
             Server server = servers.get(index - 1);
 
-            List<User> members = server.getMembers();
+            serverService.removeMember(server.getId(), me.getId());
 
-            members.remove(me);
-
-            serverService.updateMembers(server, members);
             System.out.println(server.getName() + " 서버에서 퇴장했습니다.\n");
             break;
         }
     }
 
     private void openServer() {
-        List<Server> servers = serverService.findServersJoined(me);
+        List<Server> servers = serverService.findServersJoined(me.getId());
 
         System.out.println("\nx. 뒤로가기");
 

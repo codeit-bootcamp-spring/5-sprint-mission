@@ -1,42 +1,31 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class Message {
     private final UUID id;
-    private long createdAt;
+    private final long createdAt;
     private long updatedAt;
     private final User sender;
     private final User receiver;
     private String content;
     private List<File> files;
     private Survey survey;
-    private List<Message> replies;
+    private final List<UUID> replies;
 
-    public Message(User sender, User receiver, String content, List<File> files, Survey survey, List<Message> replies) {
+    public Message(User sender, User receiver, String content, List<File> files, Survey survey) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = this.createdAt;
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
         this.files = files;
         this.survey = survey;
-        this.replies = replies;
-    }
-
-    public Message(User sender, User receiver, String content, List<File> files, Survey survey) {
-        this(sender, receiver, content, files, survey, null);
-    }
-
-    public Message(User sender, User receiver, String content, List<File> files) {
-        this(sender, receiver, content, files, null, null);
-    }
-
-    public Message(User sender, User receiver, String content) {
-        this(sender, receiver, content, null, null, null);
+        this.replies = new ArrayList<>();
     }
 
     public UUID getId() {
@@ -45,10 +34,6 @@ public class Message {
 
     public long getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(long createdAt) {
-        this.createdAt = createdAt;
     }
 
     public long getUpdatedAt() {
@@ -91,11 +76,19 @@ public class Message {
         this.survey = survey;
     }
 
-    public List<Message> getReplies() {
+    public List<UUID> getReplies() {
         return replies;
     }
 
-    public void setReplies(List<Message> replies) {
-        this.replies = replies;
+    public void addReply(UUID replyId) {
+        replies.add(replyId);
+    }
+
+    public void removeReply(UUID replyId) {
+        replies.remove(replyId);
+    }
+
+    public void clearReplies() {
+        replies.clear();
     }
 }

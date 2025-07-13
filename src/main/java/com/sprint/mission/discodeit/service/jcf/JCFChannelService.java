@@ -1,31 +1,21 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.channelEntity.ChannelCategory;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
-public class JCFChannelService implements ChannelService {
+public class JCFChannelService extends JCFService<Channel> implements ChannelService {
     private static final JCFChannelService instance = new JCFChannelService();
-
-    private final List<Channel> data;
-
-    private JCFChannelService() {
-        data = new ArrayList<Channel>();
-    }
 
     public static JCFChannelService getInstance() {
         return instance;
     }
 
-    @Override
-    // @VisibleForTesting
-    public void reset() {
-        JCFChannelService.getInstance().data.clear();
+    protected boolean idEquals(Channel channel, UUID id) {
+        return channel.getId().equals(id);
     }
 
     @Override
@@ -41,78 +31,46 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel findById(UUID id) {
-        return data.stream()
-                .filter(c -> c.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+    public void update(UUID channelId, Consumer<Channel> updater) {
+        Channel c = findById(channelId);
+        if (c != null) {
+            updater.accept(c);
+            c.setUpdatedAt(System.currentTimeMillis());
+        }
     }
 
     @Override
-    public List<Channel> findAll() {
-        return data;
+    public void updateName(UUID channelId, String name) {
+        update(channelId, c -> c.setName(name));
     }
 
     @Override
-    public void updateName(Channel channel, String name) {
-        data.stream()
-                .filter(c -> c.getId().equals(channel.getId()))
-                .findFirst()
-                .ifPresent(c -> {
-                    c.setName(name);
-                    c.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void updateGroupName(UUID channelId, String groupName) {
+        update(channelId, c -> c.setGroupName(groupName));
     }
 
     @Override
-    public void updateGroupName(Channel channel, String groupName) {
-        data.stream()
-                .filter(c -> c.getId().equals(channel.getId()))
-                .findFirst()
-                .ifPresent(c -> {
-                    c.setGroupName(groupName);
-                    c.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void updateChannelCategory(UUID channelId, ChannelCategory category) {
+        update(channelId, c -> c.setCategory(category));
     }
 
     @Override
-    public void updateChannelCategory(Channel channel, ChannelCategory category) {
-        data.stream()
-                .filter(c -> c.getId().equals(channel.getId()))
-                .findFirst()
-                .ifPresent(c -> {
-                    c.setCategory(category);
-                    c.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void updatePublic(UUID channelId, boolean isPublic) {
+        update(channelId, c -> c.setPublic(isPublic));
     }
 
     @Override
-    public void updateIsPublic(Channel channel, boolean isPublic) {
-        data.stream()
-                .filter(c -> c.getId().equals(channel.getId()))
-                .findFirst()
-                .ifPresent(c -> {
-                    c.setPublic(isPublic);
-                    c.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void addJoinedUser(UUID channelId, UUID userId) {
+        update(channelId, c -> c.addJoinedUser(userId));
     }
 
     @Override
-    public void updateAllowedUsers(Channel channel, List<User> allowedUsers) {
-        data.stream()
-                .filter(c -> c.getId().equals(channel.getId()))
-                .findFirst()
-                .ifPresent(c -> {
-                    c.setAllowedUsers(allowedUsers);
-                    c.setUpdatedAt(System.currentTimeMillis());
-                });
+    public void removeJoinedUser(UUID channelId, UUID userId) {
+        update(channelId, c -> c.removeJoinedUser(userId));
     }
 
     @Override
-    public void deleteById(UUID id) {
-        data.stream()
-                .filter(c -> c.getId().equals(id))
-                .findFirst()
-                .ifPresent(data::remove);
+    public void clearJoinedUsers(UUID channelId) {
+        update(channelId, Channel::clearJoinedUsers);
     }
 }

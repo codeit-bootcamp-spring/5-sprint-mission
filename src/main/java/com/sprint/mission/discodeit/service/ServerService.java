@@ -2,41 +2,46 @@ package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Server;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.serverEntity.ServerLevel;
 import com.sprint.mission.discodeit.enums.serverEntity.ServerPerk;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface ServerService extends Service {
+public interface ServerService extends Service<Server> {
     boolean createServer(Server server);
-
-    Server findById(UUID id);
-
-    List<Server> findAll();
 
     List<Server> findPublicServers();
 
-    List<Server> findServersOwnedByUser(User user);
+    List<Server> findServersOwnedByUser(UUID userId);
 
-    List<Server> findServersJoined(User user);
+    List<Server> findServersJoined(UUID userId);
 
-    void updateName(Server server, String name);
+    void updateName(UUID serverId, String name);
 
-    void updateIsPublic(Server server, boolean isPublic);
+    void addChannel(UUID serverId, Channel channel);
 
-    void updateChannels(Server server, List<Channel> channels);
+    void removeChannel(UUID serverId, Channel channel);
 
-    void updateOwner(Server server, User owner);
+    void clearChannels(UUID serverId);
 
-    void updateMembers(Server server, List<User> members);
+    void addMember(UUID serverId, UUID memberId);
 
-    void updateBoost(Server server, long boost);
+    void removeMember(UUID serverId, UUID memberId);
 
-    void updateServerLevel(Server server, ServerLevel level);
+    void clearMembers(UUID serverId);
 
-    void updatePerks(Server server, List<ServerPerk> perks);
+    void updateOwnerId(UUID serverId, UUID ownerId);
 
-    void deleteById(UUID id);
+    void updatePublic(UUID serverId, boolean isPublic);
+
+    void updateBoost(UUID serverId, long boost);
+
+    void updateServerLevel(UUID serverId, ServerLevel level);
+
+    void addPerk(UUID serverId, ServerPerk perk);
+
+    void removePerk(UUID serverId, ServerPerk perk);
+
+    void clearPerks(UUID serverId);
 }

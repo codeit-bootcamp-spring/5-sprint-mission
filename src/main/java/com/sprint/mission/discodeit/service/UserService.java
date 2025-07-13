@@ -1,60 +1,69 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.userEntity.Item;
 import com.sprint.mission.discodeit.enums.userEntity.NitroPlan;
 import com.sprint.mission.discodeit.enums.userEntity.Status;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
-public interface UserService extends Service {
+public interface UserService extends Service<User> {
+    User findByEmail(String email);
+
     boolean registerUser(User user);
 
     User loginUser(String email, String password);
 
-    User findById(UUID id);
+    void updateEmail(UUID userId, String email);
 
-    User findByEmail(String email);
+    void updateNickname(UUID userId, String nickname);
 
-    List<User> findAll();
+    void updateUsername(UUID userId, String username);
 
-    void deleteById(UUID id);
+    void updatePassword(UUID userId, String password);
 
-    void updateEmail(User user, String email);
+    void updateBirthDate(UUID userId, LocalDate birthDate);
 
-    void updatePassword(User user, String password);
+    void updateSubscribedToNewsletter(UUID userId, boolean isSubscribedToNewsletter);
 
-    void updatePhoneNumber(User user, String phoneNumber);
+    void updatePhoneNumber(UUID userId, String phoneNumber);
 
-    void updateUsername(User user, String username);
+    void addFriend(UUID userId, UUID friendId);
 
-    void updateNickname(User user, String nickname);
+    void removeFriend(UUID userId, UUID friendId);
 
-    void updateBirthDate(User user, LocalDate birthDate);
+    void clearFriends(UUID userId);
 
-    void updateIsSubscribedToNewsletter(User user, boolean isSubscribedToNewsletter);
+    void addServer(UUID userId, UUID serverId);
 
-    void updateFriends(User user, List<User> friends);
+    void removeServer(UUID userId, UUID serverId);
 
-    void updateServers(User user, List<Server> servers);
+    void clearServers(UUID userId);
 
-    void updateChatRooms(User user, List<ChatRoom> chatRooms);
+    void addChatRoom(UUID userId, UUID chatRoomId);
 
-    void updateNitroPlan(User user, NitroPlan nitroPlan);
+    void removeChatRoom(UUID userId, UUID chatRoomId);
 
-    void updateItems(User user, List<Item> items);
+    void clearChatRooms(UUID userId);
 
-    void updateStatus(User user, Status status);
+    void addItem(UUID userId, Item item);
 
-    void updateAvatarUrl(User user, String avatarUrl);
+    void removeItem(UUID userId, Item item);
 
-    void updateBio(User user, String bio);
+    void clearItems(UUID userId);
 
-    void updateIsVerified(User user, boolean isVerified);
+    void updateNitroPlan(UUID userId, NitroPlan nitroPlan);
 
-    void updateIsDeactivated(User user, boolean isDeactivated);
+    void updateStatus(UUID userId, Status status);
 
-    void updateIsBanned(User user, boolean isBanned);
+    void updateAvatarUrl(UUID userId, String avatarUrl);
+
+    void updateBio(UUID userId, String bio);
+
+    void updateVerified(UUID userId, boolean isVerified);
+
+    void updateDeactivated(UUID userId, boolean isDeactivated);
+
+    void updateBanned(UUID userId, boolean isBanned);
 }

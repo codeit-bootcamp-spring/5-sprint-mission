@@ -6,8 +6,9 @@ import com.sprint.mission.discodeit.service.SurveyService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
-public class JCFSurveyService implements SurveyService {
+public class JCFSurveyService extends JCFService<Survey> implements SurveyService {
     private static final JCFSurveyService instance = new JCFSurveyService();
 
     private final List<Survey> data;
@@ -21,9 +22,8 @@ public class JCFSurveyService implements SurveyService {
     }
 
     @Override
-    // @VisibleForTesting
-    public void reset() {
-        JCFSurveyService.getInstance().data.clear();
+    protected boolean idEquals(Survey survey, UUID id) {
+        return survey.getId().equals(id);
     }
 
     @Override
@@ -39,16 +39,12 @@ public class JCFSurveyService implements SurveyService {
     }
 
     @Override
-    public Survey findById(UUID id) {
-        return data.stream()
-                .filter(s -> s.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public List<Survey> findAll() {
-        return data;
+    public void update(UUID surveyId, Consumer<Survey> updater) {
+        Survey s = findById(surveyId);
+        if (s != null) {
+            updater.accept(s);
+            s.setUpdatedAt(System.currentTimeMillis());
+        }
     }
 
     @Override
@@ -85,7 +81,7 @@ public class JCFSurveyService implements SurveyService {
     }
 
     @Override
-    public void updateIsDuplicateResponseAllowed(Survey survey, boolean isDuplicateResponseAllowed) {
+    public void updateDuplicateResponseAllowed(Survey survey, boolean isDuplicateResponseAllowed) {
         data.stream()
                 .filter(s -> s.getId().equals(survey.getId()))
                 .findFirst()
@@ -93,13 +89,5 @@ public class JCFSurveyService implements SurveyService {
                     s.setDuplicateResponseAllowed(isDuplicateResponseAllowed);
                     s.setUpdatedAt(System.currentTimeMillis());
                 });
-    }
-
-    @Override
-    public void deleteById(UUID id) {
-        data.stream()
-                .filter(s -> s.getId().equals(id))
-                .findFirst()
-                .ifPresent(data::remove);
     }
 }

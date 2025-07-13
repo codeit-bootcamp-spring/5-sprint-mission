@@ -18,11 +18,11 @@ public class User {
     private LocalDate birthDate;
     private boolean isSubscribedToNewsletter;
     private String phoneNumber;
-    private List<User> friends;
-    private List<Server> servers;
-    private List<ChatRoom> chatRooms;
+    private final Set<UUID> friends;
+    private final Set<UUID> servers;
+    private final Set<UUID> chatRooms;
+    private final Set<Item> items;
     private NitroPlan nitroPlan;
-    private List<Item> items;
     private Status status;
     private String avatarUrl;
     private String bio;
@@ -42,11 +42,11 @@ public class User {
         this.isSubscribedToNewsletter = isSubscribedToNewsletter;
         this.nickname = nickname;
 
-        this.friends = new ArrayList<>();
-        this.servers = new ArrayList<>();
-        this.chatRooms = new ArrayList<>();
+        this.friends = new HashSet<>();
+        this.servers = new HashSet<>();
+        this.chatRooms = new HashSet<>();
+        this.items = new HashSet<>();
         this.nitroPlan = NitroPlan.NONE;
-        this.items = new ArrayList<>();
         this.status = Status.OFFLINE;
     }
 
@@ -122,28 +122,68 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public List<User> getFriends() {
-        return friends;
+    public Set<UUID> getFriends() {
+        return Collections.unmodifiableSet(friends);
     }
 
-    public void setFriends(List<User> friends) {
-        this.friends = friends;
+    public void addFriend(UUID friendId) {
+        friends.add(friendId);
     }
 
-    public List<Server> getServers() {
-        return servers;
+    public void removeFriend(UUID friendId) {
+        friends.remove(friendId);
     }
 
-    public void setServers(List<Server> servers) {
-        this.servers = servers;
+    public void clearFriends() {
+        friends.clear();
     }
 
-    public List<ChatRoom> getChatRooms() {
-        return chatRooms;
+    public Set<UUID> getServers() {
+        return Collections.unmodifiableSet(servers);
     }
 
-    public void setChatRooms(List<ChatRoom> chatRooms) {
-        this.chatRooms = chatRooms;
+    public void addServer(UUID serverId) {
+        servers.add(serverId);
+    }
+
+    public void removeServer(UUID serverId) {
+        servers.remove(serverId);
+    }
+
+    public void clearServers() {
+        servers.clear();
+    }
+
+    public Set<UUID> getChatRooms() {
+        return Collections.unmodifiableSet(chatRooms);
+    }
+
+    public void addChatRoom(UUID chatRoomId) {
+        chatRooms.add(chatRoomId);
+    }
+
+    public void removeChatRoom(UUID chatRoomId) {
+        chatRooms.remove(chatRoomId);
+    }
+
+    public void clearChatRooms() {
+        chatRooms.clear();
+    }
+
+    public Set<Item> getItems() {
+        return Collections.unmodifiableSet(items);
+    }
+
+    public void addItem(Item item) {
+        items.add(item);
+    }
+
+    public void removeItem(Item item) {
+        items.remove(item);
+    }
+
+    public void clearItems() {
+        items.clear();
     }
 
     public NitroPlan getNitroPlan() {
@@ -152,14 +192,6 @@ public class User {
 
     public void setNitroPlan(NitroPlan nitroPlan) {
         this.nitroPlan = nitroPlan;
-    }
-
-    public List<Item> getItems() {
-        return items;
-    }
-
-    public void setItems(List<Item> items) {
-        this.items = items;
     }
 
     public Status getStatus() {
@@ -226,10 +258,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", email='" + email + '\'' +
+                "email='" + email + '\'' +
                 ", nickname='" + nickname + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
@@ -239,8 +268,8 @@ public class User {
                 ", friends=" + friends +
                 ", servers=" + servers +
                 ", chatRooms=" + chatRooms +
-                ", nitroPlan=" + nitroPlan +
                 ", items=" + items +
+                ", nitroPlan=" + nitroPlan +
                 ", status=" + status +
                 ", avatarUrl='" + avatarUrl + '\'' +
                 ", bio='" + bio + '\'' +
