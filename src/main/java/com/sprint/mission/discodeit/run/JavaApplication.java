@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Server;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.channelEntity.ChannelCategory;
+import com.sprint.mission.discodeit.enums.userEntity.Status;
 import com.sprint.mission.discodeit.service.jcf.*;
 
 import java.time.DateTimeException;
@@ -25,57 +26,45 @@ public class JavaApplication {
     private User me = new User("1", "1", "1", LocalDate.of(1995, 4, 10), true, "1"); // 테스트용
 
     private void mainMenu() {
-        System.out.println("========== Discodeit ==========");
         userService.registerUser(me); // 테스트용
+        System.out.println();
+        System.out.println("========== Discodeit ==========");
 
         while (true) {
+            System.out.println();
             System.out.println("=====***** 메인 메뉴 *****=====");
             System.out.println("1. 회원가입");
             System.out.println("2. 로그인");
-            System.out.println("3. 이메일로 회원 찾기");
-            System.out.println("4. 모든 회원 보기");
+            System.out.println("3. 이메일로 회원 조회");
+            System.out.println("4. 모든 회원 조회");
             System.out.println("9. 종료");
             System.out.print("메뉴 번호 입력 : ");
 
             try {
                 int menuNum = Integer.parseInt(sc.nextLine());
-
                 switch (menuNum) {
-                    case 1:
-                        register();
-                        continue;
-                    case 2:
-                        login();
-                        continue;
-                    case 3:
-                        findUserByEmail();
-                        continue;
-                    case 4:
-                        showAllUsers();
-                        continue;
+                    case 1: register(); break;
+                    case 2: login(); break;
+                    case 3: findUserByEmail(); break;
+                    case 4: showAllUsers(); break;
                     case 9:
-                        System.out.println("프로그램 종료.\n");
+                        System.out.println("프로그램 종료");
+                        sc.close();
                         return;
                     default:
-                        System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.\n");
+                        System.out.println("다시 입력해주세요.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("숫자를 입력해주세요.\n");
+                System.out.println("숫자를 입력해주세요.");
             }
         }
     }
 
     private void userMenu() {
         whileLoop: while (true) {
+            System.out.println();
             System.out.println("*** 회원 메뉴 ***");
-            System.out.println("1. 내 정보 보기");
-            System.out.println("2. 이메일 변경");
-            System.out.println("3. 별명 변경");
-            System.out.println("4. 사용자명 변경");
-            System.out.println("5. 비밀번호 변경");
-            System.out.println("6. 생년월일 변경");
-            System.out.println("7. 이메일로 소식 받기 변경");
-            System.out.println("8. 휴대폰 번호 등록/변경");
+            System.out.println("1. 프로필 편집");
             System.out.println("9. 친구 목록 보기");
             System.out.println("10. 친구 추가");
             System.out.println("11. 친구 삭제");
@@ -92,37 +81,13 @@ public class JavaApplication {
             System.out.println("22. 니트로 플랜 구독하기");
             System.out.println("23. 아이템 구매하기");
             System.out.println("24. 계정 삭제하기");
-            System.out.println("25. 로그아웃");
-            System.out.println("99. 뒤로가기");
+            System.out.println("99. 로그아웃");
             System.out.print("메뉴 번호 선택 : ");
 
             try {
                 int menuNum = Integer.parseInt(sc.nextLine());
                 switch (menuNum) {
-                    case 1:
-                        showMe();
-                        continue;
-                    case 2:
-                        changeEmail();
-                        continue;
-                    case 3:
-                        changeNickname();
-                        continue;
-                    case 4:
-                        changeUsername();
-                        continue;
-                    case 5:
-                        changePassword();
-                        continue;
-                    case 6:
-                        changeBirthDate();
-                        continue;
-                    case 7:
-                        changeIsSubscribedToNewsletter();
-                        continue;
-                    case 8:
-                        changePhoneNumber();
-                        continue;
+                    case 1: editProfileMenu(); break;
                     case 9:
                         showFriends();
                         continue;
@@ -151,18 +116,54 @@ public class JavaApplication {
                         openServer();
                         continue;
                     case 99:
+                        logout();
                         break whileLoop;
                     default:
-                        System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.\n");
+                        System.out.println("다시 입력해주세요.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("숫자를 입력해주세요.\n");
+                System.out.println("숫자를 입력해주세요.");
             }
         }
     }
 
+    private void editProfileMenu() {
+        whileLoop: while (true) {
+            System.out.println();
+            System.out.println(me);
+            System.out.println("=====***** 프로필 편집 메뉴 *****=====");
+            System.out.println("1. 이메일 변경");
+            System.out.println("2. 별명 변경");
+            System.out.println("3. 사용자명 변경");
+            System.out.println("4. 비밀번호 변경");
+            System.out.println("5. 생년월일 변경");
+            System.out.println("6. 이메일로 소식 받기 변경");
+            System.out.println("7. 휴대폰 번호 등록/변경");
+            System.out.println("9. 뒤로가기");
+
+            try {
+                int menuNum = Integer.parseInt(sc.nextLine());
+                switch (menuNum) {
+                    case 1: changeEmail(); break;
+                    case 2: changeNickname(); break;
+                    case 3: changeUsername(); break;
+                    case 4: changePassword(); break;
+                    case 5: changeBirthDate(); break;
+                    case 6: changeIsSubscribedToNewsletter(); break;
+                    case 7: changePhoneNumber(); break;
+                    case 9: break whileLoop;
+                    default: System.out.println("다시 입력해주세요.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("숫자를 입력해주세요.");
+            }
+        }
+    }
+
+
     private void serverMenu() {
-        while (true) {
+        whileLoop: while (true) {
+            System.out.println();
             System.out.println("=====***** 서버 메뉴 *****=====");
             System.out.println("1. 서버 정보 조회");
             System.out.println("2. 서버 주인 변경");
@@ -172,21 +173,19 @@ public class JavaApplication {
             System.out.println("6. 채널 생성");
             System.out.println("7. 채널 수정");
             System.out.println("8. 채널 삭제");
-            System.out.println("99. 뒤로가기");
+            System.out.println("9. 뒤로가기");
             System.out.print("메뉴 번호 입력: ");
 
             try {
                 int menuNum = Integer.parseInt(sc.nextLine());
 
                 switch (menuNum) {
-                    case 99:
-                        System.out.println("프로그램 종료.\n");
-                        return;
-                    default:
-                        System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.\n");
+                    case 1: continue;
+                    case 9: break whileLoop;
+                    default: System.out.println("다시 입력해주세요.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("숫자를 입력해주세요.\n");
+                System.out.println("숫자를 입력해주세요.");
             }
         }
     }
@@ -195,36 +194,28 @@ public class JavaApplication {
         String email;
         String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
-        whileLoop:
         while (true) {
             System.out.print("이메일 : ");
             email = sc.nextLine();
-            List<User> users = userService.findAll();
-            for (User user : users) {
-                if (user.getEmail().equals(email)) {
-                    System.out.println("중복된 이메일입니다. 다시 입력해주세요.\n");
-                    continue whileLoop;
-                }
-            }
-            if (!email.matches(emailRegex)) {
+            if (email == null || email.matches(emailRegex)) {
                 System.out.println("잘못된 형식입니다. 다시 입력해주세요.\n");
                 continue;
             }
-            break;
+            User user = userService.findByEmail(email);
+            if (user != null) break;
+            System.out.println("중복된 이메일입니다. 다시 입력해주세요.\n");
         }
 
         System.out.print("별명(선택) : ");
         String nickname = sc.nextLine();
 
         String username;
+
         while (true) {
             System.out.print("사용자명 : ");
             username = sc.nextLine();
-            if (!username.isEmpty()) {
-                break;
-            } else {
-                System.out.println("사용자명은 필수입니다.\n");
-            }
+            if (!username.isEmpty()) break;
+            System.out.println("사용자명은 필수입니다.\n");
         }
 
         String password;
@@ -233,14 +224,12 @@ public class JavaApplication {
         while (true) {
             System.out.print("비밀번호 : ");
             password = sc.nextLine();
-            if (!password.matches(passwordRegex)) {
-                System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.\n");
-                continue;
-            }
-            break;
+            if (password != null && password.matches(passwordRegex)) break;
+            System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.");
         }
 
         LocalDate birthDate;
+
         while (true) {
             try {
                 System.out.println("생년월일");
@@ -263,9 +252,14 @@ public class JavaApplication {
         }
 
         boolean isSubscribedToNewsletter;
+
         while (true) {
             System.out.print("이메일로 소식 받기(y/n): ");
             String yn = sc.nextLine();
+            if (yn == null || yn.isEmpty()) {
+                System.out.println("다시 입력해주세요.");
+                continue;
+            }
             yn = yn.toLowerCase();
             if (yn.equals("y")) {
                 isSubscribedToNewsletter = true;
@@ -278,41 +272,72 @@ public class JavaApplication {
             }
         }
 
-        User user = new User(email, username, password, birthDate, isSubscribedToNewsletter, nickname);
-        boolean result = userService.registerUser(user);
+        boolean result = userService.registerUser(
+                new User(email, username, password, birthDate, isSubscribedToNewsletter, nickname)
+        );
         if (result) {
-            System.out.println("성공적으로 회원가입을 완료하였습니다.\n");
+            System.out.println("성공적으로 회원가입을 완료하였습니다.");
             return;
         }
-        System.out.println("다시 시도해 주세요.\n");
+        System.out.println("다시 시도해 주세요.");
     }
 
     private void login() {
         System.out.println("\nx. 뒤로가기");
 
         while (true) {
-            System.out.print("이메일 : ");
-            String email = sc.nextLine();
-            if (email.equals("x")) {
-                return;
+            String email;
+            String password;
+
+            while (true) {
+                System.out.print("이메일 : ");
+                email = sc.nextLine();
+
+                if (email == null || email.isEmpty()) {
+                    System.out.println("다시 입력해주세요.\n");
+                    continue;
+                }
+
+                if (email.equals("x")) {
+                    return;
+                }
+
+                break;
             }
 
-            System.out.print("비밀번호 : ");
-            String password = sc.nextLine();
-            if (password.equals("x")) {
-                return;
+            while (true) {
+                System.out.print("비밀번호 : ");
+                password = sc.nextLine();
+
+                if (password == null || password.isEmpty()) {
+                    System.out.println("다시 입력해주세요.\n");
+                    continue;
+                }
+
+                if (password.equals("x")) {
+                    return;
+                }
+
+                break;
             }
 
             User user = userService.loginUser(email, password);
+
             if (user == null) {
-                System.out.println("다시 입력해 주세요.\n");
+                System.out.println("다시 입력해 주세요.");
                 continue;
             }
+
             me = user;
-            System.out.println("\n" + user.getUsername() + "님, 환영합니다!\n");
+            System.out.println(user.getUsername() + "님, 환영합니다!");
             break;
         }
+
         userMenu();
+    }
+
+    private void logout() {
+        userService.findById(me.getId()).setStatus(Status.OFFLINE);
     }
 
     private void findUserByEmail() {
@@ -335,7 +360,6 @@ public class JavaApplication {
     }
 
     private void showMe() {
-        System.out.println("\n" + me);
     }
 
     private void changeEmail() {
