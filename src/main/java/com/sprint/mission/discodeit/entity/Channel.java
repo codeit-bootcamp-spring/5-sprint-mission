@@ -11,18 +11,18 @@ public class Channel {
     private final long createdAt;
     private long updatedAt;
     private String name;
-    private final List<User> users;
+    private final List<UUID> users;
 
     public Channel() {
         id = UUID.randomUUID();
-        createdAt = Instant.now().getEpochSecond();
+        createdAt = Instant.now().toEpochMilli();
         updatedAt = createdAt;
         users = new ArrayList<>();
     }
 
     public Channel(String name) {
         id = UUID.randomUUID();
-        createdAt = Instant.now().getEpochSecond();
+        createdAt = Instant.now().toEpochMilli();
         updatedAt = createdAt;
         users = new ArrayList<>();
         this.name = name;
@@ -44,36 +44,24 @@ public class Channel {
         return name;
     }
 
-    public List<User> getUsers() {
+    public List<UUID> getUsers() {
         return users;
     }
 
-    public boolean updateName(String name) {
-        if (this.name.equals(name)) {
-            return false;
-        }
+    public Channel updateName(String name) {
         this.name = name;
-        updatedAt = Instant.now().getEpochSecond();
-        return true;
+        updatedAt = Instant.now().toEpochMilli();
+        return this;
     }
 
-    public boolean addUser(User user) { // 나중에 User 삭제할때 deleteUser 쓸 것.
-        if (this.users.contains(user)) {
-            return false;
-        }
-        this.users.add(user);
-        updatedAt = Instant.now().getEpochSecond();
-        return true;
-
+    public void addUser(User user) { // 나중에 User 삭제할때 deleteUser 쓸 것.
+        this.users.add(user.getId());
+        updatedAt = Instant.now().toEpochMilli();
     }
 
-    public boolean deleteUser(User user) {
-        if (this.users.contains(user)) {
-            this.users.remove(user);
-            updatedAt = Instant.now().getEpochSecond();
-            return true;
-        }
-        return false;
+    public void deleteUser(User user) {
+        this.users.remove(user.getId());
+        updatedAt = Instant.now().toEpochMilli();
     }
 
     @Override
@@ -92,8 +80,8 @@ public class Channel {
     public String toString() {
         return "Channel{" +
                 "id=" + id +
-                ", createdAt=" + Instant.ofEpochSecond(createdAt) +
-                ", updatedAt=" + Instant.ofEpochSecond(updatedAt) +
+                ", createdAt=" + Instant.ofEpochMilli(createdAt) +
+                ", updatedAt=" + Instant.ofEpochMilli(updatedAt) +
                 ", name='" + name + '\'' +
                 ", users=" + users +
                 '}';

@@ -39,4 +39,11 @@ public class JCFUserService implements UserService {
     public List<User> getAllUsers() {
         return data;
     }
+
+    @Override
+    public String toString() {
+        return "JCFUserService{" +
+                "data=" + data +
+                '}';
+    }
 }

@@ -39,4 +39,11 @@ public class JCFChannelService implements ChannelService {
     public List<Channel> getAllChannels() {
         return data;
     }
+
+    @Override
+    public String toString() {
+        return "JCFChannelService{" +
+                "data=" + data +
+                '}';
+    }
 }

@@ -39,4 +39,11 @@ public class JCFMessageService implements MessageService {
     public List<Message> getAllMessages() {
         return data;
     }
+
+    @Override
+    public String toString() {
+        return "JCFMessageService{" +
+                "data=" + data +
+                '}';
+    }
 }

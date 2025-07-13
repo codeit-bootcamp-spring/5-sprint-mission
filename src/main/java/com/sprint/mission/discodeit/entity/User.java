@@ -11,18 +11,18 @@ public class User {
     private final long createdAt;
     private long updatedAt;
     private String name;
-    private final List<Channel> channels;
+    private final List<UUID> channels;
 
     public User() {
         id = UUID.randomUUID();
-        createdAt = Instant.now().getEpochSecond();
+        createdAt = Instant.now().toEpochMilli();
         updatedAt = createdAt;
         channels = new ArrayList<>();
     }
 
     public User(String name) {
         id = UUID.randomUUID();
-        createdAt = Instant.now().getEpochSecond();
+        createdAt = Instant.now().toEpochMilli();
         updatedAt = createdAt;
         channels = new ArrayList<>();
         this.name = name;
@@ -44,25 +44,24 @@ public class User {
         return name;
     }
 
-    public List<Channel> getChannels() {
+    public List<UUID> getChannels() {
         return channels;
     }
 
     public User updateName(String name) {
         this.name = name;
-        updatedAt = Instant.now().getEpochSecond();
+        updatedAt = Instant.now().toEpochMilli();
         return this;
     }
 
-    public User addChannel(Channel channel) { // 나중에 User 삭제할때 deleteUser 쓸 것.
-        this.channels.add(channel);
-        updatedAt = Instant.now().getEpochSecond();
-        return this;
+    public void addChannel(Channel channel) { // 나중에 User 삭제할때 deleteUser 쓸 것.
+        this.channels.add(channel.getId());
+        updatedAt = Instant.now().toEpochMilli();
     }
 
     public User deleteChannel(Channel channel) {
-        this.channels.remove(channel);
-        updatedAt = Instant.now().getEpochSecond();
+        this.channels.remove(channel.getId());
+        updatedAt = Instant.now().toEpochMilli();
         return this;
     }
 
@@ -82,8 +81,8 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", createdAt=" + Instant.ofEpochSecond(createdAt) +
-                ", updatedAt=" + Instant.ofEpochSecond(updatedAt) +
+                ", createdAt=" + Instant.ofEpochMilli(createdAt) +
+                ", updatedAt=" + Instant.ofEpochMilli(updatedAt) +
                 ", name='" + name + '\'' +
                 ", channels=" + channels +
                 '}';

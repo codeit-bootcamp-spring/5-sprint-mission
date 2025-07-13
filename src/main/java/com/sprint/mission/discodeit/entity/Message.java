@@ -13,7 +13,7 @@ public class Message {
 
     public Message(String content, UUID senderId) {
         id = UUID.randomUUID();
-        createdAt = Instant.now().getEpochSecond();
+        createdAt = Instant.now().toEpochMilli();
         updatedAt = createdAt;
         this.senderId = senderId;
         this.content = content;
@@ -39,22 +39,16 @@ public class Message {
         return senderId;
     }
 
-    public boolean updateContent(String content) {
-        if (this.content == content) {
-            return false;
-        }
+    public Message updateContent(String content) {
         this.content = content;
-        updatedAt = Instant.now().getEpochSecond();
-        return true;
+        updatedAt = Instant.now().toEpochMilli();
+        return this;
     }
 
-    public boolean updateSender(UUID senderId) {
-        if (this.senderId == senderId) {
-            return false;
-        }
+    public Message updateSender(UUID senderId) {
         this.senderId = senderId;
-        updatedAt = Instant.now().getEpochSecond();
-        return true;
+        updatedAt = Instant.now().toEpochMilli();
+        return this;
     }
 
     @Override
@@ -73,8 +67,8 @@ public class Message {
     public String toString() {
         return "Message{" +
                 "id=" + id +
-                ", createdAt=" + Instant.ofEpochSecond(createdAt) +
-                ", updatedAt=" + Instant.ofEpochSecond(updatedAt) +
+                ", createdAt=" + Instant.ofEpochMilli(createdAt) +
+                ", updatedAt=" + Instant.ofEpochMilli(updatedAt) +
                 ", content='" + content + '\'' +
                 ", senderId=" + senderId +
                 '}';
