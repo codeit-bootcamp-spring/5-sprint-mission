@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Message {
@@ -8,9 +9,9 @@ public class Message {
     private final long createdAt;
     private long updatedAt;
     private String content;
-    private String senderId;
+    private UUID senderId;
 
-    public Message(String content, String senderId) {
+    public Message(String content, UUID senderId) {
         id = UUID.randomUUID();
         createdAt = Instant.now().getEpochSecond();
         updatedAt = createdAt;
@@ -34,7 +35,7 @@ public class Message {
         return content;
     }
 
-    public String getSender() {
+    public UUID getSender() {
         return senderId;
     }
 
@@ -47,12 +48,35 @@ public class Message {
         return true;
     }
 
-    public boolean updateSender(String senderId) {
+    public boolean updateSender(UUID senderId) {
         if (this.senderId == senderId) {
             return false;
         }
         this.senderId = senderId;
         updatedAt = Instant.now().getEpochSecond();
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Message message = (Message) o;
+        return createdAt == message.createdAt && updatedAt == message.updatedAt && Objects.equals(id, message.id) && Objects.equals(content, message.content) && Objects.equals(senderId, message.senderId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, createdAt, updatedAt, content, senderId);
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", createdAt=" + Instant.ofEpochSecond(createdAt) +
+                ", updatedAt=" + Instant.ofEpochSecond(updatedAt) +
+                ", content='" + content + '\'' +
+                ", senderId=" + senderId +
+                '}';
     }
 }

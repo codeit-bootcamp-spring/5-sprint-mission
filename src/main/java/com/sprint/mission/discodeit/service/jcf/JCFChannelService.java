@@ -3,39 +3,40 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JCFChannelService implements ChannelService {
 
-    private final HashMap<UUID, Channel> data;
+    private final List<Channel> data;
 
-    public JCFChannelService(HashMap<UUID, Channel> data) {
-        this.data = data;
+    public JCFChannelService() {
+        data = new ArrayList<>();
     }
 
     @Override
     public void addChannel(Channel channel) {
-        data.put(channel.getId(), channel);
+        data.add(channel);
     }
 
     @Override
     public void updateChannel(Channel channel) {
-        data.put(channel.getId(), channel);
+        int i = data.indexOf(channel);
+        data.set(i, channel);
     }
 
     @Override
-    public void deleteChannel(UUID id) {
-        data.remove(id);
+    public void deleteChannel(Channel channel) {
+        data.remove(channel);
     }
 
     @Override
-    public Channel getChannel(UUID id) {
-        return data.get(id);
+    public Channel getChannel(int i) {
+        return data.get(i);
     }
 
     @Override
-    public HashMap<UUID, Channel> getAllChannels() {
+    public List<Channel> getAllChannels() {
         return data;
     }
 }

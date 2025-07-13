@@ -3,39 +3,40 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JCFUserService implements UserService {
 
-    private final HashMap<UUID, User> data;
+    private final List<User> data;
 
     public JCFUserService() {
-        data = new HashMap<>();
+        data = new ArrayList<>();
     }
 
     @Override
     public void addUser(User user) {
-        data.put(user.getId(), user);
+        data.add(user);
     }
 
     @Override
     public void updateUser(User user) {
-        data.put(user.getId(), user);
+        int i = data.indexOf(user);
+        data.set(i, user);
     }
 
     @Override
-    public void deleteUser(UUID id) {
-        data.remove(id);
+    public void deleteUser(User user) {
+        data.remove(user);
     }
 
     @Override
-    public User getUser(UUID id) {
-        return data.get(id);
+    public User getUser(int i) {
+        return data.get(i);
     }
 
     @Override
-    public HashMap<UUID, User> getAllUsers() {
+    public List<User> getAllUsers() {
         return data;
     }
 }

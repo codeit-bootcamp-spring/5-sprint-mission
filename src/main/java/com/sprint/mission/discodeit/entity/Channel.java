@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.entity;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Channel {
@@ -73,5 +74,28 @@ public class Channel {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Channel channel = (Channel) o;
+        return createdAt == channel.createdAt && updatedAt == channel.updatedAt && Objects.equals(id, channel.id) && Objects.equals(name, channel.name) && Objects.equals(users, channel.users);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, createdAt, updatedAt, name, users);
+    }
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "id=" + id +
+                ", createdAt=" + Instant.ofEpochSecond(createdAt) +
+                ", updatedAt=" + Instant.ofEpochSecond(updatedAt) +
+                ", name='" + name + '\'' +
+                ", users=" + users +
+                '}';
     }
 }

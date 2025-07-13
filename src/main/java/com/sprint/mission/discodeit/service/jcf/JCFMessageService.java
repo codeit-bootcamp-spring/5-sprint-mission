@@ -3,39 +3,40 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class JCFMessageService implements MessageService {
 
-    private final HashMap<UUID, Message> data;
+    private final List<Message> data;
 
-    public JCFMessageService(HashMap<UUID, Message> data) {
-        this.data = data;
+    public JCFMessageService() {
+        data = new ArrayList<>();
     }
 
     @Override
     public void addMessage(Message message) {
-        data.put(message.getId(), message);
+        data.add(message);
     }
 
     @Override
     public void updateMessage(Message message) {
-        data.put(message.getId(), message);
+        int i = data.indexOf(message);
+        data.set(i, message);
     }
 
     @Override
-    public void deleteMessage(UUID id) {
-        data.remove(id);
-    }
-    @Override
-    public Message getMessage(UUID id) {
-        return data.get(id);
+    public void deleteMessage(Message message) {
+        data.remove(message);
     }
 
     @Override
-    public HashMap<UUID, Message> getAllMessages() {
+    public Message getMessage(int i) {
+        return data.get(i);
+    }
+
+    @Override
+    public List<Message> getAllMessages() {
         return data;
     }
 }
