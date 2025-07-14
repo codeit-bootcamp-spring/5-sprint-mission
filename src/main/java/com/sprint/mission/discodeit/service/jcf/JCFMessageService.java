@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class JCFMessageService implements MessageService {
 
@@ -15,7 +16,7 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public void addMessage(Message message) {
+    public void createMessage(Message message) {
         data.add(message);
     }
 
@@ -31,8 +32,29 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public Message getMessage(int i) {
+    public Message searchByIndex(int i) {
         return data.get(i);
+    }
+
+    @Override
+    public Message searchById(UUID id) {
+        for (Message message : data) {
+            if (message.getId().equals(id)) {
+                return message;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<Message> searchByContent(String content) {
+        List<Message> messages = new ArrayList<>();
+        for (Message message : data) {
+            if(message.getContent().contains(content)) {
+                messages.add(message);
+            }
+        }
+        return messages;
     }
 
     @Override
