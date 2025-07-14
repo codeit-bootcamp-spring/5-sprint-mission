@@ -50,9 +50,9 @@ public class JCFUserService implements UserService {
     public List<User> searchByName(String name) {
         List<User> users = new ArrayList<>();
 
-        for (User datum : data) {
-            if (datum.getName().contains(name)) {
-                users.add(datum);
+        for (User user : data) {
+            if (user.getName().contains(name)) {
+                users.add(user);
             }
         }
         return users;
