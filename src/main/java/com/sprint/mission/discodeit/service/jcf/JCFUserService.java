@@ -2,12 +2,13 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.userService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class JCFUserService {
+public class JCFUserService implements userService {
     private final List<User> data;
 
     public JCFUserService(){
@@ -16,6 +17,7 @@ public class JCFUserService {
 
     public void createUser(User user){
         data.add(user);
+        System.out.println("추가 성공");
     }
 
     public User getUserById(UUID userId){
@@ -49,15 +51,40 @@ public class JCFUserService {
         }
     };
 
-    public void deleteUser(UUID userId){
+    public void updateUserUpdatedAt(UUID userId, long updatedAt){
         if(data.size()==0){
             return ;
         }
         for(User user1:data){
             if(user1.getId().equals(userId)){
-                data.remove(user1);
+                user1.updateUpdatedAt(updatedAt);
             }
         }
+    };
+
+
+
+    public void deleteUser(UUID userId){
+        if(data.size()==0){
+            return ;
+        }
+//        for(int i=data.size()-1;i>=0;i--){
+//            if(data.get(i).getId().equals(userId)){
+//                data.remove(i);
+//            }
+//        }
+
+        data.removeIf(user1 -> user1.getId().equals(userId));
+        System.out.println("삭제 성공");
+
+//        List<User> toRemove = new ArrayList<>();
+//        for (User user1 : data) {
+//            if (user1.getId().equals(userId)) {
+//                toRemove.add(user1);
+//            }
+//        }
+//        System.out.println(toRemove);
+//        data.removeAll(toRemove);
     };
 
 

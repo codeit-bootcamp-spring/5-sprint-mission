@@ -15,5 +15,7 @@ public interface userService {
 
     void updateUser(UUID userId, User user);
 
+    void updateUserUpdatedAt(UUID userId, long updatedAt);
+
     void deleteUser(UUID userId);
 }

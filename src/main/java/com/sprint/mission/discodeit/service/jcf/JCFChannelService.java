@@ -2,12 +2,14 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.channelService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class JCFChannelService {
+public class JCFChannelService implements channelService {
     private final List<Channel> data;
 
     public JCFChannelService(){
@@ -16,6 +18,7 @@ public class JCFChannelService {
 
     public void createChannel(Channel channel){
         data.add(channel);
+        System.out.println("추가 성공");
     }
 
     public Channel getChannelById(UUID channelId){
@@ -49,15 +52,32 @@ public class JCFChannelService {
         }
     };
 
-    public void deleteChannel(UUID channelId){
+    public void updateChannelUpdatedAt(UUID channelId, long updatedAt){
         if(data.size()==0){
             return ;
         }
         for(Channel channel1:data){
             if(channel1.getId().equals(channelId)){
-                data.remove(channel1);
+                channel1.updateUpdatedAt(updatedAt);
             }
         }
+    };
+
+
+    public void deleteChannel(UUID channelId){
+        if(data.size()==0){
+            return ;
+        }
+        data.removeIf(channel1 -> channel1.getId().equals(channelId));
+        System.out.println("삭제 성공");
+//        List<Channel> toRemove = new ArrayList<>();
+//        for (Channel channel1 : data) {
+//            if (channel1.getId().equals(channelId)) {
+//                toRemove.add(channel1);
+//            }
+//        }
+//        System.out.println(toRemove);
+//        data.removeAll(toRemove);
     };
 
 }

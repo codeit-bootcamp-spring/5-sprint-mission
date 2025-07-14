@@ -10,11 +10,13 @@ public interface channelService {
 
     void createChannel(Channel channel);
 
-    User getChannelById(UUID channelId);
+    Channel getChannelById(UUID channelId);
 
-    List<User> getAllChannels();
+    List<Channel> getAllChannels();
 
     void updateChannel(UUID channelId, Channel channl);
 
-    void deleteChannl(UUID channelId);
+    void updateChannelUpdatedAt(UUID ChannelId, long updatedAt);
+
+    void deleteChannel(UUID channelId);
 }

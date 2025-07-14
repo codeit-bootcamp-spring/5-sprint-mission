@@ -10,11 +10,13 @@ public interface messageService {
 
     void createMessage(Message message);
 
-    User getMessageById(UUID messageId);
+    Message getMessageById(UUID messageId);
 
-    List<User> getAllMessages();
+    List<Message> getAllMessages();
 
     void updateMessage(UUID messageId, Message message);
+
+    void updateMessageUpdatedAt(UUID messageId, long updatedAt);
 
     void deleteMessage(UUID messageId);
 

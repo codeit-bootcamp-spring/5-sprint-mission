@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public class JavaApplication {
@@ -24,75 +25,86 @@ public class JavaApplication {
         for(User U: user.getAllUsers()){
             System.out.println("-----------------------수정 전--------------------------");
             System.out.println(U.toString());
-
-            System.out.println("-------------------------------------------------------");
         }
 
         for(Message M: message.getAllMessages()){
-            System.out.println("-----------------------수정 전--------------------------");
             System.out.println(M.toString());
-            System.out.println("-------------------------------------------------------");
         }
         for(Channel C: channel.getAllChannels()){
-            System.out.println("-----------------------수정 전--------------------------");
             System.out.println(C.toString());
             System.out.println("-------------------------------------------------------");
         }
 
 
-        User user1=new User();
-        user1.updateUpdatedAt(Instant.now().toEpochMilli());
+
         for(User U: user.getAllUsers()){
-            user.updateUser(U.getId(), user1);
+            user.updateUserUpdatedAt(U.getId(), Instant.now().toEpochMilli());
         }
 
-        Message message1 = new Message();
-        message1.updateUpdatedAt(Instant.now().toEpochMilli());
         for(Message M: message.getAllMessages()){
-            message.updateMessage(M.getId(), message1);
+            message.updateMessageUpdatedAt(M.getId(), Instant.now().toEpochMilli());
         }
 
-        Channel channel1 = new Channel();
-        channel1.updateUpdatedAt(Instant.now().toEpochMilli());
         for(Channel C: channel.getAllChannels()){
-            channel.updateChannel(C.getId(), channel1);
+            channel.updateChannelUpdatedAt(C.getId(), Instant.now().toEpochMilli());
 
         }
 
         for(User U: user.getAllUsers()){
             System.out.println("-----------------------수정 후--------------------------");
             System.out.println(U.toString());
-            System.out.println("-------------------------------------------------------");
         }
 
         for(Message M: message.getAllMessages()){
-            System.out.println("-----------------------수정 후--------------------------");
+
             System.out.println(M.toString());
-            System.out.println("-------------------------------------------------------");
+
         }
         for(Channel C: channel.getAllChannels()){
-            System.out.println("-----------------------수정 후--------------------------");
+
             System.out.println(C.toString());
             System.out.println("-------------------------------------------------------");
         }
 
 
-//        for(User U: user.getAllUsers()){
-//            System.out.println(U.getId());
-//            user.deleteUser(U.getId());
-//        }
-//        for(Message M: message.getAllMessages()){
-//            message.deleteMessage(M.getId());
-//        }
-//        for(Channel C: channel.getAllChannels()){
-//            channel.deleteChannel(C.getId());
-//        }
 
+        for(int i =0; i<user.getAllUsers().size();i++){
+            if( user.getAllUsers().get(i).getId() == null ){
+                continue;
+            }
+            user.deleteUser(user.getAllUsers().get(i).getId());
 
-//        System.out.println("-----------------------삭제 후--------------------------");
-//        System.out.println(user.getAllUsers());
-//        System.out.println(message.getAllMessages());
-//        System.out.println(channel.getAllChannels());
+            if(user.getAllUsers() == null) {
+                break;
+            }
+        }
+
+        for(int i =0; i<channel.getAllChannels().size();i++){
+            if( channel.getAllChannels().get(i).getId() == null ){
+                continue;
+            }
+            channel.deleteChannel(channel.getAllChannels().get(i).getId());
+
+            if(channel.getAllChannels() == null) {
+                break;
+            }
+        }
+
+        for(int i =0; i<message.getAllMessages().size();i++){
+            if( message.getAllMessages().get(i).getId() == null ){
+                continue;
+            }
+            message.deleteMessage(message.getAllMessages().get(i).getId());
+
+            if(message.getAllMessages() == null) {
+                break;
+            }
+        }
+
+        System.out.println("-----------------------삭제 후--------------------------");
+        System.out.println(user.getAllUsers());
+        System.out.println(message.getAllMessages());
+        System.out.println(channel.getAllChannels());
 
 
 
