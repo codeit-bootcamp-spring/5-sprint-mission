@@ -28,9 +28,10 @@ public class JavaApplication {
         System.out.println(us.searchByIndex(0));
         System.out.println(cs.searchByIndex(0));
         System.out.println(ms.searchByIndex(0));
-        System.out.println("이름 조회 테스트 시작\n" + us.searchByName("User").toString().replace("}, ", "},\n"));
+        System.out.println("조회 테스트 시작\n" + us.searchByName("User").toString().replace("}, ", "},\n"));
         System.out.println(cs.searchByName("Channel").toString().replace("}, ", "},\n"));
         System.out.println(ms.searchByContent("Mess").toString().replace("}, ", "},\n"));
+        System.out.println(ms.searchBySenderId(us.searchByIndex(0).getId()).toString().replace("}, ", "},\n"));
         System.out.println("테스트 끝");
         System.out.println(us.searchById(us.searchByIndex(0).getId()));
         System.out.println(cs.searchById(cs.searchByIndex(0).getId()));

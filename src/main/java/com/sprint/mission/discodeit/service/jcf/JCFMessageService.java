@@ -50,10 +50,23 @@ public class JCFMessageService implements MessageService {
     public List<Message> searchByContent(String content) {
         List<Message> messages = new ArrayList<>();
         for (Message message : data) {
-            if(message.getContent().contains(content)) {
+            if (message.getContent().contains(content)) {
                 messages.add(message);
             }
         }
+        return messages;
+    }
+
+    @Override
+    public List<Message> searchBySenderId(UUID id) {
+        List<Message> messages = new ArrayList<>();
+
+        for (Message message : data) {
+            if (message.getSender().equals(id)) {
+                messages.add(message);
+            }
+        }
+
         return messages;
     }
 

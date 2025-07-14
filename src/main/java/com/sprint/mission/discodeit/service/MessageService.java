@@ -18,5 +18,7 @@ public interface MessageService {
 
     List<Message> searchByContent(String content);
 
+    List<Message> searchBySenderId(UUID id);
+
     List<Message> getAllMessages();
 }
