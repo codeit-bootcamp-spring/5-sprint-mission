@@ -10,47 +10,20 @@ import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class JavaApplication {
     public static void main(String[] args) {
-
-        JCFChannelService channelService = new JCFChannelService();
-        testChannelService(channelService);
 
         JCFUserService userService = new JCFUserService();
         testUserService(userService);
 
+        JCFChannelService channelService = new JCFChannelService();
+        testChannelService(channelService);
+
         JCFMessageService messageService = new JCFMessageService();
         testMessageService(messageService);
-    }
-
-    public static void testChannelService(ChannelService channelService) {
-
-        System.out.println("============= 채널 테스트 시작 =============");
-
-        Channel testChannel = new Channel("Test Target", "Test Target");
-
-        channelService.create(testChannel);
-        channelService.create(new Channel("Test Channel1", "Test Channel Description1"));
-        channelService.create(new Channel("Test Channel2", "Test Channel Description2"));
-        channelService.create(new Channel("Test Channel3", "Test Channel Description3"));
-        channelService.create(new Channel("Test Channel4", "Test Channel Description4"));
-
-        System.out.println("채널 목록 : " + channelService.getAll());
-
-        Channel target = channelService.get(testChannel.getId());
-        System.out.println("채널 ID로 찾기 : " + target);
-        if (target != null) {
-            channelService.update(target.getId(), "Update Test Target", "Update Test Target");
-            System.out.println("Test Target 채널 변경 : " + target);
-        }
-
-        System.out.println("채널 목록 : " + channelService.getAll());
-
-        System.out.println("Test Target 채널 삭제");
-        channelService.delete(target.getId());
-        System.out.println("채널 목록 : " + channelService.getAll());
-
-        System.out.println("============= 채널 테스트 끝 =============");
     }
 
     public static void testUserService(UserService userService) {
@@ -84,21 +57,57 @@ public class JavaApplication {
 
     }
 
+    public static void testChannelService(ChannelService channelService) {
+
+        System.out.println("============= 채널 테스트 시작 =============");
+
+
+        User user = new User("Test Target", true);
+
+        Channel testChannel = new Channel("Test Target", "Test Target", user.getId());
+
+        channelService.create(testChannel);
+        channelService.create(new Channel("Test Channel1", "Test Channel Description1", user.getId()));
+        channelService.create(new Channel("Test Channel2", "Test Channel Description2", user.getId()));
+        channelService.create(new Channel("Test Channel3", "Test Channel Description3", user.getId()));
+        channelService.create(new Channel("Test Channel4", "Test Channel Description4", user.getId()));
+
+        System.out.println("채널 목록 : " + channelService.getAll());
+
+        Channel target = channelService.get(testChannel.getId());
+        System.out.println("채널 ID로 찾기 : " + target);
+        if (target != null) {
+            channelService.update(target.getId(), "Update Test Target", "Update Test Target");
+            System.out.println("Test Target 채널 변경 : " + target);
+        }
+
+        System.out.println("채널 목록 : " + channelService.getAll());
+
+        System.out.println("Test Target 채널 삭제");
+        channelService.delete(target.getId());
+        System.out.println("채널 목록 : " + channelService.getAll());
+
+        System.out.println("============= 채널 테스트 끝 =============");
+    }
+
     public static void testMessageService(MessageService messageService) {
 
         System.out.println("============= 메세지 테스트 시작 =============");
 
-        Channel testChannel = new Channel("Test Channel", "Test Channel");
         User testUser1 = new User("Test User1", true);
         User testUser2 = new User("Test User2", true);
+
+        Channel testChannel = new Channel("Test Channel", "Test Channel"
+            , testUser1.getId(), List.of(testUser1.getId(), testUser2.getId()), null);
 
         Message message1 = new Message("Test Target Message From User1", testChannel.getId(), testUser1.getId());
         Message message2 = new Message("Test Message From User2", testChannel.getId(), testUser2.getId());
 
+        testChannel.addMessage(message1.getId());
+        testChannel.addMessage(message2.getId());
+
         messageService.create(message1);
         messageService.create(message2);
-        messageService.create(new Message("Test Message From User1", testChannel.getId(), testUser1.getId()));
-        messageService.create(new Message("Test Message From User2", testChannel.getId(), testUser2.getId()));
 
         System.out.println("Message 목록 : " + messageService.getAll());
 

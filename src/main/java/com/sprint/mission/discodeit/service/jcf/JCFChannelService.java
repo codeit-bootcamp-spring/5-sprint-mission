@@ -17,12 +17,12 @@ public class JCFChannelService implements ChannelService {
     @Override
     public Channel create(Channel channel) {
 
-        if (channel != null) {
-            data.add(channel);
-            return channel;
+        if (channel == null) {
+            return null;
         }
 
-        return null;
+        data.add(channel);
+        return channel;
     }
 
     @Override
@@ -38,17 +38,19 @@ public class JCFChannelService implements ChannelService {
     @Override
     public Channel update(UUID id, String name, String description) {
         Channel channel = data.stream().filter(c -> c.getId().equals(id)).findFirst().orElse(null);
-        if (channel != null) {
-            channel.update(name, description);
-            return channel;
+
+        if (channel == null) {
+            return null;
         }
 
-        return null;
+        channel.update(name, description);
+        return channel;
     }
 
     @Override
     public void delete(UUID id) {
         Channel channel = data.stream().filter(c -> c.getId().equals(id)).findFirst().orElse(null);
+
         if (channel != null) {
             data.remove(channel);
         }

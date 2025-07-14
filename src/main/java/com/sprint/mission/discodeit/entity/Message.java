@@ -2,33 +2,16 @@ package com.sprint.mission.discodeit.entity;
 
 import java.util.UUID;
 
-public class Message {
-    private UUID id;
+public class Message extends BaseEntity {
     private String text;
     private UUID channelId;
     private UUID userId;
-    private Long createdAt;
-    private Long updatedAt;
-
-    public Message() {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-    }
 
     public Message(String text, UUID channelId, UUID userId) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
+        super();
         this.text = text;
         this.channelId = channelId;
         this.userId = userId;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    private void setId(UUID id) {
-        this.id = id;
     }
 
     public String getText() {
@@ -39,20 +22,20 @@ public class Message {
         this.text = text;
     }
 
-    public Long getCreatedAt() {
-        return createdAt;
+    public UUID getChannelId() {
+        return channelId;
     }
 
-    private void setCreatedAt(Long createdAt) {
-        this.createdAt = createdAt;
+    private void setChannelId(UUID channelId) {
+        this.channelId = channelId;
     }
 
-    public Long getUpdatedAt() {
-        return updatedAt;
+    public UUID getUserId() {
+        return userId;
     }
 
-    private void setUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
+    private void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
     public void update(String text) {

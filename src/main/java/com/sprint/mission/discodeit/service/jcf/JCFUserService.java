@@ -17,12 +17,12 @@ public class JCFUserService implements UserService {
     @Override
     public User create(User user) {
 
-        if (user != null) {
-            data.add(user);
-            return user;
+        if (user == null) {
+            return null;
         }
 
-        return null;
+        data.add(user);
+        return user;
     }
 
     @Override
@@ -38,6 +38,11 @@ public class JCFUserService implements UserService {
     @Override
     public User update(UUID id, String name, boolean isOnline) {
         User user = data.stream().filter(u -> u.getId().equals(id)).findFirst().orElse(null);
+
+        if (user == null) {
+            return null;
+        }
+
         user.update(name, isOnline);
         return user;
     }

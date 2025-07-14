@@ -17,12 +17,12 @@ public class JCFMessageService implements MessageService {
     @Override
     public Message create(Message message) {
 
-        if (message != null) {
-            data.add(message);
-            return message;
+        if (message == null) {
+            return null;
         }
 
-        return null;
+        data.add(message);
+        return message;
     }
 
     @Override
@@ -39,12 +39,12 @@ public class JCFMessageService implements MessageService {
     public Message update(UUID id, String text) {
         Message message = data.stream().filter(m -> m.getId().equals(id)).findFirst().orElse(null);
 
-        if (message != null) {
-            message.update(text);
-            return message;
+        if (message == null) {
+            return null;
         }
 
-        return null;
+        message.update(text);
+        return message;
     }
 
     @Override
