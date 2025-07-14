@@ -8,13 +8,11 @@ public class User {
 
 	// createdAt, updateAt : Unix timeStamp
 	private final UUID id;
-	private Long createdAt;
+	private final Long createdAt;
 	private Long updatedAt;
 	private String loginId;
 	private String password;
 	private String defaultNickname;
-	private Map<UUID, String> nickName;
-	private ROLE role;
 
 	public User(String loginId, String password, String defaultNickname) {
 		this.loginId = loginId;
@@ -24,7 +22,6 @@ public class User {
 		id = UUID.randomUUID();
 		createdAt = Instant.now().getEpochSecond();
 		updatedAt = createdAt;
-		role = ROLE.USER;
 	}
 
 	public UUID getId() {
@@ -51,20 +48,8 @@ public class User {
 		return defaultNickname;
 	}
 
-	public Map<UUID, String> getNickName() {
-		return nickName;
-	}
-
-	public ROLE getRole() {
-		return role;
-	}
-
-	public void updateCreatedAt(Long createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public void updateUpdatedAt(Long updatedAt) {
-		this.updatedAt = updatedAt;
+	public void updateUpdatedAt() {
+		this.updatedAt = Instant.now().getEpochSecond();;
 	}
 
 	public void updateLoginId(String loginId) {
@@ -73,14 +58,6 @@ public class User {
 
 	public void updatePassword(String password) {
 		this.password = password;
-	}
-
-	public void updateRole(ROLE role) {
-		this.role = role;
-	}
-
-	public void updateNickName(Map<UUID, String> nickName) {
-		this.nickName = nickName;
 	}
 
 	public void updateDefaultNickname(String defaultNickname) {

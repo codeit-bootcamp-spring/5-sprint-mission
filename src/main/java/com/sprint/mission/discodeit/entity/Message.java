@@ -5,15 +5,16 @@ import java.util.UUID;
 
 public class Message {
 	private final UUID id;
-	private Long createdAt;
+	private final Long createdAt;
 	private Long updatedAt;
 	private UUID authorUUID;
 	private UUID channelUUID;
-	private String message;
+	private String text;
 
-	public Message(UUID authorUUID, UUID channelUUID,String message) {
+	public Message(UUID authorUUID, UUID channelUUID,String text) {
 		this.authorUUID = authorUUID;
-		this.message = message;
+		this.channelUUID = channelUUID;
+		this.text = text;
 
 		id = UUID.randomUUID();
 		createdAt = Instant.now().getEpochSecond();
@@ -36,20 +37,17 @@ public class Message {
 		return authorUUID;
 	}
 
-	public String getMessage() {
-		return message;
+	public String getText() {
+		return text;
 	}
 
 	public UUID getChannelUUID() {
 		return channelUUID;
 	}
 
-	public void updateCreatedAt(Long createdAt) {
-		this.createdAt = createdAt;
-	}
 
-	public void updateUpdatedAt(Long updatedAt) {
-		this.updatedAt = updatedAt;
+	public void updateUpdatedAt() {
+		this.updatedAt = Instant.now().getEpochSecond();
 	}
 
 	public void updateAuthorUUID(UUID authorUUID) {
@@ -60,7 +58,7 @@ public class Message {
 		this.channelUUID = channelUUID;
 	}
 
-	public void updateMessage(String message) {
-		this.message = message;
+	public void updateText(String text) {
+		this.text = text;
 	}
 }

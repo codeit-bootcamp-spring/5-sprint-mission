@@ -1,33 +1,31 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class Channel {
 	private final UUID id;
-	private Long createdAt;
+	private final Long createdAt;
 	private Long updatedAt;
 	private String ChannelName;
-	private ROLE[] AccessPermission;
-	private UUID[] channelUsersUUID;
-	private UUID[] channelMessagesUUID;
+	private final List<UUID> channelUsersUUID;
+	private final List<UUID> channelMessagesUUID;
+	private final Map<UUID, String> userNicknames;
 
 	public Channel(String channelName) {
 		ChannelName = channelName;
+		channelUsersUUID = new ArrayList<>();
+		channelMessagesUUID = new ArrayList<>();
+		userNicknames = new ConcurrentHashMap<UUID, String>();
 
 		id = UUID.randomUUID();
 		createdAt = Instant.now().getEpochSecond();
 		updatedAt = Instant.now().getEpochSecond();
-		AccessPermission = new ROLE[] {ROLE.ADMIN, ROLE.USER};
-	}
-
-	public Channel(String channelName, ROLE[] accessPermission) {
-		AccessPermission = accessPermission;
-		ChannelName = channelName;
-
-		id = UUID.randomUUID();
-		createdAt = Instant.now().getEpochSecond();
-		updatedAt = createdAt;
 	}
 
 	public UUID getId() {
@@ -46,40 +44,51 @@ public class Channel {
 		return ChannelName;
 	}
 
-	public ROLE[] getAccessPermission() {
-		return AccessPermission;
-	}
-
-	public UUID[] getChannelUsersUUID() {
+	public List<UUID> getChannelUsersUUID() {
 		return channelUsersUUID;
 	}
 
-	public UUID[] getChannelMessagesUUID() {
+	public List<UUID> getChannelMessagesUUID() {
 		return channelMessagesUUID;
 	}
 
-	public void updateCreatedAt(Long createdAt) {
-		this.createdAt = createdAt;
+	public Map<UUID, String> getUserNicknames() {
+		return userNicknames;
 	}
 
-	public void updateUpdatedAt(Long updatedAt) {
-		this.updatedAt = updatedAt;
+	public String getUserNickname(UUID userUUID) {
+		return userNicknames.get(userUUID);
+	}
+
+	public void updateUpdatedAt() {
+		this.updatedAt = Instant.now().getEpochSecond();;
 	}
 
 	public void updateChannelName(String channelName) {
 		ChannelName = channelName;
 	}
 
-	public void updateAccessPermission(ROLE[] accessPermission) {
-		AccessPermission = accessPermission;
+	public void addUser(UUID userUUID) {
+		this.channelUsersUUID.add(userUUID);
 	}
 
-	public void setChannelUsersUUID(UUID[] channelUserslUUID) {
-		this.channelUsersUUID = channelUserslUUID;
+	public void addMessage(UUID messageUUID) {
+		this.channelMessagesUUID.add(messageUUID);
 	}
 
-	public void setChannelMessagesUUID(UUID[] channelMessagesUUID) {
-		this.channelMessagesUUID = channelMessagesUUID;
+	public void addNickname(UUID userUUID, String nickname) {
+		this.userNicknames.put(userUUID, nickname);
 	}
 
+	public void removeUser(UUID userUUID) {
+		this.channelUsersUUID.remove(userUUID);
+	}
+
+	public void removeMessage(UUID messageUUID) {
+		this.channelMessagesUUID.remove(messageUUID);
+	}
+
+	public void removeNickname(UUID userUUID) {
+		this.userNicknames.remove(userUUID);
+	}
 }
