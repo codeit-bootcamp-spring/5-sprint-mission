@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.jcf.JCFUserService;
-import com.sprint.mission.discodeit.jcf.JFCMessageService;
+import com.sprint.mission.discodeit.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.jcf.SimpleChatService;
 
 import java.util.ArrayList;
@@ -17,12 +17,12 @@ public class JavaApplication {
     public static void main(String[] args) {
         JCFUserService jcfUserService = new JCFUserService();
         JCFChannelService jcfChannelService = new JCFChannelService();
-        JFCMessageService jfcMessageService = new JFCMessageService();
-        SimpleChatService simpleChatService = new SimpleChatService(jcfUserService, jcfChannelService, jfcMessageService);
+        JCFMessageService JCFMessageService = new JCFMessageService();
+        SimpleChatService simpleChatService = new SimpleChatService(jcfUserService, jcfChannelService, JCFMessageService);
 
         userCRUDTest(jcfUserService);
         channelCRUDTest(jcfChannelService, jcfUserService, simpleChatService);
-        messageCRUDTest(jfcMessageService, jcfChannelService, jcfUserService, simpleChatService);
+        messageCRUDTest(JCFMessageService, jcfChannelService, jcfUserService, simpleChatService);
     }
 
     private static void userCRUDTest(JCFUserService jcfUserService) {
@@ -102,7 +102,7 @@ public class JavaApplication {
         System.out.println("전체 유저 조회: " + jcfUserService.findAll());
     }
 
-    private static void messageCRUDTest(JFCMessageService jfcMessageService, JCFChannelService jcfChannelService, JCFUserService jcfUserService, SimpleChatService simpleChatService) {
+    private static void messageCRUDTest(JCFMessageService JCFMessageService, JCFChannelService jcfChannelService, JCFUserService jcfUserService, SimpleChatService simpleChatService) {
         System.out.println();
 
         // 유저와 채널 조회
@@ -124,17 +124,17 @@ public class JavaApplication {
         simpleChatService.viewChannel(channel1.getId());
 
         // 메시지 수정
-        var messages = jfcMessageService.findAll();
+        var messages = JCFMessageService.findAll();
         if (!messages.isEmpty()) {
             Message messageToUpdate = messages.getFirst();
-            jfcMessageService.update(messageToUpdate.getId(), "안녕하세요 여러분 OOP 개념은 익숙하신가요?");
+            JCFMessageService.update(messageToUpdate.getId(), "안녕하세요 여러분 OOP 개념은 익숙하신가요?");
             System.out.println("메시지 수정 완료");
         }
 
         // 메시지 삭제
         if (messages.size() > 1) {
             Message messageToDelete = messages.get(1);
-            jfcMessageService.delete(messageToDelete.getId());
+            JCFMessageService.delete(messageToDelete.getId());
             System.out.println("메시지 삭제 완료");
         }
 
@@ -146,7 +146,7 @@ public class JavaApplication {
 
         // 전체 메시지 조회
         System.out.println("전체 메시지 목록:");
-        for (Message m : jfcMessageService.findAll()) {
+        for (Message m : JCFMessageService.findAll()) {
             System.out.println("- " + m);
         }
     }

@@ -1,12 +1,11 @@
 package com.sprint.mission.discodeit.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.util.*;
 
-public class JFCMessageService implements MessageService {
+public class JCFMessageService implements MessageService {
 
     Map<UUID, Message> messages = new HashMap<UUID, Message>();
 

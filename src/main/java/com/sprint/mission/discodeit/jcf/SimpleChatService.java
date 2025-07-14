@@ -11,9 +11,9 @@ public class SimpleChatService implements ChatService {
 
     private final JCFUserService jcfUserService;
     private final JCFChannelService jcfChannelService;
-    private final JFCMessageService jcfMessageService;
+    private final JCFMessageService jcfMessageService;
 
-    public SimpleChatService(JCFUserService jcfUserService, JCFChannelService jcfChannelService, JFCMessageService jcfMessageService) {
+    public SimpleChatService(JCFUserService jcfUserService, JCFChannelService jcfChannelService, JCFMessageService jcfMessageService) {
         this.jcfUserService = jcfUserService;
         this.jcfChannelService = jcfChannelService;
         this.jcfMessageService = jcfMessageService;
