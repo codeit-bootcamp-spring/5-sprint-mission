@@ -1,27 +1,33 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.UUID;
 
-public class User {
-    private final UUID id;
-    private final Long createdAt;
-    private Long updatedAt;
-    private String name;
+public class User extends Base {
 
-    public User(String name) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = this.createdAt;
+    private String name;
+    private String password;
+
+    public User(String name, String password) {
         this.name = name;
+        this.password = password;
     }
 
-    public UUID getId() { return id; }
-    public Long getCreatedAt() { return createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
-    public String getName() { return name; }
+    public String getName() {return name;}
+    public void updateName(String newName) {
+        this.name = newName;
+        updateTimestamp();
+    }
+    public String getPassword() {return password;}
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+        updateTimestamp();
+    }
 
-    public void update(String name) {
-        this.name = name;
-        this.updatedAt = System.currentTimeMillis();
+    @Override
+    public String toString() {
+        return "\nid: " + getId() + "|  name: " + name + "\n";
     }
 }
