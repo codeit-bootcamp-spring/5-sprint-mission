@@ -65,12 +65,13 @@ public class Message {
 
     @Override
     public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", createdAt=" + Instant.ofEpochMilli(createdAt) +
-                ", updatedAt=" + Instant.ofEpochMilli(updatedAt) +
-                ", content='" + content + '\'' +
-                ", senderId=" + senderId +
-                '}';
+        final StringBuilder sb = new StringBuilder("Message{");
+        sb.append("id=").append(id);
+        sb.append(", createdAt=").append(Instant.ofEpochMilli(createdAt));
+        sb.append(", updatedAt=").append(Instant.ofEpochMilli(updatedAt));
+        sb.append(", content='").append(content).append('\'');
+        sb.append(", senderId=").append(senderId);
+        sb.append('}');
+        return sb.toString();
     }
 }
