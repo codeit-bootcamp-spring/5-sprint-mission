@@ -37,12 +37,13 @@ public class User {
         return nickName;
     }
 
-
-
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("User{");
+        final StringBuilder sb = new StringBuilder();
         sb.append("id=").append(id);
+        sb.append(", nickName='").append(nickName);
+        sb.append(", createdAt=").append(createdAt);
+        sb.append(", updatedAt=").append(updatedAt).append('\'');;
         sb.append('}');
         return sb.toString();
     }
