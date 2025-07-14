@@ -11,9 +11,8 @@ public interface ChannelService {
     Channel findById(UUID id);                                          // 단건 조회
     List<Channel> findAll();                                            // 다건 조회
     void update(UUID id, String name, String description);              // 업데이트
-    boolean addUser(UUID id, UUID userId);                              // 유저 채널에서 추가
-    boolean removeUser(UUID id, UUID userId);                           // 유저 채널에서 제거
-    boolean addMessage(UUID id, UUID messageId);
-    boolean removeMessage(UUID id, UUID messageId);
+    boolean joinUser(UUID id, UUID userId);                             // 유저 채널에서 추가
+    boolean leaveUser(UUID id, UUID userId);                            // 유저 채널에서 떠남
+    boolean addMessage(UUID id, UUID messageId);                        // 메세지 참조 저장
     void delete(UUID id);                                               // 삭제
 }

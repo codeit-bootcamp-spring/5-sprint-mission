@@ -138,6 +138,9 @@ public class JavaApplication {
             System.out.println("메시지 삭제 완료");
         }
 
+        // 유저1 삭제
+        jcfUserService.delete(user1.getId());
+
         // 채널 조회 재출력 (변화 확인)
         simpleChatService.viewChannel(channel1.getId());
 

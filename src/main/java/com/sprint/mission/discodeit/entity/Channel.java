@@ -1,18 +1,23 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.service.SoftDeletable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Channel {
+public class Channel implements SoftDeletable {
 
-    private final UUID id;
-    private final Long createdAt;
-    private final List<UUID> userIds;       // 채널 참가한 유저의 UUID 담을 수 있는 리스트 선언
-    private final List<UUID> messageIds = new ArrayList<>();
-    private Long updatedAt;
-    private String name;
-    private String description;
+    // 소프트 삭제 여부 (true면 삭제된 상태)
+    private boolean deleted = false;
+
+    private final UUID id;                                      // 고유 아이디
+    private final Long createdAt;                               // 생성일
+    private final List<UUID> userIds;                           // 채널 참가한 유저의 UUID를 담을 수 있는 리스트
+    private final List<UUID> messageIds = new ArrayList<>();    // 채널에 작성된 메세지의 UUID를 담을 수 있는 리스트
+    private Long updatedAt;                                     // 정보 업데이트일
+    private String name;                                        // 채널명
+    private String description;                                 // 채널소개
 
     // 생성자, count는 채널 내의 유저 수로 처음 만들 때는 1이라 가정
     public Channel(List<UUID> userIds, String name, String description) {
@@ -34,6 +39,7 @@ public class Channel {
     public String getDescription() { return description; }
     public int getCount() { return userIds.size(); }        // 채널의 유저수는 userIds.size()로 가능하니 기존 count필드는 삭제
 
+    // 정보 업데이트
     public void update(String name, String description) {
         this.name = name;
         this.description = description;
@@ -61,18 +67,22 @@ public class Channel {
         return true;
     }
 
+    // 메세지 아이디 추가
     public void addMessage(UUID messageId) {
         messageIds.add(messageId);
         this.updatedAt = System.currentTimeMillis();
     }
 
-    public boolean removeMessage(UUID messageId) {
-        boolean removed = messageIds.remove(messageId);
-        if (removed) {
-            this.updatedAt = System.currentTimeMillis();
-        }
+    // 소프트 삭제 여부 반환
+    @Override
+    public boolean isDeleted() {
+        return this.deleted;
+    }
 
-        return removed;
+    // 소프트 삭제 처리
+    @Override
+    public void delete() {
+        deleted = true;
     }
 
     @Override

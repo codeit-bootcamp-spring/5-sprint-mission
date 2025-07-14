@@ -1,18 +1,23 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.service.SoftDeletable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class User {
+public class User implements SoftDeletable {
 
-    private final UUID id;
-    private final Long createdAt;
-    private final List<UUID> channelIds =  new ArrayList<>(); // 채널에도 유저의 UUID를 모아놓은 것처럼 유저에도 참가한 채널의 UUID 담을 수 있는 리스트 선언
-    private final List<UUID> messageIds =  new ArrayList<>();
-    private Long updatedAt;
-    private String name;
-    private int age;
+    // 소프트 삭제 여부 (true면 삭제된 상태)
+    private boolean deleted = false;
+
+    private final UUID id;                                      // 고유 아이디
+    private final Long createdAt;                               // 생성일
+    private final List<UUID> channelIds =  new ArrayList<>();   // 참가한 채널의 UUID를 담을 수 있는 리스트
+    private final List<UUID> messageIds =  new ArrayList<>();   // 작성한 메세지의 UUID를 담을 수 있는 리스트
+    private Long updatedAt;                                     // 정보 업데이트일
+    private String name;                                        // 이름
+    private int age;                                            // 나이
 
     // 생성자
     public User(String name, int age) {
@@ -32,7 +37,7 @@ public class User {
     public String getName() { return name; }
     public int getAge() { return age; }
 
-    // 업데이트
+    // 정보 업데이트
     public void update(String name, int age) {
         this.name = name;
         this.age = age;
@@ -61,6 +66,7 @@ public class User {
         return true;
     }
 
+    // 메세지 아이디 추가
     public boolean addMessage(UUID messageId) {
         if (this.messageIds.contains(messageId)) {
             return false;
@@ -71,13 +77,16 @@ public class User {
         return true;
     }
 
-    public boolean removeMessage(UUID messageId) {
-        boolean removed = messageIds.remove(messageId);
-        if (removed) {
-            this.updatedAt = System.currentTimeMillis();
-        }
+    // 소프트 삭제 여부 반환
+    @Override
+    public boolean isDeleted() {
+        return this.deleted;
+    }
 
-        return removed;
+    // 소프트 삭제 처리
+    @Override
+    public void delete() {
+        deleted = true;
     }
 
     @Override
