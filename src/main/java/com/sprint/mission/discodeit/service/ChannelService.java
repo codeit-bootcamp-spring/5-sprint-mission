@@ -16,6 +16,8 @@ public interface ChannelService {
      */
     Channel create(String name, String topic);
 
+    Channel findById(UUID id);
+
     /**
      * 채널 검색
      * @param name 채널이름

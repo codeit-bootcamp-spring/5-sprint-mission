@@ -3,13 +3,25 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.*;
 
 public class JCAMessageService implements MessageService {
 
-    private final Map<UUID, Message> data = new LinkedHashMap<>();
+    private final Map<UUID, Message> data;
+
+    private final UserService userService;
+    private final ChannelService channelService;
+
+    public JCAMessageService(UserService userService, ChannelService channelService) {
+        this.userService = userService;
+        this.channelService = channelService;
+        this.data = new LinkedHashMap<>();
+    }
+
 
     // 메시지 조회
     public List<Message> findAll(){
@@ -18,6 +30,14 @@ public class JCAMessageService implements MessageService {
 
     // 메시지 생성
     public Message create(User user, Channel channel, String content) {
+        if (userService.findById(user.getId()) == null) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+
+        if (channelService.findById(channel.getId()) == null) {
+            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
+        }
+
         Message message = new Message(user, channel, content);
         data.put(message.getId(), message);
         return message;

@@ -16,6 +16,10 @@ public class JCFChannelService implements ChannelService {
         return channel;
     }
 
+    public Channel findById(UUID id){
+        return data.get(id);
+    }
+
 
     public List<Channel> findByName(String name){
         List<Channel> ch = new ArrayList<>();

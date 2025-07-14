@@ -17,7 +17,7 @@ public class JavaApplication {
 
     static UserService userService = new JCFUserService();
     static ChannelService channelService = new JCFChannelService();
-    static MessageService messageService = new JCAMessageService();
+    static MessageService messageService = new JCAMessageService(userService, channelService);
 
     public static void main(String[] args) {
 
