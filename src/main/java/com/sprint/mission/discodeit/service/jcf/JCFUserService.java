@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class JCFUserService implements UserService {
 
@@ -15,7 +16,7 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void addUser(User user) {
+    public void createUser(User user) {
         data.add(user);
     }
 
@@ -31,8 +32,30 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User getUser(int i) {
+    public User searchByIndex(int i) {
         return data.get(i);
+    }
+
+    @Override
+    public User searchById(UUID id) {
+        for (User user : data) {
+            if (user.getId().equals(id)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<User> searchByName(String name) {
+        List<User> users = new ArrayList<>();
+
+        for (User datum : data) {
+            if (datum.getName().contains(name)) {
+                users.add(datum);
+            }
+        }
+        return users;
     }
 
     @Override
