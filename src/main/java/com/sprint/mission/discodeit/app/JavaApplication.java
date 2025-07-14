@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.jcf.JCFUserService;
 import com.sprint.mission.discodeit.jcf.JFCMessageService;
+import com.sprint.mission.discodeit.jcf.SimpleChatService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,16 +16,16 @@ public class JavaApplication {
 
     public static void main(String[] args) {
         JCFUserService jcfUserService = new JCFUserService();
-        List<User> users = userCRUDTest(jcfUserService);
-
         JCFChannelService jcfChannelService = new JCFChannelService();
-        channelCRUDTest(jcfChannelService, jcfUserService, users);
-
         JFCMessageService jfcMessageService = new JFCMessageService();
-        messageCRUDTest(jfcMessageService);
+        SimpleChatService simpleChatService = new SimpleChatService(jcfUserService, jcfChannelService, jfcMessageService);
+
+        userCRUDTest(jcfUserService);
+        channelCRUDTest(jcfChannelService, jcfUserService, simpleChatService);
+        messageCRUDTest(jfcMessageService, jcfChannelService, jcfUserService, simpleChatService);
     }
 
-    private static List<User> userCRUDTest(JCFUserService jcfUserService) {
+    private static void userCRUDTest(JCFUserService jcfUserService) {
         // 3개의 유저 객체 생성
         User user1 = new User("임재혁", 27);
         User user2 = new User("임꺽정", 80);
@@ -52,11 +53,13 @@ public class JavaApplication {
         System.out.println("전체 유저 조회: " + jcfUserService.findAll());
 
         // 이후 테스트들에서 재사용하기 위해 유저 객체 리스트 반환
-        return List.of(user1, user2);
     }
 
-    private static void channelCRUDTest(JCFChannelService jcfChannelService, JCFUserService jcfUserService, List<User> users) {
+    private static void channelCRUDTest(JCFChannelService jcfChannelService, JCFUserService jcfUserService, SimpleChatService simpleChatService) {
+        System.out.println();
+
         // 기존 객체 재사용
+        List<User> users = jcfUserService.findAll();
         User user1 = users.get(0);
         User user2 = users.get(1);
 
@@ -70,10 +73,10 @@ public class JavaApplication {
         jcfChannelService.create(channel1);
         jcfChannelService.create(channel2);
 
-        // 유저 객체에 참여 정보 추가
-        jcfUserService.joinChannel(user1.getId(), channel1.getId());
-        jcfUserService.joinChannel(user2.getId(), channel1.getId());
-        jcfUserService.joinChannel(user2.getId(), channel2.getId());
+        // 채널 참여 (유저&채널)
+        simpleChatService.joinChannel(user1.getId(), channel1.getId());
+        simpleChatService.joinChannel(user2.getId(), channel1.getId());
+        simpleChatService.joinChannel(user2.getId(), channel2.getId());
 
         // 채널 & 유저 전체 조회 (서로 채널아이디, 유저아이디 잘 추가되었는지 확인)
         System.out.println("전체 채널 조회: " + jcfChannelService.findAll());
@@ -83,51 +86,65 @@ public class JavaApplication {
         jcfChannelService.update(channel2.getId(), "운영체제 공부 채널", "운영체제 스터디 채널입니다.");
         System.out.println("채널 정보 수정 후 조회: " + jcfChannelService.findById(channel2.getId()));
 
-        // 삭제, 알고리즘 공부 채널 +  유저2(김철수) 채널 참여 정보에서 알고리즘 공부 채널 제거
+        // 삭제, 알고리즘 공부 채널 +  유저2 채널 참여 정보에서 알고리즘 공부 채널 제거
         jcfChannelService.delete(channel2.getId());
         jcfUserService.leaveChannel(user2.getId(), channel2.getId());
         System.out.println("채널 삭제 후 조회: " + jcfChannelService.findById(channel2.getId()));   // 존재하지않으므로 null 출력
+
+        // 유저1 채널2에 참가
+        simpleChatService.joinChannel(user1.getId(), channel2.getId());
+
+        // 유저1 채널1에서 나감
+        simpleChatService.leaveChannel(user1.getId(), channel1.getId());
 
         // 마지막 전체 조회
         System.out.println("전체 채널 조회: " + jcfChannelService.findAll());
         System.out.println("전체 유저 조회: " + jcfUserService.findAll());
     }
 
-    private static void messageCRUDTest(JFCMessageService jfcMessageService) {
-        // 메세지 보낼 객체 생성
-        User user1 = new User("임재혁", 27);
-        User user2 = new User("임꺽정", 80);
-        User user3 = new User("임재범", 50);
+    private static void messageCRUDTest(JFCMessageService jfcMessageService, JCFChannelService jcfChannelService, JCFUserService jcfUserService, SimpleChatService simpleChatService) {
+        System.out.println();
 
-        List<UUID> userIds1 = List.of(user1.getId(), user2.getId());
-        List<UUID> userIds2 = List.of(user2.getId(), user3.getId());
+        // 유저와 채널 조회
+        List<User> users = jcfUserService.findAll();
+        User user1 = users.get(0);
+        User user2 = users.get(1);
 
-        // 메세지를 주고 받을 채널 객체 생성
-        Channel channel1 = new Channel(userIds1, "자바 공부 채널", "자바 스터디 채널입니다.");
-        Channel channel2 = new Channel(userIds2, "스프링 공부 채널", "스프링 스터디 채널입니다.");
+        List<Channel> channels = jcfChannelService.findAll();
+        Channel channel1 = channels.getFirst();
 
-        // 메세지 객체 생성
-        Message message1 = new Message(user1.getId(), user2.getId(), "안녕하세요 여러분 자바 즐거우세요?");
-        Message message2 = new Message(user2.getId(), user3.getId(), "안녕하세요 여러분 스프링 즐거우세요?");
+        // 유저1 채널1에 재참가
+        simpleChatService.joinChannel(user1.getId(), channel1.getId());
 
-        jfcMessageService.create(message1);
-        jfcMessageService.create(message2);
+        // 메세지 전송
+        simpleChatService.sendMessage(user1.getId(), channel1.getId(), "안녕하세요 여러분 자바 즐거우세요?");
+        simpleChatService.sendMessage(user2.getId(), channel1.getId(), "안녕하세요 여러분 스프링 즐거우세요?");
 
-        // 단건 조회
-        System.out.println("조회: " + jfcMessageService.findById(message1.getId()));
+        // 채널 조회 (뷰 기능 활용)
+        simpleChatService.viewChannel(channel1.getId());
 
-        // 전체 조회
-        System.out.println("전체 조회: " + jfcMessageService.findAll());
+        // 메시지 수정
+        var messages = jfcMessageService.findAll();
+        if (!messages.isEmpty()) {
+            Message messageToUpdate = messages.getFirst();
+            jfcMessageService.update(messageToUpdate.getId(), "안녕하세요 여러분 OOP 개념은 익숙하신가요?");
+            System.out.println("메시지 수정 완료");
+        }
 
-        // 수정, "안녕하세요 여러분 자바 즐거우세요?" -> "안녕하세요 여러분 다들 OOP 개념에 대해서 익숙해지셨나요?"
-        jfcMessageService.update(message1.getId(), "안녕하세요 여러분 다들 OOP 개념에 대해서 익숙해지셨나요?");
-        System.out.println("수정 후 조회: " + jfcMessageService.findById(message1.getId()));
+        // 메시지 삭제
+        if (messages.size() > 1) {
+            Message messageToDelete = messages.get(1);
+            jfcMessageService.delete(messageToDelete.getId());
+            System.out.println("메시지 삭제 완료");
+        }
 
-        // 삭제, "안녕하세요 여러분 스프링 즐거우세요?"
-        jfcMessageService.delete(message2.getId());
-        System.out.println("삭제 후 조회: " + jfcMessageService.findById(message2.getId()));   // 존재하지않으므로 null 출력
+        // 채널 조회 재출력 (변화 확인)
+        simpleChatService.viewChannel(channel1.getId());
 
-        // 마지막 전체 조회
-        System.out.println("전체 조회: " + jfcMessageService.findAll());
+        // 전체 메시지 조회
+        System.out.println("전체 메시지 목록:");
+        for (Message m : jfcMessageService.findAll()) {
+            System.out.println("- " + m);
+        }
     }
 }

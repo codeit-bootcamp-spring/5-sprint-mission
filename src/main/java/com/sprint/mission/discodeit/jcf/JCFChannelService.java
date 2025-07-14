@@ -51,6 +51,22 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
+    public boolean addMessage(UUID channelId, UUID messageId) {
+        Channel channel = channels.get(channelId);
+        if (channel == null) return false;
+        channel.addMessage(messageId);
+        return true;
+    }
+
+    @Override
+    public boolean removeMessage(UUID id, UUID messageId) {
+        Channel channel = channels.get(id);
+        if (channel == null) return false;
+        return channel.removeMessage(messageId);
+    }
+
+
+    @Override
     public void delete(UUID id) {
         channels.remove(id);
     }

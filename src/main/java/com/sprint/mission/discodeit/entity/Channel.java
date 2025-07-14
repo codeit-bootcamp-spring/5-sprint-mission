@@ -9,6 +9,7 @@ public class Channel {
     private final UUID id;
     private final Long createdAt;
     private final List<UUID> userIds;       // 채널 참가한 유저의 UUID 담을 수 있는 리스트 선언
+    private final List<UUID> messageIds = new ArrayList<>();
     private Long updatedAt;
     private String name;
     private String description;
@@ -27,6 +28,7 @@ public class Channel {
     public UUID getId() { return id; }
     public Long getCreatedAt() { return createdAt; }
     public List<UUID> getUserIds() { return userIds; }
+    public List<UUID> getMessageIds() { return messageIds; }
     public Long getUpdatedAt() { return updatedAt; }
     public String getName() { return name; }
     public String getDescription() { return description; }
@@ -57,6 +59,20 @@ public class Channel {
         userIds.remove(userId);
         this.updatedAt = System.currentTimeMillis();
         return true;
+    }
+
+    public void addMessage(UUID messageId) {
+        messageIds.add(messageId);
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public boolean removeMessage(UUID messageId) {
+        boolean removed = messageIds.remove(messageId);
+        if (removed) {
+            this.updatedAt = System.currentTimeMillis();
+        }
+
+        return removed;
     }
 
     @Override

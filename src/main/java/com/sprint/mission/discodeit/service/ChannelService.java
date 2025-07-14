@@ -13,5 +13,7 @@ public interface ChannelService {
     void update(UUID id, String name, String description);              // 업데이트
     boolean addUser(UUID id, UUID userId);                              // 유저 채널에서 추가
     boolean removeUser(UUID id, UUID userId);                           // 유저 채널에서 제거
+    boolean addMessage(UUID id, UUID messageId);
+    boolean removeMessage(UUID id, UUID messageId);
     void delete(UUID id);                                               // 삭제
 }

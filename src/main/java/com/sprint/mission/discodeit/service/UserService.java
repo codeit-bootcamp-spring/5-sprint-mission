@@ -13,5 +13,8 @@ public interface UserService {
     void update(UUID id, String name, int age);     // 업데이트
     boolean joinChannel(UUID id, UUID channelId);   // 채널 참가
     boolean leaveChannel(UUID id, UUID channelId);  // 채널 퇴장
+    boolean addMessage(UUID id, UUID messageId);
+    boolean removeMessage(UUID id, UUID messageId);
     void delete(UUID id);                           // 삭제
+    boolean isUserInChannel(UUID userId, UUID channelId);
 }
