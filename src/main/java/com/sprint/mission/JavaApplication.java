@@ -44,22 +44,24 @@ public class JavaApplication {
     }
 
     public static void testUserService() {
-        System.out.println("======== [유저 테스트] ========");
-
+        System.out.println("================================== [유저 테스트] ==================================");
+        System.out.println("사용자 목록: ");
         System.out.println(userService.findAll());
 
         // 등록
         User user1 = userService.create("소연", "1234");
-        System.out.println("등록: " + user1.getName());
+        System.out.println("사용자 목록: ");
+        System.out.println(userService.findAll());
 
         // 조회
         User found = userService.findById(user1.getId());
-        System.out.println("조회: " + found.getName());
+        System.out.println("새로 가입한 사용자: " + found.getName());
         System.out.println(userService.findAll());
 
         // 수정
         userService.update(user1.getId(), "이소연");
         System.out.println("수정 후: " + userService.findById(user1.getId()).getName());
+        System.out.println(userService.findAll());
 
         // 삭제
         userService.delete(user1.getId());
@@ -113,15 +115,17 @@ public class JavaApplication {
     }
 
     public static void testMessageService() {
-        System.out.println("======== [메시지 테스트] ========");
+        System.out.println("================================== [메시지 테스트] ==================================");
+        System.out.println("현재 메시지: ");
         System.out.println(messageService.findAll());
 
         // 메시지 생성
+        System.out.println("메시지 생성");
         Message m1 = messageService.create(userService.findAll().get(3), channelService.findAll().get(0), "아니요.. 다 못했어요" );
         System.out.println(m1);
 
         // 메시지 검색
-        System.out.println("검색된 메시지: ");
+        System.out.println("검색 단어 : 안녕 ");
         List<Message> findedMsg = messageService.findByStr("안녕");
         System.out.println(findedMsg);
         System.out.println();

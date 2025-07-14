@@ -28,6 +28,6 @@ public class User extends Base {
 
     @Override
     public String toString() {
-        return "\nid: " + getId() + "|  name: " + name + "\n";
+        return "\nid: " + getId() + "|  name: " + name;
     }
 }
