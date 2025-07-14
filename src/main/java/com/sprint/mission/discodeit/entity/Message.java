@@ -7,28 +7,57 @@ public class Message {
     private final long createdAt;
     private long updatedAt;
 
-    private String message;
+    private final UUID userId;
+    private final UUID channelId;
+    private String content;
 
-    public Message(String message) {
+    public Message(UUID userId, UUID channelId, String content) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = this.createdAt;
-        this.message = message;
+        this.userId = userId;
+        this.channelId = channelId;
+        this.content = content;
     }
 
+    public UUID getId() {
+        return id;
+    }
 
-    public void updateMessage(String message) {
-        this.message = message;
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public UUID getChannelId() {
+        return channelId;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void writeToContent(String newContent) {
+        this.content = newContent;
         this.updatedAt = System.currentTimeMillis();
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Message{");
-        sb.append("Messageid=").append(id);
+        sb.append("id=").append(id);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", updatedAt=").append(updatedAt);
-        sb.append(", message='").append(message).append('\'');
+        sb.append(", userId=").append(userId);
+        sb.append(", channelId=").append(channelId);
+        sb.append(", content='").append(content).append('\'');
         sb.append('}');
         return sb.toString();
     }
