@@ -13,17 +13,16 @@ public class Channel implements SoftDeletable {
 
     private final UUID id;                                      // 고유 아이디
     private final Long createdAt;                               // 생성일
-    private final List<UUID> userIds;                           // 채널 참가한 유저의 UUID를 담을 수 있는 리스트
+    private final List<UUID> userIds = new ArrayList<>();       // 채널 참가한 유저의 UUID를 담을 수 있는 리스트
     private final List<UUID> messageIds = new ArrayList<>();    // 채널에 작성된 메세지의 UUID를 담을 수 있는 리스트
     private Long updatedAt;                                     // 정보 업데이트일
     private String name;                                        // 채널명
     private String description;                                 // 채널소개
 
     // 생성자, count는 채널 내의 유저 수로 처음 만들 때는 1이라 가정
-    public Channel(List<UUID> userIds, String name, String description) {
+    public Channel(String name, String description) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
-        this.userIds = userIds;
         this.updatedAt = System.currentTimeMillis();
         this.name = name;
         this.description = description;

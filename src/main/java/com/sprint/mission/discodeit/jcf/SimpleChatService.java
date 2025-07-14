@@ -3,10 +3,20 @@ package com.sprint.mission.discodeit.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.ChatService;
+import com.sprint.mission.discodeit.util.Logger;
 
 import java.util.Date;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.util.Logger.*;
+
+/**
+ * 유저, 채널, 메시지 서비스를 연결해주는 중간 서비스입니다.
+ * 채널 참여/퇴장, 메시지 전송, 채널 조회 등 채팅의 핵심 흐름을 담당합니다.
+ *
+ * 내부적으로 JCF 기반의 유저/채널/메시지 서비스를 의존하며,
+ * 각 객체의 유효성을 검사하고 상태를 함께 관리합니다.
+ */
 public class SimpleChatService implements ChatService {
 
     private final JCFUserService jcfUserService;
@@ -19,71 +29,67 @@ public class SimpleChatService implements ChatService {
         this.jcfMessageService = jcfMessageService;
     }
 
-    // 유저가 채널에 참가
+    // 유저를 채널에 참가시킴
     @Override
     public boolean joinChannel(UUID userId, UUID channelId) {
-        System.out.println("[joinChannel] 유저 ID: " + userId + ", 채널 ID: " + channelId);
+        log("joinChannel", "유저 ID: " + userId + ", 채널 ID: " + channelId);
 
-        if (jcfUserService.findById(userId) == null) {
-            System.out.println("유저가 존재하지 않습니다.");
+        if (userId == null || jcfUserService.findById(userId, false) == null) {
+            log("joinChannel", "유저가 존재하지 않음");
             return false;
         }
 
-        if (jcfChannelService.findById(channelId) == null) {
-            System.out.println("채널이 존재하지 않습니다.");
+        if (channelId == null || jcfChannelService.findById(channelId, false) == null) {
+            log("joinChannel", "채널이 존재하지 않음");
             return false;
         }
 
         boolean userJoined = jcfUserService.joinChannel(userId, channelId);
         boolean channelJoined = jcfChannelService.joinUser(channelId, userId);
 
-        System.out.println("유저 참가 결과: " + userJoined + ", 채널 참가 결과: " + channelJoined);
-        System.out.println();
-
+        log("joinChannel", "유저 참가 결과: " + userJoined + ", 채널 참가 결과: " + channelJoined);
         return userJoined && channelJoined;
     }
 
-    // 유저가 채널을 떠남
+    // 채널에서 유저를 퇴장시킴
     @Override
     public boolean leaveChannel(UUID userId, UUID channelId) {
-        System.out.println("[leaveChannel] 유저 ID: " + userId + ", 채널 ID: " + channelId);
+        log("leaveChannel", "유저 ID: " + userId + ", 채널 ID: " + channelId);
 
-        if (jcfUserService.findById(userId) == null) {
-            System.out.println("유저가 존재하지 않습니다.");
+        if (userId == null || jcfUserService.findById(userId, false) == null) {
+            log("leaveChannel", "유저가 존재하지 않음");
             return false;
         }
 
-        if (jcfChannelService.findById(channelId) == null) {
-            System.out.println("채널이 존재하지 않습니다.");
+        if (channelId == null || jcfChannelService.findById(channelId, false) == null) {
+            log("leaveChannel", "채널이 존재하지 않음");
             return false;
         }
 
         boolean userLeft = jcfUserService.leaveChannel(userId, channelId);
         boolean channelLeft = jcfChannelService.leaveUser(channelId, userId);
 
-        System.out.println("유저 퇴장 결과: " + userLeft + ", 채널 퇴장 결과: " + channelLeft);
-        System.out.println();
-
+        log("leaveChannel", "유저 퇴장 결과: " + userLeft + ", 채널 퇴장 결과: " + channelLeft);
         return userLeft && channelLeft;
     }
 
-    // 유저가 채널에 메시지를 전송
+    // 유저가 채널에 메시지를 보냄
     @Override
     public boolean sendMessage(UUID userId, UUID channelId, String content) {
-        System.out.println("[sendMessage] 유저 ID: " + userId + ", 채널 ID: " + channelId + ", 내용: " + content);
+        log("sendMessage", "유저 ID: " + userId + ", 채널 ID: " + channelId + ", 내용: " + content);
 
-        if (jcfUserService.findById(userId) == null) {
-            System.out.println("유저가 존재하지 않음");
+        if (userId == null || jcfUserService.findById(userId, false) == null) {
+            log("sendMessage", "유저가 존재하지 않음");
             return false;
         }
 
-        if (jcfChannelService.findById(channelId) == null) {
-            System.out.println("채널이 존재하지 않음");
+        if (channelId == null || jcfChannelService.findById(channelId, false) == null) {
+            log("sendMessage", "채널이 존재하지 않음");
             return false;
         }
 
         if (!jcfUserService.isUserInChannel(userId, channelId)) {
-            System.out.println("유저가 해당 채널에 참여하고 있지 않음");
+            log("sendMessage", "유저가 해당 채널에 참여하고 있지 않음");
             return false;
         }
 
@@ -92,67 +98,59 @@ public class SimpleChatService implements ChatService {
         jcfChannelService.addMessage(channelId, message.getId());
         jcfUserService.addMessage(userId, message.getId());
 
-        System.out.println("메시지 전송 완료: " + message);
-        System.out.println();
-
+        log("sendMessage", "메시지 전송 완료 → ID: " + message.getId());
         return true;
     }
 
     // 채널 정보를 출력
     @Override
     public void viewChannel(UUID channelId) {
-        Channel channel = jcfChannelService.findById(channelId);
+        Channel channel = jcfChannelService.findById(channelId, false);
+
+        logSection("채널 정보 조회");
 
         if (channel == null) {
             if (!jcfChannelService.exists(channelId)) {
-                System.out.println("채널이 존재하지 않습니다.");
+                log("viewChannel", "채널이 존재하지 않음");
             } else {
-                System.out.println("알 수 없는 채널 (삭제됨)");
+                log("viewChannel", "알 수 없는 채널 (삭제됨)");
             }
             return;
         }
 
-        System.out.println("채널 정보");
-        System.out.println("제목: " + channel.getName());
-        System.out.println("설명: " + channel.getDescription());
-        System.out.println("생성일: " + new Date(channel.getCreatedAt()));
-        System.out.println("참가 인원 수: " + channel.getCount());
-        System.out.println();
+        log("NAME",  channel.getName());
+        log("DESCRIPTION",  channel.getDescription());
+        log("CREATED AT",  new Date(channel.getCreatedAt()).toString());
+        log("TOTAL MEMBER", String.valueOf(channel.getCount()));
 
-        System.out.println("참가자 목록");
+        logSection("참가자 목록");
         for (UUID userId : channel.getUserIds()) {
-            var user = jcfUserService.findById(userId);
+            var user = jcfUserService.findById(userId, false);
             if (user != null) {
-                System.out.println("- " + user.getName() + " (" + user.getAge() + "세)");
+                log("MEMBER", user.getName() + " (" + user.getAge() + "세)");
             } else if (jcfUserService.exists(userId)) {
-                System.out.println("- 알 수 없음 (삭제된 유저)");
+                log("MEMBER", "알 수 없음 (삭제된 유저)");
             } else {
-                System.out.println("- 존재하지 않는 유저");
+                log("MEMBER", "존재하지 않는 유저");
             }
         }
 
-        System.out.println();
-
-        System.out.println("채팅 내역");
+        logSection("채팅 내역");
         for (UUID messageId : channel.getMessageIds()) {
             if (!jcfMessageService.exists(messageId)) {
-                System.out.println("[시스템] 존재하지 않는 메시지입니다.");
+                log("SYSTEM", "존재하지 않는 메시지입니다.");
                 continue;
             }
 
             Message message = jcfMessageService.findById(messageId);
             if (message == null) {
-                System.out.println("[시스템] 삭제된 메시지입니다.");
+                log("SYSTEM", "삭제된 메시지입니다.");
                 continue;
             }
 
-            var sender = jcfUserService.findById(message.getUserId());
+            var sender = jcfUserService.findById(message.getUserId(), false);
             String senderName = (sender != null) ? sender.getName() : "알 수 없음";
-
-            System.out.println("[" + senderName + "] " + message.getContent());
+            log(senderName, message.getContent());
         }
-
-        System.out.println();
     }
 }
-
