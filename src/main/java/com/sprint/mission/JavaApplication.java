@@ -10,12 +10,10 @@ import com.sprint.mission.discodeit.service.jcf.JCAMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
-import java.sql.SQLOutput;
 import java.util.List;
-import java.util.Scanner;
 import java.util.UUID;
 
-public class Main {
+public class JavaApplication {
 
     static UserService userService = new JCFUserService();
     static ChannelService channelService = new JCFChannelService();
