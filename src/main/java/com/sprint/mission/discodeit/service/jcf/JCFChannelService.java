@@ -42,8 +42,9 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public String toString() {
-        return "JCFChannelService{" +
-                "data=" + data +
-                '}';
+        final StringBuilder sb = new StringBuilder("JCFChannelService{");
+        sb.append("data=").append(data);
+        sb.append('}');
+        return sb.toString();
     }
 }

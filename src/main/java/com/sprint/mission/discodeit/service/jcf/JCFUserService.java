@@ -65,8 +65,9 @@ public class JCFUserService implements UserService {
 
     @Override
     public String toString() {
-        return "JCFUserService{" +
-                "data=" + data +
-                '}';
+        final StringBuilder sb = new StringBuilder("JCFUserService{");
+        sb.append("data=").append(data);
+        sb.append('}');
+        return sb.toString();
     }
 }
