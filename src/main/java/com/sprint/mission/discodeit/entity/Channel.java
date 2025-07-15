@@ -2,35 +2,35 @@ package com.sprint.mission.discodeit.entity;
 
 import java.util.UUID;
 
-public class User {
+public class Channel {
     private UUID id;                //고유 아이디
-    private String password;        //비밀번호
-    private String name;            //이름
-    private Long createAt;          //생성 시간
+    private String name;            //채널 명
+    private String description;     //채널 설명
+    private Long createAt;          //생성시간
     private Long updateAt;          //수정 시간
 
-    public User() {
+    public Channel() {
         this.id = UUID.randomUUID();
         this.createAt = System.currentTimeMillis();
     }
 
-    public User(String password, String name) {
+    public Channel(String name, String description) {
         this.id = UUID.randomUUID();
         this.createAt = System.currentTimeMillis();
-        this.password = password;
         this.name = name;
+        this.description = description;
     }
 
     public UUID getId() {
         return id;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public Long getCreateAt() {
