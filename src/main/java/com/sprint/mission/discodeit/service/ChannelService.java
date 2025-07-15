@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ChannelService {
-    Channel createChannel(UUID id, String name, String description);
+    Channel createChannel(String name, String description);
 
     // 읽기 & 모두 읽기
     Channel readChannel(UUID id);

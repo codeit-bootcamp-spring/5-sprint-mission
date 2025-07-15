@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface UserService {
     // 생성
-    User createUser(UUID id, String username, String password, int age, String email);
+    User createUser(String username, String password, int age, String email);
 
     // 읽기 & 모두 읽기
     User readUser(UUID id);

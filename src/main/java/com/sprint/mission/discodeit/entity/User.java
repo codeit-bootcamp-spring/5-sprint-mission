@@ -13,8 +13,8 @@ public class User {
     private Long createdAt;
     private Long updatedAt;
 
-    public User(UUID id, String username, String password, int age, String email) {
-        this.id = id;
+    public User(String username, String password, int age, String email) {
+        this.id = UUID.randomUUID();
         this.username = username;
         this.password = password;
         this.age = age;
@@ -55,9 +55,6 @@ public class User {
         return age;
     }
 
-    public void setAge(int age) {
-        this.age = age;
-    }
 
     public String getEmail() {
         return email;
@@ -67,21 +64,6 @@ public class User {
         this.email = email;
     }
 
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Long createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 
     @Override
     public String toString() {
@@ -95,11 +77,5 @@ public class User {
         sb.append(", updatedAt=").append(updatedAt);
         sb.append('}');
         return sb.toString();
-    }
-
-    public static void main(String[] args) {
-        UUID userID = UUID.randomUUID();
-        User user = new User(userID, "user", "1234", 10, "aaaa");
-        System.out.println(user.toString());
     }
 }

@@ -47,7 +47,6 @@ public class UserTest {
 
     public void create() {
         System.out.println("----------------------------");
-        UUID id = UUID.randomUUID();
         System.out.print("이름: ");
         String username = sc.next();
         sc.nextLine();
@@ -60,7 +59,7 @@ public class UserTest {
         String email = sc.next();
         sc.nextLine();
 
-        User user = userService.createUser(id, username, password, age, email);
+        User user = userService.createUser(username, password, age, email);
         System.out.println("생성 완료! " + user);
     }
 

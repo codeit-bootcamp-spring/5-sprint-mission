@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class JCFUserService implements UserService {
-    List<User> users = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
 
     @Override
-    public User createUser(UUID id, String username, String password, int age, String email) {
-        User user = new User(id, username, password, age, email);
+    public User createUser(String username, String password, int age, String email) {
+        User user = new User(username, password, age, email);
         users.add(user);
         return user;
     }

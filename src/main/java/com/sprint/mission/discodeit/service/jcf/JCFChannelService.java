@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class JCFChannelService implements ChannelService {
-    List<Channel> channels = new ArrayList<>();
+    private final List<Channel> channels = new ArrayList<>();
 
     @Override
-    public Channel createChannel(UUID id, String name, String description) {
-        Channel channel = new Channel(id, name, description);
+    public Channel createChannel(String name, String description) {
+        Channel channel = new Channel(name, description);
         channels.add(channel);
         return channel;
     }
@@ -29,7 +29,7 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public List<Channel> readAllChannels() {
-        if (channels != null) {
+        if (!channels.isEmpty()) {
             return channels;
         }
         return null;
