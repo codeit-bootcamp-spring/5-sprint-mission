@@ -565,6 +565,7 @@ public class JavaApplication {
     private void addFriend() {
         System.out.println("\nx. 뒤로가기");
         while (true) {
+            showFriends();
             System.out.print("추가할 친구의 이메일: ");
             String email = sc.nextLine().strip();
 
@@ -585,10 +586,8 @@ public class JavaApplication {
             }
 
             UUID friendId = friend.getId();
-
             userService.addFriend(me.getId(), friendId);
             me.addFriend(friendId);
-            break;
         }
     }
 
@@ -610,7 +609,6 @@ public class JavaApplication {
             }
             userService.removeFriend(me.getId(), friendToDelete.getId());
             me.removeFriend(friendToDelete.getId());
-            System.out.println(friendToDelete.getUsername() + "이 친구 목록에서 삭제되었습니다.");
         }
     }
 
