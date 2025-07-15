@@ -125,7 +125,6 @@ public class JavaApplication {
 
             // 삭제 확인
             System.out.println(messageService.findById(msg1.getId()) == null ? "메세지 삭제됨" : "삭제오류");
-
     }
 
 }
