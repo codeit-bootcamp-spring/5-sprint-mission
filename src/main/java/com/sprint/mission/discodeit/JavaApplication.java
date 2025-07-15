@@ -10,6 +10,8 @@ import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
+import java.util.UUID;
+
 public class JavaApplication {
     public static void main(String[] args) {
         UserService userService = new JCFUserService();
@@ -49,13 +51,34 @@ public class JavaApplication {
 
         // 수정 및 조회
         userService.searchByIndex(0).addChannel(channelService.searchByIndex(0));
+        userService.searchByIndex(0).addChannel(channelService.searchByIndex(1));
         channelService.searchByIndex(0).addUser(userService.searchByIndex(0));
+        channelService.searchByIndex(0).addUser(userService.searchByIndex(1));
         userService.updateUser(userService.searchByIndex(0).updateName("updatedName"));
         channelService.updateChannel(channelService.searchByIndex(0).updateName("updatedName"));
         messageService.updateMessage(messageService.searchByIndex(0).updateContent("updatedContent"));
         System.out.println(userService.searchByIndex(0));
         System.out.println(channelService.searchByIndex(0));
         System.out.println(messageService.searchByIndex(0));
+        System.out.println("Channels of User");
+        for (UUID channelId : userService.searchByIndex(0).getChannels()) {
+            System.out.println(channelService.searchById(channelId).toString());
+        }
+        System.out.println("Users of Channel");
+        for (UUID userId : channelService.searchByIndex(0).getUsers()) {
+            System.out.println(userService.searchById(userId).toString());
+        }
+        userService.searchByIndex(0).deleteChannel(channelService.searchByIndex(0));
+        channelService.searchByIndex(0).deleteUser(userService.searchByIndex(0));
+        System.out.println("Channels of User");
+        for (UUID channelId : userService.searchByIndex(0).getChannels()) {
+            System.out.println(channelService.searchById(channelId).toString());
+        }
+        System.out.println("Users of Channel");
+        for (UUID userId : channelService.searchByIndex(0).getUsers()) {
+            System.out.println(userService.searchById(userId).toString());
+        }
+
         System.out.println("---------------------------------------------------------------------------------");
 
         // 삭제 및 조회
@@ -66,5 +89,13 @@ public class JavaApplication {
         System.out.println(userService.getAllUsers().toString().replace("}, ", "},\n"));
         System.out.println(channelService.getAllChannels().toString().replace("}, ", "},\n"));
         System.out.println(messageService.getAllMessages().toString().replace("}, ", "},\n"));
+
+        /*
+        어떤 채널의 유저목록을 불러와야 함
+        그럼 일단 channel.getUsers를 해서
+        id리스트를 뽑을 수 있음.
+        그걸 어따 집어넣냐
+        searchById에 iterator를 돌리면 됨
+         */
     }
 }

@@ -54,13 +54,17 @@ public class Channel {
         return this;
     }
 
-    public void addUser(User user) { // 나중에 User 삭제할때 deleteUser 쓸 것.
-        this.users.add(user.getId());
-        updatedAt = Instant.now().toEpochMilli();
+    public void addUser(User user) {
+        if (!users.contains(user.getId())) {
+            this.users.add(user.getId());
+            user.getChannels().add(this.id);
+            updatedAt = Instant.now().toEpochMilli();
+        }
     }
 
     public void deleteUser(User user) {
         this.users.remove(user.getId());
+        user.getChannels().remove(this.id);
         updatedAt = Instant.now().toEpochMilli();
     }
 
