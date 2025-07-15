@@ -89,13 +89,5 @@ public class JavaApplication {
         System.out.println(userService.getAllUsers().toString().replace("}, ", "},\n"));
         System.out.println(channelService.getAllChannels().toString().replace("}, ", "},\n"));
         System.out.println(messageService.getAllMessages().toString().replace("}, ", "},\n"));
-
-        /*
-        어떤 채널의 유저목록을 불러와야 함
-        그럼 일단 channel.getUsers를 해서
-        id리스트를 뽑을 수 있음.
-        그걸 어따 집어넣냐
-        searchById에 iterator를 돌리면 됨
-         */
     }
 }
