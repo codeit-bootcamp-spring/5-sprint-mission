@@ -8,7 +8,7 @@ import com.sprint.mission.discodeit.entity.User;
 
 public interface ChannelService {
 	// 생성
-	boolean createChannel(String channelName);
+	Channel createChannel(String channelName);
 
 	// 참가
 	boolean joinChannel(User user, String channelName);
@@ -16,6 +16,8 @@ public interface ChannelService {
 	// 읽기
 	Channel findChannel(String channelName);
 	Channel findChannel(UUID channelUUID);
+
+	List<String> findChannelMemberNickname(String channelName);
 	List<Channel> findChannelAll();
 
 	// 수정
@@ -23,6 +25,7 @@ public interface ChannelService {
 	boolean updateUserNickname(UUID channelUUID, UUID userUUID, String newNickname);
 
 	// 삭제
+	boolean leaveChannel(UUID channelUUID, UUID userUUID);
 	boolean deleteChannel(UUID channelUUID);
 	boolean deleteChannel(String channelName);
 }

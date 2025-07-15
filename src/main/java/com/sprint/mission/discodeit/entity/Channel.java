@@ -15,6 +15,7 @@ public class Channel {
 	private String ChannelName;
 	private final List<UUID> channelUsersUUID;
 	private final List<UUID> channelMessagesUUID;
+	// userUUID
 	private final Map<UUID, String> userNicknames;
 
 	public Channel(String channelName) {

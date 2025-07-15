@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,14 +16,14 @@ public class JCFChannelService implements ChannelService {
 	private final Map<String, UUID> channelNameToUUID = new ConcurrentHashMap<>();
 
 	@Override
-	public boolean createChannel(String channelName) {
-		if(channelNameToUUID.containsKey(channelName)) return false;
+	public Channel createChannel(String channelName) {
+		if(channelNameToUUID.containsKey(channelName)) return null;
 		Channel channel = new Channel(channelName);
 
 		channelMap.put(channel.getId(), channel);
 		channelNameToUUID.put(channelName, channel.getId());
 
-		return true;
+		return channel;
 	}
 
 	@Override
@@ -37,6 +38,7 @@ public class JCFChannelService implements ChannelService {
 
 	@Override
 	public Channel findChannel(String channelName) {
+		if(!channelNameToUUID.containsKey(channelName)) return null;
 		return channelMap.get(channelNameToUUID.get(channelName));
 	}
 
@@ -46,8 +48,23 @@ public class JCFChannelService implements ChannelService {
 	}
 
 	@Override
-	public ArrayList<Channel> findChannelAll() {
-		return new ArrayList<>(channelMap.values());
+	public List<String> findChannelMemberNickname(String channelName){
+		if (channelName == null || !channelNameToUUID.containsKey(channelName)) return new ArrayList<>();
+
+		Channel channel = channelMap.get(channelNameToUUID.get(channelName));
+		if (channel == null) return new ArrayList<>();
+
+		List<String> nicknameList = new ArrayList<>(channel.getUserNicknames().values());
+		nicknameList.sort((n1, n2) -> n1.compareTo(n2));
+
+		return nicknameList;
+	}
+
+	@Override
+	public List<Channel> findChannelAll() {
+		List<Channel> channelList = new ArrayList<>(channelMap.values());
+		channelList.sort((c1, c2) -> c1.getChannelName().compareTo(c2.getChannelName()));
+		return channelList;
 	}
 
 	@Override
@@ -79,6 +96,15 @@ public class JCFChannelService implements ChannelService {
 
 		channel.addNickname(userUUID, newNickname);
 		channel.updateUpdatedAt();
+		return true;
+	}
+
+	@Override
+	public boolean leaveChannel(UUID channelUUID, UUID userUUID) {
+		if(!channelMap.containsKey(channelUUID)) return false;
+		channelMap.get(channelUUID).removeUser(userUUID);
+		channelMap.get(channelUUID).removeNickname(userUUID);
+
 		return true;
 	}
 

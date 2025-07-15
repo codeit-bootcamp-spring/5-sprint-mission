@@ -7,6 +7,9 @@ import com.sprint.mission.discodeit.entity.ROLE;
 import com.sprint.mission.discodeit.entity.User;
 
 public interface UserService {
+	//
+	User login(String loginId, String password);
+
 	// 생성
 	User createUser(String loginId, String password, String defaultNickname);
 	
