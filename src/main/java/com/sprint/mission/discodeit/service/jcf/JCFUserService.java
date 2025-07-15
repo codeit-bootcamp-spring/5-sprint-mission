@@ -68,11 +68,7 @@ public class JCFUserService implements UserService {
         for (User user : userList) {
             if (user.getEmail().equals(email))
             {
-                user.setUserName(userName);
-                user.setNickname(nickname);
-                user.setPassword(password);
-                user.setPhoneNumber(phoneNumber);
-                user.setUpdateAt(Instant.now().getEpochSecond());
+                user.updateUser(email, userName, nickname, password, phoneNumber, Instant.now().getEpochSecond());
                 return true;
             }
         }
@@ -85,11 +81,7 @@ public class JCFUserService implements UserService {
         for (User user : userList) {
             if (user.getUserName().equals(userName))
             {
-                user.setEmail(email);
-                user.setNickname(nickname);
-                user.setPassword(password);
-                user.setPhoneNumber(phoneNumber);
-                user.setUpdateAt(Instant.now().getEpochSecond());
+                user.updateUser(email, userName, nickname, password, phoneNumber, Instant.now().getEpochSecond());
                 return true;
             }
         }

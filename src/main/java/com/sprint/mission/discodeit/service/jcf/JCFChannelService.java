@@ -48,9 +48,7 @@ public class JCFChannelService implements ChannelService {
     public Channel updateById(UUID channelId, String channelName, String channelDescription) {
         for (Channel channel : channels) {
             if (channel.getId().equals(channelId)) {
-                channel.setChannelName(channelName);
-                channel.setChannelDescription(channelDescription);
-                channel.setUpdateAt(Instant.now().getEpochSecond());
+                channel.updateChannel(channelName, channelDescription, Instant.now().getEpochSecond());
 
                 return channel;
             }
