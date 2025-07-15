@@ -23,16 +23,14 @@ public class JavaApplication {
     private final JCFChannelService channelService = JCFChannelService.getInstance();
     private final JCFServerService serverService = JCFServerService.getInstance();
     private final JCFSurveyService surveyService = JCFSurveyService.getInstance();
-    // private User me;
-    private User me = new User("1", "1", "1", LocalDate.of(1995, 4, 10), true, "1"); // 테스트용
+    private User me;
 
     private void mainMenu() {
-        userService.registerUser(me); // 테스트용
-        System.out.println();
-        System.out.println("========== Discodeit ==========");
+        userService.registerUser(new User("1", "1", "1", LocalDate.of(1995, 4, 10), true, "1")); // 테스트용
+        userService.registerUser(new User("2", "2", "2", LocalDate.of(1995, 4, 11), false, "2")); // 테스트용
+        System.out.println("\n========== Discodeit ==========");
 
         while (true) {
-            System.out.println();
             System.out.println("=====***** 메인 메뉴 *****=====");
             System.out.println("1. 회원가입");
             System.out.println("2. 로그인");
@@ -64,56 +62,28 @@ public class JavaApplication {
     private void userMenu() {
         label: while (true) {
             System.out.println();
-            System.out.println("*** 회원 메뉴 ***");
+            System.out.println("=====***** 회원 메뉴 *****=====");
             System.out.println("1. 프로필 편집");
             System.out.println("2. 친구 목록 편집");
             System.out.println("3. 서버 목록 편집");
             System.out.println("4. 다이렉트 메시지 편집");
             System.out.println("9. 로그아웃");
-            System.out.println("12. 모든 서버 조회");
-            System.out.println("13. 서버 만들기");
-            System.out.println("14. 서버 삭제");
-            System.out.println("15. 서버 참가");
-            System.out.println("16. 서버 나가기");
-            System.out.println("17. 서버 열기");
-            System.out.println("18. 다이렉트 메시지 목록 보기");
-            System.out.println("19. 다이렉트 메시지 보내기");
-            System.out.println("20. 다이렉트 메시지 보기");
-            System.out.println("21. 다이렉트 메시지 수정하기");
-            System.out.print("메뉴 번호 선택 : ");
+            System.out.print("메뉴 번호 입력 : ");
 
             try {
                 int menuNum = Integer.parseInt(sc.nextLine());
                 switch (menuNum) {
                     case 1: editProfileMenu(); break;
                     case 2: editFriendMenu(); break;
-                    // case 3: editServerMenu(); break;
-                    // case 4: editDirectMessageMenu(); break;
+                    case 3: editServerMenu(); break;
+                    case 4: editDirectMessageMenu(); break;
                     case 9: logout(); break label;
-                    case 12:
-                        showServers();
-                        continue;
-                    case 13:
-                        createServer();
-                        continue;
-                    case 14:
-                        deleteServer();
-                        continue;
-                    case 15:
-                        joinServer();
-                        continue;
-                    case 16:
-                        exitServer();
-                        continue;
-                    case 17:
-                        openServer();
-                        continue;
-                    default:
-                        System.out.println("다시 입력해주세요.");
+                    default: System.out.println("다시 입력해주세요.");
                 }
             } catch (NumberFormatException e) {
                 System.out.println("숫자를 입력해주세요.");
             }
+            if (me == null) break;
         }
     }
 
@@ -131,6 +101,7 @@ public class JavaApplication {
             System.out.println("7. 휴대폰 번호 등록/변경");
             System.out.println("8. 회원 탈퇴");
             System.out.println("9. 뒤로가기");
+            System.out.print("메뉴 번호 입력 : ");
 
             try {
                 int menuNum = Integer.parseInt(sc.nextLine());
@@ -142,13 +113,11 @@ public class JavaApplication {
                     case 5: changeBirthDate(); break;
                     case 6: changeIsSubscribedToNewsletter(); break;
                     case 7: changePhoneNumber(); break;
-                    case 8:
-                        boolean result = deleteAccount();
-                        if (result) break label;
-                        break;
+                    case 8: deleteAccount(); break;
                     case 9: break label;
                     default: System.out.println("다시 입력해주세요.");
                 }
+                if (me == null) break;
             } catch (NumberFormatException e) {
                 System.out.println("숫자를 입력해주세요.");
             }
@@ -162,6 +131,7 @@ public class JavaApplication {
             System.out.println("1. 친구 추가");
             System.out.println("2. 친구 삭제");
             System.out.println("9. 뒤로가기");
+            System.out.print("메뉴 번호 입력 : ");
 
             try {
                 int menuNum = Integer.parseInt(sc.nextLine());
@@ -170,6 +140,37 @@ public class JavaApplication {
                     case 2: deleteFriend(); break;
                     case 9: break label;
                     default: System.out.println("다시 입력해주세요.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("숫자를 입력해주세요.");
+            }
+        }
+    }
+
+    private void editServerMenu() {
+        label: while (true) {
+            System.out.println("=====***** 서버 목록 편집 메뉴*****=====");
+            System.out.println("1. 모든 서버 조회");
+            System.out.println("2. 서버 만들기");
+            System.out.println("3. 서버 삭제");
+            System.out.println("4. 서버 참가");
+            System.out.println("5. 서버 나가기");
+            System.out.println("6. 서버 열기");
+            System.out.println("9. 뒤로가기");
+            System.out.print("메뉴 번호 입력 : ");
+
+            try {
+                int menuNum = Integer.parseInt(sc.nextLine());
+                switch (menuNum) {
+                    case 1: showServers(); break;
+                    case 2: createServer(); break;
+                    case 3: deleteServer(); break;
+                    case 4: joinServer(); break;
+                    case 5: exitServer(); break;
+                    case 6: openServer(); break;
+                    case 9: break label;
+                    default:
+                        System.out.println("다시 입력해주세요.");
                 }
             } catch (NumberFormatException e) {
                 System.out.println("숫자를 입력해주세요.");
@@ -189,6 +190,30 @@ public class JavaApplication {
             System.out.println("6. 채널 생성");
             System.out.println("7. 채널 수정");
             System.out.println("8. 채널 삭제");
+            System.out.println("9. 뒤로가기");
+            System.out.print("메뉴 번호 입력: ");
+
+            try {
+                int menuNum = Integer.parseInt(sc.nextLine());
+
+                switch (menuNum) {
+                    case 1: continue;
+                    case 9: break label;
+                    default: System.out.println("다시 입력해주세요.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("숫자를 입력해주세요.");
+            }
+        }
+    }
+
+    private void editDirectMessageMenu() {
+        label: while (true) {
+            System.out.println("=====***** 다이렉트 메시지 편집 메뉴*****=====");
+            System.out.println("1. 다이렉트 메시지 목록 보기");
+            System.out.println("2. 다이렉트 메시지 보내기");
+            System.out.println("3. 다이렉트 메시지 보기");
+            System.out.println("4. 다이렉트 메시지 수정하기");
             System.out.println("9. 뒤로가기");
             System.out.print("메뉴 번호 입력: ");
 
@@ -318,6 +343,7 @@ public class JavaApplication {
     private void logout() {
         userService.findById(me.getId()).setStatus(Status.OFFLINE);
         me.setStatus(Status.OFFLINE);
+        me = null;
     }
 
     private void findUserByEmail() {
@@ -507,7 +533,7 @@ public class JavaApplication {
         System.out.println("친구 : " + result);
     }
 
-    private boolean deleteAccount() {
+    private void deleteAccount() {
         System.out.println("\nx. 뒤로가기");
         while (true) {
             System.out.println("1. 계정 비활성화");
@@ -515,19 +541,21 @@ public class JavaApplication {
             String indexStr = sc.nextLine().strip();
 
             if (indexStr.equals("x")) {
-                return false;
+                return;
             }
 
             switch (indexStr) {
                 case "1":
                     userService.updateDeactivated(me.getId(), true);
-                    System.out.println("계정이 비활성화되었습니다. 로그인 시 계정이 활성화됩니다.");
+                    me.setDeactivated(true);
                     logout();
-                    return true;
+                    System.out.println("계정이 비활성화되었습니다. 로그인 시 계정이 활성화됩니다.");
+                    return;
                 case "2":
                     userService.deleteById(me.getId());
+                    me = null;
                     System.out.println("계정이 삭제되었습니다.");
-                    return true;
+                    return;
                 default:
                     System.out.println("1 또는 2를 입력해주세요.");
             }
