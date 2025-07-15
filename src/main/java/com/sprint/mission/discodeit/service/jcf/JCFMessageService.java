@@ -9,16 +9,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
 
 public class JCFMessageService implements MessageService {
-	private final Map<UUID, Message> messageMap = new ConcurrentHashMap<>();
-
+	private final Map<UUID, Message> messageMap;
 	// 참조
-	private final JCFUserService userService;
-	private final JCFChannelService channelService;
+	private final UserService userService;
+	private final ChannelService channelService;
 
-	public JCFMessageService(JCFUserService userService, JCFChannelService channelService) {
+	public JCFMessageService(UserService userService, ChannelService channelService) {
+		messageMap = new ConcurrentHashMap<>();
 		this.userService = userService;
 		this.channelService = channelService;
 	}

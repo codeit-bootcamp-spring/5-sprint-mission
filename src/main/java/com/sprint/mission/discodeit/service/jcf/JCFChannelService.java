@@ -11,9 +11,14 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 public class JCFChannelService implements ChannelService {
-	private final Map<UUID, Channel> channelMap = new ConcurrentHashMap<>();
+	private final Map<UUID, Channel> channelMap;
 	// channelName 으로 UUID를 맵핑 ( Cache )
-	private final Map<String, UUID> channelNameToUUID = new ConcurrentHashMap<>();
+	private final Map<String, UUID> channelNameToUUID;
+
+	public JCFChannelService() {
+		channelMap = new ConcurrentHashMap<>();
+		channelNameToUUID = new ConcurrentHashMap<>();
+	}
 
 	@Override
 	public Channel createChannel(String channelName) {

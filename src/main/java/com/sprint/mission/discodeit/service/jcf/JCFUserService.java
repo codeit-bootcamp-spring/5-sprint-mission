@@ -11,11 +11,17 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 
 public class JCFUserService implements UserService {
-	private final Map<UUID, User> UserMap = new ConcurrentHashMap<>();
-	private final Map<String, UUID> loginIdToUUID = new ConcurrentHashMap<>();
+	private final Map<UUID, User> UserMap;
+	private final Map<String, UUID> loginIdToUUID;
+
+	public JCFUserService() {
+		UserMap = new ConcurrentHashMap<>();
+		loginIdToUUID = new ConcurrentHashMap<>();
+	}
 
 	@Override
 	public User createUser(String loginId, String password, String defaultNickname) {
+
 		if ( isExistLoginId(loginId) ) return null;
 
 		User user = new User(loginId, password, defaultNickname);
