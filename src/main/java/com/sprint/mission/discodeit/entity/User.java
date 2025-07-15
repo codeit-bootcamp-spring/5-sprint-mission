@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.enums.userEntity.Item;
-import com.sprint.mission.discodeit.enums.userEntity.NitroPlan;
 import com.sprint.mission.discodeit.enums.userEntity.Status;
 
 import java.time.LocalDate;
@@ -21,8 +19,6 @@ public class User {
     private final Set<UUID> friends;
     private final Set<UUID> servers;
     private final Set<UUID> chatRooms;
-    private final Set<Item> items;
-    private NitroPlan nitroPlan;
     private Status status;
     private String avatarUrl;
     private String bio;
@@ -45,8 +41,6 @@ public class User {
         this.friends = new HashSet<>();
         this.servers = new HashSet<>();
         this.chatRooms = new HashSet<>();
-        this.items = new HashSet<>();
-        this.nitroPlan = NitroPlan.NONE;
         this.status = Status.OFFLINE;
     }
 
@@ -170,30 +164,6 @@ public class User {
         chatRooms.clear();
     }
 
-    public Set<Item> getItems() {
-        return Collections.unmodifiableSet(items);
-    }
-
-    public void addItem(Item item) {
-        items.add(item);
-    }
-
-    public void removeItem(Item item) {
-        items.remove(item);
-    }
-
-    public void clearItems() {
-        items.clear();
-    }
-
-    public NitroPlan getNitroPlan() {
-        return nitroPlan;
-    }
-
-    public void setNitroPlan(NitroPlan nitroPlan) {
-        this.nitroPlan = nitroPlan;
-    }
-
     public Status getStatus() {
         return status;
     }
@@ -268,8 +238,6 @@ public class User {
                 ", friends=" + friends +
                 ", servers=" + servers +
                 ", chatRooms=" + chatRooms +
-                ", items=" + items +
-                ", nitroPlan=" + nitroPlan +
                 ", status=" + status +
                 ", avatarUrl='" + avatarUrl + '\'' +
                 ", bio='" + bio + '\'' +

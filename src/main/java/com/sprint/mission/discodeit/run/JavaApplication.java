@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.service.jcf.*;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class JavaApplication {
     public static void main(String[] args) {
@@ -61,7 +62,7 @@ public class JavaApplication {
     }
 
     private void userMenu() {
-        whileLoop: while (true) {
+        label: while (true) {
             System.out.println();
             System.out.println("*** 회원 메뉴 ***");
             System.out.println("1. 프로필 편집");
@@ -117,7 +118,7 @@ public class JavaApplication {
                         continue;
                     case 99:
                         logout();
-                        break whileLoop;
+                        break label;
                     default:
                         System.out.println("다시 입력해주세요.");
                 }
@@ -128,7 +129,7 @@ public class JavaApplication {
     }
 
     private void editProfileMenu() {
-        whileLoop: while (true) {
+        label: while (true) {
             System.out.println();
             System.out.println(me);
             System.out.println("=====***** 프로필 편집 메뉴 *****=====");
@@ -151,7 +152,7 @@ public class JavaApplication {
                     case 5: changeBirthDate(); break;
                     case 6: changeIsSubscribedToNewsletter(); break;
                     case 7: changePhoneNumber(); break;
-                    case 9: break whileLoop;
+                    case 9: break label;
                     default: System.out.println("다시 입력해주세요.");
                 }
             } catch (NumberFormatException e) {
@@ -162,7 +163,7 @@ public class JavaApplication {
 
 
     private void serverMenu() {
-        whileLoop: while (true) {
+        label: while (true) {
             System.out.println();
             System.out.println("=====***** 서버 메뉴 *****=====");
             System.out.println("1. 서버 정보 조회");
@@ -181,7 +182,7 @@ public class JavaApplication {
 
                 switch (menuNum) {
                     case 1: continue;
-                    case 9: break whileLoop;
+                    case 9: break label;
                     default: System.out.println("다시 입력해주세요.");
                 }
             } catch (NumberFormatException e) {
@@ -193,61 +194,54 @@ public class JavaApplication {
     private void register() {
         String email;
         String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
-
         while (true) {
             System.out.print("이메일 : ");
-            email = sc.nextLine();
-            if (email == null || email.matches(emailRegex)) {
+            email = sc.nextLine().strip();
+            if (!email.matches(emailRegex)) {
                 System.out.println("잘못된 형식입니다. 다시 입력해주세요.\n");
                 continue;
             }
             User user = userService.findByEmail(email);
-            if (user != null) break;
+            if (user == null) break;
             System.out.println("중복된 이메일입니다. 다시 입력해주세요.\n");
         }
 
         System.out.print("별명(선택) : ");
-        String nickname = sc.nextLine();
+        String nickname = sc.nextLine().strip();
 
         String username;
-
         while (true) {
             System.out.print("사용자명 : ");
-            username = sc.nextLine();
+            username = sc.nextLine().strip();
             if (!username.isEmpty()) break;
             System.out.println("사용자명은 필수입니다.\n");
         }
 
         String password;
         String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()_+]{8,}$";
-
         while (true) {
             System.out.print("비밀번호 : ");
-            password = sc.nextLine();
-            if (password != null && password.matches(passwordRegex)) break;
+            password = sc.nextLine().strip();
+            if (password.matches(passwordRegex)) break;
             System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.");
         }
 
         LocalDate birthDate;
-
         while (true) {
             try {
                 System.out.println("생년월일");
                 System.out.print("년 : ");
-                int year = Integer.parseInt(sc.nextLine());
-
+                int year = Integer.parseInt(sc.nextLine().strip());
                 System.out.print("월 : ");
-                int month = Integer.parseInt(sc.nextLine());
-
+                int month = Integer.parseInt(sc.nextLine().strip());
                 System.out.print("일 : ");
-                int day = Integer.parseInt(sc.nextLine());
-
+                int day = Integer.parseInt(sc.nextLine().strip());
                 birthDate = LocalDate.of(year, month, day);
                 break;
             } catch (NumberFormatException e) {
-                System.out.println("숫자 형식이 올바르지 않습니다. 다시 입력해주세요.\n");
+                System.out.println("숫자 형식이 올바르지 않습니다. 다시 입력해주세요.");
             } catch (DateTimeException e) {
-                System.out.println("유효하지 않은 날짜입니다. 다시 입력하세요.\n");
+                System.out.println("유효하지 않은 날짜입니다. 다시 입력하세요.");
             }
         }
 
@@ -255,11 +249,7 @@ public class JavaApplication {
 
         while (true) {
             System.out.print("이메일로 소식 받기(y/n): ");
-            String yn = sc.nextLine();
-            if (yn == null || yn.isEmpty()) {
-                System.out.println("다시 입력해주세요.");
-                continue;
-            }
+            String yn = sc.nextLine().strip();
             yn = yn.toLowerCase();
             if (yn.equals("y")) {
                 isSubscribedToNewsletter = true;
@@ -277,67 +267,38 @@ public class JavaApplication {
         );
         if (result) {
             System.out.println("성공적으로 회원가입을 완료하였습니다.");
-            return;
+        } else {
+            System.out.println("다시 시도해 주세요.");
         }
-        System.out.println("다시 시도해 주세요.");
     }
 
     private void login() {
         System.out.println("\nx. 뒤로가기");
 
         while (true) {
-            String email;
-            String password;
+            System.out.print("이메일 : ");
+            String email = sc.nextLine().strip();
+            if (email.equals("x")) return;
 
-            while (true) {
-                System.out.print("이메일 : ");
-                email = sc.nextLine();
-
-                if (email == null || email.isEmpty()) {
-                    System.out.println("다시 입력해주세요.\n");
-                    continue;
-                }
-
-                if (email.equals("x")) {
-                    return;
-                }
-
-                break;
-            }
-
-            while (true) {
-                System.out.print("비밀번호 : ");
-                password = sc.nextLine();
-
-                if (password == null || password.isEmpty()) {
-                    System.out.println("다시 입력해주세요.\n");
-                    continue;
-                }
-
-                if (password.equals("x")) {
-                    return;
-                }
-
-                break;
-            }
+            System.out.print("비밀번호 : ");
+            String password = sc.nextLine().strip();
+            if (password.equals("x")) return;
 
             User user = userService.loginUser(email, password);
-
             if (user == null) {
                 System.out.println("다시 입력해 주세요.");
                 continue;
             }
-
             me = user;
             System.out.println(user.getUsername() + "님, 환영합니다!");
             break;
         }
-
         userMenu();
     }
 
     private void logout() {
         userService.findById(me.getId()).setStatus(Status.OFFLINE);
+        me.setStatus(Status.OFFLINE);
     }
 
     private void findUserByEmail() {
@@ -354,40 +315,31 @@ public class JavaApplication {
 
     private void showAllUsers() {
         List<User> users = userService.findAll();
-        for (User user : users) {
-            System.out.println(user);
-        }
-    }
-
-    private void showMe() {
+        users.forEach(System.out::println);
     }
 
     private void changeEmail() {
-        String email;
-        String emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
         System.out.println("\nx. 뒤로가기");
         System.out.println("현재 이메일: " + me.getEmail());
 
-        whileLoop:
         while (true) {
             System.out.print("변경할 이메일: ");
-            email = sc.nextLine().strip();
-            if (email.equals("x")) {
-                return;
-            } else if (email.equals(me.getEmail())) {
-                System.out.println("같은 이메일입니다.\n");
+            String email = sc.nextLine().strip();
+            
+            if (email.equals("x")) return;
+            if (!email.matches(emailRegex)) {
+                System.out.println("잘못된 형식입니다. 다시 입력해주세요.");
                 continue;
             }
-            List<User> users = userService.findAll();
-            for (User user : users) {
-                if (user.getEmail().equals(email)) {
-                    System.out.println("중복된 이메일입니다. 다시 입력해주세요.\n");
-                    continue whileLoop;
-                }
+            if (email.equals(me.getEmail())) {
+                System.out.println("같은 이메일입니다.");
+                continue;
             }
-            if (!email.matches(emailPattern)) {
-                System.out.println("잘못된 형식입니다. 다시 입력해주세요.\n");
+            User duplicatedUser = userService.findByEmail(email);
+            if (duplicatedUser != null) {
+                System.out.println("중복된 이메일입니다. 다시 입력해주세요.");
                 continue;
             }
             userService.updateEmail(me.getId(), email);
@@ -400,10 +352,9 @@ public class JavaApplication {
         System.out.println("\nx. 뒤로가기");
         System.out.println("현재 별명: " + me.getNickname());
         System.out.print("변경할 별명: ");
-        String nickname = sc.nextLine();
-        if (nickname.equals("x")) {
-            return;
-        }
+        String nickname = sc.nextLine().strip();
+        if (nickname.equals("x")) return;
+
         userService.updateNickname(me.getId(), nickname);
         me.setNickname(nickname);
     }
@@ -412,16 +363,14 @@ public class JavaApplication {
         System.out.println("\nx. 뒤로가기");
         System.out.println("현재 사용자명: " + me.getUsername());
         System.out.print("변경할 사용자명: ");
-        String username = sc.nextLine();
-        if (username.equals("x")) {
-            return;
-        }
+        String username = sc.nextLine().strip();
+        if (username.equals("x")) return;
+
         userService.updateUsername(me.getId(), username);
         me.setUsername(username);
     }
 
     private void changePassword() {
-        String password;
         String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()_+]{8,}$";
 
         System.out.println("\nx. 뒤로가기");
@@ -429,19 +378,18 @@ public class JavaApplication {
 
         while (true) {
             System.out.print("변경할 비밀번호: ");
-            password = sc.nextLine();
+            String password = sc.nextLine().strip();
 
-            if (password.equals("x")) {
-                return;
-            } else if (password.equals(me.getPassword())) {
-                System.out.println("같은 비밀번호입니다.\n");
-                continue;
-            }
-
+            if (password.equals("x")) return;
             if (!password.matches(passwordRegex)) {
-                System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.\n");
+                System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.");
                 continue;
             }
+            if (password.equals(me.getPassword())) {
+                System.out.println("같은 비밀번호입니다.");
+                continue;
+            }
+
             userService.updatePassword(me.getId(), password);
             me.setPassword(password);
             break;
@@ -452,6 +400,7 @@ public class JavaApplication {
         System.out.println("\nx. 뒤로가기");
         System.out.println("현재 생년월일: " + me.getBirthDate());
         LocalDate birthDate;
+
         while (true) {
             try {
                 System.out.println("변경할 생년월일");
@@ -479,11 +428,12 @@ public class JavaApplication {
                 birthDate = LocalDate.of(year, month, day);
                 break;
             } catch (NumberFormatException e) {
-                System.out.println("숫자 형식이 올바르지 않습니다. 다시 입력해주세요.\n");
+                System.out.println("숫자 형식이 올바르지 않습니다. 다시 입력해주세요.");
             } catch (DateTimeException e) {
-                System.out.println("유효하지 않은 날짜입니다. 다시 입력해주세요.\n");
+                System.out.println("유효하지 않은 날짜입니다. 다시 입력해주세요.");
             }
         }
+
         userService.updateBirthDate(me.getId(), birthDate);
         me.setBirthDate(birthDate);
     }
@@ -493,22 +443,23 @@ public class JavaApplication {
         System.out.println("현재 이메일 소식 수신 여부: " + me.isSubscribedToNewsletter());
 
         boolean isSubscribedToNewsletter;
-        while (true) {
+        label: while (true) {
             System.out.print("이메일로 소식 받기(y/n): ");
-            String yn = sc.nextLine();
+            String yn = sc.nextLine().strip();
             yn = yn.toLowerCase();
-            if (yn.equals("x")) {
-                return;
-            } else if (yn.equals("y")) {
-                isSubscribedToNewsletter = true;
-                break;
-            } else if (yn.equals("n")) {
-                isSubscribedToNewsletter = false;
-                break;
-            } else {
-                System.out.println("y 또는 n을 입력해주세요.\n");
+            switch (yn) {
+                case "x":
+                    return;
+                case "y":
+                    isSubscribedToNewsletter = true;
+                    break label;
+                case "n":
+                    isSubscribedToNewsletter = false;
+                    break label;
             }
+            System.out.println("y 또는 n을 입력해주세요.\n");
         }
+
         userService.updateSubscribedToNewsletter(me.getId(), isSubscribedToNewsletter);
         me.setSubscribedToNewsletter(isSubscribedToNewsletter);
     }
@@ -518,26 +469,23 @@ public class JavaApplication {
         System.out.println("현재 휴대폰 번호: " + me.getPhoneNumber());
         System.out.print("변경할 휴대폰 번호 : ");
         String phoneNumber = sc.nextLine();
-        if (phoneNumber.equals("x")) {
-            return;
-        }
+        if (phoneNumber.equals("x")) return;
         userService.updatePhoneNumber(me.getId(), phoneNumber);
         me.setPhoneNumber(phoneNumber);
     }
 
     private void showFriends() {
         Set<UUID> friends = me.getFriends();
-        if (friends == null) {
-            System.out.println("\n친구 없음");
-        } else {
-            System.out.println();
-            System.out.print("[");
-            friends.forEach(f -> {
-                userService.findById(f);
-                System.out.print(f + ", ");
-            });
-            System.out.println("]");
+        if (friends.isEmpty()) {
+            System.out.println("친구 없음");
+            return;
         }
+        String result = friends.stream()
+                .map(userService::findById)
+                .filter(Objects::nonNull)
+                .map(User::getUsername)
+                .collect(Collectors.joining(", "));
+        System.out.println(result);
     }
 
     private void addFriend() {
@@ -576,33 +524,26 @@ public class JavaApplication {
         if (friendsId.isEmpty()) {
             System.out.println("친구 없음");
             return;
-        } else {
-            System.out.println("친구 목록: " + me.getFriends());
         }
+        System.out.println("친구 목록: " + me.getFriends());
 
         System.out.println("\nx. 뒤로가기");
         while (true) {
             System.out.print("삭제할 친구의 이메일: ");
-            String email = sc.nextLine();
+            String email = sc.nextLine().strip();
 
             if (email.equals("x")) {
                 return;
             }
 
-            for (UUID friendId : friendsId) {
-                if (userService.findById(friendId).getEmail().equals(email)) {
-                    userService.removeFriend(me.getId(), friendId);
-                    me.removeFriend(friendId);
-                    return;
-                }
-            }
-
-            System.out.println("친구 목록에 존재하지 않는 이메일입니다.\n");
+            UUID friendIdToDelete = userService.findByEmail(email).getId();
+            userService.removeFriend(me.getId(), friendIdToDelete);
+            me.removeFriend(friendIdToDelete);
         }
     }
 
     private void showServers() {
-        System.out.println("\n" + serverService.findAll());
+        System.out.println(serverService.findAll());
     }
 
     private void createServer() {
@@ -616,20 +557,22 @@ public class JavaApplication {
             }
 
             boolean isPublic;
+            label:
             while (true) {
                 System.out.print("공개 여부(y/n): ");
                 String yn = sc.nextLine();
                 yn = yn.toLowerCase();
-                if (yn.equals("x")) {
-                    return;
-                } else if (yn.equals("y")) {
-                    isPublic = true;
-                    break;
-                } else if (yn.equals("n")) {
-                    isPublic = false;
-                    break;
-                } else {
-                    System.out.println("y 또는 n을 입력해주세요.\n");
+                switch (yn) {
+                    case "x":
+                        return;
+                    case "y":
+                        isPublic = true;
+                        break label;
+                    case "n":
+                        isPublic = false;
+                        break label;
+                    default:
+                        System.out.println("y 또는 n을 입력해주세요.\n");
                 }
             }
 
@@ -717,10 +660,10 @@ public class JavaApplication {
             }
         }
 
-        whileLoop:
+        label:
         while (true) {
             System.out.print("들어갈 서버 번호: ");
-            String indexStr = sc.nextLine();
+            String indexStr = sc.nextLine().strip();
 
             if (indexStr.equals("x")) {
                 return;
@@ -747,11 +690,11 @@ public class JavaApplication {
             for (UUID memberId : members) {
                 if (memberId.equals(me.getId())) {
                     System.out.println("이미 들어간 서버입니다.");
-                    continue whileLoop;
+                    continue label;
                 }
             }
 
-            serverService.deleteById(server.getId());
+            serverService.addMember(server.getId(), me.getId());
             System.out.println(server.getName() + " 서버에 입장했습니다.");
             break;
         }
@@ -774,7 +717,7 @@ public class JavaApplication {
 
         while (true) {
             System.out.print("나갈 서버 번호: ");
-            String indexStr = sc.nextLine();
+            String indexStr = sc.nextLine().strip();
 
             if (indexStr.equals("x")) {
                 return;
@@ -820,7 +763,7 @@ public class JavaApplication {
 
         while (true) {
             System.out.print("열 서버 번호: ");
-            String indexStr = sc.nextLine();
+            String indexStr = sc.nextLine().strip();
 
             if (indexStr.equals("x")) {
                 return;
@@ -844,7 +787,6 @@ public class JavaApplication {
             System.out.println(server.getName() + " 서버를 열었습니다.\n");
             break;
         }
-
         serverMenu();
     }
 }

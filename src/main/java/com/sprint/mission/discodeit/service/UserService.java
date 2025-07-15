@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.userEntity.Item;
-import com.sprint.mission.discodeit.enums.userEntity.NitroPlan;
 import com.sprint.mission.discodeit.enums.userEntity.Status;
 
 import java.time.LocalDate;
@@ -46,14 +44,6 @@ public interface UserService extends Service<User> {
     void removeChatRoom(UUID userId, UUID chatRoomId);
 
     void clearChatRooms(UUID userId);
-
-    void addItem(UUID userId, Item item);
-
-    void removeItem(UUID userId, Item item);
-
-    void clearItems(UUID userId);
-
-    void updateNitroPlan(UUID userId, NitroPlan nitroPlan);
 
     void updateStatus(UUID userId, Status status);
 

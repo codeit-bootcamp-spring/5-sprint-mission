@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.userEntity.Item;
-import com.sprint.mission.discodeit.enums.userEntity.NitroPlan;
 import com.sprint.mission.discodeit.enums.userEntity.Status;
 import com.sprint.mission.discodeit.service.UserService;
 
@@ -138,27 +136,7 @@ public class JCFUserService extends JCFService<User> implements UserService {
     public void clearChatRooms(UUID userId) {
         update(userId, User::clearChatRooms);
     }
-
-    @Override
-    public void updateNitroPlan(UUID userId, NitroPlan nitroPlan) {
-        update(userId, u -> u.setNitroPlan(nitroPlan));
-    }
-
-    @Override
-    public void addItem(UUID userId, Item item) {
-        update(userId, u -> u.addItem(item));
-    }
-
-    @Override
-    public void removeItem(UUID userId, Item item) {
-        update(userId, u -> u.removeItem(item));
-    }
-
-    @Override
-    public void clearItems(UUID userId) {
-        update(userId, User::clearItems);
-    }
-
+    
     @Override
     public void updateStatus(UUID userId, Status status) {
         update(userId, u -> u.setStatus(status));
