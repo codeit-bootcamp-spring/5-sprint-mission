@@ -78,13 +78,12 @@ public class Channel {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Channel{");
-        sb.append("id=").append(id);
-        sb.append(", createdAt=").append(Instant.ofEpochMilli(createdAt));
-        sb.append(", updatedAt=").append(Instant.ofEpochMilli(updatedAt));
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", users=").append(users);
-        sb.append('}');
-        return sb.toString();
+        return "Channel{" +
+                "id=" + id +
+                ", createdAt=" + Instant.ofEpochMilli(createdAt) +
+                ", updatedAt=" + Instant.ofEpochMilli(updatedAt) +
+                ", name='" + name + '\'' +
+                ", users=" + users +
+                '}';
     }
 }

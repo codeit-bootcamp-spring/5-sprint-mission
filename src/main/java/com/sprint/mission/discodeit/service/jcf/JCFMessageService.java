@@ -77,9 +77,8 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("JCFMessageService{");
-        sb.append("data=").append(data);
-        sb.append('}');
-        return sb.toString();
+        return "JCFMessageService{" +
+                "data=" + data +
+                '}';
     }
 }
