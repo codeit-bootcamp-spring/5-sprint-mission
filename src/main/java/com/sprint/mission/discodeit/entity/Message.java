@@ -3,14 +3,12 @@ package com.sprint.mission.discodeit.entity;
 import java.util.UUID;
 
 public class Message {
-    private UUID id;
-    private User user;
-    private Channel channel;
+    private final UUID id;
+    private final User user;
+    private final Channel channel;
     private String message;
-    private Long createAt;
+    private final Long createAt;
     private Long updateAt;
-
-    public Message() {}
 
     public Message(UUID id, User user, Channel channel, String message, Long createAt) {
         this.id = id;
@@ -44,11 +42,8 @@ public class Message {
         return updateAt;
     }
 
-    public void setMessage(String message) {
+    public void updateMessage(String message, Long updateAt) {
         this.message = message;
-    }
-
-    public void setUpdateAt(Long updateAt) {
         this.updateAt = updateAt;
     }
 

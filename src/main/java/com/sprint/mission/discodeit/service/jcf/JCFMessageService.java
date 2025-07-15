@@ -48,8 +48,7 @@ public class JCFMessageService implements MessageService {
             if (!m.getUser().equals(user)) return false;
             if (!m.getChannel().equals(channel)) return false;
 
-            m.setMessage(message);
-            m.setUpdateAt(Instant.now().getEpochSecond());
+            m.updateMessage(message, Instant.now().getEpochSecond());
             break;
         }
 

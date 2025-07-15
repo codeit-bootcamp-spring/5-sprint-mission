@@ -3,13 +3,11 @@ package com.sprint.mission.discodeit.entity;
 import java.util.UUID;
 
 public class Channel {
-    private UUID id;
+    private final UUID id;
     private String channelName;
     private String channelDescription;
-    private Long createAt;
+    private final Long createAt;
     private Long updateAt;
-
-    public Channel() {}
 
     public Channel(UUID id, String channelName, String channelDescription, Long createAt) {
         this.id = id;
@@ -22,39 +20,25 @@ public class Channel {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
     public String getChannelName() {
         return channelName;
-    }
-
-    public void setChannelName(String channelName) {
-        this.channelName = channelName;
     }
 
     public String getChannelDescription() {
         return channelDescription;
     }
 
-    public void setChannelDescription(String channelDescription) {
-        this.channelDescription = channelDescription;
-    }
-
     public Long getCreateAt() {
         return createAt;
-    }
-
-    public void setCreateAt(Long createAt) {
-        this.createAt = createAt;
     }
 
     public Long getUpdateAt() {
         return updateAt;
     }
 
-    public void setUpdateAt(Long updateAt) {
+    public void updateChannel(String channelName, String channelDescription, Long updateAt) {
+        this.channelName = channelName;
+        this.channelDescription = channelDescription;
         this.updateAt = updateAt;
     }
 
