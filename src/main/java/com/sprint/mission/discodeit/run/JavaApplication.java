@@ -73,7 +73,7 @@ public class JavaApplication {
         messageService.update(foundMessage); //다시 Map에 저장
 
         //6. 수정결과 출력해보기
-        System.out.println(foundMessage); //객체 toString 출력
+        System.out.println("메세지 수정 후 조회: " + foundMessage); //객체 toString 출력
 
         //7. 삭제
         messageService.delete(message);
@@ -93,6 +93,7 @@ public class JavaApplication {
 
         //3. 단건 조회
         User foundUser = userService.findById(user.getId());
+        System.out.println("유저 단건 조회: " + foundUser.getId());
 
         //4. 전체 조회
         System.out.println("전체 조회: " + userService.findAll());
