@@ -4,82 +4,132 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public class JavaApplication {
     public static void main(String[] args) throws InterruptedException {
-        UserService us = JCFUserService.getInstance();
-        ChannelService cs = JCFChannelService.getInstance();
-        MessageService ms = JCFMessageService.getInstnce();
+        UserService userService = JCFUserService.getInstance();
+        ChannelService channelService = JCFChannelService.getInstance();
+        JCFMessageService messageService = JCFMessageService.getInstance();
 
-        User user1 = new User("홍길동");
-        User user2 = new User("이순신");
-        User user3 = new User("김유신");
+        //의존성 주입
+        messageService.setDependencies(userService, channelService);
 
-        us.create(user1);
-        us.create(user2);
-        us.create(user3);
+        // 테스트
+        userCRUDTest(userService);
+        channelCRUDTest(channelService, userService);
+        messageCRUDTest(messageService,userService,channelService);
+    }
 
-        // 채널
-        Channel c1 = new Channel("일반채널");
-        Channel c2 = new Channel("공지사항");
-        Channel c3 = new Channel("개발잡담");
+    private static void userCRUDTest(UserService userService) throws InterruptedException {
+        // 등록
+        final User user1 = new User("홍길동");
+        final User user2 = new User("김길동");
+        final User user3 = new User("이길동");
 
-        cs.create(c1);
-        cs.create(c2);
-        cs.create(c3);
+        userService.create(user1);
+        userService.create(user2);
+        userService.create(user3);
 
-        // 유저 채널
-        c1.join(user1.getId());
-        c2.join(user2.getId());
-        c3.join(user3.getId());
+        UUID userId1 = user1.getId();
+        UUID userId2 = user2.getId();
+        UUID userId3 = user3.getId();
 
-        Message m1 = new Message(user3.getId(), c2.getId(), "공지사항에 오신 걸 환영합니다.");
-        Message m2 = new Message(user3.getId(), c2.getId(), "오늘 회의는 2시에 시작합니다.");
-        ms.create(m1);
-        ms.create(m2);
+        // 단건 조회
+        userService.findById(userId1);
 
-        Channel notice = cs.findById(c2.getId());
-        if (notice != null) {
-            // 유저 목록 출력
-            System.out.println( c2.getName() + " 채널 유저 목록");
-            Set<UUID> userIds = notice.getUserIds();
-            for (UUID userId : userIds) {
-                User u = us.findById(userId);
-                if (u != null) {
-                    System.out.println("- " + u.getNickName());
-                }
-            }
+        // 전체 조회
+        userService.findAll();
 
-            System.out.println( c2.getName() + " 메세지 출력");
-            List<Message> msg = ms.findByChannelId(notice.getId());
-            for (Message m : msg) {
-                User sender = us.findById(m.getUserId());
-                String nickName = sender != null ? sender.getNickName() : "Unknown";
-                System.out.println(nickName + ": " + m.getContent());
-            }
+        // 수정 및 조회
+        Thread.sleep(2000);
+        String newName = "박나나";
+        userService.update(userId1, newName);
+
+        User updatedUser = userService.findById(userId1);
+        System.out.println("수정 후 닉네임: " + updatedUser);
+
+        // 삭제 및 조회
+        userService.delete(userId2);
+        userService.findAll();
+    }
+
+    private static void channelCRUDTest(ChannelService channelService, UserService userService) {
+        // 등록
+        System.out.println("\n [CHANNEL CRUD 테스트]");
+
+        // 채널 생성
+        final Channel channel = new Channel("공지사항");
+        channelService.create(channel);
+        UUID channelId = channel.getId();
+
+        // 채널 조회
+        channelService.findById(channelId);
+        channelService.findAll();
+
+        // 채널 이름 수정
+        channelService.update(channelId, "일반채널");
+
+        // 유저 등록 후 채널 입장
+        final User user = new User("이순신");
+        userService.create(user);
+        channel.join(user.getId());
+        channelService.findAll();
+
+        // 유저 입장 확인
+        Channel updated = channelService.findById(channelId);
+        for (UUID uid : updated.getUserIds()) {
+            System.out.println("- 채널 유저: " + userService.findById(uid).getNickName());
         }
 
+        // 삭제
+        channelService.delete(channelId);
+        System.out.println(channelService.findById(channelId) == null ? "채널 삭제 확인" : "삭제 실패");
+    }
 
+        private static void messageCRUDTest(JCFMessageService messageService, UserService userService, ChannelService channelService) {
+            System.out.println("메세지 테스트");
 
+            User user = new User ("김유신");
+            Channel channel = new Channel("스터디");
 
+            userService.create(user);
+            channelService.create(channel);
+            channel.join(user.getId());
 
+            // 메세지 생성
+            Message msg1 = new Message(user.getId(), channel.getId(), "안녕하세요.");
+            messageService.create(msg1);
 
+            // 메시지 전체 조회
+            List<Message> all = messageService.findAll();
+            for (Message msg : all) {
+                System.out.println(userService.findById(msg.getUserId()).getNickName() + ": " + msg.getContent());
+            }
 
+            // 메세지 수정
+            msg1.updateContent("안녕하세요. 반갑습니다.");
+            messageService.update(msg1.getId(), msg1.toString());
 
+            // 수정 확인
+            System.out.println("수정된 메세지: " + messageService.findById(msg1.getId()).getContent());
 
+            // 삭제
+            messageService.delete(msg1.getId());
 
-
-
-
+            // 삭제 확인
+            System.out.println(messageService.findById(msg1.getId()) == null ? "메세지 삭제됨" : "삭제오류");
 
     }
+
 }
+
+
+
+

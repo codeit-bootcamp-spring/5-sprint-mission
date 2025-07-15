@@ -7,7 +7,7 @@ import java.util.*;
 
 public class JCFUserService implements UserService {
     private static final JCFUserService instance = new JCFUserService();
-    Map<UUID, User> users = new HashMap<>();
+    private final Map<UUID, User> users = new HashMap<>();
 
     public static JCFUserService getInstance() {
         return instance;
@@ -25,7 +25,7 @@ public class JCFUserService implements UserService {
     public User findById(UUID id) {
         User user = users.get(id);
         if (user != null) {
-            System.out.println(user);
+            System.out.println("찾으신 닉네임: "+user.getNickName());
         } else {
             System.out.println("사용자를 찾을 수 없습니다.");
         }
@@ -50,7 +50,7 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void delete(String nickName) {
-        users.remove(nickName);
+    public void delete(UUID id) {
+        users.remove(id);
     }
 }

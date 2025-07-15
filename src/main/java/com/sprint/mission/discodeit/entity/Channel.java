@@ -42,13 +42,12 @@ public class Channel {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Channel{");
-        sb.append("channelId=").append(id);
+        sb.append("id=").append(id);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", updatedAt=").append(updatedAt);
         sb.append(", channelName='").append(channelName).append('\'');
+        sb.append(", userIds=").append(userIds);
         sb.append('}');
         return sb.toString();
     }
-
-
 }

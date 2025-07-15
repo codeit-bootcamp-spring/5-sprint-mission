@@ -44,7 +44,7 @@ public class Message {
         return content;
     }
 
-    public void writeToContent(String newContent) {
+    public void updateContent(String newContent) {
         this.content = newContent;
         this.updatedAt = System.currentTimeMillis();
     }
@@ -61,4 +61,5 @@ public class Message {
         sb.append('}');
         return sb.toString();
     }
+
 }

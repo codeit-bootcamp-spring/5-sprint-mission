@@ -10,6 +10,6 @@ public interface UserService {
     User findById(UUID id);
     List<User> findAll();
     void update(UUID id, String nickName);
-    void delete(String nickName);
+    void delete(UUID id);
 
 }
