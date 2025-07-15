@@ -66,9 +66,10 @@ public class JavaApplication {
             System.out.println();
             System.out.println("*** 회원 메뉴 ***");
             System.out.println("1. 프로필 편집");
-            System.out.println("9. 친구 목록 보기");
-            System.out.println("10. 친구 추가");
-            System.out.println("11. 친구 삭제");
+            System.out.println("2. 친구 목록 편집");
+            System.out.println("3. 서버 목록 편집");
+            System.out.println("4. 다이렉트 메시지 편집");
+            System.out.println("9. 로그아웃");
             System.out.println("12. 모든 서버 조회");
             System.out.println("13. 서버 만들기");
             System.out.println("14. 서버 삭제");
@@ -79,25 +80,16 @@ public class JavaApplication {
             System.out.println("19. 다이렉트 메시지 보내기");
             System.out.println("20. 다이렉트 메시지 보기");
             System.out.println("21. 다이렉트 메시지 수정하기");
-            System.out.println("22. 니트로 플랜 구독하기");
-            System.out.println("23. 아이템 구매하기");
-            System.out.println("24. 계정 삭제하기");
-            System.out.println("99. 로그아웃");
             System.out.print("메뉴 번호 선택 : ");
 
             try {
                 int menuNum = Integer.parseInt(sc.nextLine());
                 switch (menuNum) {
                     case 1: editProfileMenu(); break;
-                    case 9:
-                        showFriends();
-                        continue;
-                    case 10:
-                        addFriend();
-                        continue;
-                    case 11:
-                        deleteFriend();
-                        continue;
+                    case 2: editFriendMenu(); break;
+                    // case 3: editServerMenu(); break;
+                    // case 4: editDirectMessageMenu(); break;
+                    case 9: logout(); break label;
                     case 12:
                         showServers();
                         continue;
@@ -116,9 +108,6 @@ public class JavaApplication {
                     case 17:
                         openServer();
                         continue;
-                    case 99:
-                        logout();
-                        break label;
                     default:
                         System.out.println("다시 입력해주세요.");
                 }
@@ -140,6 +129,7 @@ public class JavaApplication {
             System.out.println("5. 생년월일 변경");
             System.out.println("6. 이메일로 소식 받기 변경");
             System.out.println("7. 휴대폰 번호 등록/변경");
+            System.out.println("8. 회원 탈퇴");
             System.out.println("9. 뒤로가기");
 
             try {
@@ -152,6 +142,32 @@ public class JavaApplication {
                     case 5: changeBirthDate(); break;
                     case 6: changeIsSubscribedToNewsletter(); break;
                     case 7: changePhoneNumber(); break;
+                    case 8:
+                        boolean result = deleteAccount();
+                        if (result) break label;
+                        break;
+                    case 9: break label;
+                    default: System.out.println("다시 입력해주세요.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("숫자를 입력해주세요.");
+            }
+        }
+    }
+
+    private void editFriendMenu() {
+        label: while (true) {
+            showFriends();
+            System.out.println("=====***** 친구 목록 편집 메뉴 *****=====");
+            System.out.println("1. 친구 추가");
+            System.out.println("2. 친구 삭제");
+            System.out.println("9. 뒤로가기");
+
+            try {
+                int menuNum = Integer.parseInt(sc.nextLine());
+                switch (menuNum) {
+                    case 1: addFriend(); break;
+                    case 2: deleteFriend(); break;
                     case 9: break label;
                     default: System.out.println("다시 입력해주세요.");
                 }
@@ -164,7 +180,6 @@ public class JavaApplication {
 
     private void serverMenu() {
         label: while (true) {
-            System.out.println();
             System.out.println("=====***** 서버 메뉴 *****=====");
             System.out.println("1. 서버 정보 조회");
             System.out.println("2. 서버 주인 변경");
@@ -290,6 +305,10 @@ public class JavaApplication {
                 continue;
             }
             me = user;
+            userService.findById(me.getId()).setDeactivated(false);
+            userService.findById(me.getId()).setStatus(Status.ONLINE);
+            me.setDeactivated(false);
+            me.setStatus(Status.ONLINE);
             System.out.println(user.getUsername() + "님, 환영합니다!");
             break;
         }
@@ -477,7 +496,7 @@ public class JavaApplication {
     private void showFriends() {
         Set<UUID> friends = me.getFriends();
         if (friends.isEmpty()) {
-            System.out.println("친구 없음");
+            System.out.println("친구: 없음");
             return;
         }
         String result = friends.stream()
@@ -485,7 +504,34 @@ public class JavaApplication {
                 .filter(Objects::nonNull)
                 .map(User::getUsername)
                 .collect(Collectors.joining(", "));
-        System.out.println(result);
+        System.out.println("친구 : " + result);
+    }
+
+    private boolean deleteAccount() {
+        System.out.println("\nx. 뒤로가기");
+        while (true) {
+            System.out.println("1. 계정 비활성화");
+            System.out.println("2. 계정 삭제");
+            String indexStr = sc.nextLine().strip();
+
+            if (indexStr.equals("x")) {
+                return false;
+            }
+
+            switch (indexStr) {
+                case "1":
+                    userService.updateDeactivated(me.getId(), true);
+                    System.out.println("계정이 비활성화되었습니다. 로그인 시 계정이 활성화됩니다.");
+                    logout();
+                    return true;
+                case "2":
+                    userService.deleteById(me.getId());
+                    System.out.println("계정이 삭제되었습니다.");
+                    return true;
+                default:
+                    System.out.println("1 또는 2를 입력해주세요.");
+            }
+        }
     }
 
     private void addFriend() {
@@ -519,16 +565,9 @@ public class JavaApplication {
     }
 
     private void deleteFriend() {
-        Set<UUID> friendsId = me.getFriends();
-
-        if (friendsId.isEmpty()) {
-            System.out.println("친구 없음");
-            return;
-        }
-        System.out.println("친구 목록: " + me.getFriends());
-
         System.out.println("\nx. 뒤로가기");
         while (true) {
+            showFriends();
             System.out.print("삭제할 친구의 이메일: ");
             String email = sc.nextLine().strip();
 
@@ -536,9 +575,14 @@ public class JavaApplication {
                 return;
             }
 
-            UUID friendIdToDelete = userService.findByEmail(email).getId();
-            userService.removeFriend(me.getId(), friendIdToDelete);
-            me.removeFriend(friendIdToDelete);
+            User friendToDelete = userService.findByEmail(email);
+            if (friendToDelete == null) {
+                System.out.println("존재하지 않는 친구입니다.");
+                continue;
+            }
+            userService.removeFriend(me.getId(), friendToDelete.getId());
+            me.removeFriend(friendToDelete.getId());
+            System.out.println(friendToDelete.getUsername() + "이 친구 목록에서 삭제되었습니다.");
         }
     }
 
@@ -612,7 +656,7 @@ public class JavaApplication {
 
         while (true) {
             System.out.print("삭제할 서버 번호: ");
-            String indexStr = sc.nextLine();
+            String indexStr = sc.nextLine().strip();
 
             if (indexStr.equals("x")) {
                 return;

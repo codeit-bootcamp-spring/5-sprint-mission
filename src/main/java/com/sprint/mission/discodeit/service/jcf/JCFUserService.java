@@ -136,7 +136,7 @@ public class JCFUserService extends JCFService<User> implements UserService {
     public void clearChatRooms(UUID userId) {
         update(userId, User::clearChatRooms);
     }
-    
+
     @Override
     public void updateStatus(UUID userId, Status status) {
         update(userId, u -> u.setStatus(status));
