@@ -3,27 +3,29 @@ package com.sprint.mission;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.*;
+import com.sprint.mission.discodeit.service.core.ChannelManageService;
+import com.sprint.mission.discodeit.service.core.ChatService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class JavaApplication {
     public static void main(String[] args) {
 
         JCFUserService userService = new JCFUserService();
-        testUserService(userService);
-
         JCFChannelService channelService = new JCFChannelService();
-        testChannelService(channelService);
-
         JCFMessageService messageService = new JCFMessageService();
+
+        ChannelManageService channelManageService = new ChannelManageService(channelService, userService);
+        ChatService chatService = new ChatService(messageService, channelService);
+
+        testUserService(userService);
+        testChannelService(channelService);
         testMessageService(messageService);
+        testService(channelManageService, chatService, userService, channelService);
     }
 
     public static void testUserService(UserService userService) {
@@ -41,7 +43,7 @@ public class JavaApplication {
         System.out.println("User 목록 : " + userService.getAll());
 
         User target = userService.get(user.getId());
-        System.out.println("채널 ID로 찾기 : " + target);
+        System.out.println("유저 ID로 찾기 : " + target);
         if (target != null) {
             userService.update(target.getId(), "Update Target User", false);
             System.out.println("Test Target 유저 변경 : " + target);
@@ -80,7 +82,10 @@ public class JavaApplication {
             channelService.update(target.getId(), "Update Test Target", "Update Test Target");
             System.out.println("Test Target 채널 변경 : " + target);
         }
+        System.out.println("채널 목록 : " + channelService.getAll());
 
+        System.out.println("채널에 유저 추가");
+        testChannel.addUser(new User("Test add User", true).getId());
         System.out.println("채널 목록 : " + channelService.getAll());
 
         System.out.println("Test Target 채널 삭제");
@@ -125,6 +130,43 @@ public class JavaApplication {
         System.out.println("Message 목록 : " + messageService.getAll());
         System.out.println("============= 메세지 테스트 끝 =============");
 
-        // TODO 시간 여유 되면 채팅방 명 - 유저 명 - 메세지 형태 출력 + 각 추가 필드들(메세지 시간, 채널 내 유저... 등)
+    }
+
+    public static void testService(ChannelManageService channelManageService, ChatService chatService, UserService userService, ChannelService channelService) {
+
+        System.out.println("============= 채팅, 채널관리 테스트 시작 =============");
+
+        // 유저 생성
+        User adminUser = new User("adminUser", true);
+        User testUser = new User("testUser", true);
+        userService.create(adminUser);
+        userService.create(testUser);
+
+        Channel channel = new Channel("general", "메인 채팅방", adminUser.getId());
+        channelService.create(channel);
+
+        channelManageService.addUserToChannel(channel.getId(), testUser.getId());
+
+        List<User> usersInChannel = channelManageService.listUsersInChannel(channel.getId());
+        System.out.println("채널 유저 목록:");
+        usersInChannel.forEach(u -> System.out.println("- " + u.getName()));
+
+        chatService.sendMessage(channel.getId(), adminUser.getId(), "Hi, I'm adminUser");
+        chatService.sendMessage(channel.getId(), testUser.getId(), "Hi, I'm testUser");
+
+        System.out.println("\n채널 메시지 목록:");
+        List<Message> messages = chatService.getMessagesInChannel(channel.getId());
+        for (Message m : messages) {
+            String userName = userService.get(m.getUserId()).getName();
+            System.out.printf("[%d] %s: %s\n", m.getCreatedAt(), userName, m.getText());
+        }
+
+        channelManageService.removeUserFromChannel(channel.getId(), testUser.getId());
+        System.out.println("\ntestUser 퇴장 후 채널 유저 목록:");
+        channelManageService.listUsersInChannel(channel.getId())
+            .forEach(u -> System.out.println("- " + u.getName()));
+
+
+        System.out.println("============= 채팅, 채널관리 테스트 끝 =============");
     }
 }
