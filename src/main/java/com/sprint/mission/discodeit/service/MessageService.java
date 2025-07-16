@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MessageService {
-    void register(Message message);      //메시지 등록
+    boolean register(Message message);      //메시지 등록
     Message findById(UUID id);              //메시지 아이디로 검색
     List<Message> findAll();                //모든 메시지 조회
-    boolean update(Message message);        //메시지 수정
-    boolean deleteMessage(UUID id);         //메시지 삭제
+    boolean update(UUID id, String newContent);        //메시지 수정
+    boolean delete(UUID id);         //메시지 삭제
 }
