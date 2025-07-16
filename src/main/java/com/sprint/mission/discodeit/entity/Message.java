@@ -50,7 +50,6 @@ public class Message {
 
     @Override
     public String toString() {
-        User user = new User("", "");
         return String.format(
                 "\n[메시지 ID(UUID): %s]\n[유저 ID(UUID): %s]\n[채널 ID(UUID): %s]\n[내용: %s]\n[생성일: %s]\n[수정일: %s]",
                 id,
