@@ -9,15 +9,30 @@ public class Channel {
     private  long createdAt;
     private long updatedAt;
 
-   public Channel(UUID id){
-        this.id = id;
+    private String channelId;
+    private String channelName;
+
+
+   public Channel(String channelId, String channelName){
+        this.id = UUID.randomUUID();
        this.createdAt = System.currentTimeMillis();
        this.updatedAt = this.createdAt;
+       this.channelId = channelId;
+       this.channelName = channelName;
+
     }
 
-    public  void update(UUID id, long updatedAt){
-        this.id = id;
+    public String getChannelId() {
+        return channelId;
+    }
 
+    public String getChannelName() {
+        return channelName;
+    }
+
+    public  void update(String channelId, String channelName, long updatedAt){
+        this.channelId = channelId;
+        this.channelName= channelName;
         this.updatedAt = updatedAt;
     }
 

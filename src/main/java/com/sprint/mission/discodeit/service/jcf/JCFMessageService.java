@@ -17,20 +17,26 @@ public class JCFMessageService implements MessageService {
     private final Map<UUID, User> userData;
     private final Map<UUID, Channel> channelData;
 
-
+    private final Map<String, User> userByName;
     public JCFMessageService(Map<UUID, User> userData, Map<UUID, Channel> channelData) {
         this.userData = userData;
         this.channelData = channelData;
         this.data = new HashMap<>();
+
+        this.userByName = new HashMap<>();
+        for (User user : userData.values()) {
+            userByName.put(user.getUserName(), user); // 이름을 key로 사용
+        }
     }
 
     @Override
-    public void save(Message message) {
-        if (!userData.containsKey(message.getId())) {
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+    public void create(Message message) {
+        if (!userByName.containsKey(message.getSender())) {
+            throw new IllegalArgumentException("존재하지 않는 보낸 사람입니다: " + message.getSender());
         }
-        if (!channelData.containsKey(message.getId())) {
-            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
+
+        if (!userByName.containsKey(message.getReceiver())) {
+            throw new IllegalArgumentException("존재하지 않는 받는 사람입니다: " + message.getReceiver());
         }
 
         data.put(message.getId(), message);

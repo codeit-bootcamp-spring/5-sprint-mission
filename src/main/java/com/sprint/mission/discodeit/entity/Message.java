@@ -8,17 +8,38 @@ public class Message {
     private long createdAt;
     private long updatedAt;
 
-    public Message(UUID id) {
+    private String message;
 
-        this.id = id;
+    private String sender;
+
+    private String receiver;
+
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public Message(String message, String sender, String receiver) {
+        this.id =UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = this.createdAt;
+        this.message = message;
+        this.sender = sender;
+        this.receiver = receiver;
 
     }
 
-    public void update(UUID id, long updatedAt) {
-        this.id = id;
+    public void update( String message , long updatedAt) {
 
+        this.message = message;
         this.updatedAt = updatedAt;
     }
 

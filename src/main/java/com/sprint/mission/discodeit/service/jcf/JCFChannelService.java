@@ -19,7 +19,7 @@ public class JCFChannelService implements ChannelService {
 
 
     @Override
-    public void save(Channel channel) {
+    public void create(Channel channel) {
         data.put(channel.getId(), channel);
     }
 

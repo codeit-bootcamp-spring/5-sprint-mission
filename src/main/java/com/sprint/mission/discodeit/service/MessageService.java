@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface MessageService {
 
-    void save(Message message);
+    void create(Message message);
 
     //읽기
     Message find(UUID id);

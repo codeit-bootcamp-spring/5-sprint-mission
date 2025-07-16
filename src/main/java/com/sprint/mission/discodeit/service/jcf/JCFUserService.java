@@ -18,13 +18,13 @@ public class JCFUserService implements UserService {
 
 
     @Override
-    public void save(User user) {
+    public void create(User user) {
         data.put(user.getId(), user);
     }
 
     @Override
     public User find(UUID id) {
-        return data.get(id);
+        return  data.get(id);
     }
 
     @Override
@@ -33,12 +33,13 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void update(UUID id,User user) {
+    public void update(UUID id, User user) {
 
-        if (data.containsKey(id)) {
+        if (data.containsKey(id)){
             data.put(id, user);
         }
     }
+
 
     @Override
     public void delete(UUID id) {

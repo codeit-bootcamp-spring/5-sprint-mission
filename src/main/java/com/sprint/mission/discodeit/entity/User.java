@@ -10,11 +10,24 @@ public class User {
     long updatedAt;
 
 
+    String userName;
+    String password;
 
-    public User(UUID id) {
-        this.id = id;
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public User(String userName, String password) {
+        this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = this.createdAt;
+        this.userName = userName;
+        this.password = password;
+
 
     }
 
@@ -31,12 +44,12 @@ public class User {
     }
 
 
-    public  void update( UUID id, long updatedAt){
-        this.id = id;
+    public void update(String userName, String password,  long updatedAt) {
+        this.userName = userName;
+        this.password = password;
         this.updatedAt = updatedAt;
 
     }
-
 
 
     @Override

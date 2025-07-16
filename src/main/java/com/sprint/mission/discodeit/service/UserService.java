@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface UserService {
 
     // 생성
-    void save(User user);
+    void create (User user);
 
     //읽기
     User find(UUID id);
@@ -18,6 +18,7 @@ public interface UserService {
 
     //업데이트
     void update(UUID id, User user);
+
 
     //삭제
     void delete(UUID id);
