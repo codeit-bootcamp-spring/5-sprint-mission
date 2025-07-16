@@ -4,54 +4,61 @@ import java.util.UUID;
 
 public class Message {
     private UUID id;
-    private long createAt;
-    private long updateAt;
+    private Long createdAt;
+    private Long updatedAt;
 
-    public Message(UUID id) {
-        this.id = id;
-    }
+    private String content;
+    private UUID channelId;
+    private UUID authorId;
 
-    public Message(long createAt) {
-        this.createAt = createAt;
-    }
-
-    public Message(UUID id, long createAt, long updateAt) {
-        this.id = id;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
+    public Message(String content, UUID channelId, UUID authorId) {
+        id = UUID.randomUUID();
+        this.content = content;
+        this.channelId = channelId;
+        this.authorId = authorId;
+        createdAt = System.currentTimeMillis();
     }
 
     public UUID getId() {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public Long getCreatedAt() {
+        return createdAt;
     }
 
-    public long getCreateAt() {
-        return createAt;
+    public Long getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setCreateAt(long createAt) {
-        this.createAt = createAt;
+    public String getContent() {
+        return content;
     }
 
-    public long getUpdateAt() {
-        return updateAt;
+    public UUID getChannelId() {
+        return channelId;
     }
 
-    public void setUpdateAt(long updateAt) {
-        this.updateAt = updateAt;
+    public UUID getAuthorId() {
+        return authorId;
+    }
+
+    public void update(String content, UUID channelId, UUID authorId) {
+        this.content = content;
+        this.channelId = channelId;
+        this.authorId = authorId;
+        updatedAt = System.currentTimeMillis();
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Message{");
-        sb.append("id=").append(id);
-        sb.append(", createAt=").append(createAt);
-        sb.append(", updateAt=").append(updateAt);
-        sb.append('}');
-        return sb.toString();
+        return "Message{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", content='" + content + '\'' +
+                ", channelId='" + channelId + '\'' +
+                ", authorId='" + authorId + '\'' +
+                '}';
     }
 }

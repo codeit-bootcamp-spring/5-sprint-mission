@@ -1,57 +1,53 @@
 package com.sprint.mission.discodeit.service.jcf;
 
-import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.*;
 
 public class JCFUserService implements UserService {
-    private final Map<String, User> data;
-
-    public JCFUserService(Map<String, User> data) {
-        this.data = data;
-    }
+    final Map<UUID, User> data = new HashMap<>();
 
     @Override
-    public User createUser(User user) {
-        if (user.getId() == null) {
-            user.setId(UUID.randomUUID());
+    public User create(String username, String password, String nickname) {
+        if (username == null || password == null || username.isBlank() || password.isBlank()) {
+            throw new IllegalArgumentException("username or password is null or blank");
         }
-        Long currentTime = System.currentTimeMillis();
-        user.setCreateAt(currentTime);
-        user.setUpdateAt(currentTime);
 
-        data.put(user.getId().toString(), user);
+        nickname = (nickname == null || nickname.isBlank()) ? username : nickname;
+
+        User user = new User(username, password, nickname);
+        data.put(user.getId(), user);
         return user;
     }
 
     @Override
-    public User getUserById(UUID id) {
-        return data.get(id.toString());
+    public User find(UUID userId) {
+        if (!data.containsKey(userId)) {
+            throw new NoSuchElementException("user not found");
+        }
+        return data.get(userId);
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> findAll() {
         return new ArrayList<>(data.values());
     }
 
     @Override
-    public User updateUser(User user) {
-        if (user.getId() == null || !data.containsKey(user.getId().toString())) {
-            return null;
+    public User update(UUID userId, String username, String password, String nickname) {
+        User user = data.get(userId);
+
+        if (user == null) {
+            throw new NoSuchElementException("user not found");
         }
 
-        User existingUser = data.get(user.getId().toString());
-        user.setCreateAt(existingUser.getCreateAt());
-        user.setUpdateAt(System.currentTimeMillis());
-
-        data.put(user.getId().toString(), user);
+        user.update(username, password, nickname);
         return user;
     }
 
     @Override
-    public void deleteUser(UUID id) {
-        data.remove(id.toString());
+    public void delete(UUID userId) {
+        data.remove(userId);
     }
 }

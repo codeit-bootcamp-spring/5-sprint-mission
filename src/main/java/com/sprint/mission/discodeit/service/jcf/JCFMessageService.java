@@ -3,58 +3,49 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFMessageService implements MessageService {
-    private final Map<String, Message> data;
-
-    public JCFMessageService(Map<String, Message> data) {
-        this.data = data;
-    }
+    final Map<UUID, Message> data = new HashMap<>();
 
     @Override
-    public Message createMessage(Message message) {
-        if (message.getId() == null) {
-            message.setId(UUID.randomUUID());
+    public Message create(String content, UUID channelId, UUID authorId) {
+        if (content == null || channelId == null || authorId == null || content.isBlank()){
+            throw new IllegalArgumentException("message content or channelId or authorId is null or blank");
         }
 
-        Long currentTime = System.currentTimeMillis();
-        message.setCreateAt(currentTime);
-        message.setUpdateAt(currentTime);
-
-        data.put(message.getId().toString(), message);
+        Message message = new Message(content, channelId, authorId);
+        data.put(message.getId(), message);
         return message;
     }
 
     @Override
-    public Message getMessageById(UUID id) {
-        return data.get(id.toString());
+    public Message find(UUID messageId) {
+        if (!data.containsKey(messageId)){
+            throw new NoSuchElementException("message not found");
+        }
+        return data.get(messageId);
     }
 
     @Override
-    public List<Message> getAllMessages() {
+    public List<Message> findAll() {
         return new ArrayList<>(data.values());
     }
 
     @Override
-    public Message updateMessage(Message message) {
-        if (message.getId() == null || !data.containsKey(message.getId().toString())) {
-            return null;
+    public Message update(UUID messageId, String content, UUID channelId, UUID authorId) {
+        Message message = data.get(messageId);
+
+        if (message == null) {
+            throw new NoSuchElementException("message not found");
         }
 
-        Message existingMessage = data.get(message.getId().toString());
-        message.setCreateAt(existingMessage.getCreateAt());
-        message.setUpdateAt(System.currentTimeMillis());
-
-        data.put(message.getId().toString(), message);
+        message.update(content, channelId, authorId);
         return message;
     }
 
     @Override
-    public void deleteMessage(UUID id) {
-        data.remove(id.toString());
+    public void delete(UUID messageId) {
+        data.remove(messageId);
     }
 }

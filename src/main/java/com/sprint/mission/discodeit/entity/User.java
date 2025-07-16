@@ -4,54 +4,61 @@ import java.util.UUID;
 
 public class User {
     private UUID id;
-    private long createAt;
-    private long updateAt;
+    private Long createdAt;
+    private Long updatedAt;
 
-    public User(UUID id) {
-        this.id = id;
-    }
+    private String username;
+    private String password;
+    private String nickname;
 
-    public User(long createAt) {
-        this.createAt = createAt;
-    }
-
-    public User(UUID id, long createAt, long updateAt) {
-        this.id = id;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
+    public User(String username, String password, String nickname) {
+        id = UUID.randomUUID();
+        this.username = username;
+        this.password = password;
+        this.nickname = nickname;
+        createdAt = System.currentTimeMillis();
     }
 
     public UUID getId() {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public Long getCreateAt() {
+        return createdAt;
     }
 
-    public long getCreateAt() {
-        return createAt;
+    public Long getUpdateAt() {
+        return updatedAt;
     }
 
-    public void setCreateAt(long createAt) {
-        this.createAt = createAt;
+    public String getUsername() {
+        return username;
     }
 
-    public long getUpdateAt() {
-        return updateAt;
+    public String getPassword() {
+        return password;
     }
 
-    public void setUpdateAt(long updateAt) {
-        this.updateAt = updateAt;
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void update(String username, String password, String nickname){
+        this.username = username;
+        this.password = password;
+        this.nickname = nickname;
+        updatedAt = System.currentTimeMillis();
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("User{");
-        sb.append("id=").append(id);
-        sb.append(", createAt=").append(createAt);
-        sb.append(", updateAt=").append(updateAt);
-        sb.append('}');
-        return sb.toString();
+        return "User{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", nickname='" + nickname + '\'' +
+                '}';
     }
 }

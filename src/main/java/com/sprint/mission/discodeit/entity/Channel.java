@@ -4,54 +4,45 @@ import java.util.UUID;
 
 public class Channel {
     private UUID id;
-    private long createAt;
-    private long updateAt;
+    private Long createdAt;
+    private Long updatedAt;
 
-    public Channel(UUID id) {
-        this.id = id;
-    }
+    private String name;
 
-    public Channel(long createAt) {
-        this.createAt = createAt;
-    }
-
-    public Channel(UUID id, long createAt, long updateAt) {
-        this.id = id;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
+    public Channel(String name) {
+        id = UUID.randomUUID();
+        this.name = name;
+        createdAt = System.currentTimeMillis();
     }
 
     public UUID getId() {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public Long getCreatedAt() {
+        return createdAt;
     }
 
-    public long getCreateAt() {
-        return createAt;
+    public Long getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setCreateAt(long createAt) {
-        this.createAt = createAt;
+    public String getName() {
+        return name;
     }
 
-    public long getUpdateAt() {
-        return updateAt;
-    }
-
-    public void setUpdateAt(long updateAt) {
-        this.updateAt = updateAt;
+    public void update(String name) {
+        this.name = name;
+        updatedAt = System.currentTimeMillis();
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Channel{");
-        sb.append("id=").append(id);
-        sb.append(", createAt=").append(createAt);
-        sb.append(", updateAt=").append(updateAt);
-        sb.append('}');
-        return sb.toString();
+        return "Channel{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", name='" + name + '\'' +
+                '}';
     }
 }
