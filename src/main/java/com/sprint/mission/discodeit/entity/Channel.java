@@ -44,4 +44,19 @@ public class Channel {
     public void setUpdateAt(Long updateAt) {
         this.updateAt = updateAt;
     }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "채널 {" +
+                "아이디 = " + id +
+                ", 이름 ='" + name + '\'' +
+                ", 설명 ='" + description + '\'' +
+                ", 생성 시간 =" + createAt +
+                ", 수정 시간 =" + updateAt +
+                '}';
+    }
 }

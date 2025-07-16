@@ -50,4 +50,20 @@ public class Message {
     public void setUpdateAt(Long updateAt) {
         this.updateAt = updateAt;
     }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        return "메시지 {" +
+                "아이디 =" + id +
+                ", 내용 ='" + content + '\'' +
+                ", 사용자 ID=" + userId +
+                ", 채널 ID =" + channelId +
+                ", 생성 시간 =" + createAt +
+                ", 수정 시간 =" + updateAt +
+                '}';
+    }
 }
