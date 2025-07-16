@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class JCFMessageService implements MessageService {
@@ -17,6 +18,9 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public Message create(String content, String userId, UUID channelId) {
+        if (content == null || content.isEmpty()) {
+            throw new IllegalArgumentException("내용이 입력되지 않았습니다.");
+        }
         Message message = new Message(content, userId, channelId);
         messages.put(message.getId(), message);
         return message;
@@ -29,7 +33,7 @@ public class JCFMessageService implements MessageService {
                 return message.getContent();
             }
         }
-        return null;
+        throw new NoSuchElementException("해당 ID의 메시지를 찾을 수 없습니다.");
     }
 
     @Override
@@ -45,6 +49,9 @@ public class JCFMessageService implements MessageService {
                list.add(message);
            }
        }
+       if (list.isEmpty()) {
+           throw new NoSuchElementException("해당 채널의 메시지가 없습니다.");
+       }
        return list;
     }
 
@@ -56,26 +63,32 @@ public class JCFMessageService implements MessageService {
                 list.add(message);
             }
         }
+        if (list.isEmpty()) {
+            throw new NoSuchElementException("해당 유저의 메시지가 없습니다.");
+        }
         return list;
     }
 
     @Override
-    public boolean update(UUID messageId, String nContent) {
+    public Message update(UUID messageId, String content) {
         Message message = messages.get(messageId);
-        if (message != null) {
-            message.setContent(nContent);
-            return true;
+        if (message == null) {
+            throw new NoSuchElementException("존재하지 않는 메세지입니다.");
         }
-        return false;
+        if (content == null || content.isEmpty()){
+            throw new IllegalArgumentException(("내용이 없습니다."));
+        }
+        message.setContent(content);
+        return message;
     }
 
     @Override
     public boolean delete(UUID messageId) {
         Message message = messages.get(messageId);
-        if (message != null) {
-            messages.remove(messageId);
-            return true;
+        if (!messages.containsKey(messageId)) {
+            throw new NoSuchElementException("삭제할 메시지가 없습니다.");
         }
-        return false;
+        messages.remove(messageId);
+        return true;
     }
 }

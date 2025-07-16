@@ -17,7 +17,7 @@ public interface MessageService {
     // 유저 메세지 조회
     List<Message> getMessagesByUser(String userId);
     // 수정
-    boolean update(UUID messageId, String nContent);
+    Message update(UUID messageId, String nContent);
     // 삭제
     boolean delete(UUID messageId);
 

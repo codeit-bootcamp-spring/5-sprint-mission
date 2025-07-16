@@ -13,9 +13,9 @@ public interface UserService {
     //모두 읽기
     List<User> getAll();
     //수정
-    boolean updateUserName(String userId, String name);
+    User updateUserName(String userId, String name);
 
-    boolean updatePassword(String userId, String oldPassword, String newPassword);
+    User updatePassword(String userId, String oldPassword, String newPassword);
 
     //삭제
     boolean delete(String userId);

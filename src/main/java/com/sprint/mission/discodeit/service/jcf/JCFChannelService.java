@@ -17,14 +17,13 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel create(String name) {
+    public Channel create(String name, String description) {
         for (Channel ch : channels.values()) {
             if (ch.getName().equalsIgnoreCase(name)) {
-                System.out.println("중복된 이름의 채널이 있습니다.");
-                return null;
+                throw new IllegalArgumentException("중복된 이름입니다.");
             }
         }
-        Channel channel = new Channel(name);
+        Channel channel = new Channel(name, description);
         channels.put(channel.getId(), channel);
         return channel;
     }
@@ -36,7 +35,7 @@ public class JCFChannelService implements ChannelService {
                 return ch;
             }
         }
-        return null;
+        throw new IllegalArgumentException("존재하지 않습니다.");
     }
 
     @Override
@@ -45,17 +44,28 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public boolean update(UUID uuid, String name) {
+    public Channel updateName(UUID uuid, String name) {
         for (Channel ch : channels.values()) {
             if (ch.getName().equalsIgnoreCase(name)) {
-                System.out.println("채널명 중복");
-                return false;
+                throw new IllegalArgumentException("중복된 이름입니다.");
             }
         }
         Channel channel = channels.get(uuid);
         channel.setName(name);
-        channels.put(uuid, channel);
-        return true;
+        return channel;
+    }
+
+    @Override
+    public Channel updateDescription(UUID uuid, String description) {
+        if (!channels.containsKey(uuid)) {
+            throw new IllegalArgumentException("존재하지 않는 채널입니다");
+        }
+        if (description.isBlank()) {
+            throw new IllegalArgumentException("채널 설명입력해주세요");
+        }
+        Channel channel = channels.get(uuid);
+        channel.setDescription(description);
+        return channel;
     }
 
     @Override

@@ -8,12 +8,14 @@ public class Channel {
     private final long createdAt;
     private long updatedAt;
     private String name;
+    private String description;
 
-    public Channel(String name) {
+    public Channel(String name, String description) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = this.createdAt;
         this.name = name;
+        this.description = description;
     }
 
     public UUID getId() {
@@ -39,6 +41,14 @@ public class Channel {
     public void setName(String name) {
         this.name = name;
         this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

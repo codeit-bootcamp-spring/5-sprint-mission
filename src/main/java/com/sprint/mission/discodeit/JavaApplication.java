@@ -9,76 +9,99 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.NoSuchElementException;
 
 public class JavaApplication {
     public static void main(String[] args) {
         UserService userService = new JCFUserService();
         ChannelService channelService = new JCFChannelService();
         MessageService messageService = new JCFMessageService();
-        System.out.println("================== 생성 ======================");
 
-        System.out.println(userService.create("test1" , "홍길동", "1234"));
-        System.out.println(userService.create("test2", "김길동", "1234"));
+        try {
+            testUserService(userService);
+            testChannelService(channelService, userService);
+            testMessageService(messageService, userService, channelService);
+        }catch (IllegalArgumentException | NoSuchElementException e){
+            System.out.println(e.getMessage());
+        }
+    }
 
-        Channel ch1 = channelService.create("김김김");
-        Channel ch2 = channelService.create("박박박");
-        System.out.println("ch1 = " + ch1);
-        System.out.println("ch2 = " + ch2);
+    private static void testUserService(UserService userService) {
+        System.out.println("User 테스트");
 
-        Message msg1 = messageService.create("안녕하세요", "test1", ch1.getId());
-        Message msg2 = messageService.create("반갑습니다", "test2", ch2.getId());
-        System.out.println("msg1 = " + msg1);
-        System.out.println("msg2 = " + msg2);
+        User user1 = userService.create("user1", "홍길동", "1234");
+        User user2 = userService.create("user2", "김철수", "abcd");
 
-        System.out.println("=============== 조회 ======================");
+        System.out.println("전체 유저 목록:");
 
-        User user1 = userService.get("test1");
-        User user2 = userService.get("test2");
-        System.out.println("user1 = " + user1);
-        System.out.println("user2 = " + user2);
+        userService.getAll().forEach(user -> {
+            System.out.println("Id: " + user.getId() + " 이름: " + user.getName());
+        });
 
-        System.out.println(channelService.get("김김김"));
-        System.out.println(channelService.get("박박박"));
+        System.out.println("user1 이름 변경  홍길동 -> 박길동");
+        userService.updateUserName("user1", "박길동");
 
-        List<User> userList = userService.getAll();
-        List<Channel> channelList = channelService.getAll();
-        List<Message> messageList = messageService.getMessages();
+        System.out.println("비밀번호 변경: user2");
+        userService.updatePassword("user2", "abcd", "새비밀번호");
 
-        System.out.println("=============== 전체 조회 =================");
+        System.out.println("user2 삭제");
+        userService.delete("user2");
 
-        System.out.println(userList);
-        System.out.println(channelList);
-        System.out.println(messageList);
+        System.out.println("수정된 유저 목록:");
+        userService.getAll().forEach(user -> {
+            System.out.println("- " + user.getUserId() + ": " + user.getName());
+        });
+    }
 
-        System.out.println("============= 수정 =====================");
-        System.out.println("유저 이름 수정 = " + userService.updateUserName("test1", "김철수") + " 수정 후 test1 이름 : " + userService.get("test1"));
-        System.out.println("채널 이름 수정 = " + channelService.update(ch1.getId(), "대한민국") + " 수정 후 ch1 이름 : " + channelService.get("대한민국"));
-        System.out.println("메세지 수정 = " + messageService.update(msg1.getId(), "가나다라마바사") + " 수정후 msg1 메세지내용 : " + msg1.getContent());
+    private static void testChannelService(ChannelService channelService, UserService userService) {
+        System.out.println("Channel 테스트");
+        System.out.println();
 
-        System.out.println("============= 삭제 ======================");
-        System.out.println("test2 삭제 : " + userService.delete("test2"));
-        System.out.println("박박박 채널 삭제 : " + channelService.delete(ch2.getId()));
-        System.out.println("msg2 메세지 삭제 : " +  messageService.delete(msg2.getId()));
+        User user3 = userService.create("test", "홍길동", "1234");
 
-        System.out.println("유저 삭제 후 조회 : " + userService.get("test2"));
-        System.out.println("채널 삭제 후 조회 : " + channelService.get("박박박")) ;
-        System.out.println("메세지 삭제 후 조회 " + messageService.getMessageById(msg2.getId()));
+        Channel ch1 = channelService.create("일반채널", "기본 채팅방");
+        Channel ch2 = channelService.create("공지채널", "공지용");
 
-        System.out.println("=============== 테스트 종료 =====================");
+        System.out.println("전체 채널 목록:");
+        channelService.getAll().forEach(c -> System.out.println("- " + c.getName() + ": " + c.getDescription()));
 
+        System.out.println("채널 이름 수정: 일반채널 → 문의채널");
+        channelService.updateName(ch1.getId(), "문의채널");
 
+        System.out.println("채널 설명 수정: 문의채널");
+        channelService.updateDescription(ch1.getId(), "문의용");
 
+        System.out.println("공지채널 삭제");
+        channelService.delete(ch2.getId());
 
+        System.out.println("채널 목록:");
+        channelService.getAll().forEach(c -> System.out.println("- " + c.getName() + ": " + c.getDescription()));
+    }
 
+    private static void testMessageService(MessageService messageService, UserService userService,
+                                           ChannelService channelService) {
+        System.out.println("Message 테스트");
+        System.out.println();
 
+        User user = userService.create("test1", "홍길동", "1234");
+        Channel channel = channelService.create("일반", "일반 채팅 채널입니다");
 
+        Message msg1 = messageService.create("안녕하세요", user.getUserId(), channel.getId());
+        Message msg2 = messageService.create("수고하세요", user.getUserId(), channel.getId());
 
+        System.out.println("전체 메시지:");
+        messageService.getMessages().forEach(m -> System.out.println("- " + m.getContent()));
 
+        System.out.println("메시지 수정: 안녕하세요 → 반갑습니다");
+        messageService.update(msg1.getId(), "반갑습니다");
 
+        System.out.println("메시지 삭제: 수고하세요");
+        messageService.delete(msg2.getId());
 
+        System.out.println("채널별 메시지:");
+        messageService.getMessagesByChannel(channel.getId()).forEach(m -> System.out.println("- " + m.getContent()));
 
-
+        System.out.println("유저별 메시지:");
+        messageService.getMessagesByUser(user.getUserId()).forEach(m -> System.out.println("- " + m.getUserId() + m.getContent()));
     }
 }
