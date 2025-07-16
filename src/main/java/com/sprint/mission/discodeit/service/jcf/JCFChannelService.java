@@ -13,6 +13,7 @@ public class JCFChannelService implements ChannelService {
 
     //데이터 저장소
     //UUID를 키로 해서 Channel 객체를 저장
+    //고유한 키로 바로 찾기 위해 배열 대신 Map 사용
     //채널 하나 생성 -> 그 채널을 Map에 넣어 CRUD 쓸수 있도록
     private final Map<UUID, Channel> data; //final 필드는 무조건 초기화 한번 해줘야함!
 
@@ -24,7 +25,7 @@ public class JCFChannelService implements ChannelService {
 
 
     //오버라이드
-    // 부모 클래스나 인터페이스에 정의된 메서드를 자식 클래스에서 재정의
+    //부모 클래스나 인터페이스에 정의된 메서드를 자식 클래스에서 재정의
     @Override
     public void create(Channel channel) {
         data.put(channel.getId(),channel); //채널 객체 받아 map에 uuid-채널 구조로 저장

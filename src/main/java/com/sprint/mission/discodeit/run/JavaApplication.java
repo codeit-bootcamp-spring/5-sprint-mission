@@ -87,7 +87,7 @@ public class JavaApplication {
         UserService userService = new JCFUserService();
 
         //2. 유저 객체 생성 및 등록
-        User user = new User();
+        User user = new User(); // 매개변수가 아무것도 없는 기본 생성자 호출
         userService.create(user);
         System.out.println("유저 등록: " + user.getId());
 
