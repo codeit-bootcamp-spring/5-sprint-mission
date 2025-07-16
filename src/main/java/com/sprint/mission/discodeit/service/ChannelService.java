@@ -6,13 +6,13 @@ import java.util.UUID;
 
 public interface ChannelService {
     // 생성
-    Channel createChannel(String name);
+    Channel create(String name);
     // 조회(하나만)
-    Channel getChannel(String name);
+    Channel get(String name);
     // 조회(전체)
-    List<Channel> getChannels();
+    List<Channel> getAll();
     // 채녈 이름 수정
-    boolean updateChannel(UUID uuid, String name);
+    boolean update(UUID uuid, String name);
     // 채널 삭제
-    boolean deleteChannel(UUID uuid);
+    boolean delete(UUID uuid);
 }

@@ -17,7 +17,7 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel createChannel(String name) {
+    public Channel create(String name) {
         for (Channel ch : channels.values()) {
             if (ch.getName().equalsIgnoreCase(name)) {
                 System.out.println("중복된 이름의 채널이 있습니다.");
@@ -30,7 +30,7 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel getChannel(String name) {
+    public Channel get(String name) {
         for (Channel ch : channels.values()) {
             if (ch.getName().equalsIgnoreCase(name)) {
                 return ch;
@@ -40,12 +40,12 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public List<Channel> getChannels() {
+    public List<Channel> getAll() {
         return new ArrayList<>(channels.values());
     }
 
     @Override
-    public boolean updateChannel(UUID uuid, String name) {
+    public boolean update(UUID uuid, String name) {
         for (Channel ch : channels.values()) {
             if (ch.getName().equalsIgnoreCase(name)) {
                 System.out.println("채널명 중복");
@@ -59,7 +59,7 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public boolean deleteChannel(UUID uuid) {
+    public boolean delete(UUID uuid) {
         if (channels.containsKey(uuid)) {
             channels.remove(uuid);
             return true;

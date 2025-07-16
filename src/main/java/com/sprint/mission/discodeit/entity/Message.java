@@ -55,7 +55,7 @@ public class Message {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         final StringBuilder sb = new StringBuilder("Message{");
         sb.append("id=").append(id);
         sb.append(", createdAt=").append(sdf.format(createdAt));

@@ -15,14 +15,14 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User createUser(String userId, String name, String password) {
+    public User create(String userId, String name, String password) {
         User user = new User(userId, password, name);
         data.add(user);
         return user;
     }
 
     @Override
-    public User getUser(String userId) {
+    public User get(String userId) {
         for (User user : data) {
             if (user.getUserId().equals(userId)) {
                 return user;
@@ -32,7 +32,7 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public List<User> getUsers() {
+    public List<User> getAll() {
         return new ArrayList<>(data);
     }
 
@@ -59,7 +59,7 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public boolean deleteUser(String userId) {
+    public boolean delete(String userId) {
         for (User user : data) {
             if (user.getUserId().equals(userId)) {
                 data.remove(user);

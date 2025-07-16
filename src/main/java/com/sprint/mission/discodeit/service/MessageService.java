@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface MessageService {
 
-    Message createMessage(String content, String userId, UUID channelId);
+    Message create(String content, String userId, UUID channelId);
 
     // 전체 메세지 조회
     List<Message> getMessages();
@@ -17,8 +17,8 @@ public interface MessageService {
     // 유저 메세지 조회
     List<Message> getMessagesByUser(String userId);
     // 수정
-    boolean updateMessage(UUID messageId, String nContent);
+    boolean update(UUID messageId, String nContent);
     // 삭제
-    boolean deleteMessage(UUID messageId);
+    boolean delete(UUID messageId);
 
 }

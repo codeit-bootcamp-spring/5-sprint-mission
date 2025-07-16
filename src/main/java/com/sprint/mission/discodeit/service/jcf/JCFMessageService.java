@@ -16,7 +16,7 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public Message createMessage(String content, String userId, UUID channelId) {
+    public Message create(String content, String userId, UUID channelId) {
         Message message = new Message(content, userId, channelId);
         messages.put(message.getId(), message);
         return message;
@@ -60,7 +60,7 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public boolean updateMessage(UUID messageId, String nContent) {
+    public boolean update(UUID messageId, String nContent) {
         Message message = messages.get(messageId);
         if (message != null) {
             message.setContent(nContent);
@@ -70,7 +70,7 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public boolean deleteMessage(UUID messageId) {
+    public boolean delete(UUID messageId) {
         Message message = messages.get(messageId);
         if (message != null) {
             messages.remove(messageId);

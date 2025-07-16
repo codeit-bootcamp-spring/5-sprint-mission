@@ -43,7 +43,7 @@ public class Channel {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         final StringBuilder sb = new StringBuilder("Channel{");
         sb.append("createdAt=").append(sdf.format(createdAt));
         sb.append(", updatedAt=").append(sdf.format(updatedAt));

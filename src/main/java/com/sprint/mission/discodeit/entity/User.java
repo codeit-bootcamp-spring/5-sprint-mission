@@ -11,8 +11,6 @@ public class User {
     private String password;
     private String name;
 
-    // id는 객체 번호같은건데 사용자 아이디를 안만듬 추가해야됨
-
     public User(String userId, String password, String name) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
@@ -63,7 +61,7 @@ public class User {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
         final StringBuilder sb = new StringBuilder("User{");
         sb.append("id=").append(id);
