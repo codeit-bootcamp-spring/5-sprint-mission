@@ -9,13 +9,11 @@ public class User {
 
     private String username;
     private String password;
-    private String nickname;
 
-    public User(String username, String password, String nickname) {
+    public User(String username, String password) {
         id = UUID.randomUUID();
         this.username = username;
         this.password = password;
-        this.nickname = nickname;
         createdAt = System.currentTimeMillis();
     }
 
@@ -39,14 +37,9 @@ public class User {
         return password;
     }
 
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void update(String username, String password, String nickname){
+    public void update(String username, String password){
         this.username = username;
         this.password = password;
-        this.nickname = nickname;
         updatedAt = System.currentTimeMillis();
     }
 
@@ -58,7 +51,6 @@ public class User {
                 ", updatedAt=" + updatedAt +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", nickname='" + nickname + '\'' +
                 '}';
     }
 }

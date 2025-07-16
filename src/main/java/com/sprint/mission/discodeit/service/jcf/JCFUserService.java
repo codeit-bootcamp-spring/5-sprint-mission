@@ -9,14 +9,12 @@ public class JCFUserService implements UserService {
     final Map<UUID, User> data = new HashMap<>();
 
     @Override
-    public User create(String username, String password, String nickname) {
+    public User create(String username, String password) {
         if (username == null || password == null || username.isBlank() || password.isBlank()) {
             throw new IllegalArgumentException("username or password is null or blank");
         }
 
-        nickname = (nickname == null || nickname.isBlank()) ? username : nickname;
-
-        User user = new User(username, password, nickname);
+        User user = new User(username, password);
         data.put(user.getId(), user);
         return user;
     }
@@ -35,14 +33,14 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User update(UUID userId, String username, String password, String nickname) {
+    public User update(UUID userId, String username, String password) {
         User user = data.get(userId);
 
         if (user == null) {
             throw new NoSuchElementException("user not found");
         }
 
-        user.update(username, password, nickname);
+        user.update(username, password);
         return user;
     }
 
