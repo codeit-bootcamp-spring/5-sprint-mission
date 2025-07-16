@@ -3,18 +3,16 @@ package com.sprint.mission.discodeit.entity;
 import java.util.Date;
 import java.util.UUID;
 
-public class User {
+public class Channel {
     private final UUID id;
     private final Long createdAt;
     private Long updatedAt;
     private String name;
-    private String email;
 
-    public User(String name, String email) {
+    public Channel(String name) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.name = name;
-        this.email = email;
     }
 
     public UUID getId() {
@@ -33,10 +31,6 @@ public class User {
         return name;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
     public void setUpdatedAt(Long updatedAt) {
         this.updatedAt = updatedAt;
     }
@@ -45,25 +39,20 @@ public class User {
         this.name = name;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void update(String name, String email) {
+    public void update(String name) {
         this.name = name;
-        this.email = email;
         this.updatedAt = System.currentTimeMillis();
     }
 
     @Override
     public String toString() {
         return String.format(
-                "\n[ID(UUID): %s]\n[이름: %s]\n[이메일: %s]\n[생성일: %s]\n[수정일: %s]",
+                "\n[ID(UUID): %s]\n[채널명: %s]\n[생성일: %s]\n[수정일 %s]",
                 id,
                 name,
-                email,
                 new Date(createdAt),
                 new Date(updatedAt)
         );
     }
 }
+
