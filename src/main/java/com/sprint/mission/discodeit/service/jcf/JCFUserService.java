@@ -6,8 +6,8 @@ import com.sprint.mission.discodeit.service.UserService;
 import java.util.*;
 
 public class JCFUserService implements UserService {
-    private final Map<UUID, User> data;
     private static final JCFUserService instance = new JCFUserService();
+    private final Map<UUID, User> data;
 
     private JCFUserService() {
         this.data = new HashMap<>();
@@ -47,7 +47,7 @@ public class JCFUserService implements UserService {
 
     @Override
     public void update(User user) {
-        if(data.containsKey(user.getId())) {
+        if (data.containsKey(user.getId())) {
             data.put(user.getId(), user);
         }
     }

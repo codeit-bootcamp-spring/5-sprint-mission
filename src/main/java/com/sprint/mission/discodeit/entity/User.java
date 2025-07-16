@@ -9,12 +9,14 @@ public class User {
     private Long updatedAt;
     private String name;
     private String email;
+    private String password;
 
-    public User(String name, String email) {
+    public User(String name, String email, String password) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.name = name;
         this.email = email;
+        this.password = password;
     }
 
     public UUID getId() {
@@ -29,41 +31,50 @@ public class User {
         return updatedAt;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
     public void setUpdatedAt(Long updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public void update(String name, String email) {
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void update(String name, String email, String password) {
         this.name = name;
         this.email = email;
+        this.password = password;
         this.updatedAt = System.currentTimeMillis();
     }
 
     @Override
     public String toString() {
         return String.format(
-                "\n[ID(UUID): %s]\n[이름: %s]\n[이메일: %s]\n[생성일: %s]\n[수정일: %s]",
+                "[UUID: %s]\n[이름: %s]\n[이메일: %s]\n[생성일: %s]\n[수정일: %s]",
                 id,
                 name,
                 email,
                 new Date(createdAt),
-                new Date(updatedAt)
+                updatedAt == null ? "없음" : new Date(updatedAt)
         );
     }
 }

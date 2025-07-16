@@ -6,8 +6,8 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.*;
 
 public final class JCFChannelService implements ChannelService {
-    private final Map<UUID, Channel> data;
     private static final JCFChannelService instance = new JCFChannelService();
+    private final Map<UUID, Channel> data;
 
     private JCFChannelService() {
         this.data = new HashMap<>();
@@ -29,9 +29,9 @@ public final class JCFChannelService implements ChannelService {
 
     @Override
     public Channel get(String name) {
-        if(name == null || name.isBlank()) return null;
-        for(Channel channel : data.values()) {
-            if(channel.getName().equals(name)){
+        if (name == null || name.isBlank()) return null;
+        for (Channel channel : data.values()) {
+            if (channel.getName().equals(name)) {
                 return channel;
             }
         }

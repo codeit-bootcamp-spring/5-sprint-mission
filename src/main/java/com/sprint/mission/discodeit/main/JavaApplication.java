@@ -1,13 +1,14 @@
 package com.sprint.mission.discodeit.main;
+
 import com.sprint.mission.discodeit.run.ChannelRun;
 import com.sprint.mission.discodeit.run.MessageRun;
 import com.sprint.mission.discodeit.run.UserRun;
-import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
+import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
+import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.Scanner;
 
@@ -41,7 +42,7 @@ public class JavaApplication {
                     new UserRun(sc, userService).run();
                     break;
                 case 2:
-                    new ChannelRun(sc, channelService).run();
+                    new ChannelRun(sc, channelService, userService).run();
                     break;
                 case 3:
                     new MessageRun(sc, messageService, userService, channelService).run();

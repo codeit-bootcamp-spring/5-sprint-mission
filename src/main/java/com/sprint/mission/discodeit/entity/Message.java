@@ -6,9 +6,9 @@ import java.util.UUID;
 public class Message {
     private final UUID id;
     private final Long createdAt;
-    private Long updatedAt;
     private final UUID userId;
     private final UUID channelId;
+    private Long updatedAt;
     private String content;
 
     public Message(UUID userId, UUID channelId, String content) {
@@ -51,13 +51,13 @@ public class Message {
     @Override
     public String toString() {
         return String.format(
-                "\n[메시지 ID(UUID): %s]\n[유저 ID(UUID): %s]\n[채널 ID(UUID): %s]\n[내용: %s]\n[생성일: %s]\n[수정일: %s]",
+                "[메시지 UUID: %s]\n[유저 UUID: %s]\n[채널 UUID: %s]\n[내용: %s]\n[생성일: %s]\n[수정일: %s]",
                 id,
                 userId,
                 channelId,
                 content,
                 new Date(createdAt),
-                new Date(updatedAt)
+                updatedAt == null ? "없음" : new Date(updatedAt)
         );
     }
 }
