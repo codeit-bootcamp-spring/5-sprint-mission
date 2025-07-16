@@ -8,78 +8,104 @@ import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class Main {
 
     public static void main(String[] args) {
-      //  userType();
-       // ChannelType();
+        //  userType();
+        // ChannelType();
         MessageType();
     }
 
-    static  void MessageType(){
-        JCFMessageService messageService = new JCFMessageService();
+    static void MessageType() {
+
+
         UUID id01 = UUID.randomUUID();
-        UUID id02 = UUID.randomUUID();
+
+        Map<UUID, User> userData = new HashMap<>();
+
+        userData.put(id01, new User(id01));
+
+
+        Map<UUID, Channel> channelData = new HashMap<>();
+
+        channelData.put(id01, new Channel(id01));
+
+
+        JCFMessageService messageService = new JCFMessageService(userData, channelData);
+
         Message message01 = new Message(id01);
-        Message message02 = new Message(id02);
 
         messageService.save(message01);
-        messageService.save( message02);
+
         System.out.println("Message : 등록완료");
+
+        try {
+            Message invalidUserMsg = new Message(UUID.randomUUID());
+            messageService.save(invalidUserMsg);
+        } catch (IllegalArgumentException e) {
+            System.out.println("존재하지 않는  사용자....");
+        }
+
+        try {
+            Message invalidChannelMsg = new Message(UUID.randomUUID());
+            messageService.save(invalidChannelMsg);
+        } catch (IllegalArgumentException e) {
+            System.out.println("존재하지 않는  메세지 ....");
+        }
+
 
         Message messageFind01 = messageService.find(id01);
         System.out.println("조회 단건 message uuid01 : " + messageFind01.getId());
-        Message messageFind02 = messageService.find(id02);
-        System.out.println("조회 단건 message uuid02 : " + messageFind02.getId());
+
 
         System.out.println("--------------------");
 
 
         ArrayList<Message> list = messageService.allFind();
-        for (int i = 0; i< list.size(); i++) {
-            System.out.println("다건 전채 검색 userid " + (i+1) +"  번쨰 " + list.get(i).getId());
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println("다건 전채 검색 userid " + (i + 1) + "  번쨰 " + list.get(i).getId());
         }
         System.out.println("--------------------");
         //다른 uuid 로 수정..
 
         UUID id03 = UUID.randomUUID();
-        UUID id04 = UUID.randomUUID();
 
         //첫번째 id 변경
-        message01.update(id03 , System.currentTimeMillis());
+        message01.update(id03, System.currentTimeMillis());
         messageService.update(id01, message01);
 
-        //두번쨰 id 번경
-
-        message02.update(id04, System.currentTimeMillis());
-        messageService.update(id02, message02);
 
         //수정된 데이터 조회
         ArrayList<Message> list02 = messageService.allFind();
-        for (int i = 0; i< list02.size(); i++) {
-            System.out.println("수정된 uuid " + (i+1) +"  번쨰  " + list02.get(i).getId());
+        for (int i = 0; i < list02.size(); i++) {
+            System.out.println("수정된 uuid " + (i + 1) + "  번쨰  " + list02.get(i).getId());
         }
         System.out.println("--------------------");
         //삭제
         messageService.delete(id01);
         ArrayList<Message> list03 = messageService.allFind();
-        for (Message message : list03) {
-            System.out.println("삭제후 전체 데이터 확인   " + message.getId());
+
+        if (list03.isEmpty()) {
+            System.out.println("삭제후 전체 데이터 확인  아무것도 없음 ");
+            return;
         }
+
 
     }
 
-    static  void ChannelType(){
-        JCFChannelService  channelService = new JCFChannelService();
+    static void ChannelType() {
+        JCFChannelService channelService = new JCFChannelService();
         UUID id01 = UUID.randomUUID();
         UUID id02 = UUID.randomUUID();
         Channel channel01 = new Channel(id01);
         Channel channel02 = new Channel(id02);
 
         channelService.save(channel01);
-        channelService.save( channel02);
+        channelService.save(channel02);
         System.out.println("Channel : 등록완료");
 
         Channel channelFind01 = channelService.find(id01);
@@ -91,8 +117,8 @@ public class Main {
 
 
         ArrayList<Channel> list = channelService.allFind();
-        for (int i = 0; i< list.size(); i++) {
-            System.out.println("다건 전채 검색 userid " + (i+1) +"  번쨰 " + list.get(i).getId());
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println("다건 전채 검색 userid " + (i + 1) + "  번쨰 " + list.get(i).getId());
         }
         System.out.println("--------------------");
         //다른 uuid 로 수정..
@@ -101,7 +127,7 @@ public class Main {
         UUID id04 = UUID.randomUUID();
 
         //첫번째 id 변경
-        channel01.update(id03 , System.currentTimeMillis());
+        channel01.update(id03, System.currentTimeMillis());
         channelService.update(id01, channel01);
 
         //두번쨰 id 번경
@@ -111,8 +137,8 @@ public class Main {
 
         //수정된 데이터 조회
         ArrayList<Channel> list02 = channelService.allFind();
-        for (int i = 0; i< list02.size(); i++) {
-            System.out.println("수정된 uuid " + (i+1) +"  번쨰  " + list02.get(i).getId());
+        for (int i = 0; i < list02.size(); i++) {
+            System.out.println("수정된 uuid " + (i + 1) + "  번쨰  " + list02.get(i).getId());
         }
         System.out.println("--------------------");
         //삭제
@@ -125,7 +151,7 @@ public class Main {
 
     }
 
-    static void userType(){
+    static void userType() {
 
         JCFUserService userService = new JCFUserService();
         UUID id01 = UUID.randomUUID();
@@ -146,8 +172,8 @@ public class Main {
         System.out.println("조회 단건 user02 uuid : " + userFind02.getId());
         System.out.println("--------------------");
         ArrayList<User> list = userService.allFind();
-        for (int i = 0; i< list.size(); i++) {
-            System.out.println("다건 전채 검색 userid " + (i+1) +"  번쨰 " + list.get(i).getId());
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println("다건 전채 검색 userid " + (i + 1) + "  번쨰 " + list.get(i).getId());
         }
         System.out.println("--------------------");
         //다른 uuid 로 수정..
@@ -156,7 +182,7 @@ public class Main {
         UUID id04 = UUID.randomUUID();
 
         //첫번째 id 변경
-        user01.update(id03 , System.currentTimeMillis());
+        user01.update(id03, System.currentTimeMillis());
         userService.update(id01, user01);
 
         //두번쨰 id 번경
@@ -166,8 +192,8 @@ public class Main {
 
         //수정된 데이터 조회
         ArrayList<User> list02 = userService.allFind();
-        for (int i = 0; i< list02.size(); i++) {
-            System.out.println("수정된 uuid " + (i+1) +"  번쨰  " + list02.get(i).getId());
+        for (int i = 0; i < list02.size(); i++) {
+            System.out.println("수정된 uuid " + (i + 1) + "  번쨰  " + list02.get(i).getId());
         }
         System.out.println("--------------------");
         //삭제
