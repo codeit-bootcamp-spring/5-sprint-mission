@@ -11,6 +11,8 @@ import java.util.function.Consumer;
 public class JcfMessageService extends JcfService<Message> implements MessageService {
   private static final JcfMessageService instance = new JcfMessageService();
 
+  private JcfMessageService() {}
+
   public static JcfMessageService getInstance() {
     return instance;
   }

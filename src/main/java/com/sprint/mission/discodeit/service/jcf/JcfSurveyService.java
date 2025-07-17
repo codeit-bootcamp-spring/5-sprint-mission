@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Survey;
 import com.sprint.mission.discodeit.service.SurveyService;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -10,11 +9,7 @@ import java.util.function.Consumer;
 public class JcfSurveyService extends JcfService<Survey> implements SurveyService {
   private static final JcfSurveyService instance = new JcfSurveyService();
 
-  private final List<Survey> data;
-
-  private JcfSurveyService() {
-    data = new ArrayList<>();
-  }
+  private JcfSurveyService() {}
 
   public static JcfSurveyService getInstance() {
     return instance;

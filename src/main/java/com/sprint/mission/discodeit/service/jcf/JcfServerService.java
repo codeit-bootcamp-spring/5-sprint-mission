@@ -12,6 +12,8 @@ import java.util.function.Consumer;
 public class JcfServerService extends JcfService<Server> implements ServerService {
   private static final JcfServerService instance = new JcfServerService();
 
+  private JcfServerService() {}
+
   public static JcfServerService getInstance() {
     return instance;
   }

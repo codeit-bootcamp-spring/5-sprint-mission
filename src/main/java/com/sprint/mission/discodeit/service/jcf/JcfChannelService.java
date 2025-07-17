@@ -9,6 +9,8 @@ import java.util.function.Consumer;
 public class JcfChannelService extends JcfService<Channel> implements ChannelService {
   private static final JcfChannelService instance = new JcfChannelService();
 
+  private JcfChannelService() {}
+
   public static JcfChannelService getInstance() {
     return instance;
   }
