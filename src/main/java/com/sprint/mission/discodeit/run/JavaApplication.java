@@ -624,14 +624,14 @@ public class JavaApplication {
   private void showFriends() {
     Set<UUID> friends = me.getFriends();
     if (friends.isEmpty()) {
-      System.out.println("친구: 없음");
+      System.out.println("친구 : 없음");
       return;
     }
     String result =
         friends.stream()
             .map(userService::findById)
             .filter(Objects::nonNull)
-            .map(User::getUsername)
+            .map(User::getEmail)
             .collect(Collectors.joining(", "));
     System.out.println("친구 : " + result);
   }
