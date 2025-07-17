@@ -39,8 +39,7 @@ public interface UserService {
 
     /**
      * 아이디로 유저삭제
-     * @return 삭제 성공 여부 (true: 삭제됨, false: 존재하지 않음)
      */
-    boolean delete(UUID id);
+    void delete(UUID id);
 
 }

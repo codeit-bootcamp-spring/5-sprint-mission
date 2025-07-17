@@ -10,7 +10,7 @@ public class JCFUserService implements UserService {
 
     private final Map<UUID, User> data = new HashMap<>();
 
-
+    // 생성
     public User create(String name, String password) {
         User user = new User(name, password);
         data.put(user.getId(), user);
@@ -20,7 +20,6 @@ public class JCFUserService implements UserService {
     //조회
     public Optional<User> findById(UUID id) {
         return Optional.ofNullable(data.get(id));
-        //return data.get(id);
     }
 
     public List<User> findAll() {
@@ -30,22 +29,16 @@ public class JCFUserService implements UserService {
     // 수정
     public User update(UUID id, String name) {
         User user = data.get(id);
-        if (user != null) {
-            user.updateName(name);
+        if (user == null) {
+            throw new NoSuchElementException("해당 ID의 사용자를 찾을 수 없습니다");
         }
+        user.updateName(name);
         return user;
     }
 
     // 삭제
-    public boolean delete(UUID id) {
-        if(data.containsKey(id)){
-            data.remove(id);
-            System.out.println("삭제완료!");
-            return true;
-        }
-        else{
-            System.out.println("삭제실패: 사용자를 찾을 수 없습니다");
-            return false;
-        }
+    public void delete(UUID id) {
+        boolean deleted = data.remove(id) != null;
+        System.out.println(deleted ? "삭제완료!" : "삭제실패: 사용자를 찾을 수 없습니다");
     }
 }
