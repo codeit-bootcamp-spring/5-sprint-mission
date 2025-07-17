@@ -91,4 +91,29 @@ public class Message {
   public void clearReplies() {
     replies.clear();
   }
+
+  @Override
+  public String toString() {
+    return "Message{"
+        + "id="
+        + id
+        + ", createdAt="
+        + createdAt
+        + ", sender="
+        + sender
+        + ", receiver="
+        + receiver
+        + ", replies="
+        + replies
+        + ", updatedAt="
+        + updatedAt
+        + ", content='"
+        + content
+        + '\''
+        + ", files="
+        + files
+        + ", survey="
+        + survey
+        + '}';
+  }
 }

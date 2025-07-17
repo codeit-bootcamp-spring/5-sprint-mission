@@ -143,23 +143,29 @@ public class Server {
   @Override
   public String toString() {
     return "Server{"
-        + "name='"
-        + name
-        + '\''
+        + "id="
+        + id
+        + ", createdAt="
+        + createdAt
         + ", channels="
         + channels
         + ", members="
         + members
+        + ", perks="
+        + perks
+        + ", updatedAt="
+        + updatedAt
+        + ", name='"
+        + name
+        + '\''
         + ", ownerId="
         + ownerId
         + ", isPublic="
         + isPublic
-        + ", level="
-        + level
-        + ", perks="
-        + perks
         + ", boost="
         + boost
+        + ", level="
+        + level
         + '}';
   }
 }

@@ -93,7 +93,15 @@ public class Channel {
   @Override
   public String toString() {
     return "Channel{"
-        + "name='"
+        + "id="
+        + id
+        + ", createdAt="
+        + createdAt
+        + ", joinedUsers="
+        + joinedUsers
+        + ", updatedAt="
+        + updatedAt
+        + ", name='"
         + name
         + '\''
         + ", groupName='"
@@ -103,8 +111,6 @@ public class Channel {
         + category
         + ", isPublic="
         + isPublic
-        + ", joinedUsers="
-        + joinedUsers
         + '}';
   }
 }

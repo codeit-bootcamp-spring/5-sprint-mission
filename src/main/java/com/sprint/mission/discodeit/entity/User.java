@@ -11,9 +11,6 @@ import java.util.UUID;
 public class User {
   private final UUID id;
   private final long createdAt;
-  private final Set<UUID> friends;
-  private final Set<UUID> servers;
-  private final Set<UUID> chatRooms;
   private long updatedAt;
   private String email;
   private String nickname;
@@ -28,6 +25,9 @@ public class User {
   private boolean isVerified;
   private boolean isDeactivated;
   private boolean isBanned;
+  private final Set<UUID> friends;
+  private final Set<UUID> servers;
+  private final Set<UUID> chatRooms;
 
   public User(
       String email,
@@ -241,7 +241,13 @@ public class User {
   @Override
   public String toString() {
     return "User{"
-        + "email='"
+        + "id="
+        + id
+        + ", createdAt="
+        + createdAt
+        + ", updatedAt="
+        + updatedAt
+        + ", email='"
         + email
         + '\''
         + ", nickname='"
@@ -260,12 +266,6 @@ public class User {
         + ", phoneNumber='"
         + phoneNumber
         + '\''
-        + ", friends="
-        + friends
-        + ", servers="
-        + servers
-        + ", chatRooms="
-        + chatRooms
         + ", status="
         + status
         + ", avatarUrl='"
@@ -280,6 +280,12 @@ public class User {
         + isDeactivated
         + ", isBanned="
         + isBanned
+        + ", friends="
+        + friends
+        + ", servers="
+        + servers
+        + ", chatRooms="
+        + chatRooms
         + '}';
   }
 }
