@@ -18,8 +18,9 @@ public class JCFUserService implements UserService {
     }
 
     //조회
-    public User findById(UUID id) {
-        return data.get(id);
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(data.get(id));
+        //return data.get(id);
     }
 
     public List<User> findAll() {

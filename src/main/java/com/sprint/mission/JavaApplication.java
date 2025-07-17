@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class JavaApplication {
@@ -50,24 +51,24 @@ public class JavaApplication {
 
         // 등록
         User user1 = userService.create("소연", "1234");
-        System.out.println("사용자 목록: ");
-        System.out.println(userService.findAll());
+        System.out.println(user1.getName() + "님이 가입했습니다.");
 
         // 조회
-        User found = userService.findById(user1.getId());
-        System.out.println("새로 가입한 사용자: " + found.getName());
+        Optional<User> found = userService.findById(user1.getId());
+        System.out.println("새로 가입한 사용자: " + found.get().getName());
         System.out.println(userService.findAll());
 
         // 수정
+        System.out.println("수정 전: " + user1.getName());
         userService.update(user1.getId(), "이소연");
-        System.out.println("수정 후: " + userService.findById(user1.getId()).getName());
+        System.out.println("수정 후: " + userService.findById(user1.getId()).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다.")));
         System.out.println(userService.findAll());
 
         // 삭제
         userService.delete(user1.getId());
 
         // 삭제 확인
-        User deleted = userService.findById(user1.getId());
+        Optional<User> deleted = userService.findById(user1.getId());
         System.out.println("삭제 확인: " + (deleted == null ? "성공" : "실패"));
         System.out.println(userService.findAll());
     }
