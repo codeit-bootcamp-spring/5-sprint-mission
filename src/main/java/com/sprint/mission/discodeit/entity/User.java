@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.enums.userentity.Status;
+import com.sprint.mission.discodeit.enums.user.Status;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;

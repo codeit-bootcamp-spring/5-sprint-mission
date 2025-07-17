@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.userentity.Status;
+import com.sprint.mission.discodeit.enums.user.Status;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -12,7 +12,9 @@ public interface UserService extends Service<User> {
 
   User registerUser(User user);
 
-  User loginUser(String email, String password);
+  User login(String email, String password);
+
+  void logout(UUID userId);
 
   void updateEmail(UUID userId, String email);
 
@@ -27,6 +29,18 @@ public interface UserService extends Service<User> {
   void updateSubscribedToNewsletter(UUID userId, boolean isSubscribedToNewsletter);
 
   void updatePhoneNumber(UUID userId, String phoneNumber);
+
+  void updateStatus(UUID userId, Status status);
+
+  void updateAvatarUrl(UUID userId, String avatarUrl);
+
+  void updateBio(UUID userId, String bio);
+
+  void updateVerified(UUID userId, boolean isVerified);
+
+  void updateDeactivated(UUID userId, boolean isDeactivated);
+
+  void updateBanned(UUID userId, boolean isBanned);
 
   void addFriend(UUID userId, UUID friendId);
 
@@ -45,16 +59,4 @@ public interface UserService extends Service<User> {
   void removeChatRoom(UUID userId, UUID chatRoomId);
 
   void clearChatRooms(UUID userId);
-
-  void updateStatus(UUID userId, Status status);
-
-  void updateAvatarUrl(UUID userId, String avatarUrl);
-
-  void updateBio(UUID userId, String bio);
-
-  void updateVerified(UUID userId, boolean isVerified);
-
-  void updateDeactivated(UUID userId, boolean isDeactivated);
-
-  void updateBanned(UUID userId, boolean isBanned);
 }

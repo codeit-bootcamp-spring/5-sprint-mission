@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.enums.channelentity.ChannelCategory;
+import com.sprint.mission.discodeit.enums.channel.ChannelCategory;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.UUID;
 import java.util.function.Consumer;

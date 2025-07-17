@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.userentity.Status;
+import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.validation.RegisterUserValidator;
 import java.time.LocalDate;
@@ -49,8 +49,8 @@ public class JcfUserService extends JcfService<User> implements UserService {
       System.out.println(e.getMessage());
       return null;
     }
-    boolean emailDuplicated = data.stream().anyMatch(u -> emailEquals(u, user.getEmail()));
-    if (emailDuplicated) {
+
+    if (findByEmail(user.getEmail()) != null) {
       System.out.println("중복된 이메일이 존재합니다.");
       return null;
     }
@@ -59,11 +59,27 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  public User loginUser(String email, String password) {
-    return data.stream()
-        .filter(u -> u.getEmail().equals(email) && u.getPassword().equals(password))
-        .findFirst()
-        .orElse(null);
+  public User login(String email, String password) {
+    User user =
+        data.stream()
+            .filter(u -> u.getEmail().equals(email) && u.getPassword().equals(password))
+            .findFirst()
+            .orElse(null);
+    if (user != null) {
+      user.setDeactivated(false);
+      user.setStatus(Status.ONLINE);
+      user.setUpdatedAt(System.currentTimeMillis());
+    }
+    return user;
+  }
+
+  @Override
+  public void logout(UUID userId) {
+    User u = findById(userId);
+    if (u != null) {
+      u.setStatus(Status.OFFLINE);
+      u.setUpdatedAt(System.currentTimeMillis());
+    }
   }
 
   @Override
@@ -72,13 +88,8 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  public void updatePassword(UUID userId, String password) {
-    update(userId, u -> u.setPassword(password));
-  }
-
-  @Override
-  public void updatePhoneNumber(UUID userId, String phoneNumber) {
-    update(userId, u -> u.setPhoneNumber(phoneNumber));
+  public void updateNickname(UUID userId, String nickname) {
+    update(userId, u -> u.setNickname(nickname));
   }
 
   @Override
@@ -87,8 +98,8 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  public void updateNickname(UUID userId, String nickname) {
-    update(userId, u -> u.setNickname(nickname));
+  public void updatePassword(UUID userId, String password) {
+    update(userId, u -> u.setPassword(password));
   }
 
   @Override
@@ -99,6 +110,41 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public void updateSubscribedToNewsletter(UUID userId, boolean isSubscribedToNewsletter) {
     update(userId, u -> u.setSubscribedToNewsletter(isSubscribedToNewsletter));
+  }
+
+  @Override
+  public void updatePhoneNumber(UUID userId, String phoneNumber) {
+    update(userId, u -> u.setPhoneNumber(phoneNumber));
+  }
+
+  @Override
+  public void updateStatus(UUID userId, Status status) {
+    update(userId, u -> u.setStatus(status));
+  }
+
+  @Override
+  public void updateAvatarUrl(UUID userId, String avatarUrl) {
+    update(userId, u -> u.setAvatarUrl(avatarUrl));
+  }
+
+  @Override
+  public void updateBio(UUID userId, String bio) {
+    update(userId, u -> u.setBio(bio));
+  }
+
+  @Override
+  public void updateVerified(UUID userId, boolean isVerified) {
+    update(userId, u -> u.setVerified(isVerified));
+  }
+
+  @Override
+  public void updateDeactivated(UUID userId, boolean isDeactivated) {
+    update(userId, u -> u.setDeactivated(isDeactivated));
+  }
+
+  @Override
+  public void updateBanned(UUID userId, boolean isBanned) {
+    update(userId, u -> u.setBanned(isBanned));
   }
 
   @Override
@@ -144,35 +190,5 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public void clearChatRooms(UUID userId) {
     update(userId, User::clearChatRooms);
-  }
-
-  @Override
-  public void updateStatus(UUID userId, Status status) {
-    update(userId, u -> u.setStatus(status));
-  }
-
-  @Override
-  public void updateAvatarUrl(UUID userId, String avatarUrl) {
-    update(userId, u -> u.setAvatarUrl(avatarUrl));
-  }
-
-  @Override
-  public void updateBio(UUID userId, String bio) {
-    update(userId, u -> u.setBio(bio));
-  }
-
-  @Override
-  public void updateVerified(UUID userId, boolean isVerified) {
-    update(userId, u -> u.setVerified(isVerified));
-  }
-
-  @Override
-  public void updateDeactivated(UUID userId, boolean isDeactivated) {
-    update(userId, u -> u.setDeactivated(isDeactivated));
-  }
-
-  @Override
-  public void updateBanned(UUID userId, boolean isBanned) {
-    update(userId, u -> u.setBanned(isBanned));
   }
 }

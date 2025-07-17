@@ -3,8 +3,7 @@ package com.sprint.mission.discodeit.run;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Server;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.channelentity.ChannelCategory;
-import com.sprint.mission.discodeit.enums.userentity.Status;
+import com.sprint.mission.discodeit.enums.channel.ChannelCategory;
 import com.sprint.mission.discodeit.service.jcf.JcfChannelService;
 import com.sprint.mission.discodeit.service.jcf.JcfMessageService;
 import com.sprint.mission.discodeit.service.jcf.JcfServerService;
@@ -331,7 +330,6 @@ public class JavaApplication {
 
     System.out.print("별명(선택) : ");
     final String nickname = sc.nextLine().strip();
-
     String username;
     while (true) {
       System.out.print("사용자명 : ");
@@ -368,16 +366,14 @@ public class JavaApplication {
       } catch (NumberFormatException e) {
         System.out.println("숫자 형식이 올바르지 않습니다. 다시 입력해주세요.");
       } catch (DateTimeException e) {
-        System.out.println("유효하지 않은 날짜입니다. 다시 입력하세요.");
+        System.out.println("유효하지 않은 날짜입니다. 다시 입력해주세요.");
       }
     }
 
     boolean isSubscribedToNewsletter;
-
     while (true) {
       System.out.print("이메일로 소식 받기(y/n): ");
-      String yn = sc.nextLine().strip();
-      yn = yn.toLowerCase();
+      String yn = sc.nextLine().strip().toLowerCase();
       if (yn.equals("y")) {
         isSubscribedToNewsletter = true;
         break;
@@ -415,16 +411,12 @@ public class JavaApplication {
         return;
       }
 
-      User user = userService.loginUser(email, password);
+      User user = userService.login(email, password);
       if (user == null) {
         System.out.println("다시 입력해 주세요.");
         continue;
       }
       me = user;
-      userService.findById(me.getId()).setDeactivated(false);
-      userService.findById(me.getId()).setStatus(Status.ONLINE);
-      me.setDeactivated(false);
-      me.setStatus(Status.ONLINE);
       System.out.println(user.getUsername() + "님, 환영합니다!");
       break;
     }
@@ -432,8 +424,9 @@ public class JavaApplication {
   }
 
   private void logout() {
-    userService.findById(me.getId()).setStatus(Status.OFFLINE);
-    me.setStatus(Status.OFFLINE);
+    if (me != null) {
+      userService.logout(me.getId());
+    }
     me = null;
   }
 
@@ -505,7 +498,7 @@ public class JavaApplication {
     String newUsername;
 
     while (true) {
-      System.out.println("현재 사용자명: " + me.getUsername());
+      System.out.println("현재 사용자명: " + oldUsername);
       System.out.print("변경할 사용자명 : ");
       newUsername = sc.nextLine().strip();
       if (!newUsername.isEmpty()) {

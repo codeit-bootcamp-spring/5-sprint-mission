@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.enums.channelentity.ChannelCategory;
+import com.sprint.mission.discodeit.enums.channel.ChannelCategory;
 import java.util.UUID;
 
 public interface ChannelService extends Service<Channel> {
