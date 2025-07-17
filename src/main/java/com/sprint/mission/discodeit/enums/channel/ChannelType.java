@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.enums.channel;
 
-public enum ChannelCategory {
+public enum ChannelType {
   CHAT,
   VOICE,
   FORUM

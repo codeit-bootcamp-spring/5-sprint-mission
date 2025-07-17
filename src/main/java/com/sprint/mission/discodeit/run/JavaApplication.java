@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.run;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Server;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.channel.ChannelCategory;
+import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.service.jcf.JcfChannelService;
 import com.sprint.mission.discodeit.service.jcf.JcfMessageService;
 import com.sprint.mission.discodeit.service.jcf.JcfServerService;
@@ -750,8 +750,8 @@ public class JavaApplication {
 
       List<Channel> defaultChannels =
           List.of(
-              new Channel("일반", "채팅 채널", ChannelCategory.CHAT, true),
-              new Channel("일반", "음성 채널", ChannelCategory.VOICE, true));
+              new Channel("일반", ChannelType.CHAT, true),
+              new Channel("일반", ChannelType.VOICE, true));
 
       Set<UUID> members = new HashSet<>();
       members.add(me.getId());

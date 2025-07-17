@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.enums.channel.ChannelCategory;
+import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -45,13 +45,8 @@ public class JcfChannelService extends JcfService<Channel> implements ChannelSer
   }
 
   @Override
-  public void updateGroupName(UUID channelId, String groupName) {
-    update(channelId, c -> c.setGroupName(groupName));
-  }
-
-  @Override
-  public void updateChannelCategory(UUID channelId, ChannelCategory category) {
-    update(channelId, c -> c.setCategory(category));
+  public void updateChannelType(UUID channelId, ChannelType channelType) {
+    update(channelId, c -> c.setChannelType(channelType));
   }
 
   @Override

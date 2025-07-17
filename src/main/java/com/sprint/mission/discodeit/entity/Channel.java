@@ -1,25 +1,23 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.enums.channel.ChannelCategory;
+import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 public class Channel extends AbstractBaseEntity {
   private final long createdAt;
-  private final Set<UUID> joinedUsers;
   private long updatedAt;
   private String name;
-  private String groupName;
-  private ChannelCategory category;
+  private ChannelType type;
+  private final Set<UUID> joinedUsers;
   private boolean isPublic;
 
-  public Channel(String name, String groupName, ChannelCategory category, boolean isPublic) {
+  public Channel(String name, ChannelType type, boolean isPublic) {
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
     this.name = name;
-    this.groupName = groupName;
-    this.category = category;
+    this.type = type;
     this.isPublic = isPublic;
     this.joinedUsers = new HashSet<>();
   }
@@ -44,20 +42,12 @@ public class Channel extends AbstractBaseEntity {
     this.name = name;
   }
 
-  public String getGroupName() {
-    return groupName;
+  public ChannelType getChannelType() {
+    return type;
   }
 
-  public void setGroupName(String groupName) {
-    this.groupName = groupName;
-  }
-
-  public ChannelCategory getCategory() {
-    return category;
-  }
-
-  public void setCategory(ChannelCategory category) {
-    this.category = category;
+  public void setChannelType(ChannelType type) {
+    this.type = type;
   }
 
   public boolean isPublic() {
@@ -98,11 +88,8 @@ public class Channel extends AbstractBaseEntity {
         + ", name='"
         + name
         + '\''
-        + ", groupName='"
-        + groupName
-        + '\''
-        + ", category="
-        + category
+        + ", type="
+        + type
         + ", isPublic="
         + isPublic
         + '}';
