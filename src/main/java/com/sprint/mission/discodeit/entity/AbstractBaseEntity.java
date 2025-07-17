@@ -1,7 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * 엔티티의 공통 ID 기반 슈퍼 클래스.
+ */
 public abstract class AbstractBaseEntity {
   private final UUID id;
 
@@ -15,18 +19,19 @@ public abstract class AbstractBaseEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
+    if (!(o instanceof AbstractBaseEntity that)) {
       return false;
     }
-    AbstractBaseEntity that = (AbstractBaseEntity) o;
-    return id.equals(that.id);
+    return Objects.equals(id, that.id);
   }
 
   @Override
   public int hashCode() {
-    return id.hashCode();
+    return Objects.hashCode(id);
+  }
+
+  @Override
+  public String toString() {
+    return "AbstractBaseEntity{" + "id=" + id + '}';
   }
 }
