@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public class Channel {
@@ -8,6 +9,10 @@ public class Channel {
     private String channelDescription;
     private final Long createAt;
     private Long updateAt;
+
+    public Channel(String channelName, String channelDescription) {
+        this(UUID.randomUUID(), channelName, channelDescription, Instant.now().getEpochSecond());
+    }
 
     public Channel(UUID id, String channelName, String channelDescription, Long createAt) {
         this.id = id;

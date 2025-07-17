@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public class User {
@@ -11,6 +12,10 @@ public class User {
     private String phoneNumber;
     private final Long createAt;
     private Long updateAt;
+
+    public User(String email, String userName, String nickname, String password, String phoneNumber) {
+        this(UUID.randomUUID(), Instant.now().getEpochSecond(), email, userName, nickname, password, phoneNumber);
+    }
 
     public User(UUID id, Long createAt, String email, String userName, String nickname, String password, String phoneNumber) {
         this.id = id;
