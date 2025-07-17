@@ -5,17 +5,30 @@ import java.util.UUID;
 //엔티티
 public class Message {
     //필드
-    private UUID id; //회원 한명한명의 고유 id (내부 식별자)
-    private Long createdAt; //객체의 생성시간
-    private Long updatedAt; //객체의 수정시간
+    private UUID id; // 고유 id (내부 식별자)
+    private Long createdAt; // 생성시간
+    private Long updatedAt; // 수정시간
+    private String content; // 내용
+    private UUID sender; // 보낸 사람
+    private UUID receiver; // 받는 사람
 
 
-    //생성자 주입
-    //파라미터로 값을 받지않고 생성자 내부에서 직접 초기화
+
+    //기본생성자
+    //매개변수X
     public Message() {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
+        this.id = UUID.randomUUID(); //생성자 내부 초기화
+        this.createdAt = System.currentTimeMillis(); //생성자 내부 초기화
         this.updatedAt = createdAt; //처음 생성시 수정시간을 생성시간으로 맞춰줌
+    }
+
+
+    //일반 생성자
+    //사용자로 받는 값O
+    public Message(String content, UUID sender, UUID receiver) {
+        this.content = content;
+        this.sender = sender;
+        this.receiver = receiver;
     }
 
     //Getter
@@ -36,6 +49,18 @@ public class Message {
         this.updatedAt = System.currentTimeMillis();
     }
 
+    public String getContent() {
+        return content;
+    }
+
+    public UUID getSender() {
+        return sender;
+    }
+
+    public UUID getReceiver() {
+        return receiver;
+    }
+
     //toString
     @Override
     public String toString() {
@@ -43,6 +68,9 @@ public class Message {
                 "id=" + id +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", content='" + content + '\'' +
+                ", sender=" + sender +
+                ", receiver=" + receiver +
                 '}';
     }
 }

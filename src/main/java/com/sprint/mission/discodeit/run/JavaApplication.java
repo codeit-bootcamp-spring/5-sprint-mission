@@ -19,6 +19,38 @@ public class JavaApplication {
         * 생성 -> 조회 -> 수정 -> 삭제 테스트하는 코드
         * */
 
+        /*User 테스트*/
+
+        //1. 유저 서비스 구현체 생성
+        UserService userService = new JCFUserService();
+
+        //2. 유저 객체 생성 및 등록
+        User user = new User("test1", "1234"); // 매개변수가 아무것도 없는 기본 생성자 호출
+        userService.create(user);
+        System.out.println("유저 등록: " + user.getId());
+        System.out.println("유저 아이디 확인 : " + user.getUserId());
+        System.out.println("유저 비밀번호 확인 :" + user.getPassword());
+
+        //3. 단건 조회
+        User foundUser = userService.findById(user.getId());
+        System.out.println("유저 단건 조회: " + foundUser.getId());
+
+        //4. 전체 조회
+        System.out.println("유저 전체 조회: " + userService.findAll());
+
+        //5. 수정
+        foundUser.updateTime(); //수정 시간만 바꾸기
+        userService.update(foundUser); //Map에 반영
+
+        //6. 수정 확인
+        System.out.println("유저 수정 후 조회: " + userService.findById(user.getId()));
+
+        //7. 삭제
+        userService.delete(user.getId());
+
+        //8. 삭제 확인
+        System.out.println("유저 삭제 후 조회: " + userService.findById(user.getId()));
+        System.out.println("----------------------------------------------------");
 
         /*Channel 테스트*/
 
@@ -26,7 +58,7 @@ public class JavaApplication {
         ChannelService channelService = new JCFChannelService();
 
         //2. 채널 객체 생성 및 등록
-        Channel channel = new Channel(); //uuid 자동 생성
+        Channel channel = new Channel("공지", "팀 전체 공지 채널", "text"); //uuid 자동 생성
         channelService.create(channel); //map에 저장
         System.out.println("채널 등록 ID: " + channel.getId()); //생성자에서 만든 uuid
 
@@ -42,13 +74,14 @@ public class JavaApplication {
         channelService.update(foundChannel); //Map에 덮어쓰기
 
         //6. 수정된 데이터 확인
-        System.out.println("수정 후 조회: " + channelService.findById(channel.getId()).getUpdateAt());
+        System.out.println("채넣 수정 후 조회: " + channelService.findById(channel.getId()).getUpdateAt());
 
         //7. 삭제
         channelService.delete(channel.getId());
 
         //8. 삭제 확인
-        System.out.println("삭제 후 조회해보기: " + channelService.findById(channel.getId()));
+        System.out.println("채널 삭제 후 조회: " + channelService.findById(channel.getId()));
+        System.out.println("----------------------------------------------------");
 
 
         /*Message 테스트*/
@@ -80,36 +113,8 @@ public class JavaApplication {
 
         //8. 삭제 확인
         System.out.println("메세지 삭제 후 조회: " + messageService.findById(message.getId()));
+        System.out.println("----------------------------------------------------");
 
-        /*User 테스트*/
-
-        //1. 유저 서비스 구현체 생성
-        UserService userService = new JCFUserService();
-
-        //2. 유저 객체 생성 및 등록
-        User user = new User(); // 매개변수가 아무것도 없는 기본 생성자 호출
-        userService.create(user);
-        System.out.println("유저 등록: " + user.getId());
-
-        //3. 단건 조회
-        User foundUser = userService.findById(user.getId());
-        System.out.println("유저 단건 조회: " + foundUser.getId());
-
-        //4. 전체 조회
-        System.out.println("전체 조회: " + userService.findAll());
-
-        //5. 수정
-        foundUser.updateTime(); //수정 시간만 바꾸기
-        userService.update(foundUser); //Map에 반영
-
-        //6. 수정 확인
-        System.out.println("수정 후 유저 조회: " + userService.findById(user.getId()));
-
-        //7. 삭제
-        userService.delete(user.getId());
-
-        //8. 삭제 확인
-        System.out.println("삭제 후 조회: " + userService.findById(user.getId()));
 
     }
 }
