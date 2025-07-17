@@ -11,12 +11,14 @@ public class JCFMessageService implements MessageService {
     private final List<Message> messages = new ArrayList<>();
 
     @Override
-    public boolean register(Message message) {
+    public Message register(Message message) {
         if (message.getUserId() == null || message.getChannelId() == null || message.getContent() == null || message.getContent().isBlank()) {
-            return false;
+            System.out.println("메시지 등록 실패!");
+            return null;
         }
         messages.add(message);
-        return true;
+        System.out.println("메시지 : " + message.getContent() + " 등록 성공");
+        return message;
     }
 
     @Override
@@ -35,25 +37,27 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public boolean update(UUID id, String newContent) {
-        for (Message message : messages) {
-            if (message.getId().equals(id)) {
-                message.setContent(newContent);
-                message.setUpdateAt(System.currentTimeMillis());
-                return true;
+    public Message update(UUID id, String newContent) {
+        if (newContent != null && !newContent.isBlank()) {
+            for (Message message : messages) {
+                if (message.getId().equals(id)) {
+                    message.setContent(newContent);
+                    message.setUpdateAt(System.currentTimeMillis());
+                    return message;
+                }
             }
         }
-        return false;
+        return null;
     }
 
     @Override
-    public boolean delete(UUID id) {
+    public Message delete(UUID id) {
         for (Message message : messages) {
             if (message.getId().equals(id)) {
                 messages.remove(message);
-                return true;
+                return message;
             }
         }
-        return false;
+        return null;
     }
 }

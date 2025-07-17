@@ -11,12 +11,14 @@ public class JCFUserService implements UserService {
     private final List<User> users = new ArrayList<>();
 
     @Override
-    public boolean register(User user) {
+    public User register(User user) {
         if (user.getName() == null || user.getPassword() == null || user.getName().isBlank() || user.getPassword().isBlank()) {
-            return false;
+            System.out.println("사용자 등록 실패");
+            return null;
         }
         users.add(user);
-        return true;
+        System.out.println("사용자 : " + user.getName() + " 등록 성공");
+        return user;
     }
 
     @Override
@@ -35,25 +37,27 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public boolean update(UUID id, String newPW) {
-        for (User user : users) {
-            if (user.getId().equals(id)) {
-                user.setPassword(newPW);
-                user.setUpdateAt(System.currentTimeMillis());
-                return true;
+    public User update(UUID id, String newPW) {
+        if (newPW != null && !newPW.isBlank()) {
+            for (User user : users) {
+                if (user.getId().equals(id)) {
+                    user.setPassword(newPW);
+                    user.setUpdateAt(System.currentTimeMillis());
+                    return user;
+                }
             }
         }
-        return false;
+        return null;
     }
 
     @Override
-    public boolean delete(UUID id) {
+    public User delete(UUID id) {
         for (User user : users) {
             if (user.getId().equals(id)) {
                 users.remove(user);
-                return true;
+                return user;
             }
         }
-        return false;
+        return null;
     }
 }

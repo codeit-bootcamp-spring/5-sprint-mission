@@ -51,12 +51,12 @@ public class Channel {
 
     @Override
     public String toString() {
-        return "채널 {" +
+        return "채널 { " +
                 "아이디 = " + id +
-                ", 이름 ='" + name + '\'' +
-                ", 설명 ='" + description + '\'' +
-                ", 생성 시간 =" + createAt +
-                ", 수정 시간 =" + updateAt +
-                '}';
+                ", 이름 = '" + name + '\'' +
+                ", 설명 = '" + description + '\'' +
+                ", 생성 시간 = " + createAt +
+                ", 수정 시간 = " + updateAt +
+                " }";
     }
 }

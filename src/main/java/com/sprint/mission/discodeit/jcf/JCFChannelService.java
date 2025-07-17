@@ -5,23 +5,26 @@ import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-public class JCFChannelService  implements ChannelService {
+public class JCFChannelService implements ChannelService {
     private final List<Channel> channels = new ArrayList<>();
 
     @Override
-    public boolean register(Channel channel) {
-       if (channel.getName() == null || channel.getDescription()  == null || channel.getName().isBlank() || channel.getDescription().isBlank())  {
-           return false;
-       }
+    public Channel register(Channel channel) {
+        if (channel.getName() == null || channel.getDescription() == null || channel.getName().isBlank() || channel.getDescription().isBlank()) {
+            System.out.println("채널 등록 실패!");
+            return null;
+        }
         channels.add(channel);
-        return true;
+        System.out.println("채널 : " + channel.getName() + " 등록 성공");
+        return channel;
     }
 
     @Override
-    public Channel findByName(String name) {
+    public Channel findById(UUID id) {
         for (Channel channel : channels) {
-            if (channel.getName().equals(name)) {
+            if (channel.getId().equals(id)) {
                 return channel;
             }
         }
@@ -34,25 +37,27 @@ public class JCFChannelService  implements ChannelService {
     }
 
     @Override
-    public boolean update(String name, String description) {
-        for (Channel channel : channels) {
-            if (channel.getName().equals(name)) {
-                channel.setDescription(description);
-                channel.setUpdateAt(System.currentTimeMillis());
-                return true;
+    public Channel update(String name, String newDescription) {
+        if (newDescription != null && !newDescription.isBlank()) {
+            for (Channel channel : channels) {
+                if (channel.getName().equals(name)) {
+                    channel.setDescription(newDescription);
+                    channel.setUpdateAt(System.currentTimeMillis());
+                    return channel;
+                }
             }
         }
-        return false;
+        return null;
     }
 
     @Override
-    public boolean delete(String name) {
+    public Channel delete(String name) {
         for (Channel channel : channels) {
             if (channel.getName().equals(name)) {
                 channels.remove(channel);
-                return true;
+                return channel;
             }
         }
-        return false;
+        return null;
     }
 }

@@ -51,12 +51,12 @@ public class User {
 
     @Override
     public String toString() {
-        return "사용자 {" +
-                "아이디 =" + id +
-                ", 비밀번호 ='" + password + '\'' +
-                ", 이름 ='" + name + '\'' +
-                ", 생성 시간 =" + createAt +
-                ", 수정 시간 =" + updateAt +
-                '}';
+        return "사용자 { " +
+                "아이디 = " + id +
+                ", 비밀번호 = '" + password + '\'' +
+                ", 이름 = '" + name + '\'' +
+                ", 생성 시간 = " + createAt +
+                ", 수정 시간 = " + updateAt +
+                " }";
     }
 }
