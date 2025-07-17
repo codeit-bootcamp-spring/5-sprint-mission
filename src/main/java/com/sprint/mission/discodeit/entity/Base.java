@@ -23,26 +23,20 @@ public class Base {
     public Long getUpdatedAt() {return updatedAt;}
     public void updateTimestamp() {this.updatedAt = System.currentTimeMillis();}
 
+    // 생성 시각 포맷팅
     public String getCreatedAtFormatted() {
         return formatTimestamp(createdAt);
     }
 
+    // 업데이트 시각 포맷팅
     public String getUpdatedAtFormatted() {
         return formatTimestamp(updatedAt);
     }
 
+    // 날짜(시간)포맷팅 로직
     private String formatTimestamp(Long timestamp) {
         LocalDateTime dateTime = LocalDateTime.ofInstant(
                 Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
-
-    public String getFormattedCreatedAt() {
-        return formatTimestamp(createdAt);
-    }
-
-    public String getFormattedUpdatedAt() {
-        return formatTimestamp(updatedAt);
-    }
-
 }
