@@ -9,34 +9,30 @@ public class JCFChannelService implements ChannelService {
 
     private final Map<UUID, Channel> data = new HashMap<>();
 
-
+    // 생성
     public Channel create(String name, String topic){
         Channel channel = new Channel(name, topic);
         data.put(channel.getId(), channel);
         return channel;
     }
 
-    public Channel findById(UUID id){
-        return data.get(id);
+    // 아이디로 조회
+    public Optional<Channel> findById(UUID id){
+        return Optional.ofNullable(data.get(id));
     }
 
-
+    // 이름으로 조회
     public List<Channel> findByName(String name){
-        List<Channel> ch = new ArrayList<>();
-        for(Channel c : data.values()){
-            if(c.getName().contains(name) && c.getName() != null){
-                ch.add(c);
-            }
-        }
-        return ch;
+        if (name == null) return Collections.emptyList();
+        return data.values().stream().filter(c -> c.getName().contains(name)).toList();
     }
 
-
+    // 모든 채널 조회
     public List<Channel> findAll(){
-        return new ArrayList<Channel>(data.values());
+        return new ArrayList<>(data.values());
     }
 
-
+    // 채널명 업데이트
     public Channel updateName(UUID id, String name){
         Channel channel = data.get(id);
         if(channel != null){
@@ -45,6 +41,7 @@ public class JCFChannelService implements ChannelService {
         return channel;
     }
 
+    // 채널 토픽 업데이트
     public Channel updateTopic(UUID id, String topic){
         Channel channel = data.get(id);
         if(channel != null){
@@ -53,17 +50,10 @@ public class JCFChannelService implements ChannelService {
         return channel;
     }
 
-
-    public boolean deleteById(UUID id){
-        if(data.containsKey(id)){
-            data.remove(id);
-            System.out.println("삭제완료!");
-            return true;
-        }
-        else{
-            System.out.println("삭제실패: 채널을 찾을 수 없습니다");
-            return false;
-        }
+    // 채널 삭제
+    public void deleteById(UUID id){
+        boolean deleted = data.remove(id) != null;
+        System.out.println(deleted ? "삭제완료!" : "삭제실패: 사용자를 찾을 수 없습니다");
     }
 
 }

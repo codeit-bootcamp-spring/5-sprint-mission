@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.entity.Channel;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ChannelService {
@@ -16,12 +17,17 @@ public interface ChannelService {
      */
     Channel create(String name, String topic);
 
-    Channel findById(UUID id);
+    /**
+     * 채널 검색
+     * @param id 채널아이디
+     * @return 찾은 채널 객체 리스트
+     * */
+    Optional<Channel> findById(UUID id);
 
     /**
      * 채널 검색
      * @param name 채널이름
-     * @return 찾은 채널객체 리스트
+     * @return 찾은 채널 객체 리스트
      * */
     List<Channel> findByName(String name);
 
@@ -50,7 +56,6 @@ public interface ChannelService {
     /**
      * 채널 삭제
      * @param id 채널아이디
-     * @return 삭제 성공 여부 (true: 삭제됨, false: 존재하지 않음)
      * */
-    boolean deleteById(UUID id);
+    void deleteById(UUID id);
 }
