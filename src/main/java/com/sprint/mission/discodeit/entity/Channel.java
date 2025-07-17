@@ -5,8 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class Channel {
-  private final UUID id;
+public class Channel extends AbstractBaseEntity {
   private final long createdAt;
   private final Set<UUID> joinedUsers;
   private long updatedAt;
@@ -16,7 +15,6 @@ public class Channel {
   private boolean isPublic;
 
   public Channel(String name, String groupName, ChannelCategory category, boolean isPublic) {
-    this.id = UUID.randomUUID();
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
     this.name = name;
@@ -24,10 +22,6 @@ public class Channel {
     this.category = category;
     this.isPublic = isPublic;
     this.joinedUsers = new HashSet<>();
-  }
-
-  public UUID getId() {
-    return id;
   }
 
   public long getCreatedAt() {
@@ -94,7 +88,7 @@ public class Channel {
   public String toString() {
     return "Channel{"
         + "id="
-        + id
+        + this.getId()
         + ", createdAt="
         + createdAt
         + ", joinedUsers="

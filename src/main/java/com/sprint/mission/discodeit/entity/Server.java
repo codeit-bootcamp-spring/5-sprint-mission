@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class Server {
-  private final UUID id;
+public class Server extends AbstractBaseEntity {
   private final long createdAt;
   private final List<Channel> channels;
   private final Set<UUID> members;
@@ -24,7 +23,6 @@ public class Server {
 
   public Server(
       String name, UUID ownerId, boolean isPublic, Set<UUID> membersId, List<Channel> channels) {
-    this.id = UUID.randomUUID();
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
     this.name = name;
@@ -34,10 +32,6 @@ public class Server {
     this.channels = new ArrayList<>(channels);
     this.level = ServerLevel.ONE;
     this.perks = new HashSet<>();
-  }
-
-  public UUID getId() {
-    return id;
   }
 
   public long getCreatedAt() {
@@ -144,7 +138,7 @@ public class Server {
   public String toString() {
     return "Server{"
         + "id="
-        + id
+        + this.getId()
         + ", createdAt="
         + createdAt
         + ", channels="

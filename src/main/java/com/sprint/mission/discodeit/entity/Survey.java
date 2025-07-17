@@ -1,10 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.util.List;
-import java.util.UUID;
 
-public class Survey {
-  private final UUID id;
+public class Survey extends AbstractBaseEntity {
   private final long createdAt;
   private long updatedAt;
   private String question;
@@ -14,17 +12,12 @@ public class Survey {
 
   public Survey(
       String question, List<String> answers, long duration, boolean isDuplicateResponseAllowed) {
-    this.id = UUID.randomUUID();
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
     this.question = question;
     this.answers = answers;
     this.duration = duration;
     this.isDuplicateResponseAllowed = isDuplicateResponseAllowed;
-  }
-
-  public UUID getId() {
-    return id;
   }
 
   public long getCreatedAt() {
@@ -69,5 +62,26 @@ public class Survey {
 
   public void setDuplicateResponseAllowed(boolean duplicateResponseAllowed) {
     isDuplicateResponseAllowed = duplicateResponseAllowed;
+  }
+
+  @Override
+  public String toString() {
+    return "Survey{"
+        + "id="
+        + this.getId()
+        + ", createdAt="
+        + createdAt
+        + ", updatedAt="
+        + updatedAt
+        + ", question='"
+        + question
+        + '\''
+        + ", answers="
+        + answers
+        + ", duration="
+        + duration
+        + ", isDuplicateResponseAllowed="
+        + isDuplicateResponseAllowed
+        + '}';
   }
 }

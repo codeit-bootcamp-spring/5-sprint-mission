@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Message {
-  private final UUID id;
+public class Message extends AbstractBaseEntity {
   private final long createdAt;
   private final User sender;
   private final User receiver;
@@ -17,7 +16,6 @@ public class Message {
   private Survey survey;
 
   public Message(User sender, User receiver, String content, List<File> files, Survey survey) {
-    this.id = UUID.randomUUID();
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
     this.sender = sender;
@@ -26,10 +24,6 @@ public class Message {
     this.files = files;
     this.survey = survey;
     this.replies = new ArrayList<>();
-  }
-
-  public UUID getId() {
-    return id;
   }
 
   public long getCreatedAt() {
@@ -96,7 +90,7 @@ public class Message {
   public String toString() {
     return "Message{"
         + "id="
-        + id
+        + this.getId()
         + ", createdAt="
         + createdAt
         + ", sender="

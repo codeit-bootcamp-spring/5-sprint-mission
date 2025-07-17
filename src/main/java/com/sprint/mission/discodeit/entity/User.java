@@ -4,12 +4,10 @@ import com.sprint.mission.discodeit.enums.userentity.Status;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-public class User {
-  private final UUID id;
+public class User extends AbstractBaseEntity {
   private final long createdAt;
   private long updatedAt;
   private String email;
@@ -36,7 +34,6 @@ public class User {
       LocalDate birthDate,
       boolean isSubscribedToNewsletter,
       String nickname) {
-    this.id = UUID.randomUUID();
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
 
@@ -51,10 +48,6 @@ public class User {
     this.servers = new HashSet<>();
     this.chatRooms = new HashSet<>();
     this.status = Status.OFFLINE;
-  }
-
-  public UUID getId() {
-    return id;
   }
 
   public long getCreatedAt() {
@@ -222,27 +215,10 @@ public class User {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    User user = (User) o;
-    return Objects.equals(id, user.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(id);
-  }
-
-  @Override
   public String toString() {
     return "User{"
         + "id="
-        + id
+        + this.getId()
         + ", createdAt="
         + createdAt
         + ", updatedAt="
