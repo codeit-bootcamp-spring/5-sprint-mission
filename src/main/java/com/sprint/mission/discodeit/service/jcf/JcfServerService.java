@@ -2,8 +2,6 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Server;
-import com.sprint.mission.discodeit.enums.serverentity.ServerLevel;
-import com.sprint.mission.discodeit.enums.serverentity.ServerPerk;
 import com.sprint.mission.discodeit.service.ServerService;
 import java.util.List;
 import java.util.UUID;
@@ -59,8 +57,33 @@ public class JcfServerService extends JcfService<Server> implements ServerServic
   }
 
   @Override
+  public void updatePublic(UUID serverId, boolean isPublic) {
+    update(serverId, s -> s.setPublic(isPublic));
+  }
+
+  @Override
+  public void updateOwnerId(UUID serverId, UUID ownerId) {
+    update(serverId, s -> s.setOwnerId(ownerId));
+  }
+
+  @Override
   public void updateName(UUID serverId, String name) {
     update(serverId, s -> s.setName(name));
+  }
+
+  @Override
+  public void addMember(UUID serverId, UUID member) {
+    update(serverId, s -> s.addMember(member));
+  }
+
+  @Override
+  public void removeMember(UUID serverId, UUID member) {
+    update(serverId, s -> s.removeMember(member));
+  }
+
+  @Override
+  public void clearMembers(UUID serverId) {
+    update(serverId, Server::clearMembers);
   }
 
   @Override
@@ -76,55 +99,5 @@ public class JcfServerService extends JcfService<Server> implements ServerServic
   @Override
   public void clearChannels(UUID serverId) {
     update(serverId, Server::clearChannels);
-  }
-
-  @Override
-  public void addMember(UUID serverId, UUID memberId) {
-    update(serverId, s -> s.addMember(memberId));
-  }
-
-  @Override
-  public void removeMember(UUID serverId, UUID memberId) {
-    update(serverId, s -> s.removeMember(memberId));
-  }
-
-  @Override
-  public void clearMembers(UUID serverId) {
-    update(serverId, Server::clearMembers);
-  }
-
-  @Override
-  public void addPerk(UUID serverId, ServerPerk perk) {
-    update(serverId, s -> s.addPerk(perk));
-  }
-
-  @Override
-  public void removePerk(UUID serverId, ServerPerk perk) {
-    update(serverId, s -> s.removePerk(perk));
-  }
-
-  @Override
-  public void clearPerks(UUID serverId) {
-    update(serverId, Server::clearPerks);
-  }
-
-  @Override
-  public void updatePublic(UUID serverId, boolean isPublic) {
-    update(serverId, s -> s.setPublic(isPublic));
-  }
-
-  @Override
-  public void updateOwnerId(UUID serverId, UUID ownerId) {
-    update(serverId, s -> s.setOwnerId(ownerId));
-  }
-
-  @Override
-  public void updateBoost(UUID serverId, long boost) {
-    update(serverId, s -> s.setBoost(boost));
-  }
-
-  @Override
-  public void updateServerLevel(UUID serverId, ServerLevel level) {
-    update(serverId, s -> s.setLevel(level));
   }
 }

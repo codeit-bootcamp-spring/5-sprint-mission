@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.userentity.Status;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.validation.RegisterUserValidator;
 import java.time.LocalDate;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -17,8 +18,13 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  protected boolean idEquals(User user, UUID id) {
+  public boolean idEquals(User user, UUID id) {
     return user.getId().equals(id);
+  }
+
+  @Override
+  public boolean emailEquals(User user, String email) {
+    return user.getEmail().equals(email);
   }
 
   @Override
@@ -36,14 +42,20 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  public boolean registerUser(User user) {
-    boolean exists = data.stream().anyMatch(u -> idEquals(u, user.getId()));
-    if (exists) {
-      System.out.println("중복된 id가 존재합니다.");
-      return false;
+  public User registerUser(User user) {
+    try {
+      RegisterUserValidator.validate(user);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      return null;
+    }
+    boolean emailDuplicated = data.stream().anyMatch(u -> emailEquals(u, user.getEmail()));
+    if (emailDuplicated) {
+      System.out.println("중복된 이메일이 존재합니다.");
+      return null;
     }
     data.add(user);
-    return true;
+    return user;
   }
 
   @Override

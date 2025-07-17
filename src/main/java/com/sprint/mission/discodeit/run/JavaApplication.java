@@ -34,9 +34,10 @@ public class JavaApplication {
   }
 
   private void mainMenu() {
-    userService.registerUser(new User("1", "1", "1", LocalDate.of(1995, 4, 10), true, "1")); // 테스트용
     userService.registerUser(
-        new User("2", "2", "2", LocalDate.of(1995, 4, 11), false, "2")); // 테스트용
+        new User("a@a.aa", "1", "1111aaaa", LocalDate.of(1995, 4, 10), true, "1")); // 테스트용
+    userService.registerUser(
+        new User("b@b.bb", "2", "2222bbbb", LocalDate.of(1995, 4, 11), false, "2")); // 테스트용
     System.out.println("\n========== Discodeit ==========");
 
     while (true) {
@@ -313,11 +314,11 @@ public class JavaApplication {
 
   private void register() {
     String email;
-    String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+    String emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     while (true) {
       System.out.print("이메일 : ");
       email = sc.nextLine().strip();
-      if (!email.matches(emailRegex)) {
+      if (!email.matches(emailPattern)) {
         System.out.println("잘못된 형식입니다. 다시 입력해주세요.\n");
         continue;
       }
@@ -342,11 +343,11 @@ public class JavaApplication {
     }
 
     String password;
-    String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()_+]{8,}$";
+    String passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()_+]{8,}$";
     while (true) {
       System.out.print("비밀번호 : ");
       password = sc.nextLine().strip();
-      if (password.matches(passwordRegex)) {
+      if (password.matches(passwordPattern)) {
         break;
       }
       System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.");
@@ -388,10 +389,10 @@ public class JavaApplication {
       }
     }
 
-    boolean result =
+    User user =
         userService.registerUser(
             new User(email, username, password, birthDate, isSubscribedToNewsletter, nickname));
-    if (result) {
+    if (user != null) {
       System.out.println("성공적으로 회원가입을 완료하였습니다.");
     } else {
       System.out.println("다시 시도해 주세요.");
@@ -454,7 +455,7 @@ public class JavaApplication {
   }
 
   private void changeEmail() {
-    String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+    String emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
     System.out.println("\nx. 뒤로가기");
     System.out.println("현재 이메일: " + me.getEmail());
@@ -466,7 +467,7 @@ public class JavaApplication {
       if (email.equals("x")) {
         return;
       }
-      if (!email.matches(emailRegex)) {
+      if (!email.matches(emailPattern)) {
         System.out.println("잘못된 형식입니다. 다시 입력해주세요.");
         continue;
       }
@@ -500,19 +501,24 @@ public class JavaApplication {
 
   private void changeUsername() {
     System.out.println("\nx. 뒤로가기");
-    System.out.println("현재 사용자명: " + me.getUsername());
-    System.out.print("변경할 사용자명: ");
-    String username = sc.nextLine().strip();
-    if (username.equals("x")) {
-      return;
-    }
+    String oldUsername = me.getNickname();
+    String newUsername;
 
-    userService.updateUsername(me.getId(), username);
-    me.setUsername(username);
+    while (true) {
+      System.out.println("현재 사용자명: " + me.getUsername());
+      System.out.print("변경할 사용자명 : ");
+      newUsername = sc.nextLine().strip();
+      if (!newUsername.isEmpty()) {
+        break;
+      }
+      System.out.println("사용자명은 필수입니다.\n");
+    }
+    userService.updateUsername(me.getId(), newUsername);
+    me.setUsername(newUsername);
   }
 
   private void changePassword() {
-    String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()_+]{8,}$";
+    String passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()_+]{8,}$";
 
     System.out.println("\nx. 뒤로가기");
     System.out.println("현재 비밀번호: " + me.getPassword());
@@ -524,7 +530,7 @@ public class JavaApplication {
       if (password.equals("x")) {
         return;
       }
-      if (!password.matches(passwordRegex)) {
+      if (!password.matches(passwordPattern)) {
         System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.");
         continue;
       }
@@ -757,7 +763,7 @@ public class JavaApplication {
       Set<UUID> members = new HashSet<>();
       members.add(me.getId());
 
-      Server server = new Server(name, me.getId(), isPublic, members, defaultChannels);
+      Server server = new Server(isPublic, me.getId(), name, members, defaultChannels);
 
       boolean result = serverService.createServer(server);
       if (result) {
@@ -860,8 +866,8 @@ public class JavaApplication {
 
       Set<UUID> members = server.getMembers();
 
-      for (UUID memberId : members) {
-        if (memberId.equals(me.getId())) {
+      for (UUID member : members) {
+        if (member.equals(me.getId())) {
           System.out.println("이미 들어간 서버입니다.");
           continue label;
         }

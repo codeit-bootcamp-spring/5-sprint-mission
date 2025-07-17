@@ -1,16 +1,12 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.entity.Survey;
-import java.util.List;
+import java.util.UUID;
 
 public interface SurveyService extends Service<Survey> {
   boolean createSurvey(Survey survey);
 
-  void updateQuestion(Survey survey, String question);
+  void updateClosed(UUID surveyId, boolean isClosed);
 
-  void updateAnswers(Survey survey, List<String> answers);
-
-  void updateDuration(Survey survey, long duration);
-
-  void updateDuplicateResponseAllowed(Survey survey, boolean isDuplicateResponseAllowed);
+  void vote(UUID surveyId, int answerIndex, UUID voterId, boolean isUnvoted);
 }

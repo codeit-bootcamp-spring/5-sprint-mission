@@ -2,8 +2,6 @@ package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Server;
-import com.sprint.mission.discodeit.enums.serverentity.ServerLevel;
-import com.sprint.mission.discodeit.enums.serverentity.ServerPerk;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,23 +22,13 @@ public interface ServerService extends Service<Server> {
 
   void clearChannels(UUID serverId);
 
-  void addMember(UUID serverId, UUID memberId);
+  void addMember(UUID serverId, UUID member);
 
-  void removeMember(UUID serverId, UUID memberId);
+  void removeMember(UUID serverId, UUID member);
 
   void clearMembers(UUID serverId);
 
   void updateOwnerId(UUID serverId, UUID ownerId);
 
   void updatePublic(UUID serverId, boolean isPublic);
-
-  void updateBoost(UUID serverId, long boost);
-
-  void updateServerLevel(UUID serverId, ServerLevel level);
-
-  void addPerk(UUID serverId, ServerPerk perk);
-
-  void removePerk(UUID serverId, ServerPerk perk);
-
-  void clearPerks(UUID serverId);
 }
