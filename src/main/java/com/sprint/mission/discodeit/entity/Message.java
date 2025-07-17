@@ -6,89 +6,89 @@ import java.util.List;
 import java.util.UUID;
 
 public class Message {
-    private final UUID id;
-    private final long createdAt;
-    private long updatedAt;
-    private final User sender;
-    private final User receiver;
-    private String content;
-    private List<File> files;
-    private Survey survey;
-    private final List<UUID> replies;
+  private final UUID id;
+  private final long createdAt;
+  private final User sender;
+  private final User receiver;
+  private final List<UUID> replies;
+  private long updatedAt;
+  private String content;
+  private List<File> files;
+  private Survey survey;
 
-    public Message(User sender, User receiver, String content, List<File> files, Survey survey) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = this.createdAt;
-        this.sender = sender;
-        this.receiver = receiver;
-        this.content = content;
-        this.files = files;
-        this.survey = survey;
-        this.replies = new ArrayList<>();
-    }
+  public Message(User sender, User receiver, String content, List<File> files, Survey survey) {
+    this.id = UUID.randomUUID();
+    this.createdAt = System.currentTimeMillis();
+    this.updatedAt = this.createdAt;
+    this.sender = sender;
+    this.receiver = receiver;
+    this.content = content;
+    this.files = files;
+    this.survey = survey;
+    this.replies = new ArrayList<>();
+  }
 
-    public UUID getId() {
-        return id;
-    }
+  public UUID getId() {
+    return id;
+  }
 
-    public long getCreatedAt() {
-        return createdAt;
-    }
+  public long getCreatedAt() {
+    return createdAt;
+  }
 
-    public long getUpdatedAt() {
-        return updatedAt;
-    }
+  public long getUpdatedAt() {
+    return updatedAt;
+  }
 
-    public void setUpdatedAt(long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+  public void setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
+  }
 
-    public User getSender() {
-        return sender;
-    }
+  public User getSender() {
+    return sender;
+  }
 
-    public User getReceiver() {
-        return receiver;
-    }
+  public User getReceiver() {
+    return receiver;
+  }
 
-    public String getContent() {
-        return content;
-    }
+  public String getContent() {
+    return content;
+  }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+  public void setContent(String content) {
+    this.content = content;
+  }
 
-    public List<File> getFiles() {
-        return files;
-    }
+  public List<File> getFiles() {
+    return files;
+  }
 
-    public void setFiles(List<File> files) {
-        this.files = files;
-    }
+  public void setFiles(List<File> files) {
+    this.files = files;
+  }
 
-    public Survey getSurvey() {
-        return survey;
-    }
+  public Survey getSurvey() {
+    return survey;
+  }
 
-    public void setSurvey(Survey survey) {
-        this.survey = survey;
-    }
+  public void setSurvey(Survey survey) {
+    this.survey = survey;
+  }
 
-    public List<UUID> getReplies() {
-        return replies;
-    }
+  public List<UUID> getReplies() {
+    return replies;
+  }
 
-    public void addReply(UUID replyId) {
-        replies.add(replyId);
-    }
+  public void addReply(UUID replyId) {
+    replies.add(replyId);
+  }
 
-    public void removeReply(UUID replyId) {
-        replies.remove(replyId);
-    }
+  public void removeReply(UUID replyId) {
+    replies.remove(replyId);
+  }
 
-    public void clearReplies() {
-        replies.clear();
-    }
+  public void clearReplies() {
+    replies.clear();
+  }
 }

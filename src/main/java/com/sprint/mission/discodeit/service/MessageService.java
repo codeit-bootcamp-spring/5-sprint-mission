@@ -2,23 +2,22 @@ package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.Survey;
-
 import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
 public interface MessageService extends Service<Message> {
-    boolean createMessage(Message message);
+  boolean createMessage(Message message);
 
-    void updateContent(UUID messageId, String content);
+  void updateContent(UUID messageId, String content);
 
-    void updateFiles(UUID messageId, List<File> files);
+  void updateFiles(UUID messageId, List<File> files);
 
-    void updateSurvey(UUID messageId, Survey survey);
+  void updateSurvey(UUID messageId, Survey survey);
 
-    void addReply(UUID messageId, UUID replyId);
+  void addReply(UUID messageId, UUID replyId);
 
-    void removeReply(UUID messageId, UUID replyId);
+  void removeReply(UUID messageId, UUID replyId);
 
-    void clearReplies(UUID messageId);
+  void clearReplies(UUID messageId);
 }

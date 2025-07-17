@@ -5,13 +5,13 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public interface Service<T> {
-    void reset();
+  void reset();
 
-    List<T> findAll();
+  List<T> findAll();
 
-    T findById(UUID id);
+  T findById(UUID id);
 
-    void deleteById(UUID id);
+  void deleteById(UUID id);
 
-    void update(UUID id, Consumer<T> updater);
+  void update(UUID id, Consumer<T> updater);
 }
