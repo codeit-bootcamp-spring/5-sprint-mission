@@ -19,9 +19,10 @@ public class Guild extends AbstractBaseEntity {
   public Guild(boolean isPublic, UUID ownerId, String name) {
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
+
     this.isPublic = isPublic;
     this.ownerId = ownerId;
-    this.name = name;
+    this.name = name == null ? "" : name.strip();
     this.members = new HashSet<>();
     this.channels = new ArrayList<>();
   }
@@ -35,15 +36,22 @@ public class Guild extends AbstractBaseEntity {
   }
 
   public void setUpdatedAt(long updatedAt) {
-    this.updatedAt = updatedAt;
+    if (this.updatedAt < updatedAt) {
+      this.updatedAt = updatedAt;
+    }
   }
 
   public String getName() {
+    if (name == null) {
+      return "";
+    }
     return name;
   }
 
   public void setName(String name) {
-    this.name = name;
+    if (name != null) {
+      this.name = name.strip();
+    }
   }
 
   public boolean isPublic() {
@@ -59,7 +67,9 @@ public class Guild extends AbstractBaseEntity {
   }
 
   public void addChannel(Channel channel) {
-    channels.add(channel);
+    if (channel != null) {
+      channels.add(channel);
+    }
   }
 
   public void removeChannel(Channel channel) {
@@ -75,7 +85,9 @@ public class Guild extends AbstractBaseEntity {
   }
 
   public void addMember(UUID member) {
-    members.add(member);
+    if (member != null) {
+      members.add(member);
+    }
   }
 
   public void removeMember(UUID member) {
