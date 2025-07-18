@@ -13,6 +13,7 @@ public class JCFMessageService implements MessageService {
     private UserService userService;
     private ChannelService channelService;
 
+
     private JCFMessageService() {
     }
 

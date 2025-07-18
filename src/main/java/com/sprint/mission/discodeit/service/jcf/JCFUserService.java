@@ -33,6 +33,18 @@ public class JCFUserService implements UserService {
     }
 
     @Override
+    public User findByName(String nickName) {
+        for (User user : users.values()) {
+            if (user.getNickName().equals(nickName)) {
+                System.out.println("찾으신 닉네임" + user.getNickName());
+                return user;
+            }
+        }
+        return null;
+    }
+
+
+    @Override
     public List<User> findAll() {
          List<User> list = new ArrayList<>(users.values());
          for (User user : list) {

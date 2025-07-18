@@ -4,8 +4,8 @@ import java.util.UUID;
 
 public class Message {
     private final UUID id;
-    private final long createdAt;
-    private long updatedAt;
+    private final Long createdAt;
+    private Long updatedAt;
 
     private final UUID userId;
     private final UUID channelId;

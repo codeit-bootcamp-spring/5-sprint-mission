@@ -29,6 +29,7 @@ public class JavaApplication {
 
     private static void userCRUDTest(UserService userService) throws InterruptedException {
         // 등록
+        System.out.println("====== User 등록 및 전체조회 ======");
         final User user1 = new User("홍길동");
         final User user2 = new User("김길동");
         final User user3 = new User("이길동");
@@ -41,11 +42,18 @@ public class JavaApplication {
         UUID userId2 = user2.getId();
         UUID userId3 = user3.getId();
 
-        // 단건 조회
-        userService.findById(userId1);
-
         // 전체 조회
         userService.findAll();
+
+        System.out.println("====== User 단건 조회");
+        // 단건 조회
+        userService.findById(userId1);
+        System.out.println("====== 이름 조회 ======");
+        userService.findByName(user2.getNickName());
+        System.out.println("====== 이름 조회 긋 ======");
+
+        // 전체 조회
+        //userService.findAll();
 
         // 수정 및 조회
         Thread.sleep(2000);

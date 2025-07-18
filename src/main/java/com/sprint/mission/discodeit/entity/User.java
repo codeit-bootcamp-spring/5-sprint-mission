@@ -5,8 +5,8 @@ import java.util.UUID;
 public class User {
     private final UUID id;
     private String nickName;
-    private final long createdAt;
-    private long updatedAt;
+    private final Long createdAt;
+    private Long updatedAt;
 
 
     public User(String nickName) {
@@ -29,7 +29,7 @@ public class User {
         return nickName;
     }
 
-    public long getUpdatedAt() {
+    public Long getUpdatedAt() {
         return updatedAt;
     }
 
