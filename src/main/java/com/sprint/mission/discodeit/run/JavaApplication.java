@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.run;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.channel.ChannelPermission;
 import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.service.jcf.JcfChannelService;
 import com.sprint.mission.discodeit.service.jcf.JcfGuildService;
@@ -12,10 +11,7 @@ import com.sprint.mission.discodeit.service.jcf.JcfSurveyService;
 import com.sprint.mission.discodeit.service.jcf.JcfUserService;
 import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
@@ -751,18 +747,11 @@ public class JavaApplication {
         }
       }
 
-      Map<UUID, ChannelPermission> defaultPermissionMap = new HashMap<>();
-      defaultPermissionMap.put(me.getId(), ChannelPermission.ADMIN);
+      Guild guild = new Guild(isPublic, me.getId(), name);
+      guildService.addMember(guild.getId(), me.getId());
 
-      List<Channel> defaultChannels =
-          List.of(
-              new Channel("일반", ChannelType.CHAT, true, defaultPermissionMap),
-              new Channel("일반", ChannelType.VOICE, true, defaultPermissionMap));
-
-      Set<UUID> members = new HashSet<>();
-      members.add(me.getId());
-
-      Guild guild = new Guild(isPublic, me.getId(), name, members, defaultChannels);
+      guildService.addChannel(guild.getId(), new Channel(guild.getId(), "일반", ChannelType.CHAT));
+      guildService.addChannel(guild.getId(), new Channel(guild.getId(), "일반", ChannelType.VOICE));
 
       boolean result = guildService.createGuild(guild);
       if (result) {

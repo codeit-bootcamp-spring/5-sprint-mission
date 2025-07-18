@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import java.util.UUID;
 
 public interface ChannelService extends Service<Channel> {
-  boolean createChannel(Channel channel);
+  Channel createChannel(Channel channel, UUID ownerId);
 
   void updateName(UUID channelId, String name);
 
