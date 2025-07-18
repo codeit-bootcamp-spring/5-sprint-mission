@@ -39,7 +39,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   public void update(UUID userId, Consumer<User> updater) {
     User u = findById(userId);
     if (u == null) {
-      throw new NoSuchElementException("User not found: " + userId);
+      throw new NoSuchElementException("유저를 찾을 수 없습니다: " + userId);
     }
     updater.accept(u);
     u.setUpdatedAt(System.currentTimeMillis());
@@ -47,17 +47,12 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public User registerUser(User user) {
-    try {
-      RegisterUserValidator.validate(user);
-    } catch (IllegalArgumentException e) {
-      System.out.println(e.getMessage());
-      return null;
-    }
+    RegisterUserValidator.validate(user);
 
     if (findByEmail(user.getEmail()) != null) {
-      System.out.println("중복된 이메일이 존재합니다.");
-      return null;
+      throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
     }
+
     data.add(user);
     return user;
   }
@@ -70,14 +65,16 @@ public class JcfUserService extends JcfService<User> implements UserService {
             .findFirst()
             .orElse(null);
 
-    if (user != null) {
-      if (user.isBanned()) {
-        return user;
-      }
+    if (user == null) {
+      throw new NoSuchElementException("이메일 또는 패스워드가 일치하지 않습니다.");
+    }
+
+    if (!user.isBanned()) {
       user.setDeactivated(false);
       user.setStatus(Status.ONLINE);
       user.setUpdatedAt(System.currentTimeMillis());
     }
+
     return user;
   }
 
@@ -92,24 +89,20 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public void updateEmail(UUID userId, String email) {
-    try {
-      EmailValidator.validate(email);
-    } catch (IllegalArgumentException e) {
-      System.out.println(e.getMessage());
-      return;
-    }
+    EmailValidator.validate(email);
 
     User duplicatedUser = findByEmail(email);
 
-    if (duplicatedUser != null) {
-      if (!duplicatedUser.getId().equals(userId)) {
-        System.out.println("중복된 이메일입니다. 다시 입력해주세요.");
-      } else {
-        System.out.println("같은 이메일입니다.");
-      }
+    if (duplicatedUser == null) {
+      update(userId, u -> u.setEmail(email));
+      return;
     }
 
-    update(userId, u -> u.setEmail(email));
+    if (!userId.equals(duplicatedUser.getId())) {
+      throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
+    } else {
+      throw new IllegalArgumentException("같은 이메일입니다.");
+    }
   }
 
   @Override
@@ -120,8 +113,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public void updateUsername(UUID userId, String username) {
     if (username == null || username.isBlank()) {
-      System.out.println("사용자명은 필수입니다.");
-      return;
+      throw new IllegalArgumentException("사용자명은 필수입니다.");
     }
 
     update(userId, u -> u.setUsername(username));
@@ -129,21 +121,14 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public void updatePassword(UUID userId, String password) {
-    try {
-      PasswordValidator.validate(password);
-    } catch (IllegalArgumentException e) {
-      System.out.println(e.getMessage());
-      return;
-    }
-
+    PasswordValidator.validate(password);
     update(userId, u -> u.setPassword(password));
   }
 
   @Override
   public void updateBirthDate(UUID userId, LocalDate birthDate) {
     if (birthDate == null) {
-      System.out.println("생년월일은 필수입니다.");
-      return;
+      throw new IllegalArgumentException("생년월일은 필수입니다.");
     }
     update(userId, u -> u.setBirthDate(birthDate));
   }
@@ -161,8 +146,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public void updateStatus(UUID userId, Status status) {
     if (status == null) {
-      System.out.println("상태는 필수입니다.");
-      return;
+      throw new IllegalArgumentException("상태는 필수입니다.");
     }
     update(userId, u -> u.setStatus(status));
   }
