@@ -739,6 +739,9 @@ public class JavaApplication {
     System.out.println("\nx. 뒤로가기");
     while (true) {
       String name = getInputOrBack("서버 이름 : ");
+      if (name == null || name.isBlank()) {
+        name = me.getUsername() + "님의 서버";
+      }
 
       Boolean isPublic = getYesOrNo("공개 여부");
       if (isPublic == null) {
