@@ -9,7 +9,7 @@ public interface ChannelService extends Service<Channel> {
 
   void updateName(UUID channelId, String name);
 
-  void updateChannelType(UUID channelId, ChannelType channelType);
+  void updateType(UUID channelId, ChannelType type);
 
   void updatePublic(UUID channelId, boolean isPublic);
 

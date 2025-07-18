@@ -24,7 +24,7 @@ public class User extends AbstractBaseEntity {
   private boolean isDeactivated;
   private boolean isBanned;
   private final Set<UUID> friends;
-  private final Set<UUID> servers;
+  private final Set<UUID> guilds;
   private final Set<UUID> chatRooms;
 
   public User(
@@ -45,7 +45,7 @@ public class User extends AbstractBaseEntity {
     this.nickname = nickname;
 
     this.friends = new HashSet<>();
-    this.servers = new HashSet<>();
+    this.guilds = new HashSet<>();
     this.chatRooms = new HashSet<>();
     this.status = Status.OFFLINE;
   }
@@ -134,20 +134,20 @@ public class User extends AbstractBaseEntity {
     friends.clear();
   }
 
-  public Set<UUID> getServers() {
-    return Collections.unmodifiableSet(servers);
+  public Set<UUID> getGuilds() {
+    return Collections.unmodifiableSet(guilds);
   }
 
-  public void addServer(UUID serverId) {
-    servers.add(serverId);
+  public void addGuild(UUID guildId) {
+    guilds.add(guildId);
   }
 
-  public void removeServer(UUID serverId) {
-    servers.remove(serverId);
+  public void removeGuild(UUID guildId) {
+    guilds.remove(guildId);
   }
 
-  public void clearServers() {
-    servers.clear();
+  public void clearGuilds() {
+    guilds.clear();
   }
 
   public Set<UUID> getChatRooms() {
@@ -258,8 +258,8 @@ public class User extends AbstractBaseEntity {
         + isBanned
         + ", friends="
         + friends
-        + ", servers="
-        + servers
+        + ", guilds="
+        + guilds
         + ", chatRooms="
         + chatRooms
         + '}';

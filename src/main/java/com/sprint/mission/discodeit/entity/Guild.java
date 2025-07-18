@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class Server extends AbstractBaseEntity {
+public class Guild extends AbstractBaseEntity {
   private final long createdAt;
   private long updatedAt;
   private boolean isPublic;
@@ -16,7 +16,7 @@ public class Server extends AbstractBaseEntity {
   private final Set<UUID> members;
   private final List<Channel> channels;
 
-  public Server(
+  public Guild(
       boolean isPublic, UUID ownerId, String name, Set<UUID> members, List<Channel> channels) {
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
@@ -97,7 +97,7 @@ public class Server extends AbstractBaseEntity {
 
   @Override
   public String toString() {
-    return "Server{"
+    return "Guild{"
         + "id="
         + this.getId()
         + "createdAt="

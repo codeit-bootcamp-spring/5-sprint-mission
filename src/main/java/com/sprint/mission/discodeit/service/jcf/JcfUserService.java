@@ -163,18 +163,18 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  public void addServer(UUID userId, UUID serverId) {
-    update(userId, u -> u.addServer(serverId));
+  public void addGuild(UUID userId, UUID guildId) {
+    update(userId, u -> u.addGuild(guildId));
   }
 
   @Override
-  public void removeServer(UUID userId, UUID serverId) {
-    update(userId, u -> u.removeServer(serverId));
+  public void removeGuild(UUID userId, UUID guildId) {
+    update(userId, u -> u.removeGuild(guildId));
   }
 
   @Override
-  public void clearServers(UUID userId) {
-    update(userId, User::clearServers);
+  public void clearGuilds(UUID userId) {
+    update(userId, User::clearGuilds);
   }
 
   @Override

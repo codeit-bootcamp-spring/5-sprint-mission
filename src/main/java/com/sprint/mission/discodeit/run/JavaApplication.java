@@ -1,18 +1,21 @@
 package com.sprint.mission.discodeit.run;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Server;
+import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.enums.channel.ChannelPermission;
 import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.service.jcf.JcfChannelService;
+import com.sprint.mission.discodeit.service.jcf.JcfGuildService;
 import com.sprint.mission.discodeit.service.jcf.JcfMessageService;
-import com.sprint.mission.discodeit.service.jcf.JcfServerService;
 import com.sprint.mission.discodeit.service.jcf.JcfSurveyService;
 import com.sprint.mission.discodeit.service.jcf.JcfUserService;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
@@ -24,7 +27,7 @@ public class JavaApplication {
   private final JcfUserService userService = JcfUserService.getInstance();
   private final JcfMessageService messageService = JcfMessageService.getInstance();
   private final JcfChannelService channelService = JcfChannelService.getInstance();
-  private final JcfServerService serverService = JcfServerService.getInstance();
+  private final JcfGuildService guildService = JcfGuildService.getInstance();
   private final JcfSurveyService surveyService = JcfSurveyService.getInstance();
   private User me;
 
@@ -98,7 +101,7 @@ public class JavaApplication {
             editFriendMenu();
             break;
           case 3:
-            editServerMenu();
+            editGuildMenu();
             break;
           case 4:
             editDirectMessageMenu();
@@ -206,7 +209,7 @@ public class JavaApplication {
     }
   }
 
-  private void editServerMenu() {
+  private void editGuildMenu() {
     label:
     while (true) {
       System.out.println("=====***** 서버 목록 편집 메뉴*****=====");
@@ -223,22 +226,22 @@ public class JavaApplication {
         int menuNum = Integer.parseInt(sc.nextLine());
         switch (menuNum) {
           case 1:
-            showServers();
+            showGuilds();
             break;
           case 2:
-            createServer();
+            createGuild();
             break;
           case 3:
-            deleteServer();
+            deleteGuild();
             break;
           case 4:
-            joinServer();
+            joinGuild();
             break;
           case 5:
-            exitServer();
+            exitGuild();
             break;
           case 6:
-            openServer();
+            openGuild();
             break;
           case 9:
             break label;
@@ -251,7 +254,7 @@ public class JavaApplication {
     }
   }
 
-  private void serverMenu() {
+  private void guildMenu() {
     label:
     while (true) {
       System.out.println("=====***** 서버 메뉴 *****=====");
@@ -714,11 +717,11 @@ public class JavaApplication {
     }
   }
 
-  private void showServers() {
-    System.out.println(serverService.findAll());
+  private void showGuilds() {
+    System.out.println(guildService.findAll());
   }
 
-  private void createServer() {
+  private void createGuild() {
     System.out.println("\nx. 뒤로가기");
     while (true) {
       System.out.print("서버 이름: ");
@@ -748,37 +751,40 @@ public class JavaApplication {
         }
       }
 
+      Map<UUID, ChannelPermission> defaultPermissionMap = new HashMap<>();
+      defaultPermissionMap.put(me.getId(), ChannelPermission.ADMIN);
+
       List<Channel> defaultChannels =
           List.of(
-              new Channel("일반", ChannelType.CHAT, true),
-              new Channel("일반", ChannelType.VOICE, true));
+              new Channel("일반", ChannelType.CHAT, true, defaultPermissionMap),
+              new Channel("일반", ChannelType.VOICE, true, defaultPermissionMap));
 
       Set<UUID> members = new HashSet<>();
       members.add(me.getId());
 
-      Server server = new Server(isPublic, me.getId(), name, members, defaultChannels);
+      Guild guild = new Guild(isPublic, me.getId(), name, members, defaultChannels);
 
-      boolean result = serverService.createServer(server);
+      boolean result = guildService.createGuild(guild);
       if (result) {
-        System.out.println(server.getName() + " 서버가 생성되었습니다.\n");
+        System.out.println(guild.getName() + " 서버가 생성되었습니다.\n");
         return;
       }
       System.out.println("다시 시도해 주세요.\n");
     }
   }
 
-  private void deleteServer() {
-    List<Server> servers = serverService.findAll();
+  private void deleteGuild() {
+    List<Guild> guilds = guildService.findAll();
 
     System.out.println("\nx. 뒤로가기");
 
-    if (servers == null) {
+    if (guilds == null) {
       System.out.println("서버 없음");
       return;
     } else {
       System.out.println("서버 목록: ");
-      for (int i = 0; i < servers.size(); i++) {
-        System.out.println(i + 1 + ". " + servers.get(i));
+      for (int i = 0; i < guilds.size(); i++) {
+        System.out.println(i + 1 + ". " + guilds.get(i));
       }
     }
 
@@ -799,36 +805,36 @@ public class JavaApplication {
         continue;
       }
 
-      if (index < 1 || index > servers.size()) {
+      if (index < 1 || index > guilds.size()) {
         System.out.println("유효한 서버 번호를 입력해주세요.\n");
         continue;
       }
 
-      Server server = servers.get(index - 1);
+      Guild guild = guilds.get(index - 1);
 
-      if (!server.getOwnerId().equals(me.getId())) {
+      if (!guild.getOwnerId().equals(me.getId())) {
         System.out.println("삭제할 권한이 없습니다.");
         continue;
       }
 
-      serverService.deleteById(server.getId());
-      System.out.println(server.getName() + " 서버가 삭제되었습니다.");
+      guildService.deleteById(guild.getId());
+      System.out.println(guild.getName() + " 서버가 삭제되었습니다.");
       break;
     }
   }
 
-  private void joinServer() {
-    List<Server> servers = serverService.findPublicServers();
+  private void joinGuild() {
+    List<Guild> guilds = guildService.findPublicGuilds();
 
     System.out.println("\nx. 뒤로가기");
 
-    if (servers == null) {
+    if (guilds == null) {
       System.out.println("서버 없음");
       return;
     } else {
       System.out.println("서버 목록: ");
-      for (int i = 0; i < servers.size(); i++) {
-        System.out.println(i + 1 + ". " + servers.get(i));
+      for (int i = 0; i < guilds.size(); i++) {
+        System.out.println(i + 1 + ". " + guilds.get(i));
       }
     }
 
@@ -850,14 +856,14 @@ public class JavaApplication {
         continue;
       }
 
-      if (index < 1 || index > servers.size()) {
+      if (index < 1 || index > guilds.size()) {
         System.out.println("유효한 서버 번호를 입력해주세요.\n");
         continue;
       }
 
-      Server server = servers.get(index - 1);
+      Guild guild = guilds.get(index - 1);
 
-      Set<UUID> members = server.getMembers();
+      Set<UUID> members = guild.getMembers();
 
       for (UUID member : members) {
         if (member.equals(me.getId())) {
@@ -866,24 +872,24 @@ public class JavaApplication {
         }
       }
 
-      serverService.addMember(server.getId(), me.getId());
-      System.out.println(server.getName() + " 서버에 입장했습니다.");
+      guildService.addMember(guild.getId(), me.getId());
+      System.out.println(guild.getName() + " 서버에 입장했습니다.");
       break;
     }
   }
 
-  private void exitServer() {
-    List<Server> servers = serverService.findServersJoined(me.getId());
+  private void exitGuild() {
+    List<Guild> guilds = guildService.findGuildsJoined(me.getId());
 
     System.out.println("\nx. 뒤로가기");
 
-    if (servers == null) {
+    if (guilds == null) {
       System.out.println("서버 없음");
       return;
     } else {
       System.out.println("서버 목록: ");
-      for (int i = 0; i < servers.size(); i++) {
-        System.out.println(i + 1 + ". " + servers.get(i));
+      for (int i = 0; i < guilds.size(); i++) {
+        System.out.println(i + 1 + ". " + guilds.get(i));
       }
     }
 
@@ -904,32 +910,32 @@ public class JavaApplication {
         continue;
       }
 
-      if (index < 1 || index > servers.size()) {
+      if (index < 1 || index > guilds.size()) {
         System.out.println("유효한 서버 번호를 입력해주세요.\n");
         continue;
       }
 
-      Server server = servers.get(index - 1);
+      Guild guild = guilds.get(index - 1);
 
-      serverService.removeMember(server.getId(), me.getId());
+      guildService.removeMember(guild.getId(), me.getId());
 
-      System.out.println(server.getName() + " 서버에서 퇴장했습니다.\n");
+      System.out.println(guild.getName() + " 서버에서 퇴장했습니다.\n");
       break;
     }
   }
 
-  private void openServer() {
-    List<Server> servers = serverService.findServersJoined(me.getId());
+  private void openGuild() {
+    List<Guild> guilds = guildService.findGuildsJoined(me.getId());
 
     System.out.println("\nx. 뒤로가기");
 
-    if (servers == null) {
+    if (guilds == null) {
       System.out.println("서버 없음");
       return;
     } else {
       System.out.println("서버 목록: ");
-      for (int i = 0; i < servers.size(); i++) {
-        System.out.println(i + 1 + ". " + servers.get(i));
+      for (int i = 0; i < guilds.size(); i++) {
+        System.out.println(i + 1 + ". " + guilds.get(i));
       }
     }
 
@@ -950,15 +956,15 @@ public class JavaApplication {
         continue;
       }
 
-      if (index < 1 || index > servers.size()) {
+      if (index < 1 || index > guilds.size()) {
         System.out.println("유효한 서버 번호를 입력해주세요.\n");
         continue;
       }
 
-      Server server = servers.get(index - 1);
-      System.out.println(server.getName() + " 서버를 열었습니다.\n");
+      Guild guild = guilds.get(index - 1);
+      System.out.println(guild.getName() + " 서버를 열었습니다.\n");
       break;
     }
-    serverMenu();
+    guildMenu();
   }
 }
