@@ -46,14 +46,67 @@ public class Channel {
 
     public boolean isNsfw() { return nsfw; }
 
-    public void update(Channel channelDTO) {
-        this.ownerId = channelDTO.ownerId;
-        this.channelName = channelDTO.channelName;
-        this.nsfw = channelDTO.nsfw;
-        this.members.clear();
-        this.members.addAll(channelDTO.members);
-
+    public void updateModifyAt() {
         Instant now = Instant.now();
-        modifyAt = now.getEpochSecond();
+        this.modifyAt = now.getEpochSecond();
+    }
+
+    public List<User> addMembers(User user) throws NullPointerException {
+        if(user == null) {
+            throw new NullPointerException("user is null.");
+        }
+        Iterator<User> iterator = members.iterator();
+        while(iterator.hasNext()) {
+            User member = iterator.next();
+            if(member.getId().equals(user.getId())) {
+                System.out.println("[alarm] : The user already exists in the channel.");
+                return members;
+            }
+        }
+        members.add(user);
+        updateModifyAt();
+        return members;
+    }
+
+    public void update(ChannelDTO channelDTO) throws IllegalArgumentException {
+        if(this.ownerId.equals(channelDTO.getOwnerId())) {
+            System.out.println("[Alarm] : The original channel owner and the owner to be changed are the same.");
+        } else {
+            int count = 0;
+            for (User user : members) {
+                if (user.getId().equals(channelDTO.getOwnerId())) {
+                    this.ownerId = channelDTO.getOwnerId();
+                    break;
+                }
+                count++;
+            }
+            if (count == members.size()) {
+                throw new IllegalArgumentException("User does not exist in this channel.");
+            }
+        }
+        this.channelName = channelDTO.getChannelName();
+        this.nsfw = channelDTO.isNsfw();
+
+        updateModifyAt();
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Channel{");
+        sb.append("id=").append(id);
+        sb.append(", channelName='").append(channelName).append('\'');
+        sb.append(", ownerId=").append(ownerId);
+
+        sb.append(", \nmembers=[");
+//        .append(members);
+        for(User user : members){
+            sb.append("\n\t").append(user);
+        }
+        sb.append("\n],");
+        sb.append("\n nsfw=").append(nsfw);
+        sb.append(", createAt=").append(createAt);
+        sb.append(", modifyAt=").append(modifyAt);
+        sb.append('}');
+        return sb.toString();
     }
 }

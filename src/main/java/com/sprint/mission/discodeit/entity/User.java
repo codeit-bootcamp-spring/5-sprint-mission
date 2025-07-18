@@ -50,7 +50,7 @@ public class User {
 
     public String getStatus() { return status; }
 
-    public void update(User userDTO) {
+    public void update(UserDTO userDTO) {
         this.email =  userDTO.getEmail();
         this.username = userDTO.getUsername();
         this.password = userDTO.getPassword();
@@ -58,5 +58,20 @@ public class User {
 
         Instant now = Instant.now();
         modifyAt = now.getEpochSecond();
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("User{");
+        sb.append("id=").append(id);
+        sb.append(", discriminator='").append(discriminator).append('\'');
+        sb.append(", username='").append(username).append('\'');
+        sb.append(", password='").append(password).append('\'');
+        sb.append(", email='").append(email).append('\'');
+        sb.append(", status='").append(status).append('\'');
+        sb.append(", createAt=").append(createAt);
+        sb.append(", modifyAt=").append(modifyAt);
+        sb.append('}');
+        return sb.toString();
     }
 }

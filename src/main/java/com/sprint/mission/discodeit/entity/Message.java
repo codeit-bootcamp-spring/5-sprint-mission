@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class Message {
@@ -13,20 +11,18 @@ public class Message {
     private Long modifyAt;
 
     private final User author;
-    private final List<User> mentions;
     private String message;
-    private boolean tts;
+    private boolean allMentioned;
 
-    public Message(UUID channelId, String message, User author, boolean tts) {
+    public Message(UUID channelId, String message, User author, boolean allMentioned) {
         this.id = UUID.randomUUID();
         Instant now = Instant.now();
         this.createAt = now.getEpochSecond();
 
-        this.mentions = new ArrayList<>();
         this.channelId = channelId;
         this.message = message;
         this.author = author;
-        this.tts = tts;
+        this.allMentioned = allMentioned;
     }
 
     public UUID getId() {
@@ -47,15 +43,27 @@ public class Message {
 
     public User getAuthor() { return author; }
 
-    public boolean isTts() { return tts; }
+    public boolean isAllMentioned() { return allMentioned; }
 
-    public void update(Message messageDTO) {
-        this.message = messageDTO.message;
-        this.tts =  messageDTO.tts;
-        this.mentions.clear();
-        this.mentions.addAll(messageDTO.mentions);
+    public void update(MessageDTO messageDTO) {
+        this.message = messageDTO.getMessage();
+        this.allMentioned =  messageDTO.isAllMentioned();
 
         Instant now = Instant.now();
         this.modifyAt = now.getEpochSecond();
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Message{");
+        sb.append("id=").append(id);
+        sb.append(",\n message='").append(message).append('\'');
+        sb.append(",\n channelId=").append(channelId);
+        sb.append(",\n author=").append(author);
+        sb.append(",\n createAt=").append(createAt);
+        sb.append(", modifyAt=").append(modifyAt);
+        sb.append(", allMentioned=").append(allMentioned);
+        sb.append('}');
+        return sb.toString();
     }
 }
