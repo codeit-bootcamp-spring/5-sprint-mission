@@ -8,8 +8,6 @@ import java.util.UUID;
 public interface UserService extends Service<User> {
   User findByEmail(String email);
 
-  boolean emailEquals(User user, String email);
-
   User registerUser(User user);
 
   User login(String email, String password);

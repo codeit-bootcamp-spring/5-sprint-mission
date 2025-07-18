@@ -20,14 +20,17 @@ public class JcfUserService extends JcfService<User> implements UserService {
     return instance;
   }
 
-  @Override
-  public boolean idEquals(User user, UUID id) {
-    return user.getId().equals(id);
+  private User requireUser(UUID userId) {
+    User user = findById(userId);
+    if (user == null) {
+      throw new NoSuchElementException("유저를 찾을 수 없습니다: " + userId);
+    }
+    return user;
   }
 
   @Override
-  public boolean emailEquals(User user, String email) {
-    return user.getEmail().equalsIgnoreCase(email);
+  public boolean idEquals(User user, UUID id) {
+    return user.getId().equals(id);
   }
 
   @Override
@@ -37,10 +40,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public void update(UUID userId, Consumer<User> updater) {
-    User u = findById(userId);
-    if (u == null) {
-      throw new NoSuchElementException("유저를 찾을 수 없습니다: " + userId);
-    }
+    User u = requireUser(userId);
     updater.accept(u);
     u.setUpdatedAt(System.currentTimeMillis());
   }
@@ -69,12 +69,13 @@ public class JcfUserService extends JcfService<User> implements UserService {
       throw new NoSuchElementException("이메일 또는 패스워드가 일치하지 않습니다.");
     }
 
-    if (!user.isBanned()) {
-      user.setDeactivated(false);
-      user.setStatus(Status.ONLINE);
-      user.setUpdatedAt(System.currentTimeMillis());
+    if (user.isBanned()) {
+      throw new IllegalArgumentException("정지된 계정입니다.");
     }
 
+    user.setDeactivated(false);
+    user.setStatus(Status.ONLINE);
+    user.setUpdatedAt(System.currentTimeMillis());
     return user;
   }
 
@@ -91,18 +92,17 @@ public class JcfUserService extends JcfService<User> implements UserService {
   public void updateEmail(UUID userId, String email) {
     EmailValidator.validate(email);
 
-    User duplicatedUser = findByEmail(email);
-
-    if (duplicatedUser == null) {
-      update(userId, u -> u.setEmail(email));
+    User current = requireUser(userId);
+    if (current.getEmail().equalsIgnoreCase(email)) {
       return;
     }
 
-    if (!userId.equals(duplicatedUser.getId())) {
+    User duplicated = findByEmail(email);
+    if (duplicated != null) {
       throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
-    } else {
-      throw new IllegalArgumentException("같은 이메일입니다.");
     }
+
+    update(userId, u -> u.setEmail(email));
   }
 
   @Override
@@ -181,12 +181,14 @@ public class JcfUserService extends JcfService<User> implements UserService {
     if (userId.equals(friendId)) {
       throw new IllegalArgumentException("뭐야 나잖아");
     }
+    requireUser(friendId);
     update(userId, u -> u.addFriend(friendId));
     update(friendId, u -> u.addFriend(userId));
   }
 
   @Override
   public void removeFriend(UUID userId, UUID friendId) {
+    requireUser(friendId);
     update(userId, u -> u.removeFriend(friendId));
     update(friendId, u -> u.removeFriend(userId));
   }
@@ -194,11 +196,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public void clearFriends(UUID userId) {
     update(userId, User::clearFriends);
-    for (User u : data) {
-      if (u != null && u.getFriends().contains(userId)) {
-        u.removeFriend(userId);
-      }
-    }
+    data.forEach(u -> u.removeFriend(userId));
   }
 
   @Override
