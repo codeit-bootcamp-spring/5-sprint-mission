@@ -17,14 +17,14 @@ public class Guild extends AbstractBaseEntity {
   private final List<Channel> channels;
 
   public Guild(
-      boolean isPublic, UUID ownerId, String name, Set<UUID> members, List<Channel> channels) {
+      boolean isPublic, UUID ownerId, String name) {
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
     this.isPublic = isPublic;
     this.ownerId = ownerId;
     this.name = name;
-    this.members = new HashSet<>(members);
-    this.channels = new ArrayList<>(channels);
+    this.members = new HashSet<>();
+    this.channels = new ArrayList<>();
   }
 
   public long getCreatedAt() {
