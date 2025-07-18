@@ -39,7 +39,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   public void update(UUID userId, Consumer<User> updater) {
     User u = findById(userId);
     if (u == null) {
-      throw new NoSuchElementException("cannot find user with id: " + userId + " in data.");
+      throw new NoSuchElementException("User not found: " + userId);
     }
     updater.accept(u);
     u.setUpdatedAt(System.currentTimeMillis());
@@ -194,6 +194,9 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public void addFriend(UUID userId, UUID friendId) {
+    if (userId.equals(friendId)) {
+      throw new IllegalArgumentException("뭐야 나잖아");
+    }
     update(userId, u -> u.addFriend(friendId));
     update(friendId, u -> u.addFriend(userId));
   }
@@ -208,7 +211,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   public void clearFriends(UUID userId) {
     update(userId, User::clearFriends);
     for (User u : data) {
-      if (u.getFriends().contains(userId)) {
+      if (u != null && u.getFriends().contains(userId)) {
         u.removeFriend(userId);
       }
     }
