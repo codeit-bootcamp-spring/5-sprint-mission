@@ -448,7 +448,7 @@ public class JavaApplication {
       User user = userService.findByEmail(email);
 
       if (user == null) {
-        System.out.println("존재하지 않는 이메일입니다.");
+        System.out.println("등록된 회원이 없습니다.\n");
         continue;
       }
 
@@ -520,7 +520,7 @@ public class JavaApplication {
 
   private void changeUsername() {
     System.out.println("\nx. 뒤로가기");
-    String oldUsername = me.getNickname();
+    String oldUsername = me.getUsername();
     String newUsername;
 
     while (true) {
@@ -646,21 +646,6 @@ public class JavaApplication {
     me.setPhoneNumber(phoneNumber);
   }
 
-  private void showFriends() {
-    Set<UUID> friends = me.getFriends();
-    if (friends.isEmpty()) {
-      System.out.println("친구 : 없음");
-      return;
-    }
-    String result =
-        friends.stream()
-            .map(userService::findById)
-            .filter(Objects::nonNull)
-            .map(User::getEmail)
-            .collect(Collectors.joining(", "));
-    System.out.println("친구 : " + result);
-  }
-
   private void deleteAccount() {
     System.out.println("\nx. 뒤로가기");
     while (true) {
@@ -682,12 +667,27 @@ public class JavaApplication {
         case "2":
           userService.deleteById(me.getId());
           me = null;
-          System.out.println("계정이 삭제되었습니다.");
+          System.out.println("계정이 삭제되었습니다.\n");
           return;
         default:
           System.out.println("1 또는 2를 입력해주세요.");
       }
     }
+  }
+
+  private void showFriends() {
+    Set<UUID> friends = me.getFriends();
+    if (friends.isEmpty()) {
+      System.out.println("친구 : 없음");
+      return;
+    }
+    String result =
+        friends.stream()
+            .map(userService::findById)
+            .filter(Objects::nonNull)
+            .map(User::getEmail)
+            .collect(Collectors.joining(", "));
+    System.out.println("친구 : " + result);
   }
 
   private void addFriend() {
