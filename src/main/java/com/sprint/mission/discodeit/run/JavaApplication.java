@@ -31,6 +31,20 @@ public class JavaApplication {
     new JavaApplication().mainMenu();
   }
 
+  private int getMenuInput(int min, int max) {
+    while (true) {
+      try {
+        int menuNum = Integer.parseInt(sc.nextLine());
+        if (menuNum >= min && menuNum <= max) {
+          return menuNum;
+        }
+      } catch (NumberFormatException e) {
+        System.out.println("숫자를 입력해주세요.");
+      }
+      System.out.print("올바른 메뉴 번호를 입력해주세요.");
+    }
+  }
+
   private void mainMenu() {
     userService.registerUser(
         new User("a@a.aa", "1", "1111aaaa", LocalDate.of(1995, 4, 10), true, "1")); // 테스트용
@@ -47,30 +61,25 @@ public class JavaApplication {
       System.out.println("9. 종료");
       System.out.print("메뉴 번호 입력 : ");
 
-      try {
-        int menuNum = Integer.parseInt(sc.nextLine());
-        switch (menuNum) {
-          case 1:
-            register();
-            break;
-          case 2:
-            login();
-            break;
-          case 3:
-            findUserByEmail();
-            break;
-          case 4:
-            showAllUsers();
-            break;
-          case 9:
-            System.out.println("프로그램 종료");
-            sc.close();
-            return;
-          default:
-            System.out.println("다시 입력해주세요.");
-        }
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.");
+      switch (getMenuInput(1, 9)) {
+        case 1:
+          register();
+          break;
+        case 2:
+          login();
+          break;
+        case 3:
+          findUserByEmail();
+          break;
+        case 4:
+          showAllUsers();
+          break;
+        case 9:
+          System.out.println("프로그램 종료");
+          sc.close();
+          return;
+        default:
+          System.out.print("올바른 메뉴 번호를 입력해주세요.");
       }
     }
   }
@@ -87,29 +96,24 @@ public class JavaApplication {
       System.out.println("9. 로그아웃");
       System.out.print("메뉴 번호 입력 : ");
 
-      try {
-        int menuNum = Integer.parseInt(sc.nextLine());
-        switch (menuNum) {
-          case 1:
-            editProfileMenu();
-            break;
-          case 2:
-            editFriendMenu();
-            break;
-          case 3:
-            editGuildMenu();
-            break;
-          case 4:
-            editDirectMessageMenu();
-            break;
-          case 9:
-            logout();
-            break label;
-          default:
-            System.out.println("다시 입력해주세요.");
-        }
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.");
+      switch (getMenuInput(1, 9)) {
+        case 1:
+          editProfileMenu();
+          break;
+        case 2:
+          editFriendMenu();
+          break;
+        case 3:
+          editGuildMenu();
+          break;
+        case 4:
+          editDirectMessageMenu();
+          break;
+        case 9:
+          logout();
+          break label;
+        default:
+          System.out.print("올바른 메뉴 번호를 입력해주세요.");
       }
       if (me == null) {
         break;
@@ -134,43 +138,38 @@ public class JavaApplication {
       System.out.println("9. 뒤로가기");
       System.out.print("메뉴 번호 입력 : ");
 
-      try {
-        int menuNum = Integer.parseInt(sc.nextLine());
-        switch (menuNum) {
-          case 1:
-            changeEmail();
-            break;
-          case 2:
-            changeNickname();
-            break;
-          case 3:
-            changeUsername();
-            break;
-          case 4:
-            changePassword();
-            break;
-          case 5:
-            changeBirthDate();
-            break;
-          case 6:
-            changeIsSubscribedToNewsletter();
-            break;
-          case 7:
-            changePhoneNumber();
-            break;
-          case 8:
-            deleteAccount();
-            break;
-          case 9:
-            break label;
-          default:
-            System.out.println("다시 입력해주세요.");
-        }
-        if (me == null) {
+      switch (getMenuInput(1, 9)) {
+        case 1:
+          changeEmail();
           break;
-        }
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.");
+        case 2:
+          changeNickname();
+          break;
+        case 3:
+          changeUsername();
+          break;
+        case 4:
+          changePassword();
+          break;
+        case 5:
+          changeBirthDate();
+          break;
+        case 6:
+          changeIsSubscribedToNewsletter();
+          break;
+        case 7:
+          changePhoneNumber();
+          break;
+        case 8:
+          deleteAccount();
+          break;
+        case 9:
+          break label;
+        default:
+          System.out.print("올바른 메뉴 번호를 입력해주세요.");
+      }
+      if (me == null) {
+        break;
       }
     }
   }
@@ -185,22 +184,17 @@ public class JavaApplication {
       System.out.println("9. 뒤로가기");
       System.out.print("메뉴 번호 입력 : ");
 
-      try {
-        int menuNum = Integer.parseInt(sc.nextLine());
-        switch (menuNum) {
-          case 1:
-            addFriend();
-            break;
-          case 2:
-            deleteFriend();
-            break;
-          case 9:
-            break label;
-          default:
-            System.out.println("다시 입력해주세요.");
-        }
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.");
+      switch (getMenuInput(1, 9)) {
+        case 1:
+          addFriend();
+          break;
+        case 2:
+          deleteFriend();
+          break;
+        case 9:
+          break label;
+        default:
+          System.out.print("올바른 메뉴 번호를 입력해주세요.");
       }
     }
   }
@@ -218,34 +212,29 @@ public class JavaApplication {
       System.out.println("9. 뒤로가기");
       System.out.print("메뉴 번호 입력 : ");
 
-      try {
-        int menuNum = Integer.parseInt(sc.nextLine());
-        switch (menuNum) {
-          case 1:
-            showGuilds();
-            break;
-          case 2:
-            createGuild();
-            break;
-          case 3:
-            deleteGuild();
-            break;
-          case 4:
-            joinGuild();
-            break;
-          case 5:
-            exitGuild();
-            break;
-          case 6:
-            openGuild();
-            break;
-          case 9:
-            break label;
-          default:
-            System.out.println("다시 입력해주세요.");
-        }
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.");
+      switch (getMenuInput(1, 9)) {
+        case 1:
+          showGuilds();
+          break;
+        case 2:
+          createGuild();
+          break;
+        case 3:
+          deleteGuild();
+          break;
+        case 4:
+          joinGuild();
+          break;
+        case 5:
+          exitGuild();
+          break;
+        case 6:
+          openGuild();
+          break;
+        case 9:
+          break label;
+        default:
+          System.out.print("올바른 메뉴 번호를 입력해주세요.");
       }
     }
   }
@@ -265,19 +254,13 @@ public class JavaApplication {
       System.out.println("9. 뒤로가기");
       System.out.print("메뉴 번호 입력: ");
 
-      try {
-        int menuNum = Integer.parseInt(sc.nextLine());
-
-        switch (menuNum) {
-          case 1:
-            continue;
-          case 9:
-            break label;
-          default:
-            System.out.println("다시 입력해주세요.");
-        }
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.");
+      switch (getMenuInput(1, 9)) {
+        case 1:
+          continue;
+        case 9:
+          break label;
+        default:
+          System.out.print("올바른 메뉴 번호를 입력해주세요.");
       }
     }
   }
@@ -293,24 +276,19 @@ public class JavaApplication {
       System.out.println("9. 뒤로가기");
       System.out.print("메뉴 번호 입력: ");
 
-      try {
-        int menuNum = Integer.parseInt(sc.nextLine());
-
-        switch (menuNum) {
-          case 1:
-            continue;
-          case 9:
-            break label;
-          default:
-            System.out.println("다시 입력해주세요.");
-        }
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.");
+      switch (getMenuInput(1, 9)) {
+        case 1:
+          continue;
+        case 9:
+          break label;
+        default:
+          System.out.print("올바른 메뉴 번호를 입력해주세요.");
       }
     }
   }
 
   private void register() {
+    System.out.println();
     String email;
     String emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     while (true) {
@@ -336,7 +314,7 @@ public class JavaApplication {
       if (!username.isEmpty()) {
         break;
       }
-      System.out.println("사용자명은 필수입니다.\n");
+      System.out.println("사용자명은 필수입니다.");
     }
 
     String password;
@@ -380,7 +358,7 @@ public class JavaApplication {
         isSubscribedToNewsletter = false;
         break;
       } else {
-        System.out.println("y 또는 n을 입력해주세요.\n");
+        System.out.println("y 또는 n을 입력해주세요.");
       }
     }
 
@@ -388,9 +366,9 @@ public class JavaApplication {
         userService.registerUser(
             new User(email, username, password, birthDate, isSubscribedToNewsletter, nickname));
     if (user != null) {
-      System.out.println("성공적으로 회원가입을 완료하였습니다.");
+      System.out.println("성공적으로 회원가입을 완료하였습니다.\n");
     } else {
-      System.out.println("다시 시도해 주세요.");
+      System.out.println("다시 시도해 주세요.\n");
     }
   }
 
