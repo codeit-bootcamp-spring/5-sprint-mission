@@ -27,12 +27,12 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public boolean emailEquals(User user, String email) {
-    return user.getEmail().equals(email);
+    return user.getEmail().equalsIgnoreCase(email);
   }
 
   @Override
   public User findByEmail(String email) {
-    return data.stream().filter(u -> u.getEmail().equals(email)).findFirst().orElse(null);
+    return data.stream().filter(u -> u.getEmail().equalsIgnoreCase(email)).findFirst().orElse(null);
   }
 
   @Override
@@ -61,7 +61,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   public User login(String email, String password) {
     User user =
         data.stream()
-            .filter(u -> u.getEmail().equals(email) && u.getPassword().equals(password))
+            .filter(u -> u.getEmail().equalsIgnoreCase(email) && u.getPassword().equals(password))
             .findFirst()
             .orElse(null);
 

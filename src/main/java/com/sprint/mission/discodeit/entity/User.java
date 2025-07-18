@@ -16,8 +16,8 @@ public class User extends AbstractBaseEntity {
   private String password;
   private LocalDate birthDate;
   private boolean isSubscribedToNewsletter;
-  private String phoneNumber;
   private Status status;
+  private String phoneNumber;
   private String avatarUrl;
   private String bio;
   private boolean isVerified;
@@ -37,17 +37,21 @@ public class User extends AbstractBaseEntity {
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
 
-    this.email = email;
-    this.username = username;
-    this.password = password;
+    this.email = email == null ? "" : email.toLowerCase();
+    this.username = username == null ? "" : username;
+    this.password = password == null ? "" : password;
     this.birthDate = birthDate;
     this.isSubscribedToNewsletter = isSubscribedToNewsletter;
-    this.nickname = nickname;
+    this.nickname = nickname == null ? "" : nickname;
+
+    this.status = Status.OFFLINE;
+    this.phoneNumber = "";
+    this.avatarUrl = "";
+    this.bio = "";
 
     this.friends = new HashSet<>();
     this.guilds = new HashSet<>();
     this.chatRooms = new HashSet<>();
-    this.status = Status.OFFLINE;
   }
 
   public long getCreatedAt() {
@@ -73,7 +77,7 @@ public class User extends AbstractBaseEntity {
 
   public void setEmail(String email) {
     if (email != null) {
-      this.email = email;
+      this.email = email.toLowerCase();
     }
   }
 
@@ -134,21 +138,6 @@ public class User extends AbstractBaseEntity {
     isSubscribedToNewsletter = subscribedToNewsletter;
   }
 
-  public String getPhoneNumber() {
-    if (phoneNumber == null) {
-      return "";
-    }
-    return phoneNumber;
-  }
-
-  public void setPhoneNumber(String phoneNumber) {
-    if (phoneNumber == null) {
-      this.phoneNumber = "";
-      return;
-    }
-    this.phoneNumber = phoneNumber;
-  }
-
   public Status getStatus() {
     if (status == null) {
       return Status.OFFLINE;
@@ -162,6 +151,21 @@ public class User extends AbstractBaseEntity {
       return;
     }
     this.status = status;
+  }
+
+  public String getPhoneNumber() {
+    if (phoneNumber == null) {
+      return "";
+    }
+    return phoneNumber;
+  }
+
+  public void setPhoneNumber(String phoneNumber) {
+    if (phoneNumber == null) {
+      this.phoneNumber = "";
+      return;
+    }
+    this.phoneNumber = phoneNumber;
   }
 
   public String getAvatarUrl() {

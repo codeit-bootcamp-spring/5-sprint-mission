@@ -305,7 +305,7 @@ public class JavaApplication {
         System.out.println("잘못된 형식입니다. 다시 입력해주세요.\n");
         continue;
       }
-      User user = userService.findByEmail(email);
+      User user = userService.findByEmail(email.toLowerCase());
       if (user == null) {
         break;
       }
@@ -371,7 +371,13 @@ public class JavaApplication {
 
     User user =
         userService.registerUser(
-            new User(email, username, password, birthDate, isSubscribedToNewsletter, nickname));
+            new User(
+                email.toLowerCase(),
+                username,
+                password,
+                birthDate,
+                isSubscribedToNewsletter,
+                nickname));
     if (user != null) {
       System.out.println("성공적으로 회원가입을 완료하였습니다.\n");
     } else {
@@ -385,7 +391,7 @@ public class JavaApplication {
     while (true) {
       System.out.print("이메일 : ");
       String email = sc.nextLine().strip();
-      if (email.equals("x")) {
+      if (email.equalsIgnoreCase("x")) {
         return;
       }
 
@@ -398,7 +404,7 @@ public class JavaApplication {
 
       System.out.print("비밀번호 : ");
       String password = sc.nextLine().strip();
-      if (password.equals("x")) {
+      if (password.equalsIgnoreCase("x")) {
         return;
       }
 
@@ -409,7 +415,7 @@ public class JavaApplication {
         continue;
       }
 
-      User user = userService.login(email, password);
+      User user = userService.login(email.toLowerCase(), password);
 
       if (user == null) {
         System.out.println("이메일 또는 비밀번호가 잘못되었습니다.");
@@ -441,11 +447,11 @@ public class JavaApplication {
       showAllUsers();
       System.out.print("밴할 유저의 이메일: ");
       String email = sc.nextLine().strip();
-      if (email.equals("x")) {
+      if (email.equalsIgnoreCase("x")) {
         return;
       }
 
-      User user = userService.findByEmail(email);
+      User user = userService.findByEmail(email.toLowerCase());
 
       if (user == null) {
         System.out.println("등록된 회원이 없습니다.\n");
@@ -460,7 +466,7 @@ public class JavaApplication {
     System.out.print("이메일 : ");
     String email = sc.nextLine().strip();
 
-    User user = userService.findByEmail(email);
+    User user = userService.findByEmail(email.toLowerCase());
     if (user == null) {
       System.out.println("등록된 회원이 없습니다.\n");
     } else {
@@ -483,7 +489,7 @@ public class JavaApplication {
       System.out.print("변경할 이메일: ");
       String email = sc.nextLine().strip();
 
-      if (email.equals("x")) {
+      if (email.equalsIgnoreCase("x")) {
         return;
       }
       if (!email.matches(emailPattern)) {
@@ -494,7 +500,7 @@ public class JavaApplication {
         System.out.println("같은 이메일입니다.");
         continue;
       }
-      User duplicatedUser = userService.findByEmail(email);
+      User duplicatedUser = userService.findByEmail(email.toLowerCase());
       if (duplicatedUser != null) {
         System.out.println("중복된 이메일입니다. 다시 입력해주세요.");
         continue;
@@ -510,7 +516,7 @@ public class JavaApplication {
     System.out.println("현재 별명: " + me.getNickname());
     System.out.print("변경할 별명: ");
     String nickname = sc.nextLine().strip();
-    if (nickname.equals("x")) {
+    if (nickname.equalsIgnoreCase("x")) {
       return;
     }
 
@@ -546,7 +552,7 @@ public class JavaApplication {
       System.out.print("변경할 비밀번호: ");
       String password = sc.nextLine().strip();
 
-      if (password.equals("x")) {
+      if (password.equalsIgnoreCase("x")) {
         return;
       }
       if (!password.matches(passwordPattern)) {
@@ -574,21 +580,21 @@ public class JavaApplication {
         System.out.println("변경할 생년월일");
         System.out.print("년: ");
         String yearStr = sc.nextLine();
-        if (yearStr.equals("x")) {
+        if (yearStr.equalsIgnoreCase("x")) {
           return;
         }
         final int year = Integer.parseInt(yearStr);
 
         System.out.print("월: ");
         String monthStr = sc.nextLine();
-        if (monthStr.equals("x")) {
+        if (monthStr.equalsIgnoreCase("x")) {
           return;
         }
         int month = Integer.parseInt(monthStr);
 
         System.out.print("일: ");
         String dayStr = sc.nextLine();
-        if (dayStr.equals("x")) {
+        if (dayStr.equalsIgnoreCase("x")) {
           return;
         }
         int day = Integer.parseInt(dayStr);
@@ -639,7 +645,7 @@ public class JavaApplication {
     System.out.println("현재 휴대폰 번호: " + me.getPhoneNumber());
     System.out.print("변경할 휴대폰 번호 : ");
     String phoneNumber = sc.nextLine();
-    if (phoneNumber.equals("x")) {
+    if (phoneNumber.equalsIgnoreCase("x")) {
       return;
     }
     userService.updatePhoneNumber(me.getId(), phoneNumber);
@@ -653,7 +659,7 @@ public class JavaApplication {
       System.out.println("2. 계정 삭제");
       String indexStr = sc.nextLine().strip();
 
-      if (indexStr.equals("x")) {
+      if (indexStr.equalsIgnoreCase("x")) {
         return;
       }
 
@@ -697,11 +703,11 @@ public class JavaApplication {
       System.out.print("추가할 친구의 이메일: ");
       String email = sc.nextLine().strip();
 
-      if (email.equals("x")) {
+      if (email.equalsIgnoreCase("x")) {
         return;
       }
 
-      User friend = userService.findByEmail(email);
+      User friend = userService.findByEmail(email.toLowerCase());
 
       if (friend == null) {
         System.out.println("존재하지 않는 이메일입니다.");
@@ -726,11 +732,11 @@ public class JavaApplication {
       System.out.print("삭제할 친구의 이메일: ");
       String email = sc.nextLine().strip();
 
-      if (email.equals("x")) {
+      if (email.equalsIgnoreCase("x")) {
         return;
       }
 
-      User friendToDelete = userService.findByEmail(email);
+      User friendToDelete = userService.findByEmail(email.toLowerCase());
       if (friendToDelete == null) {
         System.out.println("존재하지 않는 친구입니다.");
         continue;
@@ -750,7 +756,7 @@ public class JavaApplication {
       System.out.print("서버 이름: ");
       String name = sc.nextLine();
 
-      if (name.equals("x")) {
+      if (name.equalsIgnoreCase("x")) {
         return;
       }
 
@@ -808,7 +814,7 @@ public class JavaApplication {
       System.out.print("삭제할 서버 번호: ");
       String indexStr = sc.nextLine().strip();
 
-      if (indexStr.equals("x")) {
+      if (indexStr.equalsIgnoreCase("x")) {
         return;
       }
 
@@ -859,7 +865,7 @@ public class JavaApplication {
       System.out.print("들어갈 서버 번호: ");
       String indexStr = sc.nextLine().strip();
 
-      if (indexStr.equals("x")) {
+      if (indexStr.equalsIgnoreCase("x")) {
         return;
       }
 
@@ -913,7 +919,7 @@ public class JavaApplication {
       System.out.print("나갈 서버 번호: ");
       String indexStr = sc.nextLine().strip();
 
-      if (indexStr.equals("x")) {
+      if (indexStr.equalsIgnoreCase("x")) {
         return;
       }
 
@@ -959,7 +965,7 @@ public class JavaApplication {
       System.out.print("열 서버 번호: ");
       String indexStr = sc.nextLine().strip();
 
-      if (indexStr.equals("x")) {
+      if (indexStr.equalsIgnoreCase("x")) {
         return;
       }
 
