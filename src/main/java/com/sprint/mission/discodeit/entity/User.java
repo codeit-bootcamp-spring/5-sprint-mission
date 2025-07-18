@@ -4,32 +4,24 @@ import java.util.UUID;
 
 public class User {
     private final UUID id;
-    private final long createdAt;
-    private long updatedAt;
-    private String name;
+    private final Long createdAt;
+    private Long updatedAt;
     private String username;
-    private String password;
 
-    public User(String name, String username, String password) {
+    public User(String username) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
-        this.updatedAt = this.createdAt;
-        this.name = name;
         this.username = username;
-        this.password = password;
+        this.updatedAt = this.createdAt;
     }
 
     public UUID getId() { return id; }
-    public long getCreatedAt() { return createdAt; }
-    public long getUpdatedAt() { return updatedAt; }
-    public String getName() { return name; }
+    public Long getCreatedAt() { return createdAt; }
+    public Long getUpdatedAt() { return updatedAt; }
     public String getUsername() { return username; }
-    public String getPassword() { return password; }
 
-    public void update(String name, String username, String password) {
-        this.name = name;
+    public void update(String username) {
         this.username = username;
-        this.password = password;
         this.updatedAt = System.currentTimeMillis();
     }
 }
