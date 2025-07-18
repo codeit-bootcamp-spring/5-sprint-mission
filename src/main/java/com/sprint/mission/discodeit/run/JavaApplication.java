@@ -9,6 +9,8 @@ import com.sprint.mission.discodeit.service.jcf.JcfGuildService;
 import com.sprint.mission.discodeit.service.jcf.JcfMessageService;
 import com.sprint.mission.discodeit.service.jcf.JcfSurveyService;
 import com.sprint.mission.discodeit.service.jcf.JcfUserService;
+import com.sprint.mission.discodeit.validation.EmailValidator;
+import com.sprint.mission.discodeit.validation.PasswordValidator;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.List;
@@ -111,6 +113,7 @@ public class JavaApplication {
           break;
         case 9:
           logout();
+          System.out.println("로그아웃 되었습니다.");
           break label;
         default:
           System.out.print("올바른 메뉴 번호를 입력해주세요.");
@@ -382,17 +385,38 @@ public class JavaApplication {
         return;
       }
 
+      try {
+        EmailValidator.validate(email);
+      } catch (IllegalArgumentException e) {
+        System.out.println(e.getMessage());
+        continue;
+      }
+
       System.out.print("비밀번호 : ");
       String password = sc.nextLine().strip();
       if (password.equals("x")) {
         return;
       }
 
-      User user = userService.login(email, password);
-      if (user == null) {
-        System.out.println("다시 입력해 주세요.");
+      try {
+        PasswordValidator.validate(password);
+      } catch (IllegalArgumentException e) {
+        System.out.println(e.getMessage());
         continue;
       }
+
+      User user = userService.login(email, password);
+
+      if (user == null) {
+        System.out.println("이메일 또는 비밀번호가 잘못되었습니다.");
+        continue;
+      }
+
+      if (user.isBanned()) {
+        System.out.println("정지된 계정입니다.");
+        continue;
+      }
+
       me = user;
       System.out.println(user.getUsername() + "님, 환영합니다!");
       break;
@@ -628,7 +652,7 @@ public class JavaApplication {
           userService.updateDeactivated(me.getId(), true);
           me.setDeactivated(true);
           logout();
-          System.out.println("계정이 비활성화되었습니다. 로그인 시 계정이 활성화됩니다.");
+          System.out.println("계정이 비활성화되었습니다. 로그인 시 계정이 활성화됩니다.\n");
           return;
         case "2":
           userService.deleteById(me.getId());
