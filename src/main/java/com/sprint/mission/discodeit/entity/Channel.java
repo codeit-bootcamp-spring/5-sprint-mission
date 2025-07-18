@@ -81,7 +81,7 @@ public class Channel {
                 count++;
             }
             if (count == members.size()) {
-                throw new IllegalArgumentException("User does not exist in this channel.");
+                throw new IllegalArgumentException("[Alarm] : User does not exist in this channel.");
             }
         }
         this.channelName = channelDTO.getChannelName();
