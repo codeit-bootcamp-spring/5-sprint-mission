@@ -93,25 +93,26 @@ public class Survey extends AbstractBaseEntity {
     return Collections.unmodifiableList(voters);
   }
 
-  public boolean vote(int answerIndex, UUID voterId, boolean isUnvoted) {
+  public void vote(int answerIndex, UUID voterId, boolean isUnvoted) {
     if (isInvalidAnswersIndex(answerIndex)) {
-      return false;
+      throw new IllegalArgumentException("Invalid answer index: " + answerIndex);
     }
     Set<UUID> voterSet = voters.get(answerIndex);
     if (isUnvoted) {
       if (voterSet.remove(voterId)) {
         voteCounts.set(answerIndex, voteCounts.get(answerIndex) - 1);
       } else {
-        return false;
+        throw new IllegalArgumentException(
+            "Voter " + voterId + " has not voted for answer " + answerIndex);
       }
     } else {
       if (voterSet.add(voterId)) {
         voteCounts.set(answerIndex, voteCounts.get(answerIndex) + 1);
       } else {
-        return false;
+        throw new IllegalArgumentException(
+            "Voter " + voterId + " has already voted for answer " + answerIndex);
       }
     }
-    return false;
   }
 
   @Override
