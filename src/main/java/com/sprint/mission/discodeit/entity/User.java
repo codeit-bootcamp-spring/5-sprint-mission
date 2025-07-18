@@ -59,39 +59,63 @@ public class User extends AbstractBaseEntity {
   }
 
   public void setUpdatedAt(long updatedAt) {
-    this.updatedAt = updatedAt;
+    if (this.updatedAt < updatedAt) {
+      this.updatedAt = updatedAt;
+    }
   }
 
   public String getEmail() {
+    if (email == null) {
+      return "";
+    }
     return email;
   }
 
   public void setEmail(String email) {
-    this.email = email;
+    if (email != null) {
+      this.email = email;
+    }
   }
 
   public String getNickname() {
+    if (nickname == null) {
+      return "";
+    }
     return nickname;
   }
 
   public void setNickname(String nickname) {
+    if (nickname == null) {
+      this.nickname = "";
+      return;
+    }
     this.nickname = nickname;
   }
 
   public String getUsername() {
+    if (username == null) {
+      return "";
+    }
     return username;
   }
 
   public void setUsername(String username) {
-    this.username = username;
+    if (username != null) {
+      this.username = username;
+    }
   }
 
   public String getPassword() {
+    if (password == null) {
+      return "";
+    }
     return password;
   }
 
   public void setPassword(String password) {
-    this.password = password;
+    if (password != null) {
+      this.password = password;
+    }
   }
 
   public LocalDate getBirthDate() {
@@ -111,11 +135,87 @@ public class User extends AbstractBaseEntity {
   }
 
   public String getPhoneNumber() {
+    if (phoneNumber == null) {
+      return "";
+    }
     return phoneNumber;
   }
 
   public void setPhoneNumber(String phoneNumber) {
+    if (phoneNumber == null) {
+      this.phoneNumber = "";
+      return;
+    }
     this.phoneNumber = phoneNumber;
+  }
+
+  public Status getStatus() {
+    if (status == null) {
+      return Status.OFFLINE;
+    }
+    return status;
+  }
+
+  public void setStatus(Status status) {
+    if (status == null) {
+      this.status = Status.OFFLINE;
+      return;
+    }
+    this.status = status;
+  }
+
+  public String getAvatarUrl() {
+    if (avatarUrl == null) {
+      return "";
+    }
+    return avatarUrl;
+  }
+
+  public void setAvatarUrl(String avatarUrl) {
+    if (avatarUrl == null) {
+      this.avatarUrl = "";
+      return;
+    }
+    this.avatarUrl = avatarUrl;
+  }
+
+  public String getBio() {
+    if (bio == null) {
+      return "";
+    }
+    return bio;
+  }
+
+  public void setBio(String bio) {
+    if (bio == null) {
+      this.bio = "";
+      return;
+    }
+    this.bio = bio;
+  }
+
+  public boolean isVerified() {
+    return isVerified;
+  }
+
+  public void setVerified(boolean verified) {
+    isVerified = verified;
+  }
+
+  public boolean isDeactivated() {
+    return isDeactivated;
+  }
+
+  public void setDeactivated(boolean deactivated) {
+    isDeactivated = deactivated;
+  }
+
+  public boolean isBanned() {
+    return isBanned;
+  }
+
+  public void setBanned(boolean banned) {
+    isBanned = banned;
   }
 
   public Set<UUID> getFriends() {
@@ -164,54 +264,6 @@ public class User extends AbstractBaseEntity {
 
   public void clearChatRooms() {
     chatRooms.clear();
-  }
-
-  public Status getStatus() {
-    return status;
-  }
-
-  public void setStatus(Status status) {
-    this.status = status;
-  }
-
-  public String getAvatarUrl() {
-    return avatarUrl;
-  }
-
-  public void setAvatarUrl(String avatarUrl) {
-    this.avatarUrl = avatarUrl;
-  }
-
-  public String getBio() {
-    return bio;
-  }
-
-  public void setBio(String bio) {
-    this.bio = bio;
-  }
-
-  public boolean isVerified() {
-    return isVerified;
-  }
-
-  public void setVerified(boolean verified) {
-    isVerified = verified;
-  }
-
-  public boolean isDeactivated() {
-    return isDeactivated;
-  }
-
-  public void setDeactivated(boolean deactivated) {
-    isDeactivated = deactivated;
-  }
-
-  public boolean isBanned() {
-    return isBanned;
-  }
-
-  public void setBanned(boolean banned) {
-    isBanned = banned;
   }
 
   @Override
