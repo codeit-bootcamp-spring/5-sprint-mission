@@ -60,6 +60,7 @@ public class JavaApplication {
       System.out.println("2. 로그인");
       System.out.println("3. 이메일로 회원 조회");
       System.out.println("4. 모든 회원 조회");
+      System.out.println("5. 유저 밴 하기");
       System.out.println("9. 종료");
       System.out.print("메뉴 번호 입력 : ");
 
@@ -75,6 +76,9 @@ public class JavaApplication {
           break;
         case 4:
           showAllUsers();
+          break;
+        case 5:
+          banUser();
           break;
         case 9:
           System.out.println("프로그램 종료");
@@ -429,6 +433,27 @@ public class JavaApplication {
       userService.logout(me.getId());
     }
     me = null;
+  }
+
+  private void banUser() {
+    System.out.println("\nx. 뒤로가기");
+    while (true) {
+      showAllUsers();
+      System.out.print("밴할 유저의 이메일: ");
+      String email = sc.nextLine().strip();
+      if (email.equals("x")) {
+        return;
+      }
+
+      User user = userService.findByEmail(email);
+
+      if (user == null) {
+        System.out.println("존재하지 않는 이메일입니다.");
+        continue;
+      }
+
+      userService.updateBanned(user.getId(), true);
+    }
   }
 
   private void findUserByEmail() {
