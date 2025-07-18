@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.validation.EmailValidator;
 import com.sprint.mission.discodeit.validation.RegisterUserValidator;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -45,7 +46,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   public User registerUser(User user) {
     try {
       RegisterUserValidator.validate(user);
-    } catch (Exception e) {
+    } catch (IllegalArgumentException e) {
       System.out.println(e.getMessage());
       return null;
     }
@@ -88,6 +89,23 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public void updateEmail(UUID userId, String email) {
+    try {
+      EmailValidator.validate(email);
+    } catch (IllegalArgumentException e) {
+      System.out.println(e.getMessage());
+      return;
+    }
+
+    User duplicatedUser = findByEmail(email);
+
+    if (duplicatedUser != null) {
+      if (!duplicatedUser.getId().equals(userId)) {
+        System.out.println("중복된 이메일입니다. 다시 입력해주세요.");
+      } else {
+        System.out.println("같은 이메일입니다.");
+      }
+    }
+
     update(userId, u -> u.setEmail(email));
   }
 
