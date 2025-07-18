@@ -65,7 +65,11 @@ public class JcfUserService extends JcfService<User> implements UserService {
             .filter(u -> u.getEmail().equals(email) && u.getPassword().equals(password))
             .findFirst()
             .orElse(null);
+
     if (user != null) {
+      if (user.isBanned()) {
+        return user;
+      }
       user.setDeactivated(false);
       user.setStatus(Status.ONLINE);
       user.setUpdatedAt(System.currentTimeMillis());
