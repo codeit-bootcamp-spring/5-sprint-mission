@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.validation.EmailValidator;
+import com.sprint.mission.discodeit.validation.PasswordValidator;
 import com.sprint.mission.discodeit.validation.RegisterUserValidator;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -116,16 +117,32 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public void updateUsername(UUID userId, String username) {
+    if (username == null || username.isBlank()) {
+      System.out.println("사용자명은 필수입니다.");
+      return;
+    }
+
     update(userId, u -> u.setUsername(username));
   }
 
   @Override
   public void updatePassword(UUID userId, String password) {
+    try {
+      PasswordValidator.validate(password);
+    } catch (IllegalArgumentException e) {
+      System.out.println(e.getMessage());
+      return;
+    }
+
     update(userId, u -> u.setPassword(password));
   }
 
   @Override
   public void updateBirthDate(UUID userId, LocalDate birthDate) {
+    if (birthDate == null) {
+      System.out.println("생년월일은 필수입니다.");
+      return;
+    }
     update(userId, u -> u.setBirthDate(birthDate));
   }
 
@@ -141,6 +158,10 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public void updateStatus(UUID userId, Status status) {
+    if (status == null) {
+      System.out.println("상태는 필수입니다.");
+      return;
+    }
     update(userId, u -> u.setStatus(status));
   }
 
