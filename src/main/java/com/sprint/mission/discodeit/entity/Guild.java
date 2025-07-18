@@ -8,8 +8,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Guild extends AbstractBaseEntity {
-  private final long createdAt;
-  private long updatedAt;
   private boolean isPublic;
   private UUID ownerId;
   private String name;
@@ -17,28 +15,11 @@ public class Guild extends AbstractBaseEntity {
   private final List<Channel> channels;
 
   public Guild(boolean isPublic, UUID ownerId, String name) {
-    this.createdAt = System.currentTimeMillis();
-    this.updatedAt = this.createdAt;
-
     this.isPublic = isPublic;
     this.ownerId = ownerId;
     this.name = name == null ? "" : name.strip();
     this.members = new HashSet<>();
     this.channels = new ArrayList<>();
-  }
-
-  public long getCreatedAt() {
-    return createdAt;
-  }
-
-  public long getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(long updatedAt) {
-    if (this.updatedAt < updatedAt) {
-      this.updatedAt = updatedAt;
-    }
   }
 
   public String getName() {
@@ -110,11 +91,11 @@ public class Guild extends AbstractBaseEntity {
   public String toString() {
     return "Guild{"
         + "id="
-        + this.getId()
+        + getId()
         + ", createdAt="
-        + createdAt
+        + getCreatedAt()
         + ", updatedAt="
-        + updatedAt
+        + getUpdatedAt()
         + ", isPublic="
         + isPublic
         + ", ownerId="

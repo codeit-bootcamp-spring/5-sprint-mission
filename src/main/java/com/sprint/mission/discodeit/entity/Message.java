@@ -6,36 +6,20 @@ import java.util.List;
 import java.util.UUID;
 
 public class Message extends AbstractBaseEntity {
-  private final long createdAt;
   private final User sender;
   private final User receiver;
   private final List<UUID> replies;
-  private long updatedAt;
   private String content;
   private List<File> files;
   private Survey survey;
 
   public Message(User sender, User receiver, String content, List<File> files, Survey survey) {
-    this.createdAt = System.currentTimeMillis();
-    this.updatedAt = this.createdAt;
     this.sender = sender;
     this.receiver = receiver;
     this.content = content;
     this.files = files;
     this.survey = survey;
     this.replies = new ArrayList<>();
-  }
-
-  public long getCreatedAt() {
-    return createdAt;
-  }
-
-  public long getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(long updatedAt) {
-    this.updatedAt = updatedAt;
   }
 
   public User getSender() {
@@ -90,17 +74,17 @@ public class Message extends AbstractBaseEntity {
   public String toString() {
     return "Message{"
         + "id="
-        + this.getId()
+        + getId()
         + ", createdAt="
-        + createdAt
+        + getCreatedAt()
+        + ", updatedAt="
+        + getUpdatedAt()
         + ", sender="
         + sender
         + ", receiver="
         + receiver
         + ", replies="
         + replies
-        + ", updatedAt="
-        + updatedAt
         + ", content='"
         + content
         + '\''

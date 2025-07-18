@@ -2,124 +2,76 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.enums.user.Status;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class User extends AbstractBaseEntity {
-  private final long createdAt;
-  private long updatedAt;
   private String email;
   private String nickname;
   private String username;
   private String password;
   private LocalDate birthDate;
-  private boolean isSubscribedToNewsletter;
+  private boolean subscribedToNewsletter;
   private Status status;
   private String phoneNumber;
   private String avatarUrl;
   private String bio;
-  private boolean isVerified;
-  private boolean isDeactivated;
-  private boolean isBanned;
-  private final Set<UUID> friends;
-  private final Set<UUID> guilds;
-  private final Set<UUID> chatRooms;
+  private boolean verified;
+  private boolean deactivated;
+  private boolean banned;
+
+  private final Set<UUID> friends = new HashSet<>();
+  private final Set<UUID> guilds = new HashSet<>();
+  private final Set<UUID> chatRooms = new HashSet<>();
 
   public User(
       String email,
       String username,
       String password,
       LocalDate birthDate,
-      boolean isSubscribedToNewsletter,
+      boolean subscribedToNewsletter,
       String nickname) {
-    this.createdAt = System.currentTimeMillis();
-    this.updatedAt = this.createdAt;
-
-    this.email = email == null ? "" : email.toLowerCase();
-    this.username = username == null ? "" : username.strip();
-    this.password = password == null ? "" : password.strip();
+    this.email = optionalString(email).toLowerCase();
+    this.username = optionalString(username);
+    this.password = optionalString(password);
     this.birthDate = birthDate;
-    this.isSubscribedToNewsletter = isSubscribedToNewsletter;
-    this.nickname = nickname == null ? "" : nickname.strip();
-
+    this.subscribedToNewsletter = subscribedToNewsletter;
+    this.nickname = optionalString(nickname);
     this.status = Status.OFFLINE;
     this.phoneNumber = "";
     this.avatarUrl = "";
     this.bio = "";
-
-    this.friends = new HashSet<>();
-    this.guilds = new HashSet<>();
-    this.chatRooms = new HashSet<>();
-  }
-
-  public long getCreatedAt() {
-    return createdAt;
-  }
-
-  public long getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(long updatedAt) {
-    if (this.updatedAt < updatedAt) {
-      this.updatedAt = updatedAt;
-    }
   }
 
   public String getEmail() {
-    if (email == null) {
-      return "";
-    }
     return email;
   }
 
   public void setEmail(String email) {
-    if (email != null) {
-      this.email = email.toLowerCase();
-    }
+    this.email = optionalString(email).toLowerCase();
   }
 
   public String getNickname() {
-    if (nickname == null) {
-      return "";
-    }
     return nickname;
   }
 
   public void setNickname(String nickname) {
-    if (nickname == null) {
-      this.nickname = "";
-      return;
-    }
-    this.nickname = nickname;
+    this.nickname = optionalString(nickname);
   }
 
   public String getUsername() {
-    if (username == null) {
-      return "";
-    }
     return username;
   }
 
   public void setUsername(String username) {
-    if (username != null) {
-      this.username = username;
-    }
+    this.username = optionalString(username);
   }
 
   public String getPassword() {
-    if (password == null) {
-      return "";
-    }
     return password;
   }
 
   public void setPassword(String password) {
-    if (password != null) {
-      this.password = password;
-    }
+    this.password = optionalString(password);
   }
 
   public LocalDate getBirthDate() {
@@ -131,107 +83,79 @@ public class User extends AbstractBaseEntity {
   }
 
   public boolean isSubscribedToNewsletter() {
-    return isSubscribedToNewsletter;
+    return subscribedToNewsletter;
   }
 
   public void setSubscribedToNewsletter(boolean subscribedToNewsletter) {
-    isSubscribedToNewsletter = subscribedToNewsletter;
+    this.subscribedToNewsletter = subscribedToNewsletter;
   }
 
   public Status getStatus() {
-    if (status == null) {
-      return Status.OFFLINE;
-    }
     return status;
   }
 
   public void setStatus(Status status) {
-    if (status == null) {
-      this.status = Status.OFFLINE;
-      return;
-    }
-    this.status = status;
+    this.status = status != null ? status : Status.OFFLINE;
   }
 
   public String getPhoneNumber() {
-    if (phoneNumber == null) {
-      return "";
-    }
     return phoneNumber;
   }
 
   public void setPhoneNumber(String phoneNumber) {
-    if (phoneNumber == null) {
-      this.phoneNumber = "";
-      return;
-    }
-    this.phoneNumber = phoneNumber;
+    this.phoneNumber = optionalString(phoneNumber);
   }
 
   public String getAvatarUrl() {
-    if (avatarUrl == null) {
-      return "";
-    }
     return avatarUrl;
   }
 
   public void setAvatarUrl(String avatarUrl) {
-    if (avatarUrl == null) {
-      this.avatarUrl = "";
-      return;
-    }
-    this.avatarUrl = avatarUrl;
+    this.avatarUrl = optionalString(avatarUrl);
   }
 
   public String getBio() {
-    if (bio == null) {
-      return "";
-    }
     return bio;
   }
 
   public void setBio(String bio) {
-    if (bio == null) {
-      this.bio = "";
-      return;
-    }
-    this.bio = bio;
+    this.bio = optionalString(bio);
   }
 
   public boolean isVerified() {
-    return isVerified;
+    return verified;
   }
 
   public void setVerified(boolean verified) {
-    isVerified = verified;
+    this.verified = verified;
   }
 
   public boolean isDeactivated() {
-    return isDeactivated;
+    return deactivated;
   }
 
   public void setDeactivated(boolean deactivated) {
-    isDeactivated = deactivated;
+    this.deactivated = deactivated;
   }
 
   public boolean isBanned() {
-    return isBanned;
+    return banned;
   }
 
   public void setBanned(boolean banned) {
-    isBanned = banned;
+    this.banned = banned;
   }
 
   public Set<UUID> getFriends() {
     return Collections.unmodifiableSet(friends);
   }
 
-  public void addFriend(UUID friendId) {
-    friends.add(friendId);
+  public void addFriend(UUID id) {
+    friends.add(id);
   }
 
-  public void removeFriend(UUID friendId) {
-    friends.remove(friendId);
+  public void removeFriend(UUID id) {
+    friends.remove(id);
   }
 
   public void clearFriends() {
@@ -242,12 +166,12 @@ public class User extends AbstractBaseEntity {
     return Collections.unmodifiableSet(guilds);
   }
 
-  public void addGuild(UUID guildId) {
-    guilds.add(guildId);
+  public void addGuild(UUID id) {
+    guilds.add(id);
   }
 
-  public void removeGuild(UUID guildId) {
-    guilds.remove(guildId);
+  public void removeGuild(UUID id) {
+    guilds.remove(id);
   }
 
   public void clearGuilds() {
@@ -258,27 +182,31 @@ public class User extends AbstractBaseEntity {
     return Collections.unmodifiableSet(chatRooms);
   }
 
-  public void addChatRoom(UUID chatRoomId) {
-    chatRooms.add(chatRoomId);
+  public void addChatRoom(UUID id) {
+    chatRooms.add(id);
   }
 
-  public void removeChatRoom(UUID chatRoomId) {
-    chatRooms.remove(chatRoomId);
+  public void removeChatRoom(UUID id) {
+    chatRooms.remove(id);
   }
 
   public void clearChatRooms() {
     chatRooms.clear();
   }
 
+  private String optionalString(String input) {
+    return input == null ? "" : input.strip();
+  }
+
   @Override
   public String toString() {
     return "User{"
         + "id="
-        + this.getId()
+        + getId()
         + ", createdAt="
-        + createdAt
+        + getCreatedAt()
         + ", updatedAt="
-        + updatedAt
+        + getUpdatedAt()
         + ", email='"
         + email
         + '\''
@@ -293,8 +221,8 @@ public class User extends AbstractBaseEntity {
         + '\''
         + ", birthDate="
         + birthDate
-        + ", isSubscribedToNewsletter="
-        + isSubscribedToNewsletter
+        + ", subscribedToNewsletter="
+        + subscribedToNewsletter
         + ", status="
         + status
         + ", phoneNumber='"
@@ -306,12 +234,12 @@ public class User extends AbstractBaseEntity {
         + ", bio='"
         + bio
         + '\''
-        + ", isVerified="
-        + isVerified
-        + ", isDeactivated="
-        + isDeactivated
-        + ", isBanned="
-        + isBanned
+        + ", verified="
+        + verified
+        + ", deactivated="
+        + deactivated
+        + ", banned="
+        + banned
         + ", friends="
         + friends
         + ", guilds="

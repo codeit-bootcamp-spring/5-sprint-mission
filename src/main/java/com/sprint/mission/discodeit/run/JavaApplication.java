@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.validation.EmailValidator;
 import com.sprint.mission.discodeit.validation.PasswordValidator;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
@@ -28,6 +29,7 @@ public class JavaApplication {
   private final JcfGuildService guildService = JcfGuildService.getInstance();
   private final JcfSurveyService surveyService = JcfSurveyService.getInstance();
   private User me;
+  private UUID enteredGuildId;
 
   public static void main(String[] args) {
     new JavaApplication().mainMenu();
@@ -126,8 +128,8 @@ public class JavaApplication {
     }
   }
 
-  private void runMenu(String title, String[] items, Runnable[] actions, boolean isMain) {
-    if (items == null || actions == null || items.length != actions.length) {
+  private void runMenu(String title, List<String> items, List<Runnable> actions, boolean isMain) {
+    if (items == null || actions == null || items.size() != actions.size()) {
       System.out.println("메소드 오류");
       return;
     }
@@ -139,20 +141,20 @@ public class JavaApplication {
 
       System.out.println(title);
 
-      for (int i = 0; i < items.length; i++) {
-        System.out.println((i + 1) + ". " + items[i]);
+      for (int i = 0; i < items.size(); i++) {
+        System.out.println((i + 1) + ". " + items.get(i));
       }
 
       System.out.print("메뉴 번호 입력 : ");
-      int input = getMenuInput(items.length);
+      int input = getMenuInput(items.size());
 
-      if (input > 0 && input <= actions.length && actions[input - 1] != null) {
-        actions[input - 1].run();
+      if (input > 0 && input <= actions.size() && actions.get(input - 1) != null) {
+        actions.get(input - 1).run();
       } else {
         System.out.println("올바른 메뉴 번호를 입력해주세요.");
       }
 
-      if (input == items.length) {
+      if (input == items.size()) {
         break;
       }
     }
@@ -175,127 +177,136 @@ public class JavaApplication {
         new User("b@b.bb", "2", "2222bbbb", LocalDate.of(1995, 4, 11), false, "2")); // 테스트용
     System.out.println("\n========== Discodeit ==========");
 
-    String[] items = {"회원가입", "로그인", "이메일로 회원 조회", "모든 회원 조회", "유저 밴 하기", "종료"};
-    Runnable[] actions = {
-      this::register,
-      this::login,
-      this::findUserByEmail,
-      this::showAllUsers,
-      this::banUser,
-      this::exitSystem,
-    };
+    List<String> items = List.of("회원가입", "로그인", "이메일로 회원 조회", "모든 회원 조회", "유저 밴 하기", "종료");
+    List<Runnable> actions =
+        List.of(
+            this::register,
+            this::login,
+            this::findUserByEmail,
+            this::showAllUsers,
+            this::banUser,
+            this::exitSystem);
+
     runMenu("=====***** 메인 메뉴 *****=====", items, actions, true);
   }
 
   private void userMenu() {
-    String[] items = {"프로필 편집", "친구 목록 편집", "서버 목록 편집", "다이렉트 메시지 편집", "로그아웃"};
-    Runnable[] actions = {
-      this::editProfileMenu,
-      this::editFriendMenu,
-      this::editGuildMenu,
-      this::editDirectMessageMenu,
-      this::logout,
-    };
+    List<String> items = List.of("프로필 편집", "친구 목록 편집", "서버 목록 편집", "다이렉트 메시지 편집", "로그아웃");
+    List<Runnable> actions =
+        List.of(
+            this::editProfileMenu,
+            this::editFriendMenu,
+            this::editGuildsMenu,
+            this::editDirectMessageMenu,
+            this::logout);
+
     runMenu("=====***** 회원 메뉴 *****=====", items, actions, false);
   }
 
   private void editProfileMenu() {
-    String[] items = {
-      "이메일 변경",
-      "별명 변경",
-      "사용자명 변경",
-      "비밀번호 변경",
-      "생년월일 변경",
-      "이메일로 소식 받기 변경",
-      "휴대폰 번호 등록/변경",
-      "회원 탈퇴",
-      "뒤로가기"
-    };
-    Runnable[] actions = {
-      this::changeEmail,
-      this::changeNickname,
-      this::changeUsername,
-      this::changePassword,
-      this::changeBirthDate,
-      this::changeIsSubscribedToNewsletter,
-      this::changePhoneNumber,
-      this::deleteAccount,
-      this::goPreviousMenu,
-    };
+    List<String> items =
+        List.of(
+            "이메일 변경",
+            "별명 변경",
+            "사용자명 변경",
+            "비밀번호 변경",
+            "생년월일 변경",
+            "이메일로 소식 받기 변경",
+            "휴대폰 번호 등록/변경",
+            "회원 탈퇴",
+            "뒤로가기");
+    List<Runnable> actions =
+        List.of(
+            this::changeEmail,
+            this::changeNickname,
+            this::changeUsername,
+            this::changePassword,
+            this::changeBirthDate,
+            this::changeIsSubscribedToNewsletter,
+            this::changePhoneNumber,
+            this::deleteAccount,
+            this::goPreviousMenu);
+
     runMenu("=====***** 프로필 편집 메뉴 *****=====", items, actions, false);
   }
 
   private void editFriendMenu() {
-    String[] items = {"친구 추가", "친구 삭제", "뒤로가기"};
-    Runnable[] actions = {this::addFriend, this::deleteFriend, () -> {}};
+    List<String> items = List.of("친구 추가", "친구 삭제", "뒤로가기");
+    List<Runnable> actions = List.of(this::addFriend, this::deleteFriend, () -> {});
     runMenu("=====***** 친구 목록 편집 메뉴 *****=====", items, actions, false);
   }
 
-  private void editGuildMenu() {
-    String[] items = {"모든 서버 조회", "서버 만들기", "서버 삭제", "서버 참가", "서버 나가기", "서버 열기", "뒤로가기"};
-    Runnable[] actions = {
-      this::showGuilds,
-      this::createGuild,
-      this::deleteGuild,
-      this::joinGuild,
-      this::exitGuild,
-      this::openGuild,
-      this::goPreviousMenu,
-    };
+  private void editGuildsMenu() {
+    List<String> items = List.of("모든 서버 조회", "서버 만들기", "서버 삭제", "서버 참가", "서버 나가기", "서버 열기", "뒤로가기");
+    List<Runnable> actions =
+        List.of(
+            this::showGuilds,
+            this::createGuild,
+            this::deleteGuild,
+            this::joinGuild,
+            this::exitGuild,
+            this::openGuild,
+            this::goPreviousMenu);
+
     runMenu("=====***** 서버 목록 편집 메뉴*****=====", items, actions, false);
   }
 
   private void guildMenu() {
-    String[] items = {
-      "서버 정보 조회", "서버 주인 변경", "공개 여부 변경", "회원 추방", "채널들 조회", "채널 생성", "채널 수정", "채널 삭제", "뒤로가기"
-    };
-    Runnable[] actions = {
-      () -> {
-        /* 서버 정보 조회 */
-      },
-      () -> {
-        /* 서버 주인 변경 */
-      },
-      () -> {
-        /* 공개 여부 변경 */
-      },
-      () -> {
-        /* 회원 추방 */
-      },
-      () -> {
-        /* 채널들 조회 */
-      },
-      () -> {
-        /* 채널 생성 */
-      },
-      () -> {
-        /* 채널 수정 */
-      },
-      () -> {
-        /* 채널 삭제 */
-      },
-      () -> {}
-    };
+    Guild guild = guildService.findById(enteredGuildId);
+
+    List<String> items = new ArrayList<>();
+    List<Runnable> actions = new ArrayList<>();
+
+    if (guild.getOwnerId().equals(me.getId())) {
+      items.add("서버 편집");
+      actions.add(this::editGuildMenu);
+    }
+
+    items.addAll(List.of("길드 정보 조회", "뒤로가기"));
+    actions.addAll(List.of(this::showGuildInfo, this::goPreviousMenu));
+
     runMenu("=====***** 서버 메뉴 *****=====", items, actions, false);
   }
 
+  // 추후 Permission 클래스로 인가 관리
+  private void editGuildMenu() {
+    List<String> items =
+        List.of(
+            "주인 변경", "이름 변경", "공개 여부 변경", "회원 추방", "모든 채널 조회", "채널 생성", "채널 수정", "채널 삭제", "뒤로가기");
+    List<Runnable> actions =
+        List.of(
+            this::changeGuildOwner,
+            this::changeGuildName,
+            this::changeGuildPublic,
+            this::kickMember,
+            this::showChannels,
+            this::createChannel,
+            this::updateChannel,
+            this::deleteChannel,
+            this::goPreviousMenu);
+
+    runMenu("=====***** 서버 편집 메뉴 *****=====", items, actions, false);
+  }
+
   private void editDirectMessageMenu() {
-    String[] items = {"다이렉트 메시지 목록 보기", "다이렉트 메시지 보내기", "다이렉트 메시지 보기", "다이렉트 메시지 수정하기", "뒤로가기"};
-    Runnable[] actions = {
-      () -> {
-        /* 다이렉트 메시지 목록 보기 */
-      },
-      () -> {
-        /* 다이렉트 메시지 보내기 */
-      },
-      () -> {
-        /* 다이렉트 메시지 보기 */
-      },
-      () -> {
-        /* 다이렉트 메시지 수정하기 */
-      },
-      () -> {}
-    };
+    List<String> items =
+        List.of("다이렉트 메시지 목록 보기", "다이렉트 메시지 보내기", "다이렉트 메시지 보기", "다이렉트 메시지 수정하기", "뒤로가기");
+    List<Runnable> actions =
+        List.of(
+            () -> {
+              /* 다이렉트 메시지 목록 보기 */
+            },
+            () -> {
+              /* 다이렉트 메시지 보내기 */
+            },
+            () -> {
+              /* 다이렉트 메시지 보기 */
+            },
+            () -> {
+              /* 다이렉트 메시지 수정하기 */
+            },
+            () -> {});
+
     runMenu("=====***** 다이렉트 메시지 편집 메뉴*****=====", items, actions, false);
   }
 
@@ -628,15 +639,15 @@ public class JavaApplication {
     while (true) {
       System.out.println("1. 계정 비활성화");
       System.out.println("2. 계정 삭제");
-      String idx = getInputOrBack("선택 : ");
-      if (idx == null) {
+      String idxStr = getInputOrBack("선택 : ");
+      if (idxStr == null) {
         return;
       }
 
-      switch (idx) {
+      switch (idxStr) {
         case "1":
           try {
-            userService.updateDeactivated(me.getId(), true);
+            userService.deactivateAccount(me.getId());
             me.setDeactivated(true);
             logout();
             System.out.println("계정이 비활성화되었습니다. 로그인 시 계정이 활성화됩니다.\n");
@@ -749,14 +760,14 @@ public class JavaApplication {
 
   private Integer selectGuildIndex(List<Guild> guilds, String prompt) {
     while (true) {
-      String idx = getInputOrBack(prompt);
-      if (idx == null) {
+      String idxStr = getInputOrBack(prompt);
+      if (idxStr == null) {
         return null;
       }
       try {
-        int index = Integer.parseInt(idx);
-        if (index >= 1 && index <= guilds.size()) {
-          return index - 1;
+        int idx = Integer.parseInt(idxStr);
+        if (idx >= 1 && idx <= guilds.size()) {
+          return idx - 1;
         }
         System.out.println("유효한 서버 번호를 입력해주세요.\n");
       } catch (NumberFormatException e) {
@@ -844,6 +855,7 @@ public class JavaApplication {
       System.out.println("이미 들어간 서버입니다.");
       return;
     }
+
     try {
       guildService.addMember(guild.getId(), me.getId());
       System.out.println(guild.getName() + " 서버에 입장했습니다.");
@@ -891,6 +903,294 @@ public class JavaApplication {
 
     Guild guild = guilds.get(idx);
     System.out.println(guild.getName() + " 서버를 열었습니다.\n");
+    enteredGuildId = guild.getId();
     guildMenu();
+  }
+
+  private void showGuildInfo() {
+    Guild guild = guildService.findById(enteredGuildId);
+    System.out.println(guild);
+  }
+
+  private Guild checkOwnershipAndReturnGuild() {
+    Guild guild = guildService.findById(enteredGuildId);
+    if (!guild.getOwnerId().equals(me.getId())) {
+      System.out.println("권한이 없습니다.");
+      return null;
+    }
+    return guild;
+  }
+
+  private void changeGuildOwner() {
+    Guild guild = checkOwnershipAndReturnGuild();
+    if (guild == null) {
+      return;
+    }
+
+    List<UUID> members = new ArrayList<>(guild.getMembers());
+    for (int i = 0; i < members.size(); i++) {
+      User member = userService.findById(members.get(i));
+      System.out.println((i + 1) + ". " + (member != null ? member.getEmail() : members.get(i)));
+    }
+
+    while (true) {
+      try {
+        String memberIdxStr = getInputOrBack("새로운 주인(멤버) 번호 : ");
+        if (memberIdxStr == null) {
+          return;
+        }
+
+        int memberIdx = Integer.parseInt(memberIdxStr);
+        if (memberIdx < 1 || memberIdx > members.size()) {
+          throw new NumberFormatException("올바른 번호를 입력해주세요.");
+        }
+
+        UUID newOwnerId = members.get(memberIdx - 1);
+        guildService.updateOwnerId(guild.getId(), newOwnerId);
+        if (!newOwnerId.equals(me.getId())) {
+          System.out.println("서버 주인이 변경되었습니다 : " + userService.findById(newOwnerId).getUsername());
+          break;
+        }
+        System.out.println("이미 서버 주인입니다.");
+      } catch (NumberFormatException e) {
+        System.out.println("숫자를 입력해주세요.");
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }
+  }
+
+  private void changeGuildName() {
+    Guild guild = checkOwnershipAndReturnGuild();
+    if (guild == null) {
+      return;
+    }
+
+    System.out.println("\nx. 뒤로가기");
+    System.out.println("현재 이름 : " + guild.getName());
+
+    String guildName = getInputOrBack("변경할 이름 : ");
+    if (guildName == null) {
+      return;
+    }
+
+    try {
+      guildService.updateName(guild.getId(), guildName);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+  }
+
+  private void changeGuildPublic() {
+    Guild guild = checkOwnershipAndReturnGuild();
+    if (guild == null) {
+      return;
+    }
+
+    System.out.println("\nx. 뒤로가기");
+    System.out.println("현재 공개 여부 : " + (guild.isPublic() ? "공개" : "비공개"));
+
+    Boolean isPublic = getYesOrNo("공개 여부");
+    if (isPublic != null) {
+      guildService.updatePublic(guild.getId(), isPublic);
+    }
+  }
+
+  private void kickMember() {
+    Guild guild = checkOwnershipAndReturnGuild();
+    if (guild == null) {
+      return;
+    }
+
+    Set<UUID> members = guild.getMembers();
+    System.out.println("회원 목록:");
+    int i = 1;
+    List<UUID> memberList = new ArrayList<>(members);
+    for (UUID id : memberList) {
+      User user = userService.findById(id);
+      System.out.println(i + ". " + (user != null ? user.getUsername() : id));
+      i++;
+    }
+
+    while (true) {
+      try {
+        String indexStr = getInputOrBack("추방할 멤버 번호 : ");
+        if (indexStr == null) {
+          return;
+        }
+
+        int idx = Integer.parseInt(indexStr) - 1;
+
+        if (idx < 0 || idx >= memberList.size()) {
+          throw new NumberFormatException("올바른 번호를 입력해주세요.");
+        }
+        UUID memberId = memberList.get(idx);
+        if (memberId.equals(me.getId())) {
+          System.out.println("자기 자신은 추방할 수 없습니다.");
+          return;
+        }
+
+        guildService.removeMember(guild.getId(), memberId);
+        userService.removeGuild(memberId, guild.getId());
+        String username = userService.findById(memberId).getUsername();
+        System.out.println(username + " 멤버가 추방되었습니다.");
+        break;
+      } catch (NumberFormatException e) {
+        System.out.println("숫자를 입력해주세요.");
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }
+  }
+
+  private void showChannels() {
+    Guild guild = guildService.findById(enteredGuildId);
+    List<Channel> channels = guild.getChannels();
+    if (channels.isEmpty()) {
+      System.out.println("채널 없음");
+      return;
+    }
+    int i = 1;
+    for (Channel ch : channels) {
+      System.out.println(i++ + ". " + ch);
+    }
+  }
+
+  private void createChannel() {
+    Guild guild = checkOwnershipAndReturnGuild();
+    if (guild == null) {
+      return;
+    }
+
+    while (true) {
+      try {
+        String name = getInputOrBack("채널 이름 : ");
+        if (name == null) {
+          return;
+        }
+
+        System.out.println("채널 유형 : ");
+        for (int i = 0; i < ChannelType.values().length; i++) {
+          System.out.println((i + 1) + ". " + ChannelType.values()[i]);
+        }
+
+        int typeIdx = getMenuInput(ChannelType.values().length);
+
+        if (typeIdx < 1 || typeIdx > ChannelType.values().length) {
+          throw new NumberFormatException();
+        }
+
+        ChannelType type = ChannelType.values()[typeIdx - 1];
+
+        Channel newChannel = new Channel(guild.getId(), name, type);
+        guildService.addChannel(guild.getId(), newChannel);
+        System.out.println("채널이 생성되었습니다.");
+        break;
+      } catch (NumberFormatException e) {
+        System.out.println("올바른 번호를 입력해주세요");
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }
+  }
+
+  private void updateChannel() {
+    Guild guild = checkOwnershipAndReturnGuild();
+    if (guild == null) {
+      return;
+    }
+
+    List<Channel> channels = guild.getChannels();
+    if (channels == null || channels.isEmpty()) {
+      System.out.println("채널 없음");
+      return;
+    }
+
+    System.out.println("\nx. 뒤로가기");
+    showChannels();
+    while (true) {
+      String idxStr = getInputOrBack("수정할 채널 번호 : ");
+      if (idxStr == null) {
+        return;
+      }
+
+      try {
+        int idx = Integer.parseInt(idxStr) - 1;
+        if (idx < 0 || idx >= channels.size()) {
+          throw new NumberFormatException();
+        }
+
+        Channel channel = channels.get(idx);
+
+        System.out.println("현재 채널 이름 : " + channel.getName());
+        final String newName = getInputOrBack("새 채널 이름 : ");
+
+        System.out.println("현재 채널 유형 : " + channel.getType());
+        System.out.print("새 채널 유형 : ");
+        System.out.println("1. 채팅");
+        System.out.println("2. 음성");
+        System.out.println("3. 포럼");
+        String typeIdxStr = getInputOrBack("새 채널 번호 : ");
+        if (typeIdxStr == null) {
+          return;
+        }
+
+        int typeIdx = Integer.parseInt(typeIdxStr);
+        if (typeIdx < 1 || typeIdx > 3) {
+          throw new NumberFormatException();
+        }
+
+        ChannelType type = ChannelType.values()[typeIdx - 1];
+
+        if (newName != null && !newName.isBlank()) {
+          channel.setName(newName);
+        }
+        //
+        System.out.println("채널이 수정되었습니다.");
+      } catch (NumberFormatException e) {
+        System.out.println("올바른 번호를 입력해주세요");
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }
+  }
+
+  private void deleteChannel() {
+    Guild guild = checkOwnershipAndReturnGuild();
+    if (guild == null) {
+      return;
+    }
+
+    List<Channel> channels = guild.getChannels();
+    if (channels == null || channels.isEmpty()) {
+      System.out.println("채널 없음");
+      return;
+    }
+
+    System.out.println("\nx. 뒤로가기");
+    showChannels();
+    while (true) {
+      String idxStr = getInputOrBack("삭제할 채널 번호 : ");
+      if (idxStr == null) {
+        return;
+      }
+
+      try {
+        int idx = Integer.parseInt(idxStr) - 1;
+        if (idx < 0 || idx >= channels.size()) {
+          throw new NumberFormatException();
+        }
+
+        Channel channel = channels.get(idx);
+
+        guildService.removeChannel(guild.getId(), channel);
+        System.out.println("채널이 삭제되었습니다.");
+        break;
+      } catch (NumberFormatException e) {
+        System.out.println("올바른 번호를 입력해주세요.");
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }
   }
 }

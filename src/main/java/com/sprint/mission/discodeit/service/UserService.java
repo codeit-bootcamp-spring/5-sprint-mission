@@ -3,10 +3,15 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public interface UserService extends Service<User> {
   User findByEmail(String email);
+
+  List<User> searchUsers(String keyword);
+
+  User searchUser(String keyword);
 
   User registerUser(User user);
 
@@ -36,7 +41,9 @@ public interface UserService extends Service<User> {
 
   void updateVerified(UUID userId, boolean isVerified);
 
-  void updateDeactivated(UUID userId, boolean isDeactivated);
+  void deactivateAccount(UUID userId);
+
+  void reactivateAccount(UUID userId);
 
   void updateBanned(UUID userId, boolean isBanned);
 

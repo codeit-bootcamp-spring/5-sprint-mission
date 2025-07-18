@@ -5,13 +5,29 @@ import java.util.UUID;
 
 public abstract class AbstractBaseEntity {
   private final UUID id;
+  private final long createdAt;
+  private long updatedAt;
 
   protected AbstractBaseEntity() {
     this.id = UUID.randomUUID();
+    this.createdAt = System.currentTimeMillis();
+    this.updatedAt = this.createdAt;
   }
 
   public UUID getId() {
     return id;
+  }
+
+  public long getCreatedAt() {
+    return createdAt;
+  }
+
+  public long getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(long updatedAt) {
+    if (this.updatedAt < updatedAt) this.updatedAt = updatedAt;
   }
 
   @Override
@@ -25,10 +41,5 @@ public abstract class AbstractBaseEntity {
   @Override
   public int hashCode() {
     return Objects.hashCode(id);
-  }
-
-  @Override
-  public String toString() {
-    return "AbstractBaseEntity{" + "id=" + id + '}';
   }
 }

@@ -8,8 +8,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Survey extends AbstractBaseEntity {
-  private final long createdAt;
-  private long updatedAt;
   private final UUID senderId;
   private final String question;
   private final long durationMillis;
@@ -25,8 +23,6 @@ public class Survey extends AbstractBaseEntity {
       long durationMillis,
       boolean isDuplicateResponseAllowed,
       List<String> answers) {
-    this.createdAt = System.currentTimeMillis();
-    this.updatedAt = this.createdAt;
     this.senderId = senderId;
     this.question = question;
     this.durationMillis = durationMillis;
@@ -43,18 +39,6 @@ public class Survey extends AbstractBaseEntity {
 
   private boolean isInvalidAnswersIndex(int answerIndex) {
     return answerIndex < 0 || answerIndex >= answers.size();
-  }
-
-  public long getCreatedAt() {
-    return createdAt;
-  }
-
-  public long getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(long updatedAt) {
-    this.updatedAt = updatedAt;
   }
 
   public UUID getSenderId() {
@@ -121,9 +105,9 @@ public class Survey extends AbstractBaseEntity {
         + "id="
         + this.getId()
         + "createdAt="
-        + createdAt
+        + getCreatedAt()
         + ", updatedAt="
-        + updatedAt
+        + getUpdatedAt()
         + ", senderId="
         + senderId
         + ", question='"

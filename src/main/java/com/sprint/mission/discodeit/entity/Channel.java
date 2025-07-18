@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Channel extends AbstractBaseEntity {
-  private final long createdAt;
-  private long updatedAt;
   private final UUID guildId;
   private String name;
   private ChannelType type;
@@ -22,8 +20,6 @@ public class Channel extends AbstractBaseEntity {
   private final Map<UUID, Set<Permission>> userPermissions;
 
   public Channel(UUID guildId, String name, ChannelType type) {
-    this.createdAt = System.currentTimeMillis();
-    this.updatedAt = this.createdAt;
     this.guildId = guildId;
     this.name = name;
     this.type = type;
@@ -31,18 +27,6 @@ public class Channel extends AbstractBaseEntity {
     this.joinedUsers = new HashSet<>();
     this.rolePermissions = new HashMap<>();
     this.userPermissions = new HashMap<>();
-  }
-
-  public long getCreatedAt() {
-    return createdAt;
-  }
-
-  public long getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(long updatedAt) {
-    this.updatedAt = updatedAt;
   }
 
   public UUID getGuildId() {
@@ -135,11 +119,11 @@ public class Channel extends AbstractBaseEntity {
   public String toString() {
     return "Channel{"
         + "id="
-        + this.getId()
+        + getId()
         + ", createdAt="
-        + createdAt
+        + getCreatedAt()
         + ", updatedAt="
-        + updatedAt
+        + getUpdatedAt()
         + ", guildId="
         + guildId
         + ", name='"

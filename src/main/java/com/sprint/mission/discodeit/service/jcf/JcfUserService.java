@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.validation.EmailValidator;
 import com.sprint.mission.discodeit.validation.PasswordValidator;
 import com.sprint.mission.discodeit.validation.RegisterUserValidator;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -36,6 +37,16 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public User findByEmail(String email) {
     return data.stream().filter(u -> u.getEmail().equalsIgnoreCase(email)).findFirst().orElse(null);
+  }
+
+  @Override
+  public List<User> searchUsers(String keyword) {
+    return List.of();
+  }
+
+  @Override
+  public User searchUser(String keyword) {
+    return null;
   }
 
   @Override
@@ -167,8 +178,13 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  public void updateDeactivated(UUID userId, boolean isDeactivated) {
-    update(userId, u -> u.setDeactivated(isDeactivated));
+  public void deactivateAccount(UUID userId) {
+    update(userId, u -> u.setDeactivated(true));
+  }
+
+  @Override
+  public void reactivateAccount(UUID userId) {
+    update(userId, u -> u.setDeactivated(false));
   }
 
   @Override
