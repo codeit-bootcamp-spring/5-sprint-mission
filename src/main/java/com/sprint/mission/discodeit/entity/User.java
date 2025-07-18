@@ -38,11 +38,11 @@ public class User extends AbstractBaseEntity {
     this.updatedAt = this.createdAt;
 
     this.email = email == null ? "" : email.toLowerCase();
-    this.username = username == null ? "" : username;
-    this.password = password == null ? "" : password;
+    this.username = username == null ? "" : username.strip();
+    this.password = password == null ? "" : password.strip();
     this.birthDate = birthDate;
     this.isSubscribedToNewsletter = isSubscribedToNewsletter;
-    this.nickname = nickname == null ? "" : nickname;
+    this.nickname = nickname == null ? "" : nickname.strip();
 
     this.status = Status.OFFLINE;
     this.phoneNumber = "";
@@ -295,11 +295,11 @@ public class User extends AbstractBaseEntity {
         + birthDate
         + ", isSubscribedToNewsletter="
         + isSubscribedToNewsletter
+        + ", status="
+        + status
         + ", phoneNumber='"
         + phoneNumber
         + '\''
-        + ", status="
-        + status
         + ", avatarUrl='"
         + avatarUrl
         + '\''
