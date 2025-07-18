@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.validation.EmailValidator;
 import com.sprint.mission.discodeit.validation.PasswordValidator;
 import com.sprint.mission.discodeit.validation.RegisterUserValidator;
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -37,10 +38,11 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public void update(UUID userId, Consumer<User> updater) {
     User u = findById(userId);
-    if (u != null) {
-      updater.accept(u);
-      u.setUpdatedAt(System.currentTimeMillis());
+    if (u == null) {
+      throw new NoSuchElementException("cannot find user with id: " + userId + " in data.");
     }
+    updater.accept(u);
+    u.setUpdatedAt(System.currentTimeMillis());
   }
 
   @Override
@@ -193,16 +195,23 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public void addFriend(UUID userId, UUID friendId) {
     update(userId, u -> u.addFriend(friendId));
+    update(friendId, u -> u.addFriend(userId));
   }
 
   @Override
   public void removeFriend(UUID userId, UUID friendId) {
     update(userId, u -> u.removeFriend(friendId));
+    update(friendId, u -> u.removeFriend(userId));
   }
 
   @Override
   public void clearFriends(UUID userId) {
     update(userId, User::clearFriends);
+    for (User u : data) {
+      if (u.getFriends().contains(userId)) {
+        u.removeFriend(userId);
+      }
+    }
   }
 
   @Override
