@@ -9,50 +9,6 @@ import java.util.*;
 public class JCFUserService implements UserService {
     public final List<User> data = new ArrayList<>();
 
-    public static void main(String[] args) {
-        JCFUserService jcfu = new JCFUserService();
-        System.out.println("----- user create -----");
-        User user1 = jcfu.createUser("kkk@kkk.com", "james", "1234", "#4756", "online");
-        User user2 = jcfu.createUser("jjj@jjj.com", "john", "3454", "#3132", "offline");
-        User user3 = jcfu.createUser("sss@sss.com", "kim", "1133", "#5666", "online");
-        User user4 = jcfu.createUser("ttt@ttk.com", "park", "1564", "#4786", "afk");
-        User user5 = jcfu.createUser("kyy@yyk.com", "elis", "1777", "#9876", "good");
-
-        System.out.println(user1.toString());
-        System.out.println(user2.toString());
-        System.out.println(user3.toString());
-        System.out.println(user4.toString());
-        System.out.println(user5.toString());
-
-
-        User findU1 = null;
-        try {
-            System.out.println("----- user find -----");
-            findU1 = jcfu.findById(user3.getId());
-            System.out.println(findU1.toString());
-//            User findU2 = jcfu.findById(UUID.randomUUID());
-//            System.out.println(findU2.toString());
-            System.out.println("----- all users find -----");
-            List<User> allUsers =  jcfu.findAll();
-            allUsers.forEach(System.out::println);
-
-            System.out.println("----- user delete -----");
-            User delU1 = jcfu.deleteById(findU1.getId());
-            System.out.println(delU1.toString());
-
-            System.out.println("----- user update -----");
-            UserDTO userDTO1 = new UserDTO(user4.getId(), "jjj@jjj.net", "ryu", "9999", "#5567", "null");
-            System.out.println(userDTO1.toString());
-            User updateU1 = jcfu.update(userDTO1);
-            System.out.println(updateU1.toString());
-
-        } catch(NullPointerException | IllegalArgumentException e) {
-            System.out.println("[Error] " + e.getMessage());
-        }
-
-
-    }
-
     public JCFUserService() {}
 
     @Override
@@ -116,7 +72,7 @@ public class JCFUserService implements UserService {
                 return user;
             }
         }
-        throw new IllegalArgumentException("User id is wrong.");
+        throw new IllegalArgumentException("User does not already exist.");
     }
 
     @Override
