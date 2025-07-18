@@ -130,4 +130,31 @@ public class Channel extends AbstractBaseEntity {
   public void clearRolePermissionMap() {
     rolePermissions.clear();
   }
+
+  @Override
+  public String toString() {
+    return "Channel{"
+        + "id="
+        + this.getId()
+        + ", createdAt="
+        + createdAt
+        + ", updatedAt="
+        + updatedAt
+        + ", guildId="
+        + guildId
+        + ", name='"
+        + name
+        + '\''
+        + ", type="
+        + type
+        + ", isPublic="
+        + isPublic
+        + ", joinedUsers="
+        + joinedUsers
+        + ", rolePermissions="
+        + rolePermissions
+        + ", userPermissions="
+        + userPermissions
+        + '}';
+  }
 }

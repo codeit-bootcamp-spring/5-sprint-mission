@@ -16,8 +16,7 @@ public class Guild extends AbstractBaseEntity {
   private final Set<UUID> members;
   private final List<Channel> channels;
 
-  public Guild(
-      boolean isPublic, UUID ownerId, String name) {
+  public Guild(boolean isPublic, UUID ownerId, String name) {
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
     this.isPublic = isPublic;
@@ -100,7 +99,7 @@ public class Guild extends AbstractBaseEntity {
     return "Guild{"
         + "id="
         + this.getId()
-        + "createdAt="
+        + ", createdAt="
         + createdAt
         + ", updatedAt="
         + updatedAt
