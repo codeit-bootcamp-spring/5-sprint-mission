@@ -64,7 +64,7 @@ public class JavaApplication {
       System.out.println("9. 종료");
       System.out.print("메뉴 번호 입력 : ");
 
-      switch (getMenuInput(1, 9)) {
+      switch (getMenuInput(0, 10)) {
         case 1:
           register();
           break;
