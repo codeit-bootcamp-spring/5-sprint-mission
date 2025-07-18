@@ -3,9 +3,6 @@ package com.sprint.mission.discodeit.entity;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * 엔티티의 공통 ID 기반 슈퍼 클래스.
- */
 public abstract class AbstractBaseEntity {
   private final UUID id;
 

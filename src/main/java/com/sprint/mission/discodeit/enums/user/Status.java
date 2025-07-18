@@ -4,5 +4,5 @@ public enum Status {
   ONLINE,
   OFFLINE,
   IDLE,
-  DO_NOT_DISTURB
+  DO_NOT_DISTURB,
 }
