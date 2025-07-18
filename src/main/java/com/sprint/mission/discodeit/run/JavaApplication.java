@@ -62,7 +62,7 @@ public class JavaApplication {
       switch (answer.strip().toLowerCase()) {
         case "y":
           return true;
-        case "x":
+        case "n":
           return false;
         default:
           System.out.println("y 또는 n을 입력해주세요.\n");
@@ -137,7 +137,6 @@ public class JavaApplication {
         break;
       }
 
-      System.out.println();
       System.out.println(title);
 
       for (int i = 0; i < items.length; i++) {
@@ -163,6 +162,10 @@ public class JavaApplication {
     System.out.println("\n프로그램 종료");
     sc.close();
     System.exit(0);
+  }
+
+  private void goPreviousMenu() {
+    System.out.println("\n*뒤로가기*");
   }
 
   private void mainMenu() {
@@ -217,7 +220,7 @@ public class JavaApplication {
       this::changeIsSubscribedToNewsletter,
       this::changePhoneNumber,
       this::deleteAccount,
-      () -> {}
+      this::goPreviousMenu,
     };
     runMenu("=====***** 프로필 편집 메뉴 *****=====", items, actions, false);
   }
@@ -237,7 +240,7 @@ public class JavaApplication {
       this::joinGuild,
       this::exitGuild,
       this::openGuild,
-      () -> {}
+      this::goPreviousMenu,
     };
     runMenu("=====***** 서버 목록 편집 메뉴*****=====", items, actions, false);
   }
@@ -686,7 +689,7 @@ public class JavaApplication {
 
       User friend = userService.findByEmail(email.toLowerCase());
       if (friend == null) {
-        System.out.println("존재하지 않는 이메일입니다.");
+        System.out.println("존재하지 않는 이메일입니다.\n");
         continue;
       }
 
@@ -742,25 +745,30 @@ public class JavaApplication {
         return;
       }
 
-      Guild guild = new Guild(isPublic, me.getId(), name);
-      guildService.addMember(guild.getId(), me.getId());
-
-      guildService.addChannel(guild.getId(), new Channel(guild.getId(), "일반", ChannelType.CHAT));
-      guildService.addChannel(guild.getId(), new Channel(guild.getId(), "일반", ChannelType.VOICE));
-
-      boolean result = guildService.createGuild(guild);
-      if (result) {
-        System.out.println(guild.getName() + " 서버가 생성되었습니다.\n");
-        return;
+      try {
+        Guild guild = new Guild(isPublic, me.getId(), name);
+        boolean result = guildService.createGuild(guild);
+        if (result) {
+          guildService.addMember(guild.getId(), me.getId());
+          guildService.addChannel(
+              guild.getId(), new Channel(guild.getId(), "일반", ChannelType.CHAT));
+          guildService.addChannel(
+              guild.getId(), new Channel(guild.getId(), "일반", ChannelType.VOICE));
+          System.out.println(guild.getName() + " 서버가 생성되었습니다.\n");
+          return;
+        }
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
       }
+
       System.out.println("다시 시도해 주세요.\n");
     }
   }
 
   private void deleteGuild() {
-    List<Guild> guilds = guildService.findAll();
-
     System.out.println("\nx. 뒤로가기");
+
+    List<Guild> guilds = guildService.findAll();
 
     if (guilds == null) {
       System.out.println("서버 없음");
@@ -798,16 +806,20 @@ public class JavaApplication {
         continue;
       }
 
-      guildService.deleteById(guild.getId());
-      System.out.println(guild.getName() + " 서버가 삭제되었습니다.");
-      break;
+      try {
+        guildService.deleteById(guild.getId());
+        System.out.println(guild.getName() + " 서버가 삭제되었습니다.");
+        break;
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
     }
   }
 
   private void joinGuild() {
-    List<Guild> guilds = guildService.findPublicGuilds();
-
     System.out.println("\nx. 뒤로가기");
+
+    List<Guild> guilds = guildService.findPublicGuilds();
 
     if (guilds == null) {
       System.out.println("서버 없음");
@@ -851,16 +863,20 @@ public class JavaApplication {
         }
       }
 
-      guildService.addMember(guild.getId(), me.getId());
-      System.out.println(guild.getName() + " 서버에 입장했습니다.");
-      break;
+      try {
+        guildService.addMember(guild.getId(), me.getId());
+        System.out.println(guild.getName() + " 서버에 입장했습니다.");
+        break;
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
     }
   }
 
   private void exitGuild() {
-    List<Guild> guilds = guildService.findGuildsJoined(me.getId());
-
     System.out.println("\nx. 뒤로가기");
+
+    List<Guild> guilds = guildService.findGuildsJoined(me.getId());
 
     if (guilds == null) {
       System.out.println("서버 없음");
@@ -894,10 +910,13 @@ public class JavaApplication {
 
       Guild guild = guilds.get(index - 1);
 
-      guildService.removeMember(guild.getId(), me.getId());
-
-      System.out.println(guild.getName() + " 서버에서 퇴장했습니다.\n");
-      break;
+      try {
+        guildService.removeMember(guild.getId(), me.getId());
+        System.out.println(guild.getName() + " 서버에서 퇴장했습니다.\n");
+        break;
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
     }
   }
 
