@@ -628,12 +628,12 @@ public class JavaApplication {
     while (true) {
       System.out.println("1. 계정 비활성화");
       System.out.println("2. 계정 삭제");
-      String indexStr = getInputOrBack("선택 : ");
-      if (indexStr == null) {
+      String idx = getInputOrBack("선택 : ");
+      if (idx == null) {
         return;
       }
 
-      switch (indexStr) {
+      switch (idx) {
         case "1":
           try {
             userService.updateDeactivated(me.getId(), true);
@@ -732,7 +732,37 @@ public class JavaApplication {
   }
 
   private void showGuilds() {
-    System.out.println(guildService.findAll());
+    List<Guild> guilds = guildService.findAll();
+    printGuildList(guilds);
+  }
+
+  private void printGuildList(List<Guild> guilds) {
+    if (guilds == null || guilds.isEmpty()) {
+      System.out.println("서버 없음");
+      return;
+    }
+    System.out.println("서버 목록 : ");
+    for (int i = 0; i < guilds.size(); i++) {
+      System.out.println((i + 1) + ". " + guilds.get(i));
+    }
+  }
+
+  private Integer selectGuildIndex(List<Guild> guilds, String prompt) {
+    while (true) {
+      String idx = getInputOrBack(prompt);
+      if (idx == null) {
+        return null;
+      }
+      try {
+        int index = Integer.parseInt(idx);
+        if (index >= 1 && index <= guilds.size()) {
+          return index - 1;
+        }
+        System.out.println("유효한 서버 번호를 입력해주세요.\n");
+      } catch (NumberFormatException e) {
+        System.out.println("숫자를 입력해주세요.\n");
+      }
+    }
   }
 
   private void createGuild() {
@@ -749,9 +779,8 @@ public class JavaApplication {
       }
 
       try {
-        Guild guild = new Guild(isPublic, me.getId(), name);
-        boolean result = guildService.createGuild(guild);
-        if (result) {
+        Guild guild = guildService.createGuild(new Guild(isPublic, me.getId(), name));
+        if (guild != null) {
           guildService.addMember(guild.getId(), me.getId());
           guildService.addChannel(
               guild.getId(), new Channel(guild.getId(), "일반", ChannelType.CHAT));
@@ -772,50 +801,27 @@ public class JavaApplication {
     System.out.println("\nx. 뒤로가기");
 
     List<Guild> guilds = guildService.findAll();
-
-    if (guilds == null) {
-      System.out.println("서버 없음");
+    printGuildList(guilds);
+    if (guilds == null || guilds.isEmpty()) {
       return;
-    } else {
-      System.out.println("서버 목록 : ");
-      for (int i = 0; i < guilds.size(); i++) {
-        System.out.println(i + 1 + ". " + guilds.get(i));
-      }
     }
 
-    while (true) {
-      String indexStr = getInputOrBack("삭제할 서버 번호 : ");
-      if (indexStr == null) {
-        return;
-      }
+    Integer idx = selectGuildIndex(guilds, "삭제할 서버 번호 : ");
+    if (idx == null) {
+      return;
+    }
 
-      int index;
-      try {
-        index = Integer.parseInt(indexStr);
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.\n");
-        continue;
-      }
+    Guild guild = guilds.get(idx);
+    if (!guild.getOwnerId().equals(me.getId())) {
+      System.out.println("삭제할 권한이 없습니다.");
+      return;
+    }
 
-      if (index < 1 || index > guilds.size()) {
-        System.out.println("유효한 서버 번호를 입력해주세요.\n");
-        continue;
-      }
-
-      Guild guild = guilds.get(index - 1);
-
-      if (!guild.getOwnerId().equals(me.getId())) {
-        System.out.println("삭제할 권한이 없습니다.");
-        continue;
-      }
-
-      try {
-        guildService.deleteById(guild.getId());
-        System.out.println(guild.getName() + " 서버가 삭제되었습니다.");
-        break;
-      } catch (Exception e) {
-        System.out.println(e.getMessage());
-      }
+    try {
+      guildService.deleteById(guild.getId());
+      System.out.println(guild.getName() + " 서버가 삭제되었습니다.");
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
     }
   }
 
@@ -823,56 +829,26 @@ public class JavaApplication {
     System.out.println("\nx. 뒤로가기");
 
     List<Guild> guilds = guildService.findPublicGuilds();
-
-    if (guilds == null) {
-      System.out.println("서버 없음");
+    printGuildList(guilds);
+    if (guilds == null || guilds.isEmpty()) {
       return;
-    } else {
-      System.out.println("서버 목록 : ");
-      for (int i = 0; i < guilds.size(); i++) {
-        System.out.println(i + 1 + ". " + guilds.get(i));
-      }
     }
 
-    label:
-    while (true) {
-      String indexStr = getInputOrBack("들어갈 서버 번호 : ");
-      if (indexStr == null) {
-        return;
-      }
+    Integer idx = selectGuildIndex(guilds, "들어갈 서버 번호 : ");
+    if (idx == null) {
+      return;
+    }
 
-      int index;
-
-      try {
-        index = Integer.parseInt(indexStr);
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.\n");
-        continue;
-      }
-
-      if (index < 1 || index > guilds.size()) {
-        System.out.println("유효한 서버 번호를 입력해주세요.\n");
-        continue;
-      }
-
-      Guild guild = guilds.get(index - 1);
-
-      Set<UUID> members = guild.getMembers();
-
-      for (UUID member : members) {
-        if (member.equals(me.getId())) {
-          System.out.println("이미 들어간 서버입니다.");
-          continue label;
-        }
-      }
-
-      try {
-        guildService.addMember(guild.getId(), me.getId());
-        System.out.println(guild.getName() + " 서버에 입장했습니다.");
-        break;
-      } catch (Exception e) {
-        System.out.println(e.getMessage());
-      }
+    Guild guild = guilds.get(idx);
+    if (guild.getMembers().contains(me.getId())) {
+      System.out.println("이미 들어간 서버입니다.");
+      return;
+    }
+    try {
+      guildService.addMember(guild.getId(), me.getId());
+      System.out.println(guild.getName() + " 서버에 입장했습니다.");
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
     }
   }
 
@@ -880,87 +856,41 @@ public class JavaApplication {
     System.out.println("\nx. 뒤로가기");
 
     List<Guild> guilds = guildService.findGuildsJoined(me.getId());
-
-    if (guilds == null) {
-      System.out.println("서버 없음");
+    printGuildList(guilds);
+    if (guilds == null || guilds.isEmpty()) {
       return;
-    } else {
-      System.out.println("서버 목록 : ");
-      for (int i = 0; i < guilds.size(); i++) {
-        System.out.println(i + 1 + ". " + guilds.get(i));
-      }
     }
 
-    while (true) {
-      String indexStr = getInputOrBack("나갈 서버 번호 : ");
-      if (indexStr == null) {
-        return;
-      }
+    Integer idx = selectGuildIndex(guilds, "나갈 서버 번호 : ");
+    if (idx == null) {
+      return;
+    }
 
-      int index;
-
-      try {
-        index = Integer.parseInt(indexStr);
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.\n");
-        continue;
-      }
-
-      if (index < 1 || index > guilds.size()) {
-        System.out.println("유효한 서버 번호를 입력해주세요.\n");
-        continue;
-      }
-
-      Guild guild = guilds.get(index - 1);
-
-      try {
-        guildService.removeMember(guild.getId(), me.getId());
-        System.out.println(guild.getName() + " 서버에서 퇴장했습니다.\n");
-        break;
-      } catch (Exception e) {
-        System.out.println(e.getMessage());
-      }
+    Guild guild = guilds.get(idx);
+    try {
+      guildService.removeMember(guild.getId(), me.getId());
+      System.out.println(guild.getName() + " 서버에서 퇴장했습니다.\n");
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
     }
   }
 
   private void openGuild() {
-    List<Guild> guilds = guildService.findGuildsJoined(me.getId());
-
     System.out.println("\nx. 뒤로가기");
 
-    if (guilds == null) {
-      System.out.println("서버 없음");
+    List<Guild> guilds = guildService.findGuildsJoined(me.getId());
+    printGuildList(guilds);
+    if (guilds == null || guilds.isEmpty()) {
       return;
-    } else {
-      System.out.println("서버 목록 : ");
-      for (int i = 0; i < guilds.size(); i++) {
-        System.out.println(i + 1 + ". " + guilds.get(i));
-      }
     }
 
-    while (true) {
-      String indexStr = getInputOrBack("열 서버 번호 : ");
-      if (indexStr == null) {
-        return;
-      }
-
-      int index;
-      try {
-        index = Integer.parseInt(indexStr);
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.\n");
-        continue;
-      }
-
-      if (index < 1 || index > guilds.size()) {
-        System.out.println("유효한 서버 번호를 입력해주세요.\n");
-        continue;
-      }
-
-      Guild guild = guilds.get(index - 1);
-      System.out.println(guild.getName() + " 서버를 열었습니다.\n");
-      break;
+    Integer idx = selectGuildIndex(guilds, "열 서버 번호 : ");
+    if (idx == null) {
+      return;
     }
+
+    Guild guild = guilds.get(idx);
+    System.out.println(guild.getName() + " 서버를 열었습니다.\n");
     guildMenu();
   }
 }

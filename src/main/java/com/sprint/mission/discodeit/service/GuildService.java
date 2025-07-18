@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface GuildService extends Service<Guild> {
-  boolean createGuild(Guild guild);
+  Guild createGuild(Guild guild);
 
   List<Guild> findPublicGuilds();
 
