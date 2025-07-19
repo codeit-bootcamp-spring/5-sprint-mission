@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.jcf;
 
+import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.service.UserService;
@@ -26,16 +27,6 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  public List<User> searchUsers(String keyword) {
-    return List.of();
-  }
-
-  @Override
-  public User searchUser(String keyword) {
-    return null;
-  }
-
-  @Override
   public User registerUser(User user) {
     RegisterUserValidator.validate(user);
 
@@ -53,11 +44,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
         data.stream()
             .filter(u -> u.getEmail().equalsIgnoreCase(email) && u.getPassword().equals(password))
             .findFirst()
-            .orElse(null);
-
-    if (user == null) {
-      throw new NoSuchElementException("이메일 또는 패스워드가 일치하지 않습니다.");
-    }
+            .orElseThrow(() -> new NoSuchElementException("이메일 또는 패스워드가 일치하지 않습니다."));
 
     if (user.isBanned()) {
       throw new IllegalArgumentException("정지된 계정입니다.");
@@ -71,11 +58,33 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public void logout(UUID userId) {
-    User u = findById(userId);
-    if (u != null) {
-      u.setStatus(Status.OFFLINE);
-      u.setUpdatedAt(System.currentTimeMillis());
+    update(userId, u -> u.setStatus(Status.OFFLINE));
+  }
+
+  @Override
+  public void deactivateAccount(UUID userId) {
+    update(userId, u -> u.setDeactivated(true));
+  }
+
+  @Override
+  public void reactivateAccount(UUID userId) {
+    update(userId, u -> u.setDeactivated(false));
+  }
+
+  @Override
+  public List<User> searchUsers(String keyword) {
+    if (keyword == null || keyword.isBlank()) {
+      return List.of();
     }
+
+    String lowerKeyword = keyword.toLowerCase();
+    return data.stream()
+        .filter(
+            u ->
+                u.getUsername().toLowerCase().contains(lowerKeyword)
+                    || u.getEmail().toLowerCase().contains(lowerKeyword)
+                    || u.getNickname().toLowerCase().contains(lowerKeyword))
+        .toList();
   }
 
   @Override
@@ -83,12 +92,12 @@ public class JcfUserService extends JcfService<User> implements UserService {
     EmailValidator.validate(email);
 
     User current = requireEntity(userId);
+
     if (current.getEmail().equalsIgnoreCase(email)) {
       return;
     }
 
-    User duplicated = findByEmail(email);
-    if (duplicated != null) {
+    if (findByEmail(email) != null) {
       throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
     }
 
@@ -105,7 +114,6 @@ public class JcfUserService extends JcfService<User> implements UserService {
     if (username == null || username.isBlank()) {
       throw new IllegalArgumentException("사용자명은 필수입니다.");
     }
-
     update(userId, u -> u.setUsername(username));
   }
 
@@ -157,16 +165,6 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  public void deactivateAccount(UUID userId) {
-    update(userId, u -> u.setDeactivated(true));
-  }
-
-  @Override
-  public void reactivateAccount(UUID userId) {
-    update(userId, u -> u.setDeactivated(false));
-  }
-
-  @Override
   public void updateBanned(UUID userId, boolean isBanned) {
     update(userId, u -> u.setBanned(isBanned));
   }
@@ -192,6 +190,16 @@ public class JcfUserService extends JcfService<User> implements UserService {
   public void clearFriends(UUID userId) {
     update(userId, User::clearFriends);
     data.forEach(u -> u.removeFriend(userId));
+  }
+
+  @Override
+  public List<FriendRequest> getSentFriendRequests(UUID userId) {
+    return JcfFriendRequestService.getInstance().getSentRequests(userId);
+  }
+
+  @Override
+  public List<FriendRequest> getReceivedFriendRequests(UUID userId) {
+    return JcfFriendRequestService.getInstance().getReceivedRequests(userId);
   }
 
   @Override

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import java.time.LocalDate;
@@ -9,15 +10,17 @@ import java.util.UUID;
 public interface UserService extends Service<User> {
   User findByEmail(String email);
 
-  List<User> searchUsers(String keyword);
-
-  User searchUser(String keyword);
-
   User registerUser(User user);
 
   User login(String email, String password);
 
   void logout(UUID userId);
+
+  void deactivateAccount(UUID userId);
+
+  void reactivateAccount(UUID userId);
+
+  List<User> searchUsers(String keyword);
 
   void updateEmail(UUID userId, String email);
 
@@ -41,10 +44,6 @@ public interface UserService extends Service<User> {
 
   void updateVerified(UUID userId, boolean isVerified);
 
-  void deactivateAccount(UUID userId);
-
-  void reactivateAccount(UUID userId);
-
   void updateBanned(UUID userId, boolean isBanned);
 
   void addFriend(UUID userId, UUID friendId);
@@ -52,6 +51,10 @@ public interface UserService extends Service<User> {
   void removeFriend(UUID userId, UUID friendId);
 
   void clearFriends(UUID userId);
+
+  List<FriendRequest> getSentFriendRequests(UUID userId);
+
+  List<FriendRequest> getReceivedFriendRequests(UUID userId);
 
   void addGuild(UUID userId, UUID guildId);
 

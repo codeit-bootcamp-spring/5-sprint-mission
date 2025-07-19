@@ -19,9 +19,13 @@ public abstract class JcfService<T extends AbstractBaseEntity> implements Servic
   protected T requireEntity(UUID id) {
     T entity = findById(id);
     if (entity == null) {
-      throw new NoSuchElementException("엔티티를 찾을 수 없습니다 : " + id);
+      throw new NoSuchElementException("엔티티(" + getEntityName() + ")를 찾을 수 없습니다. : " + id);
     }
     return entity;
+  }
+
+  protected String getEntityName() {
+    return getClass().getSimpleName().replace("Jcf", "").replace("Service", "");
   }
 
   protected void update(UUID id, Consumer<T> updater) {

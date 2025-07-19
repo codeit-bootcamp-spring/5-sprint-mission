@@ -27,7 +27,9 @@ public abstract class AbstractBaseEntity {
   }
 
   public void setUpdatedAt(long updatedAt) {
-    if (this.updatedAt < updatedAt) this.updatedAt = updatedAt;
+    if (this.updatedAt < updatedAt) {
+      this.updatedAt = updatedAt;
+    }
   }
 
   @Override
