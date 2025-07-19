@@ -24,7 +24,6 @@ public class JcfFriendRequestService extends JcfService<FriendRequest>
 
   private final Map<UUID, Set<UUID>> sentIndex = new HashMap<>();
   private final Map<UUID, Set<UUID>> receivedIndex = new HashMap<>();
-  private final UserService userService = JcfUserService.getInstance();
 
   private JcfFriendRequestService() {}
 
@@ -78,6 +77,8 @@ public class JcfFriendRequestService extends JcfService<FriendRequest>
 
     fr.setStatus(FriendRequestStatus.ACCEPTED);
     fr.setUpdatedAt(System.currentTimeMillis());
+
+    UserService userService = JcfUserService.getInstance();
 
     userService.addFriend(fr.getSenderId(), fr.getReceiverId());
     userService.addFriend(fr.getReceiverId(), fr.getSenderId());

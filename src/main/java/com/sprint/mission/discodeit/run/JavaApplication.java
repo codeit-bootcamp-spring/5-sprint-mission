@@ -787,18 +787,20 @@ public class JavaApplication {
       System.out.println("친구 목록이 비어 있습니다.");
       return;
     }
+
     List<UUID> friendIds = me.getFriends().stream().toList();
+
     for (int i = 0; i < friendIds.size(); i++) {
       User friend = userService.findById(friendIds.get(i));
       System.out.printf("%d. %s (%s)\n", i + 1, friend.getUsername(), friend.getEmail());
     }
+
     while (true) {
       System.out.println("\nx. 뒤로가기");
       String idxStr = getInputOrBack("삭제할 친구 번호: ");
       if (idxStr == null) {
         return;
       }
-
       try {
         int idx = Integer.parseInt(idxStr) - 1;
         if (idx < 0 || idx >= friendIds.size()) {

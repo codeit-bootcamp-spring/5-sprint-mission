@@ -14,11 +14,11 @@ import java.util.UUID;
 public class JcfUserService extends JcfService<User> implements UserService {
   private static final JcfUserService instance = new JcfUserService();
 
-  private JcfUserService() {}
-
   public static JcfUserService getInstance() {
     return instance;
   }
+
+  private JcfUserService() {}
 
   @Override
   public User findByEmail(String email) {

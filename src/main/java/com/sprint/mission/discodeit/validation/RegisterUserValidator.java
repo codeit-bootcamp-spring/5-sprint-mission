@@ -7,11 +7,15 @@ public class RegisterUserValidator {
     if (user == null) {
       throw new IllegalArgumentException("유저 객체가 null입니다.");
     }
+
     EmailValidator.validate(user.getEmail());
+
     if (user.getUsername() == null || user.getUsername().isBlank()) {
       throw new IllegalArgumentException("사용자명은 필수입니다.");
     }
+
     PasswordValidator.validate(user.getPassword());
+
     if (user.getBirthDate() == null) {
       throw new IllegalArgumentException("생년월일은 필수입니다.");
     }

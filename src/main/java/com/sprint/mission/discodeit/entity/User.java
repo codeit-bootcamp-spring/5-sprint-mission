@@ -21,7 +21,6 @@ public class User extends AbstractBaseEntity {
   private boolean verified;
   private boolean deactivated;
   private boolean banned;
-
   private final Set<UUID> friends;
   private final Set<UUID> guilds;
   private final Set<UUID> chatRooms;
@@ -39,7 +38,6 @@ public class User extends AbstractBaseEntity {
     this.birthDate = birthDate;
     this.subscribedToNewsletter = subscribedToNewsletter;
     this.nickname = optionalString(nickname);
-
     this.status = Status.OFFLINE;
     this.phoneNumber = "";
     this.avatarUrl = "";
@@ -47,7 +45,6 @@ public class User extends AbstractBaseEntity {
     this.friends = new HashSet<>();
     this.guilds = new HashSet<>();
     this.chatRooms = new HashSet<>();
-
   }
 
   public String getEmail() {
