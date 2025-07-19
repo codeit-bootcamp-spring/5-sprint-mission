@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface UserService extends Service<User> {
   User findByEmail(String email);
 
-  User registerUser(User user);
+  User register(User user);
 
   User login(String email, String password);
 

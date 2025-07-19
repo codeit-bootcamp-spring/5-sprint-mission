@@ -29,7 +29,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  public User registerUser(User user) {
+  public User register(User user) {
     RegisterUserValidator.validate(user);
 
     if (findByEmail(user.getEmail()) != null) {
@@ -77,7 +77,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   public void deleteAccount(UUID userId) {
     JcfFriendRequestService.getInstance(this).deleteAllRequestsOfUser(userId);
 
-    User user = requireEntity(userId);
+    User user = getIfExists(userId);
     List<UUID> friends = List.copyOf(user.getFriends());
     for (UUID friendId : friends) {
       removeFriend(friendId, userId);
@@ -106,7 +106,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   public void updateEmail(UUID userId, String email) {
     EmailValidator.validate(email);
 
-    User current = requireEntity(userId);
+    User current = getIfExists(userId);
 
     if (current.getEmail().equalsIgnoreCase(email)) {
       return;
@@ -189,14 +189,14 @@ public class JcfUserService extends JcfService<User> implements UserService {
     if (userId.equals(friendId)) {
       throw new IllegalArgumentException("자기 자신에게는 친구 요청을 보낼 수 없습니다.");
     }
-    requireEntity(friendId);
+    getIfExists(friendId);
     update(userId, u -> u.addFriend(friendId));
     update(friendId, u -> u.addFriend(userId));
   }
 
   @Override
   public void removeFriend(UUID userId, UUID friendId) {
-    requireEntity(friendId);
+    getIfExists(friendId);
     update(userId, u -> u.removeFriend(friendId));
     update(friendId, u -> u.removeFriend(userId));
   }

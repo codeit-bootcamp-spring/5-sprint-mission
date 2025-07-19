@@ -14,7 +14,7 @@ public class JcfSurveyService extends JcfService<Survey> implements SurveyServic
   }
 
   @Override
-  public boolean createSurvey(Survey survey) {
+  public boolean create(Survey survey) {
     boolean exists = data.stream().anyMatch(s -> s.getId().equals(survey.getId()));
     if (exists) {
       System.out.println("중복된 id가 존재합니다.");

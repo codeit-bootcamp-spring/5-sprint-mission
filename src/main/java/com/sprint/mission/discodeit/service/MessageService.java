@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MessageService extends Service<Message> {
-  boolean createMessage(Message message);
+  boolean create(Message message);
 
   void updateContent(UUID messageId, String content);
 

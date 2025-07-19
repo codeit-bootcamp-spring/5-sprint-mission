@@ -6,6 +6,8 @@ import java.util.UUID;
 public interface Service<T> {
   void reset();
 
+  T getIfExists(UUID id);
+
   List<T> findAll();
 
   T findById(UUID id);

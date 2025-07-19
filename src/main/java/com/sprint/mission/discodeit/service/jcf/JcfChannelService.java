@@ -17,7 +17,7 @@ public class JcfChannelService extends JcfService<Channel> implements ChannelSer
   }
 
   @Override
-  public Channel createChannel(Channel channel, UUID ownerId) {
+  public Channel create(Channel channel, UUID ownerId) {
     if (channel == null) {
       System.out.println("channel == null");
       return null;

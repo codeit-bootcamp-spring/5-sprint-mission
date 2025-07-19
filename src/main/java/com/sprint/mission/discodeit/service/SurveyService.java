@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.entity.Survey;
 import java.util.UUID;
 
 public interface SurveyService extends Service<Survey> {
-  boolean createSurvey(Survey survey);
+  boolean create(Survey survey);
 
   void updateClosed(UUID surveyId, boolean isClosed);
 

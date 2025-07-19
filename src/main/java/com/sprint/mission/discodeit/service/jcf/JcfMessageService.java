@@ -17,7 +17,7 @@ public class JcfMessageService extends JcfService<Message> implements MessageSer
   }
 
   @Override
-  public boolean createMessage(Message message) {
+  public boolean create(Message message) {
     boolean exists = data.stream().anyMatch(m -> m.getId().equals(message.getId()));
     if (exists) {
       System.out.println("중복된 id가 존재합니다.");

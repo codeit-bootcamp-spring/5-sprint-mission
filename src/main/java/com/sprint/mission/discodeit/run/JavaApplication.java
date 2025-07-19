@@ -175,9 +175,9 @@ public class JavaApplication {
   }
 
   private void mainMenu() {
-    userService.registerUser(
+    userService.register(
         new User("a@a.aa", "1", "1111aaaa", LocalDate.of(1995, 4, 10), true, "1")); // 테스트용
-    userService.registerUser(
+    userService.register(
         new User("b@b.bb", "2", "2222bbbb", LocalDate.of(1995, 4, 11), false, "2")); // 테스트용
     System.out.println("\n========== Discodeit ==========");
 
@@ -373,7 +373,7 @@ public class JavaApplication {
 
     try {
       User user =
-          userService.registerUser(
+          userService.register(
               new User(
                   email.toLowerCase(),
                   username,
@@ -913,7 +913,7 @@ public class JavaApplication {
       }
 
       try {
-        Guild guild = guildService.createGuild(new Guild(isPublic, me.getId(), name));
+        Guild guild = guildService.create(new Guild(isPublic, me.getId(), name));
         if (guild != null) {
           guildService.addMember(guild.getId(), me.getId());
           guildService.addChannel(
