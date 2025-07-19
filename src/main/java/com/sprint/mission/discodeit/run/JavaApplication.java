@@ -381,7 +381,7 @@ public class JavaApplication {
         System.out.println("다시 시도해 주세요.\n");
       }
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   }
 
@@ -397,7 +397,7 @@ public class JavaApplication {
       try {
         EmailValidator.validate(email);
       } catch (IllegalArgumentException e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
         continue;
       }
 
@@ -406,7 +406,7 @@ public class JavaApplication {
       try {
         PasswordValidator.validate(password);
       } catch (IllegalArgumentException e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
         continue;
       }
 
@@ -416,7 +416,7 @@ public class JavaApplication {
         System.out.println(user.getUsername() + "님, 환영합니다!");
         break;
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
 
@@ -472,7 +472,7 @@ public class JavaApplication {
         userService.updateBanned(user.getId(), true);
         System.out.println("계정 정지 : " + user.getEmail());
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
   }
@@ -483,7 +483,7 @@ public class JavaApplication {
       System.out.println();
       users.forEach(System.out::println);
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   }
 
@@ -520,7 +520,7 @@ public class JavaApplication {
         me.setEmail(email);
         break;
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
   }
@@ -537,7 +537,7 @@ public class JavaApplication {
       userService.updateNickname(me.getId(), nickname);
       me.setNickname(nickname);
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   }
 
@@ -564,7 +564,7 @@ public class JavaApplication {
       userService.updateUsername(me.getId(), newUsername);
       me.setUsername(newUsername);
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   }
 
@@ -588,7 +588,7 @@ public class JavaApplication {
         me.setPassword(password);
         break;
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
   }
@@ -607,7 +607,7 @@ public class JavaApplication {
       userService.updateBirthDate(me.getId(), birthDate);
       me.setBirthDate(birthDate);
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   }
 
@@ -624,7 +624,7 @@ public class JavaApplication {
       userService.updateSubscribedToNewsletter(me.getId(), isSubscribedToNewsletter);
       me.setSubscribedToNewsletter(isSubscribedToNewsletter);
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   }
 
@@ -640,7 +640,7 @@ public class JavaApplication {
       userService.updatePhoneNumber(me.getId(), phoneNumber);
       me.setPhoneNumber(phoneNumber);
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   }
 
@@ -663,14 +663,14 @@ public class JavaApplication {
             System.out.println("계정이 비활성화되었습니다. 로그인 시 계정이 활성화됩니다.\n");
             return;
           } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             continue;
           }
         case "2":
           try {
             userService.deleteAccount(me.getId());
           } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             continue;
           }
           me = null;
@@ -722,7 +722,7 @@ public class JavaApplication {
         System.out.println("친구 요청을 보냈습니다.");
         return;
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
   }
@@ -777,7 +777,7 @@ public class JavaApplication {
       } catch (NumberFormatException e) {
         System.out.println("숫자를 입력해주세요.");
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
   }
@@ -788,11 +788,13 @@ public class JavaApplication {
       return;
     }
 
-    List<UUID> friendIds = me.getFriends().stream().toList();
+    List<UUID> friends = me.getFriends().stream().toList();
 
-    for (int i = 0; i < friendIds.size(); i++) {
-      User friend = userService.findById(friendIds.get(i));
-      System.out.printf("%d. %s (%s)\n", i + 1, friend.getUsername(), friend.getEmail());
+    for (int i = 0; i < friends.size(); i++) {
+      User friend = userService.findById(friends.get(i));
+      if (friend != null) {
+        System.out.printf("%d. %s (%s)\n", i + 1, friend.getUsername(), friend.getEmail());
+      }
     }
 
     while (true) {
@@ -801,20 +803,21 @@ public class JavaApplication {
       if (idxStr == null) {
         return;
       }
+
       try {
         int idx = Integer.parseInt(idxStr) - 1;
-        if (idx < 0 || idx >= friendIds.size()) {
+        if (idx < 0 || idx >= friends.size()) {
           System.out.println("유효한 번호를 입력해주세요.");
           continue;
         }
 
-        UUID friendId = friendIds.get(idx);
+        UUID friendId = friends.get(idx);
         userService.removeFriend(me.getId(), friendId);
         System.out.println("친구가 삭제되었습니다.");
       } catch (NumberFormatException e) {
         System.out.println("숫자를 입력해주세요.");
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
   }
@@ -878,7 +881,7 @@ public class JavaApplication {
           return;
         }
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
 
       System.out.println("다시 시도해 주세요.\n");
@@ -909,7 +912,7 @@ public class JavaApplication {
       guildService.deleteById(guild.getId());
       System.out.println(guild.getName() + " 서버가 삭제되었습니다.");
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   }
 
@@ -937,7 +940,7 @@ public class JavaApplication {
       guildService.addMember(guild.getId(), me.getId());
       System.out.println(guild.getName() + " 서버에 입장했습니다.");
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   }
 
@@ -960,7 +963,7 @@ public class JavaApplication {
       guildService.removeMember(guild.getId(), me.getId());
       System.out.println(guild.getName() + " 서버에서 퇴장했습니다.\n");
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   }
 
@@ -1032,7 +1035,7 @@ public class JavaApplication {
       } catch (NumberFormatException e) {
         System.out.println("숫자를 입력해주세요.");
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
   }
@@ -1054,7 +1057,7 @@ public class JavaApplication {
     try {
       guildService.updateName(guild.getId(), guildName);
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   }
 
@@ -1115,7 +1118,7 @@ public class JavaApplication {
       } catch (NumberFormatException e) {
         System.out.println("숫자를 입력해주세요.");
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
   }
@@ -1166,7 +1169,7 @@ public class JavaApplication {
       } catch (NumberFormatException e) {
         System.out.println("올바른 번호를 입력해주세요");
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
   }
@@ -1227,7 +1230,7 @@ public class JavaApplication {
       } catch (NumberFormatException e) {
         System.out.println("올바른 번호를 입력해주세요");
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
   }
@@ -1266,7 +1269,7 @@ public class JavaApplication {
       } catch (NumberFormatException e) {
         System.out.println("올바른 번호를 입력해주세요.");
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.err.println(e.getMessage());
       }
     }
   }

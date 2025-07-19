@@ -118,7 +118,7 @@ public class JcfFriendRequestService extends JcfService<FriendRequest>
         try {
           deleteById(fr.getId());
         } catch (Exception e) {
-          System.err.println("삭제 실패: " + e.getMessage());
+          System.err.println(e.getMessage());
         }
       }
     }
