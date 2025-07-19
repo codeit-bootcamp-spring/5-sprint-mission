@@ -2,7 +2,10 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.enums.user.Status;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class User extends AbstractBaseEntity {
   private String email;
@@ -19,9 +22,9 @@ public class User extends AbstractBaseEntity {
   private boolean deactivated;
   private boolean banned;
 
-  private final Set<UUID> friends = new HashSet<>();
-  private final Set<UUID> guilds = new HashSet<>();
-  private final Set<UUID> chatRooms = new HashSet<>();
+  private final Set<UUID> friends;
+  private final Set<UUID> guilds;
+  private final Set<UUID> chatRooms;
 
   public User(
       String email,
@@ -36,10 +39,15 @@ public class User extends AbstractBaseEntity {
     this.birthDate = birthDate;
     this.subscribedToNewsletter = subscribedToNewsletter;
     this.nickname = optionalString(nickname);
+
     this.status = Status.OFFLINE;
     this.phoneNumber = "";
     this.avatarUrl = "";
     this.bio = "";
+    this.friends = new HashSet<>();
+    this.guilds = new HashSet<>();
+    this.chatRooms = new HashSet<>();
+
   }
 
   public String getEmail() {

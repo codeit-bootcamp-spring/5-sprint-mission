@@ -29,11 +29,6 @@ public class JcfMessageService extends JcfService<Message> implements MessageSer
   }
 
   @Override
-  protected boolean idEquals(Message message, UUID id) {
-    return message.getId().equals(id);
-  }
-
-  @Override
   public void update(UUID messageId, Consumer<Message> updater) {
     Message m = findById(messageId);
     if (m != null) {

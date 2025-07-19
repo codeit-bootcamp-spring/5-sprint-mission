@@ -15,11 +15,6 @@ public class JcfSurveyService extends JcfService<Survey> implements SurveyServic
   }
 
   @Override
-  protected boolean idEquals(Survey survey, UUID id) {
-    return survey.getId().equals(id);
-  }
-
-  @Override
   public boolean createSurvey(Survey survey) {
     boolean exists = data.stream().anyMatch(s -> s.getId().equals(survey.getId()));
     if (exists) {
@@ -49,9 +44,6 @@ public class JcfSurveyService extends JcfService<Survey> implements SurveyServic
     data.stream()
         .filter(s -> s.getId().equals(surveyId))
         .findFirst()
-        .ifPresent(
-            s -> {
-              s.vote(answerIndex, voterId, isUnvoted);
-            });
+        .ifPresent(s -> s.vote(answerIndex, voterId, isUnvoted));
   }
 }

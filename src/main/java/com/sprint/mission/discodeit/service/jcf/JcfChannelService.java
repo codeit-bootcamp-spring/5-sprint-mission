@@ -17,10 +17,6 @@ public class JcfChannelService extends JcfService<Channel> implements ChannelSer
     return instance;
   }
 
-  protected boolean idEquals(Channel channel, UUID id) {
-    return channel.getId().equals(id);
-  }
-
   @Override
   public Channel createChannel(Channel channel, UUID ownerId) {
     if (channel == null) {

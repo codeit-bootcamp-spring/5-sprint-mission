@@ -17,11 +17,6 @@ public class JcfGuildService extends JcfService<Guild> implements GuildService {
   }
 
   @Override
-  protected boolean idEquals(Guild guild, UUID id) {
-    return guild.getId().equals(id);
-  }
-
-  @Override
   public Guild createGuild(Guild guild) {
     if (findById(guild.getId()) != null) {
       System.out.println("중복된 id가 존재합니다.");

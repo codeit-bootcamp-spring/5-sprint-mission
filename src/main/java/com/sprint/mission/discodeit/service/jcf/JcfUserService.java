@@ -21,19 +21,6 @@ public class JcfUserService extends JcfService<User> implements UserService {
     return instance;
   }
 
-  private User requireUser(UUID userId) {
-    User user = findById(userId);
-    if (user == null) {
-      throw new NoSuchElementException("유저를 찾을 수 없습니다: " + userId);
-    }
-    return user;
-  }
-
-  @Override
-  public boolean idEquals(User user, UUID id) {
-    return user.getId().equals(id);
-  }
-
   @Override
   public User findByEmail(String email) {
     return data.stream().filter(u -> u.getEmail().equalsIgnoreCase(email)).findFirst().orElse(null);
@@ -51,7 +38,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public void update(UUID userId, Consumer<User> updater) {
-    User u = requireUser(userId);
+    User u = requireEntity(userId);
     updater.accept(u);
     u.setUpdatedAt(System.currentTimeMillis());
   }
@@ -103,7 +90,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   public void updateEmail(UUID userId, String email) {
     EmailValidator.validate(email);
 
-    User current = requireUser(userId);
+    User current = requireEntity(userId);
     if (current.getEmail().equalsIgnoreCase(email)) {
       return;
     }
@@ -197,14 +184,14 @@ public class JcfUserService extends JcfService<User> implements UserService {
     if (userId.equals(friendId)) {
       throw new IllegalArgumentException("뭐야 나잖아");
     }
-    requireUser(friendId);
+    requireEntity(friendId);
     update(userId, u -> u.addFriend(friendId));
     update(friendId, u -> u.addFriend(userId));
   }
 
   @Override
   public void removeFriend(UUID userId, UUID friendId) {
-    requireUser(friendId);
+    requireEntity(friendId);
     update(userId, u -> u.removeFriend(friendId));
     update(friendId, u -> u.removeFriend(userId));
   }
