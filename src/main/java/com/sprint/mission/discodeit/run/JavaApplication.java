@@ -235,9 +235,11 @@ public class JavaApplication {
   }
 
   private void editFriendMenu() {
-    List<String> items = List.of("친구 요청", "보낸 친구 요청 보기", "받은 친구 요청 보기", "친구 삭제", "뒤로가기");
+    List<String> items =
+        List.of("친구 목록 보기", "친구 요청", "보낸 친구 요청 보기", "받은 친구 요청 보기", "친구 삭제", "뒤로가기");
     List<Runnable> actions =
         List.of(
+            this::showFriends,
             this::sendFriendRequest,
             this::viewSentFriendRequests,
             this::viewReceivedFriendRequests,

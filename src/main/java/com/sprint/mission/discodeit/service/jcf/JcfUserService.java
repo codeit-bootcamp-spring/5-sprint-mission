@@ -76,6 +76,13 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public void deleteAccount(UUID userId) {
     JcfFriendRequestService.getInstance(this).deleteAllRequestsOfUser(userId);
+
+    User user = requireEntity(userId);
+    List<UUID> friends = List.copyOf(user.getFriends());
+    for (UUID friendId : friends) {
+      removeFriend(friendId, userId);
+    }
+
     deleteById(userId);
   }
 
