@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.jcf;
 
+import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.service.UserService;
@@ -14,11 +15,13 @@ import java.util.UUID;
 public class JcfUserService extends JcfService<User> implements UserService {
   private static final JcfUserService instance = new JcfUserService();
 
+  private FriendRequest jcfFriendRequest;
+
+  private JcfUserService() {}
+
   public static JcfUserService getInstance() {
     return instance;
   }
-
-  private JcfUserService() {}
 
   @Override
   public User findByEmail(String email) {
@@ -72,7 +75,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
 
   @Override
   public void deleteAccount(UUID userId) {
-    JcfFriendRequestService.getInstance().deleteAllRequestsOfUser(userId);
+    JcfFriendRequestService.getInstance(this).deleteAllRequestsOfUser(userId);
     deleteById(userId);
   }
 

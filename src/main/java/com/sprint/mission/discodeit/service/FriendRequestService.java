@@ -11,8 +11,6 @@ public interface FriendRequestService extends Service<FriendRequest> {
 
   void declineFriendRequest(UUID requestId);
 
-  void cancelFriendRequest(UUID requestId);
-
   void deleteAllRequestsOfUser(UUID userId);
 
   List<FriendRequest> getSentRequests(UUID senderId);
