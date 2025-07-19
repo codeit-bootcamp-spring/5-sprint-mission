@@ -51,17 +51,11 @@ public interface UserService extends Service<User> {
 
   void removeFriend(UUID userId, UUID friendId);
 
-  void clearFriends(UUID userId);
-
   void addGuild(UUID userId, UUID guildId);
 
   void removeGuild(UUID userId, UUID guildId);
 
-  void clearGuilds(UUID userId);
-
   void addChatRoom(UUID userId, UUID chatRoomId);
 
   void removeChatRoom(UUID userId, UUID chatRoomId);
-
-  void clearChatRooms(UUID userId);
 }

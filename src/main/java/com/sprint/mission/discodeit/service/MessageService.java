@@ -18,6 +18,4 @@ public interface MessageService extends Service<Message> {
   void addReply(UUID messageId, UUID replyId);
 
   void removeReply(UUID messageId, UUID replyId);
-
-  void clearReplies(UUID messageId);
 }

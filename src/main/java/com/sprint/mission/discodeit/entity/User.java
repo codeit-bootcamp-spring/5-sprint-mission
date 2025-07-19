@@ -163,10 +163,6 @@ public class User extends AbstractBaseEntity {
     friends.remove(id);
   }
 
-  public void clearFriends() {
-    friends.clear();
-  }
-
   public Set<UUID> getGuilds() {
     return Collections.unmodifiableSet(guilds);
   }
@@ -179,10 +175,6 @@ public class User extends AbstractBaseEntity {
     guilds.remove(id);
   }
 
-  public void clearGuilds() {
-    guilds.clear();
-  }
-
   public Set<UUID> getChatRooms() {
     return Collections.unmodifiableSet(chatRooms);
   }
@@ -193,10 +185,6 @@ public class User extends AbstractBaseEntity {
 
   public void removeChatRoom(UUID id) {
     chatRooms.remove(id);
-  }
-
-  public void clearChatRooms() {
-    chatRooms.clear();
   }
 
   private String optionalString(String input) {

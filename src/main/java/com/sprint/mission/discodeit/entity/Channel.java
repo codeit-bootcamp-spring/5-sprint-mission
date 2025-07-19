@@ -69,10 +69,6 @@ public class Channel extends AbstractBaseEntity {
     joinedUsers.remove(joinedUserId);
   }
 
-  public void clearJoinedUsers() {
-    joinedUsers.clear();
-  }
-
   public Map<UUID, Set<Permission>> getUserPermissionMap() {
     return Collections.unmodifiableMap(userPermissions);
   }
@@ -86,14 +82,6 @@ public class Channel extends AbstractBaseEntity {
     userPermissions.put(userId, new HashSet<>(permissions));
   }
 
-  public void clearUserPermission(UUID userId) {
-    userPermissions.remove(userId);
-  }
-
-  public void clearUserPermissionMap() {
-    userPermissions.clear();
-  }
-
   public Map<RoleType, Set<Permission>> getRolePermissionMap() {
     return Collections.unmodifiableMap(rolePermissions);
   }
@@ -105,14 +93,6 @@ public class Channel extends AbstractBaseEntity {
 
   public void setPermissionsToRoleType(RoleType roleType, Set<Permission> permissions) {
     rolePermissions.put(roleType, new HashSet<>(permissions));
-  }
-
-  public void clearRolePermission(RoleType roleType) {
-    rolePermissions.remove(roleType);
-  }
-
-  public void clearRolePermissionMap() {
-    rolePermissions.clear();
   }
 
   @Override

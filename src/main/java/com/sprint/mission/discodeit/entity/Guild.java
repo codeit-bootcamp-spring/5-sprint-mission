@@ -57,10 +57,6 @@ public class Guild extends AbstractBaseEntity {
     channels.remove(channel);
   }
 
-  public void clearChannels() {
-    channels.clear();
-  }
-
   public Set<UUID> getMembers() {
     return Collections.unmodifiableSet(members);
   }
@@ -73,10 +69,6 @@ public class Guild extends AbstractBaseEntity {
 
   public void removeMember(UUID member) {
     members.remove(member);
-  }
-
-  public void clearMembers() {
-    members.clear();
   }
 
   public UUID getOwnerId() {

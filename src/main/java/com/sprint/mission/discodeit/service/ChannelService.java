@@ -16,6 +16,4 @@ public interface ChannelService extends Service<Channel> {
   void addJoinedUser(UUID channelId, UUID userId);
 
   void removeJoinedUser(UUID channelId, UUID userId);
-
-  void clearJoinedUsers(UUID channelId);
 }

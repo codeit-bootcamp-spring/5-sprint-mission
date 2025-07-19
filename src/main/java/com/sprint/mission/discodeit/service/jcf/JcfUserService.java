@@ -202,12 +202,6 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  public void clearFriends(UUID userId) {
-    update(userId, User::clearFriends);
-    data.forEach(u -> u.removeFriend(userId));
-  }
-
-  @Override
   public void addGuild(UUID userId, UUID guildId) {
     update(userId, u -> u.addGuild(guildId));
   }
@@ -218,11 +212,6 @@ public class JcfUserService extends JcfService<User> implements UserService {
   }
 
   @Override
-  public void clearGuilds(UUID userId) {
-    update(userId, User::clearGuilds);
-  }
-
-  @Override
   public void addChatRoom(UUID userId, UUID chatRoomId) {
     update(userId, u -> u.addChatRoom(chatRoomId));
   }
@@ -230,10 +219,5 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public void removeChatRoom(UUID userId, UUID chatRoomId) {
     update(userId, u -> u.removeChatRoom(chatRoomId));
-  }
-
-  @Override
-  public void clearChatRooms(UUID userId) {
-    update(userId, User::clearChatRooms);
   }
 }

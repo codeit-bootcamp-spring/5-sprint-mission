@@ -66,10 +66,6 @@ public class Message extends AbstractBaseEntity {
     replies.remove(replyId);
   }
 
-  public void clearReplies() {
-    replies.clear();
-  }
-
   @Override
   public String toString() {
     return "Message{"

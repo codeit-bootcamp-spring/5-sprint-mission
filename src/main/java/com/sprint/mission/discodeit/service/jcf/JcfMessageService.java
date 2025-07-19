@@ -51,9 +51,4 @@ public class JcfMessageService extends JcfService<Message> implements MessageSer
   public void removeReply(UUID messageId, UUID replyId) {
     update(messageId, m -> m.removeReply(replyId));
   }
-
-  @Override
-  public void clearReplies(UUID messageId) {
-    update(messageId, Message::clearReplies);
-  }
 }

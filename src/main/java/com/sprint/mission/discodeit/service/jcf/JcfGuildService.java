@@ -32,16 +32,12 @@ public class JcfGuildService extends JcfService<Guild> implements GuildService {
 
   @Override
   public List<Guild> findGuildsOwnedByUser(UUID userId) {
-    return data.stream()
-      .filter(g -> g.getOwnerId().equals(userId))
-      .toList();
+    return data.stream().filter(g -> g.getOwnerId().equals(userId)).toList();
   }
 
   @Override
   public List<Guild> findGuildsJoined(UUID userId) {
-    return data.stream()
-      .filter(g -> g.getMembers().contains(userId))
-      .toList();
+    return data.stream().filter(g -> g.getMembers().contains(userId)).toList();
   }
 
   @Override
@@ -70,11 +66,6 @@ public class JcfGuildService extends JcfService<Guild> implements GuildService {
   }
 
   @Override
-  public void clearMembers(UUID guildId) {
-    update(guildId, Guild::clearMembers);
-  }
-
-  @Override
   public void addChannel(UUID guildId, Channel channel) {
     update(guildId, g -> g.addChannel(channel));
   }
@@ -82,10 +73,5 @@ public class JcfGuildService extends JcfService<Guild> implements GuildService {
   @Override
   public void removeChannel(UUID guildId, Channel channel) {
     update(guildId, g -> g.removeChannel(channel));
-  }
-
-  @Override
-  public void clearChannels(UUID guildId) {
-    update(guildId, Guild::clearChannels);
   }
 }

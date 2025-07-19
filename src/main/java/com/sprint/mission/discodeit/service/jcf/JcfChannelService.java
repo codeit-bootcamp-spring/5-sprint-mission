@@ -56,9 +56,4 @@ public class JcfChannelService extends JcfService<Channel> implements ChannelSer
   public void removeJoinedUser(UUID channelId, UUID userId) {
     update(channelId, c -> c.removeJoinedUser(userId));
   }
-
-  @Override
-  public void clearJoinedUsers(UUID channelId) {
-    update(channelId, Channel::clearJoinedUsers);
-  }
 }

@@ -20,13 +20,9 @@ public interface GuildService extends Service<Guild> {
 
   void removeChannel(UUID guildId, Channel channel);
 
-  void clearChannels(UUID guildId);
-
   void addMember(UUID guildId, UUID member);
 
   void removeMember(UUID guildId, UUID member);
-
-  void clearMembers(UUID guildId);
 
   void updateOwnerId(UUID guildId, UUID ownerId);
 
