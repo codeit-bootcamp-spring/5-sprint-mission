@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.enums.user;
+package com.sprint.mission.discodeit.enums.friend;
 
 public enum FriendRequestStatus {
   PENDING,

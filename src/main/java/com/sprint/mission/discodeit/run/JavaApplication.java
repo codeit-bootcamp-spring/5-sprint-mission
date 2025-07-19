@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.channel.ChannelType;
+import com.sprint.mission.discodeit.enums.friend.FriendRequestStatus;
 import com.sprint.mission.discodeit.service.jcf.JcfChannelService;
 import com.sprint.mission.discodeit.service.jcf.JcfFriendRequestService;
 import com.sprint.mission.discodeit.service.jcf.JcfGuildService;
@@ -667,7 +668,7 @@ public class JavaApplication {
           }
         case "2":
           try {
-            userService.deleteById(me.getId());
+            userService.deleteAccount(me.getId());
           } catch (Exception e) {
             System.out.println(e.getMessage());
             continue;
@@ -727,7 +728,9 @@ public class JavaApplication {
   }
 
   private void viewFriendRequest() {
-    List<FriendRequest> requests = friendRequestService.getPendingRequestsForUser(me.getId());
+    List<FriendRequest> requests = friendRequestService.getReceivedRequests(me.getId()).stream()
+        .filter(r -> r.getStatus() == FriendRequestStatus.PENDING)
+        .toList();
 
     if (requests.isEmpty()) {
       System.out.println("\n받은 친구 요청이 없습니다.");

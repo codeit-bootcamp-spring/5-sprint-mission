@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface FriendRequestService extends Service<FriendRequest> {
-  FriendRequest sendFriendRequest(UUID senderId, UUID receiverId);
+  void sendFriendRequest(UUID senderId, UUID receiverId);
 
   void acceptFriendRequest(UUID requestId);
 
@@ -13,5 +13,9 @@ public interface FriendRequestService extends Service<FriendRequest> {
 
   void cancelFriendRequest(UUID requestId);
 
-  List<FriendRequest> getPendingRequestsForUser(UUID userId);
+  void deleteAllRequestsOfUser(UUID userId);
+
+  List<FriendRequest> getSentRequests(UUID senderId);
+
+  List<FriendRequest> getReceivedRequests(UUID receiverId);
 }

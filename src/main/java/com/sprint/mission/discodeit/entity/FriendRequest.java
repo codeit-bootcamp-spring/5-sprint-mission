@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.enums.user.FriendRequestStatus;
+import com.sprint.mission.discodeit.enums.friend.FriendRequestStatus;
 import java.util.UUID;
 
 public class FriendRequest extends AbstractBaseEntity {

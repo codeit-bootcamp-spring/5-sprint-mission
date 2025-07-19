@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.jcf;
 
-import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.service.UserService;
@@ -69,6 +68,12 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public void reactivateAccount(UUID userId) {
     update(userId, u -> u.setDeactivated(false));
+  }
+
+  @Override
+  public void deleteAccount(UUID userId) {
+    JcfFriendRequestService.getInstance().deleteAllRequestsOfUser(userId);
+    deleteById(userId);
   }
 
   @Override
@@ -190,16 +195,6 @@ public class JcfUserService extends JcfService<User> implements UserService {
   public void clearFriends(UUID userId) {
     update(userId, User::clearFriends);
     data.forEach(u -> u.removeFriend(userId));
-  }
-
-  @Override
-  public List<FriendRequest> getSentFriendRequests(UUID userId) {
-    return JcfFriendRequestService.getInstance().getSentRequests(userId);
-  }
-
-  @Override
-  public List<FriendRequest> getReceivedFriendRequests(UUID userId) {
-    return JcfFriendRequestService.getInstance().getReceivedRequests(userId);
   }
 
   @Override
