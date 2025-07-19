@@ -7,7 +7,7 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.Set;
 import java.util.UUID;
 
-public class JcfChannelService extends JcfService<Channel> implements ChannelService {
+public class JcfChannelService extends BaseJcfService<Channel> implements ChannelService {
   private static final JcfChannelService instance = new JcfChannelService();
 
   private JcfChannelService() {}

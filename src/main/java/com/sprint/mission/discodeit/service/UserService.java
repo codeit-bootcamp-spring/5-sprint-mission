@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-public interface UserService extends Service<User> {
+public interface UserService extends BaseService<User> {
   User findByEmail(String email);
 
   User register(User user);

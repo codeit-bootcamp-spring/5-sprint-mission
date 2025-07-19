@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.entity.Guild;
 import java.util.List;
 import java.util.UUID;
 
-public interface GuildService extends Service<Guild> {
+public interface GuildService extends BaseService<Guild> {
   Guild create(Guild guild);
 
   List<Guild> findPublicGuilds();

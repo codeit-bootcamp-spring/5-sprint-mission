@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.service;
 import java.util.List;
 import java.util.UUID;
 
-public interface Service<T> {
+public interface BaseService<T> {
   void reset();
 
   T getIfExists(UUID id);

@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class JcfFriendRequestService extends JcfService<FriendRequest>
+public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
     implements FriendRequestService {
   private static JcfFriendRequestService instance;
   private final UserService userService;

@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
-public interface MessageService extends Service<Message> {
+public interface MessageService extends BaseService<Message> {
   boolean create(Message message);
 
   void updateContent(UUID messageId, String content);

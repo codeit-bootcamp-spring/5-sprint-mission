@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.service.GuildService;
 import java.util.List;
 import java.util.UUID;
 
-public class JcfGuildService extends JcfService<Guild> implements GuildService {
+public class JcfGuildService extends BaseJcfService<Guild> implements GuildService {
   private static final JcfGuildService instance = new JcfGuildService();
 
   private JcfGuildService() {}

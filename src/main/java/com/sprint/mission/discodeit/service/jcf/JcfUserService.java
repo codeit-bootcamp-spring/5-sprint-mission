@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-public class JcfUserService extends JcfService<User> implements UserService {
+public class JcfUserService extends BaseJcfService<User> implements UserService {
   private static final JcfUserService instance = new JcfUserService();
 
   private FriendRequest jcfFriendRequest;

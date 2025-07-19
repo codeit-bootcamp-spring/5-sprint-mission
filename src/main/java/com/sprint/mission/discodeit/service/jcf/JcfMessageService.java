@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
-public class JcfMessageService extends JcfService<Message> implements MessageService {
+public class JcfMessageService extends BaseJcfService<Message> implements MessageService {
   private static final JcfMessageService instance = new JcfMessageService();
 
   private JcfMessageService() {}

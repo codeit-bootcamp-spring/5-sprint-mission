@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.entity.Survey;
 import java.util.UUID;
 
-public interface SurveyService extends Service<Survey> {
+public interface SurveyService extends BaseService<Survey> {
   boolean create(Survey survey);
 
   void updateClosed(UUID surveyId, boolean isClosed);

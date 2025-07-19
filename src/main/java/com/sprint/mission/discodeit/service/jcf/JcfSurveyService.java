@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.entity.Survey;
 import com.sprint.mission.discodeit.service.SurveyService;
 import java.util.UUID;
 
-public class JcfSurveyService extends JcfService<Survey> implements SurveyService {
+public class JcfSurveyService extends BaseJcfService<Survey> implements SurveyService {
   private static final JcfSurveyService instance = new JcfSurveyService();
 
   private JcfSurveyService() {}

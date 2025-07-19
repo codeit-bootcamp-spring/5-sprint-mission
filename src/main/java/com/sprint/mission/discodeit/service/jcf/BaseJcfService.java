@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.AbstractBaseEntity;
-import com.sprint.mission.discodeit.service.Service;
+import com.sprint.mission.discodeit.service.BaseService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public abstract class JcfService<T extends AbstractBaseEntity> implements Service<T> {
+public abstract class BaseJcfService<T extends AbstractBaseEntity> implements BaseService<T> {
   protected final List<T> data = new ArrayList<>();
 
   protected boolean idEquals(T entity, UUID id) {
