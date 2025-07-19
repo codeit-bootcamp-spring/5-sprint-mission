@@ -12,7 +12,6 @@ import com.sprint.mission.discodeit.service.jcf.JcfMessageService;
 import com.sprint.mission.discodeit.service.jcf.JcfSurveyService;
 import com.sprint.mission.discodeit.service.jcf.JcfUserService;
 import com.sprint.mission.discodeit.utility.InputHandler;
-import com.sprint.mission.discodeit.validation.EmailValidator;
 import com.sprint.mission.discodeit.validation.PasswordValidator;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -248,7 +247,7 @@ public class JavaApplication {
         break;
       }
 
-      System.out.println("중복된 이메일입니다. 다시 입력해주세요.\n");
+      System.out.println("⚠ 중복된 이메일입니다. 다시 입력해주세요.\n");
     }
 
     String nickname = InputHandler.getInputOrBack("별명(선택) : ");
@@ -265,7 +264,7 @@ public class JavaApplication {
       if (!username.isEmpty()) {
         break;
       }
-      System.out.println("사용자명은 필수입니다.");
+      System.out.println("⚠ 사용자명은 필수입니다.");
     }
 
     String password = InputHandler.getValidPassword("비밀번호 : ");
@@ -294,12 +293,12 @@ public class JavaApplication {
                   isSubscribedToNewsletter,
                   nickname));
       if (user != null) {
-        System.out.println("성공적으로 회원가입을 완료하였습니다.\n");
+        System.out.println("✅ 회원가입이 완료되었습니다.");
       } else {
-        System.out.println("다시 시도해 주세요.\n");
+        System.out.println("🚫 다시 시도해주세요.\n");
       }
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.out.println("🚫 " + e.getMessage());
     }
   }
 
@@ -312,23 +311,13 @@ public class JavaApplication {
         return;
       }
 
-      try {
-        EmailValidator.validate(email);
-      } catch (IllegalArgumentException e) {
-        System.out.println(e.getMessage());
-        continue;
-      }
-
       String password = InputHandler.getInputOrBack("비밀번호 : ");
+      if (password == null) {
+        return;
+      }
 
       try {
         PasswordValidator.validate(password);
-      } catch (IllegalArgumentException e) {
-        System.out.println(e.getMessage());
-        continue;
-      }
-
-      try {
         User user = userService.login(email.toLowerCase(), password);
         me = user;
         System.out.println(user.getUsername() + "님, 환영합니다!");
@@ -344,9 +333,11 @@ public class JavaApplication {
   private void logout() {
     if (me != null) {
       userService.logout(me.getId());
+      System.out.println(me.getUsername() + "님, 로그아웃 되었습니다.");
+      me = null;
+    } else {
+      System.out.println("현재 로그인된 사용자가 없습니다.");
     }
-    me = null;
-    System.out.println("로그아웃");
   }
 
   private void findUserByEmail() {
