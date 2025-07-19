@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.service.GuildService;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class JcfGuildService extends JcfService<Guild> implements GuildService {
   private static final JcfGuildService instance = new JcfGuildService();
@@ -43,17 +42,6 @@ public class JcfGuildService extends JcfService<Guild> implements GuildService {
     return data.stream()
       .filter(g -> g.getMembers().contains(userId))
       .toList();
-  }
-
-
-  @Override
-  public void update(UUID guildId, Consumer<Guild> updater) {
-    Guild guild = findById(guildId);
-    if (guild == null) {
-      return;
-    }
-    updater.accept(guild);
-    guild.setUpdatedAt(System.currentTimeMillis());
   }
 
   @Override

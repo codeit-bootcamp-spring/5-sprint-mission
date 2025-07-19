@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Survey;
 import com.sprint.mission.discodeit.service.SurveyService;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class JcfSurveyService extends JcfService<Survey> implements SurveyService {
   private static final JcfSurveyService instance = new JcfSurveyService();
@@ -23,15 +22,6 @@ public class JcfSurveyService extends JcfService<Survey> implements SurveyServic
     }
     data.add(survey);
     return true;
-  }
-
-  @Override
-  public void update(UUID surveyId, Consumer<Survey> updater) {
-    Survey s = findById(surveyId);
-    if (s != null) {
-      updater.accept(s);
-      s.setUpdatedAt(System.currentTimeMillis());
-    }
   }
 
   @Override

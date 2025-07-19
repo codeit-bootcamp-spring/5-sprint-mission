@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class JcfChannelService extends JcfService<Channel> implements ChannelService {
   private static final JcfChannelService instance = new JcfChannelService();
@@ -31,15 +30,6 @@ public class JcfChannelService extends JcfService<Channel> implements ChannelSer
     channel.setPermissionsToUser(ownerId, Set.of(Permission.ADMINISTRATOR));
     data.add(channel);
     return channel;
-  }
-
-  @Override
-  public void update(UUID channelId, Consumer<Channel> updater) {
-    Channel c = findById(channelId);
-    if (c != null) {
-      updater.accept(c);
-      c.setUpdatedAt(System.currentTimeMillis());
-    }
   }
 
   @Override

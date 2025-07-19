@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.service.MessageService;
 import java.io.File;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class JcfMessageService extends JcfService<Message> implements MessageService {
   private static final JcfMessageService instance = new JcfMessageService();
@@ -26,15 +25,6 @@ public class JcfMessageService extends JcfService<Message> implements MessageSer
     }
     data.add(message);
     return true;
-  }
-
-  @Override
-  public void update(UUID messageId, Consumer<Message> updater) {
-    Message m = findById(messageId);
-    if (m != null) {
-      updater.accept(m);
-      m.setUpdatedAt(System.currentTimeMillis());
-    }
   }
 
   @Override

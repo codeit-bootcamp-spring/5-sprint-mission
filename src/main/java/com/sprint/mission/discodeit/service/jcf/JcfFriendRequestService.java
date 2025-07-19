@@ -3,12 +3,12 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.enums.user.FriendRequestStatus;
 import com.sprint.mission.discodeit.service.FriendRequestService;
+import com.sprint.mission.discodeit.service.UserService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class JcfFriendRequestService extends JcfService<FriendRequest>
     implements FriendRequestService {
@@ -23,12 +23,7 @@ public class JcfFriendRequestService extends JcfService<FriendRequest>
   private final Map<UUID, Set<UUID>> sentIndex = new HashMap<>();
   private final Map<UUID, Set<UUID>> receivedIndex = new HashMap<>();
 
-  @Override
-  public void update(UUID id, Consumer<FriendRequest> updater) {
-    FriendRequest fr = requireEntity(id);
-    updater.accept(fr);
-    fr.setUpdatedAt(System.currentTimeMillis());
-  }
+  private final UserService userService = JcfUserService.getInstance();
 
   @Override
   public FriendRequest sendFriendRequest(UUID senderId, UUID receiverId) {

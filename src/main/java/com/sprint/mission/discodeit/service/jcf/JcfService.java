@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public abstract class JcfService<T extends AbstractBaseEntity> implements Service<T> {
   protected final List<T> data = new ArrayList<>();
@@ -21,6 +22,12 @@ public abstract class JcfService<T extends AbstractBaseEntity> implements Servic
       throw new NoSuchElementException("엔티티를 찾을 수 없습니다 : " + id);
     }
     return entity;
+  }
+
+  protected void update(UUID id, Consumer<T> updater) {
+    T entity = requireEntity(id);
+    updater.accept(entity);
+    entity.setUpdatedAt(System.currentTimeMillis());
   }
 
   @Override

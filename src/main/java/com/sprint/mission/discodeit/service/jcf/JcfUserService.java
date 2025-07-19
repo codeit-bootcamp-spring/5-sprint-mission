@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class JcfUserService extends JcfService<User> implements UserService {
   private static final JcfUserService instance = new JcfUserService();
@@ -34,13 +33,6 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public User searchUser(String keyword) {
     return null;
-  }
-
-  @Override
-  public void update(UUID userId, Consumer<User> updater) {
-    User u = requireEntity(userId);
-    updater.accept(u);
-    u.setUpdatedAt(System.currentTimeMillis());
   }
 
   @Override
