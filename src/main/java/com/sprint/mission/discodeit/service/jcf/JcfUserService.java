@@ -172,7 +172,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
   @Override
   public void addFriend(UUID userId, UUID friendId) {
     if (userId.equals(friendId)) {
-      throw new IllegalArgumentException("뭐야 나잖아");
+      throw new IllegalArgumentException("자기 자신에게는 친구 요청을 보낼 수 없습니다.");
     }
     requireEntity(friendId);
     update(userId, u -> u.addFriend(friendId));

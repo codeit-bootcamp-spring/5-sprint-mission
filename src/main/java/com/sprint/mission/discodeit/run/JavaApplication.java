@@ -1,10 +1,12 @@
 package com.sprint.mission.discodeit.run;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.service.jcf.JcfChannelService;
+import com.sprint.mission.discodeit.service.jcf.JcfFriendRequestService;
 import com.sprint.mission.discodeit.service.jcf.JcfGuildService;
 import com.sprint.mission.discodeit.service.jcf.JcfMessageService;
 import com.sprint.mission.discodeit.service.jcf.JcfSurveyService;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 public class JavaApplication {
   private final Scanner sc = new Scanner(System.in);
   private final JcfUserService userService = JcfUserService.getInstance();
+  private final JcfFriendRequestService friendRequestService =
+      JcfFriendRequestService.getInstance();
   private final JcfMessageService messageService = JcfMessageService.getInstance();
   private final JcfChannelService channelService = JcfChannelService.getInstance();
   private final JcfGuildService guildService = JcfGuildService.getInstance();
@@ -231,8 +235,9 @@ public class JavaApplication {
   }
 
   private void editFriendMenu() {
-    List<String> items = List.of("친구 추가", "친구 삭제", "뒤로가기");
-    List<Runnable> actions = List.of(this::addFriend, this::deleteFriend, () -> {});
+    List<String> items = List.of("친구 요청", "친구 요청 보기", "친구 삭제", "뒤로가기");
+    List<Runnable> actions =
+        List.of(this::sendFriendRequest, this::viewFriendRequest, this::deleteFriend, () -> {});
     runMenu("=====***** 친구 목록 편집 메뉴 *****=====", items, actions, false);
   }
 
@@ -262,7 +267,7 @@ public class JavaApplication {
       actions.add(this::editGuildMenu);
     }
 
-    items.addAll(List.of("길드 정보 조회", "뒤로가기"));
+    items.addAll(List.of("서버 정보 조회", "뒤로가기"));
     actions.addAll(List.of(this::showGuildInfo, this::goPreviousMenu));
 
     runMenu("=====***** 서버 메뉴 *****=====", items, actions, false);
@@ -692,30 +697,82 @@ public class JavaApplication {
     System.out.println("친구 : " + friendsStr);
   }
 
-  private void addFriend() {
+  private void sendFriendRequest() {
     System.out.println("\nx. 뒤로가기");
     while (true) {
-      showFriends();
-
-      String email = getValidEmail("추가할 친구의 이메일 : ");
+      String email = getValidEmail("친구 요청할 이메일 : ");
       if (email == null) {
         return;
       }
 
-      User friend = userService.findByEmail(email.toLowerCase());
-      if (friend == null) {
-        System.out.println("존재하지 않는 이메일입니다.\n");
+      User receiver = userService.findByEmail(email);
+      if (receiver == null) {
+        System.out.println("해당 이메일로 등록된 사용자가 없습니다.");
         continue;
       }
 
-      if (me.equals(friend)) {
-        System.out.println("뭐야 나잖아");
+      if (me.equals(receiver)) {
+        System.out.println("자기 자신에게는 친구 요청을 보낼 수 없습니다.");
         continue;
       }
 
       try {
-        userService.addFriend(me.getId(), friend.getId());
-        me.addFriend(friend.getId());
+        friendRequestService.sendFriendRequest(me.getId(), receiver.getId());
+        System.out.println("친구 요청을 보냈습니다.");
+        return;
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }
+  }
+
+  private void viewFriendRequest() {
+    List<FriendRequest> requests = friendRequestService.getPendingRequestsForUser(me.getId());
+
+    if (requests.isEmpty()) {
+      System.out.println("\n받은 친구 요청이 없습니다.");
+      return;
+    }
+
+    for (int i = 0; i < requests.size(); i++) {
+      FriendRequest fr = requests.get(i);
+      User sender = userService.findById(fr.getSenderId());
+      System.out.println((i + 1) + ". " + sender.getUsername());
+    }
+
+    System.out.println("\nx. 뒤로가기");
+    while (true) {
+      String idxStr = getInputOrBack("선택 : ");
+      if (idxStr == null) {
+        return;
+      }
+
+      try {
+        int idx = Integer.parseInt(idxStr);
+        if (idx < 1 || idx > requests.size()) {
+          System.out.println("유효한 번호를 입력해주세요.");
+          continue;
+        }
+
+        FriendRequest selected = requests.get(idx - 1);
+        User sender = userService.findById(selected.getSenderId());
+
+        Boolean accepted = getYesOrNo("친구 요청 수락");
+
+        if (accepted == null) {
+          return;
+        }
+
+        if (accepted) {
+          friendRequestService.acceptFriendRequest(selected.getId());
+          System.out.println("친구 요청을 수락했습니다.");
+          return;
+        }
+        friendRequestService.declineFriendRequest(selected.getId());
+        System.out.println("친구 요청을 거절했습니다.");
+        return;
+      } catch (NumberFormatException e) {
+        System.out.println("숫자를 입력해주세요.");
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }
@@ -723,23 +780,34 @@ public class JavaApplication {
   }
 
   private void deleteFriend() {
-    System.out.println("\nx. 뒤로가기");
+    if (me.getFriends().isEmpty()) {
+      System.out.println("친구 목록이 비어 있습니다.");
+      return;
+    }
+    List<UUID> friendIds = me.getFriends().stream().toList();
+    for (int i = 0; i < friendIds.size(); i++) {
+      User friend = userService.findById(friendIds.get(i));
+      System.out.printf("%d. %s (%s)\n", i + 1, friend.getUsername(), friend.getEmail());
+    }
     while (true) {
-      showFriends();
-
-      String email = getValidEmail("삭제할 친구의 이메일 : ");
-      if (email == null) {
+      System.out.println("\nx. 뒤로가기");
+      String idxStr = getInputOrBack("삭제할 친구 번호: ");
+      if (idxStr == null) {
         return;
       }
 
-      User friendToDelete = userService.findByEmail(email.toLowerCase());
-      if (friendToDelete == null) {
-        System.out.println("존재하지 않는 이메일입니다.");
-        continue;
-      }
       try {
-        userService.removeFriend(me.getId(), friendToDelete.getId());
-        me.removeFriend(friendToDelete.getId());
+        int idx = Integer.parseInt(idxStr) - 1;
+        if (idx < 0 || idx >= friendIds.size()) {
+          System.out.println("유효한 번호를 입력해주세요.");
+          continue;
+        }
+
+        UUID friendId = friendIds.get(idx);
+        userService.removeFriend(me.getId(), friendId);
+        System.out.println("친구가 삭제되었습니다.");
+      } catch (NumberFormatException e) {
+        System.out.println("숫자를 입력해주세요.");
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }
