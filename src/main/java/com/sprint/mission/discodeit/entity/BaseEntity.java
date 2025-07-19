@@ -3,12 +3,12 @@ package com.sprint.mission.discodeit.entity;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class AbstractBaseEntity {
+public abstract class BaseEntity {
   private final UUID id;
   private final long createdAt;
   private long updatedAt;
 
-  protected AbstractBaseEntity() {
+  protected BaseEntity() {
     this.id = UUID.randomUUID();
     this.createdAt = System.currentTimeMillis();
     this.updatedAt = this.createdAt;
@@ -34,7 +34,7 @@ public abstract class AbstractBaseEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof AbstractBaseEntity that)) {
+    if (!(o instanceof BaseEntity that)) {
       return false;
     }
     return Objects.equals(id, that.id);

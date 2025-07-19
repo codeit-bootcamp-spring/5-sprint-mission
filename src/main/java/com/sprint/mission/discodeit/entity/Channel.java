@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class Channel extends AbstractBaseEntity {
+public class Channel extends BaseEntity {
   private final UUID guildId;
   private String name;
   private ChannelType type;

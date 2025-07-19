@@ -1,3 +1,3 @@
 package com.sprint.mission.discodeit.entity;
 
-public class ChatRoom extends AbstractBaseEntity {}
+public class ChatRoom extends BaseEntity {}

@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class User extends AbstractBaseEntity {
+public class User extends BaseEntity {
   private String email;
   private String nickname;
   private String username;

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class Survey extends AbstractBaseEntity {
+public class Survey extends BaseEntity {
   private final UUID senderId;
   private final String question;
   private final long durationMillis;

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class Guild extends AbstractBaseEntity {
+public class Guild extends BaseEntity {
   private boolean isPublic;
   private UUID ownerId;
   private String name;

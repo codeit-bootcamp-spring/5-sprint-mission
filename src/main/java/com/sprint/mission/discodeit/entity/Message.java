@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Message extends AbstractBaseEntity {
+public class Message extends BaseEntity {
   private final User sender;
   private final User receiver;
   private final List<UUID> replies;

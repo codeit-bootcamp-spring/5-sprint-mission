@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import java.util.UUID;
 
-public class FriendRequest extends AbstractBaseEntity {
+public class FriendRequest extends BaseEntity {
   private final UUID senderId;
   private final UUID receiverId;
 
