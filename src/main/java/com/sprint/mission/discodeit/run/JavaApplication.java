@@ -413,6 +413,7 @@ public class JavaApplication {
         System.out.println(e.getMessage());
       }
     }
+
     userMenu();
   }
 
@@ -427,6 +428,7 @@ public class JavaApplication {
   private void findUserByEmail() {
     while (true) {
       System.out.println("\nx. 뒤로가기");
+
       String email = getValidEmail("이메일 : ");
       if (email == null) {
         return;
@@ -445,7 +447,9 @@ public class JavaApplication {
   private void banUser() {
     while (true) {
       showAllUsers();
+
       System.out.println("x. 뒤로가기");
+
       String email = getInputOrBack("정지시킬 유저의 이메일 : ");
       if (email == null) {
         return;
@@ -639,6 +643,7 @@ public class JavaApplication {
     while (true) {
       System.out.println("1. 계정 비활성화");
       System.out.println("2. 계정 삭제");
+
       String idxStr = getInputOrBack("선택 : ");
       if (idxStr == null) {
         return;
@@ -648,7 +653,6 @@ public class JavaApplication {
         case "1":
           try {
             userService.deactivateAccount(me.getId());
-            me.setDeactivated(true);
             logout();
             System.out.println("계정이 비활성화되었습니다. 로그인 시 계정이 활성화됩니다.\n");
             return;
