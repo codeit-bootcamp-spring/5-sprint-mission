@@ -107,14 +107,14 @@ public class JcfFriendRequestService extends JcfService<FriendRequest>
 
   @Override
   public void deleteAllRequestsOfUser(UUID userId) {
-    Set<UUID> seen = new HashSet<>();
+    Set<UUID> alreadyDeleted = new HashSet<>();
 
-    List<FriendRequest> all = new ArrayList<>();
-    all.addAll(getReceivedRequests(userId));
-    all.addAll(getSentRequests(userId));
+    List<FriendRequest> requestsToDelete = new ArrayList<>();
+    requestsToDelete.addAll(getReceivedRequests(userId));
+    requestsToDelete.addAll(getSentRequests(userId));
 
-    for (FriendRequest fr : all) {
-      if (seen.add(fr.getId())) {
+    for (FriendRequest fr : requestsToDelete) {
+      if (alreadyDeleted.add(fr.getId())) {
         try {
           deleteById(fr.getId());
         } catch (Exception e) {
