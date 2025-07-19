@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.jcf;
 
-import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.service.UserService;
@@ -14,8 +13,6 @@ import java.util.UUID;
 
 public class JcfUserService extends BaseJcfService<User> implements UserService {
   private static final JcfUserService instance = new JcfUserService();
-
-  private FriendRequest jcfFriendRequest;
 
   private JcfUserService() {}
 
@@ -105,9 +102,8 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   public void updateEmail(UUID userId, String email) {
     EmailValidator.validate(email);
 
-    User current = getIfExists(userId);
-
-    if (current.getEmail().equalsIgnoreCase(email)) {
+    User user = getIfExists(userId);
+    if (user.getEmail().equalsIgnoreCase(email)) {
       return;
     }
 
