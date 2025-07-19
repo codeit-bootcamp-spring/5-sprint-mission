@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -28,11 +29,11 @@ public abstract class JcfService<T extends AbstractBaseEntity> implements Servic
 
   @Override
   public T getIfExists(UUID id) {
-    T entity = findById(id);
-    if (entity == null) {
-      throw new NoSuchElementException("엔티티(" + getEntityName() + ")를 찾을 수 없습니다. : " + id);
-    }
-    return entity;
+    return Optional.ofNullable(findById(id))
+        .orElseThrow(
+            () ->
+                new NoSuchElementException(
+                    String.format("엔티티(%s)를 찾을 수 없습니다: %s", getEntityName(), id)));
   }
 
   @Override
@@ -52,6 +53,6 @@ public abstract class JcfService<T extends AbstractBaseEntity> implements Servic
 
   @Override
   public void deleteById(UUID id) {
-    data.stream().filter(e -> idEquals(e, id)).findFirst().ifPresent(data::remove);
+    data.removeIf(e -> idEquals(e, id));
   }
 }

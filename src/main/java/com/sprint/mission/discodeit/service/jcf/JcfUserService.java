@@ -78,8 +78,7 @@ public class JcfUserService extends JcfService<User> implements UserService {
     JcfFriendRequestService.getInstance(this).deleteAllRequestsOfUser(userId);
 
     User user = getIfExists(userId);
-    List<UUID> friends = List.copyOf(user.getFriends());
-    for (UUID friendId : friends) {
+    for (UUID friendId : user.getFriends()) {
       removeFriend(friendId, userId);
     }
 
