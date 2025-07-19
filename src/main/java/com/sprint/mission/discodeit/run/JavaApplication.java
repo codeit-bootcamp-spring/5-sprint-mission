@@ -11,11 +11,12 @@ import com.sprint.mission.discodeit.service.jcf.JcfGuildService;
 import com.sprint.mission.discodeit.service.jcf.JcfMessageService;
 import com.sprint.mission.discodeit.service.jcf.JcfSurveyService;
 import com.sprint.mission.discodeit.service.jcf.JcfUserService;
+import com.sprint.mission.discodeit.utility.InputHandler;
 import com.sprint.mission.discodeit.validation.EmailValidator;
 import com.sprint.mission.discodeit.validation.PasswordValidator;
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
@@ -39,126 +40,87 @@ public class JavaApplication {
     new JavaApplication().mainMenu();
   }
 
-  private int getMenuInput(int maxNum) {
-    while (true) {
-      try {
-        int menuNum = Integer.parseInt(sc.nextLine());
-        if (menuNum >= 1 && menuNum <= maxNum) {
-          return menuNum;
-        }
-        System.out.println("올바른 메뉴 번호를 입력해주세요.");
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.");
-      }
+  private void seedTestUsers() {
+    try {
+      userService.register(
+          new User("a@a.aa", "user1", "1111aaaa", LocalDate.of(1995, 4, 10), true, "nick1"));
+      userService.register(
+          new User("b@b.bb", "user2", "2222bbbb", LocalDate.of(1995, 4, 11), false, "nick2"));
+      userService.register(
+          new User("c@c.cc", "user3", "3333cccc", LocalDate.of(1995, 3, 11), false, "nick3"));
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
     }
   }
 
-  private String getInputOrBack(String prompt) {
-    System.out.print(prompt);
-    String input = sc.nextLine().strip();
-    return input.equalsIgnoreCase("x") ? null : input;
-  }
+  private static class Menu {
+    private final String title;
+    private final List<String> items = new ArrayList<>();
+    private final List<Runnable> actions = new ArrayList<>();
+    private final boolean requiresLogin;
 
-  private Boolean getYesOrNo(String prompt) {
-    while (true) {
-      String answer = getInputOrBack(prompt + "(y/n) : ");
-      if (answer == null) {
-        return null;
+    public Menu(String title, boolean requiresLogin) {
+      this.title = title != null ? title : "메뉴";
+      this.requiresLogin = requiresLogin;
+    }
+
+    public Menu(String title) {
+      this(title, true);
+    }
+
+    public Menu add(String label, Runnable action) {
+      if (label != null && action != null) {
+        items.add(label);
+        actions.add(action);
       }
-      switch (answer.strip().toLowerCase()) {
-        case "y":
-          return true;
-        case "n":
-          return false;
-        default:
-          System.out.println("y 또는 n을 입력해주세요.\n");
-      }
+      return this;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+
+    public List<String> getItems() {
+      return Collections.unmodifiableList(items);
+    }
+
+    public List<Runnable> getActions() {
+      return Collections.unmodifiableList(actions);
+    }
+
+    public boolean isValid() {
+      return items.size() == actions.size() && !items.isEmpty();
     }
   }
 
-  private String getValidEmail(String prompt) {
-    String emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
-    while (true) {
-      String email = getInputOrBack(prompt);
-      if (email == null) {
-        return null;
-      }
-      if (email.matches(emailPattern)) {
-        return email.toLowerCase();
-      }
-      System.out.println("잘못된 형식입니다. 다시 입력해주세요.");
-    }
-  }
-
-  private String getValidPassword(String prompt) {
-    String passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()_+]{8,}$";
-    while (true) {
-      String password = getInputOrBack(prompt);
-      if (password == null) {
-        return null;
-      }
-      if (password.matches(passwordPattern)) {
-        return password;
-      }
-      System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.");
-    }
-  }
-
-  private LocalDate getValidDate(String message) {
-    while (true) {
-      try {
-        System.out.println(message);
-        String yearStr = getInputOrBack("년 : ");
-        if (yearStr == null) {
-          return null;
-        }
-        String monthStr = getInputOrBack("월 : ");
-        if (monthStr == null) {
-          return null;
-        }
-        String dayStr = getInputOrBack("일 : ");
-        if (dayStr == null) {
-          return null;
-        }
-        int year = Integer.parseInt(yearStr);
-        int month = Integer.parseInt(monthStr);
-        int day = Integer.parseInt(dayStr);
-        return LocalDate.of(year, month, day);
-      } catch (NumberFormatException e) {
-        System.out.println("숫자 형식이 올바르지 않습니다. 다시 입력해주세요.");
-      } catch (DateTimeException e) {
-        System.out.println("유효하지 않은 날짜입니다. 다시 입력해주세요.");
-      }
-    }
-  }
-
-  private void runMenu(String title, List<String> items, List<Runnable> actions, boolean isMain) {
-    if (items == null || actions == null || items.size() != actions.size()) {
-      System.out.println("메소드 오류");
+  private void runMenu(Menu menu) {
+    if (!menu.isValid()) {
+      System.out.println("⚠ 메뉴 구성이 잘못되었습니다.");
       return;
     }
 
     while (true) {
-      if (!isMain && me == null) {
+      if (me == null && menu.requiresLogin) {
         break;
       }
 
-      System.out.println(title);
+      System.out.println("\n" + menu.getTitle());
 
-      for (int i = 0; i < items.size(); i++) {
-        System.out.println((i + 1) + ". " + items.get(i));
+      for (int i = 0; i < menu.getItems().size(); i++) {
+        System.out.println((i + 1) + ". " + menu.getItems().get(i));
       }
 
       System.out.print("메뉴 번호 입력 : ");
-      int input = getMenuInput(items.size());
+      int input = InputHandler.getMenuInput(menu.getItems().size());
 
-      if (input > 0 && input <= actions.size() && actions.get(input - 1) != null) {
-        actions.get(input - 1).run();
+      Runnable action = menu.getActions().get(input - 1);
+      if (action != null) {
+        action.run();
       } else {
         System.out.println("올바른 메뉴 번호를 입력해주세요.");
       }
 
-      if (input == items.size()) {
+      if (input == menu.getItems().size()) {
         break;
       }
     }
@@ -166,7 +128,7 @@ public class JavaApplication {
 
   private void exitSystem() {
     System.out.println("\n프로그램 종료");
-    sc.close();
+    InputHandler.close();
     System.exit(0);
   }
 
@@ -175,151 +137,101 @@ public class JavaApplication {
   }
 
   private void mainMenu() {
-    userService.register(
-        new User("a@a.aa", "1", "1111aaaa", LocalDate.of(1995, 4, 10), true, "1")); // 테스트용
-    userService.register(
-        new User("b@b.bb", "2", "2222bbbb", LocalDate.of(1995, 4, 11), false, "2")); // 테스트용
-    System.out.println("\n========== Discodeit ==========");
+    seedTestUsers();
 
-    List<String> items = List.of("회원가입", "로그인", "이메일로 회원 조회", "모든 회원 조회", "유저 밴 하기", "종료");
-    List<Runnable> actions =
-        List.of(
-            this::register,
-            this::login,
-            this::findUserByEmail,
-            this::showAllUsers,
-            this::banUser,
-            this::exitSystem);
-
-    runMenu("=====***** 메인 메뉴 *****=====", items, actions, true);
+    runMenu(
+        new Menu("=====***** 메인 메뉴 *****=====", false)
+            .add("회원가입", this::register)
+            .add("로그인", this::login)
+            .add("이메일로 회원 조회", this::findUserByEmail)
+            .add("모든 회원 조회", this::showAllUsers)
+            .add("유저 검색", this::searchUsers)
+            .add("유저 밴 하기", this::banUser)
+            .add("종료", this::exitSystem));
   }
 
   private void userMenu() {
-    List<String> items = List.of("프로필 편집", "친구 목록 편집", "서버 목록 편집", "다이렉트 메시지 편집", "로그아웃");
-    List<Runnable> actions =
-        List.of(
-            this::editProfileMenu,
-            this::editFriendMenu,
-            this::editGuildsMenu,
-            this::editDirectMessageMenu,
-            this::logout);
-
-    runMenu("=====***** 회원 메뉴 *****=====", items, actions, false);
+    runMenu(
+        new Menu("=====***** 회원 메뉴 *****=====")
+            .add("프로필 편집", this::editProfileMenu)
+            .add("친구 목록 편집", this::editFriendMenu)
+            .add("서버 목록 편집", this::editGuildsMenu)
+            .add("다이렉트 메시지 편집", this::editDirectMessageMenu)
+            .add("로그아웃", this::logout));
   }
 
   private void editProfileMenu() {
-    List<String> items =
-        List.of(
-            "이메일 변경",
-            "별명 변경",
-            "사용자명 변경",
-            "비밀번호 변경",
-            "생년월일 변경",
-            "이메일로 소식 받기 변경",
-            "휴대폰 번호 등록/변경",
-            "회원 탈퇴",
-            "뒤로가기");
-    List<Runnable> actions =
-        List.of(
-            this::changeEmail,
-            this::changeNickname,
-            this::changeUsername,
-            this::changePassword,
-            this::changeBirthDate,
-            this::changeIsSubscribedToNewsletter,
-            this::changePhoneNumber,
-            this::deleteAccount,
-            this::goPreviousMenu);
-
-    runMenu("=====***** 프로필 편집 메뉴 *****=====", items, actions, false);
+    runMenu(
+        new Menu("=====***** 프로필 편집 메뉴 *****=====")
+            .add("이메일 변경", this::changeEmail)
+            .add("별명 변경", this::changeNickname)
+            .add("사용자명 변경", this::changeUsername)
+            .add("비밀번호 변경", this::changePassword)
+            .add("생년월일 변경", this::changeBirthDate)
+            .add("이메일로 소식 받기 변경", this::changeIsSubscribedToNewsletter)
+            .add("휴대폰 번호 등록/변경", this::changePhoneNumber)
+            .add("회원 탈퇴", this::deleteAccount)
+            .add("뒤로가기", this::goPreviousMenu));
   }
 
   private void editFriendMenu() {
-    List<String> items =
-        List.of("친구 목록 보기", "친구 요청", "보낸 친구 요청 보기", "받은 친구 요청 보기", "친구 삭제", "뒤로가기");
-    List<Runnable> actions =
-        List.of(
-            this::showFriends,
-            this::sendFriendRequest,
-            this::viewSentFriendRequests,
-            this::viewReceivedFriendRequests,
-            this::deleteFriend,
-            () -> {});
-    runMenu("=====***** 친구 목록 편집 메뉴 *****=====", items, actions, false);
+    runMenu(
+        new Menu("=====***** 친구 목록 편집 메뉴 *****=====")
+            .add("친구 목록 보기", this::showFriends)
+            .add("친구 요청", this::sendFriendRequest)
+            .add("보낸 친구 요청 보기", this::viewSentFriendRequests)
+            .add("받은 친구 요청 보기", this::viewReceivedFriendRequests)
+            .add("친구 삭제", this::deleteFriend)
+            .add("뒤로가기", this::goPreviousMenu));
   }
 
   private void editGuildsMenu() {
-    List<String> items = List.of("모든 서버 조회", "서버 만들기", "서버 삭제", "서버 참가", "서버 나가기", "서버 열기", "뒤로가기");
-    List<Runnable> actions =
-        List.of(
-            this::showGuilds,
-            this::createGuild,
-            this::deleteGuild,
-            this::joinGuild,
-            this::exitGuild,
-            this::openGuild,
-            this::goPreviousMenu);
-
-    runMenu("=====***** 서버 목록 편집 메뉴*****=====", items, actions, false);
+    runMenu(
+        new Menu("=====***** 서버 목록 편집 메뉴*****=====")
+            .add("모든 서버 조회", this::showGuilds)
+            .add("서버 만들기", this::createGuild)
+            .add("서버 삭제", this::deleteGuild)
+            .add("서버 참가", this::joinGuild)
+            .add("서버 나가기", this::exitGuild)
+            .add("서버 열기", this::openGuild)
+            .add("뒤로가기", this::goPreviousMenu));
   }
 
   private void guildMenu() {
     Guild guild = guildService.findById(enteredGuildId);
-
-    List<String> items = new ArrayList<>();
-    List<Runnable> actions = new ArrayList<>();
+    Menu menu = new Menu("=====***** 서버 메뉴 *****=====");
 
     if (guild.getOwnerId().equals(me.getId())) {
-      items.add("서버 편집");
-      actions.add(this::editGuildMenu);
+      menu.add("서버 편집", this::editGuildMenu);
     }
 
-    items.addAll(List.of("서버 정보 조회", "뒤로가기"));
-    actions.addAll(List.of(this::showGuildInfo, this::goPreviousMenu));
+    menu.add("서버 정보 조회", this::showGuildInfo).add("뒤로가기", this::goPreviousMenu);
 
-    runMenu("=====***** 서버 메뉴 *****=====", items, actions, false);
+    runMenu(menu);
   }
 
-  // 추후 Permission 클래스로 인가 관리
   private void editGuildMenu() {
-    List<String> items =
-        List.of(
-            "주인 변경", "이름 변경", "공개 여부 변경", "회원 추방", "모든 채널 조회", "채널 생성", "채널 수정", "채널 삭제", "뒤로가기");
-    List<Runnable> actions =
-        List.of(
-            this::changeGuildOwner,
-            this::changeGuildName,
-            this::changeGuildPublic,
-            this::kickMember,
-            this::showChannels,
-            this::createChannel,
-            this::updateChannel,
-            this::deleteChannel,
-            this::goPreviousMenu);
-
-    runMenu("=====***** 서버 편집 메뉴 *****=====", items, actions, false);
+    runMenu(
+        new Menu("=====***** 서버 편집 메뉴 *****=====")
+            .add("주인 변경", this::changeGuildOwner)
+            .add("이름 변경", this::changeGuildName)
+            .add("공개 여부 변경", this::changeGuildPublic)
+            .add("회원 추방", this::kickMember)
+            .add("모든 채널 조회", this::showChannels)
+            .add("채널 생성", this::createChannel)
+            .add("채널 수정", this::updateChannel)
+            .add("채널 삭제", this::deleteChannel)
+            .add("뒤로가기", this::goPreviousMenu));
   }
 
   private void editDirectMessageMenu() {
-    List<String> items =
-        List.of("다이렉트 메시지 목록 보기", "다이렉트 메시지 보내기", "다이렉트 메시지 보기", "다이렉트 메시지 수정하기", "뒤로가기");
-    List<Runnable> actions =
-        List.of(
-            () -> {
-              /* 다이렉트 메시지 목록 보기 */
-            },
-            () -> {
-              /* 다이렉트 메시지 보내기 */
-            },
-            () -> {
-              /* 다이렉트 메시지 보기 */
-            },
-            () -> {
-              /* 다이렉트 메시지 수정하기 */
-            },
-            () -> {});
-
-    runMenu("=====***** 다이렉트 메시지 편집 메뉴*****=====", items, actions, false);
+    runMenu(
+        new Menu("=====***** 다이렉트 메시지 편집 메뉴*****=====")
+            .add("다이렉트 메시지 목록 보기", () -> {})
+            .add("다이렉트 메시지 보내기", () -> {})
+            .add("다이렉트 메시지 보기", () -> {})
+            .add("다이렉트 메시지 수정하기", () -> {})
+            .add("뒤로가기", this::goPreviousMenu));
   }
 
   private void register() {
@@ -327,7 +239,7 @@ public class JavaApplication {
 
     String email;
     while (true) {
-      email = getValidEmail("이메일 : ");
+      email = InputHandler.getValidEmail("이메일 : ");
       if (email == null) {
         return;
       }
@@ -339,14 +251,14 @@ public class JavaApplication {
       System.out.println("중복된 이메일입니다. 다시 입력해주세요.\n");
     }
 
-    String nickname = getInputOrBack("별명(선택) : ");
+    String nickname = InputHandler.getInputOrBack("별명(선택) : ");
     if (nickname == null) {
       return;
     }
 
     String username;
     while (true) {
-      username = getInputOrBack("사용자명 : ");
+      username = InputHandler.getInputOrBack("사용자명 : ");
       if (username == null) {
         return;
       }
@@ -356,17 +268,17 @@ public class JavaApplication {
       System.out.println("사용자명은 필수입니다.");
     }
 
-    String password = getValidPassword("비밀번호 : ");
+    String password = InputHandler.getValidPassword("비밀번호 : ");
     if (password == null) {
       return;
     }
 
-    LocalDate birthDate = getValidDate("생년월일");
+    LocalDate birthDate = InputHandler.getValidDate("생년월일");
     if (birthDate == null) {
       return;
     }
 
-    Boolean isSubscribedToNewsletter = getYesOrNo("이메일로 소식 받기");
+    Boolean isSubscribedToNewsletter = InputHandler.getYesOrNo("이메일로 소식 받기");
     if (isSubscribedToNewsletter == null) {
       return;
     }
@@ -395,7 +307,7 @@ public class JavaApplication {
     System.out.println("\nx. 뒤로가기");
 
     while (true) {
-      String email = getValidEmail("이메일 : ");
+      String email = InputHandler.getValidEmail("이메일 : ");
       if (email == null) {
         return;
       }
@@ -407,7 +319,7 @@ public class JavaApplication {
         continue;
       }
 
-      String password = getInputOrBack("비밀번호 : ");
+      String password = InputHandler.getInputOrBack("비밀번호 : ");
 
       try {
         PasswordValidator.validate(password);
@@ -441,7 +353,7 @@ public class JavaApplication {
     while (true) {
       System.out.println("\nx. 뒤로가기");
 
-      String email = getValidEmail("이메일 : ");
+      String email = InputHandler.getValidEmail("이메일 : ");
       if (email == null) {
         return;
       }
@@ -456,13 +368,37 @@ public class JavaApplication {
     }
   }
 
+  private void searchUsers() {
+    System.out.println("\nx. 뒤로가기");
+    while (true) {
+      String keyword = InputHandler.getInputOrBack("검색할 닉네임, 이메일 또는 사용자명 입력 : ");
+      if (keyword == null || keyword.isBlank()) {
+        return;
+      }
+
+      List<User> results = userService.searchUsers(keyword);
+      if (results.isEmpty()) {
+        System.out.println("🔍 해당 조건에 맞는 사용자가 없습니다.");
+        continue;
+      }
+
+      System.out.println("\n검색 결과:");
+      for (User user : results) {
+        System.out.printf(
+            "- 닉네임: %s | 이메일: %s | 사용자명: %s%n",
+            user.getNickname(), user.getEmail(), user.getUsername());
+      }
+      break;
+    }
+  }
+
   private void banUser() {
     while (true) {
       showAllUsers();
 
       System.out.println("x. 뒤로가기");
 
-      String email = getInputOrBack("정지시킬 유저의 이메일 : ");
+      String email = InputHandler.getInputOrBack("정지시킬 유저의 이메일 : ");
       if (email == null) {
         return;
       }
@@ -500,7 +436,7 @@ public class JavaApplication {
     System.out.println("현재 이메일 : " + me.getEmail());
 
     while (true) {
-      String email = getInputOrBack("변경할 이메일 : ");
+      String email = InputHandler.getInputOrBack("변경할 이메일 : ");
       if (email == null) {
         return;
       }
@@ -534,7 +470,7 @@ public class JavaApplication {
   private void changeNickname() {
     System.out.println("\nx. 뒤로가기");
     System.out.println("현재 별명 : " + me.getNickname());
-    String nickname = getInputOrBack("변경할 별명 : ");
+    String nickname = InputHandler.getInputOrBack("변경할 별명 : ");
     if (nickname == null) {
       return;
     }
@@ -554,7 +490,7 @@ public class JavaApplication {
 
     while (true) {
       System.out.println("현재 사용자명 : " + oldUsername);
-      newUsername = getInputOrBack("변경할 사용자명 : ");
+      newUsername = InputHandler.getInputOrBack("변경할 사용자명 : ");
       if (newUsername == null) {
         return;
       }
@@ -579,7 +515,7 @@ public class JavaApplication {
     System.out.println("현재 비밀번호 : " + me.getPassword());
 
     while (true) {
-      String password = getValidPassword("변경할 비밀번호 : ");
+      String password = InputHandler.getValidPassword("변경할 비밀번호 : ");
       if (password == null) {
         return;
       }
@@ -604,7 +540,7 @@ public class JavaApplication {
     System.out.println("현재 생년월일 : " + me.getBirthDate());
     LocalDate birthDate;
 
-    birthDate = getValidDate("변경할 생년월일");
+    birthDate = InputHandler.getValidDate("변경할 생년월일");
     if (birthDate == null) {
       return;
     }
@@ -621,7 +557,7 @@ public class JavaApplication {
     System.out.println("\nx. 뒤로가기");
     System.out.println("현재 이메일 소식 수신 여부 : " + (me.isSubscribedToNewsletter() ? "yes" : "no"));
 
-    Boolean isSubscribedToNewsletter = getYesOrNo("이메일로 소식 받기");
+    Boolean isSubscribedToNewsletter = InputHandler.getYesOrNo("이메일로 소식 받기");
     if (isSubscribedToNewsletter == null) {
       return;
     }
@@ -637,7 +573,7 @@ public class JavaApplication {
   private void changePhoneNumber() {
     System.out.println("\nx. 뒤로가기");
     System.out.println("현재 휴대폰 번호 : " + me.getPhoneNumber());
-    String phoneNumber = getInputOrBack("변경할 휴대폰 번호 : ");
+    String phoneNumber = InputHandler.getInputOrBack("변경할 휴대폰 번호 : ");
     if (phoneNumber == null) {
       return;
     }
@@ -656,7 +592,7 @@ public class JavaApplication {
       System.out.println("1. 계정 비활성화");
       System.out.println("2. 계정 삭제");
 
-      String idxStr = getInputOrBack("선택 : ");
+      String idxStr = InputHandler.getInputOrBack("선택 : ");
       if (idxStr == null) {
         return;
       }
@@ -707,7 +643,7 @@ public class JavaApplication {
   private void sendFriendRequest() {
     System.out.println("\nx. 뒤로가기");
     while (true) {
-      String email = getValidEmail("친구 요청할 이메일 : ");
+      String email = InputHandler.getValidEmail("친구 요청할 이메일 : ");
       if (email == null) {
         return;
       }
@@ -749,7 +685,7 @@ public class JavaApplication {
 
     System.out.println("\nx. 뒤로가기");
     while (true) {
-      String idxStr = getInputOrBack("선택 : ");
+      String idxStr = InputHandler.getInputOrBack("선택 : ");
       if (idxStr == null) {
         return;
       }
@@ -763,7 +699,7 @@ public class JavaApplication {
 
         FriendRequest selected = friendRequests.get(idx - 1);
 
-        Boolean accepted = getYesOrNo("친구 요청 수락");
+        Boolean accepted = InputHandler.getYesOrNo("친구 요청 수락");
         if (accepted == null) {
           return;
         }
@@ -800,7 +736,7 @@ public class JavaApplication {
 
     System.out.println("\nx. 뒤로가기");
     while (true) {
-      String idxStr = getInputOrBack("취소할 요청 선택 : ");
+      String idxStr = InputHandler.getInputOrBack("취소할 요청 선택 : ");
       if (idxStr == null) {
         return;
       }
@@ -842,7 +778,7 @@ public class JavaApplication {
 
     while (true) {
       System.out.println("\nx. 뒤로가기");
-      String idxStr = getInputOrBack("삭제할 친구 번호: ");
+      String idxStr = InputHandler.getInputOrBack("삭제할 친구 번호: ");
       if (idxStr == null) {
         return;
       }
@@ -883,7 +819,7 @@ public class JavaApplication {
 
   private Integer selectGuildIndex(List<Guild> guilds, String prompt) {
     while (true) {
-      String idxStr = getInputOrBack(prompt);
+      String idxStr = InputHandler.getInputOrBack(prompt);
       if (idxStr == null) {
         return null;
       }
@@ -902,12 +838,12 @@ public class JavaApplication {
   private void createGuild() {
     System.out.println("\nx. 뒤로가기");
     while (true) {
-      String name = getInputOrBack("서버 이름 : ");
+      String name = InputHandler.getInputOrBack("서버 이름 : ");
       if (name == null || name.isBlank()) {
         name = me.getUsername() + "님의 서버";
       }
 
-      Boolean isPublic = getYesOrNo("공개 여부");
+      Boolean isPublic = InputHandler.getYesOrNo("공개 여부");
       if (isPublic == null) {
         return;
       }
@@ -1058,7 +994,7 @@ public class JavaApplication {
 
     while (true) {
       try {
-        String memberIdxStr = getInputOrBack("새로운 주인(멤버) 번호 : ");
+        String memberIdxStr = InputHandler.getInputOrBack("새로운 주인(멤버) 번호 : ");
         if (memberIdxStr == null) {
           return;
         }
@@ -1092,7 +1028,7 @@ public class JavaApplication {
     System.out.println("\nx. 뒤로가기");
     System.out.println("현재 이름 : " + guild.getName());
 
-    String guildName = getInputOrBack("변경할 이름 : ");
+    String guildName = InputHandler.getInputOrBack("변경할 이름 : ");
     if (guildName == null) {
       return;
     }
@@ -1113,7 +1049,7 @@ public class JavaApplication {
     System.out.println("\nx. 뒤로가기");
     System.out.println("현재 공개 여부 : " + (guild.isPublic() ? "공개" : "비공개"));
 
-    Boolean isPublic = getYesOrNo("공개 여부");
+    Boolean isPublic = InputHandler.getYesOrNo("공개 여부");
     if (isPublic != null) {
       guildService.updatePublic(guild.getId(), isPublic);
     }
@@ -1137,7 +1073,7 @@ public class JavaApplication {
 
     while (true) {
       try {
-        String indexStr = getInputOrBack("추방할 멤버 번호 : ");
+        String indexStr = InputHandler.getInputOrBack("추방할 멤버 번호 : ");
         if (indexStr == null) {
           return;
         }
@@ -1187,7 +1123,7 @@ public class JavaApplication {
 
     while (true) {
       try {
-        String name = getInputOrBack("채널 이름 : ");
+        String name = InputHandler.getInputOrBack("채널 이름 : ");
         if (name == null) {
           return;
         }
@@ -1197,7 +1133,7 @@ public class JavaApplication {
           System.out.println((i + 1) + ". " + ChannelType.values()[i]);
         }
 
-        int typeIdx = getMenuInput(ChannelType.values().length);
+        int typeIdx = InputHandler.getMenuInput(ChannelType.values().length);
 
         if (typeIdx < 1 || typeIdx > ChannelType.values().length) {
           throw new NumberFormatException();
@@ -1232,7 +1168,7 @@ public class JavaApplication {
     System.out.println("\nx. 뒤로가기");
     showChannels();
     while (true) {
-      String idxStr = getInputOrBack("수정할 채널 번호 : ");
+      String idxStr = InputHandler.getInputOrBack("수정할 채널 번호 : ");
       if (idxStr == null) {
         return;
       }
@@ -1246,14 +1182,14 @@ public class JavaApplication {
         Channel channel = channels.get(idx);
 
         System.out.println("현재 채널 이름 : " + channel.getName());
-        final String newName = getInputOrBack("새 채널 이름 : ");
+        final String newName = InputHandler.getInputOrBack("새 채널 이름 : ");
 
         System.out.println("현재 채널 유형 : " + channel.getType());
         System.out.print("새 채널 유형 : ");
         System.out.println("1. 채팅");
         System.out.println("2. 음성");
         System.out.println("3. 포럼");
-        String typeIdxStr = getInputOrBack("새 채널 번호 : ");
+        String typeIdxStr = InputHandler.getInputOrBack("새 채널 번호 : ");
         if (typeIdxStr == null) {
           return;
         }
@@ -1293,7 +1229,7 @@ public class JavaApplication {
     System.out.println("\nx. 뒤로가기");
     showChannels();
     while (true) {
-      String idxStr = getInputOrBack("삭제할 채널 번호 : ");
+      String idxStr = InputHandler.getInputOrBack("삭제할 채널 번호 : ");
       if (idxStr == null) {
         return;
       }

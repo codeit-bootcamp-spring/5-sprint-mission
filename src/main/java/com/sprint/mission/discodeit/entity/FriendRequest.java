@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class FriendRequest extends BaseEntity {
@@ -7,11 +8,8 @@ public class FriendRequest extends BaseEntity {
   private final UUID receiverId;
 
   public FriendRequest(UUID senderId, UUID receiverId) {
-    if (senderId == null || receiverId == null) {
-      throw new IllegalArgumentException("SenderId와 ReceiverId는 null일 수 없습니다.");
-    }
-    this.senderId = senderId;
-    this.receiverId = receiverId;
+    this.senderId = Objects.requireNonNull(senderId, "Sender ID must not be null");
+    this.receiverId = Objects.requireNonNull(receiverId, "Receiver ID must not be null");
   }
 
   public UUID getSenderId() {
