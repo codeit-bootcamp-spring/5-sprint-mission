@@ -10,11 +10,11 @@ import java.util.UUID;
 
 public class User extends BaseEntity {
   private String email;
+  private String nickname;
   private String username;
   private String password;
   private LocalDate birthDate;
   private boolean subscribedToNewsletter;
-  private String nickname;
   private Status status;
   private String phoneNumber;
   private String avatarUrl;
