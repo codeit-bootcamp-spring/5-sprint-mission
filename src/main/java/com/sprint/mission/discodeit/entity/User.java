@@ -33,12 +33,12 @@ public class User extends BaseEntity {
       LocalDate birthDate,
       boolean subscribedToNewsletter,
       String nickname) {
-    this.email = StringUtil.trimToEmpty(email).toLowerCase();
-    this.username = StringUtil.trimToEmpty(username);
-    this.password = StringUtil.trimToEmpty(password);
+    this.email = StringUtil.normalizeString(email).toLowerCase();
+    this.username = StringUtil.normalizeString(username);
+    this.password = StringUtil.normalizeString(password);
     this.birthDate = birthDate;
     this.subscribedToNewsletter = subscribedToNewsletter;
-    this.nickname = StringUtil.trimToEmpty(nickname);
+    this.nickname = StringUtil.normalizeString(nickname);
     this.status = Status.OFFLINE;
     this.phoneNumber = "";
     this.avatarUrl = "";
@@ -53,7 +53,7 @@ public class User extends BaseEntity {
   }
 
   public void setEmail(String email) {
-    this.email = StringUtil.trimToEmpty(email).toLowerCase();
+    this.email = StringUtil.normalizeString(email).toLowerCase();
   }
 
   public String getNickname() {
@@ -61,7 +61,7 @@ public class User extends BaseEntity {
   }
 
   public void setNickname(String nickname) {
-    this.nickname = StringUtil.trimToEmpty(nickname);
+    this.nickname = StringUtil.normalizeString(nickname);
   }
 
   public String getUsername() {
@@ -69,7 +69,7 @@ public class User extends BaseEntity {
   }
 
   public void setUsername(String username) {
-    this.username = StringUtil.trimToEmpty(username);
+    this.username = StringUtil.normalizeString(username);
   }
 
   public String getPassword() {
@@ -77,7 +77,7 @@ public class User extends BaseEntity {
   }
 
   public void setPassword(String password) {
-    this.password = StringUtil.trimToEmpty(password);
+    this.password = StringUtil.normalizeString(password);
   }
 
   public LocalDate getBirthDate() {
@@ -109,7 +109,7 @@ public class User extends BaseEntity {
   }
 
   public void setPhoneNumber(String phoneNumber) {
-    this.phoneNumber = StringUtil.trimToEmpty(phoneNumber);
+    this.phoneNumber = StringUtil.normalizeString(phoneNumber);
   }
 
   public String getAvatarUrl() {
@@ -117,7 +117,7 @@ public class User extends BaseEntity {
   }
 
   public void setAvatarUrl(String avatarUrl) {
-    this.avatarUrl = StringUtil.trimToEmpty(avatarUrl);
+    this.avatarUrl = StringUtil.normalizeString(avatarUrl);
   }
 
   public String getBio() {
@@ -125,7 +125,7 @@ public class User extends BaseEntity {
   }
 
   public void setBio(String bio) {
-    this.bio = StringUtil.trimToEmpty(bio);
+    this.bio = StringUtil.normalizeString(bio);
   }
 
   public boolean isVerified() {
