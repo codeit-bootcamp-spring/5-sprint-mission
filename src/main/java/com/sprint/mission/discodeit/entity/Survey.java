@@ -28,7 +28,7 @@ public class Survey extends BaseEntity {
     this.durationMillis = durationMillis;
     this.isDuplicateResponseAllowed = isDuplicateResponseAllowed;
 
-    this.answers = answers == null ? Collections.emptyList() : new ArrayList<>(answers) {};
+    this.answers = answers == null ? Collections.emptyList() : new ArrayList<>(answers);
     this.voteCounts = new ArrayList<>(this.answers.size());
     this.voters = new ArrayList<>(this.answers.size());
     for (int i = 0; i < this.answers.size(); i++) {
@@ -37,7 +37,7 @@ public class Survey extends BaseEntity {
     }
   }
 
-  private boolean isInvalidAnswersIndex(int answerIndex) {
+  private boolean isIndexOutOfBounds(int answerIndex) {
     return answerIndex < 0 || answerIndex >= answers.size();
   }
 
@@ -78,7 +78,7 @@ public class Survey extends BaseEntity {
   }
 
   public void vote(int answerIndex, UUID voterId, boolean isUnvoted) {
-    if (isInvalidAnswersIndex(answerIndex)) {
+    if (isIndexOutOfBounds(answerIndex)) {
       throw new IllegalArgumentException("Invalid answer index: " + answerIndex);
     }
     Set<UUID> voterSet = voters.get(answerIndex);
