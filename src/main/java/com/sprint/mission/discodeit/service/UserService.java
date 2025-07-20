@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface UserService {
 
     //약속
+    //다중 구현 가능
     void create(User user); //저장
     User findById(UUID id); //조회
     List<User> findAll(); //리스트에 넣기

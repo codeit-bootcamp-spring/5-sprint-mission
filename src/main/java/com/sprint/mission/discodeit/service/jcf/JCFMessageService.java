@@ -25,7 +25,7 @@ public class JCFMessageService implements MessageService {
     }
 
     //오버라이드
-    // 부모 클래스나 인터페이스의 메서드를 자식 클래스에서 재정의
+    //부모 클래스나 인터페이스의 메서드를 자식 클래스에서 재정의
     @Override
     public void create(Message message) {
         data.put(message.getId(), message); //메세지 객체 받아 map에 uuid-메세지 구조로 저장

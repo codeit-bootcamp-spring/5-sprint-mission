@@ -24,8 +24,11 @@ public class Message {
 
 
     //일반 생성자
-    //사용자로 받는 값O
+    //사용자로부터 받는 값
     public Message(String content, UUID sender, UUID receiver) {
+        this.id = UUID.randomUUID();
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = createdAt;
         this.content = content;
         this.sender = sender;
         this.receiver = receiver;

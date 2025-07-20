@@ -10,26 +10,29 @@ import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
+import java.util.UUID;
+
 public class JavaApplication {
     public static void main(String[] args) {
 
         /*
-        * Map을 이용한 JCF(java collection framework) 기반의 서비스 구현체
-        * Channel, Message, User 객체 각각을
-        * 생성 -> 조회 -> 수정 -> 삭제 테스트하는 코드
+        * Map을 이용한 JCF(java collection framework)의 서비스 구현체
+        * Channel, Message, User 객체 세 가지를
+        * 생성 -> 조회 -> 수정 -> 삭제 테스트하는 파일
         * */
 
-        /*User 테스트*/
+        //User 테스트
 
         //1. 유저 서비스 구현체 생성
         UserService userService = new JCFUserService();
 
         //2. 유저 객체 생성 및 등록
-        User user = new User("test1", "1234"); // 매개변수가 아무것도 없는 기본 생성자 호출
+        User user = new User("test1", "1234"); // 일반 생성자 호출
         userService.create(user);
         System.out.println("유저 등록: " + user.getId());
         System.out.println("유저 아이디 확인 : " + user.getUserId());
         System.out.println("유저 비밀번호 확인 :" + user.getPassword());
+
 
         //3. 단건 조회
         User foundUser = userService.findById(user.getId());
@@ -52,7 +55,7 @@ public class JavaApplication {
         System.out.println("유저 삭제 후 조회: " + userService.findById(user.getId()));
         System.out.println("----------------------------------------------------");
 
-        /*Channel 테스트*/
+        //Channel 테스트
 
         //1. 채널 서비스 구현체 생성
         ChannelService channelService = new JCFChannelService();
@@ -61,6 +64,9 @@ public class JavaApplication {
         Channel channel = new Channel("공지", "팀 전체 공지 채널", "text"); //uuid 자동 생성
         channelService.create(channel); //map에 저장
         System.out.println("채널 등록 ID: " + channel.getId()); //생성자에서 만든 uuid
+        System.out.println("채널 타이틀: " + channel.getTitle());
+        System.out.println("채널 설명: " + channel.getDescription());
+        System.out.println("채널 타입: " + channel.getType());
 
         //3. 등록한 채널 ID 단건 조회
         Channel foundChannel = channelService.findById(channel.getId());
@@ -84,15 +90,17 @@ public class JavaApplication {
         System.out.println("----------------------------------------------------");
 
 
-        /*Message 테스트*/
+        //Message 테스트
 
         //1. 메세지 서비스 구현체 생성
         MessageService messageService = new JCFMessageService();
 
         //2. 메세지 객체 생성 및 등록
-        Message message = new Message();
+        Message message = new Message("테스트용", UUID.randomUUID(), UUID.randomUUID());
         messageService.create(message);
         System.out.println("message 등록: ID: " + message.getId());
+        System.out.println("message 보낸 사람: " + message.getSender());
+        System.out.println("message 받는 사람: " +message.getReceiver());
 
         //3. ID로 단건 조회
         Message foundMessage = messageService.findById(message.getId());
