@@ -1073,7 +1073,7 @@ public class JavaApplication {
 
     Boolean isPublic = InputHandler.getYesOrNo("공개 여부");
     if (isPublic != null) {
-      guildService.updatePublic(guild.getId(), isPublic);
+      guildService.updateDiscoverable(guild.getId(), isPublic);
     }
   }
 

@@ -2,7 +2,9 @@ package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Guild;
+import com.sprint.mission.discodeit.enums.Permission;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface GuildService extends BaseService<Guild> {
@@ -22,9 +24,11 @@ public interface GuildService extends BaseService<Guild> {
 
   void addMember(UUID guildId, UUID member);
 
+  void updateMemberPermissions(UUID guildId, UUID member, Set<Permission> permissions);
+
   void removeMember(UUID guildId, UUID member);
 
   void updateOwnerId(UUID guildId, UUID ownerId);
 
-  void updatePublic(UUID guildId, boolean isPublic);
+  void updateDiscoverable(UUID guildId, boolean discoverable);
 }

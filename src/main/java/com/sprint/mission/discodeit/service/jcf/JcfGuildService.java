@@ -2,8 +2,10 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Guild;
+import com.sprint.mission.discodeit.enums.Permission;
 import com.sprint.mission.discodeit.service.GuildService;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class JcfGuildService extends BaseJcfService<Guild> implements GuildService {
@@ -41,7 +43,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   }
 
   @Override
-  public void updatePublic(UUID guildId, boolean discoverable) {
+  public void updateDiscoverable(UUID guildId, boolean discoverable) {
     update(guildId, g -> g.setDiscoverable(discoverable));
   }
 
@@ -58,6 +60,11 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   @Override
   public void addMember(UUID guildId, UUID member) {
     update(guildId, g -> g.addMember(member));
+  }
+
+  @Override
+  public void updateMemberPermissions(UUID guildId, UUID member, Set<Permission> permissions) {
+    update(guildId, g -> g.updateMemberPermissions(member, permissions));
   }
 
   @Override

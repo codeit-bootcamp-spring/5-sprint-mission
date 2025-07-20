@@ -76,6 +76,10 @@ public class Guild extends BaseEntity {
     members.put(userId, EnumSet.copyOf(DEFAULT_PERMISSIONS));
   }
 
+  public void updateMemberPermissions(UUID userId, Set<Permission> permissions) {
+    members.put(userId, permissions);
+  }
+
   public void removeMember(UUID userId) {
     members.remove(userId);
   }
