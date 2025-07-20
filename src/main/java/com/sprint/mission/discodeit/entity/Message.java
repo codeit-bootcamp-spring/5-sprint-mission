@@ -6,28 +6,28 @@ import java.util.List;
 import java.util.UUID;
 
 public class Message extends BaseEntity {
-  private final User sender;
-  private final User receiver;
-  private final List<UUID> replies;
+  private final UUID senderId;
+  private final UUID receiverId;
   private String content;
   private List<File> files;
   private Survey survey;
+  private final List<UUID> replies;
 
-  public Message(User sender, User receiver, String content, List<File> files, Survey survey) {
-    this.sender = sender;
-    this.receiver = receiver;
+  public Message(UUID senderId, UUID receiverId, String content, List<File> files, Survey survey) {
+    this.senderId = senderId;
+    this.receiverId = receiverId;
     this.content = content;
     this.files = files;
     this.survey = survey;
     this.replies = new ArrayList<>();
   }
 
-  public User getSender() {
-    return sender;
+  public UUID getSenderId() {
+    return senderId;
   }
 
-  public User getReceiver() {
-    return receiver;
+  public UUID getReceiverId() {
+    return receiverId;
   }
 
   public String getContent() {
@@ -76,9 +76,9 @@ public class Message extends BaseEntity {
         + ", updatedAt="
         + getUpdatedAt()
         + ", sender="
-        + sender
+        + senderId
         + ", receiver="
-        + receiver
+        + receiverId
         + ", replies="
         + replies
         + ", content='"
