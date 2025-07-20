@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.jcf;
 
+import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.service.UserService;
@@ -9,16 +10,18 @@ import com.sprint.mission.discodeit.validation.RegisterUserValidator;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class JcfUserService extends BaseJcfService<User> implements UserService {
   private static final JcfUserService instance = new JcfUserService();
 
-  private JcfUserService() {}
-
   public static JcfUserService getInstance() {
     return instance;
   }
+
+  private JcfUserService() {}
 
   @Override
   public User findByEmail(String email) {
@@ -179,6 +182,15 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
     update(userId, u -> u.setBanned(banned));
   }
 
+
+  @Override
+  public Set<User> getFriends(UUID userId) {
+    User user = getIfExists(userId);
+    return user.getFriends().stream()
+        .map(this::getIfExists) // UUID → User
+        .collect(Collectors.toSet());
+  }
+
   @Override
   public void addFriend(UUID userId, UUID friendId) {
     if (userId.equals(friendId)) {
@@ -194,6 +206,14 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
     getIfExists(friendId);
     update(userId, u -> u.removeFriend(friendId));
     update(friendId, u -> u.removeFriend(userId));
+  }
+
+  @Override
+  public Set<Guild> getGuilds(UUID userId) {
+    User user = getIfExists(userId);
+    return user.getGuilds().stream()
+        .map(JcfGuildService.getInstance()::getIfExists)
+        .collect(Collectors.toSet());
   }
 
   @Override

@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface UserService extends BaseService<User> {
@@ -47,9 +49,13 @@ public interface UserService extends BaseService<User> {
 
   void updateBanned(UUID userId, boolean banned);
 
+  Set<User> getFriends(UUID userId);
+
   void addFriend(UUID userId, UUID friendId);
 
   void removeFriend(UUID userId, UUID friendId);
+
+  Set<Guild> getGuilds(UUID userId);
 
   void addGuild(UUID userId, UUID guildId);
 

@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -643,18 +642,13 @@ public class JavaApplication {
   }
 
   private void showFriends() {
-    Set<UUID> friends = me.getFriends();
+    List<User> friends = userService.getFriends(me.getId()).stream().toList();
     if (friends.isEmpty()) {
       System.out.println("친구 : 없음");
       return;
     }
 
-    String friendsStr =
-        friends.stream()
-            .map(userService::findById)
-            .filter(Objects::nonNull)
-            .map(User::getEmail)
-            .collect(Collectors.joining(", "));
+    String friendsStr = friends.stream().map(User::getEmail).collect(Collectors.joining(", "));
     System.out.println("친구 : " + friendsStr);
   }
 
@@ -782,17 +776,15 @@ public class JavaApplication {
 
   private void deleteFriend() {
     while (true) {
-      if (me.getFriends().isEmpty()) {
-        System.out.println("\n친구 목록이 비어 있습니다.");
+      List<User> friends = userService.getFriends(me.getId()).stream().toList();
+      if (friends.isEmpty()) {
+        System.out.println("친구 : 없음");
         return;
       }
-
-      List<UUID> friends = me.getFriends().stream().toList();
-
       for (int i = 0; i < friends.size(); i++) {
-        User friend = userService.findById(friends.get(i));
-        if (friend != null) {
-          System.out.printf("%d. %s (%s)\n", i + 1, friend.getUsername(), friend.getEmail());
+        if (friends.get(i) != null) {
+          System.out.printf(
+              "%d. %s (%s)\n", i + 1, friends.get(i).getUsername(), friends.get(i).getEmail());
         }
       }
 
@@ -810,8 +802,8 @@ public class JavaApplication {
             continue;
           }
 
-          UUID friendId = friends.get(idx);
-          userService.removeFriend(me.getId(), friendId);
+          User friend = friends.get(idx);
+          userService.removeFriend(me.getId(), friend.getId());
           System.out.println("친구가 삭제되었습니다.");
           break;
         } catch (NumberFormatException e) {
@@ -948,9 +940,10 @@ public class JavaApplication {
   private void exitGuild() {
     System.out.println("\nx. 뒤로가기");
 
-    List<Guild> guilds = guildService.findGuildsJoined(me.getId());
+    List<Guild> guilds = userService.getGuilds(me.getId()).stream().toList();
     printGuildList(guilds);
-    if (guilds == null || guilds.isEmpty()) {
+    if (guilds.isEmpty()) {
+      System.out.println("🔍 입장한 서버가 없습니다.");
       return;
     }
 
@@ -971,9 +964,10 @@ public class JavaApplication {
   private void openGuild() {
     System.out.println("\nx. 뒤로가기");
 
-    List<Guild> guilds = guildService.findGuildsJoined(me.getId());
+    List<Guild> guilds = userService.getGuilds(me.getId()).stream().toList();
     printGuildList(guilds);
-    if (guilds == null || guilds.isEmpty()) {
+    if (guilds.isEmpty()) {
+      System.out.println("🔍 입장한 서버가 없습니다.");
       return;
     }
 
