@@ -18,6 +18,10 @@ public interface GuildService extends BaseService<Guild> {
 
   void updateName(UUID guildId, String name);
 
+  void updateDiscoverable(UUID guildId, boolean discoverable);
+
+  void updateOwnerId(UUID guildId, UUID ownerId);
+
   void addChannel(UUID guildId, Channel channel);
 
   void removeChannel(UUID guildId, Channel channel);
@@ -27,8 +31,4 @@ public interface GuildService extends BaseService<Guild> {
   void updateMemberPermissions(UUID guildId, UUID member, Set<Permission> permissions);
 
   void removeMember(UUID guildId, UUID member);
-
-  void updateOwnerId(UUID guildId, UUID ownerId);
-
-  void updateDiscoverable(UUID guildId, boolean discoverable);
 }

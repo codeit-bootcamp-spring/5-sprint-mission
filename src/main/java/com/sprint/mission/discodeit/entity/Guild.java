@@ -105,17 +105,19 @@ public class Guild extends BaseEntity {
         + getCreatedAt()
         + ", updatedAt="
         + getUpdatedAt()
+        + ", name='"
+        + name
+        + '\''
         + ", discoverable="
         + discoverable
         + ", ownerId="
         + ownerId
-        + ", name='"
-        + name
-        + '\''
         + ", members="
         + members
         + ", channels="
         + channels
+        + ", bans="
+        + bans
         + '}';
   }
 }
