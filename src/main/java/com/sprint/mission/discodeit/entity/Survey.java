@@ -12,7 +12,7 @@ public class Survey extends BaseEntity {
   private final String question;
   private final long durationMillis;
   private final boolean isDuplicateResponseAllowed;
-  private boolean isClosed;
+  private boolean closed;
   private final List<String> answers;
   private final List<Integer> voteCounts;
   private final List<Set<UUID>> voters;
@@ -58,11 +58,11 @@ public class Survey extends BaseEntity {
   }
 
   public boolean isClosed() {
-    return isClosed;
+    return closed;
   }
 
   public void setClosed(boolean closed) {
-    isClosed = closed;
+    this.closed = closed;
   }
 
   public List<String> getAnswers() {
@@ -78,10 +78,16 @@ public class Survey extends BaseEntity {
   }
 
   public void vote(int answerIndex, UUID voterId, boolean isUnvoted) {
+    if (closed) {
+      throw new IllegalStateException("Survey is closed.");
+    }
+
     if (isIndexOutOfBounds(answerIndex)) {
       throw new IllegalArgumentException("Invalid answer index: " + answerIndex);
     }
+
     Set<UUID> voterSet = voters.get(answerIndex);
+
     if (isUnvoted) {
       if (voterSet.remove(voterId)) {
         voteCounts.set(answerIndex, voteCounts.get(answerIndex) - 1);
@@ -118,7 +124,7 @@ public class Survey extends BaseEntity {
         + ", isDuplicateResponseAllowed="
         + isDuplicateResponseAllowed
         + ", isClosed="
-        + isClosed
+        + closed
         + ", answers="
         + answers
         + ", voteCounts="
