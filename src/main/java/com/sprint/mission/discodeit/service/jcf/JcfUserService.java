@@ -175,8 +175,8 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   }
 
   @Override
-  public void updateBanned(UUID userId, boolean isBanned) {
-    update(userId, u -> u.setBanned(isBanned));
+  public void updateBanned(UUID userId, boolean banned) {
+    update(userId, u -> u.setBanned(banned));
   }
 
   @Override

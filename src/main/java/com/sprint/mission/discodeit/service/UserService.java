@@ -43,9 +43,9 @@ public interface UserService extends BaseService<User> {
 
   void updateBio(UUID userId, String bio);
 
-  void updateVerified(UUID userId, boolean isVerified);
+  void updateVerified(UUID userId, boolean verified);
 
-  void updateBanned(UUID userId, boolean isBanned);
+  void updateBanned(UUID userId, boolean banned);
 
   void addFriend(UUID userId, UUID friendId);
 
