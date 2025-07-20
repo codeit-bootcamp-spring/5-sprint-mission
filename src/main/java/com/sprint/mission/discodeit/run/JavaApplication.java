@@ -787,30 +787,26 @@ public class JavaApplication {
               "%d. %s (%s)\n", i + 1, friends.get(i).getUsername(), friends.get(i).getEmail());
         }
       }
+      System.out.println("\nx. 뒤로가기");
+      String idxStr = InputHandler.getInputOrBack("삭제할 친구 번호: ");
+      if (idxStr == null) {
+        return;
+      }
 
-      while (true) {
-        System.out.println("\nx. 뒤로가기");
-        String idxStr = InputHandler.getInputOrBack("삭제할 친구 번호: ");
-        if (idxStr == null) {
-          return;
+      try {
+        int idx = Integer.parseInt(idxStr) - 1;
+        if (idx < 0 || idx >= friends.size()) {
+          System.out.println("유효한 번호를 입력해주세요.");
+          continue;
         }
 
-        try {
-          int idx = Integer.parseInt(idxStr) - 1;
-          if (idx < 0 || idx >= friends.size()) {
-            System.out.println("유효한 번호를 입력해주세요.");
-            continue;
-          }
-
-          User friend = friends.get(idx);
-          userService.removeFriend(me.getId(), friend.getId());
-          System.out.println("친구가 삭제되었습니다.");
-          break;
-        } catch (NumberFormatException e) {
-          System.out.println("숫자를 입력해주세요.");
-        } catch (Exception e) {
-          System.out.println(e.getMessage());
-        }
+        User friend = friends.get(idx);
+        userService.removeFriend(me.getId(), friend.getId());
+        System.out.println("친구가 삭제되었습니다.");
+      } catch (NumberFormatException e) {
+        System.out.println("숫자를 입력해주세요.");
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
       }
     }
   }
@@ -822,7 +818,7 @@ public class JavaApplication {
 
   private void printGuildList(List<Guild> guilds) {
     if (guilds == null || guilds.isEmpty()) {
-      System.out.println("서버 없음");
+      System.out.println("존재하는 서버가 없습니다.");
       return;
     }
     System.out.println("서버 목록 : ");
@@ -884,28 +880,30 @@ public class JavaApplication {
   private void deleteGuild() {
     System.out.println("\nx. 뒤로가기");
 
-    List<Guild> guilds = guildService.findAll();
-    printGuildList(guilds);
-    if (guilds == null || guilds.isEmpty()) {
-      return;
-    }
+    while (true) {
+      List<Guild> guilds = guildService.findAll();
+      printGuildList(guilds);
+      if (guilds == null || guilds.isEmpty()) {
+        return;
+      }
 
-    Integer idx = selectGuildIndex(guilds, "삭제할 서버 번호 : ");
-    if (idx == null) {
-      return;
-    }
+      Integer idx = selectGuildIndex(guilds, "삭제할 서버 번호 : ");
+      if (idx == null) {
+        return;
+      }
 
-    Guild guild = guilds.get(idx);
-    if (!guild.getOwnerId().equals(me.getId())) {
-      System.out.println("삭제할 권한이 없습니다.");
-      return;
-    }
+      Guild guild = guilds.get(idx);
+      if (!guild.getOwnerId().equals(me.getId())) {
+        System.out.println("삭제할 권한이 없습니다.");
+        return;
+      }
 
-    try {
-      guildService.deleteById(guild.getId());
-      System.out.println(guild.getName() + " 서버가 삭제되었습니다.");
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+      try {
+        guildService.deleteById(guild.getId());
+        System.out.println(guild.getName() + " 서버가 삭제되었습니다.");
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
     }
   }
 
