@@ -932,7 +932,7 @@ public class JavaApplication {
     }
 
     Guild guild = guilds.get(idx);
-    if (guild.getMembers().contains(me.getId())) {
+    if (guild.getMembers().containsKey(me.getId())) {
       System.out.println("이미 들어간 서버입니다.");
       return;
     }
@@ -1008,7 +1008,7 @@ public class JavaApplication {
       return;
     }
 
-    List<UUID> members = new ArrayList<>(guild.getMembers());
+    List<UUID> members = new ArrayList<>(guild.getMembers().keySet());
     for (int i = 0; i < members.size(); i++) {
       User member = userService.findById(members.get(i));
       System.out.println((i + 1) + ". " + (member != null ? member.getEmail() : members.get(i)));
@@ -1083,7 +1083,7 @@ public class JavaApplication {
       return;
     }
 
-    Set<UUID> members = guild.getMembers();
+    Set<UUID> members = guild.getMembers().keySet();
     System.out.println("회원 목록:");
     int i = 1;
     List<UUID> memberList = new ArrayList<>(members);

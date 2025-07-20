@@ -13,6 +13,5 @@ public enum Permission {
   MANAGE_CHANNEL,
   MANAGE_ROLES,
 
-  VIEW_CHANNEL,
   ADMINISTRATOR,
 }

@@ -1,74 +1,51 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.enums.Permission;
+import com.sprint.mission.discodeit.utility.StringUtil;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public class Guild extends BaseEntity {
   private String name;
-  private boolean isDiscoverable;
+  private boolean discoverable;
   private UUID ownerId;
-  private final Set<UUID> members;
+  private final Map<UUID, Set<Permission>> members;
   private final List<Channel> channels;
+  private final Set<UUID> bans;
 
-  public Guild(String name, boolean isPublic, UUID ownerId) {
-    this.name = name == null ? "" : name.strip();
-    this.isDiscoverable = isPublic;
+  private static final Set<Permission> DEFAULT_PERMISSIONS =
+      EnumSet.of(Permission.READ_MESSAGES, Permission.SEND_MESSAGES);
+
+  public Guild(String name, boolean discoverable, UUID ownerId) {
+    this.name = StringUtil.normalizeString(name);
+    this.discoverable = discoverable;
     this.ownerId = ownerId;
-    this.members = new HashSet<>();
+    this.members = new HashMap<>();
     this.channels = new ArrayList<>();
+    this.bans = new HashSet<>();
   }
 
   public String getName() {
-    if (name == null) {
-      return "";
-    }
     return name;
   }
 
   public void setName(String name) {
-    if (name != null) {
-      this.name = name.strip();
-    }
+    this.name = StringUtil.normalizeString(name);
   }
 
   public boolean isDiscoverable() {
-    return isDiscoverable;
+    return discoverable;
   }
 
-  public void setDiscoverable(boolean isPublic) {
-    this.isDiscoverable = isPublic;
-  }
-
-  public List<Channel> getChannels() {
-    return Collections.unmodifiableList(channels);
-  }
-
-  public void addChannel(Channel channel) {
-    if (channel != null) {
-      channels.add(channel);
-    }
-  }
-
-  public void removeChannel(Channel channel) {
-    channels.remove(channel);
-  }
-
-  public Set<UUID> getMembers() {
-    return Collections.unmodifiableSet(members);
-  }
-
-  public void addMember(UUID member) {
-    if (member != null) {
-      members.add(member);
-    }
-  }
-
-  public void removeMember(UUID member) {
-    members.remove(member);
+  public void setDiscoverable(boolean discoverable) {
+    this.discoverable = discoverable;
   }
 
   public UUID getOwnerId() {
@@ -77,6 +54,42 @@ public class Guild extends BaseEntity {
 
   public void setOwnerId(UUID ownerId) {
     this.ownerId = ownerId;
+  }
+
+  public List<Channel> getChannels() {
+    return Collections.unmodifiableList(channels);
+  }
+
+  public void addChannel(Channel channel) {
+    channels.add(channel);
+  }
+
+  public void removeChannel(Channel channel) {
+    channels.remove(channel);
+  }
+
+  public Map<UUID, Set<Permission>> getMembers() {
+    return Collections.unmodifiableMap(members);
+  }
+
+  public void addMember(UUID userId) {
+    members.put(userId, EnumSet.copyOf(DEFAULT_PERMISSIONS));
+  }
+
+  public void removeMember(UUID userId) {
+    members.remove(userId);
+  }
+
+  public Set<UUID> getBans() {
+    return Collections.unmodifiableSet(bans);
+  }
+
+  public void addBan(UUID userId) {
+    bans.add(userId);
+  }
+
+  public void removeBan(UUID userId) {
+    bans.remove(userId);
   }
 
   @Override
@@ -88,8 +101,8 @@ public class Guild extends BaseEntity {
         + getCreatedAt()
         + ", updatedAt="
         + getUpdatedAt()
-        + ", isPublic="
-        + isDiscoverable
+        + ", discoverable="
+        + discoverable
         + ", ownerId="
         + ownerId
         + ", name='"

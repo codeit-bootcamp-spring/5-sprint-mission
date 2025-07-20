@@ -37,12 +37,12 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
   @Override
   public List<Guild> findGuildsJoined(UUID userId) {
-    return data.stream().filter(g -> g.getMembers().contains(userId)).toList();
+    return data.stream().filter(g -> g.getMembers().containsKey(userId)).toList();
   }
 
   @Override
-  public void updatePublic(UUID guildId, boolean isPublic) {
-    update(guildId, g -> g.setDiscoverable(isPublic));
+  public void updatePublic(UUID guildId, boolean discoverable) {
+    update(guildId, g -> g.setDiscoverable(discoverable));
   }
 
   @Override
