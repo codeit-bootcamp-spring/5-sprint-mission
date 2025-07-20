@@ -14,8 +14,6 @@ public interface GuildService extends BaseService<Guild> {
 
   List<Guild> findGuildsOwnedByUser(UUID userId);
 
-  List<Guild> findGuildsJoined(UUID userId);
-
   void updateName(UUID guildId, String name);
 
   void updateDiscoverable(UUID guildId, boolean discoverable);

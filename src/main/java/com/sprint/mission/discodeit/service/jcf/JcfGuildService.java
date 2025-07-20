@@ -11,17 +11,16 @@ import java.util.UUID;
 public class JcfGuildService extends BaseJcfService<Guild> implements GuildService {
   private static final JcfGuildService instance = new JcfGuildService();
 
-  private JcfGuildService() {}
-
   public static JcfGuildService getInstance() {
     return instance;
   }
 
+  private JcfGuildService() {}
+
   @Override
   public Guild create(Guild guild) {
     if (findById(guild.getId()) != null) {
-      System.out.println("중복된 id가 존재합니다.");
-      return null;
+      throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
     data.add(guild);
     return guild;
@@ -35,11 +34,6 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   @Override
   public List<Guild> findGuildsOwnedByUser(UUID userId) {
     return data.stream().filter(g -> g.getOwnerId().equals(userId)).toList();
-  }
-
-  @Override
-  public List<Guild> findGuildsJoined(UUID userId) {
-    return data.stream().filter(g -> g.getMembers().containsKey(userId)).toList();
   }
 
   @Override
