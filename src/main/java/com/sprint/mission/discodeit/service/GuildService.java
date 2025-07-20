@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface GuildService extends BaseService<Guild> {
   Guild create(Guild guild);
 
-  List<Guild> findPublicGuilds();
+  List<Guild> findDiscoverableGuilds();
 
   List<Guild> findGuildsOwnedByUser(UUID userId);
 

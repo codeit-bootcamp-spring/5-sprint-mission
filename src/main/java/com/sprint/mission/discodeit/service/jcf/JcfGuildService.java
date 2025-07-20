@@ -26,8 +26,8 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   }
 
   @Override
-  public List<Guild> findPublicGuilds() {
-    return data.stream().filter(Guild::isPublic).toList();
+  public List<Guild> findDiscoverableGuilds() {
+    return data.stream().filter(Guild::isDiscoverable).toList();
   }
 
   @Override
@@ -42,7 +42,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
   @Override
   public void updatePublic(UUID guildId, boolean isPublic) {
-    update(guildId, g -> g.setPublic(isPublic));
+    update(guildId, g -> g.setDiscoverable(isPublic));
   }
 
   @Override

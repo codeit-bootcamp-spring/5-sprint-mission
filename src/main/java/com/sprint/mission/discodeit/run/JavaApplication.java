@@ -871,7 +871,7 @@ public class JavaApplication {
       }
 
       try {
-        Guild guild = guildService.create(new Guild(isPublic, me.getId(), name));
+        Guild guild = guildService.create(new Guild(name, isPublic, me.getId()));
         if (guild != null) {
           guildService.addMember(guild.getId(), me.getId());
           guildService.addChannel(
@@ -920,7 +920,7 @@ public class JavaApplication {
   private void joinGuild() {
     System.out.println("\nx. 뒤로가기");
 
-    List<Guild> guilds = guildService.findPublicGuilds();
+    List<Guild> guilds = guildService.findDiscoverableGuilds();
     printGuildList(guilds);
     if (guilds == null || guilds.isEmpty()) {
       return;
@@ -1069,7 +1069,7 @@ public class JavaApplication {
     }
 
     System.out.println("\nx. 뒤로가기");
-    System.out.println("현재 공개 여부 : " + (guild.isPublic() ? "공개" : "비공개"));
+    System.out.println("현재 공개 여부 : " + (guild.isDiscoverable() ? "공개" : "비공개"));
 
     Boolean isPublic = InputHandler.getYesOrNo("공개 여부");
     if (isPublic != null) {

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.enums.user.Status;
+import com.sprint.mission.discodeit.utility.StringUtil;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,12 +33,12 @@ public class User extends BaseEntity {
       LocalDate birthDate,
       boolean subscribedToNewsletter,
       String nickname) {
-    this.email = optionalString(email).toLowerCase();
-    this.username = optionalString(username);
-    this.password = optionalString(password);
+    this.email = StringUtil.trimToEmpty(email).toLowerCase();
+    this.username = StringUtil.trimToEmpty(username);
+    this.password = StringUtil.trimToEmpty(password);
     this.birthDate = birthDate;
     this.subscribedToNewsletter = subscribedToNewsletter;
-    this.nickname = optionalString(nickname);
+    this.nickname = StringUtil.trimToEmpty(nickname);
     this.status = Status.OFFLINE;
     this.phoneNumber = "";
     this.avatarUrl = "";
@@ -52,7 +53,7 @@ public class User extends BaseEntity {
   }
 
   public void setEmail(String email) {
-    this.email = optionalString(email).toLowerCase();
+    this.email = StringUtil.trimToEmpty(email).toLowerCase();
   }
 
   public String getNickname() {
@@ -60,7 +61,7 @@ public class User extends BaseEntity {
   }
 
   public void setNickname(String nickname) {
-    this.nickname = optionalString(nickname);
+    this.nickname = StringUtil.trimToEmpty(nickname);
   }
 
   public String getUsername() {
@@ -68,7 +69,7 @@ public class User extends BaseEntity {
   }
 
   public void setUsername(String username) {
-    this.username = optionalString(username);
+    this.username = StringUtil.trimToEmpty(username);
   }
 
   public String getPassword() {
@@ -76,7 +77,7 @@ public class User extends BaseEntity {
   }
 
   public void setPassword(String password) {
-    this.password = optionalString(password);
+    this.password = StringUtil.trimToEmpty(password);
   }
 
   public LocalDate getBirthDate() {
@@ -108,7 +109,7 @@ public class User extends BaseEntity {
   }
 
   public void setPhoneNumber(String phoneNumber) {
-    this.phoneNumber = optionalString(phoneNumber);
+    this.phoneNumber = StringUtil.trimToEmpty(phoneNumber);
   }
 
   public String getAvatarUrl() {
@@ -116,7 +117,7 @@ public class User extends BaseEntity {
   }
 
   public void setAvatarUrl(String avatarUrl) {
-    this.avatarUrl = optionalString(avatarUrl);
+    this.avatarUrl = StringUtil.trimToEmpty(avatarUrl);
   }
 
   public String getBio() {
@@ -124,7 +125,7 @@ public class User extends BaseEntity {
   }
 
   public void setBio(String bio) {
-    this.bio = optionalString(bio);
+    this.bio = StringUtil.trimToEmpty(bio);
   }
 
   public boolean isVerified() {
@@ -185,10 +186,6 @@ public class User extends BaseEntity {
 
   public void removeChatRoom(UUID id) {
     chatRooms.remove(id);
-  }
-
-  private String optionalString(String input) {
-    return input == null ? "" : input.strip();
   }
 
   @Override

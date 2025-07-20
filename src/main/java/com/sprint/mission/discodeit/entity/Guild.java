@@ -8,16 +8,16 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Guild extends BaseEntity {
-  private boolean isPublic;
-  private UUID ownerId;
   private String name;
+  private boolean isDiscoverable;
+  private UUID ownerId;
   private final Set<UUID> members;
   private final List<Channel> channels;
 
-  public Guild(boolean isPublic, UUID ownerId, String name) {
-    this.isPublic = isPublic;
-    this.ownerId = ownerId;
+  public Guild(String name, boolean isPublic, UUID ownerId) {
     this.name = name == null ? "" : name.strip();
+    this.isDiscoverable = isPublic;
+    this.ownerId = ownerId;
     this.members = new HashSet<>();
     this.channels = new ArrayList<>();
   }
@@ -35,12 +35,12 @@ public class Guild extends BaseEntity {
     }
   }
 
-  public boolean isPublic() {
-    return isPublic;
+  public boolean isDiscoverable() {
+    return isDiscoverable;
   }
 
-  public void setPublic(boolean isPublic) {
-    this.isPublic = isPublic;
+  public void setDiscoverable(boolean isPublic) {
+    this.isDiscoverable = isPublic;
   }
 
   public List<Channel> getChannels() {
@@ -89,7 +89,7 @@ public class Guild extends BaseEntity {
         + ", updatedAt="
         + getUpdatedAt()
         + ", isPublic="
-        + isPublic
+        + isDiscoverable
         + ", ownerId="
         + ownerId
         + ", name='"
