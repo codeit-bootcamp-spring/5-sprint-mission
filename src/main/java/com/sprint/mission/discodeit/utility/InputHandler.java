@@ -7,9 +7,10 @@ import java.util.Scanner;
 public class InputHandler {
   private static final Scanner sc = new Scanner(System.in);
 
-  public static int getMenuInput(int maxNum) {
+  public static int getMenuInput(int maxNum, String prompt) {
     while (true) {
       try {
+        System.out.print(prompt);
         int menuNum = Integer.parseInt(sc.nextLine().strip());
         if (menuNum >= 1 && menuNum <= maxNum) {
           return menuNum;
@@ -39,7 +40,7 @@ public class InputHandler {
         case "n":
           return false;
         default:
-          System.out.println("y 또는 n을 입력해주세요.\n");
+          System.out.println("y 또는 n을 입력해주세요.");
       }
     }
   }

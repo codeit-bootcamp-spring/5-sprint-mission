@@ -18,13 +18,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class JavaApplication {
-  private final Scanner sc = new Scanner(System.in);
   private final JcfUserService userService = JcfUserService.getInstance();
   private final JcfFriendRequestService friendRequestService =
       JcfFriendRequestService.getInstance(userService);
@@ -98,19 +96,14 @@ public class JavaApplication {
       return;
     }
 
-    while (true) {
-      if (me == null && menu.requiresLogin) {
-        break;
-      }
-
+    while (!menu.requiresLogin || me != null) {
       System.out.println("\n" + menu.getTitle());
 
       for (int i = 0; i < menu.getItems().size(); i++) {
         System.out.println((i + 1) + ". " + menu.getItems().get(i));
       }
 
-      System.out.print("메뉴 번호 입력 : ");
-      int input = InputHandler.getMenuInput(menu.getItems().size());
+      int input = InputHandler.getMenuInput(menu.getItems().size(), "메뉴 번호 입력 : ");
 
       Runnable action = menu.getActions().get(input - 1);
       if (action != null) {
@@ -145,7 +138,8 @@ public class JavaApplication {
             .add("이메일로 회원 조회", this::findUserByEmail)
             .add("모든 회원 조회", this::showAllUsers)
             .add("유저 검색", this::searchUsers)
-            .add("유저 밴 하기", this::banUser)
+            .add("유저 밴", this::banUser)
+            .add("유저 밴 해제", this::unbanUser)
             .add("종료", this::exitSystem));
   }
 
@@ -178,8 +172,8 @@ public class JavaApplication {
         new Menu("=====***** 친구 목록 편집 메뉴 *****=====")
             .add("친구 목록 보기", this::showFriends)
             .add("친구 요청", this::sendFriendRequest)
-            .add("보낸 친구 요청 보기", this::viewSentFriendRequests)
-            .add("받은 친구 요청 보기", this::viewReceivedFriendRequests)
+            .add("친구 요청 취소", this::viewSentFriendRequests)
+            .add("친구 요청 응답", this::viewReceivedFriendRequests)
             .add("친구 삭제", this::deleteFriend)
             .add("뒤로가기", this::goPreviousMenu));
   }
@@ -247,7 +241,7 @@ public class JavaApplication {
         break;
       }
 
-      System.out.println("⚠ 중복된 이메일입니다. 다시 입력해주세요.\n");
+      System.out.println("⚠ 중복된 이메일입니다. 다시 입력해주세요.");
     }
 
     String nickname = InputHandler.getInputOrBack("별명(선택) : ");
@@ -261,9 +255,11 @@ public class JavaApplication {
       if (username == null) {
         return;
       }
+
       if (!username.isEmpty()) {
         break;
       }
+
       System.out.println("⚠ 사용자명은 필수입니다.");
     }
 
@@ -311,16 +307,16 @@ public class JavaApplication {
         return;
       }
 
-      String password = InputHandler.getInputOrBack("비밀번호 : ");
+      String password = InputHandler.getValidPassword("비밀번호 : ");
       if (password == null) {
         return;
       }
 
       try {
         PasswordValidator.validate(password);
-        User user = userService.login(email.toLowerCase(), password);
+        User user = userService.login(email, password);
         me = user;
-        System.out.println(user.getUsername() + "님, 환영합니다!");
+        System.out.println("\n" + user.getUsername() + "님, 환영합니다!");
         break;
       } catch (Exception e) {
         System.out.println(e.getMessage());
@@ -341,21 +337,15 @@ public class JavaApplication {
   }
 
   private void findUserByEmail() {
+    System.out.println("\nx. 뒤로가기");
     while (true) {
-      System.out.println("\nx. 뒤로가기");
-
       String email = InputHandler.getValidEmail("이메일 : ");
       if (email == null) {
         return;
       }
 
-      User user = userService.findByEmail(email.toLowerCase());
-
-      if (user == null) {
-        System.out.println("등록된 회원이 없습니다.");
-      } else {
-        System.out.println(user);
-      }
+      User user = userService.findByEmail(email);
+      System.out.println(user != null ? user : "등록된 회원이 없습니다.");
     }
   }
 
@@ -374,30 +364,37 @@ public class JavaApplication {
       }
 
       System.out.println("\n검색 결과:");
-      for (User user : results) {
-        System.out.printf(
-            "- 닉네임: %s | 이메일: %s | 사용자명: %s%n",
-            user.getNickname(), user.getEmail(), user.getUsername());
-      }
+      results.forEach(
+          user ->
+              System.out.printf(
+                  "- 닉네임: %s | 이메일: %s | 사용자명: %s%n",
+                  user.getNickname(), user.getEmail(), user.getUsername()));
       break;
     }
   }
 
   private void banUser() {
     while (true) {
-      showAllUsers();
+      List<User> activeUsers = userService.findAll().stream().filter(u -> !u.isBanned()).toList();
 
-      System.out.println("x. 뒤로가기");
+      if (activeUsers.isEmpty()) {
+        System.out.println("\n정지되지 않은 유저가 없습니다.");
+        return;
+      }
 
-      String email = InputHandler.getInputOrBack("정지시킬 유저의 이메일 : ");
+      System.out.println("\n정지되지 않은 유저 목록:");
+      activeUsers.forEach(u -> System.out.println("- " + u.getEmail()));
+
+      System.out.println("\nx. 뒤로가기");
+
+      String email = InputHandler.getValidEmail("정지시킬 유저의 이메일 : ");
       if (email == null) {
         return;
       }
 
-      User user = userService.findByEmail(email.toLowerCase());
-
+      User user = userService.findByEmail(email);
       if (user == null) {
-        System.out.println("등록된 회원이 없습니다.\n");
+        System.out.println("\n해당 이메일의 정지되지 않은 유저를 찾을 수 없습니다.");
         continue;
       }
 
@@ -410,11 +407,45 @@ public class JavaApplication {
     }
   }
 
+  private void unbanUser() {
+    while (true) {
+      List<User> activeUsers = userService.findAll().stream().filter(User::isBanned).toList();
+
+      if (activeUsers.isEmpty()) {
+        System.out.println("정지된 유저가 없습니다.");
+        return;
+      }
+
+      System.out.println("\n정지된 유저 목록:");
+      activeUsers.forEach(u -> System.out.println("- " + u.getEmail()));
+
+      System.out.println("\nx. 뒤로가기");
+
+      String email = InputHandler.getInputOrBack("정지 해제할 유저의 이메일 : ");
+      if (email == null) {
+        return;
+      }
+
+      User user = userService.findByEmail(email.toLowerCase());
+
+      if (user == null) {
+        System.out.println("\n입력된 이메일의 정지된 유저를 찾을 수 없습니다.");
+        continue;
+      }
+
+      try {
+        userService.updateBanned(user.getId(), false);
+        System.out.println("계정 정지 해제 : " + user.getEmail());
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }
+  }
+
   private void showAllUsers() {
     try {
-      List<User> users = userService.findAll();
       System.out.println();
-      users.forEach(System.out::println);
+      userService.findAll().forEach(System.out::println);
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
@@ -427,14 +458,9 @@ public class JavaApplication {
     System.out.println("현재 이메일 : " + me.getEmail());
 
     while (true) {
-      String email = InputHandler.getInputOrBack("변경할 이메일 : ");
+      String email = InputHandler.getValidEmail("변경할 이메일 : ");
       if (email == null) {
         return;
-      }
-
-      if (!email.matches(emailPattern)) {
-        System.out.println("잘못된 형식입니다. 다시 입력해주세요.");
-        continue;
       }
 
       if (email.equals(me.getEmail())) {
@@ -442,7 +468,7 @@ public class JavaApplication {
         continue;
       }
 
-      User duplicatedUser = userService.findByEmail(email.toLowerCase());
+      User duplicatedUser = userService.findByEmail(email);
       if (duplicatedUser != null) {
         System.out.println("중복된 이메일입니다. 다시 입력해주세요.");
         continue;
@@ -451,6 +477,7 @@ public class JavaApplication {
       try {
         userService.updateEmail(me.getId(), email);
         me.setEmail(email);
+        System.out.println("✅ 이메일이 성공적으로 변경되었습니다: " + email);
         break;
       } catch (Exception e) {
         System.out.println(e.getMessage());
@@ -661,52 +688,54 @@ public class JavaApplication {
   }
 
   private void viewReceivedFriendRequests() {
-    List<FriendRequest> friendRequests = friendRequestService.getReceivedRequests(me.getId());
-
-    if (friendRequests.isEmpty()) {
-      System.out.println("\n받은 친구 요청이 없습니다.");
-      return;
-    }
-
-    for (int i = 0; i < friendRequests.size(); i++) {
-      FriendRequest fr = friendRequests.get(i);
-      User sender = userService.findById(fr.getSenderId());
-      System.out.println((i + 1) + ". " + sender.getUsername());
-    }
-
-    System.out.println("\nx. 뒤로가기");
     while (true) {
-      String idxStr = InputHandler.getInputOrBack("선택 : ");
-      if (idxStr == null) {
+      List<FriendRequest> friendRequests = friendRequestService.getReceivedRequests(me.getId());
+
+      if (friendRequests.isEmpty()) {
+        System.out.println("\n받은 친구 요청이 없습니다.");
         return;
       }
 
-      try {
-        int idx = Integer.parseInt(idxStr);
-        if (idx < 1 || idx > friendRequests.size()) {
-          System.out.println("유효한 번호를 입력해주세요.");
-          continue;
-        }
+      for (int i = 0; i < friendRequests.size(); i++) {
+        FriendRequest fr = friendRequests.get(i);
+        User sender = userService.findById(fr.getSenderId());
+        System.out.println((i + 1) + ". " + sender.getUsername());
+      }
 
-        FriendRequest selected = friendRequests.get(idx - 1);
-
-        Boolean accepted = InputHandler.getYesOrNo("친구 요청 수락");
-        if (accepted == null) {
+      System.out.println("\nx. 뒤로가기");
+      while (true) {
+        String idxStr = InputHandler.getInputOrBack("선택 : ");
+        if (idxStr == null) {
           return;
         }
 
-        if (accepted) {
-          friendRequestService.acceptFriendRequest(selected.getId());
-          System.out.println("친구 요청을 수락했습니다.");
-        } else {
-          friendRequestService.declineFriendRequest(selected.getId());
-          System.out.println("친구 요청을 거절했습니다.");
+        try {
+          int idx = Integer.parseInt(idxStr);
+          if (idx < 1 || idx > friendRequests.size()) {
+            System.out.println("유효한 번호를 입력해주세요.");
+            continue;
+          }
+
+          FriendRequest selected = friendRequests.get(idx - 1);
+
+          Boolean accepted = InputHandler.getYesOrNo("친구 요청 수락");
+          if (accepted == null) {
+            return;
+          }
+
+          if (accepted) {
+            friendRequestService.acceptFriendRequest(selected.getId());
+            System.out.println("친구 요청을 수락했습니다.");
+          } else {
+            friendRequestService.declineFriendRequest(selected.getId());
+            System.out.println("친구 요청을 거절했습니다.");
+          }
+          break;
+        } catch (NumberFormatException e) {
+          System.out.println("숫자를 입력해주세요.");
+        } catch (Exception e) {
+          System.out.println(e.getMessage());
         }
-        return;
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.");
-      } catch (Exception e) {
-        System.out.println(e.getMessage());
       }
     }
   }
@@ -743,7 +772,6 @@ public class JavaApplication {
 
         friendRequestService.declineFriendRequest(selected.getId());
         System.out.println("친구 요청을 취소했습니다.");
-        return;
       } catch (NumberFormatException e) {
         System.out.println("숫자를 입력해주세요.");
       } catch (Exception e) {
@@ -753,41 +781,44 @@ public class JavaApplication {
   }
 
   private void deleteFriend() {
-    if (me.getFriends().isEmpty()) {
-      System.out.println("\n친구 목록이 비어 있습니다.");
-      return;
-    }
-
-    List<UUID> friends = me.getFriends().stream().toList();
-
-    for (int i = 0; i < friends.size(); i++) {
-      User friend = userService.findById(friends.get(i));
-      if (friend != null) {
-        System.out.printf("%d. %s (%s)\n", i + 1, friend.getUsername(), friend.getEmail());
-      }
-    }
-
     while (true) {
-      System.out.println("\nx. 뒤로가기");
-      String idxStr = InputHandler.getInputOrBack("삭제할 친구 번호: ");
-      if (idxStr == null) {
+      if (me.getFriends().isEmpty()) {
+        System.out.println("\n친구 목록이 비어 있습니다.");
         return;
       }
 
-      try {
-        int idx = Integer.parseInt(idxStr) - 1;
-        if (idx < 0 || idx >= friends.size()) {
-          System.out.println("유효한 번호를 입력해주세요.");
-          continue;
+      List<UUID> friends = me.getFriends().stream().toList();
+
+      for (int i = 0; i < friends.size(); i++) {
+        User friend = userService.findById(friends.get(i));
+        if (friend != null) {
+          System.out.printf("%d. %s (%s)\n", i + 1, friend.getUsername(), friend.getEmail());
+        }
+      }
+
+      while (true) {
+        System.out.println("\nx. 뒤로가기");
+        String idxStr = InputHandler.getInputOrBack("삭제할 친구 번호: ");
+        if (idxStr == null) {
+          return;
         }
 
-        UUID friendId = friends.get(idx);
-        userService.removeFriend(me.getId(), friendId);
-        System.out.println("친구가 삭제되었습니다.");
-      } catch (NumberFormatException e) {
-        System.out.println("숫자를 입력해주세요.");
-      } catch (Exception e) {
-        System.out.println(e.getMessage());
+        try {
+          int idx = Integer.parseInt(idxStr) - 1;
+          if (idx < 0 || idx >= friends.size()) {
+            System.out.println("유효한 번호를 입력해주세요.");
+            continue;
+          }
+
+          UUID friendId = friends.get(idx);
+          userService.removeFriend(me.getId(), friendId);
+          System.out.println("친구가 삭제되었습니다.");
+          break;
+        } catch (NumberFormatException e) {
+          System.out.println("숫자를 입력해주세요.");
+        } catch (Exception e) {
+          System.out.println(e.getMessage());
+        }
       }
     }
   }
@@ -1124,7 +1155,7 @@ public class JavaApplication {
           System.out.println((i + 1) + ". " + ChannelType.values()[i]);
         }
 
-        int typeIdx = InputHandler.getMenuInput(ChannelType.values().length);
+        int typeIdx = InputHandler.getMenuInput(ChannelType.values().length, "채널 유형 선택 : ");
 
         if (typeIdx < 1 || typeIdx > ChannelType.values().length) {
           throw new NumberFormatException();
