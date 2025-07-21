@@ -61,7 +61,7 @@ public class User extends BaseEntity {
     if (normalizeGlobalName.isEmpty()) {
       this.globalName = this.username;
     } else {
-      this.globalName = StringUtil.normalizeString(globalName);
+      this.globalName = normalizeGlobalName;
     }
   }
 
@@ -185,6 +185,10 @@ public class User extends BaseEntity {
     friends.remove(id);
   }
 
+  public boolean isFriend(UUID friendId) {
+    return friends.contains(friendId);
+  }
+
   public Set<UUID> getGuilds() {
     return Collections.unmodifiableSet(guilds);
   }
@@ -194,6 +198,10 @@ public class User extends BaseEntity {
       throw new IllegalArgumentException("Guild ID must not be null");
     }
     guilds.add(id);
+  }
+
+  public boolean isMemberOfGuild(UUID guildId) {
+    return guilds.contains(guildId);
   }
 
   public void removeGuild(UUID id) {
@@ -221,16 +229,14 @@ public class User extends BaseEntity {
     chatRooms.remove(id);
   }
 
+  public boolean isMemberOfChatRoom(UUID chatRoomId) {
+    return chatRooms.contains(chatRoomId);
+  }
+
   @Override
   public String toString() {
     return "User{"
-        + "id="
-        + getId()
-        + ", createdAt="
-        + getCreatedAt()
-        + ", updatedAt="
-        + getUpdatedAt()
-        + ", email='"
+        + "email='"
         + email
         + '\''
         + ", globalName='"
@@ -239,36 +245,12 @@ public class User extends BaseEntity {
         + ", username='"
         + username
         + '\''
-        + ", password='"
-        + password
-        + '\''
-        + ", birthDate="
-        + birthDate
-        + ", subscribedToNewsletter="
-        + subscribedToNewsletter
         + ", status="
         + status
-        + ", phoneNumber='"
-        + phoneNumber
-        + '\''
-        + ", avatar='"
-        + avatar
-        + '\''
-        + ", bio='"
-        + bio
-        + '\''
-        + ", verified="
-        + verified
         + ", deactivated="
         + deactivated
         + ", banned="
         + banned
-        + ", friends="
-        + friends
-        + ", guilds="
-        + guilds
-        + ", chatRooms="
-        + chatRooms
         + '}';
   }
 }
