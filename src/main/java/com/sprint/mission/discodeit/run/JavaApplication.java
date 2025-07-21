@@ -251,7 +251,7 @@ public class JavaApplication {
         return;
       }
 
-      if (userService.findByEmail(email) == null) {
+      if (userService.findByEmail(email).isEmpty()) {
         break;
       }
 
@@ -356,8 +356,10 @@ public class JavaApplication {
         return;
       }
 
-      User user = userService.findByEmail(email);
-      System.out.println(user != null ? user : "등록된 회원이 없습니다.");
+      userService
+          .findByEmail(email)
+          .ifPresentOrElse(
+              System.out::println, () -> System.out.println("등록된 회원이 없습니다."));
     }
   }
 
@@ -404,7 +406,7 @@ public class JavaApplication {
         return;
       }
 
-      User user = userService.findByEmail(email);
+      User user = userService.findByEmail(email).orElse(null);
       if (user == null) {
         System.out.println("\n해당 이메일의 정지되지 않은 유저를 찾을 수 없습니다.");
         continue;
@@ -438,7 +440,7 @@ public class JavaApplication {
         return;
       }
 
-      User user = userService.findByEmail(email.toLowerCase());
+      User user = userService.findByEmail(email.toLowerCase()).orElse(null);
 
       if (user == null) {
         System.out.println("\n입력된 이메일의 정지된 유저를 찾을 수 없습니다.");
@@ -480,8 +482,7 @@ public class JavaApplication {
         continue;
       }
 
-      User duplicatedUser = userService.findByEmail(email);
-      if (duplicatedUser != null) {
+      if (userService.findByEmail(email).isPresent()) {
         System.out.println("중복된 이메일입니다. 다시 입력해주세요.");
         continue;
       }
@@ -672,7 +673,7 @@ public class JavaApplication {
         return;
       }
 
-      User receiver = userService.findByEmail(email);
+      User receiver = userService.findByEmail(email).orElse(null);
       if (receiver == null) {
         System.out.println("해당 이메일로 등록된 사용자가 없습니다.");
         continue;

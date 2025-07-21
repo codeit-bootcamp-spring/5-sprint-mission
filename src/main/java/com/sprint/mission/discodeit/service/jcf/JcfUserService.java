@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,15 +39,15 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   }
 
   @Override
-  public User findByEmail(String email) {
-    return data.stream().filter(u -> u.getEmail().equalsIgnoreCase(email)).findFirst().orElse(null);
+  public Optional<User> findByEmail(String email) {
+    return data.stream().filter(u -> u.getEmail().equalsIgnoreCase(email)).findFirst();
   }
 
   @Override
   public User save(User user) {
     SaveUserValidator.isValid(user);
 
-    if (findByEmail(user.getEmail()) != null) {
+    if (findByEmail(user.getEmail()).isPresent()) {
       throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
     }
 
@@ -135,7 +136,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
       return;
     }
 
-    if (findByEmail(email) != null) {
+    if (findByEmail(email).isPresent()) {
       throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
     }
 

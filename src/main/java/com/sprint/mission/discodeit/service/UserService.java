@@ -5,11 +5,12 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 public interface UserService extends BaseService<User> {
-  User findByEmail(String email);
+  Optional<User> findByEmail(String email);
 
   User login(String email, String password);
 
