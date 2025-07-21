@@ -133,7 +133,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   @Override
   public void updateEmail(UUID userId, String email) {
     if (getOrThrow(userId).getEmail().equalsIgnoreCase(email)) {
-      throw new IllegalArgumentException("동일한 이메일입니다.");
+      throw new IllegalArgumentException("기존과 동일한 이메일입니다.");
     }
 
     if (findByEmail(email).isPresent()) {

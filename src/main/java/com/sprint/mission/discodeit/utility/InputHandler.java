@@ -36,6 +36,7 @@ public class InputHandler {
       if (answer == null) {
         return null;
       }
+
       switch (answer.strip().toLowerCase()) {
         case "y":
           return true;
@@ -53,6 +54,7 @@ public class InputHandler {
       if (email == null) {
         return null;
       }
+
       try {
         return Validators.validateEmail(email);
       } catch (IllegalArgumentException e) {
@@ -67,6 +69,7 @@ public class InputHandler {
       if (password == null) {
         return null;
       }
+
       try {
         return Validators.validatePassword(password);
       } catch (IllegalArgumentException e) {

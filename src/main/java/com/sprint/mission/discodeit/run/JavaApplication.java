@@ -35,7 +35,11 @@ public class JavaApplication {
   private UUID enteredGuildId;
 
   public static void main(String[] args) {
-    new JavaApplication().mainMenu();
+    try {
+      new JavaApplication().mainMenu();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   private void seedTestUsers() {
@@ -108,7 +112,11 @@ public class JavaApplication {
 
       Runnable action = menu.getActions().get(input - 1);
       if (action != null) {
-        action.run();
+        try {
+          action.run();
+        } catch (Exception e) {
+          System.out.println("⚠ 예외 발생: " + e.getMessage());
+        }
       } else {
         System.out.println("올바른 메뉴 번호를 입력해주세요.");
       }
@@ -277,6 +285,11 @@ public class JavaApplication {
         return;
       }
 
+      if (userService.findByUsername(username).isPresent()) {
+        System.out.println("⚠ 중복된 사용자명입니다. 다시 입력해주세요.");
+        continue;
+      }
+
       try {
         username = Validators.validateUsername(username);
         break;
@@ -338,8 +351,10 @@ public class JavaApplication {
         me = user;
         System.out.println("\n" + user.getUsername() + "님, 환영합니다!");
         break;
-      } catch (Exception e) {
+      } catch (IllegalArgumentException | NoSuchElementException e) {
         System.out.println(e.getMessage());
+      } catch (Exception e) {
+        System.out.println("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
       }
     }
 
@@ -348,17 +363,22 @@ public class JavaApplication {
 
   private void logout() {
     if (me != null) {
-      userService.logout(me.getId());
-      System.out.println(me.getUsername() + "님, 로그아웃 되었습니다.");
-      me = null;
+      try {
+        userService.logout(me.getId());
+        System.out.println("\n" + me.getUsername() + "님, 로그아웃 되었습니다.");
+        me = null;
+        System.out.println("메인 메뉴로 이동합니다.");
+      } catch (Exception e) {
+        System.out.println("로그아웃 중 오류가 발생했습니다: " + e.getMessage());
+      }
     } else {
-      System.out.println("이미 로그아웃되었습니다.");
+      System.out.println("이미 로그아웃되셨습니다.");
     }
   }
 
   private void findUserByEmail() {
-    System.out.println("\nx. 뒤로가기");
     while (true) {
+      System.out.println("\nx. 뒤로가기");
       String email = InputHandler.getValidEmail("이메일 : ");
       if (email == null) {
         return;
@@ -388,7 +408,7 @@ public class JavaApplication {
       results.forEach(
           user ->
               System.out.printf(
-                  "- 닉네임: %s | 사용자명: %s | 이메일: %s%n",
+                  "- 별명: %s | 사용자명: %s | 이메일: %s%n",
                   user.getGlobalName(), user.getUsername(), user.getEmail()));
     }
   }
@@ -413,7 +433,7 @@ public class JavaApplication {
       }
 
       User user = userService.findByEmail(email).orElse(null);
-      if (user == null) {
+      if (user == null || user.isBanned()) {
         System.out.println("\n해당 이메일의 정지되지 않은 유저를 찾을 수 없습니다.");
         continue;
       }
@@ -441,13 +461,12 @@ public class JavaApplication {
 
       System.out.println("\nx. 뒤로가기");
 
-      String email = InputHandler.getInputOrBack("정지 해제할 유저의 이메일 : ");
+      String email = InputHandler.getValidEmail("정지 해제할 유저의 이메일 : ");
       if (email == null) {
         return;
       }
 
       User user = userService.findByEmail(email.toLowerCase()).orElse(null);
-
       if (user == null) {
         System.out.println("\n입력된 이메일의 정지된 유저를 찾을 수 없습니다.");
         continue;
@@ -463,12 +482,19 @@ public class JavaApplication {
   }
 
   private void showAllUsers() {
-    try {
-      System.out.println();
-      userService.findAll().forEach(System.out::println);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+    List<User> users = userService.findAll();
+    if (users.isEmpty()) {
+      System.out.println("등록된 사용자가 없습니다.");
+      return;
     }
+    users.forEach(
+        user ->
+            System.out.printf(
+                "- 닉네임: %s | 사용자명: %s | 이메일: %s | 정지: %s%n",
+                user.getGlobalName(),
+                user.getUsername(),
+                user.getEmail(),
+                user.isBanned() ? "O" : "X"));
   }
 
   private void changeEmail() {
@@ -482,7 +508,7 @@ public class JavaApplication {
       }
 
       if (email.equals(me.getEmail())) {
-        System.out.println("동일한 이메일입니다.");
+        System.out.println("기존과 동일한 이메일입니다.");
         continue;
       }
 
@@ -493,7 +519,6 @@ public class JavaApplication {
 
       try {
         userService.updateEmail(me.getId(), email);
-        me.setEmail(email);
         System.out.println("✅ 이메일이 성공적으로 변경되었습니다: " + email);
         break;
       } catch (Exception e) {
@@ -514,7 +539,6 @@ public class JavaApplication {
         }
 
         userService.updateGlobalName(me.getId(), Validators.validateGlobalName(globalName));
-        me.setGlobalName(globalName);
         break;
       } catch (Exception e) {
         System.out.println(e.getMessage());
@@ -535,7 +559,6 @@ public class JavaApplication {
         }
 
         userService.updateUsername(me.getId(), Validators.validateUsername(newUsername));
-        me.setUsername(newUsername);
         break;
       } catch (Exception e) {
         System.out.println(e.getMessage());
@@ -558,7 +581,6 @@ public class JavaApplication {
         }
 
         userService.updatePassword(me.getId(), Validators.validatePassword(password));
-        me.setPassword(password);
         break;
       } catch (Exception e) {
         System.out.println(e.getMessage());
@@ -579,7 +601,7 @@ public class JavaApplication {
         }
 
         userService.updateBirthDate(me.getId(), birthDate);
-        me.setBirthDate(birthDate);
+        break;
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }
@@ -598,7 +620,6 @@ public class JavaApplication {
         }
 
         userService.updateSubscribedToNewsletter(me.getId(), isSubscribedToNewsletter);
-        me.setSubscribedToNewsletter(isSubscribedToNewsletter);
         break;
       } catch (Exception e) {
         System.out.println(e.getMessage());
@@ -625,7 +646,6 @@ public class JavaApplication {
 
         newPhoneNumber = Validators.validatePhoneNumber(newPhoneNumber);
         userService.updatePhoneNumber(me.getId(), newPhoneNumber);
-        me.setPhoneNumber(newPhoneNumber);
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }

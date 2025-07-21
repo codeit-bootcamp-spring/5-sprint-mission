@@ -70,28 +70,28 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
 
   @Override
   public FriendRequest save(FriendRequest friendRequest) {
+    getOrThrow(friendRequest.getId());
+
     UUID senderId = friendRequest.getSenderId();
     UUID receiverId = friendRequest.getReceiverId();
-
-    userService.getOrThrow(senderId);
-    User receiver = userService.getOrThrow(receiverId);
-
-    if (existsById(friendRequest.getId())) {
-      throw new IllegalArgumentException("중복된 id가 존재합니다.");
-    }
 
     if (senderId.equals(receiverId)) {
       throw new IllegalArgumentException("자기 자신에게 친구 요청을 보낼 수 없습니다.");
     }
 
-    boolean alreadySent =
-        sentIndex.getOrDefault(senderId, Collections.emptySet()).contains(receiverId);
-    boolean alreadyReceived =
-        receivedIndex.getOrDefault(senderId, Collections.emptySet()).contains(receiverId);
+    userService.getOrThrow(senderId);
+    User receiver = userService.getOrThrow(receiverId);
+
 
     if (userService.getFriends(senderId).contains(receiver)) {
       throw new IllegalArgumentException("이미 친구입니다.");
     }
+
+    boolean alreadySent =
+        sentIndex.getOrDefault(senderId, Collections.emptySet()).contains(receiverId);
+    boolean alreadyReceived =
+        sentIndex.getOrDefault(receiverId, Collections.emptySet()).contains(senderId);
+
 
     if (alreadySent || alreadyReceived) {
       throw new IllegalStateException("이미 친구 요청이 존재합니다.");
@@ -104,22 +104,22 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
   }
 
   @Override
-  public boolean acceptFriendRequest(UUID requestId) {
+  public void acceptFriendRequest(UUID requestId) {
     FriendRequest fr = getOrThrow(requestId);
 
     userService.addFriend(fr.getSenderId(), fr.getReceiverId());
     userService.addFriend(fr.getReceiverId(), fr.getSenderId());
 
-    return hardDeleteById(requestId);
+    hardDeleteById(requestId);
   }
 
   @Override
-  public boolean declineFriendRequest(UUID requestId) {
+  public void declineFriendRequest(UUID requestId) {
     if (findById(requestId).isEmpty()) {
       throw new NoSuchElementException("이미 처리된 요청입니다.");
     }
 
-    return hardDeleteById(requestId);
+    hardDeleteById(requestId);
   }
 
   @Override
