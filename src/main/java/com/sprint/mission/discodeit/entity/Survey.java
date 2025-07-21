@@ -11,7 +11,7 @@ public class Survey extends BaseEntity {
   private final UUID senderId;
   private final String question;
   private final long durationMillis;
-  private final boolean isDuplicateResponseAllowed;
+  private final boolean duplicateResponseAllowed;
   private boolean closed;
   private final List<String> answers;
   private final List<Integer> voteCounts;
@@ -21,12 +21,12 @@ public class Survey extends BaseEntity {
       UUID senderId,
       String question,
       long durationMillis,
-      boolean isDuplicateResponseAllowed,
+      boolean duplicateResponseAllowed,
       List<String> answers) {
     this.senderId = senderId;
     this.question = question;
     this.durationMillis = durationMillis;
-    this.isDuplicateResponseAllowed = isDuplicateResponseAllowed;
+    this.duplicateResponseAllowed = duplicateResponseAllowed;
 
     this.answers = answers == null ? Collections.emptyList() : new ArrayList<>(answers);
     this.voteCounts = new ArrayList<>(this.answers.size());
@@ -54,7 +54,7 @@ public class Survey extends BaseEntity {
   }
 
   public boolean isDuplicateResponseAllowed() {
-    return isDuplicateResponseAllowed;
+    return duplicateResponseAllowed;
   }
 
   public boolean isClosed() {
@@ -74,16 +74,20 @@ public class Survey extends BaseEntity {
   }
 
   public List<Set<UUID>> getVoters() {
-    return Collections.unmodifiableList(voters);
+    List<Set<UUID>> safe = new ArrayList<>(voters.size());
+    for (Set<UUID> set : voters) {
+      safe.add(Collections.unmodifiableSet(set));
+    }
+    return Collections.unmodifiableList(safe);
   }
 
   public void vote(int answerIndex, UUID voterId, boolean isUnvoted) {
     if (closed) {
-      throw new IllegalStateException("Survey is closed.");
+      throw new IllegalStateException("투표가 마감되었습니다.");
     }
 
     if (isIndexOutOfBounds(answerIndex)) {
-      throw new IllegalArgumentException("Invalid answer index: " + answerIndex);
+      throw new IllegalArgumentException("잘못된 투표 인덱스 : " + answerIndex);
     }
 
     Set<UUID> voterSet = voters.get(answerIndex);
@@ -95,13 +99,35 @@ public class Survey extends BaseEntity {
         throw new IllegalArgumentException(
             "Voter " + voterId + " has not voted for answer " + answerIndex);
       }
-    } else {
-      if (voterSet.add(voterId)) {
-        voteCounts.set(answerIndex, voteCounts.get(answerIndex) + 1);
-      } else {
+      return;
+    }
+
+    if (duplicateResponseAllowed) {
+      if (!voterSet.add(voterId)) {
         throw new IllegalArgumentException(
             "Voter " + voterId + " has already voted for answer " + answerIndex);
       }
+      voteCounts.set(answerIndex, voteCounts.get(answerIndex) + 1);
+    } else {
+      int prevIndex = -1;
+      for (int i = 0; i < voters.size(); i++) {
+        if (voters.get(i).contains(voterId)) {
+          prevIndex = i;
+          break;
+        }
+      }
+      if (prevIndex == answerIndex) {
+        throw new IllegalArgumentException(
+            "Voter " + voterId + " has already voted for answer " + answerIndex);
+      }
+
+      if (prevIndex != -1) {
+        voters.get(prevIndex).remove(voterId);
+        voteCounts.set(prevIndex, voteCounts.get(prevIndex) - 1);
+      }
+
+      voterSet.add(voterId);
+      voteCounts.set(answerIndex, voteCounts.get(answerIndex) + 1);
     }
   }
 
@@ -109,8 +135,8 @@ public class Survey extends BaseEntity {
   public String toString() {
     return "Survey{"
         + "id="
-        + this.getId()
-        + "createdAt="
+        + getId()
+        + ", createdAt="
         + getCreatedAt()
         + ", updatedAt="
         + getUpdatedAt()
@@ -121,9 +147,9 @@ public class Survey extends BaseEntity {
         + '\''
         + ", durationMillis="
         + durationMillis
-        + ", isDuplicateResponseAllowed="
-        + isDuplicateResponseAllowed
-        + ", isClosed="
+        + ", duplicateResponseAllowed="
+        + duplicateResponseAllowed
+        + ", closed="
         + closed
         + ", answers="
         + answers
