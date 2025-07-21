@@ -57,11 +57,11 @@ public class User extends BaseEntity {
   }
 
   public void setGlobalName(String globalName) {
-    String normalizeGlobalName = StringUtil.normalizeString(globalName);
-    if (normalizeGlobalName.isEmpty()) {
+    String normalized = StringUtil.normalizeString(globalName);
+    if (normalized.isEmpty()) {
       this.globalName = this.username;
     } else {
-      this.globalName = normalizeGlobalName;
+      this.globalName = normalized;
     }
   }
 
@@ -124,7 +124,11 @@ public class User extends BaseEntity {
   }
 
   public void setPhoneNumber(String phoneNumber) {
-    this.phoneNumber = StringUtil.normalizeString(phoneNumber);
+    String digits = StringUtil.extractDigits(phoneNumber);
+    if (!digits.isEmpty() && !digits.matches("\\d{10,13}")) {
+      throw new IllegalArgumentException("전화번호는 10~13자리 숫자만 가능합니다.");
+    }
+    this.phoneNumber = digits;
   }
 
   public String getAvatar() {
