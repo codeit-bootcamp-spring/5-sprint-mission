@@ -826,7 +826,7 @@ public class JavaApplication {
 
   private void printGuildList(List<Guild> guilds) {
     if (guilds == null || guilds.isEmpty()) {
-      System.out.println("존재하는 서버가 없습니다.");
+      System.out.println("\n존재하는 서버가 없습니다.");
       return;
     }
     System.out.println("서버 목록 : ");
