@@ -2,27 +2,39 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.Survey;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
 import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
 public class JcfMessageService extends BaseJcfService<Message> implements MessageService {
-  private static final JcfMessageService instance = new JcfMessageService();
+  private static JcfMessageService instance;
+  private final UserService userService;
 
-  private JcfMessageService() {}
+  private JcfMessageService(UserService userService) {
+    this.userService = userService;
+  }
 
-  public static JcfMessageService getInstance() {
+  public static JcfMessageService getInstance(UserService userService) {
+    if (instance == null) {
+      instance = new JcfMessageService(userService);
+    }
     return instance;
   }
 
   @Override
   public boolean create(Message message) {
-    boolean exists = data.stream().anyMatch(m -> m.getId().equals(message.getId()));
-    if (exists) {
-      System.out.println("중복된 id가 존재합니다.");
-      return false;
+    if (findById(message.getId()) != null) {
+      throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
+
+    User sender = userService.getIfExists(message.getSenderId());
+    if (sender.isBanned() || sender.isDeactivated()) {
+      throw new IllegalStateException("유저를 찾을 수 없습니다.");
+    }
+
     data.add(message);
     return true;
   }

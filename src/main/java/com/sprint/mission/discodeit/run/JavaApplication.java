@@ -26,7 +26,7 @@ public class JavaApplication {
   private final JcfUserService userService = JcfUserService.getInstance();
   private final JcfFriendRequestService friendRequestService =
       JcfFriendRequestService.getInstance(userService);
-  private final JcfMessageService messageService = JcfMessageService.getInstance();
+  private final JcfMessageService messageService = JcfMessageService.getInstance(userService);
   private final JcfChannelService channelService = JcfChannelService.getInstance();
   private final JcfGuildService guildService = JcfGuildService.getInstance();
   private final JcfSurveyService surveyService = JcfSurveyService.getInstance();
