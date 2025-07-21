@@ -44,6 +44,11 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   }
 
   @Override
+  public Optional<User> findByUsername(String username) {
+    return data.stream().filter(u -> u.getUsername().equals(username)).findFirst();
+  }
+
+  @Override
   public User save(User user) {
     SaveUserValidator.isValid(user);
 

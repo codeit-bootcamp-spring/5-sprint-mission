@@ -270,11 +270,17 @@ public class JavaApplication {
         return;
       }
 
-      if (!username.isEmpty()) {
-        break;
+      if (username.isEmpty()) {
+        System.out.println("⚠ 사용자명은 필수입니다.");
+        continue;
       }
 
-      System.out.println("⚠ 사용자명은 필수입니다.");
+      if (userService.findByUsername(username).isPresent()) {
+        System.out.println("⚠ 중복된 사용자명입니다. 다시 입력해주세요.");
+        continue;
+      }
+
+      break;
     }
 
     String password = InputHandler.getValidPassword("비밀번호 : ");
@@ -358,8 +364,7 @@ public class JavaApplication {
 
       userService
           .findByEmail(email)
-          .ifPresentOrElse(
-              System.out::println, () -> System.out.println("등록된 회원이 없습니다."));
+          .ifPresentOrElse(System.out::println, () -> System.out.println("등록된 회원이 없습니다."));
     }
   }
 
@@ -381,8 +386,8 @@ public class JavaApplication {
       results.forEach(
           user ->
               System.out.printf(
-                  "- 닉네임: %s | 이메일: %s | 사용자명: %s%n",
-                  user.getGlobalName(), user.getEmail(), user.getUsername()));
+                  "- 닉네임: %s | 사용자명: %s | 이메일: %s%n",
+                  user.getGlobalName(), user.getUsername(), user.getEmail()));
       break;
     }
   }

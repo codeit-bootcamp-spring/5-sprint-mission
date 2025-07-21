@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface UserService extends BaseService<User> {
   Optional<User> findByEmail(String email);
 
+  Optional<User> findByUsername(String username);
+
   User login(String email, String password);
 
   void logout(UUID userId);
