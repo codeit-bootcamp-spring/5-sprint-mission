@@ -50,9 +50,4 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
   public void deleteById(UUID id) {
     data.removeIf(e -> idEquals(e, id));
   }
-
-  @Override
-  public void reset() {
-    data.clear();
-  }
 }
