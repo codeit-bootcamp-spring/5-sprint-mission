@@ -95,7 +95,6 @@ public class Survey extends BaseEntity {
     Set<UUID> voterSet = voters.get(answerIndex);
 
     if (isUnvoted) {
-      // 취소: 현재 답변에서만 투표 취소
       if (voterSet.remove(voterId)) {
         voteCounts.set(answerIndex, voteCounts.get(answerIndex) - 1);
       } else {
@@ -105,7 +104,6 @@ public class Survey extends BaseEntity {
       return;
     }
 
-    // 한 번에 하나만 허용, 기존 다른 답변에 투표했으면 이동
     int prevIndex = -1;
     for (int i = 0; i < voters.size(); i++) {
       if (voters.get(i).contains(voterId)) {
