@@ -83,16 +83,19 @@ public class Survey extends BaseEntity {
 
   public void vote(int answerIndex, UUID voterId, boolean isUnvoted) {
     if (closed) {
-      throw new IllegalStateException("투표가 마감되었습니다.");
+      throw new IllegalStateException("Survey is closed.");
     }
-
+    if (duplicateResponseAllowed) {
+      throw new IllegalStateException("이 설문은 복수 선택만 허용합니다. vote(List<Integer>, ...)를 사용하세요.");
+    }
     if (isIndexOutOfBounds(answerIndex)) {
-      throw new IllegalArgumentException("잘못된 투표 인덱스 : " + answerIndex);
+      throw new IllegalArgumentException("Invalid answer index: " + answerIndex);
     }
 
     Set<UUID> voterSet = voters.get(answerIndex);
 
     if (isUnvoted) {
+      // 취소: 현재 답변에서만 투표 취소
       if (voterSet.remove(voterId)) {
         voteCounts.set(answerIndex, voteCounts.get(answerIndex) - 1);
       } else {
@@ -102,32 +105,60 @@ public class Survey extends BaseEntity {
       return;
     }
 
-    if (duplicateResponseAllowed) {
-      if (!voterSet.add(voterId)) {
-        throw new IllegalArgumentException(
-            "Voter " + voterId + " has already voted for answer " + answerIndex);
+    // 한 번에 하나만 허용, 기존 다른 답변에 투표했으면 이동
+    int prevIndex = -1;
+    for (int i = 0; i < voters.size(); i++) {
+      if (voters.get(i).contains(voterId)) {
+        prevIndex = i;
+        break;
       }
-      voteCounts.set(answerIndex, voteCounts.get(answerIndex) + 1);
-    } else {
-      int prevIndex = -1;
-      for (int i = 0; i < voters.size(); i++) {
-        if (voters.get(i).contains(voterId)) {
-          prevIndex = i;
-          break;
+    }
+    if (prevIndex == answerIndex) {
+      throw new IllegalArgumentException("이미 해당 답변에 투표했습니다.");
+    }
+    if (prevIndex != -1) {
+      voters.get(prevIndex).remove(voterId);
+      voteCounts.set(prevIndex, voteCounts.get(prevIndex) - 1);
+    }
+    voterSet.add(voterId);
+    voteCounts.set(answerIndex, voteCounts.get(answerIndex) + 1);
+  }
+
+  public void vote(List<Integer> answerIndices, UUID voterId, boolean isUnvoted) {
+    if (closed) {
+      throw new IllegalStateException("Survey is closed.");
+    }
+    if (!duplicateResponseAllowed) {
+      throw new IllegalStateException("이 설문은 단일 선택만 허용합니다. vote(int, ...)를 사용하세요.");
+    }
+    if (answerIndices == null || answerIndices.isEmpty()) {
+      throw new IllegalArgumentException("선택할 답변이 없습니다.");
+    }
+    Set<Integer> uniqueIndices = new HashSet<>(answerIndices);
+
+    for (int idx : uniqueIndices) {
+      if (isIndexOutOfBounds(idx)) {
+        throw new IllegalArgumentException("Invalid answer index: " + idx);
+      }
+    }
+
+    if (isUnvoted) {
+      for (int idx : uniqueIndices) {
+        Set<UUID> voterSet = voters.get(idx);
+        if (voterSet.remove(voterId)) {
+          voteCounts.set(idx, voteCounts.get(idx) - 1);
         }
       }
-      if (prevIndex == answerIndex) {
+      return;
+    }
+
+    for (int idx : uniqueIndices) {
+      Set<UUID> voterSet = voters.get(idx);
+      if (!voterSet.add(voterId)) {
         throw new IllegalArgumentException(
-            "Voter " + voterId + " has already voted for answer " + answerIndex);
+            "Voter " + voterId + " has already voted for answer " + idx);
       }
-
-      if (prevIndex != -1) {
-        voters.get(prevIndex).remove(voterId);
-        voteCounts.set(prevIndex, voteCounts.get(prevIndex) - 1);
-      }
-
-      voterSet.add(voterId);
-      voteCounts.set(answerIndex, voteCounts.get(answerIndex) + 1);
+      voteCounts.set(idx, voteCounts.get(idx) + 1);
     }
   }
 
