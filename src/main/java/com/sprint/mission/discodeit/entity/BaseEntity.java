@@ -26,10 +26,8 @@ public abstract class BaseEntity {
     return updatedAt;
   }
 
-  public void setUpdatedAt(long updatedAt) {
-    if (this.updatedAt < updatedAt) {
-      this.updatedAt = updatedAt;
-    }
+  public void touch() {
+    this.updatedAt = System.currentTimeMillis();
   }
 
   @Override

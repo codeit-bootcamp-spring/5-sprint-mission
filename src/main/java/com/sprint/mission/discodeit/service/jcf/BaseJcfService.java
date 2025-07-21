@@ -24,7 +24,7 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
   protected void update(UUID id, Consumer<T> updater) {
     T entity = getIfExists(id);
     updater.accept(entity);
-    entity.setUpdatedAt(System.currentTimeMillis());
+    entity.touch();
   }
 
   @Override

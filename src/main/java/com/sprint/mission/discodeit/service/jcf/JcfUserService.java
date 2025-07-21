@@ -64,7 +64,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
     user.setDeactivated(false);
     user.setStatus(Status.ONLINE);
-    user.setUpdatedAt(System.currentTimeMillis());
+    user.touch();
     return user;
   }
 
