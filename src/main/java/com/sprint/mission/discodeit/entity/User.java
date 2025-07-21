@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.utility.StringUtil;
+import com.sprint.mission.discodeit.utility.Validators;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ public class User extends BaseEntity {
   public User(
       String email,
       String username,
+      String password,
       LocalDate birthDate,
       boolean subscribedToNewsletter,
       String globalName) {
@@ -42,6 +44,7 @@ public class User extends BaseEntity {
     this.phoneNumber = "";
     this.avatar = "";
     this.bio = "";
+    setPassword(password);
   }
 
   public String getEmail() {
@@ -49,7 +52,7 @@ public class User extends BaseEntity {
   }
 
   public void setEmail(String email) {
-    this.email = StringUtil.normalizeString(email).toLowerCase();
+    this.email = Validators.validateEmail(email);
   }
 
   public String getGlobalName() {
@@ -58,6 +61,9 @@ public class User extends BaseEntity {
 
   public void setGlobalName(String globalName) {
     String normalized = StringUtil.normalizeString(globalName);
+    if (normalized.length() > 20) {
+      throw new IllegalArgumentException("닉네임은 20자 이내여야 합니다.");
+    }
     if (normalized.isEmpty()) {
       this.globalName = this.username;
     } else {
@@ -70,7 +76,11 @@ public class User extends BaseEntity {
   }
 
   public void setUsername(String username) {
-    this.username = StringUtil.normalizeString(username);
+    String normalized = StringUtil.normalizeString(username);
+    if (normalized.length() < 2 || normalized.length() > 20) {
+      throw new IllegalArgumentException("사용자명은 2~20자 이내여야 합니다.");
+    }
+    this.username = normalized;
   }
 
   public String getPassword() {
@@ -78,17 +88,8 @@ public class User extends BaseEntity {
   }
 
   public void setPassword(String password) {
-    if (password == null || password.isEmpty()) {
-      throw new IllegalArgumentException("Password must not be empty");
-    }
-
-    if (!password.startsWith("$2a$")
-        && !password.startsWith("$2b$")
-        && !password.startsWith("$2y$")) {
-      this.password = BCrypt.hashpw(password, BCrypt.gensalt());
-    } else {
-      this.password = password;
-    }
+    String validatedPassword = Validators.validatePassword(password);
+    this.password = BCrypt.hashpw(validatedPassword, BCrypt.gensalt());
   }
 
   public boolean checkPassword(String plainPassword) {
@@ -144,7 +145,11 @@ public class User extends BaseEntity {
   }
 
   public void setBio(String bio) {
-    this.bio = StringUtil.normalizeString(bio);
+    String normalized = StringUtil.normalizeString(bio);
+    if (normalized.length() > 100) {
+      throw new IllegalArgumentException("자기소개는 100자 이하여야 합니다.");
+    }
+    this.bio = normalized;
   }
 
   public boolean isVerified() {

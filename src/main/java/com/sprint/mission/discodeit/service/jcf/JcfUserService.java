@@ -6,8 +6,7 @@ import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.service.FriendRequestService;
 import com.sprint.mission.discodeit.service.GuildService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.validation.EmailValidator;
-import com.sprint.mission.discodeit.validation.SaveUserValidator;
+import com.sprint.mission.discodeit.utility.Validators;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -50,7 +49,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public User save(User user) {
-    SaveUserValidator.isValid(user);
+    Validators.validateUser(user);
 
     if (findByEmail(user.getEmail()).isPresent()) {
       throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
@@ -133,7 +132,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public void updateEmail(UUID userId, String email) {
-    EmailValidator.isValid(email);
+    Validators.validateEmail(email);
 
     User user = getOrThrow(userId);
     if (user.getEmail().equalsIgnoreCase(email)) {

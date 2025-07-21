@@ -12,7 +12,7 @@ import com.sprint.mission.discodeit.service.jcf.JcfMessageService;
 import com.sprint.mission.discodeit.service.jcf.JcfSurveyService;
 import com.sprint.mission.discodeit.service.jcf.JcfUserService;
 import com.sprint.mission.discodeit.utility.InputHandler;
-import com.sprint.mission.discodeit.validation.PasswordValidator;
+import com.sprint.mission.discodeit.utility.Validators;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,15 +40,12 @@ public class JavaApplication {
 
   private void seedTestUsers() {
     try {
-      User user1 = new User("a@a.aa", "user1", LocalDate.of(1995, 4, 10), true, "globalName1");
-      user1.setPassword("1111aaaa");
-      User user2 = new User("b@b.bb", "user2", LocalDate.of(1995, 4, 11), false, "globalName2");
-      user2.setPassword("2222bbbb");
-      User user3 = new User("c@c.cc", "user3", LocalDate.of(1995, 3, 11), false, "globalName3");
-      user3.setPassword("3333cccc");
-      userService.save(user1);
-      userService.save(user2);
-      userService.save(user3);
+      userService.save(
+          new User("a@a.aa", "user1", "1111aaaa", LocalDate.of(1995, 4, 10), true, "globalName1"));
+      userService.save(
+          new User("b@b.bb", "user2", "2222bbbb", LocalDate.of(1995, 4, 11), false, "globalName2"));
+      userService.save(
+          new User("c@c.cc", "user3", "3333cccc", LocalDate.of(1995, 3, 11), false, "globalName3"));
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
@@ -303,10 +300,15 @@ public class JavaApplication {
     }
 
     try {
-      User user =
-          new User(email.toLowerCase(), username, birthDate, isSubscribedToNewsletter, globalName);
-      user.setPassword(password);
-      if (userService.save(user) != null) {
+      if (userService.save(
+              new User(
+                  email.toLowerCase(),
+                  username,
+                  password,
+                  birthDate,
+                  isSubscribedToNewsletter,
+                  globalName))
+          != null) {
         System.out.println("✅ 회원가입이 완료되었습니다.");
       } else {
         System.out.println("🚫 다시 시도해주세요.\n");
@@ -331,7 +333,7 @@ public class JavaApplication {
       }
 
       try {
-        PasswordValidator.isValid(password);
+        Validators.validatePassword(password);
         User user = userService.login(email, password);
         me = user;
         System.out.println("\n" + user.getUsername() + "님, 환영합니다!");
@@ -559,7 +561,7 @@ public class JavaApplication {
       }
 
       try {
-        PasswordValidator.isValid(password);
+        Validators.validatePassword(password);
         userService.updatePassword(me.getId(), password);
         me.setPassword(password);
         break;
