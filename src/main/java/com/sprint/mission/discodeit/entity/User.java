@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class User extends BaseEntity {
   private String email;
@@ -22,9 +23,9 @@ public class User extends BaseEntity {
   private boolean verified;
   private boolean deactivated;
   private boolean banned;
-  private final Set<UUID> friends;
-  private final Set<UUID> guilds;
-  private final Set<UUID> chatRooms;
+  private final Set<UUID> friends = new HashSet<>();
+  private final Set<UUID> guilds = new HashSet<>();
+  private final Set<UUID> chatRooms = new HashSet<>();
 
   public User(
       String email,
@@ -41,9 +42,6 @@ public class User extends BaseEntity {
     this.phoneNumber = "";
     this.avatar = "";
     this.bio = "";
-    this.friends = new HashSet<>();
-    this.guilds = new HashSet<>();
-    this.chatRooms = new HashSet<>();
   }
 
   public String getEmail() {
@@ -75,7 +73,21 @@ public class User extends BaseEntity {
   }
 
   public void setPassword(String password) {
-    this.password = StringUtil.normalizeString(password);
+    if (password == null || password.isEmpty()) {
+      throw new IllegalArgumentException("Password must not be empty");
+    }
+
+    if (!password.startsWith("$2a$")
+        && !password.startsWith("$2b$")
+        && !password.startsWith("$2y$")) {
+      this.password = BCrypt.hashpw(password, BCrypt.gensalt());
+    } else {
+      this.password = password;
+    }
+  }
+
+  public boolean checkPassword(String plainPassword) {
+    return BCrypt.checkpw(plainPassword, this.password);
   }
 
   public LocalDate getBirthDate() {

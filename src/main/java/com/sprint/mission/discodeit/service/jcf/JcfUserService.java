@@ -54,9 +54,9 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   public User login(String email, String password) {
     User user =
         data.stream()
-            .filter(u -> u.getEmail().equalsIgnoreCase(email) && u.getPassword().equals(password))
+            .filter(u -> u.getEmail().equalsIgnoreCase(email) && u.checkPassword(password))
             .findFirst()
-            .orElseThrow(() -> new NoSuchElementException("이메일 또는 패스워드가 일치하지 않습니다."));
+            .orElseThrow(() -> new NoSuchElementException("이메일 또는 비밀번호가 일치하지 않습니다."));
 
     if (user.isBanned()) {
       throw new IllegalArgumentException("정지된 계정입니다.");
@@ -153,7 +153,11 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public void updatePassword(UUID userId, String password) {
+    User user = getIfExists(userId);
     PasswordValidator.validate(password);
+    if (user.checkPassword(password)) {
+      throw new IllegalArgumentException("동일한 비밀번호입니다.");
+    }
     update(userId, u -> u.setPassword(password));
   }
 

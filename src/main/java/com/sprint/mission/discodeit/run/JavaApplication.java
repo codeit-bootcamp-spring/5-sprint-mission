@@ -531,8 +531,6 @@ public class JavaApplication {
 
   private void changePassword() {
     System.out.println("\nx. 뒤로가기");
-    System.out.println("현재 비밀번호 : " + me.getPassword());
-
     while (true) {
       String password = InputHandler.getValidPassword("변경할 비밀번호 : ");
       if (password == null) {

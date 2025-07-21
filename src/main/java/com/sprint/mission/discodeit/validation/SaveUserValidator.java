@@ -16,8 +16,6 @@ public final class SaveUserValidator {
       throw new IllegalArgumentException("⚠ 사용자명은 필수입니다.");
     }
 
-    PasswordValidator.validate(user.getPassword());
-
     if (user.getBirthDate() == null) {
       throw new IllegalArgumentException("⚠ 생년월일은 필수입니다.");
     }
