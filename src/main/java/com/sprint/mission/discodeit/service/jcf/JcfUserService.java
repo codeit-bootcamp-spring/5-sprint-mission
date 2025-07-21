@@ -118,7 +118,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
             u ->
                 u.getUsername().toLowerCase().contains(lowerKeyword)
                     || u.getEmail().toLowerCase().contains(lowerKeyword)
-                    || u.getNickname().toLowerCase().contains(lowerKeyword))
+                    || u.getGlobalName().toLowerCase().contains(lowerKeyword))
         .toList();
   }
 
@@ -139,8 +139,8 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   }
 
   @Override
-  public void updateNickname(UUID userId, String nickname) {
-    update(userId, u -> u.setNickname(nickname));
+  public void updateGlobalName(UUID userId, String globalName) {
+    update(userId, u -> u.setGlobalName(globalName));
   }
 
   @Override

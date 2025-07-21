@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class User extends BaseEntity {
   private String email;
-  private String nickname;
+  private String globalName;
   private String username;
   private String password;
   private LocalDate birthDate;
@@ -32,13 +32,13 @@ public class User extends BaseEntity {
       String password,
       LocalDate birthDate,
       boolean subscribedToNewsletter,
-      String nickname) {
+      String globalName) {
     this.email = StringUtil.normalizeString(email).toLowerCase();
     this.username = StringUtil.normalizeString(username);
     this.password = StringUtil.normalizeString(password);
     this.birthDate = birthDate;
     this.subscribedToNewsletter = subscribedToNewsletter;
-    this.nickname = StringUtil.normalizeString(nickname);
+    this.globalName = StringUtil.normalizeString(globalName);
     this.status = Status.OFFLINE;
     this.phoneNumber = "";
     this.avatarUrl = "";
@@ -56,12 +56,12 @@ public class User extends BaseEntity {
     this.email = StringUtil.normalizeString(email).toLowerCase();
   }
 
-  public String getNickname() {
-    return nickname;
+  public String getGlobalName() {
+    return globalName;
   }
 
-  public void setNickname(String nickname) {
-    this.nickname = StringUtil.normalizeString(nickname);
+  public void setGlobalName(String globalName) {
+    this.globalName = StringUtil.normalizeString(globalName);
   }
 
   public String getUsername() {
@@ -218,8 +218,8 @@ public class User extends BaseEntity {
         + ", email='"
         + email
         + '\''
-        + ", nickname='"
-        + nickname
+        + ", globalName='"
+        + globalName
         + '\''
         + ", username='"
         + username

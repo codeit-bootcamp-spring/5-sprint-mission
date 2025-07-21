@@ -27,7 +27,7 @@ public interface UserService extends BaseService<User> {
 
   void updateEmail(UUID userId, String email);
 
-  void updateNickname(UUID userId, String nickname);
+  void updateGlobalName(UUID userId, String globalName);
 
   void updateUsername(UUID userId, String username);
 

@@ -40,11 +40,11 @@ public class JavaApplication {
   private void seedTestUsers() {
     try {
       userService.register(
-          new User("a@a.aa", "user1", "1111aaaa", LocalDate.of(1995, 4, 10), true, "nick1"));
+          new User("a@a.aa", "user1", "1111aaaa", LocalDate.of(1995, 4, 10), true, "globalName1"));
       userService.register(
-          new User("b@b.bb", "user2", "2222bbbb", LocalDate.of(1995, 4, 11), false, "nick2"));
+          new User("b@b.bb", "user2", "2222bbbb", LocalDate.of(1995, 4, 11), false, "globalName2"));
       userService.register(
-          new User("c@c.cc", "user3", "3333cccc", LocalDate.of(1995, 3, 11), false, "nick3"));
+          new User("c@c.cc", "user3", "3333cccc", LocalDate.of(1995, 3, 11), false, "globalName3"));
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
@@ -157,7 +157,7 @@ public class JavaApplication {
     runMenu(
         new Menu("=====***** 프로필 편집 메뉴 *****=====")
             .add("이메일 변경", this::changeEmail)
-            .add("별명 변경", this::changeNickname)
+            .add("별명 변경", this::changeGlobalName)
             .add("사용자명 변경", this::changeUsername)
             .add("비밀번호 변경", this::changePassword)
             .add("생년월일 변경", this::changeBirthDate)
@@ -244,8 +244,8 @@ public class JavaApplication {
       System.out.println("⚠ 중복된 이메일입니다. 다시 입력해주세요.");
     }
 
-    String nickname = InputHandler.getInputOrBack("별명(선택) : ");
-    if (nickname == null) {
+    String globalName = InputHandler.getInputOrBack("별명(선택) : ");
+    if (globalName == null) {
       return;
     }
 
@@ -278,6 +278,10 @@ public class JavaApplication {
       return;
     }
 
+    if (globalName.isBlank()) {
+      globalName = username;
+    }
+
     try {
       User user =
           userService.register(
@@ -287,7 +291,7 @@ public class JavaApplication {
                   password,
                   birthDate,
                   isSubscribedToNewsletter,
-                  nickname));
+                  globalName));
       if (user != null) {
         System.out.println("✅ 회원가입이 완료되었습니다.");
       } else {
@@ -368,7 +372,7 @@ public class JavaApplication {
           user ->
               System.out.printf(
                   "- 닉네임: %s | 이메일: %s | 사용자명: %s%n",
-                  user.getNickname(), user.getEmail(), user.getUsername()));
+                  user.getGlobalName(), user.getEmail(), user.getUsername()));
       break;
     }
   }
@@ -485,17 +489,17 @@ public class JavaApplication {
     }
   }
 
-  private void changeNickname() {
+  private void changeGlobalName() {
     System.out.println("\nx. 뒤로가기");
-    System.out.println("현재 별명 : " + me.getNickname());
-    String nickname = InputHandler.getInputOrBack("변경할 별명 : ");
-    if (nickname == null) {
+    System.out.println("현재 별명 : " + me.getGlobalName());
+    String globalName = InputHandler.getInputOrBack("변경할 별명 : ");
+    if (globalName == null) {
       return;
     }
 
     try {
-      userService.updateNickname(me.getId(), nickname);
-      me.setNickname(nickname);
+      userService.updateGlobalName(me.getId(), globalName);
+      me.setGlobalName(globalName);
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
