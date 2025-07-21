@@ -33,13 +33,13 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
   }
 
   @Override
-  public T findById(UUID id) {
-    return data.stream().filter(e -> idEquals(e, id)).findFirst().orElse(null);
+  public Optional<T> findById(UUID id) {
+    return data.stream().filter(e -> idEquals(e, id)).findFirst();
   }
 
   @Override
   public T getOrThrow(UUID id) {
-    return Optional.ofNullable(findById(id))
+    return findById(id)
         .orElseThrow(
             () ->
                 new NoSuchElementException(

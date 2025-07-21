@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BaseService<T> {
   List<T> findAll();
 
-  T findById(UUID id);
+  Optional<T> findById(UUID id);
 
   T getOrThrow(UUID id);
 

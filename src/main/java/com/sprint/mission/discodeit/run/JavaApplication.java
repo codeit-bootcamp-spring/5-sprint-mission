@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -194,11 +195,15 @@ public class JavaApplication {
   }
 
   private void guildMenu() {
-    Guild guild = guildService.findById(enteredGuildId);
+    Optional<Guild> guild = guildService.findById(enteredGuildId);
     Menu menu = new Menu("=====***** 서버 메뉴 *****=====");
 
-    if (guild != null && guild.getOwnerId().equals(me.getId())) {
-      menu.add("서버 편집", this::editGuildMenu);
+    if (guild.isPresent()) {
+      boolean isOwner =
+          guild.map(Guild::getOwnerId).map(ownerId -> ownerId.equals(me.getId())).orElse(false);
+      if (isOwner) {
+        menu.add("서버 편집", this::editGuildMenu);
+      }
     }
 
     menu.add("서버 정보 조회", this::showGuildInfo).add("뒤로가기", this::goPreviousMenu);
@@ -700,8 +705,10 @@ public class JavaApplication {
 
       for (int i = 0; i < friendRequests.size(); i++) {
         FriendRequest fr = friendRequests.get(i);
-        User sender = userService.findById(fr.getSenderId());
-        System.out.println((i + 1) + ". " + sender.getUsername());
+        Optional<User> sender = userService.findById(fr.getSenderId());
+        if (sender.isPresent()) {
+          System.out.println((i + 1) + ". " + sender.map(User::getUsername));
+        }
       }
 
       System.out.println("\nx. 뒤로가기");
@@ -753,8 +760,10 @@ public class JavaApplication {
 
       for (int i = 0; i < friendRequests.size(); i++) {
         FriendRequest fr = friendRequests.get(i);
-        User receiver = userService.findById(fr.getReceiverId());
-        System.out.println((i + 1) + ". " + receiver.getUsername());
+        Optional<User> receiver = userService.findById(fr.getReceiverId());
+        if (receiver.isPresent()) {
+          System.out.println((i + 1) + ". " + receiver.map(User::getUsername));
+        }
       }
 
       System.out.println("\nx. 뒤로가기");
@@ -992,17 +1001,26 @@ public class JavaApplication {
   }
 
   private void showGuildInfo() {
-    Guild guild = guildService.findById(enteredGuildId);
-    System.out.println(guild);
+    try {
+      Guild guild = guildService.getOrThrow(enteredGuildId);
+      System.out.println(guild);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
   }
 
   private Guild checkOwnershipAndReturnGuild() {
-    Guild guild = guildService.findById(enteredGuildId);
-    if (!guild.getOwnerId().equals(me.getId())) {
-      System.out.println("권한이 없습니다.");
-      return null;
+    try {
+      Guild guild = guildService.getOrThrow(enteredGuildId);
+      if (!guild.getOwnerId().equals(me.getId())) {
+        System.out.println("권한이 없습니다.");
+        return null;
+      }
+      return guild;
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
     }
-    return guild;
+    return null;
   }
 
   private void changeGuildOwner() {
@@ -1013,8 +1031,9 @@ public class JavaApplication {
 
     List<UUID> members = new ArrayList<>(guild.getMembers().keySet());
     for (int i = 0; i < members.size(); i++) {
-      User member = userService.findById(members.get(i));
-      System.out.println((i + 1) + ". " + (member != null ? member.getEmail() : members.get(i)));
+      Optional<User> member = userService.findById(members.get(i));
+      System.out.println(
+          (i + 1) + ". " + member.map(User::getEmail).orElse(members.get(i).toString()));
     }
 
     while (true) {
@@ -1092,8 +1111,8 @@ public class JavaApplication {
     int i = 1;
     List<UUID> memberList = new ArrayList<>(members);
     for (UUID id : memberList) {
-      User user = userService.findById(id);
-      System.out.println(i + ". " + (user != null ? user.getUsername() : id));
+      Optional<User> user = userService.findById(id);
+      System.out.println(i + ". " + user.map(User::getEmail).orElse(id.toString()));
       i++;
     }
 
@@ -1115,9 +1134,9 @@ public class JavaApplication {
           return;
         }
 
+        String username = userService.getOrThrow(memberId).getUsername();
         guildService.removeMember(guild.getId(), memberId);
         userService.removeGuild(memberId, guild.getId());
-        String username = userService.findById(memberId).getUsername();
         System.out.println(username + " 멤버가 추방되었습니다.");
         break;
       } catch (NumberFormatException e) {
@@ -1129,15 +1148,19 @@ public class JavaApplication {
   }
 
   private void showChannels() {
-    Guild guild = guildService.findById(enteredGuildId);
-    List<Channel> channels = guild.getChannels();
-    if (channels.isEmpty()) {
-      System.out.println("채널 없음");
-      return;
-    }
-    int i = 1;
-    for (Channel ch : channels) {
-      System.out.println(i++ + ". " + ch);
+    try {
+      Guild guild = guildService.getOrThrow(enteredGuildId);
+      List<Channel> channels = guild.getChannels();
+      if (channels.isEmpty()) {
+        System.out.println("채널 없음");
+        return;
+      }
+      int i = 1;
+      for (Channel ch : channels) {
+        System.out.println(i++ + ". " + ch);
+      }
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
     }
   }
 
