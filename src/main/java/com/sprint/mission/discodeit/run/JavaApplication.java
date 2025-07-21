@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
 public class JavaApplication {
   private final JcfUserService userService = JcfUserService.getInstance();
   private final JcfFriendRequestService friendRequestService =
-      JcfFriendRequestService.getInstance(userService);
-  private final JcfMessageService messageService = JcfMessageService.getInstance(userService);
-  private final JcfGuildService guildService = JcfGuildService.getInstance(userService);
+      JcfFriendRequestService.getInstance();
+  private final JcfMessageService messageService = JcfMessageService.getInstance();
+  private final JcfGuildService guildService = JcfGuildService.getInstance();
   private final JcfChannelService channelService = JcfChannelService.getInstance();
   private final JcfSurveyService surveyService = JcfSurveyService.getInstance();
   private User me;

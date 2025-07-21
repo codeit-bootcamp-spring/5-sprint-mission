@@ -10,17 +10,15 @@ import java.util.Set;
 import java.util.UUID;
 
 public class JcfGuildService extends BaseJcfService<Guild> implements GuildService {
-  private static JcfGuildService instance;
+  private static final JcfGuildService instance = new JcfGuildService();
+
   private final UserService userService;
 
-  private JcfGuildService(UserService userService) {
-    this.userService = userService;
+  private JcfGuildService() {
+    this.userService = JcfUserService.getInstance();
   }
 
-  public static JcfGuildService getInstance(UserService userService) {
-    if (instance == null) {
-      instance = new JcfGuildService(userService);
-    }
+  public static JcfGuildService getInstance() {
     return instance;
   }
 

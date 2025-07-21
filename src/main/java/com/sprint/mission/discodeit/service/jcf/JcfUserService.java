@@ -3,11 +3,15 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
+import com.sprint.mission.discodeit.service.FriendRequestService;
+import com.sprint.mission.discodeit.service.GuildService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.validation.EmailValidator;
 import com.sprint.mission.discodeit.validation.PasswordValidator;
 import com.sprint.mission.discodeit.validation.RegisterUserValidator;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -17,11 +21,17 @@ import java.util.stream.Collectors;
 public class JcfUserService extends BaseJcfService<User> implements UserService {
   private static final JcfUserService instance = new JcfUserService();
 
+  private final FriendRequestService friendRequestService;
+  private final GuildService guildService;
+
+  private JcfUserService() {
+    this.friendRequestService = JcfFriendRequestService.getInstance();
+    this.guildService = JcfGuildService.getInstance();
+  }
+
   public static JcfUserService getInstance() {
     return instance;
   }
-
-  private JcfUserService() {}
 
   @Override
   public User findByEmail(String email) {
@@ -75,11 +85,22 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public void deleteAccount(UUID userId) {
-    JcfFriendRequestService.getInstance(this).deleteAllRequestsOfUser(userId);
+    friendRequestService.clearFriendRequests(userId);
 
     User user = getIfExists(userId);
-    for (UUID friendId : user.getFriends()) {
+    for (UUID friendId : new HashSet<>(user.getFriends())) {
       removeFriend(friendId, userId);
+    }
+
+    List<Guild> guildsToRemove = new ArrayList<>();
+    for (UUID guildId : user.getGuilds()) {
+      Guild guild = JcfGuildService.getInstance().getIfExists(guildId);
+      if (guild.getOwnerId().equals(userId)) {
+        guildsToRemove.add(guild);
+      }
+    }
+    for (Guild guild : guildsToRemove) {
+      guildService.deleteById(guild.getId());
     }
 
     deleteById(userId);
@@ -182,7 +203,6 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
     update(userId, u -> u.setBanned(banned));
   }
 
-
   @Override
   public Set<User> getFriends(UUID userId) {
     User user = getIfExists(userId);
@@ -212,7 +232,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   public Set<Guild> getGuilds(UUID userId) {
     User user = getIfExists(userId);
     return user.getGuilds().stream()
-        .map(JcfGuildService.getInstance(this)::getIfExists)
+        .map(JcfGuildService.getInstance()::getIfExists)
         .collect(Collectors.toSet());
   }
 

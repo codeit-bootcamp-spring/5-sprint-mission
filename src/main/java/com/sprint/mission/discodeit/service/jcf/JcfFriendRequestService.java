@@ -18,19 +18,18 @@ import java.util.stream.Collectors;
 
 public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
     implements FriendRequestService {
-  private static JcfFriendRequestService instance;
+  private static final JcfFriendRequestService instance = new JcfFriendRequestService();
+
   private final UserService userService;
+
   private final Map<UUID, Set<UUID>> sentIndex = new HashMap<>();
   private final Map<UUID, Set<UUID>> receivedIndex = new HashMap<>();
 
-  private JcfFriendRequestService(UserService userService) {
-    this.userService = userService;
+  private JcfFriendRequestService() {
+    this.userService = JcfUserService.getInstance();
   }
 
-  public static JcfFriendRequestService getInstance(UserService userService) {
-    if (instance == null) {
-      instance = new JcfFriendRequestService(userService);
-    }
+  public static JcfFriendRequestService getInstance() {
     return instance;
   }
 
@@ -111,7 +110,7 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
   }
 
   @Override
-  public void deleteAllRequestsOfUser(UUID userId) {
+  public void clearFriendRequests(UUID userId) {
     Set<UUID> alreadyDeleted = new HashSet<>();
 
     List<FriendRequest> requestsToDelete = new ArrayList<>();

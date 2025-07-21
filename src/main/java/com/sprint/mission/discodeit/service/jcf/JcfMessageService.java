@@ -10,17 +10,15 @@ import java.util.List;
 import java.util.UUID;
 
 public class JcfMessageService extends BaseJcfService<Message> implements MessageService {
-  private static JcfMessageService instance;
+  private static final JcfMessageService instance = new JcfMessageService();
+
   private final UserService userService;
 
-  private JcfMessageService(UserService userService) {
-    this.userService = userService;
+  private JcfMessageService() {
+    this.userService = JcfUserService.getInstance();
   }
 
-  public static JcfMessageService getInstance(UserService userService) {
-    if (instance == null) {
-      instance = new JcfMessageService(userService);
-    }
+  public static JcfMessageService getInstance() {
     return instance;
   }
 
