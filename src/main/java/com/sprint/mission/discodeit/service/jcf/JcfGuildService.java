@@ -4,21 +4,29 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.enums.Permission;
 import com.sprint.mission.discodeit.service.GuildService;
+import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 public class JcfGuildService extends BaseJcfService<Guild> implements GuildService {
-  private static final JcfGuildService instance = new JcfGuildService();
+  private static JcfGuildService instance;
+  private final UserService userService;
 
-  public static JcfGuildService getInstance() {
+  private JcfGuildService(UserService userService) {
+    this.userService = userService;
+  }
+
+  public static JcfGuildService getInstance(UserService userService) {
+    if (instance == null) {
+      instance = new JcfGuildService(userService);
+    }
     return instance;
   }
 
-  private JcfGuildService() {}
-
   @Override
   public Guild create(Guild guild) {
+    userService.getIfExists(guild.getOwnerId());
     if (findById(guild.getId()) != null) {
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
@@ -33,6 +41,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
   @Override
   public List<Guild> findGuildsOwnedByUser(UUID userId) {
+    userService.getIfExists(userId);
     return data.stream().filter(g -> g.getOwnerId().equals(userId)).toList();
   }
 
@@ -53,11 +62,13 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
   @Override
   public void addMember(UUID guildId, UUID member) {
+    userService.getIfExists(member);
     update(guildId, g -> g.addMember(member));
   }
 
   @Override
   public void updateMemberPermissions(UUID guildId, UUID member, Set<Permission> permissions) {
+    userService.getIfExists(member);
     update(guildId, g -> g.updateMemberPermissions(member, permissions));
   }
 

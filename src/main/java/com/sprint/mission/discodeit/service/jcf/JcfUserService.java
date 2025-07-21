@@ -212,7 +212,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   public Set<Guild> getGuilds(UUID userId) {
     User user = getIfExists(userId);
     return user.getGuilds().stream()
-        .map(JcfGuildService.getInstance()::getIfExists)
+        .map(JcfGuildService.getInstance(this)::getIfExists)
         .collect(Collectors.toSet());
   }
 

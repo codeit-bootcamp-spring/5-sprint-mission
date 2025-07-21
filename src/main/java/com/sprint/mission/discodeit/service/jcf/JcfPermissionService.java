@@ -15,9 +15,9 @@ public class JcfPermissionService implements PermissionService {
   @Override
   public Set<Permission> resolveUserPermissions(
       UUID guildId, UUID channelId, UUID userId, Set<RoleType> roleTypes) {
-    JcfGuildService guildService = JcfGuildService.getInstance();
-    JcfChannelService channelService = JcfChannelService.getInstance();
     JcfUserService userService = JcfUserService.getInstance();
+    JcfGuildService guildService = JcfGuildService.getInstance(userService);
+    JcfChannelService channelService = JcfChannelService.getInstance();
     final Guild guild = guildService.findById(guildId);
     final Channel channel = channelService.findById(channelId);
     final User user = userService.findById(userId);

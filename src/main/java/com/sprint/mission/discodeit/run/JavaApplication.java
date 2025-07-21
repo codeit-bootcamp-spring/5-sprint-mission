@@ -27,8 +27,8 @@ public class JavaApplication {
   private final JcfFriendRequestService friendRequestService =
       JcfFriendRequestService.getInstance(userService);
   private final JcfMessageService messageService = JcfMessageService.getInstance(userService);
+  private final JcfGuildService guildService = JcfGuildService.getInstance(userService);
   private final JcfChannelService channelService = JcfChannelService.getInstance();
-  private final JcfGuildService guildService = JcfGuildService.getInstance();
   private final JcfSurveyService surveyService = JcfSurveyService.getInstance();
   private User me;
   private UUID enteredGuildId;
@@ -874,6 +874,7 @@ public class JavaApplication {
               guild.getId(), new Channel(guild.getId(), "일반", ChannelType.CHAT));
           guildService.addChannel(
               guild.getId(), new Channel(guild.getId(), "일반", ChannelType.VOICE));
+          userService.addGuild(me.getId(), guild.getId());
           System.out.println(guild.getName() + " 서버가 생성되었습니다.\n");
           return;
         }
