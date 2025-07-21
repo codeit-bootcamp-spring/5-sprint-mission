@@ -7,11 +7,20 @@ public abstract class BaseEntity {
   private final UUID id;
   private final long createdAt;
   private long updatedAt;
+  private boolean deleted;
+
+  protected BaseEntity(UUID id, long createdAt, long updatedAt) {
+    this.id = id != null ? id : UUID.randomUUID();
+    this.createdAt = createdAt > 0 ? createdAt : System.currentTimeMillis();
+    this.updatedAt = updatedAt > 0 ? updatedAt : this.createdAt;
+  }
+
+  protected BaseEntity(UUID id, long createdAt) {
+    this(id, createdAt, createdAt);
+  }
 
   protected BaseEntity() {
-    this.id = UUID.randomUUID();
-    this.createdAt = System.currentTimeMillis();
-    this.updatedAt = this.createdAt;
+    this(UUID.randomUUID(), System.currentTimeMillis());
   }
 
   public UUID getId() {
@@ -30,6 +39,10 @@ public abstract class BaseEntity {
     this.updatedAt = System.currentTimeMillis();
   }
 
+  public boolean isDeleted() {
+    return deleted;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -45,5 +58,19 @@ public abstract class BaseEntity {
   @Override
   public int hashCode() {
     return Objects.hashCode(id);
+  }
+
+  @Override
+  public String toString() {
+    return "BaseEntity{"
+        + "id="
+        + id
+        + ", createdAt="
+        + createdAt
+        + ", updatedAt="
+        + updatedAt
+        + ", deleted="
+        + deleted
+        + '}';
   }
 }
