@@ -22,7 +22,7 @@ public interface BaseService<T> {
 
   boolean hardDeleteById(UUID id);
 
-  boolean softDeleteById(UUID id);
+  void deleteById(UUID id);
 
   boolean restoreById(UUID id);
 

@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.service.FriendRequestService;
 import com.sprint.mission.discodeit.service.GuildService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.utility.Validators;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,10 +48,12 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public User save(User user) {
-    Validators.validateUser(user);
-
     if (findByEmail(user.getEmail()).isPresent()) {
       throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
+    }
+
+    if (findByUsername(user.getUsername()).isPresent()) {
+      throw new IllegalArgumentException("중복된 사용자명이 존재합니다.");
     }
 
     return super.save(user);
@@ -92,7 +93,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   }
 
   @Override
-  public boolean deleteAccount(UUID userId) {
+  public void deleteAccount(UUID userId) {
     friendRequestService.clearFriendRequests(userId);
 
     User user = getOrThrow(userId);
@@ -108,10 +109,9 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
       }
     }
     for (Guild guild : guildsToRemove) {
-      guildService.softDeleteById(guild.getId());
+      guildService.deleteById(guild.getId());
     }
-
-    return softDeleteById(userId);
+    deleteById(userId);
   }
 
   @Override
@@ -132,11 +132,8 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public void updateEmail(UUID userId, String email) {
-    Validators.validateEmail(email);
-
-    User user = getOrThrow(userId);
-    if (user.getEmail().equalsIgnoreCase(email)) {
-      return;
+    if (getOrThrow(userId).getEmail().equalsIgnoreCase(email)) {
+      throw new IllegalArgumentException("동일한 이메일입니다.");
     }
 
     if (findByEmail(email).isPresent()) {
@@ -153,8 +150,8 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public void updateUsername(UUID userId, String username) {
-    if (username == null || username.isBlank()) {
-      throw new IllegalArgumentException("사용자명은 필수입니다.");
+    if (findByUsername(username).isPresent()) {
+      throw new IllegalArgumentException("중복된 사용자명이 존재합니다.");
     }
     update(userId, u -> u.setUsername(username));
   }

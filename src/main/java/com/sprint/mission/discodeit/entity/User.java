@@ -75,6 +75,10 @@ public class User extends BaseEntity {
     this.username = Validators.validateUsername(username);
   }
 
+  public String getPassword() {
+    return password;
+  }
+
   public void setPassword(String password) {
     this.password = BCrypt.hashpw(Validators.validatePassword(password), BCrypt.gensalt());
   }

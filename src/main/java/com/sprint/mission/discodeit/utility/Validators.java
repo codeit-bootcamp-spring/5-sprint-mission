@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.utility;
 import static com.sprint.mission.discodeit.utility.StringUtil.extractDigits;
 import static com.sprint.mission.discodeit.utility.StringUtil.normalizeString;
 
-import com.sprint.mission.discodeit.entity.User;
 import java.net.URI;
 import java.util.regex.Pattern;
 
@@ -39,6 +38,7 @@ public class Validators {
 
   public static String validateGlobalName(String globalName) {
     String normalizedGlobalName = normalizeString(globalName);
+
     if (normalizedGlobalName.length() > 20) {
       throw new IllegalArgumentException("별명은 20자 이내여야 합니다.");
     }
@@ -47,6 +47,10 @@ public class Validators {
 
   public static String validateUsername(String username) {
     String normalizedUsername = normalizeString(username);
+
+    if (normalizedUsername.isBlank()) {
+      throw new IllegalArgumentException("⚠ 사용자명은 필수입니다.");
+    }
 
     if (normalizedUsername.length() < 2 || normalizedUsername.length() > 20) {
       throw new IllegalArgumentException("사용자명은 2~20자 이내여야 합니다.");
@@ -94,18 +98,5 @@ public class Validators {
     }
 
     return normalizedBio;
-  }
-
-  public static void validateUser(User user) {
-    if (user == null) {
-      throw new IllegalArgumentException("⚠ 유저 객체는 null일 수 없습니다.");
-    }
-    Validators.validateEmail(user.getEmail());
-    if (user.getUsername() == null || user.getUsername().isBlank()) {
-      throw new IllegalArgumentException("⚠ 사용자명은 필수입니다.");
-    }
-    if (user.getBirthDate() == null) {
-      throw new IllegalArgumentException("⚠ 생년월일은 필수입니다.");
-    }
   }
 }

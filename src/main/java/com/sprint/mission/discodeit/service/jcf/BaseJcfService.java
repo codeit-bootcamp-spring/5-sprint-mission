@@ -70,10 +70,7 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
       throw new IllegalArgumentException("엔티티는 null일 수 없습니다.");
     }
 
-    if (existsById(entity.getId())) {
-      throw new IllegalArgumentException("중복된 id가 존재합니다.");
-    }
-
+    data.removeIf(e -> idEquals(e, entity.getId()));
     data.add(entity);
     return entity;
   }
@@ -84,10 +81,9 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
   }
 
   @Override
-  public boolean softDeleteById(UUID id) {
+  public void deleteById(UUID id) {
     Optional<T> target = data.stream().filter(e -> idEquals(e, id) && !e.isDeleted()).findFirst();
     target.ifPresent(e -> e.setDeleted(true));
-    return target.isPresent();
   }
 
   @Override
