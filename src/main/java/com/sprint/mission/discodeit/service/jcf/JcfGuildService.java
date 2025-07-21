@@ -12,7 +12,7 @@ import java.util.UUID;
 public class JcfGuildService extends BaseJcfService<Guild> implements GuildService {
   private static final JcfGuildService instance = new JcfGuildService();
 
-  private final UserService userService;
+  private UserService userService;
 
   private JcfGuildService() {
     this.userService = JcfUserService.getInstance();
@@ -20,6 +20,10 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
   public static JcfGuildService getInstance() {
     return instance;
+  }
+
+  public void setUserService(UserService userService) {
+    this.userService = userService;
   }
 
   @Override

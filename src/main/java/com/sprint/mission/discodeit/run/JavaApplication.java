@@ -133,6 +133,12 @@ public class JavaApplication {
   }
 
   private void mainMenu() {
+    userService.setFriendRequestService(friendRequestService);
+    userService.setGuildService(guildService);
+    friendRequestService.setUserService(userService);
+    messageService.setUserService(userService);
+    channelService.setGuildService(guildService);
+
     seedTestUsers();
 
     runMenu(
@@ -973,7 +979,7 @@ public class JavaApplication {
     Guild guild = guilds.get(idx);
     try {
       guildService.removeMember(guild.getId(), me.getId());
-      System.out.println(guild.getName() + " 서버에서 퇴장했습니다.\n");
+      System.out.println(guild.getName() + " 서버에서 퇴장했습니다.");
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }

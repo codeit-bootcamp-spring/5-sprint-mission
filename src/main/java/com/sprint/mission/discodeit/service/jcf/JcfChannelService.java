@@ -11,7 +11,8 @@ import java.util.UUID;
 
 public class JcfChannelService extends BaseJcfService<Channel> implements ChannelService {
   private static final JcfChannelService instance = new JcfChannelService();
-  private final GuildService guildService;
+
+  private GuildService guildService;
 
   private JcfChannelService() {
     this.guildService = JcfGuildService.getInstance();
@@ -21,9 +22,13 @@ public class JcfChannelService extends BaseJcfService<Channel> implements Channe
     return instance;
   }
 
+  public void setGuildService(GuildService guildService) {
+    this.guildService = guildService;
+  }
+
   @Override
   public Channel save(Channel channel) {
-    if (findById(channel.getId()) != null) {
+    if (findById(channel.getId()).isPresent()) {
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
 

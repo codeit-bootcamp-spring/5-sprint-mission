@@ -12,7 +12,7 @@ import java.util.UUID;
 public class JcfMessageService extends BaseJcfService<Message> implements MessageService {
   private static final JcfMessageService instance = new JcfMessageService();
 
-  private final UserService userService;
+  private UserService userService;
 
   private JcfMessageService() {
     this.userService = JcfUserService.getInstance();
@@ -20,6 +20,10 @@ public class JcfMessageService extends BaseJcfService<Message> implements Messag
 
   public static JcfMessageService getInstance() {
     return instance;
+  }
+
+  public void setUserService(UserService userService) {
+    this.userService = userService;
   }
 
   @Override

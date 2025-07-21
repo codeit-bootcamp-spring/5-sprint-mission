@@ -20,16 +20,21 @@ import java.util.stream.Collectors;
 public class JcfUserService extends BaseJcfService<User> implements UserService {
   private static final JcfUserService instance = new JcfUserService();
 
-  private final FriendRequestService friendRequestService;
-  private final GuildService guildService;
+  private FriendRequestService friendRequestService;
+  private GuildService guildService;
 
-  private JcfUserService() {
-    this.friendRequestService = JcfFriendRequestService.getInstance();
-    this.guildService = JcfGuildService.getInstance();
-  }
+  private JcfUserService() {}
 
   public static JcfUserService getInstance() {
     return instance;
+  }
+
+  public void setFriendRequestService(FriendRequestService friendRequestService) {
+    this.friendRequestService = friendRequestService;
+  }
+
+  public void setGuildService(GuildService guildService) {
+    this.guildService = guildService;
   }
 
   @Override

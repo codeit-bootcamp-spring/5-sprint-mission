@@ -20,17 +20,19 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
     implements FriendRequestService {
   private static final JcfFriendRequestService instance = new JcfFriendRequestService();
 
-  private final UserService userService;
+  private UserService userService;
 
   private final Map<UUID, Set<UUID>> sentIndex = new HashMap<>();
   private final Map<UUID, Set<UUID>> receivedIndex = new HashMap<>();
 
-  private JcfFriendRequestService() {
-    this.userService = JcfUserService.getInstance();
-  }
+  private JcfFriendRequestService() {}
 
   public static JcfFriendRequestService getInstance() {
     return instance;
+  }
+
+  public void setUserService(UserService userService) {
+    this.userService = userService;
   }
 
   @Override
