@@ -60,9 +60,16 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
   }
 
   @Override
-  public void sendFriendRequest(UUID senderId, UUID receiverId) {
+  public FriendRequest save(FriendRequest friendRequest) {
+    UUID senderId = friendRequest.getSenderId();
+    UUID receiverId = friendRequest.getReceiverId();
+
     userService.getIfExists(senderId);
     User receiver = userService.getIfExists(receiverId);
+
+    if (findById(friendRequest.getId()) != null) {
+      throw new IllegalArgumentException("중복된 id가 존재합니다.");
+    }
 
     if (senderId.equals(receiverId)) {
       throw new IllegalArgumentException("자기 자신에게 친구 요청을 보낼 수 없습니다.");
@@ -73,18 +80,18 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
     boolean alreadyReceived =
         receivedIndex.getOrDefault(senderId, Collections.emptySet()).contains(receiverId);
 
-    if (alreadySent || alreadyReceived) {
-      throw new IllegalStateException("이미 친구 요청이 존재합니다.");
-    }
-
     if (userService.getFriends(senderId).contains(receiver)) {
       throw new IllegalArgumentException("이미 친구입니다.");
     }
 
-    data.add(new FriendRequest(senderId, receiverId));
+    if (alreadySent || alreadyReceived) {
+      throw new IllegalStateException("이미 친구 요청이 존재합니다.");
+    }
 
+    data.add(friendRequest);
     sentIndex.computeIfAbsent(senderId, k -> new HashSet<>()).add(receiverId);
     receivedIndex.computeIfAbsent(receiverId, k -> new HashSet<>()).add(senderId);
+    return friendRequest;
   }
 
   @Override

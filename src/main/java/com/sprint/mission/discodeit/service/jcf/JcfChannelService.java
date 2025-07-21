@@ -1,33 +1,35 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.enums.Permission;
 import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.GuildService;
 import java.util.Set;
 import java.util.UUID;
 
 public class JcfChannelService extends BaseJcfService<Channel> implements ChannelService {
   private static final JcfChannelService instance = new JcfChannelService();
+  private final GuildService guildService;
 
-  private JcfChannelService() {}
+  private JcfChannelService() {
+    this.guildService = JcfGuildService.getInstance();
+  }
 
   public static JcfChannelService getInstance() {
     return instance;
   }
 
   @Override
-  public Channel create(Channel channel, UUID ownerId) {
-    if (channel == null) {
-      System.out.println("channel == null");
-      return null;
+  public Channel save(Channel channel) {
+    if (findById(channel.getId()) != null) {
+      throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
-    boolean exists = data.stream().anyMatch(c -> c.getId().equals(channel.getId()));
-    if (exists) {
-      System.out.println("이미 존재하는 채널입니다.");
-      return null;
-    }
-    channel.setPermissionsToUser(ownerId, Set.of(Permission.ADMINISTRATOR));
+
+    Guild guild = guildService.getIfExists(channel.getGuildId());
+    channel.setPermissionsToUser(guild.getOwnerId(), Set.of(Permission.ADMINISTRATOR));
+
     data.add(channel);
     return channel;
   }

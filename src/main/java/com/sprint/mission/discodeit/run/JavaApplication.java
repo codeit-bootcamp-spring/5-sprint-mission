@@ -39,12 +39,15 @@ public class JavaApplication {
 
   private void seedTestUsers() {
     try {
-      userService.register(
-          new User("a@a.aa", "user1", "1111aaaa", LocalDate.of(1995, 4, 10), true, "globalName1"));
-      userService.register(
-          new User("b@b.bb", "user2", "2222bbbb", LocalDate.of(1995, 4, 11), false, "globalName2"));
-      userService.register(
-          new User("c@c.cc", "user3", "3333cccc", LocalDate.of(1995, 3, 11), false, "globalName3"));
+      User user1 = new User("a@a.aa", "user1", LocalDate.of(1995, 4, 10), true, "globalName1");
+      user1.setPassword("1111aaaa");
+      User user2 = new User("b@b.bb", "user2", LocalDate.of(1995, 4, 11), false, "globalName2");
+      user2.setPassword("2222bbbb");
+      User user3 = new User("c@c.cc", "user3", LocalDate.of(1995, 3, 11), false, "globalName3");
+      user3.setPassword("3333cccc");
+      userService.save(user1);
+      userService.save(user2);
+      userService.save(user3);
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
@@ -284,15 +287,9 @@ public class JavaApplication {
 
     try {
       User user =
-          userService.register(
-              new User(
-                  email.toLowerCase(),
-                  username,
-                  password,
-                  birthDate,
-                  isSubscribedToNewsletter,
-                  globalName));
-      if (user != null) {
+          new User(email.toLowerCase(), username, birthDate, isSubscribedToNewsletter, globalName);
+      user.setPassword(password);
+      if (userService.save(user) != null) {
         System.out.println("✅ 회원가입이 완료되었습니다.");
       } else {
         System.out.println("🚫 다시 시도해주세요.\n");
@@ -682,7 +679,7 @@ public class JavaApplication {
       }
 
       try {
-        friendRequestService.sendFriendRequest(me.getId(), receiver.getId());
+        friendRequestService.save(new FriendRequest(me.getId(), receiver.getId()));
         System.out.println("친구 요청을 보냈습니다.");
         return;
       } catch (NoSuchElementException e) {
@@ -871,13 +868,15 @@ public class JavaApplication {
       }
 
       try {
-        Guild guild = guildService.create(new Guild(name, isPublic, me.getId()));
+        Guild guild = guildService.save(new Guild(name, isPublic, me.getId()));
         if (guild != null) {
           guildService.addMember(guild.getId(), me.getId());
-          guildService.addChannel(
-              guild.getId(), new Channel(guild.getId(), "일반", ChannelType.CHAT));
-          guildService.addChannel(
-              guild.getId(), new Channel(guild.getId(), "일반", ChannelType.VOICE));
+          Channel defaultChatChannel =
+              channelService.save(new Channel(guild.getId(), "일반", ChannelType.CHAT));
+          Channel defaultVoiceChannel =
+              channelService.save(new Channel(guild.getId(), "일반", ChannelType.VOICE));
+          guildService.addChannel(guild.getId(), defaultChatChannel);
+          guildService.addChannel(guild.getId(), defaultVoiceChannel);
           userService.addGuild(me.getId(), guild.getId());
           System.out.println(guild.getName() + " 서버가 생성되었습니다.\n");
           return;

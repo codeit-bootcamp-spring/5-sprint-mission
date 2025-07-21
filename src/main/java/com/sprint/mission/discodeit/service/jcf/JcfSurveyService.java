@@ -14,14 +14,12 @@ public class JcfSurveyService extends BaseJcfService<Survey> implements SurveySe
   }
 
   @Override
-  public boolean create(Survey survey) {
-    boolean exists = data.stream().anyMatch(s -> s.getId().equals(survey.getId()));
-    if (exists) {
-      System.out.println("중복된 id가 존재합니다.");
-      return false;
+  public Survey save(Survey survey) {
+    if (findById(survey.getId()) != null) {
+      throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
     data.add(survey);
-    return true;
+    return survey;
   }
 
   @Override

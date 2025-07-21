@@ -23,7 +23,7 @@ public class JcfMessageService extends BaseJcfService<Message> implements Messag
   }
 
   @Override
-  public boolean create(Message message) {
+  public Message save(Message message) {
     if (findById(message.getId()) != null) {
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
@@ -34,7 +34,7 @@ public class JcfMessageService extends BaseJcfService<Message> implements Messag
     }
 
     data.add(message);
-    return true;
+    return message;
   }
 
   @Override

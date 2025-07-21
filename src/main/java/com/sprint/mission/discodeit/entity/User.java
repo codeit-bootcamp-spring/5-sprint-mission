@@ -29,13 +29,11 @@ public class User extends BaseEntity {
   public User(
       String email,
       String username,
-      String password,
       LocalDate birthDate,
       boolean subscribedToNewsletter,
       String globalName) {
     this.email = StringUtil.normalizeString(email).toLowerCase();
     this.username = StringUtil.normalizeString(username);
-    this.password = StringUtil.normalizeString(password);
     this.birthDate = birthDate;
     this.subscribedToNewsletter = subscribedToNewsletter;
     this.globalName = StringUtil.normalizeString(globalName);

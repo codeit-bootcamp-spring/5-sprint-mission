@@ -4,13 +4,15 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BaseService<T> {
-  void reset();
-
-  T getIfExists(UUID id);
-
   List<T> findAll();
 
   T findById(UUID id);
 
+  T getIfExists(UUID id);
+
+  T save(T entity);
+
   void deleteById(UUID id);
+
+  void reset();
 }

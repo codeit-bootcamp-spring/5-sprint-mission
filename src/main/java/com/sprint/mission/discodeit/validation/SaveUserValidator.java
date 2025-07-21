@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.validation;
 
 import com.sprint.mission.discodeit.entity.User;
 
-public final class RegisterUserValidator {
-  private RegisterUserValidator() {}
+public final class SaveUserValidator {
+  private SaveUserValidator() {}
 
   public static void validate(User user) {
     if (user == null) {

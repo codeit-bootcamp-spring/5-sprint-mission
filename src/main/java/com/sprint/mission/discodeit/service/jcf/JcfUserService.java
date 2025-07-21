@@ -8,7 +8,7 @@ import com.sprint.mission.discodeit.service.GuildService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.validation.EmailValidator;
 import com.sprint.mission.discodeit.validation.PasswordValidator;
-import com.sprint.mission.discodeit.validation.RegisterUserValidator;
+import com.sprint.mission.discodeit.validation.SaveUserValidator;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,8 +39,8 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   }
 
   @Override
-  public User register(User user) {
-    RegisterUserValidator.validate(user);
+  public User save(User user) {
+    SaveUserValidator.validate(user);
 
     if (findByEmail(user.getEmail()) != null) {
       throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
