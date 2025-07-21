@@ -7,6 +7,8 @@ import java.util.Scanner;
 public class InputHandler {
   private static final Scanner sc = new Scanner(System.in);
 
+  private InputHandler() {}
+
   public static int getMenuInput(int maxNum, String prompt) {
     while (true) {
       try {
