@@ -255,9 +255,19 @@ public class JavaApplication {
       System.out.println("⚠ 중복된 이메일입니다. 다시 입력해주세요.");
     }
 
-    String globalName = InputHandler.getInputOrBack("별명(선택) : ");
-    if (globalName == null) {
-      return;
+    String globalName;
+    while (true) {
+      globalName = InputHandler.getInputOrBack("별명(선택) : ");
+      if (globalName == null) {
+        return;
+      }
+
+      try {
+        globalName = Validators.validateGlobalName(globalName);
+        break;
+      } catch (IllegalArgumentException e) {
+        System.out.println(e.getMessage());
+      }
     }
 
     String username;
@@ -267,17 +277,12 @@ public class JavaApplication {
         return;
       }
 
-      if (username.isEmpty()) {
-        System.out.println("⚠ 사용자명은 필수입니다.");
-        continue;
+      try {
+        username = Validators.validateUsername(username);
+        break;
+      } catch (IllegalArgumentException e) {
+        System.out.println(e.getMessage());
       }
-
-      if (userService.findByUsername(username).isPresent()) {
-        System.out.println("⚠ 중복된 사용자명입니다. 다시 입력해주세요.");
-        continue;
-      }
-
-      break;
     }
 
     String password = InputHandler.getValidPassword("비밀번호 : ");
@@ -293,10 +298,6 @@ public class JavaApplication {
     Boolean isSubscribedToNewsletter = InputHandler.getYesOrNo("이메일로 소식 받기");
     if (isSubscribedToNewsletter == null) {
       return;
-    }
-
-    if (globalName.isBlank()) {
-      globalName = username;
     }
 
     try {
@@ -333,7 +334,6 @@ public class JavaApplication {
       }
 
       try {
-        Validators.validatePassword(password);
         User user = userService.login(email, password);
         me = user;
         System.out.println("\n" + user.getUsername() + "님, 환영합니다!");
@@ -352,7 +352,7 @@ public class JavaApplication {
       System.out.println(me.getUsername() + "님, 로그아웃 되었습니다.");
       me = null;
     } else {
-      System.out.println("현재 로그인된 사용자가 없습니다.");
+      System.out.println("이미 로그아웃되었습니다.");
     }
   }
 
@@ -373,7 +373,7 @@ public class JavaApplication {
   private void searchUsers() {
     System.out.println("\nx. 뒤로가기");
     while (true) {
-      String keyword = InputHandler.getInputOrBack("검색할 닉네임, 이메일 또는 사용자명 입력 : ");
+      String keyword = InputHandler.getInputOrBack("검색할 사용자명, 별명 또는 이메일 입력 : ");
       if (keyword == null || keyword.isBlank()) {
         return;
       }
@@ -472,8 +472,6 @@ public class JavaApplication {
   }
 
   private void changeEmail() {
-    String emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
-
     System.out.println("\nx. 뒤로가기");
     System.out.println("현재 이메일 : " + me.getEmail());
 
@@ -484,12 +482,12 @@ public class JavaApplication {
       }
 
       if (email.equals(me.getEmail())) {
-        System.out.println("같은 이메일입니다.");
+        System.out.println("동일한 이메일입니다.");
         continue;
       }
 
       if (userService.findByEmail(email).isPresent()) {
-        System.out.println("중복된 이메일입니다. 다시 입력해주세요.");
+        System.out.println("중복된 이메일이 존재합니다.");
         continue;
       }
 
@@ -505,18 +503,22 @@ public class JavaApplication {
   }
 
   private void changeGlobalName() {
-    System.out.println("\nx. 뒤로가기");
-    System.out.println("현재 별명 : " + me.getGlobalName());
-    String globalName = InputHandler.getInputOrBack("변경할 별명 : ");
-    if (globalName == null) {
-      return;
-    }
+    String globalName;
+    while (true) {
+      System.out.println("\nx. 뒤로가기");
+      System.out.println("현재 별명 : " + me.getGlobalName());
+      try {
+        globalName = InputHandler.getInputOrBack("변경할 별명 : ");
+        if (globalName == null) {
+          return;
+        }
 
-    try {
-      userService.updateGlobalName(me.getId(), globalName);
-      me.setGlobalName(globalName);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+        userService.updateGlobalName(me.getId(), Validators.validateGlobalName(globalName));
+        me.setGlobalName(globalName);
+        break;
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
     }
   }
 
@@ -524,45 +526,38 @@ public class JavaApplication {
     System.out.println("\nx. 뒤로가기");
     String oldUsername = me.getUsername();
     String newUsername;
-
     while (true) {
       System.out.println("현재 사용자명 : " + oldUsername);
-      newUsername = InputHandler.getInputOrBack("변경할 사용자명 : ");
-      if (newUsername == null) {
-        return;
-      }
+      try {
+        newUsername = InputHandler.getInputOrBack("변경할 사용자명 : ");
+        if (newUsername == null) {
+          return;
+        }
 
-      if (!newUsername.isEmpty()) {
+        userService.updateUsername(me.getId(), Validators.validateUsername(newUsername));
+        me.setUsername(newUsername);
         break;
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
       }
-
-      System.out.println("사용자명은 필수입니다.\n");
-    }
-
-    try {
-      userService.updateUsername(me.getId(), newUsername);
-      me.setUsername(newUsername);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
     }
   }
 
   private void changePassword() {
-    System.out.println("\nx. 뒤로가기");
     while (true) {
-      String password = InputHandler.getValidPassword("변경할 비밀번호 : ");
-      if (password == null) {
-        return;
-      }
-
-      if (me.checkPassword(password)) {
-        System.out.println("동일한 비밀번호입니다.");
-        continue;
-      }
-
       try {
-        Validators.validatePassword(password);
-        userService.updatePassword(me.getId(), password);
+        System.out.println("\nx. 뒤로가기");
+        String password = InputHandler.getValidPassword("변경할 비밀번호 : ");
+        if (password == null) {
+          return;
+        }
+
+        if (me.checkPassword(password)) {
+          System.out.println("동일한 비밀번호입니다.");
+          continue;
+        }
+
+        userService.updatePassword(me.getId(), Validators.validatePassword(password));
         me.setPassword(password);
         break;
       } catch (Exception e) {
@@ -572,53 +567,68 @@ public class JavaApplication {
   }
 
   private void changeBirthDate() {
-    System.out.println("\nx. 뒤로가기");
-    System.out.println("현재 생년월일 : " + me.getBirthDate());
-    LocalDate birthDate;
+    while (true) {
+      try {
+        System.out.println("\nx. 뒤로가기");
+        System.out.println("현재 생년월일 : " + me.getBirthDate());
+        LocalDate birthDate;
 
-    birthDate = InputHandler.getValidDate("변경할 생년월일");
-    if (birthDate == null) {
-      return;
-    }
+        birthDate = InputHandler.getValidDate("변경할 생년월일");
+        if (birthDate == null) {
+          return;
+        }
 
-    try {
-      userService.updateBirthDate(me.getId(), birthDate);
-      me.setBirthDate(birthDate);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+        userService.updateBirthDate(me.getId(), birthDate);
+        me.setBirthDate(birthDate);
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
     }
   }
 
   private void changeIsSubscribedToNewsletter() {
-    System.out.println("\nx. 뒤로가기");
-    System.out.println("현재 이메일 소식 수신 여부 : " + (me.isSubscribedToNewsletter() ? "yes" : "no"));
+    while (true) {
+      try {
+        System.out.println("\nx. 뒤로가기");
+        System.out.println("현재 이메일 소식 수신 여부 : " + (me.isSubscribedToNewsletter() ? "yes" : "no"));
 
-    Boolean isSubscribedToNewsletter = InputHandler.getYesOrNo("이메일로 소식 받기");
-    if (isSubscribedToNewsletter == null) {
-      return;
-    }
+        Boolean isSubscribedToNewsletter = InputHandler.getYesOrNo("이메일로 소식 받기");
+        if (isSubscribedToNewsletter == null) {
+          return;
+        }
 
-    try {
-      userService.updateSubscribedToNewsletter(me.getId(), isSubscribedToNewsletter);
-      me.setSubscribedToNewsletter(isSubscribedToNewsletter);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+        userService.updateSubscribedToNewsletter(me.getId(), isSubscribedToNewsletter);
+        me.setSubscribedToNewsletter(isSubscribedToNewsletter);
+        break;
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
     }
   }
 
   private void changePhoneNumber() {
-    System.out.println("\nx. 뒤로가기");
-    System.out.println("현재 휴대폰 번호 : " + me.getPhoneNumber());
-    String phoneNumber = InputHandler.getInputOrBack("변경할 휴대폰 번호 : ");
-    if (phoneNumber == null) {
-      return;
-    }
+    while (true) {
+      try {
+        String oldPhoneNumber = me.getPhoneNumber();
+        String newPhoneNumber;
+        System.out.println("\nx. 뒤로가기");
+        System.out.println("현재 휴대폰 번호 : " + oldPhoneNumber);
+        newPhoneNumber = InputHandler.getInputOrBack("변경할 휴대폰 번호 : ");
+        if (newPhoneNumber == null) {
+          return;
+        }
 
-    try {
-      userService.updatePhoneNumber(me.getId(), phoneNumber);
-      me.setPhoneNumber(phoneNumber);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+        if (newPhoneNumber.equals(oldPhoneNumber)) {
+          System.out.println("동일한 휴대폰 번호입니다.");
+          continue;
+        }
+
+        newPhoneNumber = Validators.validatePhoneNumber(newPhoneNumber);
+        userService.updatePhoneNumber(me.getId(), newPhoneNumber);
+        me.setPhoneNumber(newPhoneNumber);
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
     }
   }
 

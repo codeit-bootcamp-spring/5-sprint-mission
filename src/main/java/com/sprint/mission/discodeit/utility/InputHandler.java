@@ -48,37 +48,37 @@ public class InputHandler {
   }
 
   public static String getValidEmail(String prompt) {
-    String emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     while (true) {
       String email = getInputOrBack(prompt);
       if (email == null) {
         return null;
       }
-      if (email.matches(emailPattern)) {
-        return email.toLowerCase();
+      try {
+        return Validators.validateEmail(email);
+      } catch (IllegalArgumentException e) {
+        System.out.println(e.getMessage());
       }
-      System.out.println("잘못된 형식입니다. 다시 입력해주세요.");
     }
   }
 
   public static String getValidPassword(String prompt) {
-    String passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()_+]{8,}$";
     while (true) {
       String password = getInputOrBack(prompt);
       if (password == null) {
         return null;
       }
-      if (password.matches(passwordPattern)) {
-        return password;
+      try {
+        return Validators.validatePassword(password);
+      } catch (IllegalArgumentException e) {
+        System.out.println(e.getMessage());
       }
-      System.out.println("비밀번호는 영문, 숫자, 특수 문자 조합 8자 이상을 입력해 주세요.");
     }
   }
 
-  public static LocalDate getValidDate(String message) {
+  public static LocalDate getValidDate(String prompt) {
     while (true) {
       try {
-        System.out.println(message);
+        System.out.println(prompt);
         String yearStr = getInputOrBack("년 : ");
         if (yearStr == null) {
           return null;

@@ -40,7 +40,7 @@ public class Validators {
   public static String validateGlobalName(String globalName) {
     String normalizedGlobalName = normalizeString(globalName);
     if (normalizedGlobalName.length() > 20) {
-      throw new IllegalArgumentException("닉네임은 20자 이내여야 합니다.");
+      throw new IllegalArgumentException("별명은 20자 이내여야 합니다.");
     }
     return normalizedGlobalName;
   }

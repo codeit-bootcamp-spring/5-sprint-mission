@@ -22,7 +22,7 @@ public interface UserService extends BaseService<User> {
 
   void reactivateAccount(UUID userId);
 
-  void deleteAccount(UUID userId);
+  boolean deleteAccount(UUID userId);
 
   List<User> searchUsers(String keyword);
 

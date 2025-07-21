@@ -92,7 +92,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   }
 
   @Override
-  public void deleteAccount(UUID userId) {
+  public boolean deleteAccount(UUID userId) {
     friendRequestService.clearFriendRequests(userId);
 
     User user = getOrThrow(userId);
@@ -108,25 +108,25 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
       }
     }
     for (Guild guild : guildsToRemove) {
-      guildService.hardDeleteById(guild.getId());
+      guildService.softDeleteById(guild.getId());
     }
 
-    hardDeleteById(userId);
+    return softDeleteById(userId);
   }
 
   @Override
   public List<User> searchUsers(String keyword) {
     if (keyword == null || keyword.isBlank()) {
-      return List.of();
+      throw new IllegalArgumentException("키워드를 입력해주세요.");
     }
 
-    String lowerKeyword = keyword.toLowerCase();
     return data.stream()
+        .filter(User::isActive)
         .filter(
             u ->
-                u.getUsername().toLowerCase().contains(lowerKeyword)
-                    || u.getEmail().toLowerCase().contains(lowerKeyword)
-                    || u.getGlobalName().toLowerCase().contains(lowerKeyword))
+                u.getGlobalName().contains(keyword)
+                    || u.getUsername().contains(keyword)
+                    || u.getEmail().toLowerCase().contains(keyword.toLowerCase()))
         .toList();
   }
 
