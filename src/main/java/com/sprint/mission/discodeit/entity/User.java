@@ -17,7 +17,7 @@ public class User extends BaseEntity {
   private boolean subscribedToNewsletter;
   private Status status;
   private String phoneNumber;
-  private String avatarUrl;
+  private String avatar;
   private String bio;
   private boolean verified;
   private boolean deactivated;
@@ -41,7 +41,7 @@ public class User extends BaseEntity {
     this.globalName = StringUtil.normalizeString(globalName);
     this.status = Status.OFFLINE;
     this.phoneNumber = "";
-    this.avatarUrl = "";
+    this.avatar = "";
     this.bio = "";
     this.friends = new HashSet<>();
     this.guilds = new HashSet<>();
@@ -112,12 +112,12 @@ public class User extends BaseEntity {
     this.phoneNumber = StringUtil.normalizeString(phoneNumber);
   }
 
-  public String getAvatarUrl() {
-    return avatarUrl;
+  public String getAvatar() {
+    return avatar;
   }
 
-  public void setAvatarUrl(String avatarUrl) {
-    this.avatarUrl = StringUtil.normalizeString(avatarUrl);
+  public void setAvatar(String avatar) {
+    this.avatar = StringUtil.normalizeString(avatar);
   }
 
   public String getBio() {
@@ -236,8 +236,8 @@ public class User extends BaseEntity {
         + ", phoneNumber='"
         + phoneNumber
         + '\''
-        + ", avatarUrl='"
-        + avatarUrl
+        + ", avatar='"
+        + avatar
         + '\''
         + ", bio='"
         + bio

@@ -41,7 +41,7 @@ public interface UserService extends BaseService<User> {
 
   void updateStatus(UUID userId, Status status);
 
-  void updateAvatarUrl(UUID userId, String avatarUrl);
+  void updateAvatar(UUID userId, String avatar);
 
   void updateBio(UUID userId, String bio);
 

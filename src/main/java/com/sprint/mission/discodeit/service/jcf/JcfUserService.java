@@ -184,8 +184,8 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   }
 
   @Override
-  public void updateAvatarUrl(UUID userId, String avatarUrl) {
-    update(userId, u -> u.setAvatarUrl(avatarUrl));
+  public void updateAvatar(UUID userId, String avatar) {
+    update(userId, u -> u.setAvatar(avatar));
   }
 
   @Override
