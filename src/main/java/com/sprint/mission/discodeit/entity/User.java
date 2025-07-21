@@ -157,10 +157,16 @@ public class User extends BaseEntity {
   }
 
   public void addFriend(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("Friend ID must not be null");
+    }
     friends.add(id);
   }
 
   public void removeFriend(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("Friend ID must not be null");
+    }
     friends.remove(id);
   }
 
@@ -169,10 +175,16 @@ public class User extends BaseEntity {
   }
 
   public void addGuild(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("Guild ID must not be null");
+    }
     guilds.add(id);
   }
 
   public void removeGuild(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("Guild ID must not be null");
+    }
     guilds.remove(id);
   }
 
@@ -181,10 +193,16 @@ public class User extends BaseEntity {
   }
 
   public void addChatRoom(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("ChatRoom ID must not be null");
+    }
     chatRooms.add(id);
   }
 
   public void removeChatRoom(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("ChatRoom ID must not be null");
+    }
     chatRooms.remove(id);
   }
 
