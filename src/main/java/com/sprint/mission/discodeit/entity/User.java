@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
+
 import com.sprint.mission.discodeit.enums.user.Status;
-import com.sprint.mission.discodeit.utility.StringUtil;
 import com.sprint.mission.discodeit.utility.Validators;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -35,16 +35,16 @@ public class User extends BaseEntity {
       LocalDate birthDate,
       boolean subscribedToNewsletter,
       String globalName) {
-    this.email = StringUtil.normalizeString(email).toLowerCase();
-    this.username = StringUtil.normalizeString(username);
-    this.birthDate = birthDate;
+    setEmail(email);
+    setPassword(password);
+    setUsername(username);
+    setBirthDate(birthDate);
+    setGlobalName(globalName);
     this.subscribedToNewsletter = subscribedToNewsletter;
-    this.globalName = StringUtil.normalizeString(globalName);
     this.status = Status.OFFLINE;
     this.phoneNumber = "";
     this.avatar = "";
     this.bio = "";
-    setPassword(password);
   }
 
   public String getEmail() {
@@ -60,14 +60,10 @@ public class User extends BaseEntity {
   }
 
   public void setGlobalName(String globalName) {
-    String normalized = StringUtil.normalizeString(globalName);
-    if (normalized.length() > 20) {
-      throw new IllegalArgumentException("닉네임은 20자 이내여야 합니다.");
-    }
-    if (normalized.isEmpty()) {
+    if (globalName == null || globalName.isBlank()) {
       this.globalName = this.username;
     } else {
-      this.globalName = normalized;
+      this.globalName = Validators.validateGlobalName(globalName);
     }
   }
 
@@ -76,20 +72,11 @@ public class User extends BaseEntity {
   }
 
   public void setUsername(String username) {
-    String normalized = StringUtil.normalizeString(username);
-    if (normalized.length() < 2 || normalized.length() > 20) {
-      throw new IllegalArgumentException("사용자명은 2~20자 이내여야 합니다.");
-    }
-    this.username = normalized;
-  }
-
-  public String getPassword() {
-    return password;
+    this.username = Validators.validateUsername(username);
   }
 
   public void setPassword(String password) {
-    String validatedPassword = Validators.validatePassword(password);
-    this.password = BCrypt.hashpw(validatedPassword, BCrypt.gensalt());
+    this.password = BCrypt.hashpw(Validators.validatePassword(password), BCrypt.gensalt());
   }
 
   public boolean checkPassword(String plainPassword) {
@@ -125,11 +112,7 @@ public class User extends BaseEntity {
   }
 
   public void setPhoneNumber(String phoneNumber) {
-    String digits = StringUtil.extractDigits(phoneNumber);
-    if (!digits.isEmpty() && !digits.matches("\\d{10,13}")) {
-      throw new IllegalArgumentException("전화번호는 10~13자리 숫자만 가능합니다.");
-    }
-    this.phoneNumber = digits;
+    this.phoneNumber = Validators.validatePhoneNumber(phoneNumber);
   }
 
   public String getAvatar() {
@@ -137,7 +120,7 @@ public class User extends BaseEntity {
   }
 
   public void setAvatar(String avatar) {
-    this.avatar = StringUtil.normalizeString(avatar);
+    this.avatar = Validators.validateAvatar(avatar);
   }
 
   public String getBio() {
@@ -145,11 +128,7 @@ public class User extends BaseEntity {
   }
 
   public void setBio(String bio) {
-    String normalized = StringUtil.normalizeString(bio);
-    if (normalized.length() > 100) {
-      throw new IllegalArgumentException("자기소개는 100자 이하여야 합니다.");
-    }
-    this.bio = normalized;
+    this.bio = Validators.validateBio(bio);
   }
 
   public boolean isVerified() {
@@ -240,6 +219,10 @@ public class User extends BaseEntity {
 
   public boolean isMemberOfChatRoom(UUID chatRoomId) {
     return chatRooms.contains(chatRoomId);
+  }
+
+  public boolean isActive() {
+    return !deactivated && !banned && !isDeleted();
   }
 
   @Override
