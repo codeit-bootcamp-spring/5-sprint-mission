@@ -7,7 +7,6 @@ import com.sprint.mission.discodeit.service.FriendRequestService;
 import com.sprint.mission.discodeit.service.GuildService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.validation.EmailValidator;
-import com.sprint.mission.discodeit.validation.PasswordValidator;
 import com.sprint.mission.discodeit.validation.SaveUserValidator;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public User save(User user) {
-    SaveUserValidator.validate(user);
+    SaveUserValidator.isValid(user);
 
     if (findByEmail(user.getEmail()) != null) {
       throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
@@ -87,14 +86,14 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   public void deleteAccount(UUID userId) {
     friendRequestService.clearFriendRequests(userId);
 
-    User user = getIfExists(userId);
+    User user = getOrThrow(userId);
     for (UUID friendId : new HashSet<>(user.getFriends())) {
       removeFriend(friendId, userId);
     }
 
     List<Guild> guildsToRemove = new ArrayList<>();
     for (UUID guildId : user.getGuilds()) {
-      Guild guild = JcfGuildService.getInstance().getIfExists(guildId);
+      Guild guild = JcfGuildService.getInstance().getOrThrow(guildId);
       if (guild.getOwnerId().equals(userId)) {
         guildsToRemove.add(guild);
       }
@@ -124,9 +123,9 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public void updateEmail(UUID userId, String email) {
-    EmailValidator.validate(email);
+    EmailValidator.isValid(email);
 
-    User user = getIfExists(userId);
+    User user = getOrThrow(userId);
     if (user.getEmail().equalsIgnoreCase(email)) {
       return;
     }
@@ -153,9 +152,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public void updatePassword(UUID userId, String password) {
-    User user = getIfExists(userId);
-    PasswordValidator.validate(password);
-    if (user.checkPassword(password)) {
+    if (getOrThrow(userId).checkPassword(password)) {
       throw new IllegalArgumentException("동일한 비밀번호입니다.");
     }
     update(userId, u -> u.setPassword(password));
@@ -209,9 +206,9 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public Set<User> getFriends(UUID userId) {
-    User user = getIfExists(userId);
+    User user = getOrThrow(userId);
     return user.getFriends().stream()
-        .map(this::getIfExists) // UUID → User
+        .map(this::getOrThrow) // UUID → User
         .collect(Collectors.toSet());
   }
 
@@ -220,23 +217,23 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
     if (userId.equals(friendId)) {
       throw new IllegalArgumentException("자기 자신에게는 친구 요청을 보낼 수 없습니다.");
     }
-    getIfExists(friendId);
+    getOrThrow(friendId);
     update(userId, u -> u.addFriend(friendId));
     update(friendId, u -> u.addFriend(userId));
   }
 
   @Override
   public void removeFriend(UUID userId, UUID friendId) {
-    getIfExists(friendId);
+    getOrThrow(friendId);
     update(userId, u -> u.removeFriend(friendId));
     update(friendId, u -> u.removeFriend(userId));
   }
 
   @Override
   public Set<Guild> getGuilds(UUID userId) {
-    User user = getIfExists(userId);
+    User user = getOrThrow(userId);
     return user.getGuilds().stream()
-        .map(JcfGuildService.getInstance()::getIfExists)
+        .map(JcfGuildService.getInstance()::getOrThrow)
         .collect(Collectors.toSet());
   }
 

@@ -197,7 +197,7 @@ public class JavaApplication {
     Guild guild = guildService.findById(enteredGuildId);
     Menu menu = new Menu("=====***** 서버 메뉴 *****=====");
 
-    if (guild.getOwnerId().equals(me.getId())) {
+    if (guild != null && guild.getOwnerId().equals(me.getId())) {
       menu.add("서버 편집", this::editGuildMenu);
     }
 
@@ -314,7 +314,7 @@ public class JavaApplication {
       }
 
       try {
-        PasswordValidator.validate(password);
+        PasswordValidator.isValid(password);
         User user = userService.login(email, password);
         me = user;
         System.out.println("\n" + user.getUsername() + "님, 환영합니다!");
@@ -537,12 +537,13 @@ public class JavaApplication {
         return;
       }
 
-      if (password.equals(me.getPassword())) {
-        System.out.println("같은 비밀번호입니다.");
+      if (me.checkPassword(password)) {
+        System.out.println("동일한 비밀번호입니다.");
         continue;
       }
 
       try {
+        PasswordValidator.isValid(password);
         userService.updatePassword(me.getId(), password);
         me.setPassword(password);
         break;
@@ -1031,7 +1032,8 @@ public class JavaApplication {
         UUID newOwnerId = members.get(memberIdx - 1);
         guildService.updateOwnerId(guild.getId(), newOwnerId);
         if (!newOwnerId.equals(me.getId())) {
-          System.out.println("서버 주인이 변경되었습니다 : " + userService.findById(newOwnerId).getUsername());
+          System.out.println(
+              "서버 주인이 변경되었습니다 : " + userService.getOrThrow(newOwnerId).getUsername());
           break;
         }
         System.out.println("이미 서버 주인입니다.");

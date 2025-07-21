@@ -8,7 +8,7 @@ public interface BaseService<T> {
 
   T findById(UUID id);
 
-  T getIfExists(UUID id);
+  T getOrThrow(UUID id);
 
   T save(T entity);
 

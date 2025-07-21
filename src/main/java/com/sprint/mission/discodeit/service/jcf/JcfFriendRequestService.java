@@ -64,8 +64,8 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
     UUID senderId = friendRequest.getSenderId();
     UUID receiverId = friendRequest.getReceiverId();
 
-    userService.getIfExists(senderId);
-    User receiver = userService.getIfExists(receiverId);
+    userService.getOrThrow(senderId);
+    User receiver = userService.getOrThrow(receiverId);
 
     if (findById(friendRequest.getId()) != null) {
       throw new IllegalArgumentException("중복된 id가 존재합니다.");

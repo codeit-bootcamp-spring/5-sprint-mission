@@ -27,7 +27,7 @@ public class JcfChannelService extends BaseJcfService<Channel> implements Channe
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
 
-    Guild guild = guildService.getIfExists(channel.getGuildId());
+    Guild guild = guildService.getOrThrow(channel.getGuildId());
     channel.setPermissionsToUser(guild.getOwnerId(), Set.of(Permission.ADMINISTRATOR));
 
     data.add(channel);

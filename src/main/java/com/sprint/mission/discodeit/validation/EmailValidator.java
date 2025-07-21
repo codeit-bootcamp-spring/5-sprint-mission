@@ -8,7 +8,7 @@ public final class EmailValidator {
 
   private EmailValidator() {}
 
-  public static void validate(String email) {
+  public static void isValid(String email) {
     if (email == null || email.isBlank()) {
       throw new IllegalArgumentException("⚠ 이메일은 필수 항목입니다.");
     }

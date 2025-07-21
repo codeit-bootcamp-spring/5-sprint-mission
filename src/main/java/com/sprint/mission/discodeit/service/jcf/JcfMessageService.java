@@ -28,7 +28,7 @@ public class JcfMessageService extends BaseJcfService<Message> implements Messag
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
 
-    User sender = userService.getIfExists(message.getSenderId());
+    User sender = userService.getOrThrow(message.getSenderId());
     if (sender.isBanned() || sender.isDeactivated()) {
       throw new IllegalStateException("유저를 찾을 수 없습니다.");
     }

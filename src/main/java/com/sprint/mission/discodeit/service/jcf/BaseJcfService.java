@@ -22,23 +22,9 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
   }
 
   protected void update(UUID id, Consumer<T> updater) {
-    T entity = getIfExists(id);
+    T entity = getOrThrow(id);
     updater.accept(entity);
     entity.touch();
-  }
-
-  @Override
-  public T getIfExists(UUID id) {
-    return Optional.ofNullable(findById(id))
-        .orElseThrow(
-            () ->
-                new NoSuchElementException(
-                    String.format("엔티티(%s)를 찾을 수 없습니다: %s", getEntityName(), id)));
-  }
-
-  @Override
-  public void reset() {
-    data.clear();
   }
 
   @Override
@@ -52,7 +38,21 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
   }
 
   @Override
+  public T getOrThrow(UUID id) {
+    return Optional.ofNullable(findById(id))
+        .orElseThrow(
+            () ->
+                new NoSuchElementException(
+                    String.format("엔티티(%s)를 찾을 수 없습니다: %s", getEntityName(), id)));
+  }
+
+  @Override
   public void deleteById(UUID id) {
     data.removeIf(e -> idEquals(e, id));
+  }
+
+  @Override
+  public void reset() {
+    data.clear();
   }
 }

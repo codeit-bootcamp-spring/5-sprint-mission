@@ -24,7 +24,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
   @Override
   public Guild save(Guild guild) {
-    userService.getIfExists(guild.getOwnerId());
+    userService.getOrThrow(guild.getOwnerId());
     if (findById(guild.getId()) != null) {
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
@@ -39,7 +39,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
   @Override
   public List<Guild> findGuildsOwnedByUser(UUID userId) {
-    userService.getIfExists(userId);
+    userService.getOrThrow(userId);
     return data.stream().filter(g -> g.getOwnerId().equals(userId)).toList();
   }
 
@@ -60,13 +60,13 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
   @Override
   public void addMember(UUID guildId, UUID member) {
-    userService.getIfExists(member);
+    userService.getOrThrow(member);
     update(guildId, g -> g.addMember(member));
   }
 
   @Override
   public void updateMemberPermissions(UUID guildId, UUID member, Set<Permission> permissions) {
-    userService.getIfExists(member);
+    userService.getOrThrow(member);
     update(guildId, g -> g.updateMemberPermissions(member, permissions));
   }
 
