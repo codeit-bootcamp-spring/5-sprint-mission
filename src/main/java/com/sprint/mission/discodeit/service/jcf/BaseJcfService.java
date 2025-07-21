@@ -13,11 +13,11 @@ import java.util.function.Consumer;
 public abstract class BaseJcfService<T extends BaseEntity> implements BaseService<T> {
   protected final List<T> data = new ArrayList<>();
 
-  protected boolean idEquals(T entity, UUID id) {
+  private boolean idEquals(T entity, UUID id) {
     return entity.getId().equals(id);
   }
 
-  protected String getEntityName() {
+  private String getEntityName() {
     return getClass().getSimpleName().replace("Jcf", "").replace("Service", "");
   }
 
