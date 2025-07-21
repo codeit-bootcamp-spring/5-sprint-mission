@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface FriendRequestService extends BaseService<FriendRequest> {
-  void acceptFriendRequest(UUID requestId);
+  boolean acceptFriendRequest(UUID requestId);
 
-  void declineFriendRequest(UUID requestId);
+  boolean declineFriendRequest(UUID requestId);
 
   void clearFriendRequests(UUID userId);
 

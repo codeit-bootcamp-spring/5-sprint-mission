@@ -28,7 +28,7 @@ public class JcfChannelService extends BaseJcfService<Channel> implements Channe
 
   @Override
   public Channel save(Channel channel) {
-    if (findById(channel.getId()).isPresent()) {
+    if (existsById(channel.getId())) {
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
 

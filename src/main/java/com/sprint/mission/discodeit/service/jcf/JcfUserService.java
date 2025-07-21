@@ -56,8 +56,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
       throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
     }
 
-    data.add(user);
-    return user;
+    return super.save(user);
   }
 
   @Override
@@ -110,10 +109,10 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
       }
     }
     for (Guild guild : guildsToRemove) {
-      guildService.deleteById(guild.getId());
+      guildService.hardDeleteById(guild.getId());
     }
 
-    deleteById(userId);
+    hardDeleteById(userId);
   }
 
   @Override

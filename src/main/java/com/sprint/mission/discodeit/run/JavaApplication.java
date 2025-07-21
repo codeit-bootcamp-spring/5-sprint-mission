@@ -840,8 +840,7 @@ public class JavaApplication {
   }
 
   private void showGuilds() {
-    List<Guild> guilds = guildService.findAll();
-    printGuildList(guilds);
+    printGuildList(guildService.findAll());
   }
 
   private void printGuildList(List<Guild> guilds) {

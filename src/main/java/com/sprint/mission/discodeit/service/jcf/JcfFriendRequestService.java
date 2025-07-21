@@ -36,29 +36,36 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
   }
 
   @Override
-  public void deleteById(UUID id) {
-    FriendRequest fr = getOrThrow(id);
+  public boolean hardDeleteById(UUID id) {
+    Optional<FriendRequest> frOpt = findById(id);
 
-    super.deleteById(id);
-
-    if (fr != null) {
-      Optional.ofNullable(sentIndex.get(fr.getSenderId()))
-          .ifPresent(
-              set -> {
-                set.remove(fr.getReceiverId());
-                if (set.isEmpty()) {
-                  sentIndex.remove(fr.getSenderId());
-                }
-              });
-      Optional.ofNullable(receivedIndex.get(fr.getReceiverId()))
-          .ifPresent(
-              set -> {
-                set.remove(fr.getSenderId());
-                if (set.isEmpty()) {
-                  receivedIndex.remove(fr.getReceiverId());
-                }
-              });
+    if (frOpt.isEmpty()) {
+      throw new NoSuchElementException("해당 id의 친구 요청을 찾을 수 없습니다.");
     }
+
+    boolean deleted = super.hardDeleteById(id);
+
+    if (deleted) {
+      FriendRequest fr = frOpt.get();
+
+      Set<UUID> sentSet = sentIndex.get(fr.getSenderId());
+      if (sentSet != null) {
+        sentSet.remove(fr.getReceiverId());
+        if (sentSet.isEmpty()) {
+          sentIndex.remove(fr.getSenderId());
+        }
+      }
+
+      Set<UUID> receivedSet = receivedIndex.get(fr.getReceiverId());
+      if (receivedSet != null) {
+        receivedSet.remove(fr.getSenderId());
+        if (receivedSet.isEmpty()) {
+          receivedIndex.remove(fr.getReceiverId());
+        }
+      }
+    }
+
+    return deleted;
   }
 
   @Override
@@ -69,7 +76,7 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
     userService.getOrThrow(senderId);
     User receiver = userService.getOrThrow(receiverId);
 
-    if (findById(friendRequest.getId()).isPresent()) {
+    if (existsById(friendRequest.getId())) {
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
 
@@ -97,22 +104,22 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
   }
 
   @Override
-  public void acceptFriendRequest(UUID requestId) {
+  public boolean acceptFriendRequest(UUID requestId) {
     FriendRequest fr = getOrThrow(requestId);
 
     userService.addFriend(fr.getSenderId(), fr.getReceiverId());
     userService.addFriend(fr.getReceiverId(), fr.getSenderId());
 
-    deleteById(requestId);
+    return hardDeleteById(requestId);
   }
 
   @Override
-  public void declineFriendRequest(UUID requestId) {
+  public boolean declineFriendRequest(UUID requestId) {
     if (findById(requestId).isEmpty()) {
       throw new NoSuchElementException("이미 처리된 요청입니다.");
     }
 
-    deleteById(requestId);
+    return hardDeleteById(requestId);
   }
 
   @Override
@@ -125,7 +132,7 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
 
     requestsToDelete.stream()
         .filter(fr -> alreadyDeleted.add(fr.getId()))
-        .forEach(fr -> deleteById(fr.getId()));
+        .forEach(fr -> hardDeleteById(fr.getId()));
   }
 
   @Override

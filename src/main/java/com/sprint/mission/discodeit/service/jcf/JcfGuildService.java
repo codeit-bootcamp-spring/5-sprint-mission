@@ -97,6 +97,6 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
       userService.removeGuild(userId, guildId);
     }
 
-    deleteById(guildId);
+    hardDeleteById(guildId);
   }
 }

@@ -22,17 +22,6 @@ public class FriendRequest extends BaseEntity {
 
   @Override
   public String toString() {
-    return "FriendRequest{"
-        + "id="
-        + getId()
-        + ", createdAt="
-        + getCreatedAt()
-        + ", updatedAt="
-        + getUpdatedAt()
-        + ", senderId="
-        + senderId
-        + ", receiverId="
-        + receiverId
-        + '}';
+    return "FriendRequest{" + "senderId=" + senderId + ", receiverId=" + receiverId + '}';
   }
 }

@@ -7,7 +7,7 @@ public final class SaveUserValidator {
 
   public static void isValid(User user) {
     if (user == null) {
-      throw new IllegalArgumentException("⚠ 유저 객체가 null입니다.");
+      throw new IllegalArgumentException("⚠ 유저 객체는 null일 수 없습니다.");
     }
 
     EmailValidator.isValid(user.getEmail());
