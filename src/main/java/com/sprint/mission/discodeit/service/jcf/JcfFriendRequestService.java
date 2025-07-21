@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.FriendRequest;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.FriendRequestService;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.ArrayList;
@@ -61,6 +62,9 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
 
   @Override
   public void sendFriendRequest(UUID senderId, UUID receiverId) {
+    userService.getIfExists(senderId);
+    User receiver = userService.getIfExists(receiverId);
+
     if (senderId.equals(receiverId)) {
       throw new IllegalArgumentException("자기 자신에게 친구 요청을 보낼 수 없습니다.");
     }
@@ -72,6 +76,10 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
 
     if (alreadySent || alreadyReceived) {
       throw new IllegalStateException("이미 친구 요청이 존재합니다.");
+    }
+
+    if (userService.getFriends(senderId).contains(receiver)) {
+      throw new IllegalArgumentException("이미 친구입니다.");
     }
 
     data.add(new FriendRequest(senderId, receiverId));

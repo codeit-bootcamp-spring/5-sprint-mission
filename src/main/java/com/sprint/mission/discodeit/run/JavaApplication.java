@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -671,10 +672,17 @@ public class JavaApplication {
         continue;
       }
 
+      if (me.getFriends().contains(receiver.getId())) {
+        System.out.println("이미 친구입니다.");
+        continue;
+      }
+
       try {
         friendRequestService.sendFriendRequest(me.getId(), receiver.getId());
         System.out.println("친구 요청을 보냈습니다.");
         return;
+      } catch (NoSuchElementException e) {
+        System.out.println("유저를 찾을 수 없습니다.");
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }
@@ -735,21 +743,21 @@ public class JavaApplication {
   }
 
   private void viewSentFriendRequests() {
-    List<FriendRequest> friendRequests = friendRequestService.getSentRequests(me.getId());
-
-    if (friendRequests.isEmpty()) {
-      System.out.println("\n보낸 친구 요청이 없습니다.");
-      return;
-    }
-
-    for (int i = 0; i < friendRequests.size(); i++) {
-      FriendRequest fr = friendRequests.get(i);
-      User receiver = userService.findById(fr.getReceiverId());
-      System.out.println((i + 1) + ". " + receiver.getUsername());
-    }
-
-    System.out.println("\nx. 뒤로가기");
     while (true) {
+      List<FriendRequest> friendRequests = friendRequestService.getSentRequests(me.getId());
+
+      if (friendRequests.isEmpty()) {
+        System.out.println("\n보낸 친구 요청이 없습니다.");
+        return;
+      }
+
+      for (int i = 0; i < friendRequests.size(); i++) {
+        FriendRequest fr = friendRequests.get(i);
+        User receiver = userService.findById(fr.getReceiverId());
+        System.out.println((i + 1) + ". " + receiver.getUsername());
+      }
+
+      System.out.println("\nx. 뒤로가기");
       String idxStr = InputHandler.getInputOrBack("취소할 요청 선택 : ");
       if (idxStr == null) {
         return;
