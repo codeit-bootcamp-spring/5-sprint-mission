@@ -27,4 +27,6 @@ public interface GuildService extends BaseService<Guild> {
   void updateMemberPermissions(UUID guildId, UUID member, Set<Permission> permissions);
 
   void removeMember(UUID guildId, UUID member);
+
+  void delete(UUID guildId);
 }

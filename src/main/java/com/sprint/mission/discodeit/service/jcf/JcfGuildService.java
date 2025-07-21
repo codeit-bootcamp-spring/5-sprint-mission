@@ -89,4 +89,14 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   public void removeChannel(UUID guildId, Channel channel) {
     update(guildId, g -> g.removeChannel(channel));
   }
+
+  @Override
+  public void delete(UUID guildId) {
+    Guild guild = getOrThrow(guildId);
+    for (UUID userId : guild.getMembers().keySet()) {
+      userService.removeGuild(userId, guildId);
+    }
+
+    deleteById(guildId);
+  }
 }

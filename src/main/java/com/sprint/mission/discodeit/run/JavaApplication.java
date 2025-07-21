@@ -388,7 +388,6 @@ public class JavaApplication {
               System.out.printf(
                   "- 닉네임: %s | 사용자명: %s | 이메일: %s%n",
                   user.getGlobalName(), user.getUsername(), user.getEmail()));
-      break;
     }
   }
 
@@ -431,7 +430,7 @@ public class JavaApplication {
       List<User> activeUsers = userService.findAll().stream().filter(User::isBanned).toList();
 
       if (activeUsers.isEmpty()) {
-        System.out.println("정지된 유저가 없습니다.");
+        System.out.println("\n정지된 유저가 없습니다.");
         return;
       }
 
@@ -719,7 +718,7 @@ public class JavaApplication {
         FriendRequest fr = friendRequests.get(i);
         Optional<User> sender = userService.findById(fr.getSenderId());
         if (sender.isPresent()) {
-          System.out.println((i + 1) + ". " + sender.map(User::getUsername));
+          System.out.println((i + 1) + ". " + sender.map(User::getUsername).orElse(""));
         }
       }
 
@@ -774,7 +773,7 @@ public class JavaApplication {
         FriendRequest fr = friendRequests.get(i);
         Optional<User> receiver = userService.findById(fr.getReceiverId());
         if (receiver.isPresent()) {
-          System.out.println((i + 1) + ". " + receiver.map(User::getUsername));
+          System.out.println((i + 1) + ". " + receiver.map(User::getUsername).orElse(""));
         }
       }
 
@@ -925,13 +924,17 @@ public class JavaApplication {
       }
 
       Guild guild = guilds.get(idx);
+      if (guild == null) {
+        return;
+      }
+
       if (!guild.getOwnerId().equals(me.getId())) {
         System.out.println("삭제할 권한이 없습니다.");
         return;
       }
 
       try {
-        guildService.deleteById(guild.getId());
+        guildService.delete(guild.getId());
         System.out.println(guild.getName() + " 서버가 삭제되었습니다.");
       } catch (Exception e) {
         System.out.println(e.getMessage());
