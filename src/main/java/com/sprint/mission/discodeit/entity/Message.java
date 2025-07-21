@@ -11,7 +11,7 @@ public class Message extends BaseEntity {
   private String content;
   private List<File> files;
   private Survey survey;
-  private final List<UUID> replies;
+  private final List<UUID> replies = new ArrayList<>();
 
   public Message(UUID senderId, UUID receiverId, String content, List<File> files, Survey survey) {
     this.senderId = senderId;
@@ -19,7 +19,6 @@ public class Message extends BaseEntity {
     this.content = content;
     this.files = files;
     this.survey = survey;
-    this.replies = new ArrayList<>();
   }
 
   public UUID getSenderId() {

@@ -15,18 +15,15 @@ public class Channel extends BaseEntity {
   private String name;
   private ChannelType type;
   private Boolean isPublic;
-  private final Set<UUID> joinedUsers;
-  private final Map<RoleType, Set<Permission>> rolePermissions;
-  private final Map<UUID, Set<Permission>> userPermissions;
+  private final Set<UUID> joinedUsers = new HashSet<>();
+  private final Map<RoleType, Set<Permission>> rolePermissions = new HashMap<>();
+  private final Map<UUID, Set<Permission>> userPermissions = new HashMap<>();
 
   public Channel(UUID guildId, String name, ChannelType type) {
     this.guildId = guildId;
     this.name = name;
     this.type = type;
     this.isPublic = true;
-    this.joinedUsers = new HashSet<>();
-    this.rolePermissions = new HashMap<>();
-    this.userPermissions = new HashMap<>();
   }
 
   public UUID getGuildId() {

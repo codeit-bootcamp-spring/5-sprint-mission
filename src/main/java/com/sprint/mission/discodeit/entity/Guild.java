@@ -16,9 +16,9 @@ public class Guild extends BaseEntity {
   private String name;
   private boolean discoverable;
   private UUID ownerId;
-  private final Map<UUID, Set<Permission>> members;
-  private final List<Channel> channels;
-  private final Set<UUID> bans;
+  private final Map<UUID, Set<Permission>> members = new HashMap<>();
+  private final List<Channel> channels = new ArrayList<>();
+  private final Set<UUID> bans = new HashSet<>();
 
   private static final Set<Permission> DEFAULT_PERMISSIONS =
       EnumSet.of(Permission.READ_MESSAGES, Permission.SEND_MESSAGES);
@@ -27,9 +27,6 @@ public class Guild extends BaseEntity {
     this.name = StringUtil.normalizeString(name);
     this.discoverable = discoverable;
     this.ownerId = ownerId;
-    this.members = new HashMap<>();
-    this.channels = new ArrayList<>();
-    this.bans = new HashSet<>();
   }
 
   public String getName() {
