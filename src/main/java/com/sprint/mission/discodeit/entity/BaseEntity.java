@@ -45,6 +45,7 @@ public abstract class BaseEntity {
 
   public void setDeleted(boolean deleted) {
     this.deleted = deleted;
+    touch();
   }
 
   @Override
