@@ -18,9 +18,9 @@ public class JcfPermissionService implements PermissionService {
     JcfUserService userService = JcfUserService.getInstance();
     JcfGuildService guildService = JcfGuildService.getInstance();
     JcfChannelService channelService = JcfChannelService.getInstance();
-    final Guild guild = guildService.findById(guildId);
-    final Channel channel = channelService.findById(channelId);
-    final User user = userService.findById(userId);
+    final Guild guild = guildService.getOrThrow(guildId);
+    final Channel channel = channelService.getOrThrow(channelId);
+    final User user = userService.getOrThrow(userId);
 
     Set<Permission> userOverride = channel.getUserPermissions(userId);
     if (!userOverride.isEmpty()) {

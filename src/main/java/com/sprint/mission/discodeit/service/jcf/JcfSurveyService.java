@@ -15,7 +15,7 @@ public class JcfSurveyService extends BaseJcfService<Survey> implements SurveySe
 
   @Override
   public Survey save(Survey survey) {
-    if (findById(survey.getId()) != null) {
+    if (findById(survey.getId()).isPresent()) {
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
     data.add(survey);

@@ -25,9 +25,10 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   @Override
   public Guild save(Guild guild) {
     userService.getOrThrow(guild.getOwnerId());
-    if (findById(guild.getId()) != null) {
+    if (findById(guild.getId()).isPresent()) {
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
+
     data.add(guild);
     return guild;
   }

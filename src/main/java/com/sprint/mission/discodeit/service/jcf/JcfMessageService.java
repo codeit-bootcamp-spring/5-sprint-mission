@@ -24,7 +24,7 @@ public class JcfMessageService extends BaseJcfService<Message> implements Messag
 
   @Override
   public Message save(Message message) {
-    if (findById(message.getId()) != null) {
+    if (findById(message.getId()).isPresent()) {
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
 

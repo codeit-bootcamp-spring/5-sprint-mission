@@ -35,7 +35,7 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
 
   @Override
   public void deleteById(UUID id) {
-    FriendRequest fr = findById(id);
+    FriendRequest fr = getOrThrow(id);
 
     super.deleteById(id);
 
@@ -67,7 +67,7 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
     userService.getOrThrow(senderId);
     User receiver = userService.getOrThrow(receiverId);
 
-    if (findById(friendRequest.getId()) != null) {
+    if (findById(friendRequest.getId()).isPresent()) {
       throw new IllegalArgumentException("중복된 id가 존재합니다.");
     }
 
@@ -96,10 +96,7 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
 
   @Override
   public void acceptFriendRequest(UUID requestId) {
-    FriendRequest fr = findById(requestId);
-    if (fr == null) {
-      throw new NoSuchElementException("이미 처리된 요청입니다.");
-    }
+    FriendRequest fr = getOrThrow(requestId);
 
     userService.addFriend(fr.getSenderId(), fr.getReceiverId());
     userService.addFriend(fr.getReceiverId(), fr.getSenderId());
@@ -109,7 +106,7 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
 
   @Override
   public void declineFriendRequest(UUID requestId) {
-    if (findById(requestId) == null) {
+    if (findById(requestId).isEmpty()) {
       throw new NoSuchElementException("이미 처리된 요청입니다.");
     }
 

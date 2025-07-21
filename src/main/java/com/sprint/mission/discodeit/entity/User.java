@@ -57,7 +57,12 @@ public class User extends BaseEntity {
   }
 
   public void setGlobalName(String globalName) {
-    this.globalName = StringUtil.normalizeString(globalName);
+    String normalizeGlobalName = StringUtil.normalizeString(globalName);
+    if (normalizeGlobalName.isEmpty()) {
+      this.globalName = this.username;
+    } else {
+      this.globalName = StringUtil.normalizeString(globalName);
+    }
   }
 
   public String getUsername() {
