@@ -528,9 +528,9 @@ public class JavaApplication {
   }
 
   private void changeGlobalName() {
+    System.out.println("\nx. 뒤로가기");
     String globalName;
     while (true) {
-      System.out.println("\nx. 뒤로가기");
       System.out.println("현재 별명 : " + me.getGlobalName());
       try {
         globalName = InputHandler.getInputOrBack("변경할 별명 : ");
@@ -568,8 +568,8 @@ public class JavaApplication {
 
   private void changePassword() {
     while (true) {
+      System.out.println("\nx. 뒤로가기");
       try {
-        System.out.println("\nx. 뒤로가기");
         String password = InputHandler.getValidPassword("변경할 비밀번호 : ");
         if (password == null) {
           return;
@@ -589,9 +589,9 @@ public class JavaApplication {
   }
 
   private void changeBirthDate() {
+    System.out.println("\nx. 뒤로가기");
     while (true) {
       try {
-        System.out.println("\nx. 뒤로가기");
         System.out.println("현재 생년월일 : " + me.getBirthDate());
         LocalDate birthDate;
 
@@ -609,9 +609,9 @@ public class JavaApplication {
   }
 
   private void changeIsSubscribedToNewsletter() {
+    System.out.println("\nx. 뒤로가기");
     while (true) {
       try {
-        System.out.println("\nx. 뒤로가기");
         System.out.println("현재 이메일 소식 수신 여부 : " + (me.isSubscribedToNewsletter() ? "yes" : "no"));
 
         Boolean isSubscribedToNewsletter = InputHandler.getYesOrNo("이메일로 소식 받기");
@@ -628,11 +628,11 @@ public class JavaApplication {
   }
 
   private void changePhoneNumber() {
+    System.out.println("\nx. 뒤로가기");
     while (true) {
       try {
         String oldPhoneNumber = me.getPhoneNumber();
         String newPhoneNumber;
-        System.out.println("\nx. 뒤로가기");
         System.out.println("현재 휴대폰 번호 : " + oldPhoneNumber);
         newPhoneNumber = InputHandler.getInputOrBack("변경할 휴대폰 번호 : ");
         if (newPhoneNumber == null) {
@@ -870,11 +870,7 @@ public class JavaApplication {
       for (int i = 0; i < friends.size(); i++) {
         User f = friends.get(i);
         System.out.printf(
-            "%d. %s (%s, %s)\n",
-            i + 1,
-            f.getGlobalName(),
-            f.getUsername(),
-            f.getEmail());
+            "%d. %s (%s, %s)\n", i + 1, f.getGlobalName(), f.getUsername(), f.getEmail());
       }
 
       System.out.println("\nx. 뒤로가기");
@@ -892,9 +888,9 @@ public class JavaApplication {
 
         User friend = friends.get(idx);
 
-        Boolean confirm = InputHandler.getYesOrNo(
-            String.format("%s(%s)님을 정말 삭제하시겠습니까?", friend.getGlobalName(), friend.getEmail())
-        );
+        Boolean confirm =
+            InputHandler.getYesOrNo(
+                String.format("%s(%s)님을 정말 삭제하시겠습니까?", friend.getGlobalName(), friend.getEmail()));
         if (confirm == null) {
           return;
         }
