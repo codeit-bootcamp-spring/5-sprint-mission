@@ -38,7 +38,9 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public Optional<User> findByEmail(String email) {
-    return data.stream().filter(u -> u.getEmail().equalsIgnoreCase(email)).findFirst();
+    return data.stream()
+        .filter(u -> !u.isDeleted() && u.getEmail().equalsIgnoreCase(email))
+        .findFirst();
   }
 
   @Override
@@ -63,7 +65,11 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   public User login(String email, String password) {
     User user =
         data.stream()
-            .filter(u -> u.getEmail().equalsIgnoreCase(email) && u.checkPassword(password))
+            .filter(
+                u ->
+                    !u.isDeleted()
+                        && u.getEmail().equalsIgnoreCase(email)
+                        && u.checkPassword(password))
             .findFirst()
             .orElseThrow(() -> new NoSuchElementException("이메일 또는 비밀번호가 일치하지 않습니다."));
 

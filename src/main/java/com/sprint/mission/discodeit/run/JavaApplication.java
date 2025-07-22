@@ -682,7 +682,7 @@ public class JavaApplication {
             continue;
           }
           me = null;
-          System.out.println("계정이 삭제되었습니다.\n");
+          System.out.println("계정이 삭제되었습니다.");
           return;
         default:
           System.out.println("1 또는 2를 입력해주세요.");
@@ -720,17 +720,17 @@ public class JavaApplication {
 
       User receiver = userService.findByEmail(email).orElse(null);
       if (receiver == null) {
-        System.out.println("해당 이메일로 등록된 사용자가 없습니다.");
+        System.out.println("⚠ 해당 이메일로 등록된 사용자가 없습니다.");
         continue;
       }
 
       if (me.equals(receiver)) {
-        System.out.println("자기 자신에게는 친구 요청을 보낼 수 없습니다.");
+        System.out.println("⚠ 자기 자신에게는 친구 요청을 보낼 수 없습니다.");
         continue;
       }
 
       if (me.getFriends().contains(receiver.getId())) {
-        System.out.println("이미 친구입니다.");
+        System.out.println("⚠ 이미 친구입니다.");
         continue;
       }
 
