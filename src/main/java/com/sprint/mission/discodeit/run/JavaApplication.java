@@ -1004,7 +1004,7 @@ public class JavaApplication {
       }
 
       try {
-        guildService.delete(guild.getId());
+        guildService.deleteGuild(guild.getId());
         System.out.println(guild.getName() + " 서버가 삭제되었습니다.");
       } catch (Exception e) {
         System.out.println(e.getMessage());
@@ -1134,7 +1134,7 @@ public class JavaApplication {
         }
 
         UUID newOwnerId = members.get(memberIdx - 1);
-        guildService.updateOwnerId(guild.getId(), newOwnerId);
+        guildService.updateOwnerId(guild.getId(), me.getId(), newOwnerId);
         if (!newOwnerId.equals(me.getId())) {
           System.out.println(
               "서버 주인이 변경되었습니다 : " + userService.getOrThrow(newOwnerId).getUsername());

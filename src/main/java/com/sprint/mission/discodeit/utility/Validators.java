@@ -99,4 +99,13 @@ public class Validators {
 
     return normalizedBio;
   }
+
+  public static String validateGuildName(String guildName) {
+    String normalizedGuildName = normalizeString(guildName);
+
+    if (normalizedGuildName.length() > 20) {
+      throw new IllegalArgumentException("길드명은 20자 이내여야 합니다.");
+    }
+    return normalizedGuildName;
+  }
 }

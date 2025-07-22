@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.enums.Permission;
 import com.sprint.mission.discodeit.utility.StringUtil;
+import com.sprint.mission.discodeit.utility.Validators;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -27,6 +28,7 @@ public class Guild extends BaseEntity {
     this.name = StringUtil.normalizeString(name);
     this.discoverable = discoverable;
     this.ownerId = ownerId;
+    addMember(ownerId);
   }
 
   public String getName() {
@@ -34,7 +36,7 @@ public class Guild extends BaseEntity {
   }
 
   public void setName(String name) {
-    this.name = StringUtil.normalizeString(name);
+    this.name = Validators.validateGuildName(name);
   }
 
   public boolean isDiscoverable() {
@@ -51,6 +53,7 @@ public class Guild extends BaseEntity {
 
   public void setOwnerId(UUID ownerId) {
     this.ownerId = ownerId;
+    updateMemberPermissions(ownerId, Set.of(Permission.ADMINISTRATOR));
   }
 
   public List<Channel> getChannels() {
@@ -58,7 +61,12 @@ public class Guild extends BaseEntity {
   }
 
   public void addChannel(Channel channel) {
-    channels.add(channel);
+    if (channel == null) {
+      throw new IllegalArgumentException("채널은 null일 수 없습니다.");
+    }
+    if (!channels.contains(channel)) {
+      channels.add(channel);
+    }
   }
 
   public void removeChannel(Channel channel) {
@@ -70,7 +78,14 @@ public class Guild extends BaseEntity {
   }
 
   public void addMember(UUID userId) {
-    members.put(userId, EnumSet.copyOf(DEFAULT_PERMISSIONS));
+    if (userId == null) {
+      throw new IllegalArgumentException("userId는 null일 수 없습니다.");
+    }
+    if (userId.equals(ownerId)) {
+      members.putIfAbsent(userId, EnumSet.of(Permission.ADMINISTRATOR));
+    } else {
+      members.putIfAbsent(userId, EnumSet.copyOf(DEFAULT_PERMISSIONS));
+    }
   }
 
   public void updateMemberPermissions(UUID userId, Set<Permission> permissions) {
@@ -93,16 +108,18 @@ public class Guild extends BaseEntity {
     bans.remove(userId);
   }
 
+  public boolean isMember(UUID userId) {
+    return members.containsKey(userId);
+  }
+
+  public boolean isBanned(UUID userId) {
+    return bans.contains(userId);
+  }
+
   @Override
   public String toString() {
     return "Guild{"
-        + "id="
-        + getId()
-        + ", createdAt="
-        + getCreatedAt()
-        + ", updatedAt="
-        + getUpdatedAt()
-        + ", name='"
+        + "name='"
         + name
         + '\''
         + ", discoverable="

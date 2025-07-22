@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.enums.Permission;
 import com.sprint.mission.discodeit.service.GuildService;
 import com.sprint.mission.discodeit.service.UserService;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -29,12 +30,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   @Override
   public Guild save(Guild guild) {
     userService.getOrThrow(guild.getOwnerId());
-    if (findById(guild.getId()).isPresent()) {
-      throw new IllegalArgumentException("중복된 id가 존재합니다.");
-    }
-
-    data.add(guild);
-    return guild;
+    return super.save(guild);
   }
 
   @Override
@@ -49,13 +45,23 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   }
 
   @Override
-  public void updateDiscoverable(UUID guildId, boolean discoverable) {
-    update(guildId, g -> g.setDiscoverable(discoverable));
+  public List<Guild> searchGuilds(String keyword) {
+    if (keyword == null || keyword.isBlank()) {
+      throw new IllegalArgumentException("키워드를 입력해주세요.");
+    }
+
+    return data.stream().filter(g -> !g.isDeleted() && g.getName().contains(keyword)).toList();
   }
 
   @Override
-  public void updateOwnerId(UUID guildId, UUID ownerId) {
-    update(guildId, g -> g.setOwnerId(ownerId));
+  public void deleteGuild(UUID guildId) {
+    Guild guild = getOrThrow(guildId);
+
+    for (UUID userId : guild.getMembers().keySet()) {
+      userService.removeGuild(userId, guildId);
+    }
+
+    deleteById(guildId);
   }
 
   @Override
@@ -64,20 +70,26 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   }
 
   @Override
-  public void addMember(UUID guildId, UUID member) {
-    userService.getOrThrow(member);
-    update(guildId, g -> g.addMember(member));
+  public void updateDiscoverable(UUID guildId, boolean discoverable) {
+    update(guildId, g -> g.setDiscoverable(discoverable));
   }
 
   @Override
-  public void updateMemberPermissions(UUID guildId, UUID member, Set<Permission> permissions) {
-    userService.getOrThrow(member);
-    update(guildId, g -> g.updateMemberPermissions(member, permissions));
-  }
+  public void updateOwnerId(UUID guildId, UUID oldOwnerId, UUID newOwnerId) {
+    userService.getOrThrow(oldOwnerId);
+    userService.getOrThrow(newOwnerId);
+    if (!oldOwnerId.equals(getOrThrow(guildId).getOwnerId())) {
+      throw new IllegalArgumentException("길드장 변경 권한이 없습니다.");
+    }
 
-  @Override
-  public void removeMember(UUID guildId, UUID member) {
-    update(guildId, g -> g.removeMember(member));
+    update(
+        guildId,
+        g -> {
+          if (!g.isMember(newOwnerId)) {
+            throw new IllegalArgumentException("해당 유저는 이 길드의 멤버가 아닙니다.");
+          }
+          g.setOwnerId(newOwnerId);
+        });
   }
 
   @Override
@@ -91,12 +103,86 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   }
 
   @Override
-  public void delete(UUID guildId) {
+  public List<Channel> getChannels(UUID guildId) {
     Guild guild = getOrThrow(guildId);
-    for (UUID userId : guild.getMembers().keySet()) {
-      userService.removeGuild(userId, guildId);
-    }
+    return guild.getChannels();
+  }
 
-    hardDeleteById(guildId);
+  @Override
+  public void addMember(UUID guildId, UUID member) {
+    userService.getOrThrow(member);
+    update(guildId, g -> g.addMember(member));
+  }
+
+  @Override
+  public void removeMember(UUID guildId, UUID member) {
+    update(guildId, g -> g.removeMember(member));
+  }
+
+  @Override
+  public boolean isMember(UUID guildId, UUID member) {
+    Guild guild = getOrThrow(guildId);
+    return guild.getMembers().containsKey(member);
+  }
+
+  @Override
+  public List<UUID> getMemberIds(UUID guildId) {
+    Guild guild = getOrThrow(guildId);
+    return List.copyOf(guild.getMembers().keySet());
+  }
+
+  @Override
+  public int getMemberCount(UUID guildId) {
+    Guild guild = getOrThrow(guildId);
+    return guild.getMembers().size();
+  }
+
+  @Override
+  public Set<Permission> getMemberPermissions(UUID guildId, UUID member) {
+    Guild guild = getOrThrow(guildId);
+    Set<Permission> permissions = guild.getMembers().get(member);
+    if (permissions == null) {
+      return Collections.emptySet();
+    }
+    return Collections.unmodifiableSet(permissions);
+  }
+
+  @Override
+  public void updateMemberPermissions(UUID guildId, UUID member, Set<Permission> permissions) {
+    userService.getOrThrow(member);
+    update(guildId, g -> g.updateMemberPermissions(member, permissions));
+  }
+
+  @Override
+  public void addBan(UUID guildId, UUID userId) {
+    userService.getOrThrow(userId);
+    Guild guild = getOrThrow(guildId);
+    if (guild.isBanned(userId)) {
+      throw new IllegalStateException("이미 밴된 유저입니다.");
+    }
+    update(guildId, g -> g.addBan(userId));
+  }
+
+  @Override
+  public void removeBan(UUID guildId, UUID userId) {
+    update(guildId, g -> g.removeBan(userId));
+  }
+
+  @Override
+  public boolean isBanned(UUID guildId, UUID userId) {
+    Guild guild = getOrThrow(guildId);
+    return guild.getBans().contains(userId);
+  }
+
+  @Override
+  public Set<UUID> getBannedUsers(UUID guildId) {
+    Guild guild = getOrThrow(guildId);
+    return guild.getBans();
+  }
+
+  @Override
+  public int getBanCount(UUID guildId) {
+    Guild guild = getOrThrow(guildId);
+    return guild.getBans().size();
   }
 }
