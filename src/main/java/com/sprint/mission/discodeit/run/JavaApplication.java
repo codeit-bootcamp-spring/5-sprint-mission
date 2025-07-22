@@ -33,6 +33,7 @@ public class JavaApplication {
   private User me;
   private UUID enteredGuildId;
 
+  @SuppressWarnings("CallToPrintStackTrace")
   public static void main(String[] args) {
     try {
       new JavaApplication().mainMenu();
@@ -735,12 +736,14 @@ public class JavaApplication {
 
       try {
         friendRequestService.save(new FriendRequest(me.getId(), receiver.getId()));
-        System.out.println("친구 요청을 보냈습니다.");
+        System.out.println("✅ 친구 요청을 보냈습니다.");
         return;
+      } catch (IllegalStateException e) {
+        System.out.println("⚠ " + e.getMessage());
       } catch (NoSuchElementException e) {
-        System.out.println("유저를 찾을 수 없습니다.");
+        System.out.println("⚠ 유저를 찾을 수 없습니다.");
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        System.out.println("알 수 없는 오류: " + e.getMessage());
       }
     }
   }
@@ -754,12 +757,15 @@ public class JavaApplication {
         return;
       }
 
+      System.out.println("\n받은 친구 요청 목록:");
       for (int i = 0; i < friendRequests.size(); i++) {
         FriendRequest fr = friendRequests.get(i);
         Optional<User> sender = userService.findById(fr.getSenderId());
-        if (sender.isPresent()) {
-          System.out.println((i + 1) + ". " + sender.map(User::getUsername).orElse(""));
-        }
+        String senderInfo =
+            sender
+                .map(u -> String.format("%s (%s)", u.getGlobalName(), u.getEmail()))
+                .orElse("알 수 없음");
+        System.out.println((i + 1) + ". " + senderInfo);
       }
 
       System.out.println("\nx. 뒤로가기");
@@ -812,9 +818,11 @@ public class JavaApplication {
       for (int i = 0; i < friendRequests.size(); i++) {
         FriendRequest fr = friendRequests.get(i);
         Optional<User> receiver = userService.findById(fr.getReceiverId());
-        if (receiver.isPresent()) {
-          System.out.println((i + 1) + ". " + receiver.map(User::getUsername).orElse(""));
-        }
+        String receiverInfo =
+            receiver
+                .map(u -> String.format("%s (%s)", u.getGlobalName(), u.getEmail()))
+                .orElse("알 수 없음");
+        System.out.println((i + 1) + ". " + receiverInfo);
       }
 
       System.out.println("\nx. 뒤로가기");
@@ -832,6 +840,14 @@ public class JavaApplication {
 
         FriendRequest selected = friendRequests.get(idx - 1);
 
+        Boolean confirm = InputHandler.getYesOrNo("이 친구 요청을 취소하시겠습니까?");
+        if (confirm == null) {
+          return;
+        }
+
+        if (!confirm) {
+          continue;
+        }
         friendRequestService.declineFriendRequest(selected.getId());
         System.out.println("친구 요청을 취소했습니다.");
       } catch (NumberFormatException e) {
@@ -849,12 +865,18 @@ public class JavaApplication {
         System.out.println("친구 : 없음");
         return;
       }
+
+      System.out.println("\n친구 목록:");
       for (int i = 0; i < friends.size(); i++) {
-        if (friends.get(i) != null) {
-          System.out.printf(
-              "%d. %s (%s)\n", i + 1, friends.get(i).getUsername(), friends.get(i).getEmail());
-        }
+        User f = friends.get(i);
+        System.out.printf(
+            "%d. %s (%s, %s)\n",
+            i + 1,
+            f.getGlobalName(),
+            f.getUsername(),
+            f.getEmail());
       }
+
       System.out.println("\nx. 뒤로가기");
       String idxStr = InputHandler.getInputOrBack("삭제할 친구 번호: ");
       if (idxStr == null) {
@@ -869,6 +891,18 @@ public class JavaApplication {
         }
 
         User friend = friends.get(idx);
+
+        Boolean confirm = InputHandler.getYesOrNo(
+            String.format("%s(%s)님을 정말 삭제하시겠습니까?", friend.getGlobalName(), friend.getEmail())
+        );
+        if (confirm == null) {
+          return;
+        }
+
+        if (!confirm) {
+          continue;
+        }
+
         userService.removeFriend(me.getId(), friend.getId());
         System.out.println("친구가 삭제되었습니다.");
       } catch (NumberFormatException e) {
@@ -888,7 +922,8 @@ public class JavaApplication {
       System.out.println("\n존재하는 서버가 없습니다.");
       return;
     }
-    System.out.println("서버 목록 : ");
+
+    System.out.println("\n서버 목록 : ");
     for (int i = 0; i < guilds.size(); i++) {
       System.out.println((i + 1) + ". " + guilds.get(i));
     }
