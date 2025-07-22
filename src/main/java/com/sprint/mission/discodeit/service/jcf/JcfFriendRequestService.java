@@ -70,7 +70,9 @@ public class JcfFriendRequestService extends BaseJcfService<FriendRequest>
 
   @Override
   public FriendRequest save(FriendRequest friendRequest) {
-    getOrThrow(friendRequest.getId());
+    if (existsById(friendRequest.getId())) {
+      throw new IllegalArgumentException("중복된 id가 존재합니다.");
+    }
 
     UUID senderId = friendRequest.getSenderId();
     UUID receiverId = friendRequest.getReceiverId();
