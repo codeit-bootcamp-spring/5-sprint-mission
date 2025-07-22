@@ -21,7 +21,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class JavaApplication {
   private final JcfUserService userService = JcfUserService.getInstance();
@@ -691,14 +690,23 @@ public class JavaApplication {
   }
 
   private void showFriends() {
+    if (me == null) {
+      System.out.println("로그인이 필요합니다.");
+      return;
+    }
+
     List<User> friends = userService.getFriends(me.getId()).stream().toList();
     if (friends.isEmpty()) {
       System.out.println("친구 : 없음");
       return;
     }
 
-    String friendsStr = friends.stream().map(User::getEmail).collect(Collectors.joining(", "));
-    System.out.println("친구 : " + friendsStr);
+    System.out.println("\n친구 목록:");
+    friends.forEach(
+        f ->
+            System.out.printf(
+                "- 닉네임: %s | 사용자명: %s | 이메일: %s%n",
+                f.getGlobalName(), f.getUsername(), f.getEmail()));
   }
 
   private void sendFriendRequest() {
