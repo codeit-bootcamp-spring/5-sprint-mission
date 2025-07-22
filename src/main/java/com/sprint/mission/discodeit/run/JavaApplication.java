@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 public class JavaApplication {
@@ -164,7 +163,7 @@ public class JavaApplication {
             .add("프로필 편집", this::editProfileMenu)
             .add("친구 목록 편집", this::editFriendMenu)
             .add("서버 목록 편집", this::editGuildsMenu)
-            .add("다이렉트 메시지 편집", this::editDirectMessageMenu)
+            .add("메시지 편집", this::editDirectMessageMenu)
             .add("로그아웃", this::logout));
   }
 
@@ -229,7 +228,7 @@ public class JavaApplication {
             .add("주인 변경", this::changeGuildOwner)
             .add("이름 변경", this::changeGuildName)
             .add("공개 여부 변경", this::changeGuildPublic)
-            .add("회원 추방", this::kickMember)
+            .add("멤버 강퇴", this::kickMember)
             .add("모든 채널 조회", this::showChannels)
             .add("채널 생성", this::createChannel)
             .add("채널 수정", this::updateChannel)
@@ -239,11 +238,11 @@ public class JavaApplication {
 
   private void editDirectMessageMenu() {
     runMenu(
-        new Menu("=====***** 다이렉트 메시지 편집 메뉴*****=====")
-            .add("다이렉트 메시지 목록 보기", () -> {})
-            .add("다이렉트 메시지 보내기", () -> {})
-            .add("다이렉트 메시지 보기", () -> {})
-            .add("다이렉트 메시지 수정하기", () -> {})
+        new Menu("=====***** 메시지 편집 메뉴*****=====")
+            .add("메시지 목록 보기", () -> {})
+            .add("메시지 보내기", () -> {})
+            .add("메시지 보기", () -> {})
+            .add("메시지 수정하기", () -> {})
             .add("뒤로가기", this::goPreviousMenu));
   }
 
@@ -1024,33 +1023,35 @@ public class JavaApplication {
   }
 
   private void joinGuild() {
-    System.out.println("\nx. 뒤로가기");
+    while (true) {
+      System.out.println("\nx. 뒤로가기");
 
-    List<Guild> guilds = guildService.findDiscoverableGuilds();
+      List<Guild> guilds = guildService.findDiscoverableGuilds();
 
-    if (guilds.isEmpty()) {
-      System.out.println("입장 가능한 서버가 없습니다.");
-      return;
-    }
+      if (guilds.isEmpty()) {
+        System.out.println("입장 가능한 서버가 없습니다.");
+        return;
+      }
 
-    printGuildList(guilds);
+      printGuildList(guilds);
 
-    Integer idx = selectGuildIndex(guilds, "입장할 서버 번호 : ");
-    if (idx == null) {
-      return;
-    }
+      Integer idx = selectGuildIndex(guilds, "입장할 서버 번호 : ");
+      if (idx == null) {
+        return;
+      }
 
-    Guild guild = guilds.get(idx);
-    if (guild.getMembers().containsKey(me.getId())) {
-      System.out.println("이미 입장한 서버입니다.");
-      return;
-    }
+      Guild guild = guilds.get(idx);
+      if (guild.getMembers().containsKey(me.getId())) {
+        System.out.println("이미 입장한 서버입니다.");
+        continue;
+      }
 
-    try {
-      guildService.addMember(guild.getId(), me.getId());
-      System.out.println(guild.getName() + " 서버에 입장했습니다.");
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+      try {
+        guildService.addMember(guild.getId(), me.getId());
+        System.out.println(guild.getName() + " 서버에 입장했습니다.");
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
     }
   }
 
@@ -1160,38 +1161,48 @@ public class JavaApplication {
   }
 
   private void changeGuildOwner() {
-    Guild guild = checkOwnershipAndReturnGuild();
-    if (guild == null) {
-      return;
-    }
-
-    List<UUID> members = new ArrayList<>(guild.getMembers().keySet());
-    for (int i = 0; i < members.size(); i++) {
-      Optional<User> member = userService.findById(members.get(i));
-      System.out.println(
-          (i + 1) + ". " + member.map(User::getEmail).orElse(members.get(i).toString()));
-    }
-
     while (true) {
-      try {
-        String memberIdxStr = InputHandler.getInputOrBack("새로운 주인(멤버) 번호 : ");
-        if (memberIdxStr == null) {
-          return;
-        }
+      Guild guild = checkOwnershipAndReturnGuild();
+      if (guild == null) {
+        return;
+      }
 
+      List<UUID> members =
+          guild.getMembers().keySet().stream()
+              .filter(id -> !id.equals(guild.getOwnerId()))
+              .toList();
+
+      if (members.isEmpty()) {
+        System.out.println("새로운 주인으로 지정할 멤버가 없습니다.");
+        return;
+      }
+
+      for (int i = 0; i < members.size(); i++) {
+        Optional<User> member = userService.findById(members.get(i));
+        System.out.println(
+            (i + 1) + ". " + member.map(User::getEmail).orElse(members.get(i).toString()));
+      }
+
+      String memberIdxStr = InputHandler.getInputOrBack("새로운 주인(멤버) 번호 : ");
+      if (memberIdxStr == null) {
+        return;
+      }
+
+      try {
         int memberIdx = Integer.parseInt(memberIdxStr);
         if (memberIdx < 1 || memberIdx > members.size()) {
-          throw new NumberFormatException("올바른 번호를 입력해주세요.");
+          System.out.println("올바른 번호를 입력해주세요.");
+          continue;
         }
 
         UUID newOwnerId = members.get(memberIdx - 1);
-        guildService.updateOwnerId(guild.getId(), me.getId(), newOwnerId);
-        if (!newOwnerId.equals(me.getId())) {
-          System.out.println(
-              "서버 주인이 변경되었습니다 : " + userService.getOrThrow(newOwnerId).getUsername());
-          break;
+        if (newOwnerId.equals(me.getId())) {
+          System.out.println("이미 서버 주인입니다.");
+          continue;
         }
-        System.out.println("이미 서버 주인입니다.");
+
+        guildService.updateOwnerId(guild.getId(), me.getId(), newOwnerId);
+        System.out.println("서버 주인이 변경되었습니다 : " + userService.getOrThrow(newOwnerId).getUsername());
       } catch (NumberFormatException e) {
         System.out.println("숫자를 입력해주세요.");
       } catch (Exception e) {
@@ -1201,80 +1212,99 @@ public class JavaApplication {
   }
 
   private void changeGuildName() {
-    Guild guild = checkOwnershipAndReturnGuild();
-    if (guild == null) {
-      return;
-    }
+    while (true) {
+      Guild guild = checkOwnershipAndReturnGuild();
+      if (guild == null) {
+        return;
+      }
 
-    System.out.println("\nx. 뒤로가기");
-    System.out.println("현재 이름 : " + guild.getName());
+      System.out.println("\nx. 뒤로가기");
+      System.out.println("현재 이름 : " + guild.getName());
 
-    String guildName = InputHandler.getInputOrBack("변경할 이름 : ");
-    if (guildName == null) {
-      return;
-    }
+      String guildName = InputHandler.getInputOrBack("변경할 이름 : ");
+      if (guildName == null) {
+        return;
+      }
 
-    try {
-      guildService.updateName(guild.getId(), guildName);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+      if (guildName.isBlank()) {
+        guildName = me.getUsername() + "님의 서버";
+      }
+
+      try {
+        guildService.updateName(guild.getId(), guildName);
+        System.out.println("서버 이름이 변경되었습니다: " + guildName);
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
     }
   }
 
   private void changeGuildPublic() {
-    Guild guild = checkOwnershipAndReturnGuild();
-    if (guild == null) {
-      return;
-    }
+    while (true) {
+      Guild guild = checkOwnershipAndReturnGuild();
+      if (guild == null) {
+        return;
+      }
 
-    System.out.println("\nx. 뒤로가기");
-    System.out.println("현재 공개 여부 : " + (guild.isDiscoverable() ? "공개" : "비공개"));
+      System.out.println("\nx. 뒤로가기");
+      System.out.println("현재 공개 여부 : " + (guild.isDiscoverable() ? "공개" : "비공개"));
 
-    Boolean isPublic = InputHandler.getYesOrNo("공개 여부");
-    if (isPublic != null) {
-      guildService.updateDiscoverable(guild.getId(), isPublic);
+      Boolean isDiscoverable = InputHandler.getYesOrNo("공개 여부");
+      if (isDiscoverable == null) {
+        return;
+      }
+
+      if (guild.isDiscoverable() == isDiscoverable) {
+        System.out.println("변경된 내용이 없습니다.");
+        continue;
+      }
+
+      guildService.updateDiscoverable(guild.getId(), isDiscoverable);
     }
   }
 
   private void kickMember() {
-    Guild guild = checkOwnershipAndReturnGuild();
-    if (guild == null) {
-      return;
-    }
-
-    Set<UUID> members = guild.getMembers().keySet();
-    System.out.println("회원 목록:");
-    int i = 1;
-    List<UUID> memberList = new ArrayList<>(members);
-    for (UUID id : memberList) {
-      Optional<User> user = userService.findById(id);
-      System.out.println(i + ". " + user.map(User::getEmail).orElse(id.toString()));
-      i++;
-    }
-
     while (true) {
-      try {
-        String indexStr = InputHandler.getInputOrBack("추방할 멤버 번호 : ");
-        if (indexStr == null) {
-          return;
-        }
+      Guild guild = checkOwnershipAndReturnGuild();
+      if (guild == null) {
+        return;
+      }
 
+      List<UUID> memberList =
+          guild.getMembers().keySet().stream()
+              .filter(id -> !id.equals(guild.getOwnerId()))
+              .toList();
+
+      if (memberList.isEmpty()) {
+        System.out.println("추방할 멤버가 없습니다.");
+        return;
+      }
+
+      System.out.println("회원 목록:");
+      for (int i = 0; i < memberList.size(); i++) {
+        Optional<User> user = userService.findById(memberList.get(i));
+        System.out.println(
+            (i + 1) + ". " + user.map(User::getEmail).orElse(memberList.get(i).toString()));
+      }
+
+      String indexStr = InputHandler.getInputOrBack("추방할 멤버 번호 : ");
+      if (indexStr == null) {
+        return;
+      }
+
+      try {
         int idx = Integer.parseInt(indexStr) - 1;
 
         if (idx < 0 || idx >= memberList.size()) {
           throw new NumberFormatException("올바른 번호를 입력해주세요.");
         }
+
         UUID memberId = memberList.get(idx);
-        if (memberId.equals(me.getId())) {
-          System.out.println("자기 자신은 추방할 수 없습니다.");
-          return;
-        }
 
         String username = userService.getOrThrow(memberId).getUsername();
         guildService.removeMember(guild.getId(), memberId);
         userService.removeGuild(memberId, guild.getId());
         System.out.println(username + " 멤버가 추방되었습니다.");
-        break;
       } catch (NumberFormatException e) {
         System.out.println("숫자를 입력해주세요.");
       } catch (Exception e) {
