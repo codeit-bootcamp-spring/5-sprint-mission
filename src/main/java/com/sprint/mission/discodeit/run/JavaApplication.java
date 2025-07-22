@@ -495,7 +495,7 @@ public class JavaApplication {
     users.forEach(
         user ->
             System.out.printf(
-                "- 닉네임: %s | 사용자명: %s | 이메일: %s | 정지: %s%n",
+                "- 별명: %s | 사용자명: %s | 이메일: %s | 정지: %s%n",
                 user.getGlobalName(),
                 user.getUsername(),
                 user.getEmail(),
@@ -711,7 +711,7 @@ public class JavaApplication {
     friends.forEach(
         f ->
             System.out.printf(
-                "- 닉네임: %s | 사용자명: %s | 이메일: %s%n",
+                "- 별명: %s | 사용자명: %s | 이메일: %s%n",
                 f.getGlobalName(), f.getUsername(), f.getEmail()));
   }
 
