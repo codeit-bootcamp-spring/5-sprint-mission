@@ -112,7 +112,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
     List<Guild> guildsToRemove = new ArrayList<>();
     for (UUID guildId : user.getGuilds()) {
       Guild guild = JcfGuildService.getInstance().getOrThrow(guildId);
-      if (guild.getOwnerId().equals(userId)) {
+      if (guild.isOwner(userId)) {
         guildsToRemove.add(guild);
       }
     }
@@ -125,7 +125,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   @Override
   public List<User> searchUsers(String keyword) {
     if (keyword == null || keyword.isBlank()) {
-      throw new IllegalArgumentException("키워드를 입력해주세요.");
+      throw new IllegalArgumentException("검색어를 입력해주세요.");
     }
 
     return data.stream()

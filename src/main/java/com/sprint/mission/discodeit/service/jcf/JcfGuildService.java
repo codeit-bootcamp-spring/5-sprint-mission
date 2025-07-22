@@ -35,27 +35,31 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
   @Override
   public List<Guild> findDiscoverableGuilds() {
-    return data.stream().filter(Guild::isDiscoverable).toList();
+    return findAll().stream().filter(Guild::isDiscoverable).toList();
   }
 
   @Override
   public List<Guild> findGuildsOwnedByUser(UUID userId) {
     userService.getOrThrow(userId);
-    return data.stream().filter(g -> g.getOwnerId().equals(userId)).toList();
+    return findAll().stream().filter(g -> g.isOwner(userId)).toList();
   }
 
   @Override
   public List<Guild> searchGuilds(String keyword) {
     if (keyword == null || keyword.isBlank()) {
-      throw new IllegalArgumentException("키워드를 입력해주세요.");
+      throw new IllegalArgumentException("검색어를 입력해주세요.");
     }
 
     return data.stream().filter(g -> !g.isDeleted() && g.getName().contains(keyword)).toList();
   }
 
   @Override
-  public void deleteGuild(UUID guildId) {
+  public void deleteGuild(UUID guildId, UUID ownerId) {
     Guild guild = getOrThrow(guildId);
+
+    if (!guild.isOwner(ownerId)) {
+      throw new IllegalArgumentException("삭제할 권한이 없습니다.");
+    }
 
     for (UUID userId : guild.getMembers().keySet()) {
       userService.removeGuild(userId, guildId);
@@ -78,15 +82,15 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   public void updateOwnerId(UUID guildId, UUID oldOwnerId, UUID newOwnerId) {
     userService.getOrThrow(oldOwnerId);
     userService.getOrThrow(newOwnerId);
-    if (!oldOwnerId.equals(getOrThrow(guildId).getOwnerId())) {
-      throw new IllegalArgumentException("길드장 변경 권한이 없습니다.");
+    if (!getOrThrow(guildId).isOwner(oldOwnerId)) {
+      throw new IllegalArgumentException("서버장 변경 권한이 없습니다.");
     }
 
     update(
         guildId,
         g -> {
           if (!g.isMember(newOwnerId)) {
-            throw new IllegalArgumentException("해당 유저는 이 길드의 멤버가 아닙니다.");
+            throw new IllegalArgumentException("해당 유저는 이 서버의 멤버가 아닙니다.");
           }
           g.setOwnerId(newOwnerId);
         });
@@ -111,11 +115,15 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   @Override
   public void addMember(UUID guildId, UUID member) {
     userService.getOrThrow(member);
+    userService.addGuild(member, guildId);
     update(guildId, g -> g.addMember(member));
   }
 
   @Override
   public void removeMember(UUID guildId, UUID member) {
+    if (getOrThrow(guildId).isOwner(member)) {
+      throw new IllegalArgumentException("서버장 이전 후 퇴장이 가능합니다");
+    }
     update(guildId, g -> g.removeMember(member));
   }
 

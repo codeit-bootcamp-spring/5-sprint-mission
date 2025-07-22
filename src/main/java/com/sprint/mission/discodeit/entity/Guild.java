@@ -56,6 +56,10 @@ public class Guild extends BaseEntity {
     updateMemberPermissions(ownerId, Set.of(Permission.ADMINISTRATOR));
   }
 
+  public boolean isOwner(UUID userId) {
+    return userId.equals(ownerId);
+  }
+
   public List<Channel> getChannels() {
     return Collections.unmodifiableList(channels);
   }
