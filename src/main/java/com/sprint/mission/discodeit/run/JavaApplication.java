@@ -1075,7 +1075,7 @@ public class JavaApplication {
       Guild guild = guilds.get(idx);
 
       if (guild.isOwner(me.getId())) {
-        System.out.println("서버장 이전 후 퇴장이 가능합니다.");
+        System.out.println("서버 주인 변경 후 퇴장이 가능합니다.");
         continue;
       }
 

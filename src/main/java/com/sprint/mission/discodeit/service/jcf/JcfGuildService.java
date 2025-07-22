@@ -83,7 +83,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
     userService.getOrThrow(oldOwnerId);
     userService.getOrThrow(newOwnerId);
     if (!getOrThrow(guildId).isOwner(oldOwnerId)) {
-      throw new IllegalArgumentException("서버장 변경 권한이 없습니다.");
+      throw new IllegalArgumentException("서버 주인 변경 권한이 없습니다.");
     }
 
     update(
@@ -122,7 +122,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
   @Override
   public void removeMember(UUID guildId, UUID member) {
     if (getOrThrow(guildId).isOwner(member)) {
-      throw new IllegalArgumentException("서버장 이전 후 퇴장이 가능합니다");
+      throw new IllegalArgumentException("서버 주인 변경 후 퇴장이 가능합니다");
     }
     update(guildId, g -> g.removeMember(member));
   }
