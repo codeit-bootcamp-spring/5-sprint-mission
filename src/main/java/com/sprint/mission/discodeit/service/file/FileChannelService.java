@@ -3,23 +3,96 @@ package com.sprint.mission.discodeit.service.file;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class FileChannelService implements ChannelService {
+
+    private final Path directory;
+
+    public Path getDirectory() {
+        return directory;
+    }
+
+    public FileChannelService(Path directory) {
+        this.directory = directory;
+        initPath(directory);
+    }
+
+    public void initPath(Path directory) {
+        if (!Files.exists(directory)) {
+            try {
+                Files.createDirectories(directory);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void save(Channel channel) {
+        Path channelDirectory = Path.of(directory.toString() + "/" + channel.getId());
+
+        try (FileOutputStream fos = new FileOutputStream(channelDirectory.toFile());
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            oos.writeObject(channel);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Channel> load(Path directory) {
+        if (Files.exists(directory)) {
+            try {
+                List<Channel> channels = Files.list(directory)
+                        .map(path -> {
+                            try (FileInputStream fis = new FileInputStream(path.toFile());
+                                 ObjectInputStream ois = new ObjectInputStream(fis);) {
+                                Object data = ois.readObject();
+                                return (Channel) data;
+                            } catch (IOException | ClassNotFoundException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }).toList();
+                return channels;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     @Override
     public void create(Channel channel) {
-
+        if (!load(directory).contains(channel)) {
+            save(channel);
+        } else {
+            System.out.println("이미 존재하는 채널입니다.");
+        }
     }
 
     @Override
     public void update(Channel channel) {
-
+        delete(channel);
+        save(channel);
     }
 
     @Override
     public void delete(Channel channel) {
-
+        Path channelDirectory = Path.of(directory.toString() + "/" + channel.getId());
+        if (Files.exists(channelDirectory)) {
+            try {
+                Files.delete(channelDirectory);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            System.out.println("존재하지 않는 채널입니다.");
+        }
     }
 
     @Override
@@ -29,16 +102,28 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public List<Channel> searchByName(String name) {
-        return List.of();
+        List<Channel> channels = new ArrayList<>();
+        for (Channel channel : load(directory)) {
+            if (channel.getName().contains(name)) {
+                channels.add(channel);
+            }
+        }
+
+        return channels;
     }
 
     @Override
     public Channel searchById(UUID id) {
+        for (Channel channel : load(directory)) {
+            if (channel.getId().equals(id)) {
+                return channel;
+            }
+        }
         return null;
     }
 
     @Override
     public List<Channel> searchAll() {
-        return List.of();
+        return load(directory);
     }
 }
