@@ -37,6 +37,12 @@ public class FileChannelRepository implements ChannelRepository {
         writeToFile();
     }
 
+    @Override
+    public void deleteAll() {
+        data.clear();
+        writeToFile();
+    }
+
     private Map<UUID, Channel> readFromFile() {
 
         if (!file.exists()) {

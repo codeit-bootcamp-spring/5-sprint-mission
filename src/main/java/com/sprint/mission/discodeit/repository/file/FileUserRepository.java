@@ -37,6 +37,12 @@ public class FileUserRepository implements UserRepository {
         writeToFile();
     }
 
+    @Override
+    public void deleteAll() {
+        data.clear();
+        writeToFile();
+    }
+
     private Map<UUID, User> readFromFile() {
 
         if (!file.exists()) {

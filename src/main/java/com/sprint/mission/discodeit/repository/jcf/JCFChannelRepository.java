@@ -28,4 +28,9 @@ public class JCFChannelRepository implements ChannelRepository {
     public void deleteById(UUID id) {
         data.remove(id);
     }
+
+    @Override
+    public void deleteAll() {
+        data.clear();
+    }
 }

@@ -54,4 +54,9 @@ public class FileMessageService implements MessageService {
             messageRepository.deleteById(id);
         }
     }
+
+    @Override
+    public void deleteAll() {
+        messageRepository.deleteAll();
+    }
 }

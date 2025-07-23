@@ -15,4 +15,6 @@ public interface UserService {
     User update(UUID id, String name, boolean isOnline);
 
     void delete(UUID id);
+
+    void deleteAll();
 }

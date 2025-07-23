@@ -43,13 +43,10 @@ public class JavaApplication {
         JCFChannelService channelService = new JCFChannelService(jcfChannelRepository);
         JCFMessageService messageService = new JCFMessageService(jcfMessageRepository);
 
-        ChannelManageService channelManageService = new ChannelManageService(channelService, userService);
-        ChatService chatService = new ChatService(messageService, channelService);
-
         testUserService(userService);
         testChannelService(channelService);
         testMessageService(messageService);
-        testService(channelManageService, chatService, userService, channelService);
+        testCoreService(messageService, userService, channelService);
         System.out.println("============= JCF Service 테스트 끝 =============");
     }
 
@@ -64,13 +61,10 @@ public class JavaApplication {
         FileUserService fileUserService = new FileUserService(fileUserRepository);
         FileMessageService fileMessageService = new FileMessageService(fileMessageRepository);
 
-        ChannelManageService channelManageService = new ChannelManageService(fileChannelService, fileUserService);
-        ChatService chatService = new ChatService(fileMessageService, fileChannelService);
-
         testUserService(fileUserService);
         testChannelService(fileChannelService);
         testMessageService(fileMessageService);
-        testService(channelManageService, chatService, fileUserService, fileChannelService);
+        testCoreService(fileMessageService, fileUserService, fileChannelService);
         System.out.println("============= File Service 테스트 끝 =============");
     }
 
@@ -81,17 +75,14 @@ public class JavaApplication {
         JCFUserRepository jcfUserRepository = new JCFUserRepository();
         JCFMessageRepository jcfMessageRepository = new JCFMessageRepository();
 
-        BasicUserService userService = new BasicUserService(jcfUserRepository);
-        BasicChannelService channelService = new BasicChannelService(jcfChannelRepository);
-        BasicMessageService messageService = new BasicMessageService(jcfMessageRepository);
-
-        ChannelManageService channelManageService = new ChannelManageService(channelService, userService);
-        ChatService chatService = new ChatService(messageService, channelService);
+        UserService userService = new BasicUserService(jcfUserRepository);
+        ChannelService channelService = new BasicChannelService(jcfChannelRepository);
+        MessageService messageService = new BasicMessageService(jcfMessageRepository);
 
         testUserService(userService);
         testChannelService(channelService);
         testMessageService(messageService);
-        testService(channelManageService, chatService, userService, channelService);
+        testCoreService(messageService, userService, channelService);
         System.out.println("============= Basic JCF Service 테스트 시작 =============");
 
         System.out.println("============= Basic File Service 테스트 시작 =============");
@@ -100,17 +91,14 @@ public class JavaApplication {
         FileUserRepository fileUserRepository = new FileUserRepository();
         FileMessageRepository fileMessageRepository = new FileMessageRepository();
 
-        BasicUserService fileUserService = new BasicUserService(fileUserRepository);
-        BasicChannelService fileChannelService = new BasicChannelService(fileChannelRepository);
-        BasicMessageService fileMessageService = new BasicMessageService(fileMessageRepository);
-
-        ChannelManageService channelManageService2 = new ChannelManageService(fileChannelService, fileUserService);
-        ChatService chatService2 = new ChatService(fileMessageService, fileChannelService);
+        UserService fileUserService = new BasicUserService(fileUserRepository);
+        ChannelService fileChannelService = new BasicChannelService(fileChannelRepository);
+        MessageService fileMessageService = new BasicMessageService(fileMessageRepository);
 
         testUserService(fileUserService);
         testChannelService(fileChannelService);
         testMessageService(fileMessageService);
-        testService(channelManageService2, chatService2, fileUserService, fileChannelService);
+        testCoreService(fileMessageService, fileUserService, fileChannelService);
         System.out.println("============= Basic File Service 테스트 끝 =============");
     }
 
@@ -141,6 +129,7 @@ public class JavaApplication {
         userService.delete(target.getId());
         System.out.println("채널 목록 : " + userService.getAll());
 
+        userService.deleteAll();
         System.out.println("============= 유저 테스트 끝 =============");
 
     }
@@ -178,6 +167,7 @@ public class JavaApplication {
         channelService.delete(target.getId());
         System.out.println("채널 목록 : " + channelService.getAll());
 
+        channelService.deleteAll();
         System.out.println("============= 채널 테스트 끝 =============");
     }
 
@@ -214,13 +204,18 @@ public class JavaApplication {
         System.out.println("Update Target Message 삭제");
         messageService.delete(target.getId());
         System.out.println("Message 목록 : " + messageService.getAll());
+
+        messageService.deleteAll();
         System.out.println("============= 메세지 테스트 끝 =============");
 
     }
 
-    public static void testService(ChannelManageService channelManageService, ChatService chatService, UserService userService, ChannelService channelService) {
+    public static void testCoreService(MessageService messageService, UserService userService, ChannelService channelService) {
 
         System.out.println("============= 채팅, 채널관리 테스트 시작 =============");
+
+        ChannelManageService channelManageService = new ChannelManageService(channelService, userService);
+        ChatService chatService = new ChatService(messageService, channelService);
 
         // 유저 생성
         User adminUser = new User("adminUser", true);
@@ -252,7 +247,8 @@ public class JavaApplication {
         channelManageService.listUsersInChannel(channel.getId())
             .forEach(u -> System.out.println("- " + u.getName()));
 
-
+        userService.deleteAll();
+        channelService.deleteAll();
         System.out.println("============= 채팅, 채널관리 테스트 끝 =============");
     }
 }

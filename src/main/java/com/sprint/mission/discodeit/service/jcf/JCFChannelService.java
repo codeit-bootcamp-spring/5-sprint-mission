@@ -55,4 +55,9 @@ public class JCFChannelService implements ChannelService {
             channelRepository.deleteById(id);
         }
     }
+
+    @Override
+    public void deleteAll() {
+        channelRepository.deleteAll();
+    }
 }

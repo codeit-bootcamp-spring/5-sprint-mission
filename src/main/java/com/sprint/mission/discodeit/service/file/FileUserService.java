@@ -54,4 +54,9 @@ public class FileUserService implements UserService {
             userRepository.deleteById(id);
         }
     }
+
+    @Override
+    public void deleteAll() {
+        userRepository.deleteAll();
+    }
 }

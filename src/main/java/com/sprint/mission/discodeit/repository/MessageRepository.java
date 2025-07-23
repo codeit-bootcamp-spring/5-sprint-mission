@@ -13,4 +13,6 @@ public interface MessageRepository {
     List<Message> findAll();
 
     void deleteById(UUID id);
+
+    void deleteAll();
 }

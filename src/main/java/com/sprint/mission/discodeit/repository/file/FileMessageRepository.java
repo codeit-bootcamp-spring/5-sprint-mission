@@ -37,6 +37,12 @@ public class FileMessageRepository implements MessageRepository {
         writeToFile();
     }
 
+    @Override
+    public void deleteAll() {
+        data.clear();
+        writeToFile();
+    }
+
     private Map<UUID, Message> readFromFile() {
 
         if (!file.exists()) {

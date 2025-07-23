@@ -54,4 +54,9 @@ public class BasicChannelService implements ChannelService {
             channelRepository.deleteById(id);
         }
     }
+
+    @Override
+    public void deleteAll() {
+        channelRepository.deleteAll();
+    }
 }

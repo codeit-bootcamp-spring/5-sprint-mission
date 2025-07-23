@@ -54,4 +54,9 @@ public class BasicUserService implements UserService {
             userRepository.deleteById(id);
         }
     }
+
+    @Override
+    public void deleteAll() {
+        userRepository.deleteAll();
+    }
 }
