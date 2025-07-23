@@ -1,17 +1,17 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class JCFUserService implements UserService {
-    final List<User> data;
+    private final JCFUserRepository userRepository;
 
-    public JCFUserService() {
-        data = new ArrayList<>();
+    public JCFUserService(JCFUserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -21,23 +21,22 @@ public class JCFUserService implements UserService {
             return null;
         }
 
-        data.add(user);
-        return user;
+        return userRepository.save(user);
     }
 
     @Override
     public List<User> getAll() {
-        return data;
+        return userRepository.findAll();
     }
 
     @Override
     public User get(UUID id) {
-        return data.stream().filter(u -> u.getId().equals(id)).findFirst().orElse(null);
+        return userRepository.findById(id);
     }
 
     @Override
     public User update(UUID id, String name, boolean isOnline) {
-        User user = data.stream().filter(u -> u.getId().equals(id)).findFirst().orElse(null);
+        User user = userRepository.findById(id);
 
         if (user == null) {
             return null;
@@ -49,9 +48,10 @@ public class JCFUserService implements UserService {
 
     @Override
     public void delete(UUID id) {
-        User target = data.stream().filter(u -> u.getId().equals(id)).findFirst().orElse(null);
-        if (target != null) {
-            data.remove(target);
+        User user = userRepository.findById(id);
+
+        if (user != null) {
+            userRepository.deleteById(id);
         }
     }
 }

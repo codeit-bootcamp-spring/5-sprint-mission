@@ -1,17 +1,17 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class JCFMessageService implements MessageService {
-    final List<Message> data;
+    private final JCFMessageRepository messageRepository;
 
-    public JCFMessageService() {
-        data = new ArrayList<>();
+    public JCFMessageService(JCFMessageRepository messageRepository) {
+        this.messageRepository = messageRepository;
     }
 
     @Override
@@ -21,38 +21,37 @@ public class JCFMessageService implements MessageService {
             return null;
         }
 
-        data.add(message);
-        return message;
+        return messageRepository.save(message);
     }
 
     @Override
     public List<Message> getAll() {
-        return data;
+        return messageRepository.findAll();
     }
 
     @Override
     public Message get(UUID id) {
-        return data.stream().filter(m -> m.getId().equals(id)).findFirst().orElse(null);
+        return messageRepository.findById(id);
     }
 
     @Override
     public Message update(UUID id, String text) {
-        Message message = data.stream().filter(m -> m.getId().equals(id)).findFirst().orElse(null);
+        Message message = messageRepository.findById(id);
 
         if (message == null) {
             return null;
         }
 
         message.update(text);
-        return message;
+        return messageRepository.save(message);
     }
 
     @Override
     public void delete(UUID id) {
-        Message message = data.stream().filter(m -> m.getId().equals(id)).findFirst().orElse(null);
+        Message message = messageRepository.findById(id);
 
         if (message != null) {
-            data.remove(message);
+            messageRepository.deleteById(id);
         }
     }
 }
