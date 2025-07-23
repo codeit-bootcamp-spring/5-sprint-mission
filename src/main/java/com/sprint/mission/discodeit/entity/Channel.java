@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
-public class Channel extends Base {
+import java.io.Serializable;
+
+public class Channel extends Base implements Serializable {
     private String name;
     private String topic;
 
@@ -20,6 +22,7 @@ public class Channel extends Base {
             throw new IllegalArgumentException("채널 이름은 null이 될 수 없습니다.");
         }
         this.name = name;
+        updateTimestamp();
     }
 
     public String getTopic() {return topic;}

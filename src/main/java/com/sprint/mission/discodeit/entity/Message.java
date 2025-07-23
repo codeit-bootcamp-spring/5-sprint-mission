@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
-public class Message extends Base{
+import java.io.Serializable;
+
+public class Message extends Base implements Serializable {
 
     private final User sender; //발신자는 변경할 수 없음
     private Channel channel;
