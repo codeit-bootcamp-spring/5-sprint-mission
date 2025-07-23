@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.channel.ChannelType;
+import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.service.jcf.JcfChannelService;
 import com.sprint.mission.discodeit.service.jcf.JcfFriendRequestService;
 import com.sprint.mission.discodeit.service.jcf.JcfGuildService;
@@ -663,24 +664,28 @@ public class JavaApplication {
   }
 
   private void changeStatus() {
-    printGuidePrevious();
     while (true) {
       try {
-        String oldPhoneNumber = me.getPhoneNumber();
-        String newPhoneNumber;
-        System.out.println("현재 휴대폰 번호 : " + oldPhoneNumber);
-        newPhoneNumber = InputHandler.getInputOrBack("변경할 휴대폰 번호 : ");
-        if (newPhoneNumber == null) {
+        printGuidePrevious();
+        System.out.println("현재 상태 : " + me.getStatus());
+        for (int i = 0; i < Status.values().length; i++) {
+          System.out.println((i + 1) + ". " + Status.values()[i]);
+        }
+
+        String idxStr = InputHandler.getInputOrBack("선택 : ");
+        if (idxStr == null) {
           return;
         }
 
-        if (newPhoneNumber.equals(oldPhoneNumber)) {
-          System.out.println("동일한 휴대폰 번호입니다.");
+        Status status = Status.values()[Integer.parseInt(idxStr) - 1];
+
+        if (status.equals(me.getStatus())) {
           continue;
         }
 
-        newPhoneNumber = Validators.validatePhoneNumber(newPhoneNumber);
-        userService.updatePhoneNumber(me.getId(), newPhoneNumber);
+        userService.updateStatus(me.getId(), status);
+      } catch (NumberFormatException e) {
+        System.out.println("숫자를 입력해주세요.");
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }
