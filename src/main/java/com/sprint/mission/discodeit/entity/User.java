@@ -27,31 +27,49 @@ public class User implements Serializable {
 
     }
 
-    public void updateNickName(String nickName){
-        this.name = nickName;
-        this.updatedAt = System.currentTimeMillis();
-    }
-
+    // 3. Getter
     public UUID getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public Long getCreatedAt() {
+        return createdAt;
     }
 
     public Long getUpdatedAt() {
         return updatedAt;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    // 4. 업데이트 메서드
+    public void updatedName(String name){
+        this.name = name;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("User{");
-        sb.append("id=").append(id);
-        sb.append(", nickName='").append(name).append('\'');
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append('}');
-        return sb.toString();
+        return "User{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
+
+
 }
