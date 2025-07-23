@@ -24,6 +24,7 @@ public class User implements Serializable {
         this.name = name;
         this.email = email;
         this.password = password;
+
     }
 
     public void updateNickName(String nickName){
