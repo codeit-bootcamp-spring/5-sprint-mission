@@ -136,6 +136,10 @@ public class JavaApplication {
     System.out.println("\n*뒤로가기*");
   }
 
+  private void printGuidePrevious() {
+    System.out.println("\nx. 뒤로가기");
+  }
+
   private void mainMenu() {
     userService.setFriendRequestService(friendRequestService);
     userService.setGuildService(guildService);
@@ -176,7 +180,8 @@ public class JavaApplication {
             .add("비밀번호 변경", this::changePassword)
             .add("생년월일 변경", this::changeBirthDate)
             .add("이메일로 소식 받기 변경", this::changeIsSubscribedToNewsletter)
-            .add("휴대폰 번호 등록/변경", this::changePhoneNumber)
+            .add("휴대폰 번호 변경", this::changePhoneNumber)
+            .add("상태 변경", this::changeStatus)
             .add("회원 탈퇴", this::deleteAccount)
             .add("뒤로가기", this::goPreviousMenu));
   }
@@ -247,7 +252,7 @@ public class JavaApplication {
   }
 
   private void register() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
 
     String email;
     while (true) {
@@ -333,7 +338,7 @@ public class JavaApplication {
   }
 
   private void login() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
 
     while (true) {
       String email = InputHandler.getValidEmail("이메일 : ");
@@ -378,7 +383,7 @@ public class JavaApplication {
 
   private void findUserByEmail() {
     while (true) {
-      System.out.println("\nx. 뒤로가기");
+      printGuidePrevious();
       String email = InputHandler.getValidEmail("이메일 : ");
       if (email == null) {
         return;
@@ -391,7 +396,7 @@ public class JavaApplication {
   }
 
   private void searchUsers() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     while (true) {
       String keyword = InputHandler.getInputOrBack("검색할 사용자명, 별명 또는 이메일 입력 : ");
       if (keyword == null) {
@@ -430,7 +435,7 @@ public class JavaApplication {
       System.out.println("\n정지되지 않은 유저 목록:");
       activeUsers.forEach(u -> System.out.println("- " + u.getEmail()));
 
-      System.out.println("\nx. 뒤로가기");
+      printGuidePrevious();
 
       String email = InputHandler.getValidEmail("정지시킬 유저의 이메일 : ");
       if (email == null) {
@@ -464,7 +469,7 @@ public class JavaApplication {
       System.out.println("\n정지된 유저 목록:");
       activeUsers.forEach(u -> System.out.println("- " + u.getEmail()));
 
-      System.out.println("\nx. 뒤로가기");
+      printGuidePrevious();
 
       String email = InputHandler.getValidEmail("정지 해제할 유저의 이메일 : ");
       if (email == null) {
@@ -503,7 +508,7 @@ public class JavaApplication {
   }
 
   private void changeEmail() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     System.out.println("현재 이메일 : " + me.getEmail());
 
     while (true) {
@@ -533,7 +538,7 @@ public class JavaApplication {
   }
 
   private void changeGlobalName() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     String globalName;
     while (true) {
       System.out.println("현재 별명 : " + me.getGlobalName());
@@ -552,7 +557,7 @@ public class JavaApplication {
   }
 
   private void changeUsername() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     String oldUsername = me.getUsername();
     String newUsername;
     while (true) {
@@ -573,7 +578,7 @@ public class JavaApplication {
 
   private void changePassword() {
     while (true) {
-      System.out.println("\nx. 뒤로가기");
+      printGuidePrevious();
       try {
         String password = InputHandler.getValidPassword("변경할 비밀번호 : ");
         if (password == null) {
@@ -594,7 +599,7 @@ public class JavaApplication {
   }
 
   private void changeBirthDate() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     while (true) {
       try {
         System.out.println("현재 생년월일 : " + me.getBirthDate());
@@ -614,7 +619,7 @@ public class JavaApplication {
   }
 
   private void changeIsSubscribedToNewsletter() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     while (true) {
       try {
         System.out.println("현재 이메일 소식 수신 여부 : " + (me.isSubscribedToNewsletter() ? "yes" : "no"));
@@ -633,7 +638,32 @@ public class JavaApplication {
   }
 
   private void changePhoneNumber() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
+    while (true) {
+      try {
+        String oldPhoneNumber = me.getPhoneNumber();
+        String newPhoneNumber;
+        System.out.println("현재 휴대폰 번호 : " + oldPhoneNumber);
+        newPhoneNumber = InputHandler.getInputOrBack("변경할 휴대폰 번호 : ");
+        if (newPhoneNumber == null) {
+          return;
+        }
+
+        if (newPhoneNumber.equals(oldPhoneNumber)) {
+          System.out.println("동일한 휴대폰 번호입니다.");
+          continue;
+        }
+
+        newPhoneNumber = Validators.validatePhoneNumber(newPhoneNumber);
+        userService.updatePhoneNumber(me.getId(), newPhoneNumber);
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }
+  }
+
+  private void changeStatus() {
+    printGuidePrevious();
     while (true) {
       try {
         String oldPhoneNumber = me.getPhoneNumber();
@@ -658,7 +688,7 @@ public class JavaApplication {
   }
 
   private void deleteAccount() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     while (true) {
       System.out.println("1. 계정 비활성화");
       System.out.println("2. 계정 삭제");
@@ -716,7 +746,7 @@ public class JavaApplication {
   }
 
   private void sendFriendRequest() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     while (true) {
       String email = InputHandler.getValidEmail("친구 요청할 이메일 : ");
       if (email == null) {
@@ -773,7 +803,7 @@ public class JavaApplication {
         System.out.println((i + 1) + ". " + senderInfo);
       }
 
-      System.out.println("\nx. 뒤로가기");
+      printGuidePrevious();
       while (true) {
         String idxStr = InputHandler.getInputOrBack("선택 : ");
         if (idxStr == null) {
@@ -830,7 +860,7 @@ public class JavaApplication {
         System.out.println((i + 1) + ". " + receiverInfo);
       }
 
-      System.out.println("\nx. 뒤로가기");
+      printGuidePrevious();
       String idxStr = InputHandler.getInputOrBack("취소할 요청 선택 : ");
       if (idxStr == null) {
         return;
@@ -878,7 +908,7 @@ public class JavaApplication {
             "%d. %s (%s, %s)\n", i + 1, f.getGlobalName(), f.getUsername(), f.getEmail());
       }
 
-      System.out.println("\nx. 뒤로가기");
+      printGuidePrevious();
       String idxStr = InputHandler.getInputOrBack("삭제할 친구 번호: ");
       if (idxStr == null) {
         return;
@@ -949,7 +979,7 @@ public class JavaApplication {
   }
 
   private void createGuild() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     while (true) {
       String name = InputHandler.getInputOrBack("서버 이름 : ");
       if (name == null || name.isBlank()) {
@@ -982,7 +1012,7 @@ public class JavaApplication {
   }
 
   private void deleteGuild() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     while (true) {
       List<Guild> guilds = guildService.findGuildsOwnedByUser(me.getId());
       if (guilds.isEmpty()) {
@@ -1024,7 +1054,7 @@ public class JavaApplication {
 
   private void joinGuild() {
     while (true) {
-      System.out.println("\nx. 뒤로가기");
+      printGuidePrevious();
 
       List<Guild> guilds = guildService.findDiscoverableGuilds();
 
@@ -1056,7 +1086,7 @@ public class JavaApplication {
   }
 
   private void exitGuild() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
 
     while (true) {
       List<Guild> guilds = userService.getGuilds(me.getId()).stream().toList();
@@ -1090,7 +1120,7 @@ public class JavaApplication {
   }
 
   private void openGuild() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
 
     List<Guild> guilds = userService.getGuilds(me.getId()).stream().toList();
 
@@ -1114,7 +1144,7 @@ public class JavaApplication {
   }
 
   private void searchGuild() {
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     while (true) {
       String keyword = InputHandler.getInputOrBack("검색할 서버명 : ");
       if (keyword == null) {
@@ -1218,7 +1248,7 @@ public class JavaApplication {
         return;
       }
 
-      System.out.println("\nx. 뒤로가기");
+      printGuidePrevious();
       System.out.println("현재 이름 : " + guild.getName());
 
       String guildName = InputHandler.getInputOrBack("변경할 이름 : ");
@@ -1246,7 +1276,7 @@ public class JavaApplication {
         return;
       }
 
-      System.out.println("\nx. 뒤로가기");
+      printGuidePrevious();
       System.out.println("현재 공개 여부 : " + (guild.isDiscoverable() ? "공개" : "비공개"));
 
       Boolean isDiscoverable = InputHandler.getYesOrNo("공개 여부");
@@ -1380,7 +1410,7 @@ public class JavaApplication {
       return;
     }
 
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     showChannels();
     while (true) {
       String idxStr = InputHandler.getInputOrBack("수정할 채널 번호 : ");
@@ -1441,7 +1471,7 @@ public class JavaApplication {
       return;
     }
 
-    System.out.println("\nx. 뒤로가기");
+    printGuidePrevious();
     showChannels();
     while (true) {
       String idxStr = InputHandler.getInputOrBack("삭제할 채널 번호 : ");
