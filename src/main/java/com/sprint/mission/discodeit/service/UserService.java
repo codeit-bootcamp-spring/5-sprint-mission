@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.service;
 import java.util.List;
 import java.util.UUID;
 
-import com.sprint.mission.discodeit.entity.ROLE;
 import com.sprint.mission.discodeit.entity.User;
 
 public interface UserService {

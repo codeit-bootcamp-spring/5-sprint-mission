@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 
 public interface MessageService {
 	// 생성
@@ -20,6 +19,6 @@ public interface MessageService {
 	boolean updateMessage(UUID messageUUID, UUID authorUUID, String text);
 
 	// 삭제
-	boolean deleteMessage(UUID messageUUID, UUID authorUUID);
+	void deleteMessage(UUID messageUUID, UUID authorUUID);
 
 }

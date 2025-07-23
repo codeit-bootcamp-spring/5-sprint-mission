@@ -1,5 +1,14 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,19 +19,27 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.FileService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 
-public class JCFMessageService implements MessageService {
+public class FileMessageService implements MessageService, FileService {
+	private static final String DATA_DIR = "data/";
+	private static final String MESSAGES_FILE = DATA_DIR + "messages";
+
 	private final Map<UUID, Message> messageMap;
 	// 참조
 	private final UserService userService;
 	private final ChannelService channelService;
 
-	public JCFMessageService(UserService userService, ChannelService channelService) {
-		messageMap = new ConcurrentHashMap<>();
+	public FileMessageService(UserService userService, ChannelService channelService) {
 		this.userService = userService;
 		this.channelService = channelService;
+
+		messageMap = new ConcurrentHashMap<>();
+
+		createDirectoryIfNotExists();
+		loadFile(MESSAGES_FILE, messageMap);
 	}
 
 	@Override
@@ -41,6 +58,11 @@ public class JCFMessageService implements MessageService {
 
 		messageMap.put(message.getId(), message);
 		channel.addMessage(message.getId());
+
+		saveFile(MESSAGES_FILE, messageMap);
+		if (channelService instanceof FileChannelService) {
+			((FileChannelService) channelService).saveChannelData();
+		}
 
 		return true;
 	}
@@ -106,6 +128,8 @@ public class JCFMessageService implements MessageService {
 		message.updateText(text);
 		message.updateUpdatedAt();
 
+		saveFile(MESSAGES_FILE, messageMap);
+
 		return true;
 	}
 
@@ -125,7 +149,40 @@ public class JCFMessageService implements MessageService {
 			channel.removeMessage(messageUUID);
 		}
 
+		saveFile(MESSAGES_FILE, messageMap);
+
 	}
 
+	@Override
+	public void createDirectoryIfNotExists() {
+		try {
+			Path dataPath = Paths.get(DATA_DIR);
+			if (!Files.exists(dataPath)) {
+				Files.createDirectories(dataPath);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
+	@Override
+	public void loadFile(String filename, Map map) {
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
+			Map load = (Map) ois.readObject();
+			map.putAll(load);
+		} catch (FileNotFoundException ignored) {
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void saveFile(String filename, Object data) {
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
+			oos.writeObject(data);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

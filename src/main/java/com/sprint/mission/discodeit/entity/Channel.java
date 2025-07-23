@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class Channel {
+public class Channel implements Serializable {
+	@Serial
+	private static final long serialVersionUID = 1L;
+
 	private final UUID id;
 	private final Long createdAt;
 	private Long updatedAt;

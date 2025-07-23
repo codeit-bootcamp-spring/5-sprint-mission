@@ -1,18 +1,27 @@
+package main.java;
+
 import java.util.List;
 import java.util.Scanner;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 public class BasicTest {
 	private final Scanner sc = new Scanner(System.in);
-	private final JCFUserService userService = new JCFUserService();
-	private final JCFChannelService channelService = new JCFChannelService();
-	private final JCFMessageService messageService = new JCFMessageService(userService, channelService);
+	// private final JCFUserService userService = new JCFUserService();
+	// private final JCFChannelService channelService = new JCFChannelService();
+	// private final JCFMessageService messageService = new JCFMessageService(userService, channelService);
+
+	private final FileUserService userService = new FileUserService();
+	private final FileChannelService channelService = new FileChannelService();
+	private final FileMessageService messageService = new FileMessageService(userService, channelService);
 
 	public void run() {
 		System.out.println("=====유저 서비스 테스트=====");
@@ -40,11 +49,19 @@ public class BasicTest {
 		System.out.print("닉네임을 입력하세요: ");
 		String nickname = sc.nextLine();
 		User newUser = userService.createUser(loginId, password, nickname);
-		userDummy = userService.getUser(loginId);
-		System.out.println("ID: " + userDummy.getId());
-		System.out.println("로그인 ID: " + userDummy.getLoginId());
-		System.out.println("닉네임: " + userDummy.getDefaultNickname());
-		System.out.println("생성 시간: " + userDummy.getCreatedAt());
+		userDummy = userService.login(loginId, password);
+		if (userDummy == null) {
+			System.out.println("로그인 실패");
+			System.out.println("test1/pw123 으로 로그인 설정");
+
+			loginId = "test1";
+			password = "pw123";
+		} else {
+			System.out.println("ID: " + userDummy.getId());
+			System.out.println("로그인 ID: " + userDummy.getLoginId());
+			System.out.println("닉네임: " + userDummy.getDefaultNickname());
+			System.out.println("생성 시간: " + userDummy.getCreatedAt());
+		}
 
 		System.out.println("로그인 테스트");
 		User loginSuccess = userService.login("test1", "pw123");

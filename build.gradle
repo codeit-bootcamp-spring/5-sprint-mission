@@ -2,6 +2,14 @@ plugins {
     id 'java'
 }
 
+compileJava {
+    exclude 'excluded/**'
+}
+
+compileTestJava {
+    exclude 'excluded/**'
+}
+
 group = 'com.sprint.mission'
 version = '1.0-SNAPSHOT'
 
