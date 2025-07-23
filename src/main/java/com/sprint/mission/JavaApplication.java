@@ -10,6 +10,9 @@ import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.*;
+import com.sprint.mission.discodeit.service.basic.BasicChannelService;
+import com.sprint.mission.discodeit.service.basic.BasicMessageService;
+import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import com.sprint.mission.discodeit.service.core.ChannelManageService;
 import com.sprint.mission.discodeit.service.core.ChatService;
 import com.sprint.mission.discodeit.service.file.FileChannelService;
@@ -24,8 +27,9 @@ import java.util.List;
 public class JavaApplication {
     public static void main(String[] args) {
 
-//        testJCFService();
+        testJCFService();
         testFileService();
+        testBasicService();
     }
 
     public static void testJCFService() {
@@ -68,6 +72,46 @@ public class JavaApplication {
         testMessageService(fileMessageService);
         testService(channelManageService, chatService, fileUserService, fileChannelService);
         System.out.println("============= File Service 테스트 끝 =============");
+    }
+
+    public static void testBasicService() {
+
+        System.out.println("============= Basic JCF Service 테스트 시작 =============");
+        JCFChannelRepository jcfChannelRepository = new JCFChannelRepository();
+        JCFUserRepository jcfUserRepository = new JCFUserRepository();
+        JCFMessageRepository jcfMessageRepository = new JCFMessageRepository();
+
+        BasicUserService userService = new BasicUserService(jcfUserRepository);
+        BasicChannelService channelService = new BasicChannelService(jcfChannelRepository);
+        BasicMessageService messageService = new BasicMessageService(jcfMessageRepository);
+
+        ChannelManageService channelManageService = new ChannelManageService(channelService, userService);
+        ChatService chatService = new ChatService(messageService, channelService);
+
+        testUserService(userService);
+        testChannelService(channelService);
+        testMessageService(messageService);
+        testService(channelManageService, chatService, userService, channelService);
+        System.out.println("============= Basic JCF Service 테스트 시작 =============");
+
+        System.out.println("============= Basic File Service 테스트 시작 =============");
+
+        FileChannelRepository fileChannelRepository = new FileChannelRepository();
+        FileUserRepository fileUserRepository = new FileUserRepository();
+        FileMessageRepository fileMessageRepository = new FileMessageRepository();
+
+        BasicUserService fileUserService = new BasicUserService(fileUserRepository);
+        BasicChannelService fileChannelService = new BasicChannelService(fileChannelRepository);
+        BasicMessageService fileMessageService = new BasicMessageService(fileMessageRepository);
+
+        ChannelManageService channelManageService2 = new ChannelManageService(fileChannelService, fileUserService);
+        ChatService chatService2 = new ChatService(fileMessageService, fileChannelService);
+
+        testUserService(fileUserService);
+        testChannelService(fileChannelService);
+        testMessageService(fileMessageService);
+        testService(channelManageService2, chatService2, fileUserService, fileChannelService);
+        System.out.println("============= Basic File Service 테스트 끝 =============");
     }
 
     public static void testUserService(UserService userService) {
