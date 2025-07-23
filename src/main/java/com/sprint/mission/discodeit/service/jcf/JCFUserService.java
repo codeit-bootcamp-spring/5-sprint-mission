@@ -22,13 +22,12 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public boolean addUser(User user) {
+    public void addUser(User user) {
         if(user == null){
-            return false;
+            return;
         }
 
         data.add(user);
-        return true;
     }
 
     @Override
@@ -50,32 +49,30 @@ public class JCFUserService implements UserService {
                     .orElse(null);
 
     }
+
     @Override
-    public User updateUser(User updatedUser, UUID id) {
-        return data.stream()
+    public void updateUser(User updatedUser, UUID id) {
+        data.stream()
                 .filter(existing -> existing.getId().equals(id))
                 .findFirst()
                 .map(existing -> {
-                    existing.updateUpdatedAt(System.currentTimeMillis());
                     existing.updateUserName(updatedUser.getUserName());
                     existing.updateEmail(updatedUser.getEmail());
                     existing.updatePassword(updatedUser.getPassword());
                     existing.updatePhoneNumber(updatedUser.getPhoneNumber());
                     return existing;
-                })
-                .orElse(null);
+                });
     }
 
     @Override
-    public User deleteUser(UUID id) {
-        return data.stream()
+    public void deleteUser(UUID id) {
+        data.stream()
                 .filter(existing -> existing.getId().equals(id))
                 .findFirst()
-                .map(existing->{
+                .map(existing -> {
                     data.remove(existing);
                     return existing;
-                })
-                .orElse(null);
+                });
     }
 
     @Override

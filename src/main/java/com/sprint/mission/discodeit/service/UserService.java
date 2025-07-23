@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    public boolean addUser(User user);
-    public List<User> getUsers();
-    public User getUserById(UUID id);
-    public User getUserByUsername(String username);
-    public User updateUser(User user, UUID id);
-    public User deleteUser(UUID id);
-    public void deleteAll();
+    void addUser(User user);
+    List<User> getUsers();
+    User getUserById(UUID id);
+    User getUserByUsername(String username);
+    void updateUser(User user, UUID id);
+    void deleteUser(UUID id);
+    void deleteAll();
 
 }

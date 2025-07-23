@@ -22,12 +22,11 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public boolean addMessage(Message message) {
+    public void addMessage(Message message) {
         if(message == null){
-            return false;
+            return;
         }
         data.add(message);
-        return true;
     }
 
     @Override
@@ -41,29 +40,25 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public Message updateMessage(Message updateMessage, UUID id) {
-        return data.stream()
+    public void updateMessage(Message updateMessage, UUID id) {
+        data.stream()
                 .filter(existing -> existing.getId().equals(id))
                 .findFirst()
                 .map(existing -> {
-                    existing.updateUpdatedAt(System.currentTimeMillis());
                     existing.updateContent(updateMessage.getContent());
-                    existing.updatePinned(updateMessage.isPinned());
                     return existing;
-                })
-                .orElse(null);
+                });
     }
 
     @Override
-    public Message deleteMessage(UUID messageId) {
-        return data.stream()
+    public void deleteMessage(UUID messageId) {
+        data.stream()
                 .filter(existing -> existing.getId().equals(messageId))
                 .findFirst()
-                .map(existing->{
+                .map(existing -> {
                     data.remove(existing);
                     return existing;
-                })
-                .orElse(null);
+                });
     }
 
     @Override

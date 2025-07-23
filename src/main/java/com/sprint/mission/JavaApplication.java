@@ -233,7 +233,7 @@ public class JavaApplication {
 
             Channel found = jcfChannelService.getChannelById(original.getId());
             if (found != null
-                    && "뉴스 채널".equals(found.getName())
+                    && "뉴스 채널".equals(found.getChannelName())
                     && found.getOwnerUser().getId().equals(newOwner.getId())
                     && "뉴스 채널 주제".equals(found.getTopic())
                     && found.getUpdatedAt() != null) {
@@ -277,7 +277,7 @@ public class JavaApplication {
 
             User user = new User("user", "writer@example.com", "pw1234", "010-1111-2222");
             Channel channel = new Channel("일반", ChannelType.CHATTING, user, "일반 채널");
-            Message original = new Message("첫 번째 메시지", false, channel, user);
+            Message original = new Message("첫 번째 메시지",  channel, user);
             jcfMessageService.addMessage(original);
 
             Message found = jcfMessageService.getMessageById(original.getId());
@@ -293,8 +293,8 @@ public class JavaApplication {
 
             User user1 = new User("사용자1", "user1@example.com", "pass1", "010-2222-3333");
             Channel channel = new Channel("테스트", ChannelType.CHATTING, user1, "테스트 채널 주제");
-            Message m1 = new Message("메시지 하나", false, channel, user1);
-            Message m2 = new Message("메시지 둘", true, channel, user1);
+            Message m1 = new Message("메시지 하나", channel, user1);
+            Message m2 = new Message("메시지 둘", channel, user1);
 
             jcfMessageService.addMessage(m1);
             jcfMessageService.addMessage(m2);
@@ -312,7 +312,7 @@ public class JavaApplication {
 
             User user = new User("사용자조회", "lookup@example.com", "pw0000", "010-4444-5555");
             Channel channel = new Channel("조회", ChannelType.CHATTING, user, "조회 채널 주");
-            Message original = new Message("조회할 메시지", false, channel, user);
+            Message original = new Message("조회할 메시지",  channel, user);
             jcfMessageService.addMessage(original);
 
             Message found = jcfMessageService.getMessageById(original.getId());
@@ -328,16 +328,15 @@ public class JavaApplication {
 
             User user = new User("업데이트", "update@example.com", "pw1111", "010-6666-7777");
             Channel channel = new Channel("업데이트", ChannelType.CHATTING, user, "업데이트 channel");
-            Message original = new Message("변경 전 내용", false, channel, user);
+            Message original = new Message("변경 전 내용", channel, user);
             jcfMessageService.addMessage(original);
 
-            Message updated = new Message("변경 후 내용", true, channel, user);
+            Message updated = new Message("변경 후 내용", channel, user);
             jcfMessageService.updateMessage(updated, original.getId());
 
             Message found = jcfMessageService.getMessageById(original.getId());
             if (found != null
                     && "변경 후 내용".equals(found.getContent())
-                    && found.isPinned()
                     && found.getUpdatedAt() != null) {
                 System.out.println("testUpdateMessage O");
             } else {
@@ -350,7 +349,7 @@ public class JavaApplication {
 
             User user = new User("삭제테스트", "del@example.com", "pw2222", "010-8888-9999");
             Channel channel = new Channel("삭제", ChannelType.CHATTING, user, "삭제 channel");
-            Message original = new Message("삭제할 메시지", false, channel, user);
+            Message original = new Message("삭제할 메시지", channel, user);
             jcfMessageService.addMessage(original);
 
             jcfMessageService.deleteMessage(original.getId());

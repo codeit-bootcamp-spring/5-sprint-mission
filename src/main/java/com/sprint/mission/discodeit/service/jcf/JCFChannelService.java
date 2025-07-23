@@ -9,6 +9,7 @@ import java.util.UUID;
 
 public class JCFChannelService implements ChannelService {
     private static final List<Channel> data = new ArrayList<>();
+
     private static JCFChannelService instance;
 
     private JCFChannelService() {}
@@ -22,13 +23,12 @@ public class JCFChannelService implements ChannelService {
 
 
     @Override
-    public boolean addChannel(Channel channel) {
+    public void addChannel(Channel channel) {
         if(channel == null){
-            return false;
+            return;
         }
 
         data.add(channel);
-        return true;
     }
 
     @Override
@@ -42,31 +42,28 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel updateChannel(Channel Channel, UUID id) {
-        return data.stream().filter(existing->existing.getId().equals(id))
+    public void updateChannel(Channel Channel, UUID id) {
+        data.stream().filter(existing -> existing.getId().equals(id))
                 .findFirst()
-                .map(existing->{
-                    existing.updateName(Channel.getName());
+                .map(existing -> {
+                    existing.updateName(Channel.getChannelName());
                     existing.updateType(Channel.getType());
                     existing.updateOwnerUser(Channel.getOwnerUser());
                     existing.updateTopic(Channel.getTopic());
-                    existing.updateUpdatedAt(System.currentTimeMillis());
 
                     return existing;
-                })
-                .orElse(null);
+                });
     }
 
     @Override
-    public Channel deleteChannel(UUID id) {
-        return data.stream()
-                .filter(existing->existing.getId().equals(id))
+    public void deleteChannel(UUID id) {
+        data.stream()
+                .filter(existing -> existing.getId().equals(id))
                 .findFirst()
-                .map(existing->{
+                .map(existing -> {
                     data.remove(existing);
                     return existing;
-                })
-                .orElse(null);
+                });
     }
 
     @Override

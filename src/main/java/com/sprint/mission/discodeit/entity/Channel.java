@@ -1,41 +1,28 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.util.UUID;
-
-public class Channel {
-    private final UUID id;
+public class Channel extends BaseEntity {
     private User ownerUser;
-    private String name;
+    private String channelName;
     private ChannelType type;
     private String topic;
-
-    private final Long createdAt;
-    private Long updatedAt;
 
     public Channel(
             String name, ChannelType type, User ownerUser,String topic
     ) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = null;
+        super();
         this.ownerUser = ownerUser;
-
-        this.name = name;
+        this.channelName = name;
         this.type = type;
         this.topic = topic;
     }
 
-    public UUID getId() {
-        return id;
+    public String getChannelName() {
+        return channelName;
     }
-
-    public String getName() {
-        return name;
-    }
-
 
     public void updateName(String name) {
-        this.name = name;
+        this.channelName = name;
+        super.updateUpdatedAt();
     }
 
     public ChannelType getType() {
@@ -44,6 +31,7 @@ public class Channel {
 
     public void updateType(ChannelType type) {
         this.type = type;
+        super.updateUpdatedAt();
     }
 
     public User getOwnerUser() {
@@ -52,6 +40,7 @@ public class Channel {
 
     public void updateOwnerUser(User ownerUser) {
         this.ownerUser = ownerUser ;
+        super.updateUpdatedAt();
     }
 
     public String getTopic() {
@@ -60,17 +49,7 @@ public class Channel {
 
     public void updateTopic(String topic) {
         this.topic = topic;
+        super.updateUpdatedAt();
     }
 
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void updateUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

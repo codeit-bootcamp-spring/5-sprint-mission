@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MessageService {
-    public boolean addMessage(Message Message);
-    public List<Message> getMessages();
-    public Message getMessageById(UUID messageId);
-    public Message updateMessage(Message Message, UUID id);
-    public Message deleteMessage(UUID messageId);
-    public void deleteAll();
+    void addMessage(Message Message);
+    List<Message> getMessages();
+    Message getMessageById(UUID messageId);
+    void updateMessage(Message Message, UUID id);
+    void deleteMessage(UUID messageId);
+    void deleteAll();
 
 }
