@@ -9,7 +9,9 @@ import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
-import com.sprint.mission.discodeit.service.*;
+import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
@@ -83,6 +85,10 @@ public class JavaApplication {
         testChannelService(channelService);
         testMessageService(messageService);
         testCoreService(messageService, userService, channelService);
+
+        messageService.deleteAll();
+        userService.deleteAll();
+        channelService.deleteAll();
         System.out.println("============= Basic JCF Service 테스트 시작 =============");
 
         System.out.println("============= Basic File Service 테스트 시작 =============");
@@ -99,6 +105,10 @@ public class JavaApplication {
         testChannelService(fileChannelService);
         testMessageService(fileMessageService);
         testCoreService(fileMessageService, fileUserService, fileChannelService);
+
+        fileMessageService.deleteAll();
+        fileUserService.deleteAll();
+        fileChannelService.deleteAll();
         System.out.println("============= Basic File Service 테스트 끝 =============");
     }
 
