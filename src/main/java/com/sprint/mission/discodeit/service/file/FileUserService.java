@@ -67,7 +67,7 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public void createUser(User user) {
+    public void create(User user) {
         if (!load(directory).contains(user)) {
             save(user);
         } else {
@@ -76,13 +76,13 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public void updateUser(User user) { // 리팩터링 후보
-        deleteUser(user);
+    public void update(User user) { // 리팩터링 후보
+        delete(user);
         save(user);
     }
 
     @Override
-    public void deleteUser(User user) {
+    public void delete(User user) {
         Path userDirectory = Path.of(directory.toString() + "/" + user.getId());
         if (Files.exists(userDirectory)) {
             try {
@@ -123,7 +123,7 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> searchAll() {
         return load(directory);
     }
 
@@ -133,9 +133,9 @@ public class FileUserService implements UserService {
         User user1 = new User("test10");
         service.save(user1);
         System.out.println(service.load(service.getDirectory()));
-        service.updateUser(user1);
+        service.update(user1);
         System.out.println(service.load(service.getDirectory()));
-        service.deleteUser(user1);
+        service.delete(user1);
         System.out.println(service.load(service.getDirectory()));
     }
 }

@@ -19,15 +19,15 @@ public class JavaApplication {
         MessageService messageService = new JCFMessageService();
 
         // 생성
-        userService.createUser(new User("testUser1"));
-        userService.createUser(new User("testUser2"));
-        userService.createUser(new User("testuser3"));
-        channelService.createChannel(new Channel("testChannel1"));
-        channelService.createChannel(new Channel("testChannel2"));
-        channelService.createChannel(new Channel("testchannel3"));
-        messageService.createMessage(new Message("test Message1", userService.searchByIndex(0).getId()));
-        messageService.createMessage(new Message("test Message2", userService.searchByIndex(0).getId()));
-        messageService.createMessage(new Message("test message3", userService.searchByIndex(1).getId()));
+        userService.create(new User("testUser1"));
+        userService.create(new User("testUser2"));
+        userService.create(new User("testuser3"));
+        channelService.create(new Channel("testChannel1"));
+        channelService.create(new Channel("testChannel2"));
+        channelService.create(new Channel("testchannel3"));
+        messageService.create(new Message("test Message1", userService.searchByIndex(0).getId()));
+        messageService.create(new Message("test Message2", userService.searchByIndex(0).getId()));
+        messageService.create(new Message("test message3", userService.searchByIndex(1).getId()));
 
         // 조회
         System.out.println(userService.searchByIndex(0));
@@ -44,9 +44,9 @@ public class JavaApplication {
         System.out.println("---------------------------------------------------------------------------------");
 
         // 모두 조회
-        System.out.println(userService.getAllUsers().toString().replace("}, ", "},\n"));
-        System.out.println(channelService.getAllChannels().toString().replace("}, ", "},\n"));
-        System.out.println(messageService.getAllMessages().toString().replace("}, ", "},\n"));
+        System.out.println(userService.searchAll().toString().replace("}, ", "},\n"));
+        System.out.println(channelService.searchAll().toString().replace("}, ", "},\n"));
+        System.out.println(messageService.searchAll().toString().replace("}, ", "},\n"));
         System.out.println("---------------------------------------------------------------------------------");
 
         // 수정 및 조회
@@ -54,9 +54,9 @@ public class JavaApplication {
         userService.searchByIndex(0).addChannel(channelService.searchByIndex(1));
         channelService.searchByIndex(0).addUser(userService.searchByIndex(0));
         channelService.searchByIndex(0).addUser(userService.searchByIndex(1));
-        userService.updateUser(userService.searchByIndex(0).updateName("updatedName"));
-        channelService.updateChannel(channelService.searchByIndex(0).updateName("updatedName"));
-        messageService.updateMessage(messageService.searchByIndex(0).updateContent("updatedContent"));
+        userService.update(userService.searchByIndex(0).updateName("updatedName"));
+        channelService.update(channelService.searchByIndex(0).updateName("updatedName"));
+        messageService.update(messageService.searchByIndex(0).updateContent("updatedContent"));
         System.out.println(userService.searchByIndex(0));
         System.out.println(channelService.searchByIndex(0));
         System.out.println(messageService.searchByIndex(0));
@@ -82,12 +82,12 @@ public class JavaApplication {
         System.out.println("---------------------------------------------------------------------------------");
 
         // 삭제 및 조회
-        userService.deleteUser(userService.searchByIndex(1));
-        channelService.deleteChannel(channelService.searchByIndex(0));
-        messageService.deleteMessage(messageService.searchByIndex(0));
+        userService.delete(userService.searchByIndex(1));
+        channelService.delete(channelService.searchByIndex(0));
+        messageService.delete(messageService.searchByIndex(0));
 
-        System.out.println(userService.getAllUsers().toString().replace("}, ", "},\n"));
-        System.out.println(channelService.getAllChannels().toString().replace("}, ", "},\n"));
-        System.out.println(messageService.getAllMessages().toString().replace("}, ", "},\n"));
+        System.out.println(userService.searchAll().toString().replace("}, ", "},\n"));
+        System.out.println(channelService.searchAll().toString().replace("}, ", "},\n"));
+        System.out.println(messageService.searchAll().toString().replace("}, ", "},\n"));
     }
 }

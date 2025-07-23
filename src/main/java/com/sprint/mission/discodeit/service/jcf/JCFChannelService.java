@@ -16,18 +16,18 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public void createChannel(Channel channel) {
+    public void create(Channel channel) {
         data.add(channel);
     }
 
     @Override
-    public void updateChannel(Channel channel) {
+    public void update(Channel channel) {
         int i = data.indexOf(channel);
         data.set(i, channel);
     }
 
     @Override
-    public void deleteChannel(Channel channel) {
+    public void delete(Channel channel) {
         data.remove(channel);
     }
 
@@ -60,7 +60,7 @@ public class JCFChannelService implements ChannelService {
 
 
     @Override
-    public List<Channel> getAllChannels() {
+    public List<Channel> searchAll() {
         return data;
     }
 

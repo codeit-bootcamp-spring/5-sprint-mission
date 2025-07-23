@@ -8,17 +8,17 @@ import java.util.UUID;
 
 public class FileChannelService implements ChannelService {
     @Override
-    public void createChannel(Channel channel) {
+    public void create(Channel channel) {
 
     }
 
     @Override
-    public void updateChannel(Channel channel) {
+    public void update(Channel channel) {
 
     }
 
     @Override
-    public void deleteChannel(Channel channel) {
+    public void delete(Channel channel) {
 
     }
 
@@ -38,7 +38,7 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public List<Channel> getAllChannels() {
+    public List<Channel> searchAll() {
         return List.of();
     }
 }

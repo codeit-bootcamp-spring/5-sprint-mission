@@ -8,17 +8,17 @@ import java.util.UUID;
 
 public class FileMessageService implements MessageService {
     @Override
-    public void createMessage(Message message) {
+    public void create(Message message) {
 
     }
 
     @Override
-    public void updateMessage(Message message) {
+    public void update(Message message) {
 
     }
 
     @Override
-    public void deleteMessage(Message message) {
+    public void delete(Message message) {
 
     }
 
@@ -43,7 +43,7 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public List<Message> getAllMessages() {
+    public List<Message> searchAll() {
         return List.of();
     }
 }

@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    void createUser(User user);
+    void create(User user);
 
-    void updateUser(User user);
+    void update(User user);
 
-    void deleteUser(User user);
+    void delete(User user);
 
     User searchByIndex(int i);
 
@@ -18,5 +18,5 @@ public interface UserService {
 
     List<User> searchByName(String name);
 
-    List<User> getAllUsers();
+    List<User> searchAll();
 }

@@ -16,18 +16,18 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void createUser(User user) {
+    public void create(User user) {
         data.add(user);
     }
 
     @Override
-    public void updateUser(User user) {
+    public void update(User user) {
         int i = data.indexOf(user);
         data.set(i, user);
     }
 
     @Override
-    public void deleteUser(User user) {
+    public void delete(User user) {
         data.remove(user);
     }
 
@@ -59,7 +59,7 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> searchAll() {
         return data;
     }
 

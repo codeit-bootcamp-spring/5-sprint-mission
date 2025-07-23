@@ -16,18 +16,18 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public void createMessage(Message message) {
+    public void create(Message message) {
         data.add(message);
     }
 
     @Override
-    public void updateMessage(Message message) {
+    public void update(Message message) {
         int i = data.indexOf(message);
         data.set(i, message);
     }
 
     @Override
-    public void deleteMessage(Message message) {
+    public void delete(Message message) {
         data.remove(message);
     }
 
@@ -71,7 +71,7 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public List<Message> getAllMessages() {
+    public List<Message> searchAll() {
         return data;
     }
 

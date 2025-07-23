@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ChannelService {
-    void createChannel(Channel channel);
+    void create(Channel channel);
 
-    void updateChannel(Channel channel);
+    void update(Channel channel);
 
-    void deleteChannel(Channel channel);
+    void delete(Channel channel);
 
     Channel searchByIndex(int i);
 
@@ -18,5 +18,5 @@ public interface ChannelService {
 
     Channel searchById(UUID id);
 
-    List<Channel> getAllChannels();
+    List<Channel> searchAll();
 }

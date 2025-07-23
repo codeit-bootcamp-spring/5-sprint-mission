@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MessageService {
-    void createMessage(Message message);
+    void create(Message message);
 
-    void updateMessage(Message message);
+    void update(Message message);
 
-    void deleteMessage(Message message);
+    void delete(Message message);
 
     Message searchByIndex(int i);
 
@@ -20,5 +20,5 @@ public interface MessageService {
 
     List<Message> searchBySenderId(UUID id);
 
-    List<Message> getAllMessages();
+    List<Message> searchAll();
 }
