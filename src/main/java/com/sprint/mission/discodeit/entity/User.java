@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class User {
+public class User implements Serializable {
 
 
     UUID id;
@@ -31,6 +32,17 @@ public class User {
 
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
+
     public UUID getId() {
         return id;
     }
@@ -44,26 +56,11 @@ public class User {
     }
 
 
-    public void update(String userName, String password,  long updatedAt) {
+    public void update(String userName, String password, long updatedAt) {
         this.userName = userName;
         this.password = password;
         this.updatedAt = updatedAt;
 
-    }
-
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("User{");
-        sb.append("id=").append(id);
-        sb.append(", createdAt='").append(createdAt).append('\'');
-        sb.append(", updatedAt='").append(updatedAt).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
-
-    public static void main(String[] args) {
-        System.out.print("hello world");
     }
 
 

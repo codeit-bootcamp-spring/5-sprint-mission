@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Channel {
+public class Channel implements Serializable {
 
 
     private  UUID id;
@@ -50,11 +51,12 @@ public class Channel {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Channel{");
-        sb.append("id=").append(id);
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append('}');
-        return sb.toString();
+        return "Channel{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", channelId='" + channelId + '\'' +
+                ", channelName='" + channelName + '\'' +
+                '}';
     }
 }
