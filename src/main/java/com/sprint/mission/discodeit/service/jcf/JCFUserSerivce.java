@@ -1,46 +1,51 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.*;
 
 public class JCFUserSerivce implements UserService {
 
-    final Map<UUID, User> data = new HashMap<>();
+    UserRepository repo;
+
+    public JCFUserSerivce(UserRepository repo) {
+        this.repo = repo;
+    }
 
     @Override
     public User createUser(String username) {
         User user = new User(username);
-        data.put(user.getId(), user);
-        return user;
+        return repo.save(user);
     }
 
     @Override
-    public User getUser(UUID userId) {
-        if(!data.containsKey(userId)){
-            throw new NoSuchElementException("user not found");
+    public Optional<User> getUser(UUID userId) {
+        Optional<User> user = repo.findById(userId);
+        if(user.isEmpty()){
+            throw new NoSuchElementException("User with id " + userId + " not found");
         }
-        return data.get(userId);
+        return user;
     }
 
     @Override
     public List<User> getAllUsers() {
-        return new ArrayList<>(data.values());
+        return repo.findAll();
     }
 
     @Override
-    public User updateUser(UUID userId, String username) {
-        User user = getUser(userId);
-        user.update(username);
-        return user;
+    public User updateUser(UUID userId, User user) {
+        return repo.update(userId, user);
     }
 
     @Override
-    public void deleteUser(UUID userId) {
-        if(!data.containsKey(userId)){
-            throw new NoSuchElementException("user not found");
-        }
-        data.remove(userId);
+    public User deleteUser(UUID userId) {
+       return repo.delete(userId);
+    }
+
+    @Override
+    public boolean existsById(UUID userId) {
+        return repo.existsById(userId);
     }
 }

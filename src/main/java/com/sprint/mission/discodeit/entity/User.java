@@ -1,14 +1,19 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-public class User {
-    private UUID id;
-    private Long createdAt; // DB 타임스탬프
-    private Long updatedAt; // 수정시간
+public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    // 유저 이름 별도로 추가
+    private UUID id;
+    private Long createdAt;
+    private Long updatedAt;
+
+
     private String username;
 
     public User(String username) {
