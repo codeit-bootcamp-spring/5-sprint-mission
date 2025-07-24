@@ -2,21 +2,22 @@ package com.sprint.mission.discodeit.respository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.respository.ChannelRepository;
-import java.io.*;
 import java.util.*;
 
-public class FileChannelRepository implements ChannelRepository {
-    private final String FILE_PATH = "data/channel.store";
-    private Map<UUID, Channel> channelMap = new HashMap<>();
+public class FileChannelRepository extends FileStore<Channel> implements ChannelRepository {
+
+    private final Map<UUID, Channel> channelMap = new HashMap<>();
 
     public FileChannelRepository() {
-        loadFromFile();
+        super("data/channel.store");
+        Map<UUID, Channel> loaded = loadFromFile();
+        channelMap.putAll(loaded);
     }
 
     @Override
     public Channel save(Channel channel) {
         channelMap.put(channel.getId(), channel);
-        saveToFile();
+        saveToFile(channelMap);
         return channel;
     }
 
@@ -46,7 +47,7 @@ public class FileChannelRepository implements ChannelRepository {
         Channel channel = channelMap.get(id);
         if (channel != null) {
             channel.updateName(name);
-            saveToFile();
+            saveToFile(channelMap);
         }
         return channel;
     }
@@ -56,7 +57,7 @@ public class FileChannelRepository implements ChannelRepository {
         Channel channel = channelMap.get(id);
         if (channel != null) {
             channel.updateTopic(topic);
-            saveToFile();
+            saveToFile(channelMap);
         }
         return channel;
     }
@@ -64,29 +65,6 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public void deleteById(UUID id) {
         channelMap.remove(id);
-        saveToFile();
-    }
-
-    private void saveToFile() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
-            oos.writeObject(channelMap);
-        } catch (IOException e) {
-            throw new RuntimeException("채널 저장 중 오류 발생", e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void loadFromFile() {
-        File file = new File(FILE_PATH);
-        if (!file.exists()) return;
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map) {
-                channelMap = (Map<UUID, Channel>) obj;
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("채널 파일 불러오기 실패: " + e.getMessage());
-        }
+        saveToFile(channelMap);
     }
 }

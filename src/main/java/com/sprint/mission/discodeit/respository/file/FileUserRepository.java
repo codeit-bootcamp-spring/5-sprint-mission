@@ -2,24 +2,23 @@ package com.sprint.mission.discodeit.respository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.UserRepository;
-
-import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FileUserRepository implements UserRepository {
+public class FileUserRepository extends FileStore<User> implements UserRepository {
 
-    private final String FILE_PATH = "data/user.store";
     private final Map<UUID, User> userMap = new HashMap<>();
 
     public FileUserRepository() {
-        loadFromFile();
+        super("data/user.store");
+        Map<UUID, User> loaded = loadFromFile();
+        userMap.putAll(loaded);
     }
 
     @Override
     public User save(User user) {
         userMap.put(user.getId(), user);
-        saveToFile();
+        saveToFile(userMap);
         return user;
     }
 
@@ -45,7 +44,7 @@ public class FileUserRepository implements UserRepository {
         User user = userMap.get(id);
         if (user != null) {
             user.updateName(name);
-            saveToFile();
+            saveToFile(userMap);
         }
         return user;
     }
@@ -53,28 +52,6 @@ public class FileUserRepository implements UserRepository {
     @Override
     public void delete(UUID id) {
         userMap.remove(id);
-        saveToFile();
-    }
-
-    private void saveToFile() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
-            oos.writeObject(userMap);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void loadFromFile() {
-        File file = new File(FILE_PATH);
-        if (!file.exists()) return;
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map) {
-                userMap.putAll((Map<UUID, User>) obj);
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        saveToFile(userMap);
     }
 }
