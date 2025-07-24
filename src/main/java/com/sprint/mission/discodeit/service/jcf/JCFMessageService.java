@@ -16,7 +16,7 @@ public class JCFMessageService implements MessageService {
 
     // 메시지 추가
     @Override
-    public Message insert(String content, UUID userId, UUID channelId) {
+    public Message create(String content, UUID userId, UUID channelId) {
         if (content == null || userId == null || channelId == null || content.isBlank()) {
             return null;
         }
@@ -27,7 +27,7 @@ public class JCFMessageService implements MessageService {
 
     // 메시지 조회
     @Override
-    public Message selectOne(UUID messageId) {
+    public Message find(UUID messageId) {
         for (Message message : messageList) {
             if (message.getId().equals(messageId)) {
                 return message;
@@ -38,7 +38,7 @@ public class JCFMessageService implements MessageService {
 
     // 메시지 전체 조회
     @Override
-    public List<Message> selectAll() {
+    public List<Message> findAll() {
         return messageList;
     }
 

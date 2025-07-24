@@ -16,7 +16,7 @@ public class JCFChannelService implements ChannelService {
 
     // 채널 추가
     @Override
-    public Channel insert(String name, UUID ownerId) {
+    public Channel create(String name, UUID ownerId) {
         if (name == null || ownerId == null || name.isBlank()) {
             return null;
         }
@@ -27,7 +27,7 @@ public class JCFChannelService implements ChannelService {
 
     // 채널 조회
     @Override
-    public Channel selectOne(UUID channelId) {
+    public Channel find(UUID channelId) {
         for (Channel channel : channelList) {
             if (channel.getId().equals(channelId)) {
                 return channel;
@@ -38,7 +38,7 @@ public class JCFChannelService implements ChannelService {
 
     // 채널 전체 조회
     @Override
-    public List<Channel> selectAll() {
+    public List<Channel> findAll() {
         return channelList;
     }
 

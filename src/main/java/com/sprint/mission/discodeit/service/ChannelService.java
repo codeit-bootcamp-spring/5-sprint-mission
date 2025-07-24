@@ -7,13 +7,13 @@ import java.util.UUID;
 
 public interface ChannelService {
     // 채널 추가
-    Channel insert(String name, UUID ownerId);
+    Channel create(String name, UUID ownerId);
 
     // 채널 조회
-    Channel selectOne(UUID channelId);
+    Channel find(UUID channelId);
 
     // 채널 전체 조회
-    List<Channel> selectAll();
+    List<Channel> findAll();
 
     // 채널 수정
     Channel update(UUID channelId, String name, UUID ownerId);

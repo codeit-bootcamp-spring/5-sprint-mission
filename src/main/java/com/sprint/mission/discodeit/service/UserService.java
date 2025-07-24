@@ -7,13 +7,13 @@ import java.util.UUID;
 
 public interface UserService {
     // 사용자 추가
-    User insert(String name, String email, String password);
+    User create(String name, String email, String password);
 
     // 사용자 조회
-    User selectOne(UUID userId);
+    User find(UUID userId);
 
     // 사용자 전체 조회
-    List<User> selectAll();
+    List<User> findAll();
 
     // 사용자 수정
     User update(UUID userId, String name, String email, String password);

@@ -7,13 +7,13 @@ import java.util.UUID;
 
 public interface MessageService {
     // 메시지 추가
-    Message insert(String content, UUID userId, UUID channelId);
+    Message create(String content, UUID userId, UUID channelId);
 
     // 메시지 조회
-    Message selectOne(UUID messageId);
+    Message find(UUID messageId);
 
     // 메시지 전체 조회
-    List<Message> selectAll();
+    List<Message> findAll();
 
     // 메시지 수정
     Message update(UUID messageId, String content);

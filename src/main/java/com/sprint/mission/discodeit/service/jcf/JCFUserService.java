@@ -16,7 +16,7 @@ public class JCFUserService implements UserService {
 
     // 사용자 추가
     @Override
-    public User insert(String name, String email, String password) {
+    public User create(String name, String email, String password) {
         if (name == null || email == null || password == null || name.isBlank() || email.isBlank() || password.isBlank()) {
             return null;
         }
@@ -27,7 +27,7 @@ public class JCFUserService implements UserService {
 
     // 사용자 조회
     @Override
-    public User selectOne(UUID userId) {
+    public User find(UUID userId) {
         for (User user : userList) {
             if (user.getId().equals(userId)) {
                 return user;
@@ -38,7 +38,7 @@ public class JCFUserService implements UserService {
 
     // 사용자 전체 조회
     @Override
-    public List<User> selectAll() {
+    public List<User> findAll() {
         return userList;
     }
 
