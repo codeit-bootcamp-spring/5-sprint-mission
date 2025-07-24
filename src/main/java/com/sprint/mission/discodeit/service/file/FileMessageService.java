@@ -39,12 +39,7 @@ public class FileMessageService implements MessageService {
 
     @Override
     public Message searchById(UUID id) {
-        Message message = repo.searchById(id).orElse(null);
-        if (message == null) {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
-        }
-        return message;
+        return repo.searchById(id);
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.repository;
 import com.sprint.mission.discodeit.entity.Message;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageRepository {
@@ -13,7 +12,7 @@ public interface MessageRepository {
 
     void deleteAll();
 
-    Optional<Message> searchById(UUID id);
+    Message searchById(UUID id);
 
     List<Message> searchByContent(String content);
 

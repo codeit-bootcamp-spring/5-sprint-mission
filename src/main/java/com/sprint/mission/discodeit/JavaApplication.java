@@ -30,14 +30,14 @@ import java.nio.file.Path;
 public class JavaApplication {
 
     // File 레포지토리 선언
-//    static UserRepository userRepo = new FileUserRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/userDirectory/"));
-//    static ChannelRepository channelRepo = new FileChannelRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/channelDirectory/"));
-//    static MessageRepository messageRepo = new FileMessageRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/messageDirectory/"));
+    static UserRepository userRepo = new FileUserRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/userDirectory/"));
+    static ChannelRepository channelRepo = new FileChannelRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/channelDirectory/"));
+    static MessageRepository messageRepo = new FileMessageRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/messageDirectory/"));
 
     // JCF 레포지토리 선언
-    static UserRepository userRepo = new JCFUserRepository();
-    static ChannelRepository channelRepo = new JCFChannelRepository();
-    static MessageRepository messageRepo = new JCFMessageRepository();
+//    static UserRepository userRepo = new JCFUserRepository();
+//    static ChannelRepository channelRepo = new JCFChannelRepository();
+//    static MessageRepository messageRepo = new JCFMessageRepository();
 
 //    static UserService userService = new FileUserService(userRepo);
 //    static ChannelService channelService = new FileChannelService(channelRepo);
@@ -45,11 +45,11 @@ public class JavaApplication {
 
 //    static UserService userService = new JCFUserService(userRepo);
 //    static ChannelService channelService = new JCFChannelService(channelRepo);
-    static MessageService messageService = new JCFMessageService(messageRepo);
+//    static MessageService messageService = new JCFMessageService(messageRepo);
 
     static UserService userService = new BasicUserService(userRepo);
     static ChannelService channelService = new BasicChannelService(channelRepo);
-//    static MessageService messageService = new BasicMessageService(messageRepo);
+    static MessageService messageService = new BasicMessageService(messageRepo);
 
 
 

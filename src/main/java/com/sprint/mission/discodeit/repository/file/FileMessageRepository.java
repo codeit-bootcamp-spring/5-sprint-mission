@@ -83,14 +83,14 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Optional<Message> searchById(UUID id) {
-        Message message = null;
+    public Message searchById(UUID id) {
         for (Message m : load(directory)) {
             if (m.getId().equals(id)) {
-                message = m;
+                return m;
             }
         }
-        return Optional.ofNullable(message);
+        System.err.println("해당하는 메세지를 찾을 수 없습니다.");
+        throw new NoSuchElementException();
     }
 
     @Override
@@ -100,6 +100,10 @@ public class FileMessageRepository implements MessageRepository {
             if (m.getContent().contains(content)) {
                 messages.add(m);
             }
+        }
+        if (messages.isEmpty()) {
+            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
         }
         return messages;
     }
@@ -111,6 +115,10 @@ public class FileMessageRepository implements MessageRepository {
             if (id.equals(m.getSender())) {
                 messages.add(m);
             }
+        }
+        if (messages.isEmpty()) {
+            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
         }
         return messages;
     }
