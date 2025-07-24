@@ -8,6 +8,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -155,12 +156,49 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return List.of();
+        List<User> allUsers = new ArrayList<>(); // 모든 User 객체를 담을 리스트
+        Path path = Paths.get(DIRECTORY);  // 사용자 디렉토리 경로
+
+        if (!isValidDirectory(path)) {
+            System.err.println("Warning: User directory is not valid. Returning empty list");
+            return allUsers;  //  디렉토리가 유효하지 않으면 빈 리스트를 반환
+        }
+
+        // 디렉토리 스트림을 열어 .ser 파일을 순회하도록 구성
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*"+ EXTENSION)) {
+            for (Path entry : stream) {
+                try (FileInputStream fis = new FileInputStream(path.toFile());
+                     ObjectInputStream ois = new ObjectInputStream(fis);) {
+                    User user = (User) ois.readObject();
+                    if (user!= null) {
+                        allUsers.add(user); // 성공적으로 읽은 User 객체를 리스트에 추가
+                    }
+                } catch (ClassNotFoundException | IOException e) {
+                    // 특정 파일이 손상되었거나 클래스 정의가 없는 경우
+                    // 해당 파일만 건너뛰고 다음 파일로 계속 진행(로그 기록은 필수)
+                    System.err.println("Error reading user file: " + entry.getFileName() + ".Skipping. Details: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error accessing user directory: " + DIRECTORY, e);
+        }
+        return allUsers;
     }
 
     @Override
     public void deleteById(UUID id) {
-
+        Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
+        try {
+            // 파일이 존재하면 삭제하고 true를 반환 / 파일이 존재하지 않으면 아무것도 삭제하지 않고 false를 반환
+            if (Files.deleteIfExists(path)) {
+                System.out.println("User file deleted: " + id);
+            } else {
+                System.out.println("User file not found: " + id);
+            }
+        } catch (IOException e) {
+            System.err.println("Error deleting user file: " + id + ". Details: " + e.getMessage());
+            throw new RuntimeException("Failed to delete user file.", e);
+        }
     }
 
 
