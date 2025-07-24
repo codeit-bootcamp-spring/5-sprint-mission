@@ -53,6 +53,10 @@ public class Channel implements Serializable {
     }
 
     public Channel updateName(String name) {
+        if (name.equals(this.name)) {
+            System.out.println("기존에 사용하던 채널명입니다.");
+            return this;
+        }
         this.name = name;
         updatedAt = Instant.now().toEpochMilli();
         return this;

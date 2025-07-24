@@ -44,12 +44,20 @@ public class Message implements Serializable {
     }
 
     public Message updateContent(String content) {
+        if (content.equals(this.content)) {
+            System.out.println("기존 메세지 내용과 같은 내용입니다.");
+            return this;
+        }
         this.content = content;
         updatedAt = Instant.now().toEpochMilli();
         return this;
     }
 
     public Message updateSender(UUID senderId) {
+        if (senderId.equals(this.senderId)) {
+            System.out.println("기존 메세지 발신인과 같은 유저입니다.");
+            return this;
+        }
         this.senderId = senderId;
         updatedAt = Instant.now().toEpochMilli();
         return this;
