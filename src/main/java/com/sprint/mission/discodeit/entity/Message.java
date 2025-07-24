@@ -6,16 +6,15 @@ public class Message {
     private String content;
     private final String channelName;
     private final String creatorUserId;
-    private final Long createdAt;
-    private Long updatedAt;
+    private final Long createdAt = System.currentTimeMillis();
+    private Long updatedAt = System.currentTimeMillis();
 
     public Message(String content, String channelName, String creatorUserId) {
-        long now = System.currentTimeMillis();
+        this.msgId = UUID.randomUUID();
         this.content = content;
         this.channelName = channelName;
         this.creatorUserId = creatorUserId;
-        this.createdAt = now;
-        this.updatedAt = now;
+        this.updatedAt = getUpdatedAt();
     }
 
     public String getContent() {
