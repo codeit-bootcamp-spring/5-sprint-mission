@@ -1,48 +1,55 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class JCFChannelService implements ChannelService {
 
-    private final List<Channel> data;
+    ChannelRepository repo;
 
-    public JCFChannelService() {
-        data = new ArrayList<>();
+    public JCFChannelService(ChannelRepository repo) {
+        this.repo = repo;
     }
 
     @Override
     public void create(Channel channel) {
-        data.add(channel);
+        repo.save(channel);
     }
 
     @Override
     public void update(Channel channel) {
-        int i = data.indexOf(channel);
-        data.set(i, channel);
+        if (!repo.searchAll().contains(channel)) {
+            System.err.println("해당하는 채널을 찾을 수 없습니다.");
+            throw new NoSuchElementException();
+        }
+        repo.save(channel);
     }
 
     @Override
     public void delete(Channel channel) {
-        data.remove(channel);
+        if (!repo.searchAll().contains(channel)) {
+            System.err.println("해당하는 채널을 찾을 수 없습니다.");
+            throw new NoSuchElementException();
+        }
+        repo.delete(channel);
     }
 
     @Override
     public void deleteAll() {
-        data.clear();
+        repo.deleteAll();
     }
 
     @Override
     public List<Channel> searchByName(String name) {
-        List<Channel> channels = new ArrayList<>();
-        for (Channel channel : data) {
-            if (channel.getName().contains(name)) {
-                channels.add(channel);
-            }
+        List<Channel> channels = repo.searchByName(name);
+        if (channels.isEmpty()) {
+            System.err.println("해당하는 채널을 찾을 수 없습니다.");
+            throw new NoSuchElementException();
         }
 
         return channels;
@@ -50,24 +57,16 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel searchById(UUID id) {
-        for (Channel channel : data) {
-            if (channel.getId().equals(id)) {
-                return channel;
-            }
+        Channel channel = repo.searchById(id).orElse(null);
+        if (channel == null) {
+            System.err.println("해당하는 유저를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
         }
-        return null;
+        return channel;
     }
-
 
     @Override
     public List<Channel> searchAll() {
-        return data;
-    }
-
-    @Override
-    public String toString() {
-        return "JCFChannelService{" +
-                "data=" + data +
-                '}';
+        return repo.searchAll();
     }
 }

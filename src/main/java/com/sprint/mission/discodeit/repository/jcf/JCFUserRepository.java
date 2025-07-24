@@ -47,11 +47,4 @@ public class JCFUserRepository implements UserRepository {
     public List<User> searchAll() {
         return new ArrayList<>(data.values());
     }
-
-    @Override
-    public String toString() {
-        return "JCFUserRepository{" +
-                "data=" + data +
-                '}';
-    }
 }

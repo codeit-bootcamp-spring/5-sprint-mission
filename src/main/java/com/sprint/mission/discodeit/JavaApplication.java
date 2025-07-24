@@ -3,7 +3,9 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -11,18 +13,15 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.file.FileChannelService;
 import com.sprint.mission.discodeit.service.file.FileMessageService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.nio.file.Path;
-import java.util.UUID;
 
 public class JavaApplication {
 
     static UserRepository userRepo = new FileUserRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/userDirectory/"));
     static UserService userService = new FileUserService(userRepo);
-    static ChannelService channelService = new FileChannelService(Path.of("/Users/apple/dev_source/5-sprint-mission/channelDirectory/"));
+    static ChannelRepository channelRepo = new FileChannelRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/channelDirectory/"));
+    static ChannelService channelService = new FileChannelService(channelRepo);
     static MessageService messageService = new FileMessageService(Path.of("/Users/apple/dev_source/5-sprint-mission/messageDirectory/"));
 
     public static void main(String[] args) {
@@ -78,8 +77,6 @@ public class JavaApplication {
 
         // 삭제 - 확인
         userService.delete(user1);
-        System.out.println(userService.searchById(user1.getId()));
-
     }
 
     static void testChannelService() {
@@ -107,8 +104,6 @@ public class JavaApplication {
 
         // 삭제 - 확인
         channelService.delete(channel1);
-        System.out.println(channelService.searchById(channel1.getId()));
-
     }
 
     static void testMessageService() {
@@ -128,7 +123,7 @@ public class JavaApplication {
         System.out.println("searchBySenderId() 검색 결과");
         messageService.searchBySenderId(userService.searchAll().get(0).getId()).forEach(System.out::println);
 
-        // 수정
+        // 수정 - 확인
         System.out.println("수정 전 : " + messageService.searchById(message1.getId()));
         messageService.update(message1.updateContent("updated content"));
         messageService.update(message1.updateContent("updated content"));
@@ -136,12 +131,9 @@ public class JavaApplication {
         messageService.update(message1.updateSender(userService.searchAll().get(1).getId()));
         System.out.println("수정 후 : " + messageService.searchById(message1.getId()));
 
-        // 삭제
+        // 삭제 - 확인
         messageService.delete(message1);
-
-        // 조회
         System.out.println(messageService.searchById(message1.getId()));
-
     }
 
 }
