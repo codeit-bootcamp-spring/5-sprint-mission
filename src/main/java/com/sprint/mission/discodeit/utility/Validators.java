@@ -99,4 +99,12 @@ public class Validators {
       throw new ValidationException("올바른 URL이어야 합니다.");
     }
   }
+
+  public static String validateChannelName(String channelName) {
+    String normalizedChannelName = normalizeString(channelName);
+    if (normalizedChannelName.length() > 100) {
+      throw new ValidationException("서버명은 100자 이내여야 합니다.");
+    }
+    return normalizedChannelName;
+  }
 }
