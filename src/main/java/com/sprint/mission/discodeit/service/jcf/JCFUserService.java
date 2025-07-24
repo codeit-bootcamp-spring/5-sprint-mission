@@ -42,7 +42,7 @@ public class JCFUserService implements UserService {
         return data.stream()
                 .filter(user -> user.getUserId().equals(userId))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("해당 ID의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("해당 ID의 사용자를 찾을 수 없습니다"));
     }
 
     @Override
