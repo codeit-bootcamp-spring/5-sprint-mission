@@ -4,14 +4,9 @@ import java.util.UUID;
 
 
 public class BaseEntity {
-
-
   protected final UUID id;
-
   protected final Long createdAt;
-
   protected Long updatedAt;
-
 
   public BaseEntity(UUID id, Long createdAt, Long updatedAt) {
     this.id = id;
