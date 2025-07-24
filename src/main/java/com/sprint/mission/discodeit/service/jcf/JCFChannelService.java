@@ -3,13 +3,10 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFChannelService implements ChannelService {
-    private static final List<Channel> data = new ArrayList<>();
-
+    private static final Map<UUID,Channel> data = new HashMap<>();
     private static JCFChannelService instance;
 
     private JCFChannelService() {}
@@ -21,53 +18,35 @@ public class JCFChannelService implements ChannelService {
         return instance;
     }
 
-
     @Override
-    public void addChannel(Channel channel) {
-        if(channel == null){
-            return;
-        }
-
-        data.add(channel);
+    public void add(Channel channel) {
+        data.put(channel.getId(), channel);
     }
 
     @Override
-    public List<Channel> getChannels() {
-        return data;
+    public Channel findOne(UUID channelId) {
+        return data.get(channelId);
     }
 
     @Override
-    public Channel getChannelById(UUID channelId) {
-        return data.stream().filter(c->c.getId().equals(channelId)).findFirst().orElse(null);
+    public List<Channel> findAll() {
+        return new ArrayList<>(data.values());
     }
 
     @Override
-    public void updateChannel(Channel Channel, UUID id) {
-        data.stream().filter(existing -> existing.getId().equals(id))
-                .findFirst()
-                .map(existing -> {
-                    existing.updateName(Channel.getChannelName());
-                    existing.updateType(Channel.getType());
-                    existing.updateOwnerUser(Channel.getOwnerUser());
-                    existing.updateTopic(Channel.getTopic());
-
-                    return existing;
-                });
+    public void update(UUID channelId, Channel channel) {
+        Channel origin = data.remove(channelId);
+        origin.updateChannelName(channel.getChannelName());
+        data.put(origin.getId(), origin);
     }
 
     @Override
-    public void deleteChannel(UUID id) {
-        data.stream()
-                .filter(existing -> existing.getId().equals(id))
-                .findFirst()
-                .map(existing -> {
-                    data.remove(existing);
-                    return existing;
-                });
+    public void delete(UUID channelId) {
+        data.remove(channelId);
     }
-
     @Override
     public void deleteAll() {
         data.clear();
     }
+
 }

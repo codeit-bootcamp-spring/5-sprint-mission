@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ChannelService {
-    void addChannel(Channel Channel);
-    List<Channel> getChannels();
-    Channel getChannelById(UUID channelId);
-    void updateChannel(Channel Channel, UUID id);
-    void deleteChannel(UUID id);
+    void add(Channel channel);
+    Channel findOne(UUID channelId);
+    List<Channel> findAll();
+    void update(UUID channelId, Channel channel);
+    void delete(UUID channelId);
     void deleteAll();
 }
+

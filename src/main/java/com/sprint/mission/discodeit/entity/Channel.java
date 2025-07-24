@@ -1,55 +1,62 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
 public class Channel extends BaseEntity {
-    private User ownerUser;
+    private final User ownerUser;
     private String channelName;
-    private ChannelType type;
-    private String topic;
+    private Set<User> users = new HashSet<>();
+    private Set<Message> messages = new HashSet<>();
 
     public Channel(
-            String name, ChannelType type, User ownerUser,String topic
+            String channelName, User ownerUser
     ) {
         super();
+        this.channelName = channelName;
         this.ownerUser = ownerUser;
-        this.channelName = name;
-        this.type = type;
-        this.topic = topic;
-    }
-
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public void updateName(String name) {
-        this.channelName = name;
-        super.updateUpdatedAt();
-    }
-
-    public ChannelType getType() {
-        return type;
-    }
-
-    public void updateType(ChannelType type) {
-        this.type = type;
-        super.updateUpdatedAt();
     }
 
     public User getOwnerUser() {
         return ownerUser;
     }
 
-    public void updateOwnerUser(User ownerUser) {
-        this.ownerUser = ownerUser ;
+    public String getChannelName() {
+        return channelName;
+    }
+
+    public void updateChannelName(String channelName) {
+        this.channelName = channelName;
         super.updateUpdatedAt();
     }
 
-    public String getTopic() {
-        return topic;
+    public Set<User> getUsers() {
+        return users;
     }
 
-    public void updateTopic(String topic) {
-        this.topic = topic;
-        super.updateUpdatedAt();
+    public void addUser(User user) {
+        this.users.add(user);
     }
 
+
+    public Set<Message> getMessages() {
+        return messages;
+    }
+
+    public void addMessage(Message message) {
+        this.messages.add(message);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Channel channel = (Channel) o;
+        return Objects.equals(ownerUser, channel.ownerUser) && Objects.equals(channelName, channel.channelName) && Objects.equals(users, channel.users) && Objects.equals(messages, channel.messages);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ownerUser, channelName, users, messages);
+    }
 }

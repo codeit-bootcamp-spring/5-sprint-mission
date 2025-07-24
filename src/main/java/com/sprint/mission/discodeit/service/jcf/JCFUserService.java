@@ -3,80 +3,54 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFUserService implements UserService {
-    private static final List<User> data = new ArrayList<>();;
+    private static final Map<UUID,User> data = new HashMap<>();
     private static JCFUserService instance;
 
     private JCFUserService() {}
 
-    public static JCFUserService getInstance() {
-        if (instance == null) {
+    public static JCFUserService getInstance(){
+        if(instance == null){
             instance = new JCFUserService();
         }
-
         return instance;
     }
 
     @Override
-    public void addUser(User user) {
-        if(user == null){
-            return;
-        }
-
-        data.add(user);
+    public void add(User user) {
+        data.put(user.getId(), user);
     }
 
     @Override
-    public List<User> getUsers() {
-        return data;
+    public User findOne(UUID userId) {
+        return data.get(userId);
     }
 
     @Override
-    public User getUserById(UUID id) {
-        return data.stream().filter(u->u.getId().equals(id)).findFirst().orElse(null);
+    public List<User> findAll() {
+        return new ArrayList<>(data.values());
     }
 
     @Override
-    public User getUserByUsername(String username) {
-        return data.stream().filter(u->
-                u.getUserName()
-                    .equals(username))
-                    .findFirst()
-                    .orElse(null);
+    public void update(UUID originUserUuid , User newUser) {
+        User existingUser = data.remove(originUserUuid);
 
+        existingUser.updateUserName(newUser.getUserName());
+        existingUser.updateEmail(newUser.getEmail());
+        existingUser.updatePassword(newUser.getPassword());
+        existingUser.updatePhoneNumber(newUser.getPhoneNumber());
+
+        data.put(existingUser.getId(), existingUser);
+    }
+    @Override
+    public void delete(UUID userId) {
+        data.remove(userId);
     }
 
     @Override
-    public void updateUser(User updatedUser, UUID id) {
-        data.stream()
-                .filter(existing -> existing.getId().equals(id))
-                .findFirst()
-                .map(existing -> {
-                    existing.updateUserName(updatedUser.getUserName());
-                    existing.updateEmail(updatedUser.getEmail());
-                    existing.updatePassword(updatedUser.getPassword());
-                    existing.updatePhoneNumber(updatedUser.getPhoneNumber());
-                    return existing;
-                });
-    }
-
-    @Override
-    public void deleteUser(UUID id) {
-        data.stream()
-                .filter(existing -> existing.getId().equals(id))
-                .findFirst()
-                .map(existing -> {
-                    data.remove(existing);
-                    return existing;
-                });
-    }
-
-    @Override
-    public void deleteAll() {
+    public void deleteAll(){
         data.clear();
     }
 }

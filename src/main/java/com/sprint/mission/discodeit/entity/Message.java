@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.util.Objects;
+
 public class Message extends BaseEntity{
     private final Channel channel;
     private final User authorUser;
@@ -28,5 +30,17 @@ public class Message extends BaseEntity{
     public void updateContent(String content) {
         this.content = content;
         super.updateUpdatedAt();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Message message = (Message) o;
+        return Objects.equals(channel, message.channel) && Objects.equals(authorUser, message.authorUser) && Objects.equals(content, message.content);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(channel, authorUser, content);
     }
 }

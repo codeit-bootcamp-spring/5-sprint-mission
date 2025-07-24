@@ -3,13 +3,10 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFMessageService implements MessageService {
-    private static final List<Message> data = new ArrayList<>();
-
+    private static final Map<UUID, Message> data = new HashMap<>();
     private static JCFMessageService instance;
 
     private JCFMessageService() {}
@@ -21,44 +18,34 @@ public class JCFMessageService implements MessageService {
         return instance;
     }
 
+
     @Override
-    public void addMessage(Message message) {
-        if(message == null){
-            return;
-        }
-        data.add(message);
+    public void add(Message message) {
+        data.put(message.getId(), message);
     }
 
     @Override
-    public List<Message> getMessages() {
-        return data;
+    public Message findOne(UUID messageId) {
+        return data.get(messageId);
     }
 
     @Override
-    public Message getMessageById(UUID messageId) {
-        return data.stream().filter(u->u.getId().equals(messageId)).findFirst().orElse(null);
+    public List<Message> findAll() {
+        return new ArrayList<>(data.values());
     }
 
     @Override
-    public void updateMessage(Message updateMessage, UUID id) {
-        data.stream()
-                .filter(existing -> existing.getId().equals(id))
-                .findFirst()
-                .map(existing -> {
-                    existing.updateContent(updateMessage.getContent());
-                    return existing;
-                });
+    public void update(UUID originMessageUuid, Message newMessage) {
+        Message existingMessage = data.remove(originMessageUuid);
+
+        existingMessage.updateContent(newMessage.getContent());
+
+        data.put(existingMessage.getId(), existingMessage);
     }
 
     @Override
-    public void deleteMessage(UUID messageId) {
-        data.stream()
-                .filter(existing -> existing.getId().equals(messageId))
-                .findFirst()
-                .map(existing -> {
-                    data.remove(existing);
-                    return existing;
-                });
+    public void delete(UUID messageId) {
+        data.remove(messageId);
     }
 
     @Override

@@ -1,367 +1,240 @@
 package com.sprint.mission;
 
+import com.sprint.mission.discodeit.config.AppConfig;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.List;
 
 public class JavaApplication {
+
+    public static AppConfig appConfig = new AppConfig();
+    public static UserService userService = appConfig.userService();
+    public static ChannelService channelService = appConfig.channelService();
+    public static MessageService messageService = appConfig.messageService();
+
     public static void main(String[] args) {
         UserServiceTest.testAll();
-        ChannelServiceTest.testAll();
         MessageServiceTest.testAll();
+        ChannelServiceTest.testAll();
+    }
+
+    public static class ChannelServiceTest{
+        static User user1 = new User("test1","test1@naver.com", "1234", "010-1234-6545");
+        static Channel channel1 = new Channel("channel1", user1);
+        static Channel channel2 = new Channel("channel2", user1);
+
+        public static void testAll(){
+            addAndFind();
+            update();
+            delete();
+        }
+
+        public static void addAndFind(){
+            channelService.deleteAll();
+
+            channelService.add(channel1);
+            channelService.add(channel2);
+
+            Channel findChannel1 = channelService.findOne(channel1.getId());
+            boolean result1 = channel1.equals(findChannel1);
+
+            List<Channel> findAllChannel = channelService.findAll();
+
+            boolean result2 = findAllChannel.contains(channel2);
+
+            if(result1 && result2){
+                System.out.println("ChannelServiceTest : 등록 및 조회(단건, 다건) : O");
+            }else{
+                System.out.println("ChannelServiceTest : 등록 및 조회(단건, 다건) : X");
+            }
+        }
+
+        public static void update(){
+            channelService.deleteAll();
+
+            channelService.add(channel1);
+            Channel originChannel = channelService.findOne(channel1.getId());
+            Channel updateChannel = new Channel("update1", user1);
+            channelService.update(originChannel.getId(), updateChannel);
+
+            Channel updatedChannel = channelService.findOne(originChannel.getId());
+
+            boolean result1 = originChannel.getId().equals(updatedChannel.getId());
+            boolean result2 = updateChannel.getChannelName().equals(updatedChannel.getChannelName());
+
+            if(result1 && result2){
+                System.out.println("ChannelServiceTest: 채널 업데이트 : O");
+            }else{
+                System.out.println("ChannelServiceTest: 채널 업데이트 : X");
+            }
+        }
+
+        public static void delete(){
+            channelService.deleteAll();
+
+            channelService.add(channel1);
+            channelService.add(channel2);
+
+            List<Channel> before = channelService.findAll();
+
+            channelService.delete(channel1.getId());
+
+            List<Channel> after = channelService.findAll();
+
+            boolean result = before.size() - 1 == after.size();
+            if(result){
+                System.out.println("ChannelServiceTest : 단건 삭제: O");
+            }else{
+                System.out.println("ChannelServiceTest : 단건 삭제: X");
+            }
+        }
+    }
+
+    public static class MessageServiceTest{
+
+        static User user1 = new User("test1","test1@naver.com", "1234", "010-1234-6545");
+        static Channel channel1 = new Channel("channel1", user1);
+        static Message message1 = new Message("message1", channel1, user1);
+        static Message message2 = new Message("message2", channel1, user1);
+
+
+        public static void testAll(){
+            addAndFind();
+            update();
+            delete();
+        }
+
+        public static void addAndFind(){
+            messageService.deleteAll();
+
+            messageService.add(message1);
+
+            Message findMessage1 = messageService.findOne(message1.getId());
+            boolean result1 = message1.equals(findMessage1);
+
+            messageService.add(message2);
+            List<Message> findAllMessage = messageService.findAll();
+            boolean result2 = findAllMessage.contains(message2);
+            if(result1 && result2){
+                System.out.println("MessageServiceTest: 등록 및 조회(단건, 다건) : O");
+            }else{
+                System.out.println("MessageServiceTest: 등록 및 조회(단건, 다건) : X");
+            }
+        }
+
+        public static void update(){
+            messageService.deleteAll();
+
+            messageService.add(message1);
+            Message originMessage = messageService.findOne(message1.getId());
+            Message updateMessage = new Message("update1", channel1, user1);
+            messageService.update(originMessage.getId(), updateMessage);
+
+            Message updatedMessage = messageService.findOne(originMessage.getId());
+
+            boolean result1 = originMessage.getId().equals(updatedMessage.getId());
+            boolean result2 = updateMessage.getContent().equals(updatedMessage.getContent());
+
+            if(result1 && result2){
+                System.out.println("MessageServiceTest: 메시지 업데이트 : O");
+            }else{
+                System.out.println("MessageServiceTest: 메시지 업데이트 : X");
+            }
+        }
+
+        public static void delete(){
+            messageService.deleteAll();
+
+            messageService.add(message1);
+            messageService.add(message2);
+
+            List<Message> before = messageService.findAll();
+
+            messageService.delete(message1.getId());
+
+            List<Message> after = messageService.findAll();
+
+            boolean result = before.size() - 1 == after.size();
+            if(result){
+                System.out.println("MessageServiceTest : 단건 삭제: O");
+            }else{
+                System.out.println("MessageServiceTest : 단건 삭제: X");
+            }
+        }
     }
 
     public static class UserServiceTest{
-        public static UserService jcfUserService = JCFUserService.getInstance();
+        static User user1 = new User("user1", "user1@gmail.com", "1234", "010-1234-6545");
+        static User user2 = new User("user2", "user2@gmail.com", "1234", "010-456-6545");
 
         public static void testAll(){
-            System.out.println("\n**UserService Test**");
-            testAddUser();
-            testGetUsers();
-            testGetUserById();
-            testGetUserByUsername();
-            testUpdateUser();
-            testDeleteUser();
+            addAndFind();
+            update();
+            delete();
         }
-        public static void testAddUser(){
-            jcfUserService.deleteAll();
 
-            User originUser = new User(
-                    "홍길동",
-                    "hong@gmail.com",
-                    "1234",
-                    "010-1234-6545"
-            );
-            jcfUserService.addUser(originUser);
+        public static void addAndFind(){
+            userService.deleteAll();
+            userService.add(user1);
+            userService.add(user2);
 
-            User user =  jcfUserService.getUserByUsername("홍길동");
-            if(user.getId().equals(originUser.getId())){
-                System.out.println("testAddUser O");
+            User findUser1 = userService.findOne(user1.getId());
+
+            boolean result1 = user1.equals(findUser1);
+
+            boolean result2 = userService.findAll().contains(user2);
+
+            if(result1 && result2){
+                System.out.println("UserServiceTest: 등록 및 조회(단건, 다건): O");
             }else{
-                System.out.println("testAddUser X");
-            }
-
-        }
-
-        public static void testGetUsers(){
-            jcfUserService.deleteAll();
-
-            User u1 = new User("홍길동", "hong@gmail.com", "1234", "010-1234-6545");
-            User u2 = new User("이순신", "lee@gmail.com", "5678", "010-5678-1234");
-            jcfUserService.addUser(u1);
-            jcfUserService.addUser(u2);
-
-            List<User> list = jcfUserService.getUsers();
-            if (list.size() == 2) {
-                System.out.println("testGetUsers O");
-            } else {
-                System.out.println("testGetUsers X");
-            }
-
-        }
-
-        public static void testGetUserById(){
-            jcfUserService.deleteAll();
-
-            User originUser = new User(
-                    "홍길동",
-                    "hong@gmail.com",
-                    "1234",
-                    "010-1234-6545"
-            );
-
-            jcfUserService.addUser(originUser);
-            User user = jcfUserService.getUserById(originUser.getId());
-
-            if (user != null && user.getId().equals(originUser.getId())) {
-                System.out.println("testGetUserById O");
-            } else {
-                System.out.println("testGetUserById X");
+                System.out.println("UserServiceTest: 등록 및 조회(단건, 다건): X");
             }
         }
 
-        public static void testGetUserByUsername(){
-            jcfUserService.deleteAll();
+        public static void update(){
+            userService.deleteAll();
 
-            User originUser = new User(
-                    "이순신",
-                    "lee@gmail.com",
-                    "5678",
-                    "010-5678-1234"
-            );
-            jcfUserService.addUser(originUser);
+            userService.add(user1);
+            User updateUser = new User("update1", "update@naver.com", "1234", "101123456789");
+            userService.update(user1.getId(), updateUser);
+            User updatedUser = userService.findOne(user1.getId());
 
-            User user = jcfUserService.getUserByUsername("이순신");
-            if (user != null && "이순신".equals(user.getUserName())) {
-                System.out.println("testGetUserByUsername O");
-            } else {
-                System.out.println("testGetUserByUsername X");
+            boolean result1 = user1.getId().equals(updatedUser.getId());
+            boolean result2 = updateUser.getUserName().equals(updatedUser.getUserName());
+
+            if(result1 && result2){
+                System.out.println("UserServiceTest: 업데이트 : O");
+            }else{
+                System.out.println("UserServiceTest: 업데이트 : X");
             }
         }
 
-        public static void testUpdateUser(){
-            jcfUserService.deleteAll();
+        public static void delete(){
+            userService.deleteAll();
+            userService.add(user1);
+            userService.add(user2);
 
-            User originUser = new User(
-                    "홍길동",
-                    "hong@gmail.com",
-                    "1234",
-                    "010-1234-6545"
-            );
-            jcfUserService.addUser(originUser);
+            List<User> before = userService.findAll();
 
-            originUser.updateUserName("김철수");
-            originUser.updateEmail("kim@gmail.com");
-            originUser.updatePassword("abcd");
-            originUser.updatePhoneNumber("010-0000-0000");
+            userService.delete(user1.getId());
 
-            jcfUserService.updateUser(originUser, originUser.getId());
+            List<User> after = userService.findAll();
 
-            User user = jcfUserService.getUserById(originUser.getId());
-            if ("김철수".equals(user.getUserName())
-                    && "kim@gmail.com".equals(user.getEmail())
-                    && "abcd".equals(user.getPassword())
-                    && "010-0000-0000".equals(user.getPhoneNumber())) {
-                System.out.println("testUpdateUser O");
-            } else {
-                System.out.println("testUpdateUser X");
+            boolean result = before.size() - 1 == after.size();
+            if(result){
+                System.out.println("UserServiceTest: 삭제 : O");
+            }else{
+                System.out.println("UserServiceTest: 삭제 : O");
             }
-            
-        }
 
-        public static void testDeleteUser(){
-            jcfUserService.deleteAll();
-
-            User originUser = new User(
-                    "홍길동",
-                    "hong@gmail.com",
-                    "1234",
-                    "010-1234-6545"
-            );
-            jcfUserService.addUser(originUser);
-            jcfUserService.deleteUser(originUser.getId());
-
-            User user = jcfUserService.getUserById(originUser.getId());
-            if (user == null) {
-                System.out.println("testDeleteUser O");
-            } else {
-                System.out.println("testDeleteUser X");
-            }
         }
     }
 
-    public static class ChannelServiceTest {
-        private static final ChannelService jcfChannelService = JCFChannelService.getInstance();
-
-        public static void testAll() {
-            System.out.println("\n**ChannelService Test**");
-            testAddChannel();
-            testGetChannels();
-            testGetChannelById();
-            testUpdateChannel();
-            testDeleteChannel();
-        }
-
-        public static void testAddChannel() {
-            jcfChannelService.deleteAll();
-
-            User owner = new User("홍길동", "hong@gmail.com", "1234", "010-1234-6545");
-            Channel original = new Channel("소통 채", ChannelType.CHATTING, owner, "소통 채 주제");
-            jcfChannelService.addChannel(original);
-
-            Channel found = jcfChannelService.getChannelById(original.getId());
-            if (found != null && found.getId().equals(original.getId())) {
-                System.out.println("testAddChannel O");
-            } else {
-                System.out.println("testAddChannel X");
-            }
-        }
-
-        public static void testGetChannels() {
-            jcfChannelService.deleteAll();
-
-            User u1 = new User("홍길동", "hong@gmail.com", "1234", "010-1234-6545");
-            Channel c1 = new Channel("소통 채널", ChannelType.CHATTING, u1, "소통 채널 주제");
-            User u2 = new User("이순신", "lee@gmail.com", "5678", "010-5678-1234");
-            Channel c2 = new Channel("mbc 채널", ChannelType.CHATTING, u2, "mbc 채널 주제");
-
-            jcfChannelService.addChannel(c1);
-            jcfChannelService.addChannel(c2);
-
-            List<Channel> list = jcfChannelService.getChannels();
-            if (list.size() == 2) {
-                System.out.println("testGetChannels O");
-            } else {
-                System.out.println("testGetChannels X");
-            }
-        }
-
-        public static void testGetChannelById() {
-            jcfChannelService.deleteAll();
-
-            User owner = new User("홍길동", "hong@gmail.com", "1234", "010-1234-6545");
-            Channel original = new Channel("소통 채널", ChannelType.CHATTING, owner, "소통 채널 주제");
-            jcfChannelService.addChannel(original);
-
-            Channel found = jcfChannelService.getChannelById(original.getId());
-            if (found != null && found.getId().equals(original.getId())) {
-                System.out.println("testGetChannelById O");
-            } else {
-                System.out.println("testGetChannelById X");
-            }
-        }
-
-        public static void testUpdateChannel() {
-            jcfChannelService.deleteAll();
-
-            User owner = new User("홍길동", "hong@gmail.com", "1234", "010-1234-6545");
-            Channel original = new Channel("소통 채널", ChannelType.CHATTING, owner, "소통 채널 주제");
-            jcfChannelService.addChannel(original);
-
-            User newOwner = new User("김철수", "kim@gmail.com", "abcd", "010-0000-0000");
-            Channel updated = new Channel("뉴스 채널", ChannelType.CHATTING, newOwner, "뉴스 채널 주제");
-            jcfChannelService.updateChannel(updated, original.getId());
-
-            Channel found = jcfChannelService.getChannelById(original.getId());
-            if (found != null
-                    && "뉴스 채널".equals(found.getChannelName())
-                    && found.getOwnerUser().getId().equals(newOwner.getId())
-                    && "뉴스 채널 주제".equals(found.getTopic())
-                    && found.getUpdatedAt() != null) {
-                System.out.println("testUpdateChannel O");
-            } else {
-                System.out.println("testUpdateChannel X");
-            }
-        }
-
-        public static void testDeleteChannel() {
-            jcfChannelService.deleteAll();
-
-            User owner = new User("홍길동", "hong@gmail.com", "1234", "010-1234-6545");
-            Channel original = new Channel("소통 채널", ChannelType.CHATTING, owner, "소통 채널 주제");
-            jcfChannelService.addChannel(original);
-            jcfChannelService.deleteChannel(original.getId());
-
-            Channel found = jcfChannelService.getChannelById(original.getId());
-            if (found == null) {
-                System.out.println("testDeleteChannel O");
-            } else {
-                System.out.println("testDeleteChannel X");
-            }
-        }
-    }
-
-    public static class MessageServiceTest {
-        private static final MessageService jcfMessageService = JCFMessageService.getInstance();
-
-        public static void testAll() {
-            System.out.println("\n**MessageService Test**");
-            testAddMessage();
-            testGetMessages();
-            testGetMessageById();
-            testUpdateMessage();
-            testDeleteMessage();
-        }
-
-        public static void testAddMessage() {
-            jcfMessageService.deleteAll();
-
-            User user = new User("user", "writer@example.com", "pw1234", "010-1111-2222");
-            Channel channel = new Channel("일반", ChannelType.CHATTING, user, "일반 채널");
-            Message original = new Message("첫 번째 메시지",  channel, user);
-            jcfMessageService.addMessage(original);
-
-            Message found = jcfMessageService.getMessageById(original.getId());
-            if (found != null && found.getId().equals(original.getId())) {
-                System.out.println("testAddMessage O");
-            } else {
-                System.out.println("testAddMessage X");
-            }
-        }
-
-        public static void testGetMessages() {
-            jcfMessageService.deleteAll();
-
-            User user1 = new User("사용자1", "user1@example.com", "pass1", "010-2222-3333");
-            Channel channel = new Channel("테스트", ChannelType.CHATTING, user1, "테스트 채널 주제");
-            Message m1 = new Message("메시지 하나", channel, user1);
-            Message m2 = new Message("메시지 둘", channel, user1);
-
-            jcfMessageService.addMessage(m1);
-            jcfMessageService.addMessage(m2);
-
-            List<Message> list = jcfMessageService.getMessages();
-            if (list.size() == 2) {
-                System.out.println("testGetMessages O");
-            } else {
-                System.out.println("testGetMessages X");
-            }
-        }
-
-        public static void testGetMessageById() {
-            jcfMessageService.deleteAll();
-
-            User user = new User("사용자조회", "lookup@example.com", "pw0000", "010-4444-5555");
-            Channel channel = new Channel("조회", ChannelType.CHATTING, user, "조회 채널 주");
-            Message original = new Message("조회할 메시지",  channel, user);
-            jcfMessageService.addMessage(original);
-
-            Message found = jcfMessageService.getMessageById(original.getId());
-            if (found != null && found.getId().equals(original.getId())) {
-                System.out.println("testGetMessageById O");
-            } else {
-                System.out.println("testGetMessageById X");
-            }
-        }
-
-        public static void testUpdateMessage() {
-            jcfMessageService.deleteAll();
-
-            User user = new User("업데이트", "update@example.com", "pw1111", "010-6666-7777");
-            Channel channel = new Channel("업데이트", ChannelType.CHATTING, user, "업데이트 channel");
-            Message original = new Message("변경 전 내용", channel, user);
-            jcfMessageService.addMessage(original);
-
-            Message updated = new Message("변경 후 내용", channel, user);
-            jcfMessageService.updateMessage(updated, original.getId());
-
-            Message found = jcfMessageService.getMessageById(original.getId());
-            if (found != null
-                    && "변경 후 내용".equals(found.getContent())
-                    && found.getUpdatedAt() != null) {
-                System.out.println("testUpdateMessage O");
-            } else {
-                System.out.println("testUpdateMessage X");
-            }
-        }
-
-        public static void testDeleteMessage() {
-            jcfMessageService.deleteAll();
-
-            User user = new User("삭제테스트", "del@example.com", "pw2222", "010-8888-9999");
-            Channel channel = new Channel("삭제", ChannelType.CHATTING, user, "삭제 channel");
-            Message original = new Message("삭제할 메시지", channel, user);
-            jcfMessageService.addMessage(original);
-
-            jcfMessageService.deleteMessage(original.getId());
-
-            Message found = jcfMessageService.getMessageById(original.getId());
-            if (found == null) {
-                System.out.println("testDeleteMessage O");
-            } else {
-                System.out.println("testDeleteMessage X");
-            }
-        }
-    }
 
 
 }
