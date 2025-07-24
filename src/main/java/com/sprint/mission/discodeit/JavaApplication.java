@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -18,7 +20,8 @@ import java.util.UUID;
 
 public class JavaApplication {
 
-    static UserService userService = new FileUserService(Path.of("/Users/apple/dev_source/5-sprint-mission/userDirectory/"));
+    static UserRepository userRepo = new FileUserRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/userDirectory/"));
+    static UserService userService = new FileUserService(userRepo);
     static ChannelService channelService = new FileChannelService(Path.of("/Users/apple/dev_source/5-sprint-mission/channelDirectory/"));
     static MessageService messageService = new FileMessageService(Path.of("/Users/apple/dev_source/5-sprint-mission/messageDirectory/"));
 

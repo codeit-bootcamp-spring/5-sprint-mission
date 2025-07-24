@@ -1,72 +1,74 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class JCFUserService implements UserService {
 
-    private final List<User> data;
+    UserRepository repo;
 
-    public JCFUserService() {
-        data = new ArrayList<>();
+    public JCFUserService(UserRepository repo) {
+        this.repo = repo;
     }
 
     @Override
     public void create(User user) {
-        data.add(user);
+        repo.save(user);
     }
 
     @Override
     public void update(User user) {
-        int i = data.indexOf(user);
-        data.set(i, user);
+        if (!repo.searchAll().contains(user)) {
+            System.err.println("해당하는 유저를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
+        }
+        repo.save(user);
     }
 
     @Override
     public void delete(User user) {
-        data.remove(user);
+        if (!repo.searchAll().contains(user)) {
+            System.err.println("해당하는 유저를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
+        }
+        repo.delete(user);
     }
 
     @Override
     public void deleteAll() {
-        data.clear();
+        repo.deleteAll();
     }
 
     @Override
     public User searchById(UUID id) {
-        for (User user : data) {
-            if (user.getId().equals(id)) {
-                return user;
-            }
+        User user = repo.searchById(id).orElse(null);
+        if (user == null) {
+            System.err.println("해당하는 유저를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
         }
-        return null;
+        return user;
     }
 
     @Override
     public List<User> searchByName(String name) {
-        List<User> users = new ArrayList<>();
-
-        for (User user : data) {
-            if (user.getName().contains(name)) {
-                users.add(user);
-            }
+        List<User> users = repo.searchByName(name);
+        if (users.isEmpty()) {
+            System.err.println("해당하는 유저를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
         }
         return users;
     }
 
     @Override
     public List<User> searchAll() {
-        return data;
-    }
-
-    @Override
-    public String toString() {
-        return "JCFUserService{" +
-                "data=" + data +
-                '}';
+        if (repo.searchAll().isEmpty()) {
+            System.out.println("등록 된 유저가 없습니다.");
+        }
+        return repo.searchAll();
     }
 }
