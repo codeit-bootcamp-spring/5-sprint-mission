@@ -14,8 +14,6 @@ public interface UserService {
 
     void deleteAll();
 
-    User searchByIndex(int i);
-
     User searchById(UUID id);
 
     List<User> searchByName(String name);

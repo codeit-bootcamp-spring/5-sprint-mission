@@ -37,11 +37,6 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel searchByIndex(int i) {
-        return data.get(i);
-    }
-
-    @Override
     public List<Channel> searchByName(String name) {
         List<Channel> channels = new ArrayList<>();
         for (Channel channel : data) {

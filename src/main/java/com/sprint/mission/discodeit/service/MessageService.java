@@ -14,8 +14,6 @@ public interface MessageService {
 
     void deleteAll();
 
-    Message searchByIndex(int i);
-
     Message searchById(UUID id);
 
     List<Message> searchByContent(String content);

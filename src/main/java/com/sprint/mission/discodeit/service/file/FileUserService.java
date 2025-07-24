@@ -109,11 +109,6 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public User searchByIndex(int i) { // 삭제 예정 메서드
-        return null;
-    }
-
-    @Override
     public User searchById(UUID id) {
         for (User user : load(directory)) {
             if (user.getId().equals(id)) {

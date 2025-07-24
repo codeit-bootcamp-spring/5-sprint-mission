@@ -37,11 +37,6 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public Message searchByIndex(int i) {
-        return data.get(i);
-    }
-
-    @Override
     public Message searchById(UUID id) {
         for (Message message : data) {
             if (message.getId().equals(id)) {

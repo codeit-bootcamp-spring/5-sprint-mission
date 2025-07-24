@@ -110,11 +110,6 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public Channel searchByIndex(int i) {
-        return null;
-    }
-
-    @Override
     public List<Channel> searchByName(String name) {
         List<Channel> channels = new ArrayList<>();
         for (Channel channel : load(directory)) {

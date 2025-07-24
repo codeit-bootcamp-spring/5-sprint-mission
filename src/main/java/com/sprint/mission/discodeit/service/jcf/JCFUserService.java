@@ -37,11 +37,6 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User searchByIndex(int i) {
-        return data.get(i);
-    }
-
-    @Override
     public User searchById(UUID id) {
         for (User user : data) {
             if (user.getId().equals(id)) {

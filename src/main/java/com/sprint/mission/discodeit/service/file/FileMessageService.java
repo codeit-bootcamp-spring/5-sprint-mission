@@ -110,11 +110,6 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public Message searchByIndex(int i) {
-        return null;
-    }
-
-    @Override
     public Message searchById(UUID id) {
         for (Message message : load(directory)) {
             if (message.getId().equals(id)) {
