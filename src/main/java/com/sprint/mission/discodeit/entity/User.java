@@ -1,30 +1,40 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
 
+
 public class User implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     // 1. 필드 선언
     private final UUID id;
     private final Long createdAt;
-    private Long updatedAt;
+    private final String email;
+    private final String password;
 
+    private Long updatedAt;
     private String name;
-    private String email;
-    private String password;
+
 
     // 2. 생성자
-    public User(String name, String email, String password) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = null;
-
+    private User(UUID id, String name,String email, String password, Long createdAt ) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
+        this.createdAt = createdAt;
+        this.updatedAt = null;  // 생성 시점에는 updatedAt은 null
+    }
 
+    public User (String name, String email, String password) {
+        this(UUID.randomUUID(), name, email, password, System.currentTimeMillis());
+    }
+
+    private User(UUID id, String name, String email,Long createdAt) {
+        this(id, name, email, null, createdAt);
     }
 
     // 3. Getter
@@ -58,16 +68,19 @@ public class User implements Serializable {
         this.updatedAt = System.currentTimeMillis();
     }
 
+    // 5. 민감 데이터 보안 메서드
+    public User toSafeUser() {
+        return new User(this.id, this.name, this.email, this.createdAt); // password 제외
+    }
 
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 
