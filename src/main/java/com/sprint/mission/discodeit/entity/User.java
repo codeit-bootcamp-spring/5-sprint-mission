@@ -58,18 +58,26 @@ public class User implements Serializable {
         return this;
     }
 
-    public void addChannel(Channel channel) {
+    public User addChannel(Channel channel) {
         if (!channels.contains(channel.getId())) {
             this.channels.add(channel.getId());
             channel.getUsers().add(this.id);
             updatedAt = Instant.now().toEpochMilli();
+            return this;
         }
+        System.out.println("이미 가입된 채널입니다.");
+        return this;
     }
 
-    public void deleteChannel(Channel channel) {
+    public User deleteChannel(Channel channel) {
+        if (!channels.contains(channel.getId())) {
+            System.out.println("해당 채널에 가입되어있지 않습니다.");
+            return this;
+        }
         this.channels.remove(channel.getId());
         channel.getUsers().remove(this.id);
         updatedAt = Instant.now().toEpochMilli();
+        return this;
     }
 
     @Override
