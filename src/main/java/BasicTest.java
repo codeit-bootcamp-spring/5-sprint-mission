@@ -1,5 +1,3 @@
-package main.java;
-
 import java.util.List;
 import java.util.Scanner;
 
@@ -31,10 +29,10 @@ public class BasicTest {
 		userService.createUser("test3", "pw789", "박세준");
 
 		// 생성 체크
-		User userDummy = userService.getUser("test1");
+		User userDummy = userService.getUserByLoginId("test1");
 		System.out.println(userDummy.getLoginId() + " (" + userDummy.getDefaultNickname() + ") - 생성 성공");
-		userService.getUser("test2");
-		userService.getUser("test3");
+		userService.getUserByLoginId("test2");
+		userService.getUserByLoginId("test3");
 
 		// 중복 체크
 		User duplicateUser = userService.createUser("test1", "password123", "형을형이라부르지못하는자");
@@ -70,7 +68,7 @@ public class BasicTest {
 		System.out.println("잘못된 비밀번호 로그인: " + (loginFail == null ? "성공" : "실패"));
 
 		System.out.println("조회 테스트");
-		userDummy = userService.getUser(loginId);
+		userDummy = userService.getUserByLoginId(loginId);
 		System.out.println("닉네임: " + userDummy.getDefaultNickname());
 
 		boolean updateResult = userService.updateUserPassword(userDummy.getId(), "newpassword123");
@@ -80,7 +78,7 @@ public class BasicTest {
 		System.out.println("새 비밀번호로 로그인: " + (loginWithNewPass != null ? "성공" : "실패"));
 
 		System.out.println("전체 조회");
-		List<User> allUsers = userService.getUserAll();
+		List<User> allUsers = userService.getAllUsers();
 		for (int i = 0; i < allUsers.size(); i++) {
 			User user = allUsers.get(i);
 			System.out.println((i + 1) + ". " + user.getDefaultNickname() + " (" + user.getLoginId() + ")");
@@ -93,7 +91,7 @@ public class BasicTest {
 		channelService.createChannel("개발팀");
 		channelService.createChannel("취미");
 
-		List<Channel> allChannels = channelService.findChannelAll();
+		List<Channel> allChannels = channelService.getAllChannels();
 		for (int i = 0; i < allChannels.size(); i++) {
 			Channel channel = allChannels.get(i);
 			System.out.println((i + 1) + ". " + channel.getChannelName() +
@@ -105,21 +103,21 @@ public class BasicTest {
 		System.out.println("중복 채널 생성: " + (duplicateChannel == null ? "성공" : "실패"));
 
 		System.out.println("채널 참가 테스트");
-		userDummy = userService.getUser("test1");
+		userDummy = userService.getUserByLoginId("test1");
 		channelService.joinChannel(userDummy, "일반");
-		userDummy = userService.getUser("test1");
+		userDummy = userService.getUserByLoginId("test1");
 		channelService.joinChannel(userDummy, "개발팀");
-		userDummy = userService.getUser("test2");
+		userDummy = userService.getUserByLoginId("test2");
 		System.out.println("일반 채널 참가: " + (channelService.joinChannel(userDummy, "일반") ? "성공" : "실패"));
-		userDummy = userService.getUser("test3");
+		userDummy = userService.getUserByLoginId("test3");
 		channelService.joinChannel(userDummy, "취미");
 
 		System.out.println("존재하지 않는 채널 참가 시도: " + (channelService.joinChannel(userDummy, "존재하지않는채널") ? "실패" : "성공"));
 
-		Channel generalChannel = channelService.findChannel("일반");
+		Channel generalChannel = channelService.getChannelByName("일반");
 		System.out.println("채널명 조회, 채널명: " + generalChannel.getChannelName());
 
-		allChannels = channelService.findChannelAll();
+		allChannels = channelService.getAllChannels();
 		for (int i = 0; i < allChannels.size(); i++) {
 			Channel channel = allChannels.get(i);
 			System.out.println((i + 1) + ". " + channel.getChannelName() +
@@ -129,21 +127,21 @@ public class BasicTest {
 
 		System.out.println("====메시지 서비스 테스트=====");
 
-		userDummy = userService.getUser("test1");
-		generalChannel = channelService.findChannel("일반");
+		userDummy = userService.getUserByLoginId("test1");
+		generalChannel = channelService.getChannelByName("일반");
 
 		System.out.println("메시지 1 생성: "
 			+ (messageService.createMessage(userDummy.getId(),
 			generalChannel.getId(),
 			"안녕하세요! 처음 왔어요.") ? "성공" : "실패"));
 
-		userDummy = userService.getUser("test2");
+		userDummy = userService.getUserByLoginId("test2");
 		System.out.println("메시지 2 생성: "
 			+ (messageService.createMessage(userDummy.getId(),
 			generalChannel.getId(),
 			"환영합니다!") ? "성공" : "실패"));
 
-		userDummy = userService.getUser("test1");
+		userDummy = userService.getUserByLoginId("test1");
 
 		System.out.println("메시지 2 생성: "
 			+ (messageService.createMessage(userDummy.getId(),
@@ -152,7 +150,7 @@ public class BasicTest {
 
 		System.out.println("비참가자 메시지 생성 시도");
 
-		userDummy = userService.getUser("test3");
+		userDummy = userService.getUserByLoginId("test3");
 		System.out.println("메시지 2 생성: "
 			+ (messageService.createMessage(userDummy.getId(),
 			generalChannel.getId(),
@@ -164,7 +162,7 @@ public class BasicTest {
 
 		for (int i = 0; i < Math.min(5, channelMessages.size()); i++) {
 			Message msg = channelMessages.get(i);
-			User author = userService.getUser(msg.getAuthorUUID());
+			User author = userService.getUserById(msg.getAuthorUUID());
 			String authorNick = generalChannel.getUserNickname(author.getId());
 			if (authorNick == null) authorNick = author.getDefaultNickname();
 
@@ -173,14 +171,14 @@ public class BasicTest {
 
 		// 작성자별 메시지 조회
 		System.out.println("\n작성자별 메시지 조회:");
-		List<String> nicknames = channelService.findChannelMemberNickname("일반");
+		List<String> nicknames = channelService.getMemberNicknames("일반");
 		for (String nn : nicknames) {
 			List<Message> authorMessages = messageService.getMessageByAuthor(nn, generalChannel.getId());
 			System.out.println(nn + "님이 작성한 메시지: " + authorMessages.size() + "개");
 		}
 
 		Message firstMsg = channelMessages.get(0);
-		User msgAuthor = userService.getUser(firstMsg.getAuthorUUID());
+		User msgAuthor = userService.getUserById(firstMsg.getAuthorUUID());
 		String authorNick = generalChannel.getUserNickname(msgAuthor.getId());
 		if (authorNick == null) authorNick = msgAuthor.getDefaultNickname();
 
@@ -198,20 +196,20 @@ public class BasicTest {
 		System.out.println("수정 후 업데이트 시간: " + updatedMsg.getUpdatedAt());
 
 		System.out.println("일반 채널 메시지 작성자 이름 바꾸기");
-		System.out.println(generalChannel.getUserNickname(userService.getUser(firstMsg.getAuthorUUID()).getId()));
+		System.out.println(generalChannel.getUserNickname(userService.getUserById(firstMsg.getAuthorUUID()).getId()));
 		System.out.println(channelService.updateUserNickname(generalChannel.getId(), firstMsg.getAuthorUUID(), "황올먹고싶다"));
-		System.out.println(generalChannel.getUserNickname(userService.getUser(firstMsg.getAuthorUUID()).getId()));
+		System.out.println(generalChannel.getUserNickname(userService.getUserById(firstMsg.getAuthorUUID()).getId()));
 		System.out.println();
 
 		System.out.println("메시지 전체 조회 테스트");
-		allChannels = channelService.findChannelAll();
+		allChannels = channelService.getAllChannels();
 		for (Channel channel : allChannels){
 			System.out.println("\n채널 명: " + channel.getChannelName() + " (멤버 " + channel.getChannelUsersUUID().size() + "명)");
 			List<Message> channelMessages2 = messageService.getMessageByChannel(channel.getId());
 
 			for (int i = 0; i < channelMessages2.size(); i++) {
 				Message msg = channelMessages2.get(i);
-				User author = userService.getUser(msg.getAuthorUUID());
+				User author = userService.getUserById(msg.getAuthorUUID());
 				authorNick = channel.getUserNickname(author.getId());
 				if (authorNick == null) authorNick = author.getDefaultNickname();
 
@@ -226,7 +224,7 @@ public class BasicTest {
 		List<Message> channelMessages3 =messageService.getMessageByAuthor(authorNick, generalChannel.getId());
 		for (int i = 0; i < channelMessages3.size(); i++) {
 			Message msg = channelMessages3.get(i);
-			User author = userService.getUser(msg.getAuthorUUID());
+			User author = userService.getUserById(msg.getAuthorUUID());
 			authorNick = generalChannel.getUserNickname(author.getId());
 			if (authorNick == null) authorNick = author.getDefaultNickname();
 

@@ -20,11 +20,8 @@ public class JCFUserRepository implements UserRepository {
 
 	@Override
 	public void save(User user) {
-		if (user == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-		if (user.getId() == null) {
-			throw new IllegalArgumentException("null!!");
+		if (user == null || user.getId() == null) {
+			return;
 		}
 
 		UserMap.put(user.getId(), user);
@@ -35,7 +32,7 @@ public class JCFUserRepository implements UserRepository {
 	@Override
 	public User findById(UUID id) {
 		if (id == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
 		return UserMap.get(id);
@@ -44,7 +41,7 @@ public class JCFUserRepository implements UserRepository {
 	@Override
 	public User findByLoginId(String loginId) {
 		if (loginId == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
 		return UserMap.get(loginIdToUUID.get(loginId));
@@ -60,7 +57,7 @@ public class JCFUserRepository implements UserRepository {
 	@Override
 	public void deleteById(UUID id) {
 		if (id == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		User user = UserMap.get(id);
@@ -73,7 +70,7 @@ public class JCFUserRepository implements UserRepository {
 	@Override
 	public void deleteByLoginId(String loginId){
 		if (loginId == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		UUID userId = loginIdToUUID.get(loginId);
@@ -83,8 +80,7 @@ public class JCFUserRepository implements UserRepository {
 		}
 	}
 
-	public boolean isExistLoginId(String loginId) {
-		if (loginId == null) return true;
+	public boolean existsByLoginId(String loginId) {
 		return loginIdToUUID.containsKey(loginId);
 	}
 }

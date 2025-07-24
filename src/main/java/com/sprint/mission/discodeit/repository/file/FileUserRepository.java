@@ -35,11 +35,8 @@ public class FileUserRepository implements UserRepository, FileService {
 
 	@Override
 	public void save(User user) {
-		if (user == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-		if (user.getId() == null) {
-			throw new IllegalArgumentException("null!!");
+		if (user == null || user.getId() == null) {
+			return;
 		}
 
 		userMap.put(user.getId(), user);
@@ -52,7 +49,7 @@ public class FileUserRepository implements UserRepository, FileService {
 	@Override
 	public User findById(UUID id) {
 		if (id == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
 		return userMap.get(id);
@@ -61,7 +58,7 @@ public class FileUserRepository implements UserRepository, FileService {
 	@Override
 	public User findByLoginId(String loginId) {
 		if (loginId == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
 		return userMap.get(loginIdToUUID.get(loginId));
@@ -77,7 +74,7 @@ public class FileUserRepository implements UserRepository, FileService {
 	@Override
 	public void deleteById(UUID id) {
 		if (id == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		User user = userMap.get(id);
@@ -93,7 +90,7 @@ public class FileUserRepository implements UserRepository, FileService {
 	@Override
 	public void deleteByLoginId(String loginId){
 		if (loginId == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		UUID userId = loginIdToUUID.get(loginId);
@@ -108,7 +105,7 @@ public class FileUserRepository implements UserRepository, FileService {
 
 
 
-	public boolean isExistLoginId(String loginId) {
+	public boolean existsByLoginId(String loginId) {
 		if (loginId == null) return true;
 		return loginIdToUUID.containsKey(loginId);
 	}

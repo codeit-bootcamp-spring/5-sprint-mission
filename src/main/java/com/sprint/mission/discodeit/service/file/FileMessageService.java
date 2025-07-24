@@ -46,8 +46,8 @@ public class FileMessageService implements MessageService, FileService {
 	public boolean createMessage(UUID authorUUID, UUID channelUUID, String text) {
 		if(authorUUID == null || channelUUID == null || text == null) return false;
 
-		User user = userService.getUser(authorUUID);
-		Channel channel = channelService.findChannel(channelUUID);
+		User user = userService.getUserById(authorUUID);
+		Channel channel = channelService.getChannelByUUID(channelUUID);
 		if(user == null || channel == null) return false;
 
 		if(!channel.getChannelUsersUUID().contains(authorUUID)) {
@@ -73,13 +73,13 @@ public class FileMessageService implements MessageService, FileService {
 	}
 
 	@Override
-	public List<Message> getMessageAll() {
+	public List<Message> getAllMessages() {
 		return new ArrayList<Message>(messageMap.values());
 	}
 
 	@Override
 	public List<Message> getMessageByAuthor(String targetAuthor, UUID channelUUID) {
-		Channel channel = channelService.findChannel(channelUUID);
+		Channel channel = channelService.getChannelByUUID(channelUUID);
 		if(channel == null) return null;
 
 		List <Message> messageList = new ArrayList<>();
@@ -144,7 +144,7 @@ public class FileMessageService implements MessageService, FileService {
 
 		messageMap.remove(messageUUID);
 
-		Channel channel = channelService.findChannel(message.getChannelUUID());
+		Channel channel = channelService.getChannelByUUID(message.getChannelUUID());
 		if (channel != null) {
 			channel.removeMessage(messageUUID);
 		}

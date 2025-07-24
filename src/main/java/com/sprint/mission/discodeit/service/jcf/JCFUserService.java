@@ -22,6 +22,7 @@ public class JCFUserService implements UserService {
 	@Override
 	public User createUser(String loginId, String password, String defaultNickname) {
 
+		if (loginId == null) return null;
 		if ( isExistLoginId(loginId) ) return null;
 
 		User user = new User(loginId, password, defaultNickname);
@@ -46,17 +47,17 @@ public class JCFUserService implements UserService {
 	}
 
 	@Override
-	public User getUser(UUID id) {
+	public User getUserById(UUID id) {
 		return UserMap.get(id);
 	}
 
 	@Override
-	public User getUser(String loginId) {
+	public User getUserByLoginId(String loginId) {
 		return UserMap.get(loginIdToUUID.get(loginId));
 	}
 
 	@Override
-	public List<User> getUserAll() {
+	public List<User> getAllUsers() {
 		List<User> userList = new ArrayList<>(UserMap.values());
 		userList.sort((u1, u2) -> u1.getDefaultNickname().compareTo(u2.getDefaultNickname()));
 		return userList;
@@ -92,7 +93,6 @@ public class JCFUserService implements UserService {
 	}
 
 	public boolean isExistLoginId(String loginId) {
-		if (loginId == null) return true;
 		return loginIdToUUID.containsKey(loginId);
 	}
 }

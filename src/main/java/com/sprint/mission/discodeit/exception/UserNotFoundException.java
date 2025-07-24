@@ -7,8 +7,8 @@ public class UserNotFoundException extends RuntimeException {
 		super(message);
 	}
 
-	public UserNotFoundException(UUID id) {
-		super("찾을 수 없는 유저: " + id);
+	public UserNotFoundException() {
+		super("없는 아이디 입니다.");
 	}
 
 	public UserNotFoundException(String field, String value) {

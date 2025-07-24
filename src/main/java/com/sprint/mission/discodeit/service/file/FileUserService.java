@@ -52,7 +52,7 @@ public class FileUserService implements UserService, FileService {
 
 	@Override
 	public User createUser(String loginId, String password, String defaultNickname) {
-		if (isExistLoginId(loginId)) return null;
+		if (existsLoginId(loginId)) return null;
 
 		User user = new User(loginId, password, defaultNickname);
 		userMap.put(user.getId(), user);
@@ -64,17 +64,17 @@ public class FileUserService implements UserService, FileService {
 	}
 
 	@Override
-	public User getUser(UUID id) {
+	public User getUserById(UUID id) {
 		return userMap.get(id);
 	}
 
 	@Override
-	public User getUser(String loginId) {
+	public User getUserByLoginId(String loginId) {
 		return userMap.get(loginIdToUUID.get(loginId));
 	}
 
 	@Override
-	public List<User> getUserAll() {
+	public List<User> getAllUsers() {
 		List<User> userList = new ArrayList<>(userMap.values());
 		userList.sort((u1, u2) -> u1.getDefaultNickname().compareTo(u2.getDefaultNickname()));
 		return userList;
@@ -123,7 +123,7 @@ public class FileUserService implements UserService, FileService {
 		return true;
 	}
 
-	public boolean isExistLoginId(String loginId) {
+	public boolean existsLoginId(String loginId) {
 		if (loginId == null) return true;
 		return loginIdToUUID.containsKey(loginId);
 	}

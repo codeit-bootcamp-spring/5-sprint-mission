@@ -35,11 +35,8 @@ public class FileChannelRepository implements ChannelRepository, FileService {
 
 	@Override
 	public void save(Channel channel) {
-		if (channel == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-		if (channel.getId() == null) {
-			throw new IllegalArgumentException("null!!");
+		if (channel == null || channel.getId() == null) {
+			return;
 		}
 
 		channelMap.put(channel.getId(), channel);
@@ -52,7 +49,7 @@ public class FileChannelRepository implements ChannelRepository, FileService {
 	@Override
 	public Channel findById(UUID channelId) {
 		if (channelId == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
 		return channelMap.get(channelId);
@@ -61,7 +58,7 @@ public class FileChannelRepository implements ChannelRepository, FileService {
 	@Override
 	public Channel findByName(String channelName) {
 		if (channelName == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
 		UUID channelId = channelNameToUUID.get(channelName);
@@ -84,7 +81,7 @@ public class FileChannelRepository implements ChannelRepository, FileService {
 	@Override
 	public void deleteById(UUID channelId) {
 		if (channelId == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		Channel channel = channelMap.get(channelId);
@@ -100,7 +97,7 @@ public class FileChannelRepository implements ChannelRepository, FileService {
 	@Override
 	public void deleteByName(String channelName) {
 		if (channelName == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		UUID channelId = channelNameToUUID.get(channelName);

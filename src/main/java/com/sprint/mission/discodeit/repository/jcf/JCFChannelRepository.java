@@ -21,11 +21,8 @@ public class JCFChannelRepository implements ChannelRepository {
 
 	@Override
 	public void save(Channel channel) {
-		if (channel == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-		if (channel.getId() == null) {
-			throw new IllegalArgumentException("null!!");
+		if (channel == null || channel.getId() == null) {
+			return;
 		}
 
 		channelMap.put(channel.getId(), channel);
@@ -35,7 +32,7 @@ public class JCFChannelRepository implements ChannelRepository {
 	@Override
 	public Channel findById(UUID channelId) {
 		if (channelId == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
 		return channelMap.get(channelId);
@@ -44,7 +41,7 @@ public class JCFChannelRepository implements ChannelRepository {
 	@Override
 	public Channel findByName(String channelName) {
 		if (channelName == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
 		UUID channelId = channelNameToUUID.get(channelName);

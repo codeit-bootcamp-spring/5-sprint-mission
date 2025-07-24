@@ -36,10 +36,10 @@ public class FileMessageRepository implements MessageRepository, FileService {
 	@Override
 	public void save(Message message) {
 		if (message == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 		if (message.getId() == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		messageMap.put(message.getId(), message);
@@ -49,7 +49,7 @@ public class FileMessageRepository implements MessageRepository, FileService {
 	@Override
 	public Message findById(UUID messageId) {
 		if (messageId == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
 		return messageMap.get(messageId);
@@ -63,41 +63,22 @@ public class FileMessageRepository implements MessageRepository, FileService {
 	@Override
 	public List<Message> findByChannelId(UUID channelId) {
 		if (channelId == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
-		return messageMap.values().stream()
-			.filter(message -> channelId.equals(message.getChannelUUID()))
-			.collect(Collectors.toList());
-	}
-
-	@Override
-	public List<Message> findByAuthorId(UUID authorId) {
-		if (authorId == null) {
-			throw new IllegalArgumentException("null!!");
+		List<Message> messages = new ArrayList<>();
+		for (Message message : messageMap.values()) {
+			if (channelId.equals(message.getChannelUUID())) {
+				messages.add(message);
+			}
 		}
-
-		return messageMap.values().stream()
-			.filter(message -> authorId.equals(message.getAuthorUUID()))
-			.collect(Collectors.toList());
-	}
-
-	@Override
-	public List<Message> findByChannelIdAndAuthorId(UUID channelId, UUID authorId) {
-		if (channelId == null || authorId == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-
-		return messageMap.values().stream()
-			.filter(message -> channelId.equals(message.getChannelUUID()) &&
-				authorId.equals(message.getAuthorUUID()))
-			.collect(Collectors.toList());
+		return messages;
 	}
 
 	@Override
 	public void deleteById(UUID messageId) {
 		if (messageId == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		messageMap.remove(messageId);

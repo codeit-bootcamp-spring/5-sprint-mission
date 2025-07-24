@@ -65,18 +65,18 @@ public class FileChannelService implements ChannelService, FileService {
 	}
 
 	@Override
-	public Channel findChannel(String channelName) {
+	public Channel getChannelByName(String channelName) {
 		if(!channelNameToUUID.containsKey(channelName)) return null;
 		return channelMap.get(channelNameToUUID.get(channelName));
 	}
 
 	@Override
-	public Channel findChannel(UUID channelUUID) {
+	public Channel getChannelByUUID(UUID channelUUID) {
 		return channelMap.get(channelUUID);
 	}
 
 	@Override
-	public List<String> findChannelMemberNickname(String channelName){
+	public List<String> getMemberNicknames(String channelName){
 		if (channelName == null || !channelNameToUUID.containsKey(channelName)) return new ArrayList<>();
 
 		Channel channel = channelMap.get(channelNameToUUID.get(channelName));
@@ -89,7 +89,7 @@ public class FileChannelService implements ChannelService, FileService {
 	}
 
 	@Override
-	public List<Channel> findChannelAll() {
+	public List<Channel> getAllChannels() {
 		List<Channel> channelList = new ArrayList<>(channelMap.values());
 		channelList.sort((c1, c2) -> c1.getChannelName().compareTo(c2.getChannelName()));
 		return channelList;
@@ -122,7 +122,7 @@ public class FileChannelService implements ChannelService, FileService {
 	public boolean updateUserNickname(UUID channelUUID, UUID userUUID, String newNickname) {
 		if (newNickname == null || newNickname.isEmpty()) return false;
 
-		Channel channel = findChannel(channelUUID);
+		Channel channel = getChannelByUUID(channelUUID);
 		if (channel == null) return false;
 
 		channel.addNickname(userUUID, newNickname);

@@ -14,11 +14,11 @@ public interface ChannelService {
 	boolean joinChannel(User user, String channelName);
 
 	// 읽기
-	Channel findChannel(String channelName);
-	Channel findChannel(UUID channelUUID);
+	Channel getChannelByName(String channelName);
+	Channel getChannelByUUID(UUID channelUUID);
 
-	List<String> findChannelMemberNickname(String channelName);
-	List<Channel> findChannelAll();
+	List<String> getMemberNicknames(String channelName);
+	List<Channel> getAllChannels();
 
 	// 수정
 	boolean updateChannelName(User user, UUID channelUUID, String channelNewName);

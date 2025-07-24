@@ -19,11 +19,8 @@ public class JCFMessageRepository implements MessageRepository {
 
 	@Override
 	public void save(Message message) {
-		if (message == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-		if (message.getId() == null) {
-			throw new IllegalArgumentException("null!!");
+		if (message == null || message.getId() == null) {
+			return;
 		}
 
 		messageMap.put(message.getId(), message);
@@ -32,7 +29,7 @@ public class JCFMessageRepository implements MessageRepository {
 	@Override
 	public Message findById(UUID messageId) {
 		if (messageId == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
 		return messageMap.get(messageId);
@@ -46,7 +43,7 @@ public class JCFMessageRepository implements MessageRepository {
 	@Override
 	public List<Message> findByChannelId(UUID channelId) {
 		if (channelId == null) {
-			throw new IllegalArgumentException("null!!");
+			return null;
 		}
 
 		return messageMap.values().stream()
@@ -55,32 +52,9 @@ public class JCFMessageRepository implements MessageRepository {
 	}
 
 	@Override
-	public List<Message> findByAuthorId(UUID authorId) {
-		if (authorId == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-
-		return messageMap.values().stream()
-			.filter(message -> authorId.equals(message.getAuthorUUID()))
-			.collect(Collectors.toList());
-	}
-
-	@Override
-	public List<Message> findByChannelIdAndAuthorId(UUID channelId, UUID authorId) {
-		if (channelId == null || authorId == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-
-		return messageMap.values().stream()
-			.filter(message -> channelId.equals(message.getChannelUUID()) &&
-				authorId.equals(message.getAuthorUUID()))
-			.collect(Collectors.toList());
-	}
-
-	@Override
 	public void deleteById(UUID messageId) {
 		if (messageId == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		messageMap.remove(messageId);
