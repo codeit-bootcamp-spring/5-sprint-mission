@@ -23,7 +23,7 @@ public class FileUserService implements UserService {
         initPath(directory);
     }
 
-    public void initPath(Path directory) {
+    private void initPath(Path directory) {
         if (!Files.exists(directory)) {
             try {
                 Files.createDirectories(directory);
@@ -33,7 +33,7 @@ public class FileUserService implements UserService {
         }
     }
 
-    public void save(User user) {
+    private void save(User user) {
         Path userDirectory = Path.of(directory.toString() + "/" + user.getId());
 
         try (FileOutputStream fos = new FileOutputStream(userDirectory.toFile());
@@ -44,7 +44,7 @@ public class FileUserService implements UserService {
         }
     }
 
-    public List<User> load(Path directory) {
+    private List<User> load(Path directory) {
         if (Files.exists(directory)) {
             try {
                 List<User> users = Files.list(directory)
@@ -76,7 +76,13 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public void update(User user) { // 리팩터링 후보
+    public void update(User user) {
+        for (User u : load(directory)) {
+            if (u.equals(user)) {
+                System.out.println("변경 사항이 없습니다.");
+                return;
+            }
+        }
         delete(user);
         save(user);
     }
