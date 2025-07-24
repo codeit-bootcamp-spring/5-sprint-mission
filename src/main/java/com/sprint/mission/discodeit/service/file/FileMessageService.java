@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.io.*;
@@ -23,7 +24,7 @@ public class FileMessageService implements MessageService {
         initPath(directory);
     }
 
-    public void initPath(Path directory) {
+    private void initPath(Path directory) {
         if (!Files.exists(directory)) {
             try {
                 Files.createDirectories(directory);
@@ -33,7 +34,7 @@ public class FileMessageService implements MessageService {
         }
     }
 
-    public void save(Message message) {
+    private void save(Message message) {
         Path messageDirectory = Path.of(directory.toString() + "/" + message.getId());
 
         try (FileOutputStream fos = new FileOutputStream(messageDirectory.toFile());
@@ -44,7 +45,7 @@ public class FileMessageService implements MessageService {
         }
     }
 
-    public List<Message> load(Path directory) {
+    private List<Message> load(Path directory) {
         if (Files.exists(directory)) {
             try {
                 List<Message> messages = Files.list(directory)
@@ -77,6 +78,12 @@ public class FileMessageService implements MessageService {
 
     @Override
     public void update(Message message) {
+        for (Message m : load(directory)) {
+            if (m.equals(message)) {
+                System.out.println("변경 사항이 없습니다.");
+                return;
+            }
+        }
         delete(message);
         save(message);
     }

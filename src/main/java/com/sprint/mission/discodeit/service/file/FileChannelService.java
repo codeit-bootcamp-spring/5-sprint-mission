@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.io.*;
@@ -23,7 +24,7 @@ public class FileChannelService implements ChannelService {
         initPath(directory);
     }
 
-    public void initPath(Path directory) {
+    private void initPath(Path directory) {
         if (!Files.exists(directory)) {
             try {
                 Files.createDirectories(directory);
@@ -33,7 +34,7 @@ public class FileChannelService implements ChannelService {
         }
     }
 
-    public void save(Channel channel) {
+    private void save(Channel channel) {
         Path channelDirectory = Path.of(directory.toString() + "/" + channel.getId());
 
         try (FileOutputStream fos = new FileOutputStream(channelDirectory.toFile());
@@ -44,7 +45,7 @@ public class FileChannelService implements ChannelService {
         }
     }
 
-    public List<Channel> load(Path directory) {
+    private List<Channel> load(Path directory) {
         if (Files.exists(directory)) {
             try {
                 List<Channel> channels = Files.list(directory)
@@ -77,6 +78,12 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public void update(Channel channel) {
+        for (Channel c : load(directory)) {
+            if (c.equals(channel)) {
+                System.out.println("변경 사항이 없습니다.");
+                return;
+            }
+        }
         delete(channel);
         save(channel);
     }
