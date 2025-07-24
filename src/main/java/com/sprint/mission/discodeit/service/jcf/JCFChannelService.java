@@ -11,11 +11,7 @@ import java.util.stream.Collectors;
 
 
 public class JCFChannelService implements ChannelService {
-
-
     private static JCFChannelService instance;
-
-
     private final Map<UUID, Channel> data = new HashMap<>();
 
     private JCFChannelService() {
