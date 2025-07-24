@@ -16,7 +16,8 @@ public class JCFUserService implements UserService {
     @Override
     public void create(User user) {
         if (users.containsKey(user.getId())) {
-            return;
+            //return;
+            throw new IllegalArgumentException("이미 존재하는 사용자입니다." + user.getId());
         }
         users.put(user.getId(), user);
     }
@@ -25,7 +26,7 @@ public class JCFUserService implements UserService {
     public User findById(UUID id) {
         User user = users.get(id);
         if (user != null) {
-            System.out.println("찾으신 닉네임: "+user.getNickName());
+            System.out.println("찾으신 닉네임: "+user.getName());
         } else {
             System.out.println("사용자를 찾을 수 없습니다.");
         }
@@ -35,8 +36,8 @@ public class JCFUserService implements UserService {
     @Override
     public User findByName(String nickName) {
         for (User user : users.values()) {
-            if (user.getNickName().equals(nickName)) {
-                System.out.println("찾으신 닉네임" + user.getNickName());
+            if (user.getName().equals(nickName)) {
+                System.out.println("찾으신 닉네임: " + user.getName());
                 return user;
             }
         }
@@ -57,7 +58,7 @@ public class JCFUserService implements UserService {
     public void update(UUID id, String nickName) {
         User user = users.get(id);
         if (user != null) {
-            user.updateNickName(nickName);
+            user.updatedName(nickName);
         }
     }
 
