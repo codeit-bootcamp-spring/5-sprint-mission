@@ -36,7 +36,7 @@ public class JCFUserRepository implements UserRepository {
     public List<User> searchByName(String name) {
         List<User> users = new ArrayList<>();
         for (User user : data.values()) {
-            if (user.getName().equals(name)) {
+            if (user.getName().contains(name)) {
                 users.add(user);
             }
         }
