@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.respository.UserRepository;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FileUserRepository implements UserRepository {
 
@@ -33,11 +34,26 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public User findByName(String name) {
+    public List<User> findByName(String name) {
         return userMap.values().stream()
                 .filter(user -> user.getName().equals(name))
-                .findFirst()
-                .orElse(null);
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public User update(UUID id, String name) {
+        User user = userMap.get(id);
+        if (user != null) {
+            user.updateName(name);
+            saveToFile();
+        }
+        return user;
+    }
+
+    @Override
+    public void delete(UUID id) {
+        userMap.remove(id);
+        saveToFile();
     }
 
     private void saveToFile() {
