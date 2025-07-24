@@ -42,6 +42,6 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-.userDirectory
-.channelDirectory
-.messageDirectory
+userDirectory
+channelDirectory
+messageDirectory
