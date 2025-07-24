@@ -2,17 +2,14 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.UserRepository;
+import com.sprint.mission.discodeit.respository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.*;
 import java.util.UUID;
 
 public class JCFUserService implements UserService {
 
-    private final UserRepository userRepository;
-
-    public JCFUserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserRepository userRepository =  new JCFUserRepository();
 
     // 생성
     public User create(String name, String password) {

@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.MessageRepository;
+import com.sprint.mission.discodeit.respository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -11,15 +12,9 @@ import java.util.*;
 
 public class JCFMessageService implements MessageService {
 
-    private final MessageRepository messageRepository;
-    private final UserService userService;
-    private final ChannelService channelService;
-
-    public JCFMessageService(MessageRepository messageRepository, UserService userService, ChannelService channelService) {
-        this.messageRepository = messageRepository;
-        this.userService = userService;
-        this.channelService = channelService;
-    }
+    private final MessageRepository messageRepository =  new JCFMessageRepository();
+    private final UserService userService =  new JCFUserService();
+    private final ChannelService channelService = new JCFChannelService();
 
 
     // 메시지 조회

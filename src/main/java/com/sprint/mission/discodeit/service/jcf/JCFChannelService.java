@@ -2,16 +2,13 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.respository.ChannelRepository;
+import com.sprint.mission.discodeit.respository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.*;
 
 public class JCFChannelService implements ChannelService {
 
-    private final ChannelRepository channelRepository;
-
-    public JCFChannelService(ChannelRepository channelRepository) {
-        this.channelRepository = channelRepository;
-    }
+    private final ChannelRepository channelRepository = new JCFChannelRepository();
 
     // 생성
     public Channel create(String name, String topic){
