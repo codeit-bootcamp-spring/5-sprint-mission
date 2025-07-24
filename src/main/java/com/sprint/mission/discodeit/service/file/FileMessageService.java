@@ -104,10 +104,8 @@ public class FileMessageService implements MessageService {
 
     @Override
     public void deleteAll() {
-        try {
-            Files.deleteIfExists(directory);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        for (Message message : load(directory)) {
+            delete(message);
         }
     }
 

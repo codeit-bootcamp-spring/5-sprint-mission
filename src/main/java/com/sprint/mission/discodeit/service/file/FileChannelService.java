@@ -104,10 +104,8 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public void deleteAll() {
-        try {
-            Files.deleteIfExists(directory);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        for (Channel channel : load(directory)) {
+            delete(channel);
         }
     }
 

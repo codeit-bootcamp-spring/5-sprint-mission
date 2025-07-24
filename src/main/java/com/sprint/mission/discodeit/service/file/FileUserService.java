@@ -103,10 +103,8 @@ public class FileUserService implements UserService {
 
     @Override
     public void deleteAll() {
-        try {
-            Files.deleteIfExists(directory);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        for (User user : load(directory)) {
+            delete(user);
         }
     }
 
