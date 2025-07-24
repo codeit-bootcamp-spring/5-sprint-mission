@@ -46,12 +46,7 @@ public class JCFUserService implements UserService {
 
     @Override
     public User searchById(UUID id) {
-        User user = repo.searchById(id).orElse(null);
-        if (user == null) {
-            System.err.println("해당하는 유저를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
-        }
-        return user;
+        return repo.searchById(id);
     }
 
     @Override

@@ -61,18 +61,18 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> delete(User user) {
+    public void delete(User user) {
         Path userDirectory = Path.of(directory.toString() + "/" + user.getId());
-        User u = null;
         if (Files.exists(userDirectory)) {
             try {
                 Files.delete(userDirectory);
-                u = user;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            System.err.println("해당하는 유저를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
         }
-        return Optional.ofNullable(u);
     }
 
     @Override
@@ -83,14 +83,14 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> searchById(UUID id) {
-        User user = null;
+    public User searchById(UUID id) {
         for (User u : load(directory)) {
             if (u.getId().equals(id)) {
-                user = u;
+                return u;
             }
         }
-        return Optional.ofNullable(user);
+        System.err.println("해당하는 유저를 찾을 수 없습니다.");
+        throw new NoSuchElementException();
     }
 
     @Override
@@ -100,6 +100,10 @@ public class FileUserRepository implements UserRepository {
             if (user.getName().contains(name)) {
                 users.add(user);
             }
+        }
+        if (users.isEmpty()) {
+            System.err.println("해당하는 유저를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
         }
         return users;
     }
