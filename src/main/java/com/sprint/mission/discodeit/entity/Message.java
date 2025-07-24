@@ -3,14 +3,9 @@ package com.sprint.mission.discodeit.entity;
 import java.util.UUID;
 
 public class Message extends BaseEntity {
-
   private String content;
-
   private UUID channelId;
-
-
   private UUID authorId;
-
 
   public Message(UUID channelId, UUID authorId, String content) {
     super(UUID.randomUUID(), System.currentTimeMillis(), System.currentTimeMillis());
