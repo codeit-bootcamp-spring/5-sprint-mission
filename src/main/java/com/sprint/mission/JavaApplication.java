@@ -1,143 +1,80 @@
 package com.sprint.mission;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.jcf.JCAMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.respository.file.*;
+import com.sprint.mission.discodeit.respository.jcf.*;
+import com.sprint.mission.discodeit.service.*;
+import com.sprint.mission.discodeit.service.basic.*;
+import com.sprint.mission.discodeit.service.file.*;
+import com.sprint.mission.discodeit.service.jcf.*;
 
 public class JavaApplication {
+    static User setupUser(UserService userService) {
+        return userService.create("woody", "woody1234");
+    }
 
-    static UserService userService = new JCFUserService();
-    static ChannelService channelService = new JCFChannelService();
-    static MessageService messageService = new JCAMessageService(userService, channelService);
+    static Channel setupChannel(ChannelService channelService) {
+        return channelService.create("공지", "공지 채널입니다.");
+    }
+
+    static void messageCreateTest(MessageService messageService, Channel channel, User author) {
+        Message message = messageService.create(author, channel, "안녕하세요.");
+        System.out.println("메시지 생성: " + message.getContent());
+    }
 
     public static void main(String[] args) {
+        System.out.println("🧪 File*Service 테스트");
+        testFileService();
 
-        userService.create("규섭", "1234");
-        userService.create("재민", "1234");
-        userService.create("지은", "1234");
-        userService.create("종현", "1234");
+        System.out.println("🧪 JCF*Service 테스트");
+        testJCFService();
 
-        channelService.create("언어 공부", "Java");
-        channelService.create("CS 공부", "자료구조");
-        channelService.create("CS 공부", "알고리즘");
-        channelService.create("CS 공부", "네트워크");
+        System.out.println("🧪 Basic*Service + JCFRepository 테스트");
+        testBasicServiceWithJCFRepository();
 
-        messageService.create(userService.findAll().get(0), channelService.findAll().get(0), "안녕하세요!" );
-        messageService.create(userService.findAll().get(1), channelService.findAll().get(0), "좋은 아침입니다!" );
-        messageService.create(userService.findAll().get(0), channelService.findAll().get(0), "과제는 많이 하셨나요?" );
-        messageService.create(userService.findAll().get(2), channelService.findAll().get(0), "안녕하세요!" );
-        messageService.create(userService.findAll().get(3), channelService.findAll().get(0), "안녕하세요!" );
-
-
-        testUserService();
-        testChannelService();
-        testMessageService();
+        System.out.println("🧪 Basic*Service + FileRepository 테스트");
+        testBasicServiceWithFileRepository();
     }
 
-    public static void testUserService() {
-        System.out.println("================================== [유저 테스트] ==================================");
-        System.out.println("사용자 목록: ");
-        System.out.println(userService.findAll());
+    public static void testFileService() {
+        UserService userService = new FileUserService();
+        ChannelService channelService = new FileChannelService();
+        MessageService messageService = new FileMessageService();
 
-        // 등록
-        User user1 = userService.create("소연", "1234");
-        System.out.println(user1.getName() + "님이 가입했습니다.");
-
-        // 조회
-        Optional<User> found = userService.findById(user1.getId());
-        System.out.println("새로 가입한 사용자: " + found.get().getName());
-        System.out.println(userService.findAll());
-
-        // 수정
-        System.out.println("수정 전: " + user1.getName());
-        userService.update(user1.getId(), "이소연");
-        System.out.println("수정 후: " + userService.findById(user1.getId()).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다.")));
-        System.out.println(userService.findAll());
-
-        // 삭제
-        userService.delete(user1.getId());
-
-        // 삭제 확인
-        Optional<User> deleted = userService.findById(user1.getId());
-        System.out.println("삭제 확인: " + (deleted == null ? "성공" : "실패"));
-        System.out.println(userService.findAll());
+        User user = setupUser(userService);
+        Channel channel = setupChannel(channelService);
+        messageCreateTest(messageService, channel, user);
     }
 
-    public static void testChannelService() {
-        System.out.println("================================== [채널 테스트] ==================================");
+    public static void testJCFService() {
+        UserService userService = new JCFUserService();
+        ChannelService channelService = new JCFChannelService();
+        MessageService messageService = new JCFMessageService(userService, channelService);
 
-        System.out.println("모든 채널: ");
-        System.out.println(channelService.findAll());
-        System.out.println();
-
-        Channel ch =  channelService.create("Java 공부", "언어");
-        System.out.println("채널 생성: " + ch.getName() + " | 채널 주제: " +  ch.getTopic());
-        System.out.println(channelService.findAll());
-        System.out.println();
-
-        String channelName = "CS";
-        System.out.println(channelName + "로 검색된 채널 :");
-        List<Channel> channelList = channelService.findByName(channelName);
-        System.out.println(channelList);
-        System.out.println();
-
-
-        // 채널 이름 변경
-        UUID channelId = channelList.get(0).getId();
-        System.out.println("변경 전 이름: " + channelList.get(0).getName());
-        Channel newChannel = channelService.updateName(channelId, "CS 공부하기!");
-        System.out.println("변경된 채널명: " + newChannel.getName());
-        System.out.println(channelService.findAll());
-        System.out.println();
-
-        // 채널 주제 변경
-        System.out.println("변경 전 이름: " + channelList.get(0).getTopic());
-        channelService.updateTopic(channelList.get(0).getId(), "컴퓨터구조");
-        System.out.println("변경된 채널주제: " + newChannel.getTopic());
-        System.out.println(channelService.findAll());
-        System.out.println();
-
-        // 채널 삭제
-        System.out.println("삭제할 채널: " +  channelList.get(0).getName() + channelList.get(0).getTopic());
-        channelService.deleteById(channelList.get(0).getId());
-        System.out.println(channelService.findAll());
-        System.out.println();
-
+        User user = setupUser(userService);
+        Channel channel = setupChannel(channelService);
+        messageCreateTest(messageService, channel, user);
     }
 
-    public static void testMessageService() {
-        System.out.println("================================== [메시지 테스트] ==================================");
-        System.out.println("현재 메시지: ");
-        System.out.println(messageService.findAll());
+    // Basic + JCFRepository
+    public static void testBasicServiceWithJCFRepository() {
+        UserService userService = new BasicUserService(new JCFUserRepository());
+        ChannelService channelService = new BasicChannelService(new JCFChannelRepository());
+        MessageService messageService = new BasicMessageService(new JCFMessageRepository());
 
-        // 메시지 생성
-        System.out.println("메시지 생성");
-        Message m1 = messageService.create(userService.findAll().get(3), channelService.findAll().get(0), "아니요.. 다 못했어요" );
-        System.out.println(m1);
+        User user = setupUser(userService);
+        Channel channel = setupChannel(channelService);
+        messageCreateTest(messageService, channel, user);
+    }
 
-        // 메시지 검색
-        System.out.println("검색 단어 : 안녕 ");
-        List<Message> findedMsg = messageService.findByStr("안녕");
-        System.out.println(findedMsg);
-        System.out.println();
+    // Basic + FileRepository
+    public static void testBasicServiceWithFileRepository() {
+        UserService userService = new BasicUserService(new FileUserRepository());
+        ChannelService channelService = new BasicChannelService(new FileChannelRepository());
+        MessageService messageService = new BasicMessageService(new FileMessageRepository());
 
-        //메시지 수정
-        Message m2 = messageService.update(findedMsg.get(2).getId(), "안녕하심까!");
-        System.out.println("메시지가 수정되었습니다");
-        System.out.println(messageService.findAll());
-        System.out.println();
-
-        //메시지 삭제
-        messageService.deleteById(messageService.findAll().get(5).getId());
-        System.out.println(messageService.findAll());
+        User user = userService.create("woody_file", "woody1234");
+        Channel channel = setupChannel(channelService);
+        messageCreateTest(messageService, channel, user);
     }
 }
