@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.entity.Survey;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
-import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,7 +46,7 @@ public class JcfMessageService extends BaseJcfService<Message> implements Messag
   }
 
   @Override
-  public void updateFiles(UUID messageId, List<File> files) {
+  public void updateFiles(UUID messageId, List<String> files) {
     update(messageId, m -> m.setFiles(files));
   }
 

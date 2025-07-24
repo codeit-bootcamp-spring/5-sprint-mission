@@ -70,25 +70,6 @@ public class Validators {
     return digits;
   }
 
-  public static String validateAvatar(String avatar) {
-    String normalizedAvatar = normalizeString(avatar);
-
-    if (normalizedAvatar.isBlank()) {
-      return "";
-    }
-
-    try {
-      URI uri = new URI(normalizedAvatar);
-      String scheme = uri.getScheme();
-      if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
-        throw new ValidationException("아바타 URL은 http 또는 https만 허용합니다.");
-      }
-      return normalizedAvatar;
-    } catch (URISyntaxException e) {
-      throw new ValidationException("아바타는 올바른 URL이어야 합니다.", e);
-    }
-  }
-
   public static String validateBio(String bio) {
     String normalizedBio = normalizeString(bio);
     if (normalizedBio.length() > 100) {
@@ -104,5 +85,19 @@ public class Validators {
       throw new ValidationException("서버명은 20자 이내여야 합니다.");
     }
     return normalizedGuildName;
+  }
+
+  public static String validateUri(String uriStr) {
+    String normalizedUriStr = normalizeString(uriStr);
+    try {
+      URI uri = new URI(normalizedUriStr);
+      String scheme = uri.getScheme();
+      if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
+        throw new ValidationException("URL은 http 또는 https만 허용합니다.");
+      }
+      return normalizedUriStr;
+    } catch (URISyntaxException e) {
+      throw new ValidationException("올바른 URL이어야 합니다.");
+    }
   }
 }

@@ -130,7 +130,7 @@ public class User extends BaseEntity {
   }
 
   public void setAvatar(String avatar) {
-    this.avatar = Validators.validateAvatar(avatar);
+    this.avatar = Validators.validateUri(avatar);
   }
 
   public String getBio() {
@@ -184,6 +184,9 @@ public class User extends BaseEntity {
   }
 
   public boolean isFriend(UUID friendId) {
+    if (friendId == null) {
+      throw new IllegalArgumentException("Friend ID must not be null.");
+    }
     return friends.contains(friendId);
   }
 
@@ -198,8 +201,11 @@ public class User extends BaseEntity {
     guilds.add(id);
   }
 
-  public boolean isMemberOfGuild(UUID guildId) {
-    return guilds.contains(guildId);
+  public boolean isMemberOfGuild(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("Guild ID must not be null.");
+    }
+    return guilds.contains(id);
   }
 
   public void removeGuild(UUID id) {
@@ -227,8 +233,11 @@ public class User extends BaseEntity {
     chatRooms.remove(id);
   }
 
-  public boolean isMemberOfChatRoom(UUID chatRoomId) {
-    return chatRooms.contains(chatRoomId);
+  public boolean isMemberOfChatRoom(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("ChatRoom ID must not be null");
+    }
+    return chatRooms.contains(id);
   }
 
   public boolean isActive() {

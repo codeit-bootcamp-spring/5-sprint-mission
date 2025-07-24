@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.File;
+import com.sprint.mission.discodeit.utility.Validators;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,16 +10,28 @@ public class Message extends BaseEntity {
   private final UUID senderId;
   private final UUID receiverId;
   private String content;
-  private List<File> files;
+  private List<String> files;
   private Survey survey;
   private final List<UUID> replies = new ArrayList<>();
 
-  public Message(UUID senderId, UUID receiverId, String content, List<File> files, Survey survey) {
+  public Message(
+      UUID senderId, UUID receiverId, String content, List<String> files, Survey survey) {
+    if (senderId == null || receiverId == null) {
+      throw new IllegalArgumentException("Sender and receiver must not be null.");
+    }
     this.senderId = senderId;
     this.receiverId = receiverId;
-    this.content = content;
-    this.files = files;
-    this.survey = survey;
+    setContent(content);
+    setFiles(files);
+    setSurvey(survey);
+  }
+
+  public Message(UUID senderId, UUID receiverId, String content, List<String> files) {
+    this(senderId, receiverId, content, files, null);
+  }
+
+  public Message(UUID senderId, UUID receiverId, String content) {
+    this(senderId, receiverId, content, null, null);
   }
 
   public UUID getSenderId() {
@@ -34,15 +47,25 @@ public class Message extends BaseEntity {
   }
 
   public void setContent(String content) {
+    if (content == null) {
+      throw new IllegalArgumentException("Content must not be null.");
+    }
     this.content = content;
   }
 
-  public List<File> getFiles() {
-    return files;
+  public List<String> getFiles() {
+    return Collections.unmodifiableList(files);
   }
 
-  public void setFiles(List<File> files) {
-    this.files = files;
+  public void setFiles(List<String> files) {
+    if (files == null) {
+      this.files = new ArrayList<>();
+    } else {
+      for (String file : files) {
+        Validators.validateUri(file);
+      }
+      this.files = new ArrayList<>(files);
+    }
   }
 
   public Survey getSurvey() {
@@ -50,31 +73,38 @@ public class Message extends BaseEntity {
   }
 
   public void setSurvey(Survey survey) {
-    this.survey = survey;
+    if (survey == null) {
+      this.survey = null;
+    } else {
+      if (!survey.getSenderId().equals(senderId)) {
+        throw new IllegalStateException("survey senderId is not equal to message senderId.");
+      }
+      this.survey = survey;
+    }
   }
 
   public List<UUID> getReplies() {
-    return replies;
+    return Collections.unmodifiableList(replies);
   }
 
   public void addReply(UUID replyId) {
+    if (replyId == null) {
+      throw new IllegalArgumentException("Reply ID must not be null.");
+    }
     replies.add(replyId);
   }
 
   public void removeReply(UUID replyId) {
+    if (replyId == null) {
+      throw new IllegalArgumentException("replyId must not be null.");
+    }
     replies.remove(replyId);
   }
 
   @Override
   public String toString() {
     return "Message{"
-        + "id="
-        + getId()
-        + ", createdAt="
-        + getCreatedAt()
-        + ", updatedAt="
-        + getUpdatedAt()
-        + ", sender="
+        + "sender="
         + senderId
         + ", receiver="
         + receiverId
