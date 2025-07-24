@@ -5,16 +5,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class Channel extends BaseEntity {
-
-
   private final List<Message> messages;
-
   private final List<User> users;
-
   private String channelName;
-
   private String description;
-
 
   public Channel(String channelName, String description) {
     super(UUID.randomUUID(), System.currentTimeMillis(), System.currentTimeMillis());
