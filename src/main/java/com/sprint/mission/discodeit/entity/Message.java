@@ -6,15 +6,15 @@ import java.util.UUID;
 public class Message {
     private final UUID id;
     private final UUID channelId;
-
     private final Long createAt;
-    private Long modifyAt;
+    private final UUID author;
 
-    private final User author;
     private String message;
     private boolean allMentioned;
 
-    public Message(UUID channelId, String message, User author, boolean allMentioned) {
+    private Long modifyAt;
+
+    public Message(UUID channelId, String message, UUID author, boolean allMentioned) {
         this.id = UUID.randomUUID();
         Instant now = Instant.now();
         this.createAt = now.getEpochSecond();
@@ -41,13 +41,13 @@ public class Message {
 
     public String getMessage() { return message; }
 
-    public User getAuthor() { return author; }
+    public UUID getAuthor() { return author; }
 
     public boolean isAllMentioned() { return allMentioned; }
 
-    public void update(MessageDTO messageDTO) {
-        this.message = messageDTO.getMessage();
-        this.allMentioned =  messageDTO.isAllMentioned();
+    public void update(String message, boolean allMentioned) {
+        this.message = message;
+        this.allMentioned =  allMentioned;
 
         Instant now = Instant.now();
         this.modifyAt = now.getEpochSecond();

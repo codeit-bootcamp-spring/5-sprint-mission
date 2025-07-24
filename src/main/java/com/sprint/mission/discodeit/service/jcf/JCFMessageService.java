@@ -2,8 +2,6 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.MessageDTO;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.util.ArrayList;
@@ -17,17 +15,13 @@ public class JCFMessageService implements MessageService {
     public JCFMessageService() {}
 
     @Override
-    public Message createMessage(Channel channel, String message, User author, boolean allMentioned) throws NullPointerException, IllegalArgumentException {
+    public Message createMessage(Channel channel, String message, UUID author, boolean allMentioned) throws NullPointerException, IllegalArgumentException {
         if (channel == null) {
             throw new NullPointerException("channel id is null.");
         } if (message == null || message.isBlank()) {
             throw new IllegalArgumentException("message is null or empty.");
         } if (author == null) {
             throw new NullPointerException("author is null.");
-        }
-        List<User> members = channel.getMembers();
-        if (! members.contains(author)) {
-            throw new IllegalArgumentException("author is not in the channel.");
         }
 
         Message msg = new Message(channel.getId(), message, author, allMentioned);
@@ -56,36 +50,21 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public Message update(MessageDTO messageDTO) {
-        if(messageDTO == null) {
-            throw new  NullPointerException("messageDTO is null.");
-        } if (messageDTO.getMessage() == null || messageDTO.getMessage().isBlank()) {
+    public Message update(UUID messageId, String message, boolean allMentioned) {
+        if(messageId == null) {
+            throw new  NullPointerException("messageId is null.");
+        } if (message == null || message.isBlank()) {
             throw new IllegalArgumentException("messageDTO message is null or blank.");
         }
         Iterator<Message> iter =  data.iterator();
         while(iter.hasNext()) {
             Message msg = iter.next();
-            if (msg.getId().equals(messageDTO.getId())) {
-                msg.update(messageDTO);
+            if (msg.getId().equals(messageId)) {
+                msg.update(message, allMentioned);
                 return msg;
             }
         }
         throw new IllegalArgumentException("message not found.");
-    }
-
-    @Override
-    public MessageDTO createMessageDTO(UUID messageId, UUID channelId, String message, User author, boolean allMentioned) throws NullPointerException, IllegalArgumentException {
-        if (messageId == null) {
-            throw new NullPointerException("message id is null.");
-        } if (channelId == null) {
-            throw new NullPointerException("channel id is null.");
-        } if (message == null || message.isBlank()) {
-            throw new  IllegalArgumentException("message is null or empty.");
-        } if (author == null) {
-            throw new  NullPointerException("author is null.");
-        }
-
-        return new MessageDTO(messageId, channelId, message, author, allMentioned);
     }
 
     @Override

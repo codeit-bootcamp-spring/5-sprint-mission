@@ -14,9 +14,9 @@ public class User {
     private String email;
     private String password;
     private String username;
-    private String status;
+    private UserStatus status;
 
-    public User(String email, String username, String password, String discriminator, String status) {
+    public User(String email, String username, String password, String discriminator, UserStatus status) {
         this.id = UUID.randomUUID();
         Instant now = Instant.now();
         this.createAt = now.getEpochSecond();
@@ -48,13 +48,13 @@ public class User {
 
     public String getDiscriminator() { return discriminator; }
 
-    public String getStatus() { return status; }
+    public UserStatus getStatus() { return status; }
 
-    public void update(UserDTO userDTO) {
-        this.email =  userDTO.getEmail();
-        this.username = userDTO.getUsername();
-        this.password = userDTO.getPassword();
-        this.status = userDTO.getStatus();
+    public void update(String email, String username, String password, UserStatus status) {
+        this.email =  email;
+        this.username = username;
+        this.password = password;
+        this.status = status;
 
         Instant now = Instant.now();
         modifyAt = now.getEpochSecond();

@@ -5,25 +5,24 @@ import java.util.*;
 
 public class Channel {
     private final UUID id;
-    private UUID ownerId;
-
     private final Long createAt;
-    private Long modifyAt;
+    private final ChannelType channelType;
 
-    private final List<User> members;
+    private UUID ownerId;
     private String channelName;
     private boolean nsfw;
 
-    public Channel(User user, String channelName, boolean nsfw) {
+    private Long modifyAt;
+
+    public Channel(UUID ownerId, String channelName, ChannelType channelType, boolean nsfw) {
         this.id = UUID.randomUUID();
         Instant now = Instant.now();
         this.createAt = now.getEpochSecond();
 
-        this.ownerId = user.getId();
+        this.ownerId = ownerId;
         this.channelName = channelName;
+        this.channelType = channelType;
         this.nsfw = nsfw;
-        this.members = new ArrayList<>();
-        members.add(user);
     }
 
     public UUID getId() {
@@ -40,7 +39,9 @@ public class Channel {
 
     public UUID getOwnerId() { return ownerId; }
 
-    public List<User> getMembers() { return members; }
+//    public List<User> getMembers() { return members; }
+
+    public ChannelType getChannelType() { return channelType; }
 
     public String getChannelName() { return channelName; }
 
@@ -51,62 +52,35 @@ public class Channel {
         this.modifyAt = now.getEpochSecond();
     }
 
-    public List<User> addMembers(User user) throws NullPointerException {
-        if(user == null) {
-            throw new NullPointerException("user is null.");
-        }
-        Iterator<User> iterator = members.iterator();
-        while(iterator.hasNext()) {
-            User member = iterator.next();
-            if(member.getId().equals(user.getId())) {
-                System.out.println("[alarm] : The user already exists in the channel.");
-                return members;
-            }
-        }
-        members.add(user);
-        updateModifyAt();
-        return members;
-    }
 
-    public void update(ChannelDTO channelDTO) throws IllegalArgumentException {
-        if(this.ownerId.equals(channelDTO.getOwnerId())) {
+    public void update(UUID ownerId, String channelName, boolean nsfw) {
+        if(this.ownerId.equals(ownerId)) {
             System.out.println("[Alarm] : The original channel owner and the owner to be changed are the same.");
-        } else {
-            int count = 0;
-            for (User user : members) {
-                if (user.getId().equals(channelDTO.getOwnerId())) {
-                    this.ownerId = channelDTO.getOwnerId();
-                    break;
-                }
-                count++;
-            }
-            if (count == members.size()) {
-                throw new IllegalArgumentException("[Alarm] : User does not exist in this channel.");
-            }
         }
-        this.channelName = channelDTO.getChannelName();
-        this.nsfw = channelDTO.isNsfw();
+        if(this.channelName.equals(channelName)) {
+            System.out.println("[Alarm] : The original channel name and the channel name to be changed are the same.");
+        }
+        if(this.nsfw == nsfw) {
+            System.out.println("[Alarm] : The original nsfw and the nsfw to be changed are the same.");
+        }
+
+        this.ownerId = ownerId;
+        this.channelName = channelName;
+        this.nsfw = nsfw;
 
         updateModifyAt();
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Channel{");
-        sb.append("id=").append(id);
-        sb.append(", channelName='").append(channelName).append('\'');
-        sb.append(", ownerId=").append(ownerId);
-
-        sb.append(", \nmembers=[");
-//        .append(members);
-        for(User user : members){
-            sb.append("\n\t").append(user);
-        }
-        sb.append("\n],");
-        sb.append("\n nsfw=").append(nsfw);
-        sb.append(", createAt=").append(createAt);
-        sb.append(", modifyAt=").append(modifyAt);
-        sb.append('}');
-        return sb.toString();
+        return "Channel{" +
+                "id=" + id +
+                ", channelName='" + channelName + '\'' +
+                ", ownerId=" + ownerId +
+                ", channelType=" + channelType +
+                ", nsfw=" + nsfw +
+                ", createAt=" + createAt +
+                ", modifyAt=" + modifyAt +
+                '}';
     }
 }
