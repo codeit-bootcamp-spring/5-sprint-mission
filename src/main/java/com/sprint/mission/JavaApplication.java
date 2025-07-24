@@ -36,12 +36,12 @@ public class JavaApplication {
     }
 
     static User setupUser(UserService userService) {
-        User user = userService.create("woody", "woody@codeit.com", "woody1234");
+        User user = userService.create("test", "test@test.com", "test1234");
         return user;
     }
 
     static Channel setupChannel(ChannelService channelService, User user) {
-        Channel channel = channelService.create(ChannelType.PUBLIC, "공지", "공지 채널입니다.", user.getId());
+        Channel channel = channelService.create(ChannelType.PUBLIC, "Test Target", "Test Target 채널입니다.", user.getId());
         return channel;
     }
 
@@ -89,22 +89,24 @@ public class JavaApplication {
     public static void testBasicService() {
 
         System.out.println("============= Basic JCF Service 테스트 시작 =============");
+
         JCFChannelRepository jcfChannelRepository = new JCFChannelRepository();
         JCFUserRepository jcfUserRepository = new JCFUserRepository();
         JCFMessageRepository jcfMessageRepository = new JCFMessageRepository();
 
-        UserService userService = new BasicUserService(jcfUserRepository);
-        ChannelService channelService = new BasicChannelService(jcfChannelRepository);
-        MessageService messageService = new BasicMessageService(jcfMessageRepository);
+        UserService jcfUserService = new BasicUserService(jcfUserRepository);
+        ChannelService jcfChannelService = new BasicChannelService(jcfChannelRepository);
+        MessageService jcfMessageService = new BasicMessageService(jcfMessageRepository);
 
-        testUserService(userService);
-        testChannelService(channelService);
-        testMessageService(messageService);
-        testCoreService(messageService, userService, channelService);
+        testUserService(jcfUserService);
+        testChannelService(jcfChannelService);
+        testMessageService(jcfMessageService);
+        testCoreService(jcfMessageService, jcfUserService, jcfChannelService);
 
-        messageService.deleteAll();
-        userService.deleteAll();
-        channelService.deleteAll();
+        jcfMessageService.deleteAll();
+        jcfUserService.deleteAll();
+        jcfChannelService.deleteAll();
+
         System.out.println("============= Basic JCF Service 테스트 시작 =============");
 
         System.out.println("============= Basic File Service 테스트 시작 =============");
@@ -125,6 +127,7 @@ public class JavaApplication {
         fileMessageService.deleteAll();
         fileUserService.deleteAll();
         fileChannelService.deleteAll();
+
         System.out.println("============= Basic File Service 테스트 끝 =============");
     }
 
@@ -132,10 +135,7 @@ public class JavaApplication {
 
         System.out.println("============= 유저 테스트 시작 =============");
 
-        User user = new User("Test Target", "test@test.com", "tester", true);
-
-        userService.create(user);
-        setupUser(userService);
+        User user = setupUser(userService);
 
         System.out.println("User 목록 : " + userService.getAll());
 
@@ -153,6 +153,7 @@ public class JavaApplication {
         System.out.println("채널 목록 : " + userService.getAll());
 
         userService.deleteAll();
+
         System.out.println("============= 유저 테스트 끝 =============");
 
     }
@@ -161,13 +162,9 @@ public class JavaApplication {
 
         System.out.println("============= 채널 테스트 시작 =============");
 
-
         User user = new User("Test Target", "test@test.com", "tester", true);
 
-        Channel testChannel = new Channel(ChannelType.PUBLIC, "Test Target", "Test Target", user.getId());
-
-        channelService.create(testChannel);
-        setupChannel(channelService, user);
+        Channel testChannel = setupChannel(channelService, user);
 
         System.out.println("채널 목록 : " + channelService.getAll());
 
@@ -238,8 +235,6 @@ public class JavaApplication {
 
         ChannelManageService channelManageService = new ChannelManageService(channelService, userService);
         ChatService chatService = new ChatService(messageService, channelService);
-
-        // 유저 생성
 
         User adminUser = new User("admin", "admin@test.com", "admin", true);
         User testUser = new User("tester", "test@test.com", "test", true);
