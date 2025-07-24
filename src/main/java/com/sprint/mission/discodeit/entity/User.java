@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
 
+import static com.sprint.mission.discodeit.utility.StringUtil.normalizeString;
+
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.utility.Validators;
 import java.time.LocalDate;
@@ -60,10 +62,11 @@ public class User extends BaseEntity {
   }
 
   public void setGlobalName(String globalName) {
-    if (globalName == null || globalName.isBlank()) {
+    String normalizedGlobalName = normalizeString(globalName);
+    if (normalizedGlobalName.isBlank()) {
       this.globalName = this.username;
     } else {
-      this.globalName = Validators.validateGlobalName(globalName);
+      this.globalName = Validators.validateGlobalName(normalizedGlobalName);
     }
   }
 

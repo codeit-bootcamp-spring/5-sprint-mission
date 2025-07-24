@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.enums.user.Status;
+import com.sprint.mission.discodeit.exception.ValidationException;
 import com.sprint.mission.discodeit.service.jcf.JcfChannelService;
 import com.sprint.mission.discodeit.service.jcf.JcfFriendRequestService;
 import com.sprint.mission.discodeit.service.jcf.JcfGuildService;
@@ -299,7 +300,7 @@ public class JavaApplication {
       try {
         username = Validators.validateUsername(username);
         break;
-      } catch (IllegalArgumentException e) {
+      } catch (ValidationException e) {
         System.out.println(e.getMessage());
       }
     }
@@ -357,7 +358,7 @@ public class JavaApplication {
         me = user;
         System.out.println("\n" + user.getUsername() + "님, 환영합니다!");
         break;
-      } catch (IllegalArgumentException | NoSuchElementException e) {
+      } catch (ValidationException | NoSuchElementException e) {
         System.out.println(e.getMessage());
       } catch (Exception e) {
         System.out.println("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
@@ -778,8 +779,8 @@ public class JavaApplication {
         friendRequestService.save(new FriendRequest(me.getId(), receiver.getId()));
         System.out.println("✅ 친구 요청을 보냈습니다.");
         return;
-      } catch (IllegalStateException e) {
-        System.out.println("⚠ " + e.getMessage());
+      } catch (ValidationException e) {
+        System.out.println(e.getMessage());
       } catch (NoSuchElementException e) {
         System.out.println("⚠ 유저를 찾을 수 없습니다.");
       } catch (Exception e) {

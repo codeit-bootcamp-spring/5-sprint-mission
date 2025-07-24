@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.utility;
 
+import com.sprint.mission.discodeit.exception.ValidationException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Scanner;
@@ -57,7 +58,7 @@ public class InputHandler {
 
       try {
         return Validators.validateEmail(email);
-      } catch (IllegalArgumentException e) {
+      } catch (ValidationException e) {
         System.out.println(e.getMessage());
       }
     }
@@ -72,7 +73,7 @@ public class InputHandler {
 
       try {
         return Validators.validatePassword(password);
-      } catch (IllegalArgumentException e) {
+      } catch (ValidationException e) {
         System.out.println(e.getMessage());
       }
     }

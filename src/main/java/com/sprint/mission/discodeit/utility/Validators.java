@@ -27,10 +27,10 @@ public class Validators {
   }
 
   public static String validatePassword(String password) {
-    if (password == null || password.isBlank()) {
+    String normalizedPassword = normalizeString(password);
+    if (normalizedPassword.isBlank()) {
       throw new ValidationException("⚠ 비밀번호는 필수 항목입니다.");
     }
-    String normalizedPassword = normalizeString(password);
     if (!PASSWORD_PATTERN.matcher(normalizedPassword).matches()) {
       throw new ValidationException("⚠ 비밀번호는 영문, 숫자, 특수문자를 포함하여 8자 이상이어야 합니다.");
     }
@@ -39,7 +39,6 @@ public class Validators {
 
   public static String validateGlobalName(String globalName) {
     String normalizedGlobalName = normalizeString(globalName);
-
     if (normalizedGlobalName.length() > 20) {
       throw new ValidationException("별명은 20자 이내여야 합니다.");
     }
@@ -48,15 +47,12 @@ public class Validators {
 
   public static String validateUsername(String username) {
     String normalizedUsername = normalizeString(username);
-
     if (normalizedUsername.isBlank()) {
       throw new ValidationException("⚠ 사용자명은 필수입니다.");
     }
-
     if (normalizedUsername.length() < 2 || normalizedUsername.length() > 20) {
-      throw new ValidationException("사용자명은 2~20자 이내여야 합니다.");
+      throw new ValidationException("⚠ 사용자명은 2~20자 이내여야 합니다.");
     }
-
     return normalizedUsername;
   }
 
