@@ -36,6 +36,24 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
+    public Channel updateName(UUID id, String name) {
+        Channel channel = channelMap.get(id);
+        if (channel != null) {
+            channel.updateName(name);
+        }
+        return channel;
+    }
+
+    @Override
+    public Channel updateTopic(UUID id, String topic) {
+        Channel channel = channelMap.get(id);
+        if (channel != null) {
+            channel.updateTopic(topic);
+        }
+        return channel;
+    }
+
+    @Override
     public void deleteById(UUID id) {
         channelMap.remove(id);
     }
