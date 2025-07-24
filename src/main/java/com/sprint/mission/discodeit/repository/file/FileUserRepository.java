@@ -33,6 +33,16 @@ public class FileUserRepository implements UserRepository {
         }
     }
 
+    // 디렉토리가 존재하고, 해당 디렉토리가 맞는 검증
+    // 디렉토리가 존재하거나, 존재하더라도 디렉토리가 아닌 경우를 확인하는 목적이기 때문에 || 활용
+    private boolean isValidDirectory(Path path) {
+        if (!Files.exists(path) || !Files.isDirectory(path)){
+            System.err.println("User directory does not exist ro is not a directory: " + DIRECTORY);
+            return false;
+        }
+        return true;
+    }
+
     // try-with-resources : FileOutputStream과 ObjectOutPutStream 을 생성
     // FileOutputStream : path가 가리키는 파일에 데이터를 쓰기 위한 파일 출력 스트림을 생성
     // ObjectOutputStream : FileOutputStream 위에 래핑되어, 객체를 바이트 스트림으로 직렬화하여 쓸 수 있게 해주는 스트림
@@ -77,12 +87,10 @@ public class FileUserRepository implements UserRepository {
     // 가장 일반적인 방법은 USER 디렉토리의 모든 사용자 파일을 읽어와서 각 파일의 내용을 역직렬화한 후, User 객체의 Email 필드를 확인하는 방식
     @Override
     public Optional<User> findByEmail(String email) {
-        Path dirPath = Paths.get(DIRECTORY);  // USER와 같은 사용자 파일이 저장된 디렉토리
+        Path path = Paths.get(DIRECTORY);  // USER와 같은 사용자 파일이 저장된 디렉토리
 
-        // 디렉토리가 존재하고, 해당 디렉토리가 맞는 검증
-        // 디렉토리가 존재하거나, 존재하더라도 디렉토리가 아닌 경우를 확인하는 목적이기 때문에 || 활용
-        if (!Files.exists(dirPath) || !Files.isDirectory(dirPath)) {
-            System.err.println("User directory does not exist ro is not a directory: " + DIRECTORY);
+
+        if (!isValidDirectory(path)) {  // 디렉토리 유효성 검사
             return Optional.empty();
         }
 
@@ -91,7 +99,7 @@ public class FileUserRepository implements UserRepository {
         // 빅오 표기법 O(N * M)
         // N -> 총 사용자(.ser)의 파일 개수
         // M -> User 객체를 역직렬화하는데 걸리는 시간
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath, "*" + EXTENSION)) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*" + EXTENSION)) {
             // "USER" 디렉토리 내의 모든 .ser 파일 순회
             for (Path entry : stream) {
                 // 각 파일을 읽어서 User 객체로 역직렬화
@@ -120,6 +128,28 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByName(String name) {
+        Path path = Paths.get(DIRECTORY);
+
+        if (!isValidDirectory(path)) {  // 디렉토리 유효성 검사
+            return Optional.empty();
+        }
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*"+ EXTENSION)) {
+            for (Path entry : stream) {
+                try (FileInputStream fis = new FileInputStream(path.toFile());
+                     ObjectInputStream ois = new ObjectInputStream(fis);) {
+                    User user = (User)ois.readObject();
+
+                    if (user != null && user.getName() != null & user.getName().equals(name)) {
+                        return Optional.of(user);
+                    }
+                } catch (ClassNotFoundException | IOException e) {
+                    System.err.println("Error reading user file: " + entry.getFileName() + ".Skipping. Details: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error accessing user directory: " + DIRECTORY, e);
+        }
         return Optional.empty();
     }
 
@@ -132,4 +162,6 @@ public class FileUserRepository implements UserRepository {
     public void deleteById(UUID id) {
 
     }
+
+
 }
