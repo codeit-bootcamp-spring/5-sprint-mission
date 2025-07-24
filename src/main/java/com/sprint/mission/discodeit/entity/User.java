@@ -42,7 +42,7 @@ public class User extends BaseEntity {
     setUsername(username);
     setBirthDate(birthDate);
     setGlobalName(globalName);
-    this.subscribedToNewsletter = subscribedToNewsletter;
+    setSubscribedToNewsletter(subscribedToNewsletter);
     this.status = Status.OFFLINE;
     this.phoneNumber = "";
     this.avatar = "";
@@ -130,6 +130,10 @@ public class User extends BaseEntity {
   }
 
   public void setAvatar(String avatar) {
+    String normalizedAvatar = normalizeString(avatar);
+    if (normalizedAvatar.isBlank()) {
+      this.avatar = "";
+    }
     this.avatar = Validators.validateUri(avatar);
   }
 

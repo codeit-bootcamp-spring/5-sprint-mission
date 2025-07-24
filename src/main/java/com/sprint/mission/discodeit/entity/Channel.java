@@ -95,13 +95,7 @@ public class Channel extends BaseEntity {
   @Override
   public String toString() {
     return "Channel{"
-        + "id="
-        + getId()
-        + ", createdAt="
-        + getCreatedAt()
-        + ", updatedAt="
-        + getUpdatedAt()
-        + ", guildId="
+        + "guildId="
         + guildId
         + ", name='"
         + name
@@ -112,10 +106,6 @@ public class Channel extends BaseEntity {
         + isPublic
         + ", joinedUsers="
         + joinedUsers
-        + ", rolePermissions="
-        + rolePermissions
-        + ", userPermissions="
-        + userPermissions
         + '}';
   }
 }
