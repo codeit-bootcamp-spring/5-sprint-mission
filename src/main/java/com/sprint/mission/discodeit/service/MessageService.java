@@ -8,6 +8,8 @@ import java.util.UUID;
 public interface MessageService {
     Message create(Message message);
 
+    Message create(String text, UUID channelId, UUID userId);
+
     List<Message> getAll();
 
     Message get(UUID id);

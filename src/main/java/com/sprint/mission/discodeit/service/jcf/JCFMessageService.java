@@ -21,7 +21,21 @@ public class JCFMessageService implements MessageService {
             return null;
         }
 
+        if (message.getText() == null || message.getChannelId() == null || message.getUserId() == null) {
+            return null;
+        }
+
         return messageRepository.save(message);
+    }
+
+    @Override
+    public Message create(String text, UUID channelId, UUID userId) {
+
+        if (text == null || channelId == null || userId == null) {
+            return null;
+        }
+
+        return messageRepository.save(new Message(text, channelId, userId));
     }
 
     @Override

@@ -21,7 +21,21 @@ public class BasicUserService implements UserService {
             return null;
         }
 
+        if (user.getName() == null || user.getEmail() == null || user.getpassword() == null) {
+            return null;
+        }
+
         return userRepository.save(user);
+    }
+
+    @Override
+    public User create(String name, String email, String password) {
+
+        if (name == null || email == null || password == null) {
+            return null;
+        }
+
+        return userRepository.save(new User(name, email, password, true));
     }
 
     @Override

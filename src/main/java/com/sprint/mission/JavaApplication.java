@@ -1,6 +1,7 @@
 package com.sprint.mission;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
@@ -32,6 +33,21 @@ public class JavaApplication {
         testJCFService();
         testFileService();
         testBasicService();
+    }
+
+    static User setupUser(UserService userService) {
+        User user = userService.create("woody", "woody@codeit.com", "woody1234");
+        return user;
+    }
+
+    static Channel setupChannel(ChannelService channelService, User user) {
+        Channel channel = channelService.create(ChannelType.PUBLIC, "공지", "공지 채널입니다.", user.getId());
+        return channel;
+    }
+
+    static void messageCreateTest(MessageService messageService, Channel channel, User author) {
+        Message message = messageService.create("안녕하세요.", channel.getId(), author.getId());
+        System.out.println("메시지 생성: " + message.getId());
     }
 
     public static void testJCFService() {
@@ -116,13 +132,10 @@ public class JavaApplication {
 
         System.out.println("============= 유저 테스트 시작 =============");
 
-        User user = new User("Test Target", true);
+        User user = new User("Test Target", "test@test.com", "tester", true);
 
         userService.create(user);
-        userService.create(new User("Test User1", false));
-        userService.create(new User("Test User2", true));
-        userService.create(new User("Test User3", false));
-        userService.create(new User("Test User4", true));
+        setupUser(userService);
 
         System.out.println("User 목록 : " + userService.getAll());
 
@@ -149,15 +162,12 @@ public class JavaApplication {
         System.out.println("============= 채널 테스트 시작 =============");
 
 
-        User user = new User("Test Target", true);
+        User user = new User("Test Target", "test@test.com", "tester", true);
 
-        Channel testChannel = new Channel("Test Target", "Test Target", user.getId());
+        Channel testChannel = new Channel(ChannelType.PUBLIC, "Test Target", "Test Target", user.getId());
 
         channelService.create(testChannel);
-        channelService.create(new Channel("Test Channel1", "Test Channel Description1", user.getId()));
-        channelService.create(new Channel("Test Channel2", "Test Channel Description2", user.getId()));
-        channelService.create(new Channel("Test Channel3", "Test Channel Description3", user.getId()));
-        channelService.create(new Channel("Test Channel4", "Test Channel Description4", user.getId()));
+        setupChannel(channelService, user);
 
         System.out.println("채널 목록 : " + channelService.getAll());
 
@@ -170,7 +180,7 @@ public class JavaApplication {
         System.out.println("채널 목록 : " + channelService.getAll());
 
         System.out.println("채널에 유저 추가");
-        testChannel.addUser(new User("Test add User", true).getId());
+        testChannel.addUser(new User("Test add User", "test@test.com", "tester", true).getId());
         System.out.println("채널 목록 : " + channelService.getAll());
 
         System.out.println("Test Target 채널 삭제");
@@ -185,10 +195,10 @@ public class JavaApplication {
 
         System.out.println("============= 메세지 테스트 시작 =============");
 
-        User testUser1 = new User("Test User1", true);
-        User testUser2 = new User("Test User2", true);
+        User testUser1 = new User("Test1", "test1@test.com", "tester1", true);
+        User testUser2 = new User("Test2", "test2@test.com", "tester2", true);
 
-        Channel testChannel = new Channel("Test Channel", "Test Channel"
+        Channel testChannel = new Channel(ChannelType.PUBLIC, "Test Channel", "Test Channel"
             , testUser1.getId(), List.of(testUser1.getId(), testUser2.getId()), null);
 
         Message message1 = new Message("Test Target Message From User1", testChannel.getId(), testUser1.getId());
@@ -199,6 +209,8 @@ public class JavaApplication {
 
         messageService.create(message1);
         messageService.create(message2);
+
+        messageCreateTest(messageService, testChannel, testUser1);
 
         System.out.println("Message 목록 : " + messageService.getAll());
 
@@ -228,12 +240,13 @@ public class JavaApplication {
         ChatService chatService = new ChatService(messageService, channelService);
 
         // 유저 생성
-        User adminUser = new User("adminUser", true);
-        User testUser = new User("testUser", true);
+
+        User adminUser = new User("admin", "admin@test.com", "admin", true);
+        User testUser = new User("tester", "test@test.com", "test", true);
         userService.create(adminUser);
         userService.create(testUser);
 
-        Channel channel = new Channel("general", "메인 채팅방", adminUser.getId());
+        Channel channel = new Channel(ChannelType.PUBLIC, "general", "메인 채팅방", adminUser.getId());
         channelService.create(channel);
 
         channelManageService.addUserToChannel(channel.getId(), testUser.getId());
