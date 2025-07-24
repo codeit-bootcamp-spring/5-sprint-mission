@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.List;
+import java.util.Set;
 
 public class JavaApplication {
 
@@ -176,6 +177,7 @@ public class JavaApplication {
             addAndFind();
             update();
             delete();
+            joinChannel();
         }
 
         public static void addAndFind(){
@@ -232,6 +234,24 @@ public class JavaApplication {
                 System.out.println("UserServiceTest: 삭제 : O");
             }
 
+        }
+
+        public static void joinChannel(){
+            userService.deleteAll();
+            userService.add(user1);
+
+            Channel channel = new Channel("testChannel1", user1);
+            channelService.add(channel);
+
+            userService.joinChannel(channel.getId(), user1.getId());
+
+            Set<User> users = channel.getUsers();
+            boolean result = users.contains(user1);
+            if(result){
+                System.out.println("UserServiceTest: 채널참가 : O");
+            }else{
+                System.out.println("UserServiceTest: 채널참가 : X");
+            }
         }
     }
 

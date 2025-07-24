@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.jcf;
 
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.*;
@@ -10,6 +12,8 @@ public class JCFUserService implements UserService {
     private static JCFUserService instance;
 
     private JCFUserService() {}
+    private ChannelService channelService;
+
 
     public static JCFUserService getInstance(){
         if(instance == null){
@@ -17,6 +21,11 @@ public class JCFUserService implements UserService {
         }
         return instance;
     }
+
+    public void setChannelService(ChannelService channelService) {
+        this.channelService = channelService;
+    }
+
 
     @Override
     public void add(User user) {
@@ -52,5 +61,12 @@ public class JCFUserService implements UserService {
     @Override
     public void deleteAll(){
         data.clear();
+    }
+
+    @Override
+    public void joinChannel(UUID channelId, UUID userId) {
+        Channel channel = channelService.findOne(channelId);
+        User user = findOne(userId);
+        channel.addUser(user);
     }
 }

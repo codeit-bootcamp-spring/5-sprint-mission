@@ -44,9 +44,12 @@ public class JCFChannelService implements ChannelService {
     public void delete(UUID channelId) {
         data.remove(channelId);
     }
+
     @Override
     public void deleteAll() {
         data.clear();
     }
+
+
 
 }

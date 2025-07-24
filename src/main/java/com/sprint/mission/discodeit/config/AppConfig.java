@@ -12,6 +12,8 @@ public class AppConfig {
 
     public UserService userService(){
         JCFUserService userService = JCFUserService.getInstance();
+
+        userService.setChannelService(JCFChannelService.getInstance());
         return userService;
     }
 
@@ -24,4 +26,5 @@ public class AppConfig {
         JCFMessageService messageService = JCFMessageService.getInstance();
         return messageService;
     }
+
 }
