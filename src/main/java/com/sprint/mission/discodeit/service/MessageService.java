@@ -12,6 +12,8 @@ public interface MessageService {
 
     void delete(Message message);
 
+    void deleteAll();
+
     Message searchByIndex(int i);
 
     Message searchById(UUID id);

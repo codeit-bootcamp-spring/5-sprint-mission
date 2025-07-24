@@ -32,6 +32,11 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
+    public void deleteAll() {
+        data.clear();
+    }
+
+    @Override
     public Channel searchByIndex(int i) {
         return data.get(i);
     }

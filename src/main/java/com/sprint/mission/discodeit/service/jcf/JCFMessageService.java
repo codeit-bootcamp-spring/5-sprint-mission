@@ -32,6 +32,11 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
+    public void deleteAll() {
+        data.clear();
+    }
+
+    @Override
     public Message searchByIndex(int i) {
         return data.get(i);
     }

@@ -103,6 +103,15 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
+    public void deleteAll() {
+        try {
+            Files.deleteIfExists(directory);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public Message searchByIndex(int i) {
         return null;
     }

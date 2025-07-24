@@ -12,6 +12,8 @@ public interface ChannelService {
 
     void delete(Channel channel);
 
+    void deleteAll();
+
     Channel searchByIndex(int i);
 
     List<Channel> searchByName(String name);
