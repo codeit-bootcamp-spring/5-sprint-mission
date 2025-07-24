@@ -4,8 +4,10 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -22,7 +24,8 @@ public class JavaApplication {
     static UserService userService = new FileUserService(userRepo);
     static ChannelRepository channelRepo = new FileChannelRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/channelDirectory/"));
     static ChannelService channelService = new FileChannelService(channelRepo);
-    static MessageService messageService = new FileMessageService(Path.of("/Users/apple/dev_source/5-sprint-mission/messageDirectory/"));
+    static MessageRepository messageRepo = new FileMessageRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/messageDirectory/"));
+    static MessageService messageService = new FileMessageService(messageRepo);
 
     public static void main(String[] args) {
 
@@ -133,7 +136,6 @@ public class JavaApplication {
 
         // 삭제 - 확인
         messageService.delete(message1);
-        System.out.println(messageService.searchById(message1.getId()));
     }
 
 }
