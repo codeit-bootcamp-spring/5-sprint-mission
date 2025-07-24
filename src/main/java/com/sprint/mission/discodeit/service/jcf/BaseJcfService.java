@@ -83,13 +83,13 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
   @Override
   public void deleteById(UUID id) {
     Optional<T> target = data.stream().filter(e -> idEquals(e, id) && !e.isDeleted()).findFirst();
-    target.ifPresent(e -> e.setDeleted(true));
+    target.ifPresent(BaseEntity::delete);
   }
 
   @Override
   public boolean restoreById(UUID id) {
     Optional<T> target = data.stream().filter(e -> idEquals(e, id) && e.isDeleted()).findFirst();
-    target.ifPresent(e -> e.setDeleted(false));
+    target.ifPresent(BaseEntity::restore);
     return target.isPresent();
   }
 

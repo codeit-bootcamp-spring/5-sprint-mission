@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -8,6 +11,8 @@ public abstract class BaseEntity {
   private final long createdAt;
   private long updatedAt;
   private boolean deleted;
+  private static final DateTimeFormatter FORMATTER =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
   protected BaseEntity(UUID id, long createdAt, long updatedAt) {
     this.id = id != null ? id : UUID.randomUUID();
@@ -43,8 +48,13 @@ public abstract class BaseEntity {
     return deleted;
   }
 
-  public void setDeleted(boolean deleted) {
-    this.deleted = deleted;
+  public void delete() {
+    this.deleted = true;
+    touch();
+  }
+
+  public void restore() {
+    this.deleted = false;
     touch();
   }
 
@@ -57,6 +67,9 @@ public abstract class BaseEntity {
       return false;
     }
     BaseEntity that = (BaseEntity) o;
+    if (id == null || that.id == null) {
+      return false;
+    }
     return Objects.equals(id, that.id);
   }
 
@@ -67,13 +80,16 @@ public abstract class BaseEntity {
 
   @Override
   public String toString() {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    String createdAtStr = FORMATTER.format(Instant.ofEpochMilli(createdAt));
+    String updatedAtStr = FORMATTER.format(Instant.ofEpochMilli(updatedAt));
     return "BaseEntity{"
         + "id="
         + id
         + ", createdAt="
-        + createdAt
+        + createdAtStr
         + ", updatedAt="
-        + updatedAt
+        + updatedAtStr
         + ", deleted="
         + deleted
         + '}';

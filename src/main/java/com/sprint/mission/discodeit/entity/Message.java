@@ -31,7 +31,7 @@ public class Message extends BaseEntity {
   }
 
   public Message(UUID senderId, UUID receiverId, String content) {
-    this(senderId, receiverId, content, null, null);
+    this(senderId, receiverId, content, null);
   }
 
   public UUID getSenderId() {
