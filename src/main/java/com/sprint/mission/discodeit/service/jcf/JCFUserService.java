@@ -32,6 +32,11 @@ public class JCFUserService implements UserService {
     }
 
     @Override
+    public void deleteAll() {
+        data.clear();
+    }
+
+    @Override
     public User searchByIndex(int i) {
         return data.get(i);
     }

@@ -12,6 +12,8 @@ public interface UserService {
 
     void delete(User user);
 
+    void deleteAll();
+
     User searchByIndex(int i);
 
     User searchById(UUID id);

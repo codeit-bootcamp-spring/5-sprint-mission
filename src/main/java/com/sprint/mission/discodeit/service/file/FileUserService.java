@@ -102,6 +102,15 @@ public class FileUserService implements UserService {
     }
 
     @Override
+    public void deleteAll() {
+        try {
+            Files.deleteIfExists(directory);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public User searchByIndex(int i) { // 삭제 예정 메서드
         return null;
     }
@@ -133,15 +142,4 @@ public class FileUserService implements UserService {
         return load(directory);
     }
 
-
-    public static void main(String[] args) {
-        FileUserService service = new FileUserService(Path.of("/Users/apple/dev_source/5-sprint-mission/userDirectory/"));
-        User user1 = new User("test10");
-        service.save(user1);
-        System.out.println(service.load(service.getDirectory()));
-        service.update(user1);
-        System.out.println(service.load(service.getDirectory()));
-        service.delete(user1);
-        System.out.println(service.load(service.getDirectory()));
-    }
 }
