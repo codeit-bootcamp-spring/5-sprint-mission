@@ -12,7 +12,9 @@ public class FileUserRepository extends FileStore<User> implements UserRepositor
     public FileUserRepository() {
         super("data/user.store");
         Map<UUID, User> loaded = loadFromFile();
-        userMap.putAll(loaded);
+        if (loaded != null) {
+            userMap.putAll(loaded);
+        }
     }
 
     @Override
