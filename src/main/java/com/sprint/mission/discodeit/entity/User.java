@@ -4,9 +4,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class User extends BaseEntity {
-
   private  String username;
-
   private  String password;
 
   public User(String username, String password) {
