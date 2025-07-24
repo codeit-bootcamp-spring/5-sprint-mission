@@ -2,16 +2,14 @@ package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.respository.ChannelRepository;
+import com.sprint.mission.discodeit.respository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.*;
 
 public class FileChannelService implements ChannelService {
 
-    private final ChannelRepository channelRepository;
+    private final ChannelRepository channelRepository = new FileChannelRepository();
 
-    public FileChannelService(ChannelRepository channelRepository) {
-        this.channelRepository = channelRepository;
-    }
 
     @Override
     public Channel create(String name, String topic) {

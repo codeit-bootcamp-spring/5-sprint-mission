@@ -2,18 +2,13 @@ package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.respository.MessageRepository;
+import com.sprint.mission.discodeit.respository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-
-import java.io.*;
 import java.util.*;
 
 public class FileMessageService implements MessageService {
 
-    private final MessageRepository messageRepository;
-
-    public FileMessageService(MessageRepository messageRepository) {
-        this.messageRepository = messageRepository;
-    }
+    private final MessageRepository messageRepository = new FileMessageRepository();
 
     @Override
     public Message create(User user, Channel channel, String content) {

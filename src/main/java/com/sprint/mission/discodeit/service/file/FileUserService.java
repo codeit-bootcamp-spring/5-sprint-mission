@@ -2,18 +2,13 @@ package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.UserRepository;
+import com.sprint.mission.discodeit.respository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import java.io.*;
 import java.util.*;
 
 public class FileUserService implements UserService {
 
-    private final UserRepository userRepository;
-
-    public FileUserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
+    private final UserRepository userRepository = new FileUserRepository();
 
     @Override
     public User create(String name, String password) {
