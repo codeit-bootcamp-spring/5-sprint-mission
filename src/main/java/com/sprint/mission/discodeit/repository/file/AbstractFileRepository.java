@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.entity.BaseEntity;
 import java.io.*;
 import java.util.*;
 
-@SuppressWarnings("unchecked")
 public abstract class AbstractFileRepository<T extends BaseEntity> {
     private static final String DATA_DIR = "data.dir";
     private final String filename;
@@ -48,7 +47,7 @@ public abstract class AbstractFileRepository<T extends BaseEntity> {
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (Map<UUID, T>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (Exception e) {
             return new HashMap<>();
         }
     }
@@ -60,8 +59,8 @@ public abstract class AbstractFileRepository<T extends BaseEntity> {
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
                 oos.writeObject(data);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write to file: " + filename, e);
+        } catch (Exception e) {
+            // 따로 처리 필요하면...
         }
     }
 }
