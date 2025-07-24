@@ -26,7 +26,7 @@ public class User implements Serializable {
         this.email = email;
         this.password = password;
         this.createdAt = createdAt;
-        this.updatedAt = null;  // 생성 시점에는 updatedAt은 null
+        //this.updatedAt = null;  // 생성 시점에는 updatedAt은 null
     }
 
     public User (String name, String email, String password) {
