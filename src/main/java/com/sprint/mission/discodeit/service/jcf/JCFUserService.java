@@ -10,9 +10,7 @@ import java.util.stream.Collectors;
 import com.sprint.mission.discodeit.service.UserService;
 
 public class JCFUserService implements UserService {
-
   private static JCFUserService instance;
-
   final Map<UUID, User> data = new HashMap<>();
 
   private JCFUserService() {
