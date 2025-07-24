@@ -1,8 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.respository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.io.*;
@@ -10,79 +9,47 @@ import java.util.*;
 
 public class FileMessageService implements MessageService {
 
-    private final String FILE_PATH = "data/message.store";
-    private Map<UUID, Message> messageMap = new HashMap<>();
+    private final MessageRepository messageRepository;
 
-    public FileMessageService() {
-        loadFromFile();
+    public FileMessageService(MessageRepository messageRepository) {
+        this.messageRepository = messageRepository;
     }
 
     @Override
     public Message create(User user, Channel channel, String content) {
         Message message = new Message(user, channel, content);
-        messageMap.put(message.getId(), message);
-        saveToFile();
-        return message;
+        return messageRepository.save(message);
     }
 
     @Override
     public List<Message> findAll() {
-        return new ArrayList<>(messageMap.values());
+        return messageRepository.findAll();
     }
 
     @Override
     public List<Message> findByStr(String str) {
-        List<Message> messages = new ArrayList<>();
-        for (Message message : messageMap.values()) {
+        List<Message> result = new ArrayList<>();
+        for (Message message : messageRepository.findAll()) {
             if (message.getContent().contains(str)) {
-                messages.add(message);
+                result.add(message);
             }
         }
-        return messages;
+        return result;
     }
 
     @Override
     public Message update(UUID id, String newMessage) {
-        Message message = messageMap.get(id);
+        Message message = messageRepository.findById(id);
         if (message != null) {
             message.updateContent(newMessage);
-            saveToFile();
+            messageRepository.save(message);
         }
         return message;
     }
 
     @Override
     public boolean deleteById(UUID id) {
-        if (messageMap.remove(id) != null) {
-            saveToFile();
-            return true;
-        }
-        return false;
+        return messageRepository.deleteById(id);
     }
 
-    private void saveToFile() {
-        File file = new File(FILE_PATH);
-        file.getParentFile().mkdirs(); // 디렉토리 없으면 생성
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-            oos.writeObject(messageMap);
-        } catch (IOException e) {
-            throw new RuntimeException("채널 저장 중 오류 발생", e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void loadFromFile() {
-        File file = new File(FILE_PATH);
-        if (!file.exists()) return;
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map) {
-                messageMap = (Map<UUID, Message>) obj;
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("채널 불러오기 실패, 빈 상태로 초기화");
-            messageMap = new HashMap<>();
-        }
-    }
 }
