@@ -19,6 +19,10 @@ public class JCFChannelRepository implements ChannelRepository {
 
     @Override
     public void delete(Channel channel) {
+        if (!data.containsKey(channel.getId())) {
+            System.err.println("해당하는 채널을 찾을 수 없습니다.");
+            throw new NoSuchElementException();
+        }
         data.remove(channel.getId());
     }
 
@@ -35,12 +39,20 @@ public class JCFChannelRepository implements ChannelRepository {
                 channels.add(channel);
             }
         }
+        if(channels.isEmpty()) {
+            System.err.println("해당하는 채널을 찾을 수 없습니다.");
+            throw new NoSuchElementException();
+        }
         return channels;
     }
 
     @Override
-    public Optional<Channel> searchById(UUID id) {
-        return Optional.ofNullable(data.get(id));
+    public Channel searchById(UUID id) {
+        if (!data.containsKey(id)) {
+            System.err.println("해당하는 채널을 찾을 수 없습니다.");
+            throw new NoSuchElementException();
+        }
+        return data.get(id);
     }
 
     @Override

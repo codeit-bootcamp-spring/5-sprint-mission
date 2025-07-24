@@ -90,19 +90,22 @@ public class FileChannelRepository implements ChannelRepository {
                 channels.add(channel);
             }
         }
-
+        if (channels.isEmpty()) {
+            System.err.println("해당하는 채널을 찾을 수 없습니다.");
+            throw new NoSuchElementException();
+        }
         return channels;
     }
 
     @Override
-    public Optional<Channel> searchById(UUID id) {
-        Channel channel = null;
+    public Channel searchById(UUID id) {
         for (Channel c : load(directory)) {
             if (c.getId().equals(id)) {
-                channel = c;
+                return c;
             }
         }
-        return Optional.ofNullable(channel);
+        System.err.println("해당하는 채널을 찾을 수 없습니다.");
+        throw new NoSuchElementException();
     }
 
     @Override

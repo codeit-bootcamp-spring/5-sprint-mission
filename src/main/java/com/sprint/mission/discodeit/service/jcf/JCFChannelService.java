@@ -57,12 +57,7 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel searchById(UUID id) {
-        Channel channel = repo.searchById(id).orElse(null);
-        if (channel == null) {
-            System.err.println("해당하는 유저를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
-        }
-        return channel;
+        return repo.searchById(id);
     }
 
     @Override
