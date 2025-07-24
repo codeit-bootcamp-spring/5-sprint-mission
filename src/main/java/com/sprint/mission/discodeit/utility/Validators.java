@@ -5,6 +5,7 @@ import static com.sprint.mission.discodeit.utility.StringUtil.normalizeString;
 
 import com.sprint.mission.discodeit.exception.ValidationException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 public class Validators {
@@ -83,7 +84,7 @@ public class Validators {
         throw new ValidationException("아바타 URL은 http 또는 https만 허용합니다.");
       }
       return normalizedAvatar;
-    } catch (Exception e) {
+    } catch (URISyntaxException e) {
       throw new ValidationException("아바타는 올바른 URL이어야 합니다.", e);
     }
   }

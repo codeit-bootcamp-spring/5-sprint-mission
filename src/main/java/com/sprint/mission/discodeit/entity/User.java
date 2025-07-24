@@ -95,6 +95,9 @@ public class User extends BaseEntity {
   }
 
   public void setBirthDate(LocalDate birthDate) {
+    if (birthDate == null) {
+      throw new IllegalArgumentException("birthDate must not be null");
+    }
     this.birthDate = birthDate;
   }
 
