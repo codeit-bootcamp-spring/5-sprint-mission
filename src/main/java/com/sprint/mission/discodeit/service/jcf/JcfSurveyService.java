@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Survey;
 import com.sprint.mission.discodeit.service.SurveyService;
+import java.util.List;
 import java.util.UUID;
 
 public class JcfSurveyService extends BaseJcfService<Survey> implements SurveyService {
@@ -28,10 +29,26 @@ public class JcfSurveyService extends BaseJcfService<Survey> implements SurveySe
   }
 
   @Override
-  public void vote(UUID surveyId, int answerIndex, UUID voterId, boolean isUnvoted) {
+  public void vote(UUID surveyId, int answerIndex, UUID voterId) {
     data.stream()
         .filter(s -> s.getId().equals(surveyId))
         .findFirst()
-        .ifPresent(s -> s.vote(answerIndex, voterId, isUnvoted));
+        .ifPresent(s -> s.vote(answerIndex, voterId));
+  }
+
+  @Override
+  public void vote(UUID surveyId, List<Integer> answerIndices, UUID voterId) {
+    data.stream()
+        .filter(s -> s.getId().equals(surveyId))
+        .findFirst()
+        .ifPresent(s -> s.vote(answerIndices, voterId));
+  }
+
+  @Override
+  public void unvote(UUID surveyId, UUID voterId) {
+    data.stream()
+        .filter(s -> s.getId().equals(surveyId))
+        .findFirst()
+        .ifPresent(s -> s.unvote(voterId));
   }
 }
