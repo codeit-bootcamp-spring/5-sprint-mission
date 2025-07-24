@@ -13,17 +13,10 @@ import com.sprint.mission.discodeit.service.UserService;
 
 
 public class JCFMessageService implements MessageService {
-
     private static JCFMessageService instance;
-
     private final Map<UUID, Message> data = new HashMap<>();
-
-
     private final UserService userService;
-
-
     private final ChannelService channelService;
-
 
     private JCFMessageService(UserService userService, ChannelService channelService) {
         this.userService = userService;
