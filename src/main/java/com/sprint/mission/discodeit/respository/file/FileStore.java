@@ -27,7 +27,12 @@ public abstract class FileStore<T> {
     @SuppressWarnings("unchecked")
     protected Map<UUID, T> loadFromFile() {
         File file = new File(filePath);
-        if (!file.exists()) return null;
+
+        if (!file.exists()) {
+            // 파일이 없으면 data 디렉토리도 만들고 빈 맵 반환
+            file.getParentFile().mkdirs(); // "data" 디렉토리가 없을 경우 생성
+            return new HashMap<>();
+        }
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             Object obj = ois.readObject();
@@ -46,8 +51,14 @@ public abstract class FileStore<T> {
      * @param map 저장할 데이터
      */
     protected void saveToFile(Map<UUID, T> map) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
-            oos.writeObject(map);
+        try {
+            // 파일 경로에 디렉토리가 없을 수 있으므로 디렉토리 생성
+            File file = new File(filePath);
+            file.getParentFile().mkdirs(); // "data" 디렉토리 생성
+
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+                oos.writeObject(map);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
