@@ -36,22 +36,12 @@ public class JCFChannelService implements ChannelService {
 
     // 채널명 업데이트
     public Channel updateName(UUID id, String name){
-        Channel channel = channelRepository.findById(id);
-        if (channel == null) {
-            throw new NoSuchElementException("해당 ID의 채널을 찾을 수 없습니다");
-        }
-        channel.updateName(name);
-        return channelRepository.save(channel);
+        return channelRepository.updateName(id, name);
     }
 
     // 채널 토픽 업데이트
     public Channel updateTopic(UUID id, String topic){
-        Channel channel = channelRepository.findById(id);
-        if (channel == null) {
-            throw new NoSuchElementException("해당 ID의 토픽을 찾을 수 없습니다");
-        }
-        channel.updateTopic(topic);
-        return channelRepository.save(channel);
+        return channelRepository.updateTopic(id, topic);
     }
 
     // 채널 삭제
