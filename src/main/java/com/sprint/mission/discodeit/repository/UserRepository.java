@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface UserRepository {
     void save(User user);
 
-    void delete(User user);
+    Optional<User> delete(User user);
 
     void deleteAll();
 

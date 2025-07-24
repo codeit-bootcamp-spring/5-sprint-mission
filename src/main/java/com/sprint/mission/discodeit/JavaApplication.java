@@ -15,6 +15,9 @@ import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.basic.BasicChannelService;
+import com.sprint.mission.discodeit.service.basic.BasicMessageService;
+import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import com.sprint.mission.discodeit.service.file.FileChannelService;
 import com.sprint.mission.discodeit.service.file.FileMessageService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
@@ -26,19 +29,27 @@ import java.nio.file.Path;
 
 public class JavaApplication {
 
-//    static UserRepository userRepo = new FileUserRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/userDirectory/"));
-//    static UserService userService = new FileUserService(userRepo);
+    // File 레포지토리 선언
+    static UserRepository userRepo = new FileUserRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/userDirectory/"));
 //    static ChannelRepository channelRepo = new FileChannelRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/channelDirectory/"));
-//    static ChannelService channelService = new FileChannelService(channelRepo);
 //    static MessageRepository messageRepo = new FileMessageRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/messageDirectory/"));
+
+    // JCF 레포지토리 선언
+//    static UserRepository userRepo = new JCFUserRepository();
+    static ChannelRepository channelRepo = new JCFChannelRepository();
+    static MessageRepository messageRepo = new JCFMessageRepository();
+
+//    static UserService userService = new FileUserService(userRepo);
+//    static ChannelService channelService = new FileChannelService(channelRepo);
 //    static MessageService messageService = new FileMessageService(messageRepo);
 
-    static UserRepository userRepo = new JCFUserRepository();
-    static UserService userService = new JCFUserService(userRepo);
-    static ChannelRepository channelRepo = new JCFChannelRepository();
+//    static UserService userService = new JCFUserService(userRepo);
     static ChannelService channelService = new JCFChannelService(channelRepo);
-    static MessageRepository messageRepo = new JCFMessageRepository();
     static MessageService messageService = new JCFMessageService(messageRepo);
+
+    static UserService userService = new BasicUserService(userRepo);
+//    static ChannelService channelService = new BasicChannelService(channelRepo);
+//    static MessageService messageService = new BasicMessageService(messageRepo);
 
 
 

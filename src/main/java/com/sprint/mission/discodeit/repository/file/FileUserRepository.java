@@ -61,18 +61,18 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public void delete(User user) {
+    public Optional<User> delete(User user) {
         Path userDirectory = Path.of(directory.toString() + "/" + user.getId());
+        User u = null;
         if (Files.exists(userDirectory)) {
             try {
                 Files.delete(userDirectory);
+                u = user;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } else {
-            System.err.println("해당하는 유저를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
         }
+        return Optional.ofNullable(u);
     }
 
     @Override
