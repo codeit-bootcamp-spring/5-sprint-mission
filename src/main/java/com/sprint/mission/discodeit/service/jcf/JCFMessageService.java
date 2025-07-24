@@ -13,8 +13,13 @@ import java.util.*;
 public class JCFMessageService implements MessageService {
 
     private final MessageRepository messageRepository =  new JCFMessageRepository();
-    private final UserService userService =  new JCFUserService();
-    private final ChannelService channelService = new JCFChannelService();
+    private final UserService userService;
+    private final ChannelService channelService;
+
+    public JCFMessageService(UserService userService, ChannelService channelService) {
+        this.userService = userService;
+        this.channelService = channelService;
+    }
 
 
     // 메시지 조회
