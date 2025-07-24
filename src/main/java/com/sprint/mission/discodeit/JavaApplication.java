@@ -80,6 +80,7 @@ public class JavaApplication {
 
         // 삭제 - 확인
         userService.delete(user1);
+        userService.searchAll().forEach(System.out::println);
     }
 
     static void testChannelService() {
@@ -107,6 +108,7 @@ public class JavaApplication {
 
         // 삭제 - 확인
         channelService.delete(channel1);
+        channelService.searchAll().forEach(System.out::println);
     }
 
     static void testMessageService() {
@@ -136,6 +138,7 @@ public class JavaApplication {
 
         // 삭제 - 확인
         messageService.delete(message1);
+        messageService.searchAll().forEach(System.out::println);
     }
 
 }
