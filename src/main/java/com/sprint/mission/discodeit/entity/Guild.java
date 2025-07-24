@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.enums.Permission;
-import com.sprint.mission.discodeit.utility.StringUtil;
 import com.sprint.mission.discodeit.utility.Validators;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,9 +24,9 @@ public class Guild extends BaseEntity {
       EnumSet.of(Permission.READ_MESSAGES, Permission.SEND_MESSAGES);
 
   public Guild(String name, boolean discoverable, UUID ownerId) {
-    this.name = StringUtil.normalizeString(name);
-    this.discoverable = discoverable;
-    this.ownerId = ownerId;
+    setName(name);
+    setDiscoverable(discoverable);
+    setOwnerId(ownerId);
     addMember(ownerId);
   }
 
@@ -52,12 +51,18 @@ public class Guild extends BaseEntity {
   }
 
   public void setOwnerId(UUID ownerId) {
+    if (ownerId == null) {
+      throw new IllegalArgumentException("Owner ID must not be null.");
+    }
     this.ownerId = ownerId;
     updateMemberPermissions(ownerId, Set.of(Permission.ADMINISTRATOR));
   }
 
-  public boolean isOwner(UUID userId) {
-    return userId.equals(ownerId);
+  public boolean isOwner(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID must not be null.");
+    }
+    return id.equals(ownerId);
   }
 
   public List<Channel> getChannels() {
@@ -66,7 +71,7 @@ public class Guild extends BaseEntity {
 
   public void addChannel(Channel channel) {
     if (channel == null) {
-      throw new IllegalArgumentException("채널은 null일 수 없습니다.");
+      throw new IllegalArgumentException("Channel must not be null.");
     }
     if (!channels.contains(channel)) {
       channels.add(channel);
@@ -74,6 +79,9 @@ public class Guild extends BaseEntity {
   }
 
   public void removeChannel(Channel channel) {
+    if (channel == null) {
+      throw new IllegalArgumentException("Channel must not be null.");
+    }
     channels.remove(channel);
   }
 
@@ -81,43 +89,68 @@ public class Guild extends BaseEntity {
     return Collections.unmodifiableMap(members);
   }
 
-  public void addMember(UUID userId) {
-    if (userId == null) {
-      throw new IllegalArgumentException("userId는 null일 수 없습니다.");
+  public void addMember(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID must not be null.");
     }
-    if (userId.equals(ownerId)) {
-      members.putIfAbsent(userId, EnumSet.of(Permission.ADMINISTRATOR));
-    } else {
-      members.putIfAbsent(userId, EnumSet.copyOf(DEFAULT_PERMISSIONS));
-    }
+    members.putIfAbsent(id, id.equals(ownerId)
+        ? EnumSet.of(Permission.ADMINISTRATOR)
+        : EnumSet.copyOf(DEFAULT_PERMISSIONS));
   }
 
-  public void updateMemberPermissions(UUID userId, Set<Permission> permissions) {
-    members.put(userId, permissions);
+  public void updateMemberPermissions(UUID id, Set<Permission> permissions) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID must not be null.");
+    }
+    if (permissions == null) {
+      throw new IllegalArgumentException("Permissions must not be null.");
+    }
+    if (permissions.isEmpty()) {
+      throw new IllegalArgumentException("Permissions must not be empty.");
+    }
+    if (isNotMember(id)) {
+      throw new IllegalArgumentException("User is not a member of this guild.");
+    }
+    members.put(id, EnumSet.copyOf(permissions));
   }
 
-  public void removeMember(UUID userId) {
-    members.remove(userId);
+  public void removeMember(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID must not be null.");
+    }
+    members.remove(id);
   }
 
   public Set<UUID> getBans() {
     return Collections.unmodifiableSet(bans);
   }
 
-  public void addBan(UUID userId) {
-    bans.add(userId);
+  public void addBan(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID must not be null.");
+    }
+    bans.add(id);
   }
 
-  public void removeBan(UUID userId) {
-    bans.remove(userId);
+  public void removeBan(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID must not be null.");
+    }
+    bans.remove(id);
   }
 
-  public boolean isMember(UUID userId) {
-    return members.containsKey(userId);
+  public boolean isNotMember(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID must not be null.");
+    }
+    return !members.containsKey(id);
   }
 
-  public boolean isBanned(UUID userId) {
-    return bans.contains(userId);
+  public boolean isBanned(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID must not be null.");
+    }
+    return bans.contains(id);
   }
 
   @Override

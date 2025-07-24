@@ -89,7 +89,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
     update(
         guildId,
         g -> {
-          if (!g.isMember(newOwnerId)) {
+          if (g.isNotMember(newOwnerId)) {
             throw new IllegalArgumentException("해당 유저는 이 서버의 멤버가 아닙니다.");
           }
           g.setOwnerId(newOwnerId);

@@ -80,7 +80,6 @@ public class Validators {
 
   public static String validateGuildName(String guildName) {
     String normalizedGuildName = normalizeString(guildName);
-
     if (normalizedGuildName.length() > 20) {
       throw new ValidationException("서버명은 20자 이내여야 합니다.");
     }
