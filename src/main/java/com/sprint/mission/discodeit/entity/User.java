@@ -19,7 +19,7 @@ public class User {
         this.id = UUID.randomUUID();
         this.username = username;
         this.password = password;
-        createdAt = System.currentTimeMillis();
+        this.createdAt = System.currentTimeMillis();
     }
 
     public UUID getId() {

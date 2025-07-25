@@ -11,25 +11,7 @@ public class JCFUserService implements UserService {
 
 
     @Override
-    public User register() {
-        String username;
-        String password;
-
-        while (true) {
-            System.out.print("이름을 입력하세요 : ");
-            username = sc.nextLine();
-
-            System.out.print("사용할 비밀번호를 입력하세요 : ");
-            password = sc.nextLine();
-
-            if (username.isBlank() || password.isBlank() ||
-                    username.matches(".*\\s.*") || password.matches(".*\\s.*")) {
-                System.out.println("이름과 비밀번호는 공백 없이 한 글자 이상 입력하세요.\n");
-            } else{
-                break;
-            }
-        }
-
+    public User register(String username, String password) {
         User user = new User(username, password);
         data.put(user.getId(), user);
         System.out.println("회원가입이 완료되었습니다.");
@@ -71,5 +53,26 @@ public class JCFUserService implements UserService {
             System.out.println("유효하지 않은 ID 형식입니다.");
             return false;
         }
+    }
+
+    @Override
+    public User find(UUID userId) {
+        User user = data.get(userId);
+        return user;
+    }
+
+    @Override
+    public User findAll() {
+        return null;
+    }
+
+    @Override
+    public User update(UUID userId, String newPassword) {
+        return null;
+    }
+
+    @Override
+    public boolean delete(UUID userId) {
+        return data.remove(userId) != null;
     }
 }
