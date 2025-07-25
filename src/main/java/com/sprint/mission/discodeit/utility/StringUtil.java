@@ -11,6 +11,7 @@ public final class StringUtil {
     if (input == null) {
       return "";
     }
+
     return input.replaceAll("\\D", "");
   }
 }
