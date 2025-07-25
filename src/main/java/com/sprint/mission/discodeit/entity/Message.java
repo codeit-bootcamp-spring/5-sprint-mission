@@ -6,17 +6,30 @@ public class Message {
     private UUID id;
     private Long createdAt;
     private Long updatedAt;
-
-    // 내가 디스 코드에서 필요한 필드를 추가적으로 설계하는 자리
     private String content;
 
-    // 소속된 채널과 글쓴이 표현
-    private UUID channelId;
-    private UUID authorId;
+    public Message() {}
 
-    // 필요한 나머지 설계 (공지, ....)
+    public Message(UUID id, String content) {
+        this.id = id;
+        this.content = content;
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
+    }
 
+    public UUID getId() {
+        return id;
+    }
 
+    public Long getCreatedAt() {
+        return createdAt;
+    }
 
+    public Long getUpdatedAt() {
+        return updatedAt;
+    }
 
+    public String getContent() {
+        return content;
+    }
 }
