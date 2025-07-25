@@ -15,9 +15,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
   private UserService userService;
 
-  private JcfGuildService() {
-    this.userService = JcfUserService.getInstance();
-  }
+  private JcfGuildService() {}
 
   public static JcfGuildService getInstance() {
     return instance;

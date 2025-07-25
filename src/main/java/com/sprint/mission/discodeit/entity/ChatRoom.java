@@ -58,7 +58,27 @@ public class ChatRoom extends BaseEntity {
     return Collections.unmodifiableSet(participants);
   }
 
-  public boolean isDirectMessage() {
-    return !isChannelChatRoom();
+  public void addParticipant(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID must not be null.");
+    }
+    participants.add(id);
+  }
+
+  public void removeParticipant(UUID id) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID must not be null.");
+    }
+    participants.remove(id);
+  }
+
+  public boolean isParticipant(UUID id) {
+    if (isChannelChatRoom()) {
+      throw new UnsupportedOperationException("채널 기반 ChatRoom은 GuildService로 멤버를 조회하세요.");
+    }
+    if (id == null) {
+      throw new IllegalArgumentException("User ID must not be null.");
+    }
+    return participants.contains(id);
   }
 }

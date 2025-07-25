@@ -13,9 +13,7 @@ public class JcfMessageService extends BaseJcfService<Message> implements Messag
 
   private UserService userService;
 
-  private JcfMessageService() {
-    this.userService = JcfUserService.getInstance();
-  }
+  private JcfMessageService() {}
 
   public static JcfMessageService getInstance() {
     return instance;

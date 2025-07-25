@@ -14,9 +14,7 @@ public class JcfChannelService extends BaseJcfService<Channel> implements Channe
 
   private GuildService guildService;
 
-  private JcfChannelService() {
-    this.guildService = JcfGuildService.getInstance();
-  }
+  private JcfChannelService() {}
 
   public static JcfChannelService getInstance() {
     return instance;
