@@ -25,7 +25,7 @@ public class User {
         this.email = email;
         }
 
-        //User 객체 Getter -> 미션에 Setter가 없으므로 Getter만 생성한다.
+        //User 객체 Getter -> 미션에 Setter가 없으므로 Getter만 생성.
         public UUID getUserId() {
             return userId;
         }
