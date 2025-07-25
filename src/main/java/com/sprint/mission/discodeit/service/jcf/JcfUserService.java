@@ -111,7 +111,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
     List<Guild> guildsToRemove = new ArrayList<>();
     for (UUID guildId : user.getGuilds()) {
-      Guild guild = JcfGuildService.getInstance().getOrThrow(guildId);
+      Guild guild = guildService.getOrThrow(guildId);
       if (guild.isOwner(userId)) {
         guildsToRemove.add(guild);
       }
@@ -222,7 +222,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   public Set<User> getFriends(UUID userId) {
     User user = getOrThrow(userId);
     return user.getFriends().stream()
-        .map(this::getOrThrow) // UUID → User
+        .map(this::getOrThrow)
         .collect(Collectors.toSet());
   }
 
@@ -247,7 +247,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   public Set<Guild> getGuilds(UUID userId) {
     User user = getOrThrow(userId);
     return user.getGuilds().stream()
-        .map(JcfGuildService.getInstance()::getOrThrow)
+        .map(guildService::getOrThrow)
         .collect(Collectors.toSet());
   }
 

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.run;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChatRoom;
 import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
@@ -8,6 +9,7 @@ import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.exception.ValidationException;
 import com.sprint.mission.discodeit.service.jcf.JcfChannelService;
+import com.sprint.mission.discodeit.service.jcf.JcfChatRoomService;
 import com.sprint.mission.discodeit.service.jcf.JcfFriendRequestService;
 import com.sprint.mission.discodeit.service.jcf.JcfGuildService;
 import com.sprint.mission.discodeit.service.jcf.JcfMessageService;
@@ -22,12 +24,14 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class JavaApplication {
   private final JcfUserService userService = JcfUserService.getInstance();
   private final JcfFriendRequestService friendRequestService =
       JcfFriendRequestService.getInstance();
   private final JcfMessageService messageService = JcfMessageService.getInstance();
+  private final JcfChatRoomService chatRoomService = JcfChatRoomService.getInstance();
   private final JcfGuildService guildService = JcfGuildService.getInstance();
   private final JcfChannelService channelService = JcfChannelService.getInstance();
   private final JcfSurveyService surveyService = JcfSurveyService.getInstance();
@@ -147,6 +151,10 @@ public class JavaApplication {
     userService.setGuildService(guildService);
     friendRequestService.setUserService(userService);
     messageService.setUserService(userService);
+    chatRoomService.setUserService(userService);
+    chatRoomService.setGuildService(guildService);
+    chatRoomService.setMessageService(messageService);
+    chatRoomService.setChannelService(channelService);
     channelService.setGuildService(guildService);
 
     seedTestUsers();
@@ -246,10 +254,11 @@ public class JavaApplication {
   private void editDirectMessageMenu() {
     runMenu(
         new Menu("=====***** 메시지 편집 메뉴*****=====")
-            .add("메시지 목록 보기", () -> {})
+            .add("대화방 생성", this::createChatRoom)
             .add("메시지 보내기", () -> {})
             .add("메시지 보기", () -> {})
             .add("메시지 수정하기", () -> {})
+            .add("메시지 삭제하기", () -> {})
             .add("뒤로가기", this::goPreviousMenu));
   }
 
@@ -778,7 +787,6 @@ public class JavaApplication {
       try {
         friendRequestService.save(new FriendRequest(me.getId(), receiver.getId()));
         System.out.println("✅ 친구 요청을 보냈습니다.");
-        return;
       } catch (ValidationException e) {
         System.out.println(e.getMessage());
       } catch (NoSuchElementException e) {
@@ -1501,6 +1509,68 @@ public class JavaApplication {
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }
+    }
+  }
+
+  private void createChatRoom() {
+    List<User> selectedFriends = new ArrayList<>();
+    List<User> friends = new ArrayList<>(userService.getFriends(me.getId()));
+
+    if (friends.isEmpty()) {
+      System.out.println("친구 없음");
+      return;
+    }
+
+    while (true) {
+      System.out.println("\n초대할 친구 목록:");
+      for (int i = 0; i < friends.size(); i++) {
+        User f = friends.get(i);
+        System.out.printf(
+            "%d. %s (%s, %s)\n", i + 1, f.getGlobalName(), f.getUsername(), f.getEmail());
+      }
+      System.out.println("\n선택된 친구 목록:");
+      for (User f : selectedFriends) {
+        System.out.printf("%s (%s, %s)\n", f.getGlobalName(), f.getUsername(), f.getEmail());
+      }
+
+      printGuidePrevious();
+      String idxStr = InputHandler.getInputOrBack("초대할 친구 번호(0: 완료): ");
+      if (idxStr == null) {
+        return;
+      }
+      if (idxStr.equals("0")) {
+        break;
+      }
+
+      try {
+        int idx = Integer.parseInt(idxStr) - 1;
+
+        if (idx < 0 || idx >= friends.size()) {
+          System.out.println("유효한 번호를 입력해주세요.");
+          continue;
+        }
+
+        User chosen = friends.get(idx);
+        selectedFriends.add(chosen);
+        friends.remove(chosen);
+      } catch (NumberFormatException e) {
+        System.out.println("숫자를 입력해주세요.");
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }
+
+    if (selectedFriends.isEmpty()) {
+      System.out.println("1명 이상을 초대해주세요.");
+      return;
+    }
+
+    selectedFriends.add(me);
+
+    if (chatRoomService.save(
+            new ChatRoom(selectedFriends.stream().map(User::getId).collect(Collectors.toSet())))
+        != null) {
+      System.out.println("대화방이 생성되었습니다.");
     }
   }
 }
