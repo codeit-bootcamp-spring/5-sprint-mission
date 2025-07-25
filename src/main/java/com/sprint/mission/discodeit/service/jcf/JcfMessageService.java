@@ -36,8 +36,7 @@ public class JcfMessageService extends BaseJcfService<Message> implements Messag
       throw new IllegalStateException("유저를 찾을 수 없습니다.");
     }
 
-    data.add(message);
-    return message;
+    return super.save(message);
   }
 
   @Override

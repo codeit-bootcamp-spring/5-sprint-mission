@@ -8,38 +8,31 @@ import java.util.UUID;
 
 public class Message extends BaseEntity {
   private final UUID senderId;
-  private final UUID receiverId;
   private String content;
   private List<String> files;
   private Survey survey;
   private final List<UUID> replies = new ArrayList<>();
 
-  public Message(
-      UUID senderId, UUID receiverId, String content, List<String> files, Survey survey) {
-    if (senderId == null || receiverId == null) {
-      throw new IllegalArgumentException("Sender and receiver must not be null.");
+  public Message(UUID senderId, String content, List<String> files, Survey survey) {
+    if (senderId == null) {
+      throw new IllegalArgumentException("Sender ID must not be null.");
     }
     this.senderId = senderId;
-    this.receiverId = receiverId;
     setContent(content);
     setFiles(files);
     setSurvey(survey);
   }
 
-  public Message(UUID senderId, UUID receiverId, String content, List<String> files) {
-    this(senderId, receiverId, content, files, null);
+  public Message(UUID senderId, String content, List<String> files) {
+    this(senderId, content, files, null);
   }
 
-  public Message(UUID senderId, UUID receiverId, String content) {
-    this(senderId, receiverId, content, null);
+  public Message(UUID senderId, String content) {
+    this(senderId, content, null, null);
   }
 
   public UUID getSenderId() {
     return senderId;
-  }
-
-  public UUID getReceiverId() {
-    return receiverId;
   }
 
   public String getContent() {
@@ -77,7 +70,7 @@ public class Message extends BaseEntity {
       this.survey = null;
     } else {
       if (!survey.getSenderId().equals(senderId)) {
-        throw new IllegalStateException("survey senderId is not equal to message senderId.");
+        throw new IllegalStateException("Survey Sender ID is not equal to message senderId.");
       }
       this.survey = survey;
     }
@@ -106,8 +99,6 @@ public class Message extends BaseEntity {
     return "Message{"
         + "sender="
         + senderId
-        + ", receiver="
-        + receiverId
         + ", replies="
         + replies
         + ", content='"
