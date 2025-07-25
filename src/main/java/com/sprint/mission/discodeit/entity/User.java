@@ -3,32 +3,24 @@ package com.sprint.mission.discodeit.entity;
 import java.time.Instant;
 import java.util.UUID;
 
-public class User {
-    private final UUID id;
+public class User extends BaseEntity {
     private String email;
     private String userName;
     private String nickname;
     private String password;
     private String phoneNumber;
-    private final Long createAt;
-    private Long updateAt;
 
     public User(String email, String userName, String nickname, String password, String phoneNumber) {
         this(UUID.randomUUID(), Instant.now().getEpochSecond(), email, userName, nickname, password, phoneNumber);
     }
 
     public User(UUID id, Long createAt, String email, String userName, String nickname, String password, String phoneNumber) {
-        this.id = id;
-        this.createAt = createAt;
+        super(id, createAt);
         this.email = email;
         this.userName = userName;
         this.nickname = nickname;
         this.password = password;
         this.phoneNumber = phoneNumber;
-    }
-
-    public UUID getId() {
-        return id;
     }
 
     public String getEmail() {
@@ -43,21 +35,13 @@ public class User {
         return nickname;
     }
 
-    public Long getCreateAt() {
-        return createAt;
-    }
-
-    public Long getUpdateAt() {
-        return updateAt;
-    }
-
-    public void updateUser(String email, String userName, String nickname, String password, String phoneNumber, Long updateAt) {
+    public void updateUser(String email, String userName, String nickname, String password, String phoneNumber) {
         this.email = email;
         this.userName = userName;
         this.nickname = nickname;
         this.password = password;
         this.phoneNumber = phoneNumber;
-        this.updateAt = updateAt;
+        super.updateTimeStamp();
     }
 
     @Override

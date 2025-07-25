@@ -3,28 +3,20 @@ package com.sprint.mission.discodeit.entity;
 import java.time.Instant;
 import java.util.UUID;
 
-public class Message {
-    private final UUID id;
+public class Message extends BaseEntity {
     private final User user;
     private final Channel channel;
     private String message;
-    private final Long createAt;
-    private Long updateAt;
 
     public Message(User user, Channel channel, String message) {
         this(UUID.randomUUID(), user, channel, message, Instant.now().getEpochSecond());
     }
 
     public Message(UUID id, User user, Channel channel, String message, Long createAt) {
-        this.id = id;
+        super(id, createAt);
         this.user = user;
         this.channel = channel;
         this.message = message;
-        this.createAt = createAt;
-    }
-
-    public UUID getId() {
-        return id;
     }
 
     public User getUser() {
@@ -39,17 +31,9 @@ public class Message {
         return message;
     }
 
-    public Long getCreateAt() {
-        return createAt;
-    }
-
-    public Long getUpdateAt() {
-        return updateAt;
-    }
-
-    public void updateMessage(String message, Long updateAt) {
+    public void updateMessage(String message) {
         this.message = message;
-        this.updateAt = updateAt;
+        super.updateTimeStamp();
     }
 
     @Override
