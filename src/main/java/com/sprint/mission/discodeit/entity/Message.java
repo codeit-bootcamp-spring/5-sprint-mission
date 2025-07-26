@@ -11,9 +11,9 @@ public class Message extends BaseEntity {
   private String content;
   private List<String> files;
   private Survey survey;
-  private final List<UUID> replies = new ArrayList<>();
+  private final UUID replyTo;
 
-  public Message(UUID senderId, String content, List<String> files, Survey survey) {
+  public Message(UUID senderId, String content, List<String> files, Survey survey, UUID replyTo) {
     if (senderId == null) {
       throw new IllegalArgumentException("Sender ID must not be null.");
     }
@@ -21,14 +21,19 @@ public class Message extends BaseEntity {
     setContent(content);
     setFiles(files);
     setSurvey(survey);
+    this.replyTo = replyTo;
+  }
+
+  public Message(UUID senderId, String content, List<String> files, Survey survey) {
+    this(senderId, content, files, survey, null);
   }
 
   public Message(UUID senderId, String content, List<String> files) {
-    this(senderId, content, files, null);
+    this(senderId, content, files, null, null);
   }
 
   public Message(UUID senderId, String content) {
-    this(senderId, content, null, null);
+    this(senderId, content, null, null, null);
   }
 
   public UUID getSenderId() {
@@ -76,22 +81,8 @@ public class Message extends BaseEntity {
     }
   }
 
-  public List<UUID> getReplies() {
-    return Collections.unmodifiableList(replies);
-  }
-
-  public void addReply(UUID replyId) {
-    if (replyId == null) {
-      throw new IllegalArgumentException("Reply ID must not be null.");
-    }
-    replies.add(replyId);
-  }
-
-  public void removeReply(UUID replyId) {
-    if (replyId == null) {
-      throw new IllegalArgumentException("replyId must not be null.");
-    }
-    replies.remove(replyId);
+  public UUID getReplyTo() {
+    return replyTo;
   }
 
   @Override
@@ -99,8 +90,6 @@ public class Message extends BaseEntity {
     return "Message{"
         + "sender="
         + senderId
-        + ", replies="
-        + replies
         + ", content='"
         + content
         + '\''

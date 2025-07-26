@@ -51,14 +51,4 @@ public class JcfMessageService extends BaseJcfService<Message> implements Messag
   public void updateSurvey(UUID messageId, Survey survey) {
     update(messageId, m -> m.setSurvey(survey));
   }
-
-  @Override
-  public void addReply(UUID messageId, UUID replyId) {
-    update(messageId, m -> m.addReply(replyId));
-  }
-
-  @Override
-  public void removeReply(UUID messageId, UUID replyId) {
-    update(messageId, m -> m.removeReply(replyId));
-  }
 }
