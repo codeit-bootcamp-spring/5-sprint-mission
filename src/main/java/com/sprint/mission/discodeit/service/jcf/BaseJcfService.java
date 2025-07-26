@@ -30,7 +30,7 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
 
   @Override
   public List<T> findAll() {
-    return List.copyOf(data.stream().filter(e -> !e.isDeleted()).collect(Collectors.toList()));
+    return data.stream().filter(e -> !e.isDeleted()).toList();
   }
 
   @Override
