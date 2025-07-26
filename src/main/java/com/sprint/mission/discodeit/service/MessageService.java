@@ -3,18 +3,19 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.entity.Message;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageService {
-    void create(Message message);
+    Message create(Message message);
 
-    void update(Message message);
+    Message update(Message message);
 
-    void delete(Message message);
+    Message delete(UUID id);
 
     void deleteAll();
 
-    Message searchById(UUID id);
+    Optional<Message> searchById(UUID id);
 
     List<Message> searchByContent(String content);
 

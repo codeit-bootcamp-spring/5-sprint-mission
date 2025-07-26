@@ -3,20 +3,21 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.entity.Channel;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ChannelService {
-    void create(Channel channel);
+    Channel create(Channel channel);
 
-    void update(Channel channel);
+    Channel update(Channel channel);
 
-    void delete(Channel channel);
+    Channel delete(UUID id);
 
     void deleteAll();
 
     List<Channel> searchByName(String name);
 
-    Channel searchById(UUID id);
+    Optional<Channel> searchById(UUID id);
 
     List<Channel> searchAll();
 }

@@ -1,67 +1,56 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFChannelService implements ChannelService {
 
-    ChannelRepository repo;
+    private final Map<UUID, Channel> data;
 
-    public JCFChannelService(ChannelRepository repo) {
-        this.repo = repo;
+    public JCFChannelService() {
+        data = new HashMap<>();
     }
 
     @Override
-    public void create(Channel channel) {
-        repo.save(channel);
+    public Channel create(Channel channel) {
+        return data.put(channel.getId(), channel);
     }
 
     @Override
-    public void update(Channel channel) {
-        if (!repo.searchAll().contains(channel)) {
-            System.err.println("해당하는 채널을 찾을 수 없습니다.");
-            throw new NoSuchElementException();
-        }
-        repo.save(channel);
+    public Channel update(Channel channel) {
+        return data.put(channel.getId(), channel);
     }
 
     @Override
-    public void delete(Channel channel) {
-        if (!repo.searchAll().contains(channel)) {
-            System.err.println("해당하는 채널을 찾을 수 없습니다.");
-            throw new NoSuchElementException();
-        }
-        repo.delete(channel);
+    public Channel delete(UUID id) {
+        return data.remove(id);
     }
 
     @Override
     public void deleteAll() {
-        repo.deleteAll();
+        data.clear();
     }
 
     @Override
     public List<Channel> searchByName(String name) {
-        List<Channel> channels = repo.searchByName(name);
-        if (channels.isEmpty()) {
-            System.err.println("해당하는 채널을 찾을 수 없습니다.");
-            throw new NoSuchElementException();
+        List<Channel> channels = new ArrayList<>();
+        for (Channel channel : data.values()) {
+            if (channel.getName().contains(name)) {
+                channels.add(channel);
+            }
         }
-
         return channels;
     }
 
     @Override
-    public Channel searchById(UUID id) {
-        return repo.searchById(id);
+    public Optional<Channel> searchById(UUID id) {
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
     public List<Channel> searchAll() {
-        return repo.searchAll();
+        return new ArrayList<>(data.values());
     }
 }

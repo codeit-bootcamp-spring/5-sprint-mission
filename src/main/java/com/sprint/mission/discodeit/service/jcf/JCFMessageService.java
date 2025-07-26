@@ -1,76 +1,67 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFMessageService implements MessageService {
 
-    MessageRepository repo;
+    private final Map<UUID, Message> data;
 
-    public JCFMessageService(MessageRepository repo) {
-        this.repo = repo;
+    public JCFMessageService() {
+        data = new HashMap<>();
     }
 
     @Override
-    public void create(Message message) {
-        repo.save(message);
+    public Message create(Message message) {
+        return data.put(message.getId(), message);
     }
 
     @Override
-    public void update(Message message) {
-        if (!repo.searchAll().contains(message)) {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
-        }
-        repo.save(message);
+    public Message update(Message message) {
+        return data.put(message.getId(), message);
     }
 
     @Override
-    public void delete(Message message) {
-        if (!repo.searchAll().contains(message)) {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
-        }
-        repo.delete(message);
+    public Message delete(UUID id) {
+        return data.remove(id);
     }
 
     @Override
     public void deleteAll() {
-        repo.deleteAll();
+        data.clear();
     }
 
     @Override
-    public Message searchById(UUID id) {
-        return repo.searchById(id);
+    public Optional<Message> searchById(UUID id) {
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
     public List<Message> searchByContent(String content) {
-        List<Message> messages = repo.searchByContent(content);
-        if (messages.isEmpty()) {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
+        List<Message> messages = new ArrayList<>();
+        for (Message message : data.values()) {
+            if (message.getContent().contains(content)) {
+                messages.add(message);
+            }
         }
-        return messages;
+        return new ArrayList<>(messages);
     }
 
     @Override
     public List<Message> searchBySenderId(UUID id) {
-        List<Message> messages = repo.searchBySenderId(id);
-        if (messages.isEmpty()) {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
+        List<Message> messages = new ArrayList<>();
+        for (Message message : data.values()) {
+            if (message.getSender().equals(id)) {
+                messages.add(message);
+            }
         }
-        return messages;
+        return new ArrayList<>(messages);
     }
 
     @Override
     public List<Message> searchAll() {
-        return repo.searchAll();
+        return new ArrayList<>(data.values());
     }
 }
