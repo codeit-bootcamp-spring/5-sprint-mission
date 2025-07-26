@@ -112,7 +112,7 @@ public class FileMessageRepository implements MessageRepository {
     public List<Message> searchBySenderId(UUID id) {
         List<Message> messages = new ArrayList<>();
         for (Message m : load(directory)) {
-            if (id.equals(m.getSender())) {
+            if (id.equals(m.getSenderId())) {
                 messages.add(m);
             }
         }

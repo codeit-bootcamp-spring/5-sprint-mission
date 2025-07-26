@@ -124,7 +124,7 @@ public class FileMessageService implements MessageService {
         List<Message> messages = new ArrayList<>();
 
         for (Message message : load(directory)) {
-            if (message.getSender().equals(id)) {
+            if (message.getSenderId().equals(id)) {
                 messages.add(message);
             }
         }

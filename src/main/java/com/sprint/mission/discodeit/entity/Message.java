@@ -14,6 +14,7 @@ public class Message implements Serializable {
     private long updatedAt;
     private String content;
     private UUID senderId;
+    private UUID channelId;
 
     public Message(String content, UUID senderId) {
         id = UUID.randomUUID();
@@ -39,7 +40,11 @@ public class Message implements Serializable {
         return content;
     }
 
-    public UUID getSender() {
+    public UUID getChannelId() {
+        return channelId;
+    }
+
+    public UUID getSenderId() {
         return senderId;
     }
 
@@ -53,12 +58,18 @@ public class Message implements Serializable {
         return this;
     }
 
-    public Message updateSender(UUID senderId) {
+    public Message updateSenderId(UUID senderId) {
         if (senderId.equals(this.senderId)) {
             System.out.println("기존 메세지 발신인과 같은 유저입니다.");
             return this;
         }
         this.senderId = senderId;
+        updatedAt = Instant.now().toEpochMilli();
+        return this;
+    }
+
+    public Message updateChannelId(UUID channelId) {
+        this.channelId = channelId;
         updatedAt = Instant.now().toEpochMilli();
         return this;
     }

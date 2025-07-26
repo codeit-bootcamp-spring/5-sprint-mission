@@ -53,7 +53,7 @@ public class JCFMessageService implements MessageService {
     public List<Message> searchBySenderId(UUID id) {
         List<Message> messages = new ArrayList<>();
         for (Message message : data.values()) {
-            if (message.getSender().equals(id)) {
+            if (message.getSenderId().equals(id)) {
                 messages.add(message);
             }
         }

@@ -9,21 +9,12 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.repository.file.FileUserRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
-import com.sprint.mission.discodeit.service.file.FileChannelService;
-import com.sprint.mission.discodeit.service.file.FileMessageService;
-import com.sprint.mission.discodeit.service.file.FileUserService;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.nio.file.Path;
 
@@ -160,8 +151,8 @@ public class JavaApplication {
         System.out.println("수정 전 : " + messageService.searchById(message1.getId()));
         messageService.update(message1.updateContent("updated content"));
         messageService.update(message1.updateContent("updated content"));
-        messageService.update(message1.updateSender(userService.searchAll().get(1).getId()));
-        messageService.update(message1.updateSender(userService.searchAll().get(1).getId()));
+        messageService.update(message1.updateSenderId(userService.searchAll().get(1).getId()));
+        messageService.update(message1.updateSenderId(userService.searchAll().get(1).getId()));
         System.out.println("수정 후 : " + messageService.searchById(message1.getId()));
 
         // 삭제 - 확인
