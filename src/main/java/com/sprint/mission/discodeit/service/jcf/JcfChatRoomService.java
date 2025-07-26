@@ -2,9 +2,11 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.ChatRoom;
 import com.sprint.mission.discodeit.entity.Guild;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChatRoomService;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class JcfChatRoomService extends BaseJcfService<ChatRoom> implements ChatRoomService {
@@ -42,8 +44,15 @@ public class JcfChatRoomService extends BaseJcfService<ChatRoom> implements Chat
     if (chatRoom.isChannelChatRoom()) {
       channelService.getOrThrow(chatRoom.getChannelId());
       guildService.getOrThrow(chatRoom.getGuildId());
+    } else if (existsByParticipants(chatRoom.participantsHashcode())) {
+      throw new IllegalStateException("대화방이 이미 존재합니다.");
     }
     return super.save(chatRoom);
+  }
+
+  @Override
+  public boolean existsByParticipants(int participantsHashcode) {
+    return data.stream().anyMatch(cr -> participantsHashcode == cr.participantsHashcode());
   }
 
   @Override
@@ -84,5 +93,20 @@ public class JcfChatRoomService extends BaseJcfService<ChatRoom> implements Chat
       return guild.getMembers().containsKey(userId);
     }
     return chatRoom.isParticipant(userId);
+  }
+
+  @Override
+  public void printMessages(UUID chatRoomId) {
+    getOrThrow(chatRoomId).getMessages().forEach(messageService::printSenderAndContent);
+  }
+
+  @Override
+  public List<String> getParticipantNames(UUID chatRoomId) {
+    return getOrThrow(chatRoomId).getParticipants().stream()
+        .map(userService::findById)
+        .flatMap(Optional::stream)
+        .filter(User::isActive)
+        .map(User::getGlobalName)
+        .toList();
   }
 }

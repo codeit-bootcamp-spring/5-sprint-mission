@@ -51,4 +51,11 @@ public class JcfMessageService extends BaseJcfService<Message> implements Messag
   public void updateSurvey(UUID messageId, Survey survey) {
     update(messageId, m -> m.setSurvey(survey));
   }
+
+  @Override
+  public void printSenderAndContent(UUID messageId) {
+    String content = getOrThrow(messageId).getContent();
+    User sender = userService.getOrThrow(getOrThrow(messageId).getSenderId());
+    System.out.println(sender.getGlobalName() + ": " + content);
+  }
 }

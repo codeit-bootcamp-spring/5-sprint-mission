@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ChatRoom extends BaseEntity {
   private UUID channelId;
@@ -80,5 +81,13 @@ public class ChatRoom extends BaseEntity {
       throw new IllegalArgumentException("User ID must not be null.");
     }
     return participants.contains(id);
+  }
+
+  public int participantsHashcode() {
+    return participants.stream()
+        .map(UUID::toString)
+        .sorted()
+        .collect(Collectors.joining("|"))
+        .hashCode();
   }
 }

@@ -11,4 +11,6 @@ public interface MessageService extends BaseService<Message> {
   void updateFiles(UUID messageId, List<String> files);
 
   void updateSurvey(UUID messageId, Survey survey);
+
+  void printSenderAndContent(UUID messageId);
 }

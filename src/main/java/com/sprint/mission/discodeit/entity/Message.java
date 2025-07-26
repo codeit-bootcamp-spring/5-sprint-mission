@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.utility.StringUtil;
 import com.sprint.mission.discodeit.utility.Validators;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +49,7 @@ public class Message extends BaseEntity {
     if (content == null) {
       throw new IllegalArgumentException("Content must not be null.");
     }
-    this.content = content;
+    this.content = StringUtil.normalizeString(content);
   }
 
   public List<String> getFiles() {

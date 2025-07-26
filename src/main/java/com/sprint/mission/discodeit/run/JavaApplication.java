@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChatRoom;
 import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.entity.Guild;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.enums.user.Status;
@@ -255,7 +256,7 @@ public class JavaApplication {
     runMenu(
         new Menu("=====***** 메시지 편집 메뉴*****=====")
             .add("대화방 생성", this::createChatRoom)
-            .add("메시지 보내기", () -> {})
+            .add("메시지 보내기", this::sendMessageToChatRoom)
             .add("메시지 보기", () -> {})
             .add("메시지 수정하기", () -> {})
             .add("메시지 삭제하기", () -> {})
@@ -787,7 +788,7 @@ public class JavaApplication {
       try {
         friendRequestService.save(new FriendRequest(me.getId(), receiver.getId()));
         System.out.println("✅ 친구 요청을 보냈습니다.");
-      } catch (ValidationException e) {
+      } catch (IllegalArgumentException | IllegalStateException e) {
         System.out.println(e.getMessage());
       } catch (NoSuchElementException e) {
         System.out.println("⚠ 유저를 찾을 수 없습니다.");
@@ -1513,7 +1514,7 @@ public class JavaApplication {
   }
 
   private void createChatRoom() {
-    List<User> selectedFriends = new ArrayList<>();
+    List<User> selectedParticipants = new ArrayList<>();
     List<User> friends = new ArrayList<>(userService.getFriends(me.getId()));
 
     if (friends.isEmpty()) {
@@ -1522,19 +1523,19 @@ public class JavaApplication {
     }
 
     while (true) {
-      System.out.println("\n초대할 친구 목록:");
+      System.out.println("\n선택할 친구 목록:");
       for (int i = 0; i < friends.size(); i++) {
         User f = friends.get(i);
         System.out.printf(
             "%d. %s (%s, %s)\n", i + 1, f.getGlobalName(), f.getUsername(), f.getEmail());
       }
       System.out.println("\n선택된 친구 목록:");
-      for (User f : selectedFriends) {
+      for (User f : selectedParticipants) {
         System.out.printf("%s (%s, %s)\n", f.getGlobalName(), f.getUsername(), f.getEmail());
       }
 
       printGuidePrevious();
-      String idxStr = InputHandler.getInputOrBack("초대할 친구 번호(0: 완료): ");
+      String idxStr = InputHandler.getInputOrBack("선택할 친구 번호(0: 완료): ");
       if (idxStr == null) {
         return;
       }
@@ -1551,26 +1552,102 @@ public class JavaApplication {
         }
 
         User chosen = friends.get(idx);
-        selectedFriends.add(chosen);
+        selectedParticipants.add(chosen);
         friends.remove(chosen);
       } catch (NumberFormatException e) {
         System.out.println("숫자를 입력해주세요.");
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }
+
+      if (selectedParticipants.isEmpty()) {
+        System.out.println("1명 이상을 선택해주세요.");
+        return;
+      }
+
+      selectedParticipants.add(me);
+      try {
+        ChatRoom chatRoom =
+            chatRoomService.save(
+                new ChatRoom(
+                    selectedParticipants.stream().map(User::getId).collect(Collectors.toSet())));
+        if (chatRoom != null) {
+          for (User u : selectedParticipants) {
+            u.addChatRoom(chatRoom.getId());
+          }
+          System.out.println("대화방이 생성되었습니다.");
+        }
+      } catch (NoSuchElementException | IllegalStateException e) {
+        System.out.println(e.getMessage());
+      } catch (Exception e) {
+        System.out.println("알 수 없는 오류: " + e.getMessage());
+      }
     }
+  }
 
-    if (selectedFriends.isEmpty()) {
-      System.out.println("1명 이상을 초대해주세요.");
-      return;
-    }
+  public void sendMessageToChatRoom() {
+    while (true) {
+      printGuidePrevious();
+      List<UUID> myChatRoomIds = me.getChatRooms().stream().toList();
 
-    selectedFriends.add(me);
+      if (myChatRoomIds.isEmpty()) {
+        System.out.println("참여 중인 채팅방이 없습니다.");
+        return;
+      }
 
-    if (chatRoomService.save(
-            new ChatRoom(selectedFriends.stream().map(User::getId).collect(Collectors.toSet())))
-        != null) {
-      System.out.println("대화방이 생성되었습니다.");
+      System.out.println("\n📂 참여 중인 채팅방 목록:");
+      for (int i = 0; i < myChatRoomIds.size(); i++) {
+        Optional<ChatRoom> chatRoom = chatRoomService.findById(myChatRoomIds.get(i));
+
+        if (chatRoom.isEmpty()) {
+          continue;
+        }
+
+        List<String> participantsNames =
+            chatRoomService.getParticipantNames(chatRoom.get().getId());
+
+        System.out.printf("%2d. %s\n", i + 1, String.join(", ", participantsNames));
+      }
+
+      UUID selectedRoomId;
+      while (true) {
+        String idxStr = InputHandler.getInputOrBack("메시지를 보낼 채팅방 번호: ");
+        if (idxStr == null) {
+          return;
+        }
+        try {
+          int idx = Integer.parseInt(idxStr) - 1;
+          if (idx < 0 || idx >= myChatRoomIds.size()) {
+            System.out.println("유효한 번호를 입력해주세요.");
+            continue;
+          }
+          selectedRoomId = myChatRoomIds.get(idx);
+          break;
+        } catch (NumberFormatException e) {
+          System.out.println("숫자를 입력해주세요.");
+        } catch (Exception e) {
+          System.out.println(e.getMessage());
+        }
+      }
+
+      String content;
+      while (true) {
+        content = InputHandler.getInputOrBack("보낼 메시지를 입력하세요: ");
+        if (content == null) {
+          return;
+        }
+
+        if (!content.isBlank()) {
+          break;
+        }
+
+        System.out.println("메시지를 입력해주세요.");
+      }
+
+      Message message = messageService.save(new Message(me.getId(), content, List.of()));
+      chatRoomService.addMessage(selectedRoomId, message.getId());
+      System.out.println("\nDM 히스토리: ");
+      chatRoomService.printMessages(selectedRoomId);
     }
   }
 }
