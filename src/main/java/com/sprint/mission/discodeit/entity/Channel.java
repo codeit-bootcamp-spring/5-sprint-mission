@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.*;
 
-public class Channel {
+public class Channel implements Serializable {
     private final UUID id;
     private final Long createAt;
     private final ChannelType channelType;
@@ -54,21 +55,27 @@ public class Channel {
 
 
     public void update(UUID ownerId, String channelName, boolean nsfw) {
+        int sameValueCount = 0;
         if(this.ownerId.equals(ownerId)) {
             System.out.println("[Alarm] : The original channel owner and the owner to be changed are the same.");
+            sameValueCount++;
         }
         if(this.channelName.equals(channelName)) {
             System.out.println("[Alarm] : The original channel name and the channel name to be changed are the same.");
+            sameValueCount++;
         }
         if(this.nsfw == nsfw) {
             System.out.println("[Alarm] : The original nsfw and the nsfw to be changed are the same.");
+            sameValueCount++;
         }
 
         this.ownerId = ownerId;
         this.channelName = channelName;
         this.nsfw = nsfw;
 
-        updateModifyAt();
+        if (sameValueCount == 3) {
+            updateModifyAt();
+        }
     }
 
     @Override
