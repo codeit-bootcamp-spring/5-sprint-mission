@@ -35,7 +35,7 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
 
   @Override
   public List<T> findAllIncludingDeleted() {
-    return List.copyOf(data);
+    return new ArrayList<>(data);
   }
 
   @Override
