@@ -1,59 +1,128 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FileChannelService implements ChannelService {
 
-    ChannelRepository repo;
 
-    public FileChannelService(ChannelRepository repo) {
-        this.repo = repo;
+    private final Path directory;
+
+    public FileChannelService(Path directory) {
+        this.directory = directory;
+        initPath(directory);
+    }
+
+    private void initPath(Path directory) {
+        if (!Files.exists(directory)) {
+            try {
+                Files.createDirectories(directory);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private Channel save(Channel channel) {
+        Path channelDirectory = Path.of(directory.toString() + "/" + channel.getId());
+
+        try (FileOutputStream fos = new FileOutputStream(channelDirectory.toFile());
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            oos.writeObject(channel);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return channel;
+    }
+
+    private List<Channel> load(Path directory) {
+        if (Files.exists(directory)) {
+            try {
+                List<Channel> channels = Files.list(directory)
+                        .map(path -> {
+                            try (FileInputStream fis = new FileInputStream(path.toFile());
+                                 ObjectInputStream ois = new ObjectInputStream(fis);) {
+                                Object data = ois.readObject();
+                                return (Channel) data;
+                            } catch (IOException | ClassNotFoundException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }).toList();
+                return channels;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @Override
-    public void create(Channel channel) {
-        repo.save(channel);
+    public Channel create(Channel channel) {
+        return save(channel);
     }
 
     @Override
-    public void update(Channel channel) {
-        repo.delete(channel);
-        repo.save(channel);
+    public Channel update(Channel channel) {
+        return save(channel);
     }
 
     @Override
-    public void delete(Channel channel) {
-        repo.delete(channel);
+    public Channel delete(UUID id) {
+        Path channelDirectory = Path.of(directory.toString() + "/" + id);
+        Channel channel = searchById(id).orElse(null);
+        if (Files.exists(channelDirectory)) {
+            try {
+                Files.delete(channelDirectory);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            System.out.println("존재하지 않는 채널입니다.");
+        }
+        return channel;
     }
 
     @Override
     public void deleteAll() {
-        repo.deleteAll();
+        for (Channel channel : load(directory)) {
+            delete(channel.getId());
+        }
     }
 
     @Override
     public List<Channel> searchByName(String name) {
-        List<Channel> channels = repo.searchByName(name);
-        if (channels.isEmpty()) {
-            System.err.println("해당하는 채널을 찾을 수 없습니다.");
-            throw new NoSuchElementException();
+        List<Channel> channels = new ArrayList<>();
+        for (Channel channel : load(directory)) {
+            if (channel.getName().contains(name)) {
+                channels.add(channel);
+            }
         }
+
         return channels;
     }
 
     @Override
-    public Channel searchById(UUID id) {
-        return repo.searchById(id);
+    public Optional<Channel> searchById(UUID id) {
+        Channel c = null;
+        for (Channel channel : load(directory)) {
+            if (channel.getId().equals(id)) {
+                c = channel;
+            }
+        }
+        return Optional.ofNullable(c);
     }
 
     @Override
     public List<Channel> searchAll() {
-        return repo.searchAll();
+        return load(directory);
     }
 }
