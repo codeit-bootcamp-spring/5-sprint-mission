@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class User {
-    private UUID id; // 자동 랜덤 부여
+    private final UUID id; // 자동 랜덤 부여
     private Long createdAt; // DB timestamp
     private Long updatedAt;
 
