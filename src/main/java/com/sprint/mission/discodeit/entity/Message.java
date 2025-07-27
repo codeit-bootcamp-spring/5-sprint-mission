@@ -3,12 +3,14 @@ package com.sprint.mission.discodeit.entity;
 import java.util.UUID;
 
 public class Message {
-    private UUID id;
+    private final UUID id;
     private Long createdAt;
     private Long updatedAt;
     private String content;
 
-    public Message() {}
+    public Message() {
+        this.id = UUID.randomUUID();
+    }
 
     public Message(UUID id, String content) {
         this.id = id;
@@ -31,10 +33,6 @@ public class Message {
 
     public String getContent() {
         return content;
-    }
-
-    public void updateId(UUID id) {
-        this.id = id;
     }
 
     public void updateUpdatedAt(Long updatedAt) {

@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class Channel {
@@ -44,6 +42,13 @@ public class Channel {
             }
             throw new IllegalArgumentException("유효하지 않은 채널 이름입니다 : " + channelName);
         }
+    }
+
+    public Channel() { // 기본 생성자
+        this.id = UUID.randomUUID();
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = this.createdAt;
+        this.type = ChannelType.PUBLICCHAT; // 기본설정 공개 채팅방
     }
 
     public Channel(String channelName, String channelIntroduction, ChannelType type) {
