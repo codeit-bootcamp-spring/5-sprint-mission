@@ -1,19 +1,21 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Channel {
-    private UUID id;
+    private final UUID id;
     private Long createdAt;
     private Long updatedAt;
 
     // 내가 디스코드에서 필요한 필드를 추가적으로 설계하는 자리
     private String channelName; // 채널의 이름
-    private String channelIntroduction;
-    private ChannelType type;
+    private String channelIntroduction; // 채널의 소개
+    private final ChannelType type; // 채널의 형태(공개/비공개, 문자채팅/음성채팅)
 
     public enum ChannelType{
-        CHAT(1), VOICE(2);
+        PUBLICCHAT(1), PUBLICVOICE(2), PRIVATECHAT(3), PRIVATEVOICE(4);
 
         private final int typeValue;
 
@@ -33,6 +35,15 @@ public class Channel {
             }
             throw new IllegalArgumentException("유효하지 않은 타입입니다 : " + typeValue);
         }
+
+        public static ChannelType fromName(String channelName) {
+            for (ChannelType type : ChannelType.values()) {
+                if (type.name().equalsIgnoreCase(channelName)) {
+                    return type;
+                }
+            }
+            throw new IllegalArgumentException("유효하지 않은 채널 이름입니다 : " + channelName);
+        }
     }
 
     public Channel(String channelName, String channelIntroduction, ChannelType type) {
@@ -41,6 +52,7 @@ public class Channel {
         this.channelIntroduction = channelIntroduction;
         this.type = type;
         createdAt = System.currentTimeMillis();
+        this.updatedAt = createdAt;
     }
 
     public Channel(String channelName, String channelIntroduction, int typeValue) {
@@ -72,11 +84,6 @@ public class Channel {
         return type;
     }
 
-    public void updateId(UUID id) {
-        this.id = id;
-        this.updatedAt = System.currentTimeMillis();
-    }
-
     public void updateUpdatedAt(Long updatedAt) {
         this.updatedAt = updatedAt;
     }
@@ -91,8 +98,15 @@ public class Channel {
         this.updatedAt = System.currentTimeMillis();
     }
 
-    public void updateChannelType(ChannelType channelType) {
-        this.type = channelType;
-        this.updatedAt = System.currentTimeMillis();
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", channelName='" + channelName + '\'' +
+                ", channelIntroduction='" + channelIntroduction + '\'' +
+                ", type=" + type +
+                '}';
     }
 }

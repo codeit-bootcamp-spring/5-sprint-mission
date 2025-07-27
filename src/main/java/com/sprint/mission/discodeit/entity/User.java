@@ -46,6 +46,7 @@ public class User {
         // 업데이트 코드 작성
         this.username = username;
         this.password = password;
+        this.updatedAt = System.currentTimeMillis();
     }
 
     @Override
