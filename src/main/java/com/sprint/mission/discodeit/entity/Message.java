@@ -32,4 +32,26 @@ public class Message {
     public String getContent() {
         return content;
     }
+
+    public void updateId(UUID id) {
+        this.id = id;
+    }
+
+    public void updateUpdatedAt(Long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", content='" + content + '\'' +
+                '}';
+    }
 }

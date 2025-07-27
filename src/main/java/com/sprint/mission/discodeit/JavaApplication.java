@@ -54,6 +54,14 @@ public class JavaApplication {
         deleteResult(testDelete1);
         boolean testDelete2 = userService.delete(UUID.randomUUID());
         deleteResult(testDelete2);
+
+        System.out.println("\n6) User 로그인 확인");
+        boolean testLogin1 = userService.login(user1.getId(), "1234");
+        System.out.println(testLogin1);
+        boolean testLogin2 = userService.login(user1.getId(), "0123");
+        System.out.println(testLogin2);
+        boolean testLogin3 = userService.login(UUID.randomUUID(), "9876");
+        System.out.println(testLogin3);
     }
 
     public static void testMessageService(){ // Test2,

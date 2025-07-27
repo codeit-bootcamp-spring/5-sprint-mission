@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.*;
 
 public class JCFChannelService implements ChannelService {
-    private final Map<UUID, Channel> data = new HashMap<>();
+    private Map<UUID, Channel> data = new HashMap<>();
 
     @Override
     public Channel enter(UUID userId, UUID channelId) { // 미구현

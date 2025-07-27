@@ -19,7 +19,7 @@ public interface ChannelService {
     boolean delete(UUID id);
 
     // 유저가 특정 채널 입장 및 퇴장하는 메서드
-    Channel enter(UUID userId, UUID channelId);
-    Channel leave(UUID userId, UUID channelId);
+    Channel enter(UUID userId, UUID channelId); // 미구현
+    Channel leave(UUID userId, UUID channelId); // 미구현
 
 }
