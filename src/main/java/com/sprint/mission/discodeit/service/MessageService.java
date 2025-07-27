@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MessageService {
-    Message createMessage(Channel channel, String message, UUID author, boolean tts);
+    Message createMessage(Channel channel, String message, UUID author, boolean allMentioned);
     Message findById(UUID messageId);
     List<Message> findAll();
     Message update(UUID messageId, String message, boolean allMentioned);

@@ -46,13 +46,14 @@ public class FileUserRepository implements UserRepository {
     }
 
     public FileUserRepository() {
-        this.DIRECTORY = "USER/FileUsers";
+        this.DIRECTORY = "USER/UserRepository";
         this.EXTENTSION = ".ser";
         Path path = Paths.get(DIRECTORY);
         if (!Files.exists(path)) {
             try {
                 Files.createDirectories(path);
             } catch (IOException e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }
@@ -91,8 +92,8 @@ public class FileUserRepository implements UserRepository {
         File[] files = dir.listFiles((d, name) -> name.endsWith(EXTENTSION));
         if (files != null) {
             for (File file : files) {
-                try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream(file))) {
-                    User user = (User) oos.readObject();
+                try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+                    User user = (User) ois.readObject();
                     users.add(user);
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -71,7 +71,7 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     public FileMessageRepository() {
-        this.DIRECTORY = "MESSAGE/FileMessages";
+        this.DIRECTORY = "MESSAGE/MessageRepository";
         this.EXTENSION = ".ser";
         Path path = Paths.get(DIRECTORY);
         if(!Files.exists(path)) {

@@ -60,7 +60,7 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     public FileChannelRepository() {
-        this.DIRECTORY = "CHANNEL/FileChannels";
+        this.DIRECTORY = "CHANNEL/ChannelRepository";
         this.EXTENTSION = ".ser";
         Path path = Paths.get(DIRECTORY);
         if(!Files.exists(path)) {
