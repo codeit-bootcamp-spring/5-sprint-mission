@@ -31,6 +31,10 @@ public class FileChannelRepository implements ChannelRepository, FileService {
 		channelMap = new ConcurrentHashMap<>();
 		channelNameToUUID = new ConcurrentHashMap<>();
 
+		createDirectoryIfNotExists();
+		loadFile(CHANNELS_FILE, channelMap);
+		loadFile(CHANNEL_MAPPING_FILE, channelNameToUUID);
+
 	}
 
 	@Override

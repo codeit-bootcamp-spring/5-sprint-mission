@@ -61,7 +61,9 @@ public class FileUserRepository implements UserRepository, FileService {
 			return null;
 		}
 
-		return userMap.get(loginIdToUUID.get(loginId));
+		UUID userId = loginIdToUUID.get(loginId);
+
+		return userId != null ?  userMap.get(userId) : null;
 	}
 
 	@Override
