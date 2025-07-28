@@ -25,11 +25,13 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public void update(UUID id, Channel updatedChannel) {
+    public boolean update(UUID id, Channel updatedChannel) {
         Channel original = data.get(id);
         if (original != null) {
             original.updateName(updatedChannel.getName());
+            return true;
         }
+        return false;
     }
 
     @Override

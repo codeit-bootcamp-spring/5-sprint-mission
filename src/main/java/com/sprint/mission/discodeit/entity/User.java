@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class User {
+public class User implements Serializable {
     private final UUID id;
     private final long createdAt;
-    private long updatedAt;
-    private String name;
+    private final long updatedAt;
+    private final String name;
 
     public User(String name) {
         this.id = UUID.randomUUID();
@@ -15,6 +16,14 @@ public class User {
         this.name = name;
     }
 
+    public User(UUID id, long createdAt, long updatedAt, String name) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.name = name;
+    }
+
+    // Getter
     public UUID getId() {
         return id;
     }
@@ -31,9 +40,8 @@ public class User {
         return name;
     }
 
-    public void updateName(String name) {
-        this.name = name;
-        this.updatedAt = System.currentTimeMillis();
+    public User withName(String name) {
+        return new User(this.id, this.createdAt, System.currentTimeMillis(), name);
     }
 
     @Override

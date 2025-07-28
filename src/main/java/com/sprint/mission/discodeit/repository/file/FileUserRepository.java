@@ -27,13 +27,14 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public void update(UUID id, String newName) {
+    public boolean update(UUID id, String newName) {
         Map<UUID, User> data = readFile();
         User user = data.get(id);
         if (user != null) {
-            user.updateName(newName);
+            user.withName(newName);
             writeFile(data);
         }
+        return false;
     }
 
     @Override

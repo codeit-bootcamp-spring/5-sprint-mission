@@ -1,39 +1,42 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 public class JCFUserService implements UserService {
-    private final Map<UUID, User> data = new HashMap<>();
+    private final UserRepository repository;
 
-    @Override
-    public User create(User user) {
-        data.put(user.getId(), user);
-        return user;
+    public JCFUserService(UserRepository repository) {
+        this.repository = repository;
     }
 
     @Override
-    public User findById(UUID id) {
-        return data.get(id);
+    public void create(User user) {
+        repository.save(user);
     }
 
     @Override
-    public List<User> findAll() {
-        return new ArrayList<>(data.values());
+    public User read(UUID id) {
+        return repository.findById(id);
     }
 
     @Override
-    public void update(UUID id, User updatedUser) {
-        User original = data.get(id);
-        if (original != null) {
-            original.updateName(updatedUser.getName());
-        }
+    public List<User> readAll() {
+        return repository.findAll();
+    }
+
+    @Override
+    public void update(UUID id, String newName) {
+        repository.update(id, newName);
     }
 
     @Override
     public void delete(UUID id) {
-        data.remove(id);
+        repository.delete(id);
     }
 }
+

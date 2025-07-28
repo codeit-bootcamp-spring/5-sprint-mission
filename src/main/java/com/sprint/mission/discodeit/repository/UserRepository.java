@@ -9,6 +9,6 @@ public interface UserRepository {
     void save(User user);
     User findById(UUID id);
     List<User> findAll();
-    void update(UUID id, String newName);
+    boolean update(UUID id, String newName);
     void delete(UUID id);
 }
