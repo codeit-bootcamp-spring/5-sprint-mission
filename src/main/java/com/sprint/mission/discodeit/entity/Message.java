@@ -47,11 +47,22 @@ public class Message implements Serializable {
     public boolean isAllMentioned() { return allMentioned; }
 
     public void update(String message, boolean allMentioned) {
+        int sameValueCount = 0;
+        if(this.message.equals(message)){
+            System.out.println("[Alarm] : The original message and the message to be changed are the same.");
+            sameValueCount++;
+        }
+        if(this.allMentioned == allMentioned){
+            System.out.println("[Alarm] : There is no change in all_mentioned value  .");
+            sameValueCount++;
+        }
         this.message = message;
         this.allMentioned =  allMentioned;
 
-        Instant now = Instant.now();
-        this.modifyAt = now.getEpochSecond();
+        if (sameValueCount != 2) {
+            Instant now = Instant.now();
+            this.modifyAt = now.getEpochSecond();
+        }
     }
 
     @Override

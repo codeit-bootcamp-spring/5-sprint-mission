@@ -73,7 +73,7 @@ public class Channel implements Serializable {
         this.channelName = channelName;
         this.nsfw = nsfw;
 
-        if (sameValueCount == 3) {
+        if (sameValueCount != 3) {
             updateModifyAt();
         }
     }
