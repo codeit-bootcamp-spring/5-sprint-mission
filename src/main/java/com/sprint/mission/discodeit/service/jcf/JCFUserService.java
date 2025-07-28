@@ -30,8 +30,9 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void update(UUID id, String newName) {
+    public boolean update(UUID id, String newName) {
         repository.update(id, newName);
+        return false;
     }
 
     @Override

@@ -5,14 +5,23 @@ import java.util.UUID;
 public class Channel {
     private final UUID id;
     private final long createdAt;
-    private long updatedAt;
-    private String name;
+    private final long updatedAt;
+    private final String name;
 
     public Channel(String name) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = this.createdAt;
+        this(UUID.randomUUID(), System.currentTimeMillis(), System.currentTimeMillis(), name);
+    }
+
+    public Channel(UUID id, long createdAt, long updatedAt, String name) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
         this.name = name;
+    }
+
+    // 복사 생성자
+    public Channel(Channel other) {
+        this(other.id, other.createdAt, other.updatedAt, other.name);
     }
 
     public UUID getId() {
@@ -30,19 +39,5 @@ public class Channel {
     public String getName() {
         return name;
     }
-
-    public void updateName(String name) {
-        this.name = name;
-        this.updatedAt = System.currentTimeMillis();
-    }
-
-    @Override
-    public String toString() {
-        return "Channel{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", name='" + name + '\'' +
-                '}';
-    }
 }
+

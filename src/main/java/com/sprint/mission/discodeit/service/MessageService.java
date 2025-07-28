@@ -9,6 +9,6 @@ public interface MessageService {
     Message create(Message message);
     Message findById(UUID id);
     List<Message> findAll();
-    void update(UUID id, Message message);
+    boolean update(UUID id, Message message);
     void delete(UUID id);
 }

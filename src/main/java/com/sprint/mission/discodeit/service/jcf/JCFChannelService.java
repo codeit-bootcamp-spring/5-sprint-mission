@@ -16,22 +16,29 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel findById(UUID id) {
-        return data.get(id);
+        Channel original = data.get(id);
+        if (original == null) return null; //p1 복사본
+        return new Channel(original);
     }
 
     @Override
     public List<Channel> findAll() {
-        return new ArrayList<>(data.values());
+        //p1 복사본 반환 (불변성 유지)
+        List<Channel> result = new ArrayList<>();
+        for (Channel c : data.values()) {
+            result.add(new Channel(c));
+        }
+        return result;
     }
 
     @Override
     public boolean update(UUID id, Channel updatedChannel) {
-        Channel original = data.get(id);
-        if (original != null) {
-            original.updateName(updatedChannel.getName());
-            return true;
-        }
-        return false;
+        if (!data.containsKey(id)) return false;
+        // 기존 ID와 타임스탬프 유지, name만 변경한 새 객체로 대체
+        Channel current = data.get(id);
+        Channel newChannel = new Channel(current.getId(), current.getCreatedAt(), System.currentTimeMillis(), updatedChannel.getName());
+        data.put(id, newChannel);
+        return true;
     }
 
     @Override
@@ -39,3 +46,4 @@ public class JCFChannelService implements ChannelService {
         data.remove(id);
     }
 }
+
