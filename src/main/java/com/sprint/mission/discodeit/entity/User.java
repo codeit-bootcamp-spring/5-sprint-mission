@@ -1,8 +1,12 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
-public class User {
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private UUID id;
     private Long createdAt;
     private Long updatedAt;
@@ -37,7 +41,7 @@ public class User {
         return password;
     }
 
-    public void update(String username, String password){
+    public void update(String username, String password) {
         this.username = username;
         this.password = password;
         updatedAt = System.currentTimeMillis();
@@ -52,5 +56,17 @@ public class User {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        User user = (User) object;
+        return Objects.equals(id, user.id) && Objects.equals(createdAt, user.createdAt) && Objects.equals(updatedAt, user.updatedAt) && Objects.equals(username, user.username) && Objects.equals(password, user.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, createdAt, updatedAt, username, password);
     }
 }
