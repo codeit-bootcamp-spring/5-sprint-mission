@@ -7,23 +7,34 @@ public class Channel {
     private final long createdAt;
     private final long updatedAt;
     private final String name;
+    private final String description;
+    private final String channelType;
+    private final boolean isPrivate;
 
-    public Channel(String name) {
-        this(UUID.randomUUID(), System.currentTimeMillis(), System.currentTimeMillis(), name);
+    public Channel(String name, String description, String channelType, boolean isPrivate) {
+        this(UUID.randomUUID(), System.currentTimeMillis(), System.currentTimeMillis(), name, description, channelType, isPrivate);
     }
 
-    public Channel(UUID id, long createdAt, long updatedAt, String name) {
+    public Channel(UUID id, long createdAt, long updatedAt, String name, String description, String channelType, boolean isPrivate) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.name = name;
+        this.description = description;
+        this.channelType = channelType;
+        this.isPrivate = isPrivate;
     }
 
     // 복사 생성자
     public Channel(Channel other) {
-        this(other.id, other.createdAt, other.updatedAt, other.name);
+        this(other.id, other.createdAt, other.updatedAt, other.name, other.description, other.channelType, other.isPrivate);
     }
 
+    public Channel withName(String newName) {
+        return new Channel(id, createdAt, System.currentTimeMillis(), newName, description, channelType, isPrivate);
+    }
+
+    // Getters
     public UUID getId() {
         return id;
     }
@@ -38,6 +49,18 @@ public class Channel {
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getChannelType() {
+        return channelType;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
     }
 }
 
