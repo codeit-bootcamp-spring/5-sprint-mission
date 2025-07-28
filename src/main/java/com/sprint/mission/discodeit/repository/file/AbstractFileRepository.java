@@ -42,8 +42,8 @@ public abstract class AbstractFileRepository<T extends BaseEntity> {
         }
     }
 
-    public void delete(UUID id) {
-        dataList.remove(findById(id));
+    public boolean delete(UUID id) {
+        return dataList.remove(findById(id));
     }
 
     private List<T> loadFile() {

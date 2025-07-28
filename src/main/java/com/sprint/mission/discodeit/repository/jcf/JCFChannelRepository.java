@@ -42,12 +42,12 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public boolean updateById(UUID id, Channel updatedChannel) {
+    public void update(UUID id, Channel updatedChannel) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public boolean deleteById(UUID id) {
+    public boolean delete(UUID id) {
         Channel channel = findById(id);
         return channel != null && channels.remove(channel);
     }

@@ -24,7 +24,7 @@ public interface ChannelRepository {
     /**
      * 채널 이름으로 채널 목록을 조회합니다. (부분 일치 포함 가능)
      *
-     * @param name 검색할 채널 이름
+     * @param channelName 검색할 채널 이름
      * @return 이름이 일치하는 채널 리스트
      */
     List<Channel> findByName(String channelName);
@@ -41,9 +41,8 @@ public interface ChannelRepository {
      *
      * @param id 수정 대상 채널 ID
      * @param updatedChannel 수정된 채널 객체
-     * @return 수정 성공 여부
      */
-    boolean updateById(UUID id, Channel updatedChannel);
+    void update(UUID id, Channel updatedChannel);
 
     /**
      * 주어진 ID를 가진 채널을 삭제합니다.
@@ -51,5 +50,5 @@ public interface ChannelRepository {
      * @param id 삭제 대상 채널 ID
      * @return 삭제 성공 여부
      */
-    boolean deleteById(UUID id);
+    boolean delete(UUID id);
 }

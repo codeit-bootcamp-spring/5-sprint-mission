@@ -54,6 +54,6 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public boolean removeById(UUID channelId) {
-        return channelRepository.deleteById(channelId);
+        return channelRepository.delete(channelId);
     }
 }

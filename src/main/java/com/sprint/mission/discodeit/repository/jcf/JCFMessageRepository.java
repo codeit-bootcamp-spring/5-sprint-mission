@@ -47,7 +47,7 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public void delete(UUID id) {
+    public boolean delete(UUID id) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

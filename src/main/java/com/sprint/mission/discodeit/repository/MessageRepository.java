@@ -44,6 +44,7 @@ public interface MessageRepository {
     /**
      * 메시지를 삭제합니다.
      * @param id 삭제할 메시지의 ID
+     * @return 삭제 성공 여부
      */
-    void delete(UUID id);
+    boolean delete(UUID id);
 }
