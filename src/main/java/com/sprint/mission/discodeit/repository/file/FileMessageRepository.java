@@ -1,0 +1,131 @@
+package com.sprint.mission.discodeit.repository.file;
+
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+public class FileMessageRepository implements MessageRepository {
+    private final String DIRECTORY;
+    private final String EXTENSION;
+
+    public FileMessageRepository() {
+        this.DIRECTORY = "MESSAGE";
+        this.EXTENSION = ".ser";
+        Path path = Paths.get(DIRECTORY);
+        if (!path.toFile().exists()) {
+            try {
+                Files.createDirectory(path);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public Message save(Message message) {
+        Path path = Paths.get(DIRECTORY, message.getId() + EXTENSION);
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
+            oos.writeObject(message);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return message;
+    }
+
+    @Override
+    public Optional<Message> findById(UUID id) {
+        Message message = null;
+        Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                message = (Message) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return Optional.ofNullable(message);
+    }
+
+    @Override
+    public List<Message> findAll() {
+        Path directory = Paths.get(DIRECTORY);
+
+        try {
+            return Files.list(directory)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (Message) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public long count() {
+        long count = 0;
+        Path directory = Paths.get(DIRECTORY);
+
+        try {
+            if (Files.exists(directory)) {
+                count = Files.list(directory)
+                        .filter(path -> path.toString().endsWith(EXTENSION))
+                        .count();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return count;
+    }
+
+    @Override
+    public Message delete(UUID id) {
+        Message message = null;
+        Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
+
+        try (FileInputStream fis = new FileInputStream(path.toFile());
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            message = (Message) ois.readObject();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return message;
+    }
+
+    @Override
+    public boolean existById(UUID id) {
+        Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
+        return Files.exists(path);
+    }
+}
