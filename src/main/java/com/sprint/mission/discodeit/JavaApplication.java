@@ -6,6 +6,9 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
@@ -25,9 +28,15 @@ public class JavaApplication {
     }
 
     private void initializeServices() {
+/*
         this.userService = new JCFUserService();
         this.channelService = new JCFChannelService();
         this.messageService = new JCFMessageService();
+*/
+
+        this.userService = new FileUserService();
+        this.channelService = new FileChannelService();
+        this.messageService = new FileMessageService();
 
         System.out.println("초기화 완료");
     }
@@ -50,8 +59,7 @@ public class JavaApplication {
         System.out.println(userService.findAll());
 
         System.out.println("\n=== User 수정 ===");
-        User updateUser = userService.find(user2.getId());
-        updateUser.update("김김길동", "1234");
+        User updateUser = userService.update(user2.getId(), "김김길동", "1234");
 
         System.out.println("\n=== 수정된 User 데이터 조회 ===");
         System.out.println(userService.find(updateUser.getId()));
@@ -85,10 +93,10 @@ public class JavaApplication {
         System.out.println(channelService.findAll());
 
         System.out.println("\n=== Channel 수정 ===");
-        channel1.update("코드잇 스프링 백엔드 5기");
+        Channel updateChannel = channelService.update(channel1.getId(),"코드잇 스프링 백엔드 5기");
 
         System.out.println("\n=== Channel 수정된 데이터 조회 ===");
-        System.out.println(channelService.find(channel1.getId()));
+        System.out.println(channelService.find(updateChannel.getId()));
 
         System.out.println("\n=== Channel 삭제 ===");
         channelService.delete(channel2.getId());
@@ -122,10 +130,10 @@ public class JavaApplication {
         System.out.println(messageService.findAll());
 
         System.out.println("\n=== Message 수정 ===");
-        message1.update("스프린트 미션 중", channel1.getId(), user1.getId());
+        Message updateMessage = messageService.update(message1.getId(), "스프린트 미션 중", channel1.getId(), user1.getId());
 
         System.out.println("\n=== 수정된 Message 조회 ===");
-        System.out.println(messageService.find(message1.getId()));
+        System.out.println(messageService.find(updateMessage.getId()));
 
         System.out.println("\n=== Message 삭제 ===");
         messageService.delete(message2.getId());
