@@ -1,0 +1,72 @@
+package com.sprint.mission.discodeit.service.jcf;
+
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.UserService;
+
+import java.util.*;
+
+public class JCFUserService implements UserService {
+    private static final Map<UUID,User> data = new HashMap<>();
+    private static JCFUserService instance;
+
+    private JCFUserService() {}
+    private ChannelService channelService;
+
+
+    public static JCFUserService getInstance(){
+        if(instance == null){
+            instance = new JCFUserService();
+        }
+        return instance;
+    }
+
+    public void setChannelService(ChannelService channelService) {
+        this.channelService = channelService;
+    }
+
+
+    @Override
+    public void add(User user) {
+        data.put(user.getId(), user);
+    }
+
+    @Override
+    public User findOne(UUID userId) {
+        return data.get(userId);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return new ArrayList<>(data.values());
+    }
+
+    @Override
+    public void update(UUID originUserUuid , User newUser) {
+        User existingUser = data.remove(originUserUuid);
+
+        existingUser.updateUserName(newUser.getUserName());
+        existingUser.updateEmail(newUser.getEmail());
+        existingUser.updatePassword(newUser.getPassword());
+        existingUser.updatePhoneNumber(newUser.getPhoneNumber());
+
+        data.put(existingUser.getId(), existingUser);
+    }
+    @Override
+    public void delete(UUID userId) {
+        data.remove(userId);
+    }
+
+    @Override
+    public void deleteAll(){
+        data.clear();
+    }
+
+    @Override
+    public void joinChannel(UUID channelId, UUID userId) {
+        Channel channel = channelService.findOne(channelId);
+        User user = findOne(userId);
+        channel.addUser(user);
+    }
+}
