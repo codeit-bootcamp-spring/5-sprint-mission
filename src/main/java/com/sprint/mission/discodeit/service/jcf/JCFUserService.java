@@ -26,7 +26,7 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User findById(UUID userId) throws NullPointerException, IllegalArgumentException {
+    public User findById(UUID userId) {
         if(userId == null) {
             throw new NullPointerException("User id is wrong");
         }
@@ -37,7 +37,7 @@ public class JCFUserService implements UserService {
             }
         }
 
-        throw new IllegalArgumentException("User not found");
+        throw new NoSuchElementException("User (" + userId + ") not found");
     }
 
     @Override

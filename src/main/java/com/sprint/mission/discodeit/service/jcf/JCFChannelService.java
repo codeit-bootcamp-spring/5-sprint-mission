@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,15 +11,22 @@ import java.util.List;
 import java.util.UUID;
 
 public class JCFChannelService implements ChannelService {
-    private final List<Channel> data = new ArrayList<>();
+    private final List<Channel> data;
+    private final UserService userService;
 
-    public JCFChannelService() {}
+    public JCFChannelService(UserService userService) {
+        data = new ArrayList<>();
+        this.userService = userService;
+    }
 
     @Override
     public Channel createChannel(UUID userId, String channelName, ChannelType channelType, boolean nsfw) throws IllegalArgumentException, NullPointerException {
-        if(userId == null) {
-            throw new NullPointerException("A channel object is empty.");
-        } if(channelName == null || channelName.isBlank()) {
+        try {
+            userService.findById(userId);
+        } catch (Exception e) {
+            throw e;
+        }
+        if(channelName == null || channelName.isBlank()) {
             throw new IllegalArgumentException("channelName is null or blank.");
         } if(channelType == null) {
             throw new IllegalArgumentException("channelType is null.");
@@ -41,7 +49,7 @@ public class JCFChannelService implements ChannelService {
             }
         }
 
-        throw new IllegalArgumentException("Channel not found.");
+        throw new IllegalArgumentException("Channel(" + channelId + ")not found.");
     }
 
     @Override
