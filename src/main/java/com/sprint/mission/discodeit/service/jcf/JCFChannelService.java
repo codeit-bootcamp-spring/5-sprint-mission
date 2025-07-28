@@ -1,51 +1,47 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class JCFChannelService implements ChannelService {
-    private final List<Channel> channels;
+    private final ChannelRepository channelRepository;
 
     public JCFChannelService() {
-        this.channels = new ArrayList<>();
+        this.channelRepository = new JCFChannelRepository();
     }
 
     @Override
     public Channel createChannel(String channelName, String channelDescription) {
         Channel channel = new Channel(UUID.randomUUID(), channelName, channelDescription, Instant.now().getEpochSecond());
-        channels.add(channel);
+        channelRepository.save(channel);
 
         return channel;
     }
 
     @Override
-    public Channel findById(UUID channelId) {
-        return channels.stream()
-                .filter(channel -> channel.getId().equals(channelId))
-                .findFirst()
-                .orElse(null);
+    public Channel getById(UUID channelId) {
+        return channelRepository.findById(channelId);
     }
 
     @Override
-    public List<Channel> findByChannelName(String channelName) {
-        return channels.stream()
-                .filter(channel -> channel.getChannelName().contains(channelName))
-                .collect(Collectors.toList());
+    public List<Channel> getByChannelName(String channelName) {
+        return channelRepository.findByName(channelName);
     }
 
     @Override
-    public List<Channel> findAllChannels() {
-        return channels;
+    public List<Channel> getAll() {
+        return channelRepository.findAll();
     }
 
     @Override
     public Channel updateById(UUID channelId, String channelName, String channelDescription) {
+        List<Channel> channels = getAll();
         for (Channel channel : channels) {
             if (channel.getId().equals(channelId)) {
                 channel.updateChannel(channelName, channelDescription, Instant.now().getEpochSecond());
@@ -57,7 +53,7 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public boolean deleteById(UUID channelId) {
-        return channels.remove(findById(channelId));
+    public boolean removeById(UUID channelId) {
+        return channelRepository.deleteById(channelId);
     }
 }

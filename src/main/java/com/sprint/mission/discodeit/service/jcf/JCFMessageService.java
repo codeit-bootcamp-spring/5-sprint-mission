@@ -3,52 +3,48 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class JCFMessageService implements MessageService {
-    private final List<Message> messageList;
+    private final MessageRepository messageRepository;
 
     public JCFMessageService() {
-        messageList = new ArrayList<>();
+        messageRepository = new JCFMessageRepository();
     }
 
     @Override
     public Message createMessage(User user, Channel channel, String message) {
         Message m = new Message(UUID.randomUUID(), user, channel, message, Instant.now().getEpochSecond());
-        messageList.add(m);
+        messageRepository.save(m);
 
         return m;
     }
 
     @Override
-    public List<Message> findByUser(User user) {
-        return messageList.stream()
-                .filter(message -> message.getUser().equals(user))
-                .collect(Collectors.toList());
+    public List<Message> getByUser(User user) {
+        return messageRepository.findByUser(user);
     }
 
     @Override
-    public List<Message> searchByMessage(String message) {
-        return messageList.stream()
-                .filter(m -> m.getMessage().contains(message))
-                .collect(Collectors.toList());
+    public List<Message> getByMessage(String message) {
+        return messageRepository.findByMessage(message);
     }
 
     @Override
-    public boolean updateMessage(UUID id, User user, Channel channel, String message) {
-        for (Message m : messageList)
-        {
-            if (!m.getId().equals(id)) return false;
-            if (!m.getUser().equals(user)) return false;
-            if (!m.getChannel().equals(channel)) return false;
+    public boolean updateById(UUID id, User user, Channel channel, String message) {
+        List<Message> messageList = messageRepository.findAll();
+        for (Message m : messageList) {
+            if (!m.getId().equals(id)) continue;
+            if (!m.getUser().equals(user)) continue;
+            if (!m.getChannel().equals(channel)) continue;
 
-            m.updateMessage(message, Instant.now().getEpochSecond());
+            m.updateMessage(message);
             break;
         }
 
@@ -56,7 +52,8 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public boolean deleteMessage(UUID uuid, User user, Channel channel) {
+    public boolean removeById(UUID uuid, User user, Channel channel) {
+        List<Message> messageList = messageRepository.findAll();
         for (Message m : messageList)
         {
             if (!m.getId().equals(uuid)) return false;

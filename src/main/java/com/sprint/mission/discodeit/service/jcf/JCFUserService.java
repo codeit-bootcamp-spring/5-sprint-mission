@@ -1,101 +1,84 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class JCFUserService implements UserService {
-    private final List<User> userList;
+    private final UserRepository userRepository;
 
     public JCFUserService() {
-        this.userList = new ArrayList<>();
+        userRepository = new JCFUserRepository();
     }
 
     @Override
-    public boolean createUser(String email, String userName, String nickname, String password, String phoneNumber) {
-        for (User user : userList) {
-            if (user.getEmail().equals(email)) return false;
-            if (user.getUserName().equals(userName)) return false;
-        }
+    public boolean register(String email, String userName, String nickname, String password, String phoneNumber) {
+        if (userRepository.findByEmail(email) != null) return false;
+        if (userRepository.findByUserName(userName) != null) return false;
 
-        userList.add(new User(UUID.randomUUID(), Instant.now().getEpochSecond(), email, userName, nickname, password, phoneNumber));
+        userRepository.save(new User(UUID.randomUUID(), Instant.now().getEpochSecond(), email, userName, nickname, password, phoneNumber));
         return true;
     }
 
     @Override
-    public User findById(UUID id) {
-        return userList.stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+    public User getById(UUID id) {
+        return userRepository.findById(id);
     }
 
     @Override
-    public User findByEmail(String email) {
-        return userList.stream()
-                .filter(user -> user.getEmail().equals(email))
-                .findFirst()
-                .orElse(null);
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override
-    public User findByUserName(String userName) {
-        return userList.stream()
-                .filter(user -> user.getUserName().equals(userName))
-                .findFirst()
-                .orElse(null);
+    public User getByUserName(String userName) {
+        return userRepository.findByUserName(userName);
     }
 
     @Override
-    public List<User> findByNickName(String nickname) {
-        return userList.stream()
-                .filter(user -> user.getNickname().equals(nickname))
-                .collect(Collectors.toList());
+    public List<User> searchByNickname(String nickname) {
+        return userRepository.findByNickName(nickname);
     }
 
     @Override
-    public List<User> findAllUsers() {
-        return userList;
+    public List<User> getAll() {
+        return userRepository.findAll();
     }
 
     @Override
     public boolean updateByEmail(String email, String userName, String nickname, String password, String phoneNumber) {
-        for (User user : userList) {
-            if (user.getEmail().equals(email))
-            {
-                user.updateUser(email, userName, nickname, password, phoneNumber, Instant.now().getEpochSecond());
-                return true;
-            }
-        }
+        if (userRepository.findByUserName(userName) != null) return false;
 
-        return false;
+        User user = userRepository.findByEmail(email);
+        if (user == null) return false;
+
+        user.updateUser(email, userName, nickname, password, phoneNumber);
+        return true;
     }
 
     @Override
     public boolean updateByUserName(String userName, String email, String nickname, String password, String phoneNumber) {
-        for (User user : userList) {
-            if (user.getUserName().equals(userName))
-            {
-                user.updateUser(email, userName, nickname, password, phoneNumber, Instant.now().getEpochSecond());
-                return true;
-            }
-        }
+        if (userRepository.findByEmail(email) != null) return false;
 
-        return false;
+        User user = userRepository.findByUserName(userName);
+        if (user == null) return false;
+
+        user.updateUser(email, userName, nickname, password, phoneNumber);
+        return true;
     }
 
     @Override
-    public boolean deleteByEmail(String email) {
-        return userList.remove(findByEmail(email));
+    public boolean removeByEmail(String email) {
+        return userRepository.deleteByEmail(email);
     }
 
     @Override
-    public boolean deleteByUserName(String userName) {
-        return userList.remove(findByUserName(userName));
+    public boolean removeByUserName(String userName) {
+        return userRepository.deleteByUserName(userName);
     }
 }
