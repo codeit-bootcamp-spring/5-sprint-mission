@@ -237,7 +237,7 @@ public class JavaApplication {
             if(result){
                 System.out.println("UserServiceTest: 삭제 : O");
             }else{
-                System.out.println("UserServiceTest: 삭제 : O");
+                System.out.println("UserServiceTest: 삭제 : X");
             }
 
         }
