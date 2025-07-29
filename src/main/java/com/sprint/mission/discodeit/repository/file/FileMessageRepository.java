@@ -87,7 +87,7 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public Message save(Message message) {
         Path path = Paths.get(DIRECTORY, message.getId() + EXTENSION);
-        try (FileOutputStream fos = new FileOutputStream(path.toFile());
+        try (FileOutputStream fos = new FileOutputStream(path.toFile(), false);
              ObjectOutputStream oos = new ObjectOutputStream(fos);) {
             oos.writeObject(message);
         } catch (Exception e) {

@@ -75,7 +75,7 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public Channel save(Channel channel) {
         Path path = Paths.get(DIRECTORY, channel.getId() +  EXTENTSION);
-        try(FileOutputStream fos = new FileOutputStream(path.toFile());
+        try(FileOutputStream fos = new FileOutputStream(path.toFile(), false);
         ObjectOutputStream oos = new ObjectOutputStream(fos);) {
             oos.writeObject(channel);
         } catch (Exception e) {
