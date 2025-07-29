@@ -13,19 +13,19 @@ public class JcfChannelRepository implements ChannelRepository {
     @Override
     public Channel save(Channel channel) {
         channels.put(channel.getId(), channel);
-        System.out.println("Channel saved to JCF cache: " + channel.getId());
+        System.out.println("[Repo]Channel saved to JCF cache: " + channel.getId());
         return channel;
     }
 
     @Override
     public Optional<Channel> findById(UUID id) {
-        System.out.println("Finding Channel by ID in JCF cache: " + id);
+        System.out.println("[Repo]Finding Channel by ID in JCF cache: " + id);
         return Optional.ofNullable(channels.get(id));
     }
 
     @Override
     public Optional<Channel> findByName(String name) {
-        System.out.println("Finding channel by email in JCF cache: " + name);
+        System.out.println("[Repo]Finding channel by email in JCF cache: " + name);
         return channels.values().stream()
                 .filter(channel -> channel.getName() != null && channel.getName().equals(name))
                 .findFirst(); //
@@ -33,16 +33,16 @@ public class JcfChannelRepository implements ChannelRepository {
 
     @Override
     public List<Channel> findAll() {
-        System.out.println("Retrieving all channel from JCF cache. Total: " + channels.size());
+        System.out.println("[Repo]Retrieving all channel from JCF cache. Total: " + channels.size());
         return new ArrayList<>(channels.values());
     }
 
     @Override
     public void delete(UUID id) {
         if(!channels.containsKey(id)) {
-            throw new NoSuchElementException("Channel with id " + id + " not found");
+            throw new NoSuchElementException("[Repo]Channel with id " + id + " not found");
         }
         channels.remove(id);
-        System.out.println("Channel deleted from JCF cache: "+ id);
+        System.out.println("[Repo]Channel deleted from JCF cache: "+ id);
     }
 }

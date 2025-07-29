@@ -39,7 +39,7 @@ public class FileChannelRepository implements ChannelRepository {
     // 디렉토리가 존재하거나, 존재하더라도 디렉토리가 아닌 경우를 확인하는 목적이기 때문에 || 활용
     private boolean isValidDirectory(Path path) {
         if (!Files.exists(path) || !Files.isDirectory(path)) {
-            System.err.println("User directory does not exist ro is not a directory: " + DIRECTORY);
+            System.err.println("[Repo]User directory does not exist ro is not a directory: " + DIRECTORY);
             return false;
         }
         return true;
@@ -67,7 +67,7 @@ public class FileChannelRepository implements ChannelRepository {
              ObjectInputStream ois = new ObjectInputStream(fis);) {
             channel = (Channel) ois.readObject();
         } catch (FileNotFoundException e) {
-            System.out.println("File not found" + channel.getId() + ".Details" + e.getMessage());
+            System.out.println("[Repo]File not found" + channel.getId() + ".Details" + e.getMessage());
             return Optional.empty();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -91,11 +91,11 @@ public class FileChannelRepository implements ChannelRepository {
                         return Optional.of(channel);
                     }
                 } catch (ClassNotFoundException | IOException e) {
-                    System.out.println("Error reading channel file " + entry.getFileName() + "Skipping. Details: " + e.getMessage());
+                    System.out.println("[Repo]Error reading channel file " + entry.getFileName() + "Skipping. Details: " + e.getMessage());
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error accessing channel directory: " + DIRECTORY, e);
+            throw new RuntimeException("[Repo]Error accessing channel directory: " + DIRECTORY, e);
         }
         return Optional.empty();
     }
@@ -106,7 +106,7 @@ public class FileChannelRepository implements ChannelRepository {
         Path path = Paths.get(DIRECTORY);
 
         if (!isValidDirectory(path)) {
-            System.out.println("Warning: Channel directory does not exist ro is not a directory: " + DIRECTORY);
+            System.out.println("[Repo]Warning: Channel directory does not exist ro is not a directory: " + DIRECTORY);
             return allChannels;
         }
 
@@ -121,11 +121,11 @@ public class FileChannelRepository implements ChannelRepository {
                 } catch (ClassNotFoundException | IOException e) {
                     // 특정 파일이 손상되었거나 클래스 정의가 없는 경우
                     // 해당 파일만 건너뛰고 다음 파일로 계속 진행(로그 기록은 필수)
-                    System.err.println("Error reading Channel file: " + entry.getFileName() + ".Skipping. Details: " + e.getMessage());
+                    System.err.println("[Repo]Error reading Channel file: " + entry.getFileName() + ".Skipping. Details: " + e.getMessage());
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error accessing Channel directory: " + DIRECTORY, e);
+            throw new RuntimeException("[Repo]Error accessing Channel directory: " + DIRECTORY, e);
         }
         return allChannels;
     }
@@ -135,13 +135,13 @@ public class FileChannelRepository implements ChannelRepository {
         Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
         try {
             if (Files.deleteIfExists(path)) {
-                System.out.println("Channel file deleted: " + id);
+                System.out.println("[Repo]Channel file deleted: " + id);
             } else {
-                System.out.println("Channel file not found: " + id);
+                System.out.println("[Repo]Channel file not found: " + id);
             }
         } catch (IOException e) {
-            System.err.println("Error deleting Channel file: " + id + ". Details: " + e.getMessage());
-            throw new RuntimeException("Failed to delete Channel file.", e);
+            System.err.println("[Repo]Error deleting Channel file: " + id + ". Details: " + e.getMessage());
+            throw new RuntimeException("[Repo]Failed to delete Channel file.", e);
         }
     }
 }

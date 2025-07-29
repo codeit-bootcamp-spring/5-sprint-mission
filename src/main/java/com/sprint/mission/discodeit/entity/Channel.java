@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class Channel implements Serializable {
     @Serial
-    private static final long serialVersionUID = 2L; // 직렬화 버전 ID (User와 구분하기 위해서 2로 설정)
+    private static final long serialVersionUID = 1L;
     
     private final UUID id;
     private final Long createdAt;
