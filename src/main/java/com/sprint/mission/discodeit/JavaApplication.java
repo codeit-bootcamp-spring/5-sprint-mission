@@ -119,10 +119,10 @@ public class JavaApplication {
 
         // 수정 - 확인
         System.out.println("수정 전 : " + channelService.searchById(channel1.getId()));
-        channelService.update(channel1.updateName("updatedName"));
-        channelService.update(channel1.updateName("updatedName"));
-        channelService.update(channel1.addUser(userService.searchAll().get(0)));
-        channelService.update(channel1.addUser(userService.searchAll().get(0)));
+        channelService.updateName(channel1.updateName("updatedName"));
+        channelService.updateName(channel1.updateName("updatedName"));
+        channelService.updateName(channel1.addUser(userService.searchAll().get(0)));
+        channelService.updateName(channel1.addUser(userService.searchAll().get(0)));
         System.out.println("수정 후 : " + channelService.searchById(channel1.getId()));
 
         // 삭제 - 확인

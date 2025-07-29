@@ -19,13 +19,30 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel update(Channel channel) {
+    public Channel updateName(UUID id, String name) {
+        Channel channel = searchById(id);
+        channel.updateName(name);
+        return data.put(channel.getId(), channel);
+    }
+
+    @Override
+    public Channel updateDescription(UUID id, String description) {
+        Channel channel = searchById(id);
+        channel.updateDescription(description);
+        return data.put(channel.getId(), channel);
+    }
+
+    @Override
+    public Channel updateChannelType(UUID id, String channelType) {
+        Channel channel = searchById(id);
+        channel.updateChannelType(channelType);
         return data.put(channel.getId(), channel);
     }
 
     @Override
     public Channel delete(UUID id) {
-        return data.remove(id);
+        Channel channel = searchById(id);
+        return data.remove(channel.getId());
     }
 
     @Override
@@ -41,12 +58,18 @@ public class JCFChannelService implements ChannelService {
                 channels.add(channel);
             }
         }
+        if(channels.isEmpty()) {
+            throw new NoSuchElementException("해당하는 채널을 찾을 수 없습니다.");
+        }
         return channels;
     }
 
     @Override
-    public Optional<Channel> searchById(UUID id) {
-        return Optional.ofNullable(data.get(id));
+    public Channel searchById(UUID id) {
+        if (!data.containsKey(id)) {
+            throw new NoSuchElementException("해당하는 채널을 찾을 수 없습니다.");
+        }
+        return data.get(id);
     }
 
     @Override

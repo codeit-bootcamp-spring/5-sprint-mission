@@ -9,7 +9,11 @@ import java.util.UUID;
 public interface ChannelService {
     Channel create(Channel channel);
 
-    Channel update(Channel channel);
+    Channel updateName(UUID id, String name);
+
+    Channel updateDescription(UUID id, String description);
+
+    Channel updateChannelType(UUID id, String channelType);
 
     Channel delete(UUID id);
 
@@ -17,7 +21,7 @@ public interface ChannelService {
 
     List<Channel> searchByName(String name);
 
-    Optional<Channel> searchById(UUID id);
+    Channel searchById(UUID id);
 
     List<Channel> searchAll();
 }

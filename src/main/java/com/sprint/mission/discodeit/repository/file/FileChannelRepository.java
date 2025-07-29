@@ -27,18 +27,22 @@ public class FileChannelRepository implements ChannelRepository {
         }
     }
 
-    public void save(Channel channel) {
+    public Channel save(Channel channel) {
         Path channelDirectory = Path.of(directory.toString() + "/" + channel.getId());
 
+        if (Files.exists(channelDirectory)) {
+            delete(channel.getId());
+        }
         try (FileOutputStream fos = new FileOutputStream(channelDirectory.toFile());
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(channel);
+            return channel;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List<Channel> load(Path directory) {
+    public Map<UUID, Channel> load(Path directory) {
         if (Files.exists(directory)) {
             try {
                 List<Channel> channels = Files.list(directory)
@@ -51,65 +55,56 @@ public class FileChannelRepository implements ChannelRepository {
                                 throw new RuntimeException(e);
                             }
                         }).toList();
-                return channels;
+                Map<UUID, Channel> channelMap = new HashMap<>();
+                channels.forEach(channel -> channelMap.put(channel.getId(), channel));
+                return channelMap;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            return new ArrayList<>();
+            return new HashMap<>();
         }
     }
 
     @Override
-    public void delete(Channel channel) {
-        Path channelDirectory = Path.of(directory.toString() + "/" + channel.getId());
+    public Optional<Channel> delete(UUID id) {
+        Path channelDirectory = Path.of(directory.toString() + "/" + id);
+        Channel channel = searchById(id).orElse(null);
         if (Files.exists(channelDirectory)) {
             try {
                 Files.delete(channelDirectory);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } else {
-            System.err.println("해당하는 채널을 찾을 수 없습니다.");
-            throw new NoSuchElementException();
         }
+        return Optional.ofNullable(channel);
     }
 
     @Override
     public void deleteAll() {
-        for (Channel channel : load(directory)) {
-            delete(channel);
+        for (Channel channel : load(directory).values()) {
+            delete(channel.getId());
         }
     }
 
     @Override
     public List<Channel> searchByName(String name) {
         List<Channel> channels = new ArrayList<>();
-        for (Channel channel : load(directory)) {
+        for (Channel channel : load(directory).values()) {
             if (channel.getName().contains(name)) {
                 channels.add(channel);
             }
-        }
-        if (channels.isEmpty()) {
-            System.err.println("해당하는 채널을 찾을 수 없습니다.");
-            throw new NoSuchElementException();
         }
         return channels;
     }
 
     @Override
-    public Channel searchById(UUID id) {
-        for (Channel c : load(directory)) {
-            if (c.getId().equals(id)) {
-                return c;
-            }
-        }
-        System.err.println("해당하는 채널을 찾을 수 없습니다.");
-        throw new NoSuchElementException();
+    public Optional<Channel> searchById(UUID id) {
+        return Optional.ofNullable(load(directory).get(id));
     }
 
     @Override
     public List<Channel> searchAll() {
-        return load(directory);
+        return new ArrayList<>(load(directory).values());
     }
 }

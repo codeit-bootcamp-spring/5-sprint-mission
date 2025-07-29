@@ -16,6 +16,8 @@ public class Channel implements Serializable {
     private long updatedAt;
     private String name;
     private final List<UUID> users;
+    private String description;
+    private String channelType;
 
     public Channel() {
         id = UUID.randomUUID();
@@ -24,12 +26,17 @@ public class Channel implements Serializable {
         users = new ArrayList<>();
     }
 
-    public Channel(String name) {
+    public Channel(String name, String description, String channelType) {
         id = UUID.randomUUID();
         createdAt = Instant.now().toEpochMilli();
         updatedAt = createdAt;
         users = new ArrayList<>();
         this.name = name;
+        this.description = description;
+        if (!channelType.equals("public") && !channelType.equals("private")) {
+            throw new IllegalArgumentException("채널 타입은 public 또는 private 이어야 합니다.");
+        }
+        this.channelType = channelType;
     }
 
     public UUID getId() {
@@ -52,6 +59,14 @@ public class Channel implements Serializable {
         return users;
     }
 
+    public String getChannelType() {
+        return channelType;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public Channel updateName(String name) {
         if (name.equals(this.name)) {
             System.out.println("기존에 사용하던 채널명입니다.");
@@ -60,6 +75,19 @@ public class Channel implements Serializable {
         this.name = name;
         updatedAt = Instant.now().toEpochMilli();
         return this;
+    }
+
+    public void updateDescription(String description) {
+        this.description = description;
+        updatedAt = Instant.now().toEpochMilli();
+    }
+
+    public void updateChannelType(String channelType) {
+        if (!channelType.equals("public") && !channelType.equals("private")) {
+            throw new IllegalArgumentException("채널 타입은 public 또는 private 이어야 합니다.");
+        }
+        this.channelType = channelType;
+        updatedAt = Instant.now().toEpochMilli();
     }
 
     public Channel addUser(User user) {
@@ -100,10 +128,12 @@ public class Channel implements Serializable {
     public String toString() {
         return "Channel{" +
                 "id=" + id +
-                ", createdAt=" + Instant.ofEpochMilli(createdAt) +
-                ", updatedAt=" + Instant.ofEpochMilli(updatedAt) +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 ", name='" + name + '\'' +
                 ", users=" + users +
+                ", description='" + description + '\'' +
+                ", channelType='" + channelType + '\'' +
                 '}';
     }
 }
