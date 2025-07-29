@@ -13,7 +13,7 @@ public class User implements Serializable {
     private final UUID id;
     private final Long createdAt;
     private final String email;
-    private final String password;
+    private final transient String password; // 직렬화에서 제외됨
 
     private Long updatedAt;
     private String name;
@@ -26,7 +26,7 @@ public class User implements Serializable {
         this.email = email;
         this.password = password;
         this.createdAt = createdAt;
-        //this.updatedAt = null;  // 생성 시점에는 updatedAt은 null
+        this.updatedAt = null;  // 생성 시점에는 updatedAt은 null
     }
 
     public User (String name, String email, String password) {
