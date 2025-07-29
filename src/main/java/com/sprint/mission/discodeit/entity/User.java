@@ -1,14 +1,71 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class User {
+public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
 
     private UUID id;
-    private long createdAt;
-    private long updatedAt;
+    private Long createdAt;
+    private Long updatedAt;
+
+
+    private String email;
+    private String nick;
+    private String pass;
+
+
+//    private List<UUID> messageId;
+//    private List<UUID> channelId;
+
+//    public List<UUID> getMessageId() {
+//        return messageId;
+//    }
+//
+//    public void updateMessageId(UUID messageId) {
+//        this.messageId.add(messageId);
+//    }
+//
+//    public List<UUID> getChannelId() {
+//        return channelId;
+//    }
+//
+//    public void updateChannelId(UUID channelId) {
+//        this.channelId.add(channelId);
+//    }
+
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
+    public String getNick() {
+        return nick;
+    }
+
+    public void updateNick(String nick) {
+        this.nick = nick;
+    }
+
+    public String getPass() {
+        return pass;
+    }
+
+    public void updatePass(String pass) {
+        this.pass = pass;
+    }
+
 
     public UUID getId() {
         return id;
@@ -35,25 +92,30 @@ public class User {
     }
 
 
+    public User(){
 
-    public User() {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().toEpochMilli();
     }
 
+    public User(String nick,String email, String pass) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now().toEpochMilli();
+        this.nick = nick;
+        this.email = email;
+        this.pass = pass;
+//        this.messageId = new ArrayList<>();
+//        this.channelId = new ArrayList<>();
+
+    }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("User{");
-        sb.append("id=").append(id);
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append('}');
-        return sb.toString();
+        return "User{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", email='" + email + '\'' +
+                ", nick='" + nick + '\'' +
+                ", pass='" + pass + '\'' +
+                '}';
     }
-
-
-
-
-
 }

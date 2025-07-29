@@ -1,14 +1,90 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class Channel {
+public class Channel implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+    public enum ChannelType {
+        PUBLIC,
+        PRIVATE
+    }
+    public Channel(){
 
+    }
 
     private UUID id;
-    private long createdAt;
-    private long updatedAt;
+    private Long createdAt;
+    private Long updatedAt;
+    private String title;
+    private String description;
+    private ChannelType type;
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", type=" + type +
+                '}';
+    }
+
+    public ChannelType getType() {
+        return type;
+    }
+
+    public void updateType(ChannelType type) {
+        this.type = type;
+    }
+//    private List<UUID> messageId;
+//    private List<UUID> userId;
+
+
+
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void updateDescription(String description) {
+        this.description = description;
+    }
+
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+//    public void updateMessageId(UUID messageId) {
+//        this.messageId.add(messageId);
+//    }
+//
+//    public void updateUserId(UUID userId) {
+//        this.userId.add(userId);
+//    }
+//
+//    public List<UUID> getMessageId() {
+//        return messageId;
+//    }
+//
+//    public List<UUID> getUserId() {
+//        return userId;
+//    }
+
+
+
 
     public UUID getId() {
         return id;
@@ -36,18 +112,16 @@ public class Channel {
 
 
 
-    public Channel() {
+    public Channel(ChannelType type,String title,String description) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now().toEpochMilli();
+        this.title = title;
+        this.description = description;
+        this.type=type;
+//        messageId = new ArrayList<>();
+//        userId = new ArrayList<>();;
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Channel{");
-        sb.append("id=").append(id);
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append('}');
-        return sb.toString();
-    }
+
+
 }
