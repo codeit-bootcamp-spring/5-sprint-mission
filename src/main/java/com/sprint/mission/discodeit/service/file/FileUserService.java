@@ -11,17 +11,13 @@ public class FileUserService implements UserService {
     private final UserRepository userRepository = new FileUserRepository();
 
     @Override
-    public User create(String name, String password) {
-
-        //중복검사
-        List<User> users = userRepository.findAll();
-        for (User user : users) {
-            if (user.getName().equals(name)) {
-                throw new IllegalArgumentException("이미 사용중인 이름입니다.");
-            }
+    public User create(String name, String email, String password) {
+        // 중복검사
+        if (!userRepository.findByName(name).isEmpty()) {
+            throw new IllegalArgumentException("이미 사용중인 이름입니다." + name);
         }
 
-        User user = new User(name, password);
+        User user = new User(name, email, password);
         return userRepository.save(user);
     }
 

@@ -15,7 +15,7 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User create(String name, String password) {
+    public User create(String name, String email, String password) {
 
         //중복검사
         List<User> users = userRepository.findAll();
@@ -25,7 +25,7 @@ public class BasicUserService implements UserService {
             }
         }
 
-        User user = new User(name, password);
+        User user = new User(name, email, password);
         return userRepository.save(user);
     }
 

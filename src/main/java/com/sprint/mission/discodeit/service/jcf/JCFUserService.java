@@ -12,8 +12,8 @@ public class JCFUserService implements UserService {
     private final UserRepository userRepository =  new JCFUserRepository();
 
     // 생성
-    public User create(String name, String password) {
-        User user = new User(name, password);
+    public User create(String name, String email, String password) {
+        User user = new User(name, email, password);
         return userRepository.save(user);
     }
 

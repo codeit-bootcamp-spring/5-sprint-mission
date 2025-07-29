@@ -13,7 +13,7 @@ public interface UserService {
      * @param password 채널 주제
      * @return 생성된 User 객체
      */
-    User create(String name, String password);
+    User create(String name, String email, String password);
 
     /**
      * 아이디로 유저 조회
