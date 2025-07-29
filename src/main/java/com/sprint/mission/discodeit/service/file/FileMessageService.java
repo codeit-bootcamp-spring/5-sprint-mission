@@ -1,6 +1,9 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.io.*;
@@ -14,8 +17,12 @@ import java.util.UUID;
 public class FileMessageService implements MessageService {
     private final String DIRECTORY;
     private final String EXTENSION;
+    private final UserRepository userRepository;
+    private final ChannelRepository channelRepository;
 
-    public FileMessageService() {
+    public FileMessageService(UserRepository userRepository, ChannelRepository channelRepository) {
+        this.userRepository = userRepository;
+        this.channelRepository = channelRepository;
         this.DIRECTORY = "MESSAGE/MessageService";
         this.EXTENSION = ".ser";
         Path path = Paths.get(DIRECTORY);
@@ -30,12 +37,12 @@ public class FileMessageService implements MessageService {
 
     @Override
     public Message createMessage(Channel channel, String message, UUID author, boolean allMentioned) {
-        if (channel == null) {
-            throw new NullPointerException("channel id is null.");
+        if (channel == null || !userRepository.existsById(author)) {
+            throw new IllegalArgumentException("[Error] : 채널이 존재하지 않습니다.");
         } if (message == null || message.isBlank()) {
             throw new IllegalArgumentException("message is null or empty.");
-        } if (author == null) {
-            throw new NullPointerException("author is null.");
+        } if (author == null || !channelRepository.existsById(channel.getId())) {
+            throw new IllegalArgumentException("[Error] : 사용자가 존재하지 않습니다.");
         }
 
         Message msg = new Message(channel.getId(), message, author, allMentioned);

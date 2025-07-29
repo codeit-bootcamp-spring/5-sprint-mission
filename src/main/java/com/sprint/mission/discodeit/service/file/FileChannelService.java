@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.io.*;
@@ -15,10 +16,12 @@ import java.util.List;
 import java.util.UUID;
 
 public class FileChannelService implements ChannelService {
-    private String DIRECTORY;
-    private String EXTENSION;
+    private final String DIRECTORY;
+    private final String EXTENSION;
+    private final UserRepository userRepository;
 
-    public FileChannelService() {
+    public FileChannelService(UserRepository userRepository) {
+        this.userRepository = userRepository;
         this.DIRECTORY = "CHANNEL/ChannelService";
         this.EXTENSION = ".ser";
         Path path =  Paths.get(DIRECTORY);
@@ -34,7 +37,7 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public Channel createChannel(UUID userId, String channelName, ChannelType channelType, boolean nsfw) {
-        if(userId == null) {
+        if(userId == null || !userRepository.existsById(userId)) {
             throw new NullPointerException("A channel object is empty.");
         } if(channelName == null || channelName.isBlank()) {
             throw new IllegalArgumentException("channelName is null or blank.");
@@ -94,6 +97,10 @@ public class FileChannelService implements ChannelService {
     public Channel update(UUID channelId, UUID ownerId, String channelName, boolean nsfw) {
         Path path = Paths.get(DIRECTORY, channelId + EXTENSION);
         Channel channel = null;
+
+        if(!userRepository.existsById(ownerId)) {
+            throw new IllegalArgumentException("[Error] : 사용자가 존재하지 않습니다.");
+        }
 
         try (FileInputStream fis = new FileInputStream(path.toFile());
         ObjectInputStream ois = new ObjectInputStream(fis);) {

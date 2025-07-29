@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class FileUserService implements UserService {
-    private String DIRECTORY;
-    private String EXTENSION;
+    private final String DIRECTORY;
+    private final String EXTENSION;
 
     public FileUserService() {
         this.DIRECTORY = "USER/UserService";
