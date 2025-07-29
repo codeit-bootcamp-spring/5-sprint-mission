@@ -9,23 +9,11 @@ import java.util.*;
 
 public class JCFUserService implements UserService {
     private static final Map<UUID,User> data = new HashMap<>();
-    private static JCFUserService instance;
 
-    private JCFUserService() {}
     private ChannelService channelService;
-
-
-    public static JCFUserService getInstance(){
-        if(instance == null){
-            instance = new JCFUserService();
-        }
-        return instance;
-    }
-
-    public void setChannelService(ChannelService channelService) {
+    public JCFUserService(ChannelService channelService) {
         this.channelService = channelService;
     }
-
 
     @Override
     public void add(User user) {

@@ -7,16 +7,10 @@ import java.util.*;
 
 public class JCFMessageService implements MessageService {
     private static final Map<UUID, Message> data = new HashMap<>();
-    private static JCFMessageService instance;
 
-    private JCFMessageService() {}
+    public JCFMessageService() {}
 
-    public static JCFMessageService getInstance() {
-        if (instance == null) {
-            instance = new JCFMessageService();
-        }
-        return instance;
-    }
+
 
 
     @Override

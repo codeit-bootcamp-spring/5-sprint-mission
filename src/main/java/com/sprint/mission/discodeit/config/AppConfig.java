@@ -11,19 +11,17 @@ import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 public class AppConfig {
 
     public UserService userService(){
-        JCFUserService userService = JCFUserService.getInstance();
-
-        userService.setChannelService(JCFChannelService.getInstance());
+        UserService userService = new JCFUserService(channelService());
         return userService;
     }
 
     public ChannelService channelService(){
-        JCFChannelService channelService = JCFChannelService.getInstance();
+        ChannelService channelService = new JCFChannelService();
         return channelService;
     }
 
     public MessageService messageService(){
-        JCFMessageService messageService = JCFMessageService.getInstance();
+        MessageService messageService = new JCFMessageService();
         return messageService;
     }
 

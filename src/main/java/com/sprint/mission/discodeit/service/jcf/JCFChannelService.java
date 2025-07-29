@@ -7,16 +7,8 @@ import java.util.*;
 
 public class JCFChannelService implements ChannelService {
     private static final Map<UUID,Channel> data = new HashMap<>();
-    private static JCFChannelService instance;
 
-    private JCFChannelService() {}
-
-    public static JCFChannelService getInstance() {
-        if (instance == null) {
-            instance = new JCFChannelService();
-        }
-        return instance;
-    }
+    public JCFChannelService() {}
 
     @Override
     public void add(Channel channel) {
