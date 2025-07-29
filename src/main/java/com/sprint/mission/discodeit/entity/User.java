@@ -9,9 +9,9 @@ public class User extends Base implements Serializable {
     private String password;
 
     public User(String name, String email, String password) {
-        if(name==null || name.isBlank()){ throw new IllegalArgumentException("이름은 null이 될 수 없음");}
-        if(email==null || email.isBlank()){ throw new IllegalArgumentException("이메일은 null이 될 수 없음");}
-        if(password==null || password.isBlank()){ throw new IllegalArgumentException("비밀번호는 null이 될 수 없음");}
+        if(name==null || name.isBlank()){ throw new IllegalArgumentException("이름은 null이거나 공백일 수 없습니다");}
+        if(email==null || email.isBlank()){ throw new IllegalArgumentException("이메일은 null이거나 공백일 수 없습니다");}
+        if(password==null || password.isBlank()){ throw new IllegalArgumentException("비밀번호는 null이거나 공백일 수 없습니다");}
         this.name = name;
         this.email = email;
         this.password = password;
@@ -22,7 +22,9 @@ public class User extends Base implements Serializable {
     }
 
     public void updateName(String newName) {
-        if(newName==null || newName.isBlank()){ throw new IllegalArgumentException("이름은 null이 될 수 없음");}
+        if(newName==null || newName.isBlank()){
+            throw new IllegalArgumentException("이름은 null이거나 공백일 수 없습니다");
+        }
         this.name = newName;
         updateTimestamp();
     }
