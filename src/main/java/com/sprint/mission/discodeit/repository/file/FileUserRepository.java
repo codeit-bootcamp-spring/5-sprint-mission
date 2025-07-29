@@ -27,18 +27,22 @@ public class FileUserRepository implements UserRepository {
         }
     }
 
-    public void save(User user) {
+    public User save(User user) {
         Path userDirectory = Path.of(directory.toString() + "/" + user.getId());
 
+        if (Files.exists(userDirectory)) {
+            delete(user.getId());
+        }
         try (FileOutputStream fos = new FileOutputStream(userDirectory.toFile());
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(user);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return user;
     }
 
-    public List<User> load(Path directory) {
+    private Map<UUID, User> load(Path directory) {
         if (Files.exists(directory)) {
             try {
                 List<User> users = Files.list(directory)
@@ -51,65 +55,56 @@ public class FileUserRepository implements UserRepository {
                                 throw new RuntimeException(e);
                             }
                         }).toList();
-                return users;
+                Map<UUID, User> userMap = new HashMap<>();
+                users.forEach(u -> userMap.put(u.getId(), u));
+                return userMap;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            return new ArrayList<>();
+            return new HashMap<>();
         }
     }
 
     @Override
-    public void delete(User user) {
-        Path userDirectory = Path.of(directory.toString() + "/" + user.getId());
+    public Optional<User> delete(UUID id) {
+        Path userDirectory = Path.of(directory.toString() + "/" + id);
+        User user = searchById(id).orElse(null);
         if (Files.exists(userDirectory)) {
             try {
                 Files.delete(userDirectory);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } else {
-            System.err.println("해당하는 유저를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
         }
+        return Optional.ofNullable(user);
     }
 
     @Override
     public void deleteAll() {
-        for (User user : load(directory)) {
-            delete(user);
+        for (User user : load(directory).values()) {
+            delete(user.getId());
         }
     }
 
     @Override
-    public User searchById(UUID id) {
-        for (User u : load(directory)) {
-            if (u.getId().equals(id)) {
-                return u;
-            }
-        }
-        System.err.println("해당하는 유저를 찾을 수 없습니다.");
-        throw new NoSuchElementException();
+    public Optional<User> searchById(UUID id) {
+        return Optional.ofNullable(load(directory).get(id));
     }
 
     @Override
     public List<User> searchByName(String name) {
         List<User> users = new ArrayList<>();
-        for (User user : load(directory)) {
+        for (User user : load(directory).values()) {
             if (user.getName().contains(name)) {
                 users.add(user);
             }
-        }
-        if (users.isEmpty()) {
-            System.err.println("해당하는 유저를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
         }
         return users;
     }
 
     @Override
     public List<User> searchAll() {
-        return load(directory);
+        return new ArrayList<>(load(directory).values());
     }
 }

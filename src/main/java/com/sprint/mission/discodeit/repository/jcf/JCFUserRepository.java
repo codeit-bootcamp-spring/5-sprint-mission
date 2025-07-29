@@ -13,17 +13,13 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public void save(User user) {
-        data.put(user.getId(), user);
+    public User save(User user) {
+        return data.put(user.getId(), user);
     }
 
     @Override
-    public void delete(User user) {
-        if(!data.containsKey(user.getId())) {
-            System.err.println("해당하는 유저를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
-        }
-        data.remove(user.getId());
+    public Optional<User> delete(UUID id) {
+        return Optional.ofNullable(data.remove(id));
     }
 
     @Override
@@ -32,12 +28,8 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public User searchById(UUID id) {
-        if(!data.containsKey(id)) {
-            System.err.println("해당하는 유저를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
-        }
-        return data.get(id);
+    public Optional<User> searchById(UUID id) {
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
@@ -47,10 +39,6 @@ public class JCFUserRepository implements UserRepository {
             if (user.getName().contains(name)) {
                 users.add(user);
             }
-        }
-        if (users.isEmpty()) {
-            System.err.println("해당하는 유저를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
         }
         return users;
     }

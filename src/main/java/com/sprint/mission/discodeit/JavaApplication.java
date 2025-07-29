@@ -91,14 +91,14 @@ public class JavaApplication {
 
         // 수정 - 확인
         System.out.println("수정 전 : " + userService.searchById(user1.getId()));
-        userService.update(user1.updateName("updatedName"));
-        userService.update(user1.updateName("updatedName"));
-        userService.update(user1.addChannel(channelService.searchAll().get(1)));
-        userService.update(user1.addChannel(channelService.searchAll().get(1)));
+        userService.updateName(user1.updateName("updatedName"));
+        userService.updateName(user1.updateName("updatedName"));
+        userService.updateName(user1.addChannel(channelService.searchAll().get(1)));
+        userService.updateName(user1.addChannel(channelService.searchAll().get(1)));
         System.out.println("수정 후 : " + userService.searchById(user1.getId()));
 
         // 삭제 - 확인
-        userService.delete(user1);
+        userService.delete(user1.getId());
         userService.searchAll().forEach(System.out::println);
     }
 
@@ -126,7 +126,7 @@ public class JavaApplication {
         System.out.println("수정 후 : " + channelService.searchById(channel1.getId()));
 
         // 삭제 - 확인
-        channelService.delete(channel1);
+        channelService.delete(channel1.getId());
         channelService.searchAll().forEach(System.out::println);
     }
 
@@ -156,7 +156,7 @@ public class JavaApplication {
         System.out.println("수정 후 : " + messageService.searchById(message1.getId()));
 
         // 삭제 - 확인
-        messageService.delete(message1);
+        messageService.delete(message1.getId());
         messageService.searchAll().forEach(System.out::println);
     }
 

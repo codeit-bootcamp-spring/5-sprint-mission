@@ -1,15 +1,13 @@
 package com.sprint.mission.discodeit.service.file;
 
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class FileUserService implements UserService {
 
@@ -42,7 +40,7 @@ public class FileUserService implements UserService {
         return user;
     }
 
-    private List<User> load(Path directory) {
+    private Map<UUID, User> load(Path directory) {
         if (Files.exists(directory)) {
             try {
                 List<User> users = Files.list(directory)
@@ -55,12 +53,14 @@ public class FileUserService implements UserService {
                                 throw new RuntimeException(e);
                             }
                         }).toList();
-                return users;
+                Map<UUID, User> userMap = new HashMap<>();
+                users.forEach(u -> userMap.put(u.getId(), u));
+                return userMap;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            return new ArrayList<>();
+            return new HashMap<>();
         }
     }
 
@@ -70,14 +70,31 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public User update(User user) {
+    public User updateName(UUID id, String name) {
+        User user = searchById(id);
+        user.updateName(name);
         return save(user);
     }
 
     @Override
+    public User addChannel(UUID id, Channel channel) {
+        User user = searchById(id);
+        user.addChannel(channel);
+        return save(user);
+    }
+
+    @Override
+    public User deleteChannel(UUID id, Channel channel) {
+        User user = searchById(id);
+        user.deleteChannel(channel);
+        return save(user);
+    }
+
+
+    @Override
     public User delete(UUID id) {
         Path userDirectory = Path.of(directory.toString() + "/" + id);
-        User user = searchById(id).orElse(null);
+        User user = searchById(id);
         if (Files.exists(userDirectory)) {
             try {
                 Files.delete(userDirectory);
@@ -85,43 +102,47 @@ public class FileUserService implements UserService {
                 throw new RuntimeException(e);
             }
         } else {
-            System.out.println("존재하지 않는 유저입니다.");
+            System.err.println("해당하는 유저를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
         }
         return user;
     }
 
     @Override
     public void deleteAll() {
-        for (User user : load(directory)) {
+        for (User user : load(directory).values()) {
             delete(user.getId());
         }
     }
 
     @Override
-    public Optional<User> searchById(UUID id) {
-        User u = null;
-        for (User user : load(directory)) {
-            if (user.getId().equals(id)) {
-                u = user;
-            }
+    public User searchById(UUID id) {
+        User user = load(directory).getOrDefault(id, null);
+        if (user == null) {
+            System.err.println("해당하는 유저를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
         }
-        return Optional.ofNullable(u);
+        return user;
     }
 
     @Override
     public List<User> searchByName(String name) {
         List<User> users = new ArrayList<>();
 
-        for (User user : load(directory)) {
+        for (User user : load(directory).values()) {
             if (user.getName().contains(name)) {
                 users.add(user);
             }
+        }
+        if (users.isEmpty()) {
+            System.err.println("해당하는 유저를 찾을 수 없습니다.");
+            throw new NoSuchElementException();
         }
         return users;
     }
 
     @Override
     public List<User> searchAll() {
-        return load(directory);
+        return new ArrayList<>(load(directory).values());
     }
 }
