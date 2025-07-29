@@ -6,9 +6,9 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 
 import java.util.Optional;
 
@@ -16,18 +16,26 @@ public class JavaApplication {
 
     public static void main(String[] args) {
 
-        UserService jcfUserService = new JCFUserService();
-        ChannelService jcfChannelService = new JCFChannelService();
-        MessageService jcfMessageService = new JCFMessageService(jcfUserService,jcfChannelService);
+//        UserService jcfUserService = new JCFUserService();
+//        ChannelService jcfChannelService = new JCFChannelService();
+//        MessageService jcfMessageService = new JCFMessageService(jcfUserService,jcfChannelService);
 
-        // User Test
+        UserService fileUserService = new FileUserService();
+        ChannelService fileChannelService = new FileChannelService();
+        MessageService fileMessageService = new FileMessageService();
+
+        // Test
 //        userTest(jcfUserService);
 //        channelTest(jcfChannelService);
-        messageTest(jcfMessageService, jcfChannelService, jcfUserService);
+//        messageTest(jcfMessageService, jcfChannelService, jcfUserService);
+
+        userTest(fileUserService);
+        channelTest(fileChannelService);
+        messageTest(fileMessageService, fileChannelService, fileUserService);
 
     }
 
-    public static void userTest(UserService  userService) {
+    public static void userTest(UserService userService) {
 
         // 등록
         User user1 = userService.createUser("홍길동", "1234", "자바책훔치기");
