@@ -10,5 +10,5 @@ public interface UserRepository {
     User findById(UUID id);
     List<User> findByName(String name);
     User update(UUID id, String name);
-    void delete(UUID id);
+    boolean delete(UUID id);
 }

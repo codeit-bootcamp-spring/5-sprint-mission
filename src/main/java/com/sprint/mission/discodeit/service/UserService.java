@@ -40,6 +40,6 @@ public interface UserService {
     /**
      * 아이디로 유저삭제
      */
-    void delete(UUID id);
+    boolean delete(UUID id);
 
 }

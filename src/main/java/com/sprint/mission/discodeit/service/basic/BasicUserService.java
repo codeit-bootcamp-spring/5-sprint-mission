@@ -45,7 +45,7 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public void delete(UUID id) {
-        userRepository.delete(id);
+    public boolean delete(UUID id) {
+        return userRepository.delete(id);
     }
 }

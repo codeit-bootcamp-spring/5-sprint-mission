@@ -52,8 +52,13 @@ public class FileUserRepository extends FileStore<User> implements UserRepositor
     }
 
     @Override
-    public void delete(UUID id) {
-        userMap.remove(id);
-        saveToFile(userMap);
+    public boolean delete(UUID id) {
+        if (userMap.containsKey(id)) {
+            userMap.remove(id);
+            saveToFile(userMap);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

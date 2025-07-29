@@ -37,7 +37,7 @@ public class JCFUserService implements UserService {
     }
 
     // 삭제
-    public void delete(UUID id) {
-        userRepository.delete(id);
+    public boolean delete(UUID id) {
+        return userRepository.delete(id);
     }
 }
