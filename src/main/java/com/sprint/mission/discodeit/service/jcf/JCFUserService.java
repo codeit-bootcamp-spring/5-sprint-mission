@@ -17,11 +17,17 @@ public class JCFUserService implements UserService {
 
     @Override
     public void add(User user) {
+        if(user == null){
+            throw new IllegalArgumentException("user는 null일 수 없다.");
+        }
         data.put(user.getId(), user);
     }
 
     @Override
     public User findOne(UUID userId) {
+        if(userId == null){
+            throw new IllegalArgumentException("userId는 null일 수 없다.");
+        }
         return data.get(userId);
     }
 
@@ -32,6 +38,10 @@ public class JCFUserService implements UserService {
 
     @Override
     public void update(UUID originUserUuid , User newUser) {
+        if(originUserUuid == null || newUser == null){
+            throw new IllegalArgumentException("userId 혹은 user는 null일 수 없다.");
+        }
+
         User existingUser = data.remove(originUserUuid);
 
         existingUser.updateUserName(newUser.getUserName());
@@ -43,6 +53,10 @@ public class JCFUserService implements UserService {
     }
     @Override
     public void delete(UUID userId) {
+        if(userId == null){
+            throw new IllegalArgumentException("userId는 null일 수 없다.");
+        }
+
         data.remove(userId);
     }
 

@@ -10,16 +10,20 @@ public class JCFMessageService implements MessageService {
 
     public JCFMessageService() {}
 
-
-
-
     @Override
     public void add(Message message) {
+        if(message == null){
+            throw new IllegalArgumentException("message는 null일 수 없다.");
+        }
         data.put(message.getId(), message);
     }
 
     @Override
     public Message findOne(UUID messageId) {
+        if(messageId == null){
+            throw new IllegalArgumentException("messageId는 null일 수 없다.");
+        }
+
         return data.get(messageId);
     }
 
@@ -30,6 +34,10 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public void update(UUID originMessageUuid, Message newMessage) {
+        if(originMessageUuid == null || newMessage == null){
+            throw new IllegalArgumentException("messageId 혹은 message는 null일 수 없다.");
+        }
+
         Message existingMessage = data.remove(originMessageUuid);
 
         existingMessage.updateContent(newMessage.getContent());
@@ -39,6 +47,10 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public void delete(UUID messageId) {
+        if(messageId == null){
+            throw new IllegalArgumentException("messageId는 null일 수 없다.");
+        }
+
         data.remove(messageId);
     }
 

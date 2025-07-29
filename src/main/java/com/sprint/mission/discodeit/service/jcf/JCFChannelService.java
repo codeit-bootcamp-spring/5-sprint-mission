@@ -12,11 +12,17 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public void add(Channel channel) {
+        if(channel == null){
+            throw new IllegalArgumentException("channel은 null일 수 없다.");
+        }
         data.put(channel.getId(), channel);
     }
 
     @Override
     public Channel findOne(UUID channelId) {
+        if(channelId == null){
+            throw new IllegalArgumentException("channelId은 null일 수 없다.");
+        }
         return data.get(channelId);
     }
 
@@ -27,6 +33,10 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public void update(UUID channelId, Channel channel) {
+        if(channelId == null || channel == null){
+            throw new IllegalArgumentException("channelId 혹은 channel은 null일 수 없다");
+        }
+
         Channel origin = data.remove(channelId);
         origin.updateChannelName(channel.getChannelName());
         data.put(origin.getId(), origin);
@@ -34,6 +44,9 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public void delete(UUID channelId) {
+        if(channelId == null){
+            throw new IllegalArgumentException("channelId은 null일 수 없다.");
+        }
         data.remove(channelId);
     }
 
