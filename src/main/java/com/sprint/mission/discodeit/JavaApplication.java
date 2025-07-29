@@ -1,17 +1,32 @@
 package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.entity.*;
-import com.sprint.mission.discodeit.service.jcf.*;
-
-import java.util.List;
-import java.util.UUID;
+import com.sprint.mission.discodeit.repository.*;
+import com.sprint.mission.discodeit.repository.jcf.*;
+import com.sprint.mission.discodeit.service.*;
+import com.sprint.mission.discodeit.service.basic.*;
 
 public class JavaApplication {
     public static void main(String[] args) {
 
-        JCFUserService userService = new JCFUserService();
-        JCFChannelService channelService = new JCFChannelService();
-        JCFMessageService messageService = new JCFMessageService(userService, channelService);
+        /*
+         * 저장소 선택: JCF 또는 File 주석만 바꿔서 테스트 가능
+         */
+
+        // --- JCF 기반 저장소 (메모리)
+        UserRepository userRepository = new JCFUserRepository();
+        ChannelRepository channelRepository = new JCFChannelRepository();
+        MessageRepository messageRepository = new JCFMessageRepository();
+
+        // --- File 기반 저장소 (직렬화 기반 파일 저장)
+        // UserRepository userRepository = new FileUserRepository();
+        // ChannelRepository channelRepository = new FileChannelRepository();
+        // MessageRepository messageRepository = new FileMessageRepository();
+
+        // Basic 서비스 생성 (비즈니스 로직 담당)
+        UserService userService = new BasicUserService(userRepository);
+        ChannelService channelService = new BasicChannelService(channelRepository);
+        MessageService messageService = new BasicMessageService(messageRepository);
 
         // 사용자 등록
         User user = userService.create(new User("홍길동"));
@@ -78,5 +93,8 @@ public class JavaApplication {
         } else {
             System.out.println("사용자 삭제 실패");
         }
+
+        //테스트임 삭제할 것
+        System.out.println("제발 테스트되라");
     }
 }
