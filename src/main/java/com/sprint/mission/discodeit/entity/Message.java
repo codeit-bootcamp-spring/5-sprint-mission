@@ -10,6 +10,7 @@ public class Message extends BaseEntity{
     public Message(
             String content, Channel channel, User authorUser
     ) {
+        super();
         this.channel = channel;
         this.authorUser = authorUser;
         this.content = content;
