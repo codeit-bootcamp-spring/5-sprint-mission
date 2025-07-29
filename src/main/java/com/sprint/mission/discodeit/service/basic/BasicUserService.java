@@ -57,21 +57,40 @@ public class BasicUserService implements UserService {
 
     @Override
     public Optional<User> findById(UUID id) {
-        return Optional.empty();
+        // 1. 아이디 사용자 조회
+        System.out.println("Finding user by id: " + id);
+        return userRepository.findById(id);
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
-        return Optional.empty();
+        System.out.println("Finding user by email: " + email);
+        return userRepository.findByEmail(email);
     }
 
     @Override
     public Optional<User> findByName(String name) {
-        return Optional.empty();
+        System.out.println("Finding user by name: " + name);
+        return userRepository.findByName(name);
     }
 
     @Override
     public boolean deleteUser(UUID id) {
-        return false;
+        // 1. 사용자 존재 여부 확인
+        Optional<User> userToDelete = userRepository.findById(id);
+        if (userToDelete.isEmpty()) {
+            System.out.println("Delete failed: " + id);
+            return false;
+        }
+
+        // 2. UserRepository를 통해 사용자 삭제
+        try {
+            userRepository.deleteById(id);
+            System.out.println("User deleted successfully" + id);
+            return true;
+        } catch (RuntimeException e) {
+            System.out.println("Delete failed: " + id);
+            return false;
+        }
     }
 }
