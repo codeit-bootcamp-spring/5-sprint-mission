@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.config.AppConfig;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -19,9 +20,14 @@ public class JavaApplication {
     public static MessageService messageService = appConfig.messageService();
 
     public static void main(String[] args) {
-        UserServiceTest.testAll();
-        MessageServiceTest.testAll();
-        ChannelServiceTest.testAll();
+        try{
+            UserServiceTest.testAll();
+            MessageServiceTest.testAll();
+            ChannelServiceTest.testAll();
+        } catch(Exception e){
+            GlobalExceptionHandler.handleException(e);
+        }
+
     }
 
     public static class ChannelServiceTest{

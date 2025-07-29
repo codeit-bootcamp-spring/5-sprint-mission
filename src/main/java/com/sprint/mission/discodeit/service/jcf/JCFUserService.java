@@ -65,6 +65,10 @@ public class JCFUserService implements UserService {
 
     @Override
     public void joinChannel(UUID channelId, UUID userId) {
+        if(channelId == null || userId == null){
+            throw new IllegalArgumentException("channelId와 userId는 null일 수 없다.");
+        }
+
         Channel channel = channelService.findOne(channelId);
         User user = findOne(userId);
         channel.addUser(user);
