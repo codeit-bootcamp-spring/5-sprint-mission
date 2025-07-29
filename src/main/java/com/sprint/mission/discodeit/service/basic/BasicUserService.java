@@ -36,7 +36,22 @@ public class BasicUserService implements UserService {
 
     @Override
     public Optional<User> loginUser(String email, String password) {
-        return Optional.empty();
+        // 1. 이메일 사용자 조회
+        Optional<User> existingUser = userRepository.findByEmail(email);
+
+        // 2. 사용자가 존재하고 비밀번호가 일치한지 확인
+        if (existingUser.isPresent()) { // 이메일이 동일한지 체크
+            User user = existingUser.get();
+            if (user.getPassword().equals(password)) { // 비밀번호가 동일한지 체크
+                System.out.println("User logged successfully" + user.getEmail());
+                return Optional.of(user); // 성공
+            } else {
+                System.out.println("Login failed[Incorrect Password]" + email);
+            }
+        } else {
+            System.out.println("Login failed[Incorrect Email]" + email);
+        }
+        return Optional.empty(); // 로그인 실패 -> 아무것도 반환 x
     }
 
     @Override
