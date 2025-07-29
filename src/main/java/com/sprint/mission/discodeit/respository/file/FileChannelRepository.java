@@ -63,8 +63,13 @@ public class FileChannelRepository extends FileStore<Channel> implements Channel
     }
 
     @Override
-    public void deleteById(UUID id) {
-        channelMap.remove(id);
-        saveToFile(channelMap);
+    public boolean delete(UUID id) {
+        if (channelMap.containsKey(id)) {
+            channelMap.remove(id);
+            saveToFile(channelMap);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

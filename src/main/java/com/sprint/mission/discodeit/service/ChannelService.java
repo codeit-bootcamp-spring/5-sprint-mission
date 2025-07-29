@@ -57,5 +57,5 @@ public interface ChannelService {
      * 채널 삭제
      * @param id 채널아이디
      * */
-    void deleteById(UUID id);
+    boolean delete(UUID id);
 }

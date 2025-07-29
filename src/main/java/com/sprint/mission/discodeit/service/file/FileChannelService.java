@@ -53,7 +53,7 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public void deleteById(UUID id) {
-        channelRepository.deleteById(id);
+    public boolean delete(UUID id) {
+        return channelRepository.delete(id);
     }
 }

@@ -42,8 +42,8 @@ public class JCFChannelService implements ChannelService {
     }
 
     // 채널 삭제
-    public void deleteById(UUID id){
-        channelRepository.deleteById(id);
+    public boolean delete(UUID id){
+        return channelRepository.delete(id);
     }
 
 }
