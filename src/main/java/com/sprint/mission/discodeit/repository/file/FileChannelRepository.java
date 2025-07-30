@@ -1,14 +1,12 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,7 +27,6 @@ public class FileChannelRepository implements ChannelRepository {
             }
         }
     }
-
 
     @Override
     public Channel save(Channel channel) {
@@ -55,7 +52,7 @@ public class FileChannelRepository implements ChannelRepository {
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
                 channel = (Channel) ois.readObject();
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
@@ -76,7 +73,7 @@ public class FileChannelRepository implements ChannelRepository {
                                 ObjectInputStream ois = new ObjectInputStream(fis)
                         ) {
                             return (Channel) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
+                        } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
                     })
@@ -104,24 +101,14 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public Channel delete(UUID id) {
-        Channel channel = null;
+    public void delete(UUID id) {
         Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
-
-        try (FileInputStream fis = new FileInputStream(path.toFile());
-             ObjectInputStream ois = new ObjectInputStream(fis)) {
-            channel = (Channel) ois.readObject();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
         try {
             Files.deleteIfExists(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return channel;
     }
 
     @Override

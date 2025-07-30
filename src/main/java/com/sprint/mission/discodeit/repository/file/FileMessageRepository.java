@@ -1,14 +1,12 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,7 +52,7 @@ public class FileMessageRepository implements MessageRepository {
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
                 message = (Message) ois.readObject();
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
@@ -75,7 +73,7 @@ public class FileMessageRepository implements MessageRepository {
                                 ObjectInputStream ois = new ObjectInputStream(fis)
                         ) {
                             return (Message) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
+                        } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
                     })
@@ -103,24 +101,14 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Message delete(UUID id) {
-        Message message = null;
+    public void delete(UUID id) {
         Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
-
-        try (FileInputStream fis = new FileInputStream(path.toFile());
-             ObjectInputStream ois = new ObjectInputStream(fis)) {
-            message = (Message) ois.readObject();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
         try {
             Files.deleteIfExists(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return message;
     }
 
     @Override

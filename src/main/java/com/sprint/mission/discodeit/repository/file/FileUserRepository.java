@@ -7,7 +7,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,7 +52,7 @@ public class FileUserRepository implements UserRepository {
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
                 user = (User) ois.readObject();
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
@@ -73,7 +72,7 @@ public class FileUserRepository implements UserRepository {
                                 ObjectInputStream ois = new ObjectInputStream(fis)
                         ) {
                             return (User) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
+                        } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
                     })
@@ -101,24 +100,14 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public User delete(UUID id) {
-        User user = null;
+    public void delete(UUID id) {
         Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
-
-        try (FileInputStream fis = new FileInputStream(path.toFile());
-             ObjectInputStream ois = new ObjectInputStream(fis)) {
-            user = (User) ois.readObject();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
         try {
             Files.deleteIfExists(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return user;
     }
 
     @Override

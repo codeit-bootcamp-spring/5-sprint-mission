@@ -15,7 +15,7 @@ public interface MessageRepository {
 
     long count();
 
-    Message delete(UUID id);
+    void delete(UUID id);
 
     boolean existById(UUID id);
 }

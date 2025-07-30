@@ -15,7 +15,7 @@ public interface ChannelRepository {
 
     long count();
 
-    Channel delete(UUID id);
+    void delete(UUID id);
 
     boolean existById(UUID id);
 }
