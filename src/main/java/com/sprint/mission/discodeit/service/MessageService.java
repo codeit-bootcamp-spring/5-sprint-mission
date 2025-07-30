@@ -6,9 +6,9 @@ import java.util.*;
 
 public interface MessageService {
     Message createMessage(String content);
-    Message getMessage(UUID messageId);
+    Optional<Message> getMessage(UUID messageId);
     List<Message> getAllMessages();
     Message updateMessage(UUID messageId, String content);
     void deleteMessage(UUID messageId);
-
+    boolean existsById(UUID id);
 }

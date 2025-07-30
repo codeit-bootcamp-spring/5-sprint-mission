@@ -6,11 +6,11 @@ import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.*;
 
-public class JCFUserSerivce implements UserService {
+public class JCFUserService implements UserService {
 
    private final UserRepository repo;
 
-    public JCFUserSerivce(UserRepository repo) {
+    public JCFUserService(UserRepository repo) {
         this.repo = repo;
     }
 

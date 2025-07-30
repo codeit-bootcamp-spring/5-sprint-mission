@@ -1,46 +1,52 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.util.*;
 
 public class JCFMessageService implements MessageService {
 
-    final Map<UUID, Message> data = new HashMap<>();
+    private final MessageRepository repo;
+
+    public JCFMessageService(MessageRepository repo) {
+        this.repo = repo;
+    }
 
     @Override
     public Message createMessage(String content) {
         Message message = new Message(content);
-        data.put(message.getId(), message);
-        return message;
+        return repo.save(message);
     }
 
     @Override
-    public Message getMessage(UUID messageId) {
-        if(!data.containsKey(messageId)){
-            throw new NoSuchElementException("message not found");
+    public Optional<Message> getMessage(UUID messageId) {
+        Optional<Message> message = repo.findById(messageId);
+        if(message.isEmpty()){
+            throw new NoSuchElementException("User with id " + messageId + " not found");
         }
-        return data.get(messageId);
+        return message;
     }
 
     @Override
     public List<Message> getAllMessages() {
-        return new ArrayList<>(data.values());
+        return repo.findAll();
     }
 
     @Override
-    public Message updateMessage(UUID messageId, String content) {
-        Message message = getMessage(messageId);
-        message.update(messageId, content);
-        return message;
+    public Message updateMessage(UUID messageId,String content) {
+       return repo.update(messageId, content);
     }
 
     @Override
     public void deleteMessage(UUID messageId) {
-        if(!data.containsKey(messageId)){
-            throw new NoSuchElementException("message not found");
-        }
-        data.remove(messageId);
+       repo.delete(messageId);
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return repo.existById(id);
     }
 }

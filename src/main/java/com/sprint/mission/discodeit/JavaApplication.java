@@ -2,11 +2,10 @@ package com.sprint.mission.discodeit;
 
 
 import com.sprint.mission.discodeit.entity.*;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.file.FileUserRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
-import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.repository.*;
+import com.sprint.mission.discodeit.repository.file.*;
+import com.sprint.mission.discodeit.repository.jcf.*;
+import com.sprint.mission.discodeit.service.*;
 import com.sprint.mission.discodeit.service.jcf.*;
 
 import java.util.*;
@@ -14,10 +13,19 @@ import java.util.*;
 
 public class JavaApplication {
 
-    static UserRepository userRepositoryJCF = new JCFUserRepository();
-    static UserRepository userRepositoryFile = new FileUserRepository();
-    static UserService userServiceJCF = new JCFUserSerivce(userRepositoryJCF);
-    static UserService userServiceFile = new JCFUserSerivce(userRepositoryFile);
+    // static UserRepository userRepositoryJCF = new JCFUserRepository();
+    // static UserService userServiceJCF = new JCFUserService(userRepositoryJCF);
+    //
+    // static UserRepository userRepositoryFile = new FileUserRepository();
+    // static UserService userServiceFile = new JCFUserService(userRepositoryFile);
+
+    static MessageRepository messageRepositoryJCF = new JCFMessageRepository();
+    static MessageService messageServiceJCF = new JCFMessageService(messageRepositoryJCF);
+
+    static MessageRepository messageRepositoryFile = new FileMessageRepository();
+    static MessageService messageServiceFile = new JCFMessageService(messageRepositoryFile);
+
+
 
     //private static JCFUserSerivce userService = new JCFUserSerivce();;
     //private static JCFMessageService messageService = new JCFMessageService();
@@ -28,13 +36,16 @@ public class JavaApplication {
 
         //messageCRUDTest(messageService);
         //channelCRUDTest(channelService);
-        userCRUDTest((JCFUserSerivce) userServiceJCF);
-        //userCRUDTest((JCFUserSerivce) userServiceFile);
+        // userCRUDTest((JCFUserService) userServiceJCF);
+        // userCRUDTest((JCFUserService) userServiceFile);
+
+        // messageCRUDTest((JCFMessageService)messageServiceJCF);
+        messageCRUDTest((JCFMessageService) messageServiceFile);
 
 
     }
 
-    public static void userCRUDTest(JCFUserSerivce userService){
+    public static void userCRUDTest(JCFUserService userService){
 
         // 생성
         System.out.println("---------------------------");
@@ -73,20 +84,22 @@ public class JavaApplication {
         }
         System.out.println();
 
+
         // 사용자 삭제
         System.out.println("====== 유저 삭제 ======");
         userService.deleteUser(user2.getId());
-        System.out.println("삭제된 User 이름 : " + user2.getUsername());
+        System.out.println("삭제된 유저 이름 : " + user2.getUsername());
         System.out.println();
-        System.out.println("-- 삭제 후 전체 User 조회 --");
+        System.out.println("-- 삭제 후 전체 유저 조회 --");
         List<User> userList1 = userService.getAllUsers();
-        System.out.println("현재 User 수 : " + userList1.size());
+        System.out.println("현재 유저 수 : " + userList1.size());
         for (User user : userList1) {
             System.out.println(user);
         }
         System.out.println();
 
         // 사용자 존재 여부 확인
+        System.out.println("====== 유저 존재 여부 확인  ======");
         boolean result = userService.existsById(user2.getId());
         System.out.println("'" + user2.getUsername() + "' 의 존재 여부 확인 : " + result);
         boolean result1 = userService.existsById(user3.getId());
@@ -98,29 +111,32 @@ public class JavaApplication {
     public static void messageCRUDTest(JCFMessageService messageService){
 
         System.out.println("---------------------------");
-        System.out.println("Message 3건 생성이 완료되었습니다.");
+        System.out.println(" ✅ 메세지 3건 생성이 완료되었습니다.");
         System.out.println("---------------------------");
         System.out.println();
 
-        Message message1 = messageService.createMessage("내일 두산 베어스 경기한다");
-        Message message2 = messageService.createMessage("오 이기겠는데??");
-        Message message3 = messageService.createMessage("이번에 4연전이라 경기 운영 잘해야 할듯!");
-
-        // 메세지 단건 조회
-        System.out.println("====== Message 단건 조회  =====");
-        messageService.getMessage(message1.getId());
-        System.out.println(message1);
+        Message message1 = messageService.createMessage("Happy Birthday");
+        Message message2 = messageService.createMessage("Hello Java World!");
+        Message message3 = messageService.createMessage("Good Morning");
+        System.out.println("메세지 생성 : " + message1.getContent());
+        System.out.println("메세지 생성 : " + message2.getContent());
+        System.out.println("메세지 생성 : " + message3.getContent());
         System.out.println();
 
+
+        // 단건 조회
+        Optional<Message> findMessage = messageService.getMessage(message1.getId());
+        System.out.println("찾은 메세지 : " + findMessage.get().getContent() + "\n");
+
         // 메세지 내용 수정
-        System.out.println("====== Message2 이름 수정  =====");
-        System.out.println("수정 전 내용 : " + message2.getContent() + ", 생성시간 : " + message2.getCreatedAt());
-        messageService.updateMessage(message2.getId(), "내일 비온다는데?!?!?"); // "오 이기겠는데?? -> 내일 비온다는데?!?! 으로 이름 변경
-        System.out.println("수정 후 내용 : " + message2.getContent() + ", 수정시간 : " + message2.getUpdatedAt());
+        System.out.println("수정 전 내용 : " + message1.getContent() + ", 생성시간 : " + message1.getCreatedAt());
+        message1.update("Merry Christmas");
+        messageService.updateMessage(message1.getId(),"Merry Christmas"); // Happy Birthday -> Merry Christmas 으로 이름 변경
+        System.out.println("수정 후 내용 : " + message1.getContent() + ", 수정시간 : " + message1.getUpdatedAt());
         System.out.println();
 
         // 모든 메세지 조회
-        System.out.println("====== 전체 Message 조회  =====");
+        System.out.println("====== 전체 메세지 조회  =====");
         List<Message> messageList = messageService.getAllMessages();
         System.out.println("총 Message 개수 : " + messageList.size());
         for (Message message : messageList) {
@@ -128,16 +144,26 @@ public class JavaApplication {
         }
         System.out.println();
 
+
         // 메세지 삭제
         System.out.println("====== Message 삭제 ======");
         messageService.deleteMessage(message3.getId());
-        System.out.println("삭제된 Message 내용 : " + message3.getContent());
+        System.out.println("✅ 삭제된 Message 내용 : " + message3.getContent() + "/n");
+
         System.out.println("-- 삭제 후 전체 Message 조회 --");
         List<Message> messageList1 = messageService.getAllMessages();
         System.out.println("현재 Message 개수 : " + messageList1.size());
         for (Message message : messageList1) {
             System.out.println(message);
         }
+        System.out.println();
+
+        // 메세지 존재 여부 확인
+        System.out.println("====== 메세지 존재 여부 확인  ======");
+        boolean result = messageService.existsById(message2.getId());
+        System.out.println("'" + message2.getContent() + "' 의 존재 여부 확인 : " + result);
+        boolean result1 = messageService.existsById(message3.getId());
+        System.out.println("'" + message3.getContent() + "' 의 존재 여부 확인 : " + result1);
     }
 
     public static void channelCRUDTest(JCFChannelService channelService){
