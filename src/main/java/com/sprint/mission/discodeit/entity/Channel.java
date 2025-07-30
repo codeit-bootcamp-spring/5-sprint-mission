@@ -1,7 +1,10 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 
+@Getter
 public class Channel extends Base implements Serializable {
 
     private String name;
@@ -27,8 +30,6 @@ public class Channel extends Base implements Serializable {
         this.description = description;
     }
 
-    public String getName() {return name;}
-
     public void updateName(String name) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("채널 이름은 null이 될 수 없습니다.");
@@ -37,25 +38,13 @@ public class Channel extends Base implements Serializable {
         updateTimestamp();
     }
 
-    public String getTopic() {
-        return topic;
-    }
-
     public void updateTopic(String topic) {
         this.topic = topic;
         updateTimestamp();
     }
 
-    public ChannelType getType() {
-        return type;
-    }
-
     public void updateType(ChannelType newType) {
         this.type = newType;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public void updateDescription(String description) {

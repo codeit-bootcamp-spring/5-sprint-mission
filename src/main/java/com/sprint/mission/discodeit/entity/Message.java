@@ -1,7 +1,10 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 
+@Getter
 public class Message extends Base implements Serializable {
 
     private final User sender; //발신자는 변경할 수 없음
@@ -14,18 +17,6 @@ public class Message extends Base implements Serializable {
         this.content = content;
     }
 
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public User getSender() {
-        return sender;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
     public void updateContent(String newContent) {
         if (newContent == null || newContent.isBlank()) {
             throw new IllegalArgumentException("메시지 내용은 비어 있을 수 없습니다.");
@@ -33,7 +24,6 @@ public class Message extends Base implements Serializable {
         this.content = newContent;
         updateTimestamp();
     }
-
 
     @Override
     public String toString() {

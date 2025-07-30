@@ -1,7 +1,10 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 
+@Getter
 public class User extends Base implements Serializable {
 
     private String name;
@@ -17,15 +20,17 @@ public class User extends Base implements Serializable {
         this.password = password;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void updateName(String newName) {
         if(newName==null || newName.isBlank()){
             throw new IllegalArgumentException("이름은 null이거나 공백일 수 없습니다");
         }
         this.name = newName;
+        updateTimestamp();
+    }
+
+    public void updateEmail(String newEmail) {
+        if(newEmail==null || newEmail.isBlank()){ throw new IllegalArgumentException("이메일은 null이 될 수 없음");}
+        this.email = newEmail;
         updateTimestamp();
     }
 
@@ -41,16 +46,6 @@ public class User extends Base implements Serializable {
         }
         // 추후 hash 처리 로직 추가
         this.password = newPassword;
-        updateTimestamp();
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void updateEmail(String newEmail) {
-        if(newEmail==null || newEmail.isBlank()){ throw new IllegalArgumentException("이메일은 null이 될 수 없음");}
-        this.email = newEmail;
         updateTimestamp();
     }
 
