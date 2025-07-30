@@ -4,9 +4,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,24 +13,15 @@ public class JCFMessageService implements MessageService {
 
     private final MessageRepository messageRepository;
 
-    private final UserService userService;
-    private final ChannelService channelService;
-
     public JCFMessageService(
-            MessageRepository messageRepository,
-            UserService userService,
-            ChannelService channelService
+            MessageRepository messageRepository
     ) {
         this.messageRepository = messageRepository;
-        this.userService = userService;
-        this.channelService = channelService;
     }
 
     @Override
-    public Message addMessage(String messageContent, UUID channelId, UUID userId) {
-        User userById = userService.getUserById(userId);
-        Channel channelById = channelService.getChannelById(channelId);
-        Message message = new Message(messageContent, channelById, userById);
+    public Message addMessage(String messageContent, Channel channel, User user) {
+        Message message = new Message(messageContent, channel, user);
         return messageRepository.save(message).orElseThrow();
     }
 

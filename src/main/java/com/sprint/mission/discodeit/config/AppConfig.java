@@ -16,28 +16,19 @@ import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 public class AppConfig {
 
-    public UserRepository userRepository(){
-        return new JCFUserRepository();
-    }
-
-    public MessageRepository messageRepository(){
-        return new JCFMessageRepository();
-    }
-
-    public ChannelRepository channelRepository(){
-        return new JCFChannelRepository();
-    }
+    public ChannelRepository channelRepository = new JCFChannelRepository();
+    public UserRepository userRepository = new JCFUserRepository();
+    public MessageRepository messageRepository = new JCFMessageRepository();
 
     public UserService userService(){
-        return new JCFUserService(channelService(), userRepository());
+        return new JCFUserService(this.userRepository, this.channelService());
     }
 
     public ChannelService channelService(){
-        return new JCFChannelService(channelRepository(), userService());
+        return new JCFChannelService(this.channelRepository);
     }
 
     public MessageService messageService(){
-        return new JCFMessageService(messageRepository(), userService(), channelService());
+        return new JCFMessageService(this.messageRepository);
     }
-
 }

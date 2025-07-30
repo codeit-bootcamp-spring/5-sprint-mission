@@ -14,7 +14,8 @@ public interface UserService {
     void deleteUser(UUID userId);
     void deleteAllUser();
 
-    void joinChannel(UUID userId, UUID channelId);
+    void joinChannel(UUID channelId, User user);
+    void exitChannel(UUID channelId, User user);
 
 
 }

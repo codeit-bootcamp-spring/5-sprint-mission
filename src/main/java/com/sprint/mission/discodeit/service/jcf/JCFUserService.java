@@ -12,12 +12,12 @@ import java.util.UUID;
 
 public class JCFUserService implements UserService {
 
-    private final ChannelService channelService;
     private final UserRepository userRepository;
+    private final ChannelService channelService;
 
-    public JCFUserService(ChannelService channelService, UserRepository userRepository) {
-        this.channelService = channelService;
+    public JCFUserService(UserRepository userRepository, ChannelService channelService) {
         this.userRepository = userRepository;
+        this.channelService = channelService;
     }
 
     @Override
@@ -58,10 +58,18 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void joinChannel(UUID userId, UUID channelId) {
-        /**
-         * 나중에 channel의 set에 데이터 넣는 코드 작성해야함
-         */
+    public void joinChannel(UUID channelId, User user) {
+        if(user == null){
+            throw new IllegalArgumentException("user 파라미터가 null 입니다.");
+        }
+        channelService.addUserToChannel(channelId, user);
+    }
 
+    @Override
+    public void exitChannel(UUID channelId, User user) {
+        if(user == null){
+            throw new IllegalArgumentException("user 파라미터가 null 입니다.");
+        }
+        channelService.deleteUserFromChannel(channelId, user);
     }
 }

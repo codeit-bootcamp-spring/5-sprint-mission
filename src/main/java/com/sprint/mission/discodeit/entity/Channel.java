@@ -42,6 +42,9 @@ public class Channel extends BaseEntity {
         this.users.add(user);
     }
 
+    public void removeUser(User user) {
+        this.users.remove(user);
+    }
 
     public Set<Message> getMessages() {
         return messages;

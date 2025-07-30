@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,22 +12,18 @@ import java.util.UUID;
 public class JCFChannelService implements ChannelService {
 
    private final ChannelRepository channelRepository;
-   private final UserService userService;
 
-    public JCFChannelService(ChannelRepository channelRepository, UserService userService) {
+    public JCFChannelService(ChannelRepository channelRepository) {
         this.channelRepository = channelRepository;
-        this.userService = userService;
     }
 
     @Override
-    public Channel addChannel(String channelName, UUID ownerUserId) {
-        User userById = userService.getUserById(ownerUserId);
-
-        if(userById == null){
+    public Channel addChannel(String channelName, User ownerUser) {
+        if(ownerUser == null){
             throw new IllegalArgumentException("userId가 잘못됨");
         }
 
-        Channel channel = new Channel(channelName, userById);
+        Channel channel = new Channel(channelName, ownerUser);
         Optional<Channel> addedChannel = channelRepository.save(channel);
 
         return addedChannel.orElseThrow();
@@ -62,5 +57,21 @@ public class JCFChannelService implements ChannelService {
     @Override
     public void deleteAllChannel() {
         channelRepository.deleteAll();
+    }
+
+    @Override
+    public void addUserToChannel(UUID channelId, User user) {
+        Optional<Channel> optionalChannel = channelRepository.findById(channelId);
+        Channel channel = optionalChannel.orElseThrow();
+        channel.addUser(user);
+        channelRepository.save(channel);
+    }
+
+    @Override
+    public void deleteUserFromChannel(UUID channelId, User user) {
+        Optional<Channel> optionalChannel = channelRepository.findById(channelId);
+        Channel channel = optionalChannel.orElseThrow();
+        channel.removeUser(user);
+        channelRepository.save(channel);
     }
 }

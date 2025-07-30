@@ -1,6 +1,7 @@
 package com.sprint.mission;
 
 import com.sprint.mission.discodeit.config.AppConfig;
+import com.sprint.mission.discodeit.dto.AddUserDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
@@ -31,10 +32,6 @@ public class JavaApplication {
     }
 
     public static class ChannelServiceTest{
-        static User user1 = new User("test1","test1@naver.com", "1234", "010-1234-6545");
-        static Channel channel1 = new Channel("channel1", user1);
-        static Channel channel2 = new Channel("channel2", user1);
-
         public static void testAll(){
             addAndFind();
             update();
@@ -42,15 +39,20 @@ public class JavaApplication {
         }
 
         public static void addAndFind(){
-            channelService.deleteAll();
+            channelService.deleteAllChannel();
+            userService.deleteAllUser();
+            messageService.deleteAllMessage();
 
-            channelService.add(channel1);
-            channelService.add(channel2);
+            User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
+            User user2 = userService.addUser(new AddUserDto("username2", "<EMAIL>", "1234", "010-1234-5678"));
 
-            Channel findChannel1 = channelService.findOne(channel1.getId());
+            Channel channel1 = channelService.addChannel("channel1", user1);
+            Channel channel2 = channelService.addChannel("channel2", user2);
+
+            Channel findChannel1 = channelService.getChannelById(channel1.getId());
             boolean result1 = channel1.equals(findChannel1);
 
-            List<Channel> findAllChannel = channelService.findAll();
+            List<Channel> findAllChannel = channelService.getAllChannel();
 
             boolean result2 = findAllChannel.contains(channel2);
 
@@ -62,17 +64,21 @@ public class JavaApplication {
         }
 
         public static void update(){
-            channelService.deleteAll();
+            channelService.deleteAllChannel();
+            userService.deleteAllUser();
+            messageService.deleteAllMessage();
 
-            channelService.add(channel1);
-            Channel originChannel = channelService.findOne(channel1.getId());
-            Channel updateChannel = new Channel("update1", user1);
-            channelService.update(originChannel.getId(), updateChannel);
+            User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
 
-            Channel updatedChannel = channelService.findOne(originChannel.getId());
+            Channel channel = channelService.addChannel("channel1", user1);
+            Channel originChannel = channelService.getChannelById(channel.getId());
+
+            channelService.updateChannel(originChannel.getId(), "update1");
+
+            Channel updatedChannel = channelService.getChannelById(originChannel.getId());
 
             boolean result1 = originChannel.getId().equals(updatedChannel.getId());
-            boolean result2 = updateChannel.getChannelName().equals(updatedChannel.getChannelName());
+            boolean result2 = updatedChannel.getChannelName().equals("update1");
 
             if(result1 && result2){
                 System.out.println("ChannelServiceTest: 채널 업데이트 : O");
@@ -82,16 +88,19 @@ public class JavaApplication {
         }
 
         public static void delete(){
-            channelService.deleteAll();
+            channelService.deleteAllChannel();
+            userService.deleteAllUser();
+            messageService.deleteAllMessage();
 
-            channelService.add(channel1);
-            channelService.add(channel2);
+            User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
 
-            List<Channel> before = channelService.findAll();
+            Channel channel1 = channelService.addChannel("channel1", user1);
 
-            channelService.delete(channel1.getId());
+            List<Channel> before = channelService.getAllChannel();
 
-            List<Channel> after = channelService.findAll();
+            channelService.deleteChannel(channel1.getId());
+
+            List<Channel> after = channelService.getAllChannel();
 
             boolean result = before.size() - 1 == after.size();
             if(result){
@@ -104,11 +113,6 @@ public class JavaApplication {
 
     public static class MessageServiceTest{
 
-        static User user1 = new User("test1","test1@naver.com", "1234", "010-1234-6545");
-        static Channel channel1 = new Channel("channel1", user1);
-        static Message message1 = new Message("message1", channel1, user1);
-        static Message message2 = new Message("message2", channel1, user1);
-
 
         public static void testAll(){
             addAndFind();
@@ -117,16 +121,22 @@ public class JavaApplication {
         }
 
         public static void addAndFind(){
-            messageService.deleteAll();
+            messageService.deleteAllMessage();
+            channelService.deleteAllChannel();
+            userService.deleteAllUser();
 
-            messageService.add(message1);
+            User user = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
+            Channel channel = channelService.addChannel("channel1", user);
+            Message message1 = messageService.addMessage("message1", channel, user);
 
-            Message findMessage1 = messageService.findOne(message1.getId());
+            Message findMessage1 = messageService.getMessageById(message1.getId());
             boolean result1 = message1.equals(findMessage1);
 
-            messageService.add(message2);
-            List<Message> findAllMessage = messageService.findAll();
+            Message message2 = messageService.addMessage("message1", channel, user);
+
+            List<Message> findAllMessage = messageService.getAllMessage();
             boolean result2 = findAllMessage.contains(message2);
+
             if(result1 && result2){
                 System.out.println("MessageServiceTest: 등록 및 조회(단건, 다건) : O");
             }else{
@@ -135,17 +145,19 @@ public class JavaApplication {
         }
 
         public static void update(){
-            messageService.deleteAll();
+            messageService.deleteAllMessage();
+            channelService.deleteAllChannel();
+            userService.deleteAllUser();
 
-            messageService.add(message1);
-            Message originMessage = messageService.findOne(message1.getId());
-            Message updateMessage = new Message("update1", channel1, user1);
-            messageService.update(originMessage.getId(), updateMessage);
+            User user = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
+            Channel channel = channelService.addChannel("channel1", user);
+            Message message1 = messageService.addMessage("message1", channel, user);
 
-            Message updatedMessage = messageService.findOne(originMessage.getId());
+            Message originMessage = messageService.getMessageById(message1.getId());
+            Message updatedMessage = messageService.updateMessage(originMessage.getId(), "메시지 업데이트 내용");
 
             boolean result1 = originMessage.getId().equals(updatedMessage.getId());
-            boolean result2 = updateMessage.getContent().equals(updatedMessage.getContent());
+            boolean result2 = originMessage.getContent().equals(updatedMessage.getContent());
 
             if(result1 && result2){
                 System.out.println("MessageServiceTest: 메시지 업데이트 : O");
@@ -155,16 +167,19 @@ public class JavaApplication {
         }
 
         public static void delete(){
-            messageService.deleteAll();
+            messageService.deleteAllMessage();
+            channelService.deleteAllChannel();
+            userService.deleteAllUser();
 
-            messageService.add(message1);
-            messageService.add(message2);
+            User user = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
+            Channel channel = channelService.addChannel("channel1", user);
+            Message message1 = messageService.addMessage("message1", channel, user);
 
-            List<Message> before = messageService.findAll();
+            List<Message> before = messageService.getAllMessage();
 
-            messageService.delete(message1.getId());
+            messageService.deleteMessage(message1.getId());
 
-            List<Message> after = messageService.findAll();
+            List<Message> after = messageService.getAllMessage();
 
             boolean result = before.size() - 1 == after.size();
             if(result){
@@ -176,26 +191,26 @@ public class JavaApplication {
     }
 
     public static class UserServiceTest{
-        static User user1 = new User("user1", "user1@gmail.com", "1234", "010-1234-6545");
-        static User user2 = new User("user2", "user2@gmail.com", "1234", "010-456-6545");
-
         public static void testAll(){
             addAndFind();
             update();
             delete();
-            joinChannel();
+            joinAndExitChannel();
         }
 
         public static void addAndFind(){
-            userService.deleteAll();
-            userService.add(user1);
-            userService.add(user2);
+            userService.deleteAllUser();
+            messageService.deleteAllMessage();
+            channelService.deleteAllChannel();
 
-            User findUser1 = userService.findOne(user1.getId());
+            User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
+            User user2 = userService.addUser(new AddUserDto("username2", "<EMAIL>", "1234", "010-1234-5678"));
+
+            User findUser1 = userService.getUserById(user1.getId());
 
             boolean result1 = user1.equals(findUser1);
 
-            boolean result2 = userService.findAll().contains(user2);
+            boolean result2 = userService.getAllUser().contains(user2);
 
             if(result1 && result2){
                 System.out.println("UserServiceTest: 등록 및 조회(단건, 다건): O");
@@ -205,15 +220,16 @@ public class JavaApplication {
         }
 
         public static void update(){
-            userService.deleteAll();
+            userService.deleteAllUser();
+            messageService.deleteAllMessage();
+            channelService.deleteAllChannel();
 
-            userService.add(user1);
-            User updateUser = new User("update1", "update@naver.com", "1234", "101123456789");
-            userService.update(user1.getId(), updateUser);
-            User updatedUser = userService.findOne(user1.getId());
+            User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
+
+            User updatedUser = userService.updateUser(user1.getId(), new AddUserDto("update1", "<EMAIL>", "1234", "010-1234-5678"));
 
             boolean result1 = user1.getId().equals(updatedUser.getId());
-            boolean result2 = updateUser.getUserName().equals(updatedUser.getUserName());
+            boolean result2 = updatedUser.getUserName().equals("update1");
 
             if(result1 && result2){
                 System.out.println("UserServiceTest: 업데이트 : O");
@@ -223,15 +239,17 @@ public class JavaApplication {
         }
 
         public static void delete(){
-            userService.deleteAll();
-            userService.add(user1);
-            userService.add(user2);
+            userService.deleteAllUser();
+            messageService.deleteAllMessage();
+            channelService.deleteAllChannel();
 
-            List<User> before = userService.findAll();
+            User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
 
-            userService.delete(user1.getId());
+            List<User> before = userService.getAllUser();
 
-            List<User> after = userService.findAll();
+            userService.deleteUser(user1.getId());
+
+            List<User> after = userService.getAllUser();
 
             boolean result = before.size() - 1 == after.size();
             if(result){
@@ -242,18 +260,29 @@ public class JavaApplication {
 
         }
 
-        public static void joinChannel(){
-            userService.deleteAll();
-            userService.add(user1);
+        public static void joinAndExitChannel(){
+            userService.deleteAllUser();
+            messageService.deleteAllMessage();
+            channelService.deleteAllChannel();
 
-            Channel channel = new Channel("testChannel1", user1);
-            channelService.add(channel);
+            User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
+            User user2 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
 
-            userService.joinChannel(channel.getId(), user1.getId());
+            Channel channel1 = channelService.addChannel("channel1", user1);
 
-            Set<User> users = channel.getUsers();
-            boolean result = users.contains(user1);
-            if(result){
+            userService.joinChannel(channel1.getId(), user2);
+
+            Channel channelById1 = channelService.getChannelById(channel1.getId());
+            Set<User> usersOfChannel1 = channelById1.getUsers();
+            boolean result1 = usersOfChannel1.contains(user2);
+
+            userService.exitChannel(channel1.getId(), user2);
+
+            Channel channelById2 = channelService.getChannelById(channel1.getId());
+            Set<User> usersOfChannel2 = channelById2.getUsers();
+            boolean result2 = !usersOfChannel2.contains(user2);
+
+            if(result1 && result2){
                 System.out.println("UserServiceTest: 채널참가 : O");
             }else{
                 System.out.println("UserServiceTest: 채널참가 : X");
