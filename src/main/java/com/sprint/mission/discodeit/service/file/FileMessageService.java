@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -26,6 +28,9 @@ public class FileMessageService implements MessageService {
                 throw new RuntimeException("message_data 폴더 생성 실패", e);
             }
         }
+    }
+
+    public FileMessageService(UserService userService, ChannelService channelService) {
     }
 
     @Override
