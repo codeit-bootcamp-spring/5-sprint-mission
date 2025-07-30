@@ -21,7 +21,7 @@ public class FileMessageService implements MessageService {
     private final Path directory;
 
     public FileMessageService() {
-        this.directory = Paths.get(System.getProperty("message.dir"), "message_data");
+        this.directory = Paths.get(System.getProperty("user.dir"), "message_data");
         if (!Files.exists(directory)) {
             try {
                 Files.createDirectories(this.directory);
@@ -29,11 +29,10 @@ public class FileMessageService implements MessageService {
                 throw new RuntimeException("message_data 폴더 생성 실패", e);
             }
         }
-
     }
 
     public FileMessageService(UserService userService, ChannelService channelService) {
-        this.directory = Paths.get(System.getProperty("message.dir"), "message_data");
+        this.directory = Paths.get(System.getProperty("user.dir"), "message_data");
         if (!Files.exists(directory)) {
             try {
                 Files.createDirectories(this.directory);

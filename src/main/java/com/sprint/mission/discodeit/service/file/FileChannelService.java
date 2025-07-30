@@ -19,7 +19,7 @@ public class FileChannelService implements ChannelService {
     private final Path directory;
 
     public FileChannelService() {
-        this.directory = Paths.get(System.getProperty("channel.dir"), "channel_data");
+        directory = Paths.get(System.getProperty("user.dir"), "channel_data");
         if (!Files.exists(this.directory)) {
             try {
                 Files.createDirectories(this.directory);
@@ -32,7 +32,7 @@ public class FileChannelService implements ChannelService {
     @Override
     public Channel create(Channel channel) {
         if (channel == null) {
-            System.err.println("오류 : Channel 생성에 실패. channel이 null입니다.");
+            System.err.println("오류 : Channel 생성에 실패. channel이 null 입니다.");
             return null;
         }
         Path filePath = directory.resolve(channel.getChannelId() + ".ser");
@@ -53,7 +53,7 @@ public class FileChannelService implements ChannelService {
     @Override
     public Optional<Channel> findById(UUID channelId) {
         if (channelId == null) {
-            System.err.println("오류 : findById에 실패. channelId가 null입니다.");
+            System.err.println("오류 : findById에 실패. channelId가 null 입니다.");
             return Optional.empty();
         }
         Path filePath = directory.resolve(channelId + ".ser");
@@ -94,7 +94,7 @@ public class FileChannelService implements ChannelService {
     @Override
     public Optional<Channel> update(UUID channelId, Channel updatedChannel) {
         if (channelId == null ||  updatedChannel == null) {
-            System.err.println("오류: update 실패. channelId 또는 updatedChannel이 null입니다.");
+            System.err.println("오류: update 실패. channelId 또는 updatedChannel이 null 입니다.");
             return Optional.empty();
         }
         Path filePath = directory.resolve(channelId + ".ser");
@@ -114,7 +114,7 @@ public class FileChannelService implements ChannelService {
     @Override
     public boolean delete(UUID channelId) {
         if (channelId == null) {
-            System.err.println("오류: delete 실패. channelId가 null입니다.");
+            System.err.println("오류: delete 실패. channelId가 null 입니다.");
             return false;
         }
         Path filePath = directory.resolve(channelId + ".ser");
