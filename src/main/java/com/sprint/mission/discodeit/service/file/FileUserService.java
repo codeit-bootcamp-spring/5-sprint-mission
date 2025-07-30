@@ -41,6 +41,7 @@ public class FileUserService implements UserService {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath.toString()))) {
             User user = (User) ois.readObject();
             return Optional.of(user);
+
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("오류 : User 역직렬화 실패 : (" +userId + ")" + e.getMessage());
             return Optional.empty();
@@ -75,16 +76,16 @@ public class FileUserService implements UserService {
         if (Files.exists(this.directory)) {
             return List.of();
         } try {
-            List<User> list = new ArrayList<>();
+            List<User> userList = new ArrayList<>();
             list(directory).forEach(path -> {
                 try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile()))) {
                     User user = (User) ois.readObject();
-                    list.add(user);
+                    userList.add(user);
                 } catch (IOException | ClassNotFoundException e) {
                     System.err.println("오류: User 파일 로딩 실패 (" + path.getFileName() + "): " + e.getMessage());
                 }
             });
-            return list;
+            return userList;
         }  catch (IOException e) {
             throw new RuntimeException("user_data 폴더 목록 조회 실패", e);
         }
@@ -93,7 +94,7 @@ public class FileUserService implements UserService {
     @Override
     public Optional<User> updateId(UUID userId, User updateUser) {
         if (userId == null || updateUser == null) {
-            System.err.println("오류: updateId 실패. userId 또는 updatedUser가 null입니다.");
+            System.err.println("오류: update 실패. userId 또는 updatedUser가 null입니다.");
             return Optional.empty();
         }
         Path filePath = this.directory.resolve(userId + ".ser");
@@ -105,7 +106,7 @@ public class FileUserService implements UserService {
             System.err.println("오류 : User 업데이트 실패: "  + filePath + " / "+ e.getMessage());
             return Optional.empty();
         }
-        System.out.println("updateUser = " + updateUser);
+        System.out.println("updateUser : " + updateUser);
         return Optional.of(updateUser);
     }
 
