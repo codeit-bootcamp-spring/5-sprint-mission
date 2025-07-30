@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -61,8 +62,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(1)
-	@DisplayName("1. Basic ChannelCreate")
-	void testCreateChannel() {
+	void 일반_이라는_채널_생성시_성공() {
 		// given
 
 		// when
@@ -72,15 +72,15 @@ public class BasicChannelServiceTest {
 		assertThat(result).isNotNull();
 		assertThat(result.getChannelName()).isEqualTo("일반");
 
-		Channel saved = channelRepository.findById(result.getId());
-		assertThat(saved).isNotNull();
+		Optional<Channel> savedOpt = channelRepository.findById(result.getId());
+		assertThat(savedOpt).isPresent();
+		Channel saved = savedOpt.get();
 		assertThat(saved.getChannelName()).isEqualTo("일반");
 	}
 
 	@Test
 	@Order(2)
-	@DisplayName("2. Basic ChannelCreate 중복채널명 예외")
-	void testCreateChannel_DuplicateChannelName() {
+	void 일반_이라는_채널_생성후_재생성시_중복_실패() {
 		// given
 		channelService.createChannel("일반");
 
@@ -93,8 +93,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(3)
-	@DisplayName("3. Basic ChannelJoin")
-	void testJoinChannel() {
+	void 일반_채널_생성후_일반_채널_참가시_성공() {
 		// given
 		channelService.createChannel("일반");
 
@@ -104,7 +103,9 @@ public class BasicChannelServiceTest {
 		// then
 		assertThat(result).isTrue();
 
-		Channel channel = channelRepository.findByName("일반");
+		Optional<Channel> channelOpt = channelRepository.findByName("일반");
+		assertThat(channelOpt).isPresent();
+		Channel channel = channelOpt.get();
 		assertThat(channel.getChannelUsersUUID()).contains(testUser.getId());
 		assertThat(channel.getUserNicknames()).containsKey(testUser.getId());
 		assertThat(channel.getUserNickname(testUser.getId())).isEqualTo("홍길동");
@@ -112,21 +113,19 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(4)
-	@DisplayName("4. Basic ChannelJoin 존재하지않는채널 예외")
-	void testJoinChannel_ChannelNotFound() {
+	void 존재_하지_않는_채널_참가시_실패() {
 		// given
 
 		// when
 
 		// then
-		assertThatThrownBy(() -> channelService.joinChannel(testUser, "존재하지않는채널"))
+		assertThatThrownBy(() -> channelService.joinChannel(testUser, "존재 하지 않는 채널"))
 			.isInstanceOf(ChannelNotFoundException.class);
 	}
 
 	@Test
 	@Order(5)
-	@DisplayName("5. Basic ChannelJoin 이미참가한멤버 예외")
-	void testJoinChannel_AlreadyMember() {
+	void 일반_채널_생성후_참가_이후_일반_채널_재참가시_실패() {
 		// given
 		channelService.createChannel("일반");
 		channelService.joinChannel(testUser, "일반");
@@ -140,8 +139,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(6)
-	@DisplayName("6. Basic ChannelGetByName")
-	void testGetChannelByName() {
+	void 일반_채널_생성후_channelName_일반으로_채널_조회시_성공() {
 		// given
 		Channel created = channelService.createChannel("일반");
 
@@ -156,8 +154,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(7)
-	@DisplayName("7. Basic ChannelGetByName 채널없음 예외")
-	void testGetChannelByName_ChannelNotFound() {
+	void 존재_하지_않는_채널을_channelName로_채널_조회시_실패() {
 		// given
 
 		// when
@@ -169,8 +166,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(8)
-	@DisplayName("8. Basic ChannelGetByUUID")
-	void testGetChannelByUUID() {
+	void 일반_채널_생성후_UUID로_채널_조회시_성공() {
 		// given
 		Channel created = channelService.createChannel("일반");
 
@@ -185,8 +181,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(9)
-	@DisplayName("9. Basic ChannelGetByUUID 채널없음 예외")
-	void testGetChannelByUUID_ChannelNotFound() {
+	void 일반_채널_생성후_잘못된_UUID로_채널_조회시_실패() {
 		// given
 		UUID nonExistentId = UUID.randomUUID();
 
@@ -199,8 +194,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(10)
-	@DisplayName("10. Basic ChannelGetMemberNicknames")
-	void testGetMemberNicknames() {
+	void 일반_채널_생성후_일반_채널에_있는_모든_User_Nicknames_조회시_성공() {
 		// given
 		channelService.createChannel("일반");
 		User user2 = new User("test2", "password2", "김길동");
@@ -219,8 +213,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(11)
-	@DisplayName("11. Basic ChannelGetMemberNicknames 채널없음 예외")
-	void testGetMemberNicknames_ChannelNotFound() {
+	void 존재_하지_않는_채널에_channeName으로_User_Nicknames_조회시_실패() {
 		// given
 
 		// when
@@ -232,8 +225,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(12)
-	@DisplayName("12. Basic ChannelGetAll")
-	void testGetAllChannels() {
+	void 모든_채널_조회시_성공() {
 		// given
 		channelService.createChannel("일반");
 		channelService.createChannel("개발팀");
@@ -253,8 +245,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(13)
-	@DisplayName("13. Basic ChannelUpdateChannelName")
-	void testUpdateChannelName() {
+	void 일반_채널_생성후_channelName을_공지로_수정시_성공() {
 		// given
 		Channel created = channelService.createChannel("일반");
 
@@ -264,18 +255,20 @@ public class BasicChannelServiceTest {
 		// then
 		assertThat(result).isTrue();
 
-		Channel updated = channelRepository.findById(created.getId());
+		Optional<Channel> updatedOpt = channelRepository.findById(created.getId());
+		assertThat(updatedOpt).isPresent();
+		Channel updated = updatedOpt.get();
 		assertThat(updated.getChannelName()).isEqualTo("공지");
 
-		Channel foundByNewName = channelRepository.findByName("공지");
-		assertThat(foundByNewName).isNotNull();
+		Optional<Channel> foundByNewNameOpt = channelRepository.findByName("공지");
+		assertThat(foundByNewNameOpt).isPresent();
+		Channel foundByNewName = foundByNewNameOpt.get();
 		assertThat(foundByNewName.getId()).isEqualTo(created.getId());
 	}
 
 	@Test
 	@Order(14)
-	@DisplayName("14. Basic ChannelUpdateChannelName 채널없음 예외")
-	void testUpdateChannelName_ChannelNotFound() {
+	void 없는_채널을_새이름으로_수정시_실패() {
 		// given
 		UUID nonExistentId = UUID.randomUUID();
 
@@ -286,8 +279,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(15)
-	@DisplayName("15. Basic ChannelUpdateChannelName 중복채널명 예외")
-	void testUpdateChannelName_DuplicateChannelName() {
+	void 일반과_개발팀_채널을_생성후_일반_채널을_개발팀으로_변경시_중복으로_실패() {
 		// given
 		Channel channel1 = channelService.createChannel("일반");
 		channelService.createChannel("개발팀");
@@ -299,8 +291,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(16)
-	@DisplayName("16. Basic ChannelUpdateUserNickname")
-	void testUpdateUserNickname() {
+	void 일반_채널_생성후_testUser_참가_채널별_Nickname으로_변경시_성공() {
 		// given
 		Channel created = channelService.createChannel("일반");
 		channelService.joinChannel(testUser, "일반");
@@ -311,14 +302,15 @@ public class BasicChannelServiceTest {
 		// then
 		assertThat(result).isTrue();
 
-		Channel updated = channelRepository.findById(created.getId());
+		Optional<Channel> updatedOpt = channelRepository.findById(created.getId());
+		assertThat(updatedOpt).isPresent();
+		Channel updated = updatedOpt.get();
 		assertThat(updated.getUserNickname(testUser.getId())).isEqualTo("새닉네임");
 	}
 
 	@Test
 	@Order(17)
-	@DisplayName("17. Basic ChannelUpdateUserNickname 채널없음 예외")
-	void testUpdateUserNickname_ChannelNotFound() {
+	void 없는_채널에서_채널별_Nickname으로_변경시_실패() {
 		// given
 		UUID nonExistentChannelId = UUID.randomUUID();
 
@@ -329,8 +321,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(18)
-	@DisplayName("18. Basic ChannelUpdateUserNickname 멤버아님 예외")
-	void testUpdateUserNickname_NotChannelMember() {
+	void 참가_하지_않은_채널에서_채널별_닉네임_변경시_실패() {
 		// given
 		Channel created = channelService.createChannel("일반");
 
@@ -341,8 +332,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(19)
-	@DisplayName("19. Basic ChannelLeave")
-	void testLeaveChannel() {
+	void 일반_채널_에서_삭제후_성공() {
 		// given
 		Channel created = channelService.createChannel("일반");
 		channelService.joinChannel(testUser, "일반");
@@ -353,15 +343,16 @@ public class BasicChannelServiceTest {
 		// then
 		assertThat(result).isTrue();
 
-		Channel updated = channelRepository.findById(created.getId());
+		Optional<Channel> updatedOpt = channelRepository.findById(created.getId());
+		assertThat(updatedOpt).isPresent();
+		Channel updated = updatedOpt.get();
 		assertThat(updated.getChannelUsersUUID()).doesNotContain(testUser.getId());
 		assertThat(updated.getUserNicknames()).doesNotContainKey(testUser.getId());
 	}
 
 	@Test
 	@Order(20)
-	@DisplayName("20. Basic ChannelLeave 채널없음 예외")
-	void testLeaveChannel_ChannelNotFound() {
+	void 존재_하지_않는_채널을_삭제시_실패() {
 		// given
 		UUID nonExistentChannelId = UUID.randomUUID();
 
@@ -372,8 +363,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(21)
-	@DisplayName("21. Basic ChannelLeave 멤버아님 예외")
-	void testLeaveChannel_NotChannelMember() {
+	void 채널에_멤버가_아닌_User를_삭제시_실패() {
 		// given
 		Channel created = channelService.createChannel("일반");
 
@@ -384,8 +374,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(22)
-	@DisplayName("22. Basic ChannelDeleteByUUID")
-	void testDeleteChannelByUUID() {
+	void Channel_UUID로_삭제시_성공() {
 		// given
 		Channel created = channelService.createChannel("일반");
 
@@ -401,8 +390,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(23)
-	@DisplayName("23. Basic ChannelDeleteByUUID 채널없음 예외")
-	void testDeleteChannelByUUID_ChannelNotFound() {
+	void 존재_하지_않는_Channel_UUID로_삭제시_실패() {
 		// given
 		UUID nonExistentChannelId = UUID.randomUUID();
 
@@ -413,8 +401,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(24)
-	@DisplayName("24. Basic ChannelDeleteByName")
-	void testDeleteChannelByName() {
+	void ChannelName으로_삭제시_성공() {
 		// given
 		channelService.createChannel("일반");
 
@@ -430,8 +417,7 @@ public class BasicChannelServiceTest {
 
 	@Test
 	@Order(25)
-	@DisplayName("25. Basic ChannelDeleteByName 채널없을때 예외")
-	void testDeleteChannelByName_ChannelNotFound() {
+	void 존재_하지_않는_channelName으로_삭제시_실패() {
 		// when
 		assertThatThrownBy(() -> channelService.deleteChannel("존재하지않는채널"))
 			.isInstanceOf(ChannelNotFoundException.class);

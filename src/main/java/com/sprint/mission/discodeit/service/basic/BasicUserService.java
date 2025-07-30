@@ -19,10 +19,8 @@ public class BasicUserService implements UserService {
 
 	@Override
 	public User login(String loginId, String password) {
-		User user = userRepository.findByLoginId(loginId);
-		if (user == null) {
-			throw new UserNotFoundException();
-		}
+		User user = userRepository.findByLoginId(loginId)
+			.orElseThrow(UserNotFoundException::new);
 
 		if (!user.getPassword().equals(password)) {
 			throw new InvalidPasswordException();
@@ -45,24 +43,14 @@ public class BasicUserService implements UserService {
 
 	@Override
 	public User getUserById(UUID id) {
-		User user= userRepository.findById(id);
-
-		if (user == null) {
-			throw new UserNotFoundException();
-		}
-
-		return user;
+		return userRepository.findById(id)
+			.orElseThrow(UserNotFoundException::new);
 	}
 
 	@Override
 	public User getUserByLoginId(String loginId) {
-		User user = userRepository.findByLoginId(loginId);
-
-		if (user == null) {
-			throw new UserNotFoundException();
-		}
-
-		return user;
+		return userRepository.findByLoginId(loginId)
+			.orElseThrow(UserNotFoundException::new);
 	}
 
 	@Override
@@ -72,7 +60,8 @@ public class BasicUserService implements UserService {
 
 	@Override
 	public boolean updateUserPassword(UUID id, String password) {
-		User user = getUserById(id);
+		User user = userRepository.findById(id)
+			.orElseThrow(UserNotFoundException::new);
 
 		user.updatePassword(password);
 
@@ -84,7 +73,8 @@ public class BasicUserService implements UserService {
 
 	@Override
 	public boolean deleteUser(UUID id) {
-		User user = getUserById(id);
+		userRepository.findById(id)
+			.orElseThrow(UserNotFoundException::new);
 
 		userRepository.deleteById(id);
 
@@ -93,7 +83,8 @@ public class BasicUserService implements UserService {
 
 	@Override
 	public boolean deleteUser(String LoginId) {
-		User user = getUserByLoginId(LoginId);
+		userRepository.findByLoginId(LoginId)
+			.orElseThrow(UserNotFoundException::new);
 
 		userRepository.deleteByLoginId(LoginId);
 

@@ -60,9 +60,8 @@ public class JCFChannelService implements ChannelService {
 		if (channel == null) return new ArrayList<>();
 
 		List<String> nicknameList = new ArrayList<>(channel.getUserNicknames().values());
-		nicknameList.sort((n1, n2) -> n1.compareTo(n2));
 
-		return nicknameList;
+		return nicknameList.stream().sorted().toList();
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -83,8 +84,7 @@ public class BasicChannelMessageServiceTest {
 
 	@Test
 	@Order(1)
-	@DisplayName("1. Basic ChannelMessageCreate")
-	void testCreateMessage() {
+	void setUp에_정의된_더미값으로_메시지_생성후_저장시_성공() {
 		// given
 
 		// when
@@ -97,14 +97,15 @@ public class BasicChannelMessageServiceTest {
 		assertThat(messages.get(0).getAuthorUUID()).isEqualTo(testUser.getId());
 		assertThat(messages.get(0).getChannelUUID()).isEqualTo(testChannel.getId());
 
-		Channel updatedChannel = channelRepository.findById(testChannel.getId());
+		Optional<Channel> updatedChannelOpt = channelRepository.findById(testChannel.getId());
+		assertThat(updatedChannelOpt).isPresent();
+		Channel updatedChannel = updatedChannelOpt.get();
 		assertThat(updatedChannel.getChannelMessagesUUID()).contains(messages.get(0).getId());
 	}
 
 	@Test
 	@Order(2)
-	@DisplayName("2. Basic ChannelMessageCreate 사용자없음 예외")
-	void testCreateMessage_UserNotFound() {
+	void 존재_하지_않는_User로_메시지_생성시_실패() {
 		// given
 		UUID nonExistentUserId = UUID.randomUUID();
 
@@ -117,8 +118,7 @@ public class BasicChannelMessageServiceTest {
 
 	@Test
 	@Order(3)
-	@DisplayName("3. Basic ChannelMessageCreate 채널없음 예외")
-	void testCreateMessage_ChannelNotFound() {
+	void 존재_하지_않는_채널에_메시지_생성시_실패() {
 		// given
 		UUID nonExistentChannelId = UUID.randomUUID();
 
@@ -131,8 +131,7 @@ public class BasicChannelMessageServiceTest {
 
 	@Test
 	@Order(4)
-	@DisplayName("4. Basic ChannelMessageCreate 채널멤버아님 예외")
-	void testCreateMessage_NotChannelMember() {
+	void 멤버가_아닌_채널에_메시지_작성시_실패() {
 		// given
 
 		// when
@@ -144,8 +143,7 @@ public class BasicChannelMessageServiceTest {
 
 	@Test
 	@Order(5)
-	@DisplayName("5. Basic ChannelMessageGetByAuthor")
-	void testGetMessageByAuthor() {
+	void 채널에_작성된_메시지중_작성자로_조회시_모든_메시지_반환_후_성공() {
 		// given
 		channelService.joinChannel(otherUser, "일반");
 		channelMessageService.createMessage(testUser.getId(), testChannel.getId(), "홍길동 메시지1");
@@ -168,8 +166,7 @@ public class BasicChannelMessageServiceTest {
 
 	@Test
 	@Order(6)
-	@DisplayName("6. Basic ChannelMessageGetByAuthor 채널없음 예외")
-	void testGetMessageByAuthor_ChannelNotFound() {
+	void 존재_하지_않는_채널에_작성된_메시지중_작성자로_조회시_실패() {
 		// given
 		UUID nonExistentChannelId = UUID.randomUUID();
 
@@ -182,8 +179,7 @@ public class BasicChannelMessageServiceTest {
 
 	@Test
 	@Order(7)
-	@DisplayName("7. Basic ChannelMessageGetByAuthor 존재하지않는작성자")
-	void testGetMessageByAuthor_AuthorNotFound() {
+	void 존재_하지_않는_작성자명으로_조회시_실패() {
 		// given
 		channelMessageService.createMessage(testUser.getId(), testChannel.getId(), "테스트 메시지");
 
@@ -198,8 +194,7 @@ public class BasicChannelMessageServiceTest {
 
 	@Test
 	@Order(8)
-	@DisplayName("8. Basic ChannelMessageDelete")
-	void testDeleteMessage() {
+	void message_id로_message_삭제시_성공() {
 		// given
 		channelMessageService.createMessage(testUser.getId(), testChannel.getId(), "삭제될 메시지");
 		List<Message> messages = messageRepository.findByChannelId(testChannel.getId());
@@ -209,17 +204,18 @@ public class BasicChannelMessageServiceTest {
 		channelMessageService.deleteMessage(created.getId(), testUser.getId());
 
 		// then
-		Message deletedMessage = messageRepository.findById(created.getId());
-		assertThat(deletedMessage).isNull();
+		Optional<Message> deletedMessageOpt = messageRepository.findById(created.getId());
+		assertThat(deletedMessageOpt).isEmpty();
 
-		Channel updatedChannel = channelRepository.findById(testChannel.getId());
+		Optional<Channel> updatedChannelOpt = channelRepository.findById(testChannel.getId());
+		assertThat(updatedChannelOpt).isPresent();
+		Channel updatedChannel = updatedChannelOpt.get();
 		assertThat(updatedChannel.getChannelMessagesUUID()).doesNotContain(created.getId());
 	}
 
 	@Test
 	@Order(9)
-	@DisplayName("9. Basic ChannelMessageDelete 메시지없음 예외")
-	void testDeleteMessage_MessageNotFound() {
+	void 존재_하지_않는_message_UUID로_삭제시_실패() {
 		// given
 		UUID nonExistentMessageId = UUID.randomUUID();
 
@@ -232,8 +228,7 @@ public class BasicChannelMessageServiceTest {
 
 	@Test
 	@Order(10)
-	@DisplayName("10. Basic ChannelMessageDelete 권한없음 예외")
-	void testDeleteMessage_UnauthorizedAccess() {
+	void 다른_User가_메시지를_삭제_시도_시_AuthorUUID로_판별하여_실패() {
 		// given
 		channelMessageService.createMessage(testUser.getId(), testChannel.getId(), "홍길동의 메시지");
 		List<Message> messages = messageRepository.findByChannelId(testChannel.getId());
@@ -248,8 +243,7 @@ public class BasicChannelMessageServiceTest {
 
 	@Test
 	@Order(11)
-	@DisplayName("11. Basic ChannelMessageDeleteChannelWithMessages")
-	void testDeleteChannelWithMessages() {
+	void 채널_삭제시_메시지도_같이_삭제되었으면_성공() {
 		// given
 		channelMessageService.createMessage(testUser.getId(), testChannel.getId(), "메시지1");
 		channelMessageService.createMessage(testUser.getId(), testChannel.getId(), "메시지2");
@@ -262,14 +256,13 @@ public class BasicChannelMessageServiceTest {
 		List<Message> remainingMessages = messageRepository.findByChannelId(testChannel.getId());
 		assertThat(remainingMessages).isEmpty();
 
-		assertThatThrownBy(() -> channelService.getChannelByUUID(testChannel.getId()))
-			.isInstanceOf(ChannelNotFoundException.class);
+		Optional<Channel> deletedChannelOpt = channelRepository.findById(testChannel.getId());
+		assertThat(deletedChannelOpt).isEmpty();
 	}
 
 	@Test
 	@Order(12)
-	@DisplayName("12. Basic ChannelMessageDeleteChannelWithMessages 채널없음 예외")
-	void testDeleteChannelWithMessages_ChannelNotFound() {
+	void 존재_하지_않는_채널을_삭제시_실패() {
 		// given
 		UUID nonExistentChannelId = UUID.randomUUID();
 
@@ -282,8 +275,7 @@ public class BasicChannelMessageServiceTest {
 
 	@Test
 	@Order(13)
-	@DisplayName("13. Basic ChannelMessage 복수채널 메시지 작성자별 조회")
-	void testGetMessageByAuthor_MultipleChannels() {
+	void 채널이_여러개일때_개별_조회시_개별적으로_조회된다면_성공() {
 		// given
 		Channel otherChannel = channelService.createChannel("개발팀");
 		channelService.joinChannel(testUser, "개발팀");

@@ -6,10 +6,12 @@ import java.util.UUID;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.*;
+import com.sprint.mission.discodeit.exception.AlreadyChannelMemberException;
+import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.DuplicateChannelNameException;
+import com.sprint.mission.discodeit.exception.NotChannelMemberException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.UserService;
 
 public class BasicChannelService implements ChannelService {
 	private final ChannelRepository channelRepository;
@@ -32,7 +34,8 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	public boolean joinChannel(User user, String channelName) {
-		Channel channel = getChannelByName(channelName);
+		Channel channel = channelRepository.findByName(channelName)
+			.orElseThrow(ChannelNotFoundException::new);
 
 		if (channel.getChannelUsersUUID().contains(user.getId())) {
 			throw new AlreadyChannelMemberException();
@@ -47,30 +50,20 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	public Channel getChannelByName(String channelName) {
-		Channel channel = channelRepository.findByName(channelName);
-
-		if (channel == null) {
-			throw new ChannelNotFoundException();
-		}
-
-		return channel;
+		return channelRepository.findByName(channelName)
+			.orElseThrow(ChannelNotFoundException::new);
 	}
 
 	@Override
 	public Channel getChannelByUUID(UUID channelUUID) {
-		Channel channel = channelRepository.findById(channelUUID);
-		if (channel == null) {
-			throw new ChannelNotFoundException();
-		}
-		return channel;
+		return channelRepository.findById(channelUUID)
+			.orElseThrow(ChannelNotFoundException::new);
 	}
 
 	@Override
 	public List<String> getMemberNicknames(String channelName) {
-		Channel channel = channelRepository.findByName(channelName);
-		if (channel == null) {
-			throw new ChannelNotFoundException();
-		}
+		Channel channel = channelRepository.findByName(channelName)
+			.orElseThrow(ChannelNotFoundException::new);
 		return new ArrayList<>(channel.getUserNicknames().values());
 	}
 
@@ -81,7 +74,8 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	public boolean updateChannelName(User user, UUID channelUUID, String channelNewName) {
-		Channel channel = getChannelByUUID(channelUUID);
+		Channel channel = channelRepository.findById(channelUUID)
+			.orElseThrow(ChannelNotFoundException::new);
 
 		if (channelRepository.existsByName(channelNewName)) {
 			throw new DuplicateChannelNameException();
@@ -96,7 +90,8 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	public boolean updateUserNickname(UUID channelUUID, UUID userUUID, String newNickname) {
-		Channel channel = getChannelByUUID(channelUUID);
+		Channel channel = channelRepository.findById(channelUUID)
+			.orElseThrow(ChannelNotFoundException::new);
 
 		if (!channel.getChannelUsersUUID().contains(userUUID)) {
 			throw new NotChannelMemberException();
@@ -111,7 +106,8 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	public boolean leaveChannel(UUID channelUUID, UUID userUUID) {
-		Channel channel = getChannelByUUID(channelUUID);
+		Channel channel = channelRepository.findById(channelUUID)
+			.orElseThrow(ChannelNotFoundException::new);
 
 		if (!channel.getChannelUsersUUID().contains(userUUID)) {
 			throw new NotChannelMemberException();
@@ -127,14 +123,16 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	public boolean deleteChannel(UUID channelUUID) {
-		Channel channel = getChannelByUUID(channelUUID);
+		channelRepository.findById(channelUUID)
+			.orElseThrow(ChannelNotFoundException::new);
 		channelRepository.deleteById(channelUUID);
 		return true;
 	}
 
 	@Override
 	public boolean deleteChannel(String channelName) {
-		Channel channel = getChannelByName(channelName);
+		channelRepository.findByName(channelName)
+			.orElseThrow(ChannelNotFoundException::new);
 		channelRepository.deleteByName(channelName);
 		return true;
 	}

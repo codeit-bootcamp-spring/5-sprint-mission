@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -57,8 +58,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(1)
-	@DisplayName("1. Basic CreateUser")
-	void testCreateUser() {
+	void User_생성시_성공() {
 		// given
 
 		// when
@@ -70,15 +70,15 @@ public class BasicUserServiceTest {
 		assertThat(result.getPassword()).isEqualTo("password1");
 		assertThat(result.getDefaultNickname()).isEqualTo("홍길동");
 
-		User saved = userRepository.findById(result.getId());
-		assertThat(saved).isNotNull();
+		Optional<User> savedOpt = userRepository.findById(result.getId());
+		assertThat(savedOpt).isPresent();
+		User saved = savedOpt.get();
 		assertThat(saved.getLoginId()).isEqualTo("test1");
 	}
 
 	@Test
 	@Order(2)
-	@DisplayName("2. Basic CreateUser 중복 예외")
-	void testCreateUser_DuplicateLoginId() {
+	void User_중복된_loginId로_생성시_실패() {
 		// given
 		userService.createUser("test1", "password1", "홍길동");
 
@@ -91,8 +91,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(3)
-	@DisplayName("3. Basic Login")
-	void testLogin() {
+	void 로그인_성공() {
 		// given
 		userService.createUser("test1", "password1", "홍길동");
 
@@ -107,21 +106,19 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(4)
-	@DisplayName("4. Basic UserLogin 사용자 예외")
-	void testLogin_UserNotFound() {
+	void 없는아이디_로그인시_실패() {
 		// given
 
 		// when
 
 		// then
-		assertThatThrownBy(() -> userService.login("nonexistent", "password1"))
+		assertThatThrownBy(() -> userService.login("없는아이디", "password1"))
 			.isInstanceOf(UserNotFoundException.class);
 	}
 
 	@Test
 	@Order(5)
-	@DisplayName("5. Basic UserLogin 비밀번호 예외")
-	void testLogin_InvalidPassword() {
+	void 잘못된_비밀번호_로그인시_실패() {
 		// given
 		userService.createUser("test1", "password1", "홍길동");
 
@@ -134,8 +131,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(6)
-	@DisplayName("6. Basic UserGetById")
-	void testGetUserById() {
+	void User_UUDID로_User_조회시_성공() {
 		// given
 		User created = userService.createUser("test1", "password1", "홍길동");
 
@@ -151,8 +147,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(7)
-	@DisplayName("7. Basic UserGetById 사용자 예외")
-	void testGetUserById_UserNotFound() {
+	void 잘못된_UUID로_조회시_실패() {
 		// given
 		UUID nonExistentId = UUID.randomUUID();
 
@@ -165,8 +160,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(8)
-	@DisplayName("8. Basic UserGetByLoginId")
-	void testGetUserByLoginId() {
+	void LoginID로_조회시_성공() {
 		// given
 		userService.createUser("test1", "password1", "홍길동");
 
@@ -181,8 +175,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(9)
-	@DisplayName("9. Basic UserGetByLoginId 사용자 예외")
-	void testGetUserByLoginId_UserNotFound() {
+	void 잘못된_LoginID로_조회시_실패() {
 		// given
 
 		// when
@@ -194,8 +187,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(10)
-	@DisplayName("10. Basic UserGetAll")
-	void testGetAllUsers() {
+	void 모든_User_조회시_성공() {
 		// given
 		userService.createUser("test1", "password1", "홍길동");
 		userService.createUser("test2", "password2", "김길동");
@@ -215,8 +207,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(11)
-	@DisplayName("11. Basic UserUpdatePassword")
-	void testUpdateUserPassword() {
+	void User_비밀번호_업데이트시_성공() {
 		// given
 		User created = userService.createUser("test1", "password1", "홍길동");
 
@@ -226,7 +217,9 @@ public class BasicUserServiceTest {
 		// then
 		assertThat(result).isTrue();
 
-		User updated = userRepository.findById(created.getId());
+		Optional<User> updatedOpt = userRepository.findById(created.getId());
+		assertThat(updatedOpt).isPresent();
+		User updated = updatedOpt.get();
 		assertThat(updated.getPassword()).isEqualTo("newpassword");
 
 		User loginResult = userService.login("test1", "newpassword");
@@ -235,8 +228,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(12)
-	@DisplayName("12. Basic UserUpdatePassword 사용자 예외")
-	void testUpdateUserPassword_UserNotFound() {
+	void 잘못된_UUID로_비밀번호_업데이트시_실패() {
 		// given
 		UUID nonExistentId = UUID.randomUUID();
 
@@ -249,8 +241,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(13)
-	@DisplayName("13. Basic UserDeleteById")
-	void testDeleteUserById() {
+	void Id로_삭제시_성공() {
 		// given
 		User created = userService.createUser("test1", "password1", "홍길동");
 
@@ -266,8 +257,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(14)
-	@DisplayName("14. Basic UserDeleteById 사용자 예외")
-	void testDeleteUserById_UserNotFound() {
+	void 잘못된_Id로_삭제시_실패() {
 		// given
 		UUID nonExistentId = UUID.randomUUID();
 
@@ -280,8 +270,7 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(15)
-	@DisplayName("15. Basic UserDeleteByLoginId")
-	void testDeleteUserByLoginId() {
+	void loginId로_삭제시_성공() {
 		// given
 		userService.createUser("test1", "password1", "홍길동");
 
@@ -297,14 +286,13 @@ public class BasicUserServiceTest {
 
 	@Test
 	@Order(16)
-	@DisplayName("16. Basic UserDeleteByLoginId 사용자 예외")
-	void testDeleteUserByLoginId_UserNotFound() {
+	void 잘못된_id로_삭제시_실패() {
 		// given
 
 		// when
 
 		// then
-		assertThatThrownBy(() -> userService.deleteUser("nonexistent"))
+		assertThatThrownBy(() -> userService.deleteUser("없는사용자"))
 			.isInstanceOf(UserNotFoundException.class);
 	}
 }

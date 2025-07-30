@@ -28,11 +28,8 @@ public class BasicMessageService implements MessageService {
 
 	@Override
 	public Message getMessage(UUID messageUUID) {
-		Message message = messageRepository.findById(messageUUID);
-		if (message == null) {
-			throw new MessageNotFoundException();
-		}
-		return message;
+		return messageRepository.findById(messageUUID)
+			.orElseThrow(MessageNotFoundException::new);
 	}
 
 	@Override
@@ -52,9 +49,9 @@ public class BasicMessageService implements MessageService {
 
 	@Override
 	public boolean updateMessage(UUID messageUUID, UUID authorUUID, String text) {
-		Message message = getMessage(messageUUID);
+		Message message = messageRepository.findById(messageUUID)
+			.orElseThrow(MessageNotFoundException::new);
 
-		// 권한 체크: 작성자만 수정 가능
 		if (!message.getAuthorUUID().equals(authorUUID)) {
 			throw new UnauthorizedMessageAccessException();
 		}

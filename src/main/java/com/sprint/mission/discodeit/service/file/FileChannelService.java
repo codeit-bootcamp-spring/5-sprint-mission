@@ -12,202 +12,142 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.FileService;
 
-public class FileChannelService implements ChannelService, FileService {
-	private static final String DATA_DIR = "data/";
-	private static final String CHANNELS_FILE = DATA_DIR + "channels";
-	private static final String CHANNEL_MAPPING_FILE = DATA_DIR + "channelMapping";
+public class FileChannelService implements ChannelService {
+	private final ChannelRepository channelRepository;
 
-	private final Map<UUID, Channel> channelMap;
-	private final Map<String, UUID> channelNameToUUID;
-
-	public FileChannelService() {
-		channelMap = new ConcurrentHashMap<>();
-		channelNameToUUID = new ConcurrentHashMap<>();
-
-		createDirectoryIfNotExists();
-		loadFile(CHANNELS_FILE, channelMap);
-		loadFile(CHANNEL_MAPPING_FILE, channelNameToUUID);
+	public FileChannelService(ChannelRepository channelRepository) {
+		this.channelRepository = channelRepository;
 	}
 
 	@Override
 	public Channel createChannel(String channelName) {
-		if(channelNameToUUID.containsKey(channelName)) return null;
+		if(channelRepository.existsByName(channelName)) return null;
+
 		Channel channel = new Channel(channelName);
 
-		channelMap.put(channel.getId(), channel);
-		channelNameToUUID.put(channelName, channel.getId());
-
-		saveFile(CHANNELS_FILE, channelMap);
-		saveFile(CHANNEL_MAPPING_FILE, channelNameToUUID);
+		channelRepository.save(channel);
 
 		return channel;
 	}
 
 	@Override
 	public boolean joinChannel(User user, String channelName) {
-		if(!channelNameToUUID.containsKey(channelName)) return false;
+		Optional<Channel> channelOpt = channelRepository.findByName(channelName);
+		if (channelOpt.isPresent()) {
+			Channel channel = channelOpt.get();
+			channel.addUser(user.getId());
+			channel.addNickname(user.getId(), user.getDefaultNickname());
 
-		Channel channel = channelMap.get(channelNameToUUID.get(channelName));
-		channel.addUser(user.getId());
-		channel.addNickname(user.getId(), user.getDefaultNickname());
-
-		saveFile(CHANNELS_FILE, channelMap);
-
-		return true;
+			channelRepository.save(channel);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
 	public Channel getChannelByName(String channelName) {
-		if(!channelNameToUUID.containsKey(channelName)) return null;
-		return channelMap.get(channelNameToUUID.get(channelName));
+		return channelRepository.findByName(channelName).orElse(null);
 	}
 
 	@Override
 	public Channel getChannelByUUID(UUID channelUUID) {
-		return channelMap.get(channelUUID);
+		return channelRepository.findById(channelUUID).orElse(null);
 	}
 
 	@Override
 	public List<String> getMemberNicknames(String channelName){
-		if (channelName == null || !channelNameToUUID.containsKey(channelName)) return new ArrayList<>();
+		if (channelName == null) return new ArrayList<>();
 
-		Channel channel = channelMap.get(channelNameToUUID.get(channelName));
-		if (channel == null) return new ArrayList<>();
-
-		List<String> nicknameList = new ArrayList<>(channel.getUserNicknames().values());
-		nicknameList.sort((n1, n2) -> n1.compareTo(n2));
-
-		return nicknameList;
+		Optional<Channel> channelOpt = channelRepository.findByName(channelName);
+		if (channelOpt.isPresent()) {
+			Channel channel = channelOpt.get();
+			List<String> nicknameList = new ArrayList<>(channel.getUserNicknames().values());
+			nicknameList.sort((n1, n2) -> n1.compareTo(n2));
+			return nicknameList;
+		}
+		return new ArrayList<>();
 	}
 
 	@Override
 	public List<Channel> getAllChannels() {
-		List<Channel> channelList = new ArrayList<>(channelMap.values());
-		channelList.sort((c1, c2) -> c1.getChannelName().compareTo(c2.getChannelName()));
-		return channelList;
+		return channelRepository.findAll();
 	}
 
 	@Override
 	public boolean updateChannelName(User user, UUID channelUUID, String channelNewName) {
-		// 새로운 이름이 이미 사용 중이거나 업데이트 할 채널이 없을 경우 return false
-		if(channelNameToUUID.containsKey(channelNewName) ||
-			!channelMap.containsKey(channelUUID)){
+		if(channelRepository.existsByName(channelNewName)) {
 			return false;
 		}
 
-		Channel channel = channelMap.get(channelUUID);
-		channel.updateChannelName(channelNewName);
-		channel.updateUpdatedAt();
+		Optional<Channel> channelOpt = channelRepository.findById(channelUUID);
+		if (channelOpt.isPresent()) {
+			Channel channel = channelOpt.get();
+			channel.updateChannelName(channelNewName);
+			channel.updateUpdatedAt();
+			channelRepository.deleteById(channelUUID);
+			channelRepository.save(channel);
+			return true;
+		}
+		return false;
 
-		deleteChannel(channelUUID);
-
-		channelMap.put(channelUUID, channel);
-		channelNameToUUID.put(channelNewName, channel.getId());
-
-		saveFile(CHANNELS_FILE, channelMap);
-		saveFile(CHANNEL_MAPPING_FILE, channelNameToUUID);
-
-		return true;
 	}
 
 	@Override
 	public boolean updateUserNickname(UUID channelUUID, UUID userUUID, String newNickname) {
 		if (newNickname == null || newNickname.isEmpty()) return false;
 
-		Channel channel = getChannelByUUID(channelUUID);
-		if (channel == null) return false;
-
-		channel.addNickname(userUUID, newNickname);
-		channel.updateUpdatedAt();
-
-		saveFile(CHANNELS_FILE, channelMap);
-		return true;
+		Optional<Channel> channelOpt = channelRepository.findById(channelUUID);
+		if (channelOpt.isPresent()) {
+			Channel channel = channelOpt.get();
+			channel.addNickname(userUUID, newNickname);
+			channel.updateUpdatedAt();
+			// Before: saveFile(CHANNELS_FILE, channelMap);
+			channelRepository.save(channel);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
 	public boolean leaveChannel(UUID channelUUID, UUID userUUID) {
-		if(!channelMap.containsKey(channelUUID)) return false;
-		channelMap.get(channelUUID).removeUser(userUUID);
-		channelMap.get(channelUUID).removeNickname(userUUID);
-
-		saveFile(CHANNELS_FILE, channelMap);
-
-		return true;
+		Optional<Channel> channelOpt = channelRepository.findById(channelUUID);
+		if (channelOpt.isPresent()) {
+			Channel channel = channelOpt.get();
+			channel.removeUser(userUUID);
+			channel.removeNickname(userUUID);
+			channelRepository.save(channel);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
 	public boolean deleteChannel(UUID channelUUID) {
-		if(!channelMap.containsKey(channelUUID)) return false;
-
-		String channelName = channelMap.get(channelUUID).getChannelName();
-
-		channelMap.remove(channelUUID);
-		channelNameToUUID.remove(channelName);
-
-		saveFile(CHANNELS_FILE, channelMap);
-		saveFile(CHANNEL_MAPPING_FILE, channelNameToUUID);
-
-		return true;
+		if (channelRepository.findById(channelUUID).isPresent()) {
+			channelRepository.deleteById(channelUUID);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
 	public boolean deleteChannel(String channelName) {
-		if(!channelNameToUUID.containsKey(channelName)) return false;
-
-		UUID channelUUID = channelNameToUUID.get(channelName);
-
-		channelMap.remove(channelUUID);
-		channelNameToUUID.remove(channelName);
-
-		saveFile(CHANNELS_FILE, channelMap);
-		saveFile(CHANNEL_MAPPING_FILE, channelNameToUUID);
-
-		return true;
-	}
-
-	@Override
-	public void createDirectoryIfNotExists() {
-		try {
-			Path dataPath = Paths.get(DATA_DIR);
-			if (!Files.exists(dataPath)) {
-				Files.createDirectories(dataPath);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (channelRepository.existsByName(channelName)) {
+			channelRepository.deleteByName(channelName);
+			return true;
 		}
+		return false;
 	}
 
-	@Override
-	public void loadFile(String filename, Map map) {
-		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
-			Map load = (Map) ois.readObject();
-			map.putAll(load);
-		} catch (FileNotFoundException ignored) {
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void saveChannel(Channel channel) {
+		channelRepository.save(channel);
 	}
-
-	@Override
-	public void saveFile(String filename, Object data) {
-		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-			oos.writeObject(data);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void saveChannelData() {
-		saveFile(CHANNELS_FILE, channelMap);
-	}
-
 }

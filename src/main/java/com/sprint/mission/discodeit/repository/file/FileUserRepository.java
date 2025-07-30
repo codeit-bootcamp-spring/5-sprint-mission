@@ -10,16 +10,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.FileRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.FileService;
 
-public class FileUserRepository implements UserRepository, FileService {
+public class FileUserRepository implements UserRepository, FileRepository {
 	private static final String DATA_DIR = "data/";
 	private static final String USERS_FILE = DATA_DIR + "users";
 	private static final String LOGIN_MAPPING_FILE = DATA_DIR + "loginMapping";
@@ -47,30 +49,26 @@ public class FileUserRepository implements UserRepository, FileService {
 	}
 
 	@Override
-	public User findById(UUID id) {
-		if (id == null) {
-			return null;
-		}
-
-		return userMap.get(id);
+	public Optional<User> findById(UUID id) {
+		return Optional.ofNullable(userMap.get(id)).map(User::copy);
 	}
 
 	@Override
-	public User findByLoginId(String loginId) {
-		if (loginId == null) {
-			return null;
-		}
-
+	public Optional<User> findByLoginId(String loginId) {
 		UUID userId = loginIdToUUID.get(loginId);
-
-		return userId != null ?  userMap.get(userId) : null;
+		if(userId == null) {
+			return Optional.empty();
+		}
+		return Optional.ofNullable(userMap.get(userId)).map(User::copy);
 	}
 
 	@Override
 	public List<User> findAll() {
-		List<User> userList = new ArrayList<>(userMap.values());
-		userList.sort((u1, u2) -> u1.getDefaultNickname().compareTo(u2.getDefaultNickname()));
-		return userList;
+		List<User> userList = new ArrayList<>();
+		for (User user : userMap.values()) {
+			userList.add(user.copy());
+		}
+		return userList.stream().sorted(Comparator.comparing(User::getDefaultNickname)).toList();
 	}
 
 	@Override
@@ -105,8 +103,7 @@ public class FileUserRepository implements UserRepository, FileService {
 		}
 	}
 
-
-
+	@Override
 	public boolean existsByLoginId(String loginId) {
 		if (loginId == null) return true;
 		return loginIdToUUID.containsKey(loginId);

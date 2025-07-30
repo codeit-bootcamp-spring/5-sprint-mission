@@ -3,6 +3,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -65,14 +66,13 @@ public class RepositoryTest {
 			void testUserSave() {
 				// given
 
-
 				// when
 				userRepository.save(testUser);
 
-
 				// then
-				User user = userRepository.findById(testUser.getId());
-				assertNotNull(user);
+				Optional<User> userOpt = userRepository.findById(testUser.getId());
+				assertTrue(userOpt.isPresent());
+				User user = userOpt.get();
 				assertEquals(testUser.getLoginId(), user.getLoginId());
 				assertEquals(testUser.getDefaultNickname(), user.getDefaultNickname());
 			}
@@ -84,10 +84,11 @@ public class RepositoryTest {
 				userRepository.save(testUser);
 
 				// when
-				User user = userRepository.findById(testUser.getId());
+				Optional<User> userOpt = userRepository.findById(testUser.getId());
 
 				// then
-				assertNotNull(user);
+				assertTrue(userOpt.isPresent());
+				User user = userOpt.get();
 				assertEquals(testUser.getId(), user.getId());
 			}
 
@@ -98,10 +99,11 @@ public class RepositoryTest {
 				userRepository.save(testUser);
 
 				// when
-				User user = userRepository.findByLoginId(testUser.getLoginId());
+				Optional<User> userOpt = userRepository.findByLoginId(testUser.getLoginId());
 
 				// then
-				assertNotNull(user);
+				assertTrue(userOpt.isPresent());
+				User user = userOpt.get();
 				assertEquals(testUser.getLoginId(), user.getLoginId());
 			}
 
@@ -162,7 +164,8 @@ public class RepositoryTest {
 				userRepository.deleteById(testUser.getId());
 
 				// then
-				assertNull(userRepository.findById(testUser.getId()));
+				Optional<User> userOpt = userRepository.findById(testUser.getId());
+				assertTrue(userOpt.isEmpty());
 				assertFalse(userRepository.existsByLoginId("test1"));
 			}
 
@@ -177,7 +180,8 @@ public class RepositoryTest {
 				userRepository.deleteByLoginId("test1");
 
 				// then
-				assertNull(userRepository.findById(testUser.getId()));
+				Optional<User> userOpt = userRepository.findById(testUser.getId());
+				assertTrue(userOpt.isEmpty());
 				assertFalse(userRepository.existsByLoginId("test1"));
 			}
 		}
@@ -197,8 +201,9 @@ public class RepositoryTest {
 				channelRepository.save(testChannel);
 
 				// then
-				Channel ch = channelRepository.findById(testChannel.getId());
-				assertThat(ch).isNotNull();
+				Optional<Channel> channelOpt = channelRepository.findById(testChannel.getId());
+				assertThat(channelOpt).isPresent();
+				Channel ch = channelOpt.get();
 				assertThat(ch.getChannelName()).isEqualTo(testChannel.getChannelName());
 			}
 
@@ -209,10 +214,11 @@ public class RepositoryTest {
 				channelRepository.save(testChannel);
 
 				// when
-				Channel ch = channelRepository.findById(testChannel.getId());
+				Optional<Channel> channelOpt = channelRepository.findById(testChannel.getId());
 
 				// then
-				assertThat(ch).isNotNull();
+				assertThat(channelOpt).isPresent();
+				Channel ch = channelOpt.get();
 				assertThat(ch.getId()).isEqualTo(testChannel.getId());
 				assertThat(ch.getChannelName()).isEqualTo(testChannel.getChannelName());
 			}
@@ -224,10 +230,11 @@ public class RepositoryTest {
 				channelRepository.save(testChannel);
 
 				// when
-				Channel ch = channelRepository.findByName("일반");
+				Optional<Channel> channelOpt = channelRepository.findByName("일반");
 
 				// then
-				assertThat(ch).isNotNull();
+				assertThat(channelOpt).isPresent();
+				Channel ch = channelOpt.get();
 				assertThat(ch.getId()).isEqualTo(testChannel.getId());
 				assertThat(ch.getChannelName()).isEqualTo(testChannel.getChannelName());
 			}
@@ -238,14 +245,15 @@ public class RepositoryTest {
 				// given
 
 				// when
-				Channel ch = channelRepository.findById(testChannel.getId());
+				Optional<Channel> channelOpt = channelRepository.findById(testChannel.getId());
+
 				// then
-				assertThat(ch).isNull();
+				assertThat(channelOpt).isEmpty();
 			}
 
 			@Test
 			@DisplayName("5. ChannelFindAll")
-			void  testChannelFindAll() {
+			void testChannelFindAll() {
 				// given
 				Channel channel1 = new Channel("코딩");
 				Channel channel2 = new Channel("취업");
@@ -255,6 +263,7 @@ public class RepositoryTest {
 
 				// when
 				List<Channel> channels = channelRepository.findAll();
+
 				// then
 				assertThat(channels).hasSize(3);
 				assertThat(channels)
@@ -264,7 +273,7 @@ public class RepositoryTest {
 
 			@Test
 			@DisplayName("6. ChannelFindAll 정렬 실패 테스트")
-			void  testChannelFindAll_sorted_fail() {
+			void testChannelFindAll_sorted_fail() {
 				// given
 				Channel channel1 = new Channel("코딩");
 				Channel channel2 = new Channel("취업");
@@ -274,6 +283,7 @@ public class RepositoryTest {
 
 				// when
 				List<Channel> channels = channelRepository.findAll();
+
 				// then
 				assertThat(channels).hasSize(3);
 				assertThat(channels)
@@ -283,21 +293,22 @@ public class RepositoryTest {
 
 			@Test
 			@DisplayName("7. ChannelExistsByName")
-			void   testChannelExistsByName() {
+			void testChannelExistsByName() {
 				// given
 				channelRepository.save(testChannel);
+
 				// when
 				boolean t = channelRepository.existsByName("일반");
 				boolean f = channelRepository.existsByName("존재하지않는채널");
+
 				// then
 				assertThat(t).isTrue();
 				assertThat(f).isFalse();
-
 			}
 
 			@Test
 			@DisplayName("8. ChannelDeleteById")
-			void  testChannelDeleteById() {
+			void testChannelDeleteById() {
 				// given
 				channelRepository.save(testChannel);
 				assertThat(channelRepository.existsByName("일반")).isTrue();
@@ -306,7 +317,8 @@ public class RepositoryTest {
 				channelRepository.deleteById(testChannel.getId());
 
 				// then
-				assertThat(channelRepository.findById(testChannel.getId())).isNull();
+				Optional<Channel> channelOpt = channelRepository.findById(testChannel.getId());
+				assertThat(channelOpt).isEmpty();
 				assertThat(channelRepository.existsByName("일반")).isFalse();
 			}
 
@@ -321,7 +333,8 @@ public class RepositoryTest {
 				channelRepository.deleteByName("일반");
 
 				// then
-				assertThat(channelRepository.findByName("일반")).isNull();
+				Optional<Channel> channelOpt = channelRepository.findByName("일반");
+				assertThat(channelOpt).isEmpty();
 				assertThat(channelRepository.existsByName("일반")).isFalse();
 			}
 		}
@@ -337,8 +350,9 @@ public class RepositoryTest {
 				messageRepository.save(testMessage);
 
 				// then
-				Message msg = messageRepository.findById(testMessage.getId());
-				assertThat(msg).isNotNull();
+				Optional<Message> messageOpt = messageRepository.findById(testMessage.getId());
+				assertThat(messageOpt).isPresent();
+				Message msg = messageOpt.get();
 				assertThat(msg.getText()).isEqualTo(testMessage.getText());
 				assertThat(msg.getAuthorUUID()).isEqualTo(testMessage.getAuthorUUID());
 				assertThat(msg.getChannelUUID()).isEqualTo(testMessage.getChannelUUID());
@@ -351,10 +365,11 @@ public class RepositoryTest {
 				messageRepository.save(testMessage);
 
 				// when
-				Message msg = messageRepository.findById(testMessage.getId());
+				Optional<Message> messageOpt = messageRepository.findById(testMessage.getId());
 
 				// then
-				assertThat(msg).isNotNull();
+				assertThat(messageOpt).isPresent();
+				Message msg = messageOpt.get();
 				assertThat(msg.getId()).isEqualTo(testMessage.getId());
 				assertThat(msg.getText()).isEqualTo(testMessage.getText());
 			}
@@ -363,10 +378,10 @@ public class RepositoryTest {
 			@DisplayName("3. MessageFindByIdNotFound")
 			void testMessageFindByIdNotFound() {
 				// when
-				Message msg = messageRepository.findById(java.util.UUID.randomUUID());
+				Optional<Message> messageOpt = messageRepository.findById(java.util.UUID.randomUUID());
 
 				// then
-				assertThat(msg).isNull();
+				assertThat(messageOpt).isEmpty();
 			}
 
 			@Test
@@ -426,13 +441,15 @@ public class RepositoryTest {
 			void testMessageDeleteById() {
 				// given
 				messageRepository.save(testMessage);
-				assertThat(messageRepository.findById(testMessage.getId())).isNotNull();
+				Optional<Message> beforeDelete = messageRepository.findById(testMessage.getId());
+				assertThat(beforeDelete).isPresent();
 
 				// when
 				messageRepository.deleteById(testMessage.getId());
 
 				// then
-				assertThat(messageRepository.findById(testMessage.getId())).isNull();
+				Optional<Message> afterDelete = messageRepository.findById(testMessage.getId());
+				assertThat(afterDelete).isEmpty();
 			}
 
 			@Test
@@ -464,14 +481,13 @@ public class RepositoryTest {
 
 				assertThat(codingMessages.get(0).getText()).isEqualTo("코딩채널 메시지1");
 			}
-
 		}
 	}
 
 	@Nested
 	@TestMethodOrder(MethodOrderer.DisplayName.class)
 	@DisplayName("2. File Repository 테스트")
-	class FileRepositoryTest {
+	class FileRepositoryRepositoryTest {
 		public UserRepository userRepository;
 		public ChannelRepository channelRepository;
 		public MessageRepository messageRepository;
@@ -516,7 +532,7 @@ public class RepositoryTest {
 		@Nested
 		@TestMethodOrder(MethodOrderer.DisplayName.class)
 		@DisplayName("1. File UserRepository")
-		class FileUserRepositoryTest {
+		class FileRepositoryUserRepositoryTest {
 			@Test
 			@DisplayName("01. File save")
 			void testFileUserSave() {
@@ -526,15 +542,17 @@ public class RepositoryTest {
 				userRepository.save(testUser);
 
 				// then
-				User user = userRepository.findById(testUser.getId());
-				assertNotNull(user);
+				Optional<User> userOpt = userRepository.findById(testUser.getId());
+				assertThat(userOpt).isPresent();
+				User user = userOpt.get();
 				assertEquals(testUser.getLoginId(), user.getLoginId());
 				assertEquals(testUser.getDefaultNickname(), user.getDefaultNickname());
 
 				// 파일 다시 읽기
 				UserRepository reloadRepo = new FileUserRepository();
-				User reloadUser = reloadRepo.findById(testUser.getId());
-				assertNotNull(reloadUser);
+				Optional<User> reloadUserOpt = reloadRepo.findById(testUser.getId());
+				assertThat(reloadUserOpt).isPresent();
+				User reloadUser = reloadUserOpt.get();
 				assertEquals(testUser.getLoginId(), reloadUser.getLoginId());
 				assertEquals(testUser.getDefaultNickname(), reloadUser.getDefaultNickname());
 			}
@@ -546,10 +564,11 @@ public class RepositoryTest {
 				userRepository.save(testUser);
 
 				// when
-				User user = userRepository.findById(testUser.getId());
+				Optional<User> userOpt = userRepository.findById(testUser.getId());
 
 				// then
-				assertNotNull(user);
+				assertThat(userOpt).isPresent();
+				User user = userOpt.get();
 				assertEquals(testUser.getId(), user.getId());
 			}
 
@@ -560,16 +579,17 @@ public class RepositoryTest {
 				userRepository.save(testUser);
 
 				// when
-				User user = userRepository.findByLoginId(testUser.getLoginId());
+				Optional<User> userOpt = userRepository.findByLoginId(testUser.getLoginId());
 
 				// then
-				assertNotNull(user);
+				assertThat(userOpt).isPresent();
+				User user = userOpt.get();
 				assertEquals(testUser.getLoginId(), user.getLoginId());
 			}
 
 			@Test
 			@DisplayName("04. File findAll")
-			void testFileFindAll(){
+			void testFileFindAll() {
 				// given
 				User testUser2 = new User("test11", "password11", "박길동");
 				User testUser3 = new User("test12", "password12", "김길동");
@@ -578,7 +598,7 @@ public class RepositoryTest {
 				userRepository.save(testUser3);
 
 				// when
-				List<User> users =  userRepository.findAll();
+				List<User> users = userRepository.findAll();
 
 				// then
 				assertEquals(3, users.size());
@@ -640,11 +660,13 @@ public class RepositoryTest {
 				userRepository.deleteById(testUser.getId());
 
 				// then
-				assertNull(userRepository.findById(testUser.getId()));
+				Optional<User> userOpt = userRepository.findById(testUser.getId());
+				assertThat(userOpt).isEmpty();
 				assertFalse(userRepository.existsByLoginId("test10"));
 
 				UserRepository reloadRepo = new FileUserRepository();
-				assertNull(reloadRepo.findById(testUser.getId()));
+				Optional<User> reloadUserOpt = reloadRepo.findById(testUser.getId());
+				assertThat(reloadUserOpt).isEmpty();
 				assertFalse(reloadRepo.existsByLoginId("test10"));
 			}
 
@@ -659,7 +681,8 @@ public class RepositoryTest {
 				userRepository.deleteByLoginId("test10");
 
 				// then
-				assertNull(userRepository.findById(testUser.getId()));
+				Optional<User> userOpt = userRepository.findById(testUser.getId());
+				assertThat(userOpt).isEmpty();
 				assertFalse(userRepository.existsByLoginId("test10"));
 			}
 
@@ -673,8 +696,9 @@ public class RepositoryTest {
 				UserRepository reloadRepo = new FileUserRepository();
 
 				// then
-				User reloadUser = reloadRepo.findById(testUser.getId());
-				assertThat(reloadUser).isNotNull();
+				Optional<User> reloadUserOpt = reloadRepo.findById(testUser.getId());
+				assertThat(reloadUserOpt).isPresent();
+				User reloadUser = reloadUserOpt.get();
 				assertThat(reloadUser.getLoginId()).isEqualTo(testUser.getLoginId());
 				assertThat(reloadUser.getDefaultNickname()).isEqualTo(testUser.getDefaultNickname());
 				assertThat(reloadUser.getPassword()).isEqualTo(testUser.getPassword());
@@ -690,8 +714,9 @@ public class RepositoryTest {
 				UserRepository reloadRepo = new FileUserRepository();
 
 				// then
-				User reloadUser = reloadRepo.findByLoginId(testUser.getLoginId());
-				assertThat(reloadUser).isNotNull();
+				Optional<User> reloadUserOpt = reloadRepo.findByLoginId(testUser.getLoginId());
+				assertThat(reloadUserOpt).isPresent();
+				User reloadUser = reloadUserOpt.get();
 				assertThat(reloadUser.getId()).isEqualTo(testUser.getId());
 				assertThat(reloadUser.getDefaultNickname()).isEqualTo(testUser.getDefaultNickname());
 			}
@@ -700,7 +725,7 @@ public class RepositoryTest {
 		@Nested
 		@TestMethodOrder(MethodOrderer.DisplayName.class)
 		@DisplayName("2. File ChannelRepository")
-		class FileChannelRepositoryTest {
+		class FileRepositoryChannelRepositoryTest {
 			@Test
 			@DisplayName("01. File ChannelSave")
 			void testFileChannelSave() {
@@ -710,13 +735,15 @@ public class RepositoryTest {
 				channelRepository.save(testChannel);
 
 				// then
-				Channel ch = channelRepository.findById(testChannel.getId());
-				assertThat(ch).isNotNull();
+				Optional<Channel> channelOpt = channelRepository.findById(testChannel.getId());
+				assertThat(channelOpt).isPresent();
+				Channel ch = channelOpt.get();
 				assertThat(ch.getChannelName()).isEqualTo(testChannel.getChannelName());
 
 				ChannelRepository reloadRepo = new FileChannelRepository();
-				Channel reloadChannel = reloadRepo.findById(testChannel.getId());
-				assertThat(reloadChannel).isNotNull();
+				Optional<Channel> reloadChannelOpt = reloadRepo.findById(testChannel.getId());
+				assertThat(reloadChannelOpt).isPresent();
+				Channel reloadChannel = reloadChannelOpt.get();
 				assertThat(reloadChannel.getChannelName()).isEqualTo(testChannel.getChannelName());
 			}
 
@@ -727,10 +754,11 @@ public class RepositoryTest {
 				channelRepository.save(testChannel);
 
 				// when
-				Channel ch = channelRepository.findById(testChannel.getId());
+				Optional<Channel> channelOpt = channelRepository.findById(testChannel.getId());
 
 				// then
-				assertThat(ch).isNotNull();
+				assertThat(channelOpt).isPresent();
+				Channel ch = channelOpt.get();
 				assertThat(ch.getId()).isEqualTo(testChannel.getId());
 				assertThat(ch.getChannelName()).isEqualTo(testChannel.getChannelName());
 			}
@@ -742,10 +770,11 @@ public class RepositoryTest {
 				channelRepository.save(testChannel);
 
 				// when
-				Channel ch = channelRepository.findByName("일반");
+				Optional<Channel> channelOpt = channelRepository.findByName("일반");
 
 				// then
-				assertThat(ch).isNotNull();
+				assertThat(channelOpt).isPresent();
+				Channel ch = channelOpt.get();
 				assertThat(ch.getId()).isEqualTo(testChannel.getId());
 				assertThat(ch.getChannelName()).isEqualTo(testChannel.getChannelName());
 			}
@@ -756,14 +785,15 @@ public class RepositoryTest {
 				// given
 
 				// when
-				Channel ch = channelRepository.findById(testChannel.getId());
+				Optional<Channel> channelOpt = channelRepository.findById(testChannel.getId());
+
 				// then
-				assertThat(ch).isNull();
+				assertThat(channelOpt).isEmpty();
 			}
 
 			@Test
 			@DisplayName("05. File Channel findAll")
-			void  testFileChannelFindAll() {
+			void testFileChannelFindAll() {
 				// given
 				Channel channel1 = new Channel("코딩");
 				Channel channel2 = new Channel("취업");
@@ -773,6 +803,7 @@ public class RepositoryTest {
 
 				// when
 				List<Channel> channels = channelRepository.findAll();
+
 				// then
 				assertThat(channels).hasSize(3);
 				assertThat(channels)
@@ -789,7 +820,7 @@ public class RepositoryTest {
 
 			@Test
 			@DisplayName("06. File Channel findAll 정렬 실패")
-			void  testFileChannelFindAll_sorted_fail() {
+			void testFileChannelFindAll_sorted_fail() {
 				// given
 				Channel channel1 = new Channel("코딩");
 				Channel channel2 = new Channel("취업");
@@ -799,6 +830,7 @@ public class RepositoryTest {
 
 				// when
 				List<Channel> channels = channelRepository.findAll();
+
 				// then
 				assertThat(channels).hasSize(3);
 				assertThat(channels)
@@ -808,12 +840,14 @@ public class RepositoryTest {
 
 			@Test
 			@DisplayName("07. File Channel existsByName")
-			void   testFileChannelExistsByName() {
+			void testFileChannelExistsByName() {
 				// given
 				channelRepository.save(testChannel);
+
 				// when
 				boolean t = channelRepository.existsByName("일반");
 				boolean f = channelRepository.existsByName("존재하지않는채널");
+
 				// then
 				assertThat(t).isTrue();
 				assertThat(f).isFalse();
@@ -821,7 +855,7 @@ public class RepositoryTest {
 
 			@Test
 			@DisplayName("08. File Channel deleteById")
-			void  testFileChannelDeleteById() {
+			void testFileChannelDeleteById() {
 				// given
 				channelRepository.save(testChannel);
 				assertThat(channelRepository.existsByName("일반")).isTrue();
@@ -830,11 +864,13 @@ public class RepositoryTest {
 				channelRepository.deleteById(testChannel.getId());
 
 				// then
-				assertThat(channelRepository.findById(testChannel.getId())).isNull();
+				Optional<Channel> channelOpt = channelRepository.findById(testChannel.getId());
+				assertThat(channelOpt).isEmpty();
 				assertThat(channelRepository.existsByName("일반")).isFalse();
 
 				ChannelRepository reloadRepo = new FileChannelRepository();
-				assertThat(reloadRepo.findById(testChannel.getId())).isNull();
+				Optional<Channel> reloadChannelOpt = reloadRepo.findById(testChannel.getId());
+				assertThat(reloadChannelOpt).isEmpty();
 				assertThat(reloadRepo.existsByName("일반")).isFalse();
 			}
 
@@ -849,7 +885,8 @@ public class RepositoryTest {
 				channelRepository.deleteByName("일반");
 
 				// then
-				assertThat(channelRepository.findByName("일반")).isNull();
+				Optional<Channel> channelOpt = channelRepository.findByName("일반");
+				assertThat(channelOpt).isEmpty();
 				assertThat(channelRepository.existsByName("일반")).isFalse();
 			}
 
@@ -863,8 +900,9 @@ public class RepositoryTest {
 				ChannelRepository reloadRepo = new FileChannelRepository();
 
 				// then
-				Channel reloadChannel = reloadRepo.findById(testChannel.getId());
-				assertThat(reloadChannel).isNotNull();
+				Optional<Channel> reloadChannelOpt = reloadRepo.findById(testChannel.getId());
+				assertThat(reloadChannelOpt).isPresent();
+				Channel reloadChannel = reloadChannelOpt.get();
 				assertThat(reloadChannel.getChannelName()).isEqualTo(testChannel.getChannelName());
 				assertThat(reloadChannel.getId()).isEqualTo(testChannel.getId());
 			}
@@ -879,19 +917,18 @@ public class RepositoryTest {
 				ChannelRepository reloadRepo = new FileChannelRepository();
 
 				// then
-				Channel reloadChannel = reloadRepo.findByName(testChannel.getChannelName());
-				assertThat(reloadChannel).isNotNull();
+				Optional<Channel> reloadChannelOpt = reloadRepo.findByName(testChannel.getChannelName());
+				assertThat(reloadChannelOpt).isPresent();
+				Channel reloadChannel = reloadChannelOpt.get();
 				assertThat(reloadChannel.getId()).isEqualTo(testChannel.getId());
 				assertThat(reloadRepo.existsByName(testChannel.getChannelName())).isTrue();
 			}
-
 		}
 
-		// 정렬을 OrderAnnotation로 해보기
 		@Nested
 		@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 		@DisplayName("3. File MessageRepository")
-		class FileMessageRepositoryTest {
+		class FileRepositoryMessageRepositoryTest {
 
 			@Test
 			@Order(1)
@@ -899,17 +936,22 @@ public class RepositoryTest {
 			void testFileMessageSave() {
 				// given
 				messageRepository.save(testMessage);
+
 				// when
-				Message msg = messageRepository.findById(testMessage.getId());
-				assertThat(msg).isNotNull();
+				Optional<Message> messageOpt = messageRepository.findById(testMessage.getId());
+
+				// then
+				assertThat(messageOpt).isPresent();
+				Message msg = messageOpt.get();
 				assertThat(msg.getText()).isEqualTo(testMessage.getText());
 				assertThat(msg.getAuthorUUID()).isEqualTo(testMessage.getAuthorUUID());
 				assertThat(msg.getChannelUUID()).isEqualTo(testMessage.getChannelUUID());
 
 				// 파일 다시 읽기
 				MessageRepository reloadRepo = new FileMessageRepository();
-				Message reloadMessage = reloadRepo.findById(testMessage.getId());
-				assertThat(reloadMessage).isNotNull();
+				Optional<Message> reloadMessageOpt = reloadRepo.findById(testMessage.getId());
+				assertThat(reloadMessageOpt).isPresent();
+				Message reloadMessage = reloadMessageOpt.get();
 				assertThat(reloadMessage.getText()).isEqualTo(testMessage.getText());
 				assertThat(reloadMessage.getAuthorUUID()).isEqualTo(testMessage.getAuthorUUID());
 				assertThat(reloadMessage.getChannelUUID()).isEqualTo(testMessage.getChannelUUID());
@@ -923,10 +965,11 @@ public class RepositoryTest {
 				messageRepository.save(testMessage);
 
 				// when
-				Message msg = messageRepository.findById(testMessage.getId());
+				Optional<Message> messageOpt = messageRepository.findById(testMessage.getId());
 
 				// then
-				assertThat(msg).isNotNull();
+				assertThat(messageOpt).isPresent();
+				Message msg = messageOpt.get();
 				assertThat(msg.getId()).isEqualTo(testMessage.getId());
 				assertThat(msg.getText()).isEqualTo(testMessage.getText());
 			}
@@ -936,10 +979,10 @@ public class RepositoryTest {
 			@DisplayName("3. File MessageFindByIdNotFound")
 			void testMessageFindByIdNotFound() {
 				// when
-				Message msg = messageRepository.findById(java.util.UUID.randomUUID());
+				Optional<Message> messageOpt = messageRepository.findById(java.util.UUID.randomUUID());
 
 				// then
-				assertThat(msg).isNull();
+				assertThat(messageOpt).isEmpty();
 			}
 
 			@Test
@@ -1011,17 +1054,20 @@ public class RepositoryTest {
 			void testMessageDeleteById() {
 				// given
 				messageRepository.save(testMessage);
-				assertThat(messageRepository.findById(testMessage.getId())).isNotNull();
+				Optional<Message> beforeDelete = messageRepository.findById(testMessage.getId());
+				assertThat(beforeDelete).isPresent();
 
 				// when
 				messageRepository.deleteById(testMessage.getId());
 
 				// then
-				assertThat(messageRepository.findById(testMessage.getId())).isNull();
+				Optional<Message> afterDelete = messageRepository.findById(testMessage.getId());
+				assertThat(afterDelete).isEmpty();
 
 				// 파일 다시 읽기
 				MessageRepository reloadRepo = new FileMessageRepository();
-				assertThat(reloadRepo.findById(testMessage.getId())).isNull();
+				Optional<Message> reloadMessageOpt = reloadRepo.findById(testMessage.getId());
+				assertThat(reloadMessageOpt).isEmpty();
 			}
 
 			@Test
@@ -1035,8 +1081,9 @@ public class RepositoryTest {
 				MessageRepository reloadRepo = new FileMessageRepository();
 
 				// then
-				Message reloadMessage = reloadRepo.findById(testMessage.getId());
-				assertThat(reloadMessage).isNotNull();
+				Optional<Message> reloadMessageOpt = reloadRepo.findById(testMessage.getId());
+				assertThat(reloadMessageOpt).isPresent();
+				Message reloadMessage = reloadMessageOpt.get();
 				assertThat(reloadMessage.getText()).isEqualTo(testMessage.getText());
 				assertThat(reloadMessage.getAuthorUUID()).isEqualTo(testMessage.getAuthorUUID());
 				assertThat(reloadMessage.getChannelUUID()).isEqualTo(testMessage.getChannelUUID());
@@ -1074,5 +1121,6 @@ public class RepositoryTest {
 
 			}
 		}
+
 	}
 }

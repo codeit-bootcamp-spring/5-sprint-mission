@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -81,8 +82,7 @@ public class BasicMessageServiceTest {
 
 	@Test
 	@Order(1)
-	@DisplayName("1. Basic MessageCreate")
-	void testCreateMessage() {
+	void 메시지_생성후_저장시_성공() {
 		// given
 
 		// when
@@ -99,8 +99,7 @@ public class BasicMessageServiceTest {
 
 	@Test
 	@Order(2)
-	@DisplayName("2. Basic MessageGetById")
-	void testGetMessage() {
+	void Message_Id로_조회시_성공() {
 		// given
 		messageService.createMessage(testUser.getId(), testChannel.getId(), "테스트 메시지");
 		List<Message> messages = messageRepository.findAll();
@@ -118,8 +117,7 @@ public class BasicMessageServiceTest {
 
 	@Test
 	@Order(3)
-	@DisplayName("3. Basic MessageGetById 메시지없음 예외")
-	void testGetMessage_MessageNotFound() {
+	void 잘못된_message_id로_조회시_실패() {
 		// given
 		UUID nonExistentId = UUID.randomUUID();
 
@@ -132,8 +130,7 @@ public class BasicMessageServiceTest {
 
 	@Test
 	@Order(4)
-	@DisplayName("4. Basic MessageGetAll")
-	void testGetAllMessages() {
+	void 모든_message_조회시_성공() {
 		// given
 		messageService.createMessage(testUser.getId(), testChannel.getId(), "메시지1");
 		messageService.createMessage(testUser.getId(), testChannel.getId(), "메시지2");
@@ -153,8 +150,7 @@ public class BasicMessageServiceTest {
 
 	@Test
 	@Order(5)
-	@DisplayName("5. Basic MessageGetByAuthor")
-	void testGetMessageByAuthor() {
+	void 작성자로_message_조회시_성공() {
 		// given
 		User otherUser = userService.createUser("test2", "password2", "김길동");
 		channelService.joinChannel(otherUser, "일반");
@@ -177,8 +173,7 @@ public class BasicMessageServiceTest {
 
 	@Test
 	@Order(6)
-	@DisplayName("6. Basic MessageGetByChannel")
-	void testGetMessageByChannel() {
+	void Channel_id로_message_전체_조회시_성공() {
 		// given
 		Channel otherChannel = channelService.createChannel("개발팀");
 		channelService.joinChannel(testUser, "개발팀");
@@ -201,8 +196,7 @@ public class BasicMessageServiceTest {
 
 	@Test
 	@Order(7)
-	@DisplayName("7. Basic MessageUpdate")
-	void testUpdateMessage() throws InterruptedException {
+	void message_id로_message_수정시_성공() throws InterruptedException {
 		// given
 		messageService.createMessage(testUser.getId(), testChannel.getId(), "원본 메시지");
 		List<Message> messages = messageRepository.findAll();
@@ -217,15 +211,16 @@ public class BasicMessageServiceTest {
 		// then
 		assertThat(result).isTrue();
 
-		Message updated = messageRepository.findById(created.getId());
+		Optional<Message> updatedOpt = messageRepository.findById(created.getId());
+		assertThat(updatedOpt).isPresent();
+		Message updated = updatedOpt.get();
 		assertThat(updated.getText()).isEqualTo("수정된 메시지");
 		assertThat(updated.getUpdatedAt()).isNotEqualTo(updated.getCreatedAt());
 	}
 
 	@Test
 	@Order(8)
-	@DisplayName("8. Basic MessageUpdate 메시지없음 예외")
-	void testUpdateMessage_MessageNotFound() {
+	void 잘못된_id로_수정시_실패() {
 		// given
 		UUID nonExistentId = UUID.randomUUID();
 
@@ -238,8 +233,7 @@ public class BasicMessageServiceTest {
 
 	@Test
 	@Order(9)
-	@DisplayName("9. Basic MessageUpdate 권한없음 예외")
-	void testUpdateMessage_UnauthorizedAccess() {
+	void 권한_없는_Message_수정시_실패() {
 		// given
 		User otherUser = userService.createUser("test2", "password2", "김길동");
 		messageService.createMessage(testUser.getId(), testChannel.getId(), "홍길동의 메시지");
@@ -255,8 +249,7 @@ public class BasicMessageServiceTest {
 
 	@Test
 	@Order(10)
-	@DisplayName("10. Basic MessageDelete")
-	void testDeleteMessage() {
+	void message_id로_삭제시_성공() {
 		// given
 		messageService.createMessage(testUser.getId(), testChannel.getId(), "삭제될 메시지");
 		List<Message> messages = messageRepository.findAll();
@@ -269,14 +262,15 @@ public class BasicMessageServiceTest {
 		assertThatThrownBy(() -> messageService.getMessage(created.getId()))
 			.isInstanceOf(MessageNotFoundException.class);
 
-		Channel updatedChannel = channelRepository.findById(testChannel.getId());
+		Optional<Channel> updatedChannelOpt = channelRepository.findById(testChannel.getId());
+		assertThat(updatedChannelOpt).isPresent();
+		Channel updatedChannel = updatedChannelOpt.get();
 		assertThat(updatedChannel.getChannelMessagesUUID()).doesNotContain(created.getId());
 	}
 
 	@Test
 	@Order(11)
-	@DisplayName("11. Basic MessageDelete 메시지없음 예외")
-	void testDeleteMessage_MessageNotFound() {
+	void 잘못된_message_id로_삭제시_실패() {
 		// given
 		UUID nonExistentId = UUID.randomUUID();
 
@@ -289,8 +283,7 @@ public class BasicMessageServiceTest {
 
 	@Test
 	@Order(12)
-	@DisplayName("12. Basic MessageDelete 권한없음 예외")
-	void testDeleteMessage_UnauthorizedAccess() {
+	void 권한_없는_message_삭제시_실패() {
 		// given
 		User otherUser = userService.createUser("test2", "password2", "김길동");
 		messageService.createMessage(testUser.getId(), testChannel.getId(), "홍길동의 메시지");

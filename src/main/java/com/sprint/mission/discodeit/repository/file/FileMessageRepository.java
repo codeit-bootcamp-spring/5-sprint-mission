@@ -12,15 +12,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.FileRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.service.FileService;
 
-public class FileMessageRepository implements MessageRepository, FileService {
+public class FileMessageRepository implements MessageRepository, FileRepository {
 	private static final String DATA_DIR = "data/";
 	private static final String MESSAGES_FILE = DATA_DIR + "messages";
 
@@ -47,29 +47,29 @@ public class FileMessageRepository implements MessageRepository, FileService {
 	}
 
 	@Override
-	public Message findById(UUID messageId) {
-		if (messageId == null) {
-			return null;
-		}
-
-		return messageMap.get(messageId);
+	public Optional<Message> findById(UUID messageId) {
+		return Optional.ofNullable(messageMap.get(messageId)).map(Message::copy);
 	}
 
 	@Override
 	public List<Message> findAll() {
-		return new ArrayList<>(messageMap.values());
+		List<Message> messageList = new ArrayList<>();
+		for (Message message : messageMap.values()) {
+			messageList.add(message.copy());
+		}
+		return messageList;
 	}
 
 	@Override
 	public List<Message> findByChannelId(UUID channelId) {
 		if (channelId == null) {
-			return null;
+			return new ArrayList<>();
 		}
 
 		List<Message> messages = new ArrayList<>();
 		for (Message message : messageMap.values()) {
 			if (channelId.equals(message.getChannelUUID())) {
-				messages.add(message);
+				messages.add(message.copy());
 			}
 		}
 		return messages;

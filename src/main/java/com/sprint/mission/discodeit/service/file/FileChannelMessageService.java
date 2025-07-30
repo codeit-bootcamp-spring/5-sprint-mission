@@ -1,42 +1,43 @@
-package com.sprint.mission.discodeit.service.basic;
+package com.sprint.mission.discodeit.service.file;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.MessageNotFoundException;
-import com.sprint.mission.discodeit.exception.NotChannelMemberException;
-import com.sprint.mission.discodeit.exception.UnauthorizedMessageAccessException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelMessageService;
 import com.sprint.mission.discodeit.service.UserService;
 
-public class BasicChannelMessageService implements ChannelMessageService{
+public class FileChannelMessageService implements ChannelMessageService {
 	private final MessageRepository messageRepository;
 	private final UserService userService;
-	// BaicChannelService인 구현체로 선언한 이유는 안에
-	// saveChannel이라는 Basic에서만 사용되는 메서드가 있기 때문에
-	private final BasicChannelService channelService;
+	private final ChannelRepository channelRepository; // Repository 직접 사용
 
-	public BasicChannelMessageService(MessageRepository messageRepository, UserService userService
-		, BasicChannelService channelService) {
+	public FileChannelMessageService(MessageRepository messageRepository, UserService userService,
+									 ChannelRepository channelRepository) {
 		this.messageRepository = messageRepository;
 		this.userService = userService;
-		this.channelService = channelService;
+		this.channelRepository = channelRepository;
 	}
 
 	@Override
 	public void createMessage(UUID authorUUID, UUID channelUUID, String text) {
 		User user = userService.getUserById(authorUUID);
-		Channel channel = channelService.getChannelByUUID(channelUUID);
+		Optional<Channel> channelOpt = channelRepository.findById(channelUUID);
 
+		if (user == null || channelOpt.isEmpty()) {
+			return; // 또는 예외 던지기
+		}
+
+		Channel channel = channelOpt.get();
 		if (!channel.getChannelUsersUUID().contains(authorUUID)) {
-			throw new NotChannelMemberException();
+			return; // 또는 예외 던지기
 		}
 
 		Message newMessage = new Message(authorUUID, channelUUID, text);
@@ -44,13 +45,17 @@ public class BasicChannelMessageService implements ChannelMessageService{
 
 		channel.addMessage(newMessage.getId());
 		channel.updateUpdatedAt();
-		channelService.saveChannel(channel);
+		channelRepository.save(channel);
 	}
 
 	@Override
 	public List<Message> getMessageByAuthor(String targetAuthor, UUID channelUUID) {
-		Channel channel = channelService.getChannelByUUID(channelUUID);
+		Optional<Channel> channelOpt = channelRepository.findById(channelUUID);
+		if (channelOpt.isEmpty()) {
+			return new ArrayList<>();
+		}
 
+		Channel channel = channelOpt.get();
 		UUID authorUUID = null;
 		for (Map.Entry<UUID, String> entry : channel.getUserNicknames().entrySet()) {
 			if (targetAuthor.equals(entry.getValue())) {
@@ -77,30 +82,39 @@ public class BasicChannelMessageService implements ChannelMessageService{
 
 	@Override
 	public void deleteMessage(UUID messageUUID, UUID authorUUID) {
-		Message message = messageRepository.findById(messageUUID)
-			.orElseThrow(() -> new MessageNotFoundException(messageUUID));
+		Optional<Message> messageOpt = messageRepository.findById(messageUUID);
+		if (messageOpt.isEmpty()) {
+			return; // 또는 예외 던지기
+		}
 
+		Message message = messageOpt.get();
 		if (!message.getAuthorUUID().equals(authorUUID)) {
-			throw new UnauthorizedMessageAccessException();
+			return; // 또는 예외 던지기
 		}
 
 		messageRepository.deleteById(messageUUID);
 
-		Channel channel = channelService.getChannelByUUID(message.getChannelUUID());
-		channel.removeMessage(messageUUID);
-		channel.updateUpdatedAt();
-		channelService.saveChannel(channel);
+		Optional<Channel> channelOpt = channelRepository.findById(message.getChannelUUID());
+		if (channelOpt.isPresent()) {
+			Channel channel = channelOpt.get();
+			channel.removeMessage(messageUUID);
+			channel.updateUpdatedAt();
+			channelRepository.save(channel);
+		}
 	}
 
 	@Override
 	public void deleteChannelWithMessages(UUID channelUUID) {
-		Channel channel = channelService.getChannelByUUID(channelUUID);
+		Optional<Channel> channelOpt = channelRepository.findById(channelUUID);
+		if (channelOpt.isEmpty()) {
+			return;
+		}
 
 		List<Message> channelMessages = messageRepository.findByChannelId(channelUUID);
 		for (Message message : channelMessages) {
 			messageRepository.deleteById(message.getId());
 		}
 
-		channelService.deleteChannel(channelUUID);
+		channelRepository.deleteById(channelUUID);
 	}
 }

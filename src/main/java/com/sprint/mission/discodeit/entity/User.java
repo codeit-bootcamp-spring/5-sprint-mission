@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class User implements Serializable {
@@ -19,13 +20,23 @@ public class User implements Serializable {
 	private String defaultNickname;
 
 	public User(String loginId, String password, String defaultNickname) {
-		this.loginId = loginId;
-		this.password = password;
-		this.defaultNickname = defaultNickname;
+		this.loginId = Objects.requireNonNull(loginId, "로그인ID는 필수입니다");
+		this.password = Objects.requireNonNull(password, "비밀번호는 필수입니다");
+		this.defaultNickname = Objects.requireNonNull(defaultNickname, "닉네임은 필수입니다");
 
 		id = UUID.randomUUID();
 		createdAt = Instant.now().getEpochSecond();
 		updatedAt = createdAt;
+	}
+
+	// 복사용
+	public User(User original) {
+		this.id = original.id;
+		this.createdAt = original.createdAt;
+		this.updatedAt = original.updatedAt;
+		this.loginId = original.loginId;
+		this.password = original.password;
+		this.defaultNickname = original.defaultNickname;
 	}
 
 	public UUID getId() {
@@ -66,5 +77,9 @@ public class User implements Serializable {
 
 	public void updateDefaultNickname(String defaultNickname) {
 		this.defaultNickname = defaultNickname;
+	}
+
+	public User copy() {
+		return new User(this);
 	}
 }
