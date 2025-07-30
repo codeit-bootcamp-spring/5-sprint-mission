@@ -3,81 +3,61 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class JCFUserService implements UserService {
-    private final List<User> users = new ArrayList<>();
+    private final Map<UUID, User> users = new HashMap<>();
 
     @Override
     public User createUser(String username, String password, int age, String email) {
         User user = new User(username, password, age, email);
-        users.add(user);
+        users.put(user.getId(), user);
         return user;
     }
 
     @Override
     public User readUser(UUID id) {
-        for (User user : users) {
-            if (user.getId().equals(id)) {
-                return user;
-            }
-        }
-        return null;
+        return users.get(id);
     }
 
     @Override
     public List<User> readAllUsers() {
-        if (!users.isEmpty()) {
-            return users;
-        }
-        return null;
+        return users.values().stream().collect(Collectors.toList());
     }
 
     @Override
     public User updateUsername(UUID id, String username) {
-        for (User user : users) {
-            if (user.getId().equals(id)) {
-                user.setUsername(username);
-                user.update();
-                return user;
-            }
+        User user = users.get(id);
+        if (user != null) {
+            user.setUsername(username);
         }
-        return null;
+        return user;
     }
 
     @Override
     public User updatePassword(UUID id, String password) {
-        for (User user : users) {
-            if (user.getId().equals(id)) {
-                user.setPassword(password);
-                user.update();
-                return user;
-            }
+        User user = users.get(id);
+        if (user != null) {
+            user.setPassword(password);
         }
-        return null;
+        return user;
     }
 
     @Override
     public User updateEmail(UUID id, String email) {
-        for (User user : users) {
-            if (user.getId().equals(id)) {
-                user.setEmail(email);
-                user.update();
-                return user;
-            }
+        User user = users.get(id);
+        if (user != null) {
+            user.setEmail(email);
         }
-        return null;
+        return user;
     }
 
     @Override
     public boolean deleteUser(UUID id) {
-        for (User user : users) {
-            if (user.getId().equals(id)) {
-                users.remove(user);
-                return true;
-            }
+        if (users.containsKey(id)) {
+            users.remove(id);
+            return true;
         }
         return false;
     }

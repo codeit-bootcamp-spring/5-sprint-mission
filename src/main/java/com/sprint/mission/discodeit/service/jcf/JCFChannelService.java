@@ -3,69 +3,52 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class JCFChannelService implements ChannelService {
-    private final List<Channel> channels = new ArrayList<>();
+    private final Map<UUID, Channel> channels = new HashMap<>();
 
     @Override
     public Channel createChannel(String name, String description) {
         Channel channel = new Channel(name, description);
-        channels.add(channel);
+        channels.put(channel.getId(), channel);
         return channel;
     }
 
     @Override
     public Channel readChannel(UUID id) {
-        for (Channel channel : channels) {
-            if (channel.getId().equals(id)) {
-                return channel;
-            }
-        }
-        return null;
+        return channels.get(id);
     }
 
     @Override
     public List<Channel> readAllChannels() {
-        if (!channels.isEmpty()) {
-            return channels;
-        }
-        return null;
+        return channels.values().stream().collect(Collectors.toList());
     }
 
     @Override
     public Channel updateChannelname(UUID id, String name) {
-        for (Channel channel : channels) {
-            if (channel.getId().equals(id)) {
-                channel.setName(name);
-                channel.update();
-                return channel;
-            }
+        Channel channel = channels.get(id);
+        if (channel != null) {
+            channel.setName(name);
         }
-        return null;
+        return channel;
     }
 
     @Override
     public Channel updateDescription(UUID id, String description) {
-        for (Channel channel : channels) {
-            if (channel.getId().equals(id)) {
-                channel.setDescription(description);
-                channel.update();
-                return channel;
-            }
+        Channel channel = channels.get(id);
+        if (channel != null) {
+            channel.setDescription(description);
         }
-        return null;
+        return channel;
     }
 
     @Override
     public boolean deleteChannel(UUID id) {
-        for (Channel channel : channels) {
-            if (channel.getId().equals(id)) {
-                channels.remove(channel);
-                return true;
-            }
+        if (channels.containsKey(id)) {
+            channels.remove(id);
+            return true;
         }
         return false;
     }

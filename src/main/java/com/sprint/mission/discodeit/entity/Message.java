@@ -4,7 +4,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 public class Message {
-    private UUID id;
+    private final UUID id;
+    private final UUID senderId;
+    private UUID channelId;
+
     private String name;
     private String title;
     private String content;
@@ -12,8 +15,10 @@ public class Message {
     private long createdAt;
     private long updatedAt;
 
-    public Message(String name, String title, String content) {
+    public Message(UUID senderId, UUID channelId, String name, String title, String content) {
         this.id = UUID.randomUUID();
+        this.senderId = senderId;
+        this.channelId = channelId;
         this.name = name;
         this.title = title;
         this.content = content;
@@ -27,10 +32,6 @@ public class Message {
 
     public UUID getId() {
         return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -59,14 +60,13 @@ public class Message {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Message{");
-        sb.append("id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", title='").append(title).append('\'');
-        sb.append(", content='").append(content).append('\'');
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append('}');
-        return sb.toString();
+        return "Message{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }
