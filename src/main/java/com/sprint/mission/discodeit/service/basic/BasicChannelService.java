@@ -63,12 +63,12 @@ public class BasicChannelService implements ChannelService {
         Optional<Channel> existingChannel = channelRepository.findById(channelID);
         Optional<User> existingUser = userRepository.findById(userID);
 
-        if (existingChannel.isPresent()) {
+        if (existingChannel.isEmpty()) {
             System.out.println("[Ser]Channel already exists(Channel with ID): " + channelID);
             return false;
         }
 
-        if (existingUser.isPresent()) {
+        if (existingUser.isEmpty()) {
             System.out.println("[Ser]User already exists(User with ID): " + userID);
         }
 
@@ -96,20 +96,21 @@ public class BasicChannelService implements ChannelService {
         Optional<Channel> existingChannel = channelRepository.findById(channelID);
         Optional<User> existingUser = userRepository.findById(userID);
 
-        if (existingChannel.isPresent()) {
-            System.out.println("[Ser]Channel already exists(Channel with ID): " + channelID);
+        if (existingChannel.isEmpty()) {
+            System.out.println("[Ser]Channel not found: " + channelID);
             return false;
         }
 
-        if (existingUser.isPresent()) {
-            System.out.println("[Ser]User already exists(User with ID): " + userID);
+        if (existingUser.isEmpty()) {
+            System.out.println("[Ser]User not found: " + userID);
+            return false;
         }
 
         Channel channel = existingChannel.get();
         User user = existingUser.get();
 
         // 2. 이미 사용자가 가입되어 있는지 체크
-        if (channel.isMember(userID)) {
+        if (!channel.isMember(userID)) {
             System.out.println("[Ser]Channel is already User: " + channelID + " and user ID: " + userID);
             return false;
         }
@@ -130,7 +131,7 @@ public class BasicChannelService implements ChannelService {
                 System.out.println("[Ser]Channel already exists: " + name);
             } else {
                 Channel channel = channelRepository.findByName(name).get();
-                channel.updateName(name);
+                channel.updateChannelName(name);
                 channelRepository.save(new Channel(name));
                 System.out.println("[Ser]Updated channel: " + channel);
             }

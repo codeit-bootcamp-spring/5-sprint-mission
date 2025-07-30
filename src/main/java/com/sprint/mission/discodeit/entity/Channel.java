@@ -9,7 +9,7 @@ import java.util.UUID;
 public class Channel implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    
+
     private final UUID id;
     private final Long createdAt;
     private Long updatedAt;
@@ -25,30 +25,42 @@ public class Channel implements Serializable {
         this.userIds = new HashSet<>();    // 멤버 Id를 저장할 HastSet 초기화
     }
 
-    public UUID getId() { return id; }
-    public long getCreatedAt() { return createdAt; }
-    public long getUpdatedAt() { return updatedAt; }
-    public String getName() { return channelName; }
-    public Set<UUID> getUserIds() {
-        return new  HashSet<>(userIds); // 채널 멤버 ID들의 불변 Set
+    public UUID getId() {
+        return id;
     }
 
-    public void updateName(String channelName) {
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getChannelName() {
+        return channelName;
+    }
+
+    public Set<UUID> getUserIds() {
+        return new HashSet<>(userIds); // 채널 멤버 ID들의 불변 Set
+    }
+
+    public void updateChannelName(String newChannelName) {
         this.channelName = channelName;
         this.updatedAt = System.currentTimeMillis();
     }
 
-    public boolean join (UUID id) {
+    public boolean join(UUID userId) {
         this.updatedAt = System.currentTimeMillis();
-        return this.userIds.add(id);
+        return this.userIds.add(userId);
     }
 
-    public boolean leave (UUID id) {
+    public boolean leave(UUID userId) {
         this.updatedAt = System.currentTimeMillis();
-        return this.userIds.remove(id);
+        return this.userIds.remove(userId);
     }
 
-    public boolean isMember(UUID id) {
+    public boolean isMember(UUID userId) {
         this.updatedAt = System.currentTimeMillis();
         return this.userIds.contains(id);
     }

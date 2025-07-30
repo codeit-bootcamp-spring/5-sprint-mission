@@ -48,10 +48,15 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public Channel save(Channel channel) {
-        Path path = Paths.get(DIRECTORY, channel.getId() + EXTENSION);
+        if (channel == null) {
+            throw new IllegalArgumentException("channel is null");
+        }
+
+        Path path = Paths.get(DIRECTORY, channel.getId().toString() + EXTENSION);
         try (FileOutputStream fos = new FileOutputStream(path.toFile());
              ObjectOutputStream oos = new ObjectOutputStream(fos);) {
             oos.writeObject(channel);
+            System.out.println("[Repo]Save channel: " + channel.getId());
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -61,13 +66,16 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public Optional<Channel> findById(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
+        }
         Channel channel = null;
         Path path = Paths.get(DIRECTORY, id + toString() + EXTENSION);
         try (FileInputStream fis = new FileInputStream(path.toFile());
              ObjectInputStream ois = new ObjectInputStream(fis);) {
             channel = (Channel) ois.readObject();
         } catch (FileNotFoundException e) {
-            System.out.println("[Repo]File not found" + channel.getId() + ".Details" + e.getMessage());
+            System.out.println("[Repo]File not found" + id + ".Details" + e.getMessage());
             return Optional.empty();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -77,9 +85,9 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public Optional<Channel> findByName(String name) {
-        Path path = Paths.get(DIRECTORY);
+        Path dirPath = Paths.get(DIRECTORY);
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*" + EXTENSION)) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath, "*" + EXTENSION)) {
             // "CHANNEL" 디렉토리 내의 모든 .ser 파일 순회
             for (Path entry : stream) {
                 try (FileInputStream fis = new FileInputStream(entry.toFile());
@@ -87,7 +95,7 @@ public class FileChannelRepository implements ChannelRepository {
                     Channel channel = (Channel) ois.readObject();
 
                     // 불러온 Channel 객체를 Channel이름과 비교
-                    if (channel != null && channel.getName() != null && channel.getName().equals(name)) {
+                    if (channel != null && channel.getChannelName() != null && channel.getChannelName().equals(name)) {
                         return Optional.of(channel);
                     }
                 } catch (ClassNotFoundException | IOException e) {
@@ -103,16 +111,16 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public List<Channel> findAll() {
         List<Channel> allChannels = new ArrayList<>(); // 모든 Channel 객체를 담을 리스트
-        Path path = Paths.get(DIRECTORY);
+        Path dirPath = Paths.get(DIRECTORY);
 
-        if (!isValidDirectory(path)) {
+        if (!isValidDirectory(dirPath)) {
             System.out.println("[Repo]Warning: Channel directory does not exist ro is not a directory: " + DIRECTORY);
             return allChannels;
         }
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*" + EXTENSION)) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath, "*" + EXTENSION)) {
             for (Path entry : stream) {
-                try (FileInputStream fis = new FileInputStream(path.toFile());
+                try (FileInputStream fis = new FileInputStream(entry.toFile());
                      ObjectInputStream ois = new ObjectInputStream(fis);) {
                     Channel channel = (Channel) ois.readObject();
                     if (channel != null) {

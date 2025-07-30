@@ -68,10 +68,10 @@ public class User implements Serializable {
         this.updatedAt = System.currentTimeMillis();
     }
 
-    // 5. 민감 데이터 보안 메서드
-    public User toSafeUser() {
-        return new User(this.id, this.name, this.email, this.createdAt); // password 제외
-    }
+//    // 5. 민감 데이터 보안 메서드
+//    public User toSafeUser() {
+//        return new User(this.id, this.name, this.email, this.createdAt); // password 제외
+//    }
 
     @Override
     public String toString() {

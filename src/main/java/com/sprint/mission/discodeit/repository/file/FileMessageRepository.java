@@ -19,7 +19,7 @@ public class FileMessageRepository implements MessageRepository {
     private final String EXTENSION;
 
     public FileMessageRepository() {
-        this.DIRECTORY = "Message";
+        this.DIRECTORY = "MESSAGE";
         this.EXTENSION = ".ser";
         Path path = Paths.get(DIRECTORY);
         if (!path.toFile().exists()) {
@@ -80,16 +80,16 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public List<Message> findAll() {
         List<Message> allMessage = new ArrayList<>();
-        Path path = Paths.get(DIRECTORY);
+        Path dirPath = Paths.get(DIRECTORY);
 
-        if (!isValidDirectory(path)) {
+        if (!isValidDirectory(dirPath)) {
             System.err.println("[Repo]Warning: Message directory is not valid. Returning empty list");
             return allMessage;
         }
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*" + EXTENSION)) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath, "*" + EXTENSION)) {
             for (Path entry : stream) {
-                try (FileInputStream fis = new FileInputStream(path.toFile());
+                try (FileInputStream fis = new FileInputStream(entry.toFile());
                      ObjectInputStream ois = new ObjectInputStream(fis);) {
                     Message message = (Message) ois.readObject();
                     if (message != null) {
@@ -108,16 +108,16 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public List<Message> findByChannelId(UUID channelId) {
         List<Message> messageList = new ArrayList<>();
-        Path path = Paths.get(DIRECTORY);
+        Path dirPath = Paths.get(DIRECTORY);
 
-        if (!isValidDirectory(path)) {
+        if (!isValidDirectory(dirPath)) {
             System.err.println("[Repo]Warning: Message directory is not valid. Returning empty list");
             return messageList;
         }
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*" + EXTENSION)) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath, "*" + EXTENSION)) {
             for (Path entry : stream) {
-                try (FileInputStream fis = new FileInputStream(path.toFile());
+                try (FileInputStream fis = new FileInputStream(entry.toFile());
                      ObjectInputStream ois = new ObjectInputStream(fis);) {
                     Message message = (Message) ois.readObject();
 

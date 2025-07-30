@@ -137,7 +137,7 @@ public class FileUserRepository implements UserRepository {
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*"+ EXTENSION)) {
             for (Path entry : stream) {
-                try (FileInputStream fis = new FileInputStream(path.toFile());
+                try (FileInputStream fis = new FileInputStream(entry.toFile());
                      ObjectInputStream ois = new ObjectInputStream(fis);) {
                     User user = (User)ois.readObject();
 
@@ -167,7 +167,7 @@ public class FileUserRepository implements UserRepository {
         // 디렉토리 스트림을 열어 .ser 파일을 순회하도록 구성
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*"+ EXTENSION)) {
             for (Path entry : stream) {
-                try (FileInputStream fis = new FileInputStream(path.toFile());
+                try (FileInputStream fis = new FileInputStream(entry.toFile());
                      ObjectInputStream ois = new ObjectInputStream(fis);) {
                     User user = (User) ois.readObject();
                     if (user!= null) {

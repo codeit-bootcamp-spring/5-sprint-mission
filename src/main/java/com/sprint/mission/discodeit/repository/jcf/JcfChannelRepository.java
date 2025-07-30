@@ -27,7 +27,7 @@ public class JcfChannelRepository implements ChannelRepository {
     public Optional<Channel> findByName(String name) {
         System.out.println("[Repo]Finding channel by email in JCF cache: " + name);
         return channels.values().stream()
-                .filter(channel -> channel.getName() != null && channel.getName().equals(name))
+                .filter(channel -> channel.getChannelName() != null && channel.getChannelName().equals(name))
                 .findFirst(); //
     }
 
