@@ -17,12 +17,12 @@ public class BasicUserService implements UserService {
 
 
     @Override
-    public Optional<User> registerUser(String name, String email, String password) {
+    public User registerUser(String name, String email, String password) {
         Optional<User> existingUser = userRepository.findByEmail(email);
         // 1. 이메일 중복 검사
         if (existingUser.isPresent()) {
             System.out.println("Registration failed: Email : " + email);
-            return Optional.empty();
+            return existingUser.get();
         }
 
         // 2. 새로운 User 객체를 생성
@@ -30,8 +30,8 @@ public class BasicUserService implements UserService {
 
         // 3. UserRepository를 통해 사용자 저장
         userRepository.save(newUser);
-        System.out.println("User registered successfully" + newUser.getEmail()); // 성공적으로 등록됨
-        return Optional.of(newUser);
+        System.out.println("[Ser]User registered successfully" + newUser.getName()); // 성공적으로 등록됨
+        return newUser;
     }
 
     @Override
