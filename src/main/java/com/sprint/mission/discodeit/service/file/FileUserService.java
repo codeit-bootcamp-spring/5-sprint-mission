@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import static java.nio.file.Files.list;
 
 public class FileUserService implements UserService {
     private final Path directory;
@@ -33,7 +34,7 @@ public class FileUserService implements UserService {
             System.err.println("오류: findById에 실패. userId가 null입니다.");
             return Optional.empty();
         }
-        Path filePath = this.directory.resolve(userId.toString()+ ".ser");
+        Path filePath = this.directory.resolve(userId + ".ser");
         if (!Files.exists(filePath)) {
             return Optional.empty();
         }
@@ -75,7 +76,7 @@ public class FileUserService implements UserService {
             return List.of();
         } try {
             List<User> list = new ArrayList<>();
-            Files.list(directory).forEach(path -> {
+            list(directory).forEach(path -> {
                 try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile()))) {
                     User user = (User) ois.readObject();
                     list.add(user);
@@ -95,7 +96,7 @@ public class FileUserService implements UserService {
             System.err.println("오류: updateId 실패. userId 또는 updatedUser가 null입니다.");
             return Optional.empty();
         }
-        Path filePath = this.directory.resolve(userId.toString() + ".ser");
+        Path filePath = this.directory.resolve(userId + ".ser");
         if (Files.exists(filePath)) {
             return Optional.empty();
         } try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath.toFile()))) {
@@ -114,7 +115,7 @@ public class FileUserService implements UserService {
             System.out.println("오류: deleteById 실패. userId가 null입니다.");
             return false;
         }
-        Path filePath = this.directory.resolve(userId.toString() + ".ser");
+        Path filePath = this.directory.resolve(userId + ".ser");
         try {
             boolean deletedId = Files.deleteIfExists(filePath);
             if (deletedId) {
