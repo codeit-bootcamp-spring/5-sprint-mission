@@ -32,28 +32,28 @@ public class FileChannelService implements ChannelService {
     @Override
     public Channel create(Channel channel) {
         if (channel == null) {
-            System.out.println("오류 : channel 생성에 실패. channel이 null입니다.");
+            System.err.println("오류 : Channel 생성에 실패. channel이 null입니다.");
             return null;
         }
         Path filePath = directory.resolve(channel.getChannelId() + ".ser");
         if (Files.exists(filePath)) {
-            System.out.println("오류 이미 존재하는 Channel ID 입니다." + channel.getChannelId());
+            System.out.println("오류 : 이미 존재하는 Channel ID 입니다." + channel.getChannelId());
             return null;
         }
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath.toFile()))) {
             oos.writeObject(channel);
 
         } catch (IOException e) {
-            throw new RuntimeException("Channel 파일 저장 실패", e);
+            throw new RuntimeException("Channel 파일 생성 실패", e);
         }
-        System.out.println("channel 생성: " + channel);
+        System.out.println("channel 생성 : " + channel);
         return  channel;
     }
 
     @Override
     public Optional<Channel> findById(UUID channelId) {
         if (channelId == null) {
-            System.out.println("오류 : findById에 실패. channelId가 null입니다.");
+            System.err.println("오류 : findById에 실패. channelId가 null입니다.");
             return Optional.empty();
         }
         Path filePath = directory.resolve(channelId + ".ser");
@@ -114,7 +114,7 @@ public class FileChannelService implements ChannelService {
     @Override
     public boolean delete(UUID channelId) {
         if (channelId == null) {
-            System.out.println("오류: delete 실패. channelId가 null입니다.");
+            System.err.println("오류: delete 실패. channelId가 null입니다.");
             return false;
         }
         Path filePath = directory.resolve(channelId + ".ser");

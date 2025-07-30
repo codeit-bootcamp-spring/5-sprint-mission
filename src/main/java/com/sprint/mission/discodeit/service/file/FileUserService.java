@@ -51,7 +51,7 @@ public class FileUserService implements UserService {
     @Override
     public User create(User user) {
         if (user == null) {
-            System.out.println("오류: User 생성에 실패. user가 null입니다.");
+            System.err.println("오류: User 생성에 실패. user가 null입니다.");
             return null;
         }
         Path filePath = directory.resolve(user.getUserId().toString() + ".ser");
@@ -63,7 +63,7 @@ public class FileUserService implements UserService {
                 oos.writeObject(user);
 
         } catch (IOException e) {
-            throw new RuntimeException("User 파일 저장 실패: " + filePath + e);
+            throw new RuntimeException("User 파일 생성 실패: " + filePath + e);
         }
         System.out.println("user 생성 : " + user);
         return user;
@@ -113,7 +113,7 @@ public class FileUserService implements UserService {
     @Override
     public boolean deleteById(UUID userId) {
         if (userId == null) {
-            System.out.println("오류: deleteById 실패. userId가 null입니다.");
+            System.err.println("오류: deleteById 실패. userId가 null입니다.");
             return false;
         }
         Path filePath = this.directory.resolve(userId + ".ser");
@@ -122,7 +122,7 @@ public class FileUserService implements UserService {
             if (deletedId) {
                 System.out.println("userId 삭제 : " + userId);
             } else {
-                System.out.println("userId 살제 실패 : " + userId + "파일이 존재 하지 않습니다.");
+                System.err.println("userId 살제 실패 : " + userId + "파일이 존재 하지 않습니다.");
             }
             return deletedId;
 
