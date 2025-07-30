@@ -27,7 +27,7 @@ public class BasicUserService implements UserService {
 
     @Override
     public Optional<User> findById(UUID id) {
-        return Optional.ofNullable(userRepository.findById(id));
+        return userRepository.findById(id);
     }
 
     @Override

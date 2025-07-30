@@ -26,7 +26,7 @@ public class JCFUserService implements UserService {
     //조회
     @Override
     public Optional<User> findById(UUID id) {
-        return Optional.ofNullable(userRepository.findById(id));
+        return userRepository.findById(id);
     }
 
     @Override
@@ -42,10 +42,9 @@ public class JCFUserService implements UserService {
     // 수정
     @Override
     public User update(UUID id, String name) {
-        User user = userRepository.findById(id);
-        if (user == null) {
-            throw new NoSuchElementException("해당 ID의 사용자를 찾을 수 없습니다");
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("해당 ID의 사용자를 찾을 수 없습니다"));
+
         user.updateName(name);
         return userRepository.save(user); // 변경된 사용자 저장
     }
