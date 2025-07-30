@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.file;
 
-import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 
@@ -8,7 +7,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
 
 public class FileMessageService implements MessageService {
     private final String DIRECTORY;
@@ -29,7 +31,7 @@ public class FileMessageService implements MessageService {
 
     @Override
     public Message create(String content, UUID channelId, UUID authorId) {
-        if (content == null || channelId == null || authorId == null || content.isBlank()) {
+        if (content == null || content.isBlank() || channelId == null || authorId == null) {
             throw new IllegalArgumentException("message content or channelId or authorId is null or blank");
         }
 
@@ -50,18 +52,17 @@ public class FileMessageService implements MessageService {
     public Message find(UUID messageId) {
         Message message = null;
         Path path = Paths.get(DIRECTORY, messageId.toString() + EXTENSION);
-        try (
-                FileInputStream fis = new FileInputStream(path.toFile());
-                ObjectInputStream ois = new ObjectInputStream(fis)
-        ) {
-            message = (Message) ois.readObject();
-        } catch (Exception e) {
-            throw new NoSuchElementException("message not found");
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                message = (Message) ois.readObject();
+            } catch (Exception e) {
+                throw new NoSuchElementException("message not found");
+            }
         }
 
-        if (message == null) {
-            throw new NoSuchElementException("message not found");
-        }
         return message;
     }
 
@@ -89,7 +90,7 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public Message update(UUID messageId, String content, UUID channelId, UUID authorId) {
+    public Message update(UUID messageId, String newContent) {
         Message messageNullable = null;
         Path path = Paths.get(DIRECTORY, messageId.toString() + EXTENSION);
 
@@ -105,17 +106,9 @@ public class FileMessageService implements MessageService {
         }
 
         Message message = Optional.ofNullable(messageNullable)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
-        message.update(content, channelId, authorId);
+                .orElseThrow(() -> new NoSuchElementException("message not found"));
+        message.update(newContent);
 
-        try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
-        ) {
-            oos.writeObject(message);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
         return message;
     }
 
@@ -124,7 +117,7 @@ public class FileMessageService implements MessageService {
         Path path = Paths.get(DIRECTORY, messageId.toString() + EXTENSION);
 
         if (Files.notExists(path)) {
-            throw new NoSuchElementException("Message with id " + messageId + " not found");
+            throw new NoSuchElementException("message not found");
         }
 
         try {

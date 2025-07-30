@@ -1,13 +1,17 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
 
 public class FileChannelService implements ChannelService {
     private final String DIRECTORY;
@@ -27,12 +31,12 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public Channel create(String name) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("channel name is null or blank");
+    public Channel create(ChannelType type, String name, String description) {
+        if (type == null || name == null || name.isBlank() || description == null || description.isBlank()) {
+            throw new IllegalArgumentException("channel type or name or description is null or blank");
         }
 
-        Channel channel = new Channel(name);
+        Channel channel = new Channel(type, name, description);
         Path path = Paths.get(DIRECTORY, channel.getId() + EXTENSION);
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
@@ -90,7 +94,7 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public Channel update(UUID channelId, String name) {
+    public Channel update(UUID channelId, String newName, String newDescription) {
         Channel channelNullable = null;
         Path path = Paths.get(DIRECTORY, channelId.toString() + EXTENSION);
 
@@ -106,8 +110,8 @@ public class FileChannelService implements ChannelService {
         }
 
         Channel channel = Optional.ofNullable(channelNullable)
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
-        channel.update(name);
+                .orElseThrow(() -> new NoSuchElementException("channel not found"));
+        channel.update(newName, newDescription);
 
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
@@ -125,7 +129,7 @@ public class FileChannelService implements ChannelService {
         Path path = Paths.get(DIRECTORY, channelId.toString() + EXTENSION);
 
         if (Files.notExists(path)) {
-            throw new NoSuchElementException("Channel with id " + channelId + " not found");
+            throw new NoSuchElementException("channel not found");
         }
 
         try {

@@ -7,7 +7,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
 
 
 public class FileUserService implements UserService {
@@ -28,13 +31,12 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public User create(String username, String password) {
-        if (username == null || password == null || username.isBlank() || password.isBlank()) {
-            throw new IllegalArgumentException("username or password is null or blank");
+    public User create(String username, String email, String password) {
+        if (username == null || username.isBlank() || email == null || email.isBlank() || password == null || password.isBlank()) {
+            throw new IllegalArgumentException("username or email or password is null or blank");
         }
 
-        User user = new User(username, password);
-
+        User user = new User(username, email, password);
         Path path = Paths.get(DIRECTORY, user.getId() + EXTENSION);
 
         try (
@@ -92,7 +94,7 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public User update(UUID userId, String username, String password) {
+    public User update(UUID userId, String newUsername, String newEmail, String newPassword) {
         User userNullable = null;
         Path path = Paths.get(DIRECTORY, userId.toString() + EXTENSION);
 
@@ -108,8 +110,8 @@ public class FileUserService implements UserService {
         }
 
         User user = Optional.ofNullable(userNullable)
-                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
-        user.update(username, password);
+                .orElseThrow(() -> new NoSuchElementException("user not found"));
+        user.update(newUsername, newEmail, newPassword);
 
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
@@ -128,7 +130,7 @@ public class FileUserService implements UserService {
         Path path = Paths.get(DIRECTORY, userId.toString() + EXTENSION);
 
         if (Files.notExists(path)) {
-            throw new NoSuchElementException("User with id " + userId + " not found");
+            throw new NoSuchElementException("user not found");
         }
 
         try {
