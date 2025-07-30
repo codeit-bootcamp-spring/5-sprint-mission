@@ -25,7 +25,6 @@ public class Channel {
         this.isPrivate = isPrivate;
     }
 
-    // 복사 생성자
     public Channel(Channel other) {
         this(other.id, other.createdAt, other.updatedAt, other.name, other.description, other.channelType, other.isPrivate);
     }

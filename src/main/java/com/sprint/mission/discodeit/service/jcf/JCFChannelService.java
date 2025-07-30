@@ -34,18 +34,15 @@ public class JCFChannelService implements ChannelService {
     public boolean update(UUID id, Channel updatedChannel) {
         Channel current = data.get(id);
         if (current == null) return false;
-
-        // name, description, channelType, isPrivate는 업데이트하지만 id, createdAt은 유지
         Channel newChannel = new Channel(
                 current.getId(),
                 current.getCreatedAt(),
-                System.currentTimeMillis(), // updatedAt 갱신
+                System.currentTimeMillis(),
                 updatedChannel.getName(),
                 updatedChannel.getDescription(),
                 updatedChannel.getChannelType(),
                 updatedChannel.isPrivate()
         );
-
         data.put(id, newChannel);
         return true;
     }

@@ -33,6 +33,7 @@ public class FileUserRepository implements UserRepository {
         if (user != null) {
             user.withName(newName);
             writeFile(data);
+            return true;
         }
         return false;
     }
