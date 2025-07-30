@@ -19,6 +19,8 @@ import static java.nio.file.Files.list;
 public class FileMessageService implements MessageService {
 
     private final Path directory;
+    private final UserService userService;
+    private final ChannelService channelService;
 
     public FileMessageService() {
         this.directory = Paths.get(System.getProperty("user.dir"), "message_data");
@@ -33,6 +35,8 @@ public class FileMessageService implements MessageService {
 
     public FileMessageService(UserService userService, ChannelService channelService) {
         this.directory = Paths.get(System.getProperty("user.dir"), "message_data");
+        this.userService = userService;
+        this.channelService = channelService;
         if (!Files.exists(directory)) {
             try {
                 Files.createDirectories(this.directory);
@@ -45,12 +49,20 @@ public class FileMessageService implements MessageService {
     @Override
     public Message create(Message message) {
         if (message == null) {
-            System.err.println("오류 : Message 생성에 실패. message가 null입니다.");
+            System.err.println("오류 : Message 생성에 실패. message가 null 입니다.");
+            return null;
+        }
+        if (userService.findById(message.getUserId()).isEmpty()) {
+            System.err.println("오류 : 존재하지 않는 사용자 ID 입니다: " + message.getUserId());
+            return null;
+        }
+        if (channelService.findById(message.getChannelId()).isEmpty()) {
+            System.err.println("오류 : 존재하지 않는 채널 ID 입니다: " + message.getChannelId());
             return null;
         }
         Path filePath = this.directory.resolve(message.getMessageId() + ".ser");
         if (Files.exists(filePath)) {
-            System.out.println("오류 : 이미 존재하는 Message ID입니다." + message.getMessageId());
+            System.out.println("오류 : 이미 존재하는 Message ID 입니다." + message.getMessageId());
             return null;
         }
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath.toString()))) {
@@ -65,18 +77,17 @@ public class FileMessageService implements MessageService {
     @Override
     public Optional<Message> findById(UUID messageId) {
         if (messageId == null) {
-            System.out.println("오류 : findById에 실패. messageId가 null입니다.");
+            System.out.println("오류 : findById에 실패. messageId가 null 입니다.");
             return Optional.empty();
         }
         Path filePath = this.directory.resolve(messageId + ".ser");
-        if(Files.exists(filePath)) {
+        if(!Files.exists(filePath)) {
             return Optional.empty();
         }
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath.toString()))) {
             Message message = (Message) ois.readObject();
             return  Optional.of(message);
-        }
-        catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             System.err.println("오류 : Message 역직렬화 실패 : (" + messageId + ")" + e.getMessage());
             return Optional.empty();
         }
@@ -84,7 +95,7 @@ public class FileMessageService implements MessageService {
 
     @Override
     public List<Message> findAll() {
-        if (Files.exists(directory)) {
+        if (!Files.exists(directory)) {
             return List.of();
         }
         try {
@@ -106,11 +117,11 @@ public class FileMessageService implements MessageService {
     @Override
     public Optional<Message> update(UUID messageId, Message updatedMessage) {
         if (messageId == null || updatedMessage == null) {
-            System.err.println("오류: update 실패. messageId 또는 updatedMessage가 null입니다.");
+            System.err.println("오류: update 실패. messageId 또는 updatedMessage가 null 입니다.");
             return Optional.empty();
         }
         Path filePath = this.directory.resolve(messageId + ".ser");
-        if(Files.exists(filePath)) {
+        if(!Files.exists(filePath)) {
             return Optional.empty();
         } try (ObjectOutputStream oos = new ObjectOutputStream( new FileOutputStream(filePath.toFile()))) {
             oos.writeObject(messageId);
@@ -118,14 +129,14 @@ public class FileMessageService implements MessageService {
             System.err.println("오류 : Message 업데이트 실패: "  + filePath + " / "+ e.getMessage());
             return Optional.empty();
         }
-        System.out.println("messageId = " + messageId);
+        System.out.println("messageId : " + messageId);
         return Optional.of(updatedMessage);
     }
 
     @Override
     public boolean delete(UUID messageId) {
         if (messageId == null) {
-            System.err.println("오류: delete 실패. channelId가 null입니다.");
+            System.err.println("오류: delete 실패. channelId가 null 입니다.");
             return false;
         }
         Path filePath = this.directory.resolve(messageId + ".ser");

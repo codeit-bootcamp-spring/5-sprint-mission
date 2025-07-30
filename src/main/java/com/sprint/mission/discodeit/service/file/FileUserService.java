@@ -32,7 +32,7 @@ public class FileUserService implements UserService {
     @Override
     public Optional<User> findById(UUID userId) {
         if (userId == null) {
-            System.err.println("오류: findById에 실패. userId가 null입니다.");
+            System.err.println("오류: findById에 실패. userId가 null 입니다.");
             return Optional.empty();
         }
         Path filePath = this.directory.resolve(userId + ".ser");
@@ -52,12 +52,12 @@ public class FileUserService implements UserService {
     @Override
     public User create(User user) {
         if (user == null) {
-            System.err.println("오류: User 생성에 실패. user가 null입니다.");
+            System.err.println("오류: User 생성에 실패. user가 null 입니다.");
             return null;
         }
         Path filePath = directory.resolve(user.getUserId().toString() + ".ser");
         if (Files.exists(filePath)) {
-            System.err.println("오류: 이미 존재하는 User ID입니다." + user.getUserId());
+            System.err.println("오류: 이미 존재하는 User ID  입니다." + user.getUserId());
             return null;
         }
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath.toFile()))) {
@@ -74,7 +74,7 @@ public class FileUserService implements UserService {
 
     @Override
     public List<User> findAll() {
-        if (Files.exists(this.directory)) {
+        if (!Files.exists(this.directory)) {
             return List.of();
         } try {
             List<User> userList = new ArrayList<>();
@@ -95,7 +95,7 @@ public class FileUserService implements UserService {
     @Override
     public Optional<User> updateId(UUID userId, User updateUser) {
         if (userId == null || updateUser == null) {
-            System.err.println("오류: update 실패. userId 또는 updatedUser가 null입니다.");
+            System.err.println("오류: update 실패. userId 또는 updatedUser가 null 입니다.");
             return Optional.empty();
         }
         Path filePath = this.directory.resolve(userId + ".ser");
@@ -123,7 +123,7 @@ public class FileUserService implements UserService {
             if (deletedId) {
                 System.out.println("userId 삭제 : " + userId);
             } else {
-                System.err.println("userId 살제 실패 : " + userId + "파일이 존재 하지 않습니다.");
+                System.err.println("userId 삭제 실패 : " + userId + "파일이 존재 하지 않습니다.");
             }
             return deletedId;
 

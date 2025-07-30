@@ -57,7 +57,7 @@ public class FileChannelService implements ChannelService {
             return Optional.empty();
         }
         Path filePath = directory.resolve(channelId + ".ser");
-        if (Files.exists(filePath)) {
+        if (!Files.exists(filePath)) {
             return Optional.empty();
         }
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath.toFile()))) {
@@ -72,7 +72,7 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public List<Channel> findAll() {
-        if (Files.exists(directory)) {
+        if (!Files.exists(directory)) {
             return List.of();
         }
         try {
@@ -98,7 +98,7 @@ public class FileChannelService implements ChannelService {
             return Optional.empty();
         }
         Path filePath = directory.resolve(channelId + ".ser");
-        if (Files.exists(filePath)) {
+        if (!Files.exists(filePath)) {
             return Optional.empty();
 
         } try(ObjectOutputStream oos =new ObjectOutputStream(new FileOutputStream(filePath.toFile()))) {
