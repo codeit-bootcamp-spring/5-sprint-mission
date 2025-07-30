@@ -65,8 +65,8 @@ public class Channel extends Base implements Serializable {
     @Override
     public String toString() {
         return String.format(
-                "\nid: %-36s  채널명: %-10s  주제: %s",
-                getId(), name, topic
+                "\n채널명: %-10s  타입: %-10s  주제: %-10s 설명: %-36s",
+                getName(), getType(), getTopic(), getDescription()
         );
     }
 }

@@ -37,18 +37,9 @@ public class Message extends Base implements Serializable {
 
     @Override
     public String toString() {
-        return "Message{" +
-                "sender=" + sender.getName() +
-                ", channel=" + channel.getName() +
-                ", content='" + content + '\'' +
-                ", createdAt=" + getCreatedAtFormatted() +
-                '}';
+        return String.format(
+                "\n작성자: %-10s  채널: %-10s  내용: %-10s  보낸시간: %-10s",
+                sender.getName(), channel.getName(), getContent(), getCreatedAtFormatted()
+        );
     }
-
-    // toString을 간결한 로그 스타일로
-    public String getFormattedMessage() {
-        return "\n" + getCreatedAtFormatted() + "   " + sender.getName() + ": " + content + "\n";
-    }
-
-
 }

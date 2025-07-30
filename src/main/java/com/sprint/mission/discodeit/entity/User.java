@@ -56,6 +56,9 @@ public class User extends Base implements Serializable {
 
     @Override
     public String toString() {
-        return "id: " + getId() + "|  name: " + name + "|  email: " + email;
+        return String.format(
+                "\n아이디: %-10s  이름: %-10s  이메일: %-10s",
+                getId(), getName(), getEmail()
+        );
     }
 }
