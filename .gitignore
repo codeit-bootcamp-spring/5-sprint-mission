@@ -6,6 +6,7 @@ build/
 gradle/
 gradlew
 gradlew.bat
+data/*.store
 
 ### IntelliJ IDEA ###
 .idea
