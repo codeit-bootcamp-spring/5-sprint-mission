@@ -37,11 +37,11 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public Channel delete(UUID id) {
+    public void delete(UUID id) {
         if (!data.containsKey(id)) {
             throw new NoSuchElementException("Channel with id " + id + " not found");
         }
-        return data.remove(id);
+        data.remove(id);
     }
 
     @Override
