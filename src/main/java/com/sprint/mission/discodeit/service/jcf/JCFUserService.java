@@ -40,10 +40,12 @@ public class JCFUserService implements UserService {
     @Override
     public User updateUser(UUID userId, AddUserDto addUserDto) {
         User user = userRepository.findById(userId).orElseThrow();
+
         user.updateUserName(addUserDto.getUserName());
         user.updateEmail(addUserDto.getEmail());
         user.updatePassword(addUserDto.getPassword());
         user.updatePhoneNumber(addUserDto.getPhoneNumber());
+
         return userRepository.save(user).orElseThrow();
     }
 

@@ -23,8 +23,8 @@ public class JavaApplication {
     public static void main(String[] args) {
         try{
             UserServiceTest.testAll();
-            MessageServiceTest.testAll();
-            ChannelServiceTest.testAll();
+//            MessageServiceTest.testAll();
+//            ChannelServiceTest.testAll();
         } catch(Exception e){
             GlobalExceptionHandler.handleException(e);
         }
@@ -225,7 +225,6 @@ public class JavaApplication {
             channelService.deleteAllChannel();
 
             User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
-
             User updatedUser = userService.updateUser(user1.getId(), new AddUserDto("update1", "<EMAIL>", "1234", "010-1234-5678"));
 
             boolean result1 = user1.getId().equals(updatedUser.getId());

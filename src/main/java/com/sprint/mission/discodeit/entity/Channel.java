@@ -1,10 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class Channel extends BaseEntity {
+public class Channel extends BaseEntity implements Serializable{
+    private static final long serialVersionUID = 1L;
+
     private final User ownerUser;
     private String channelName;
     private final Set<User> users = new HashSet<>();
@@ -64,5 +67,16 @@ public class Channel extends BaseEntity {
     @Override
     public int hashCode() {
         return Objects.hash(ownerUser, channelName, users, messages);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Channel{");
+        sb.append("ownerUser=").append(ownerUser);
+        sb.append(", channelName='").append(channelName).append('\'');
+        sb.append(", users=").append(users);
+        sb.append(", messages=").append(messages);
+        sb.append('}');
+        return sb.toString();
     }
 }
