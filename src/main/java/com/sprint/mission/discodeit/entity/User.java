@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -12,13 +13,17 @@ public class User implements Serializable {
     private Long updatedAt;
 
     private String username;
+    private String email;
     private String password;
 
-    public User(String username, String password) {
+    public User(String username, String email, String password) {
         id = UUID.randomUUID();
+        createdAt = Instant.now().getEpochSecond();
+
         this.username = username;
+        this.email = email;
         this.password = password;
-        createdAt = System.currentTimeMillis();
+
     }
 
     public UUID getId() {
@@ -37,14 +42,32 @@ public class User implements Serializable {
         return username;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public String getPassword() {
         return password;
     }
 
-    public void update(String username, String password) {
-        this.username = username;
-        this.password = password;
-        updatedAt = System.currentTimeMillis();
+    public void update(String newUsername, String newEmail, String newPassword) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
+        }
     }
 
     @Override
