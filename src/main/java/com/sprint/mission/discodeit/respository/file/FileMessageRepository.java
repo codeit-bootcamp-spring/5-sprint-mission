@@ -2,8 +2,10 @@ package com.sprint.mission.discodeit.respository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.respository.MessageRepository;
+import org.springframework.stereotype.Repository;
 import java.util.*;
 
+@Repository
 public class FileMessageRepository extends FileStore<Message> implements MessageRepository {
 
     private final Map<UUID, Message> messageMap = new HashMap<>();

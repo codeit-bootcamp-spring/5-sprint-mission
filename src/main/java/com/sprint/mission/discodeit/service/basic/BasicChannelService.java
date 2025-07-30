@@ -4,16 +4,15 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.respository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import java.util.*;
 
+@Service
+@RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
 
     private final ChannelRepository channelRepository;
-
-    // 저장 방식(JCF 또는 File)에 따라 적절한 구현체를 주입받아 사용
-    public BasicChannelService(ChannelRepository channelRepository){
-        this.channelRepository = channelRepository;
-    }
 
     @Override
     public Channel create(String name, ChannelType type) {

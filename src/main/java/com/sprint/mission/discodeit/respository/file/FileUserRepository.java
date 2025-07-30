@@ -2,9 +2,11 @@ package com.sprint.mission.discodeit.respository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.UserRepository;
+import org.springframework.stereotype.Repository;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Repository
 public class FileUserRepository extends FileStore<User> implements UserRepository {
 
     private final Map<UUID, User> userMap = new HashMap<>();
