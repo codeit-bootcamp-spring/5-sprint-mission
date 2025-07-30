@@ -87,7 +87,7 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public Channel updateChannelType(UUID id, String channelType) {
+    public Channel updateChannelType(UUID id, Channel.ChannelType channelType) {
         Channel channel = searchById(id);
         channel.updateChannelType(channelType);
         return save(channel);

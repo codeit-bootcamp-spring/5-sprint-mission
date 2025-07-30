@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.entity.Channel;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface ChannelService {
@@ -13,7 +12,7 @@ public interface ChannelService {
 
     Channel updateDescription(UUID id, String description);
 
-    Channel updateChannelType(UUID id, String channelType);
+    Channel updateChannelType(UUID id, Channel.ChannelType channelType);
 
     Channel delete(UUID id);
 

@@ -17,7 +17,11 @@ public class Channel implements Serializable {
     private String name;
     private final List<UUID> users;
     private String description;
-    private String channelType;
+    private ChannelType channelType;
+
+    public enum ChannelType {
+        PUBLIC, PRIVATE;
+    }
 
     public Channel() {
         id = UUID.randomUUID();
@@ -26,16 +30,13 @@ public class Channel implements Serializable {
         users = new ArrayList<>();
     }
 
-    public Channel(String name, String description, String channelType) {
+    public Channel(String name, String description, ChannelType channelType) {
         id = UUID.randomUUID();
         createdAt = Instant.now().toEpochMilli();
         updatedAt = createdAt;
         users = new ArrayList<>();
         this.name = name;
         this.description = description;
-        if (!channelType.equals("public") && !channelType.equals("private")) {
-            throw new IllegalArgumentException("채널 타입은 public 또는 private 이어야 합니다.");
-        }
         this.channelType = channelType;
     }
 
@@ -59,7 +60,7 @@ public class Channel implements Serializable {
         return users;
     }
 
-    public String getChannelType() {
+    public ChannelType getChannelType() {
         return channelType;
     }
 
@@ -82,10 +83,7 @@ public class Channel implements Serializable {
         updatedAt = Instant.now().toEpochMilli();
     }
 
-    public void updateChannelType(String channelType) {
-        if (!channelType.equals("public") && !channelType.equals("private")) {
-            throw new IllegalArgumentException("채널 타입은 public 또는 private 이어야 합니다.");
-        }
+    public void updateChannelType(ChannelType channelType) {
         this.channelType = channelType;
         updatedAt = Instant.now().toEpochMilli();
     }
