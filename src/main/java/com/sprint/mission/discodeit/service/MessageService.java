@@ -12,7 +12,7 @@ public interface MessageService {
 
     List<Message> findAll();
 
-    Message update(UUID messageId, String content, UUID channelId, UUID authorId);
+    Message update(UUID messageId, String newContent);
 
     void delete(UUID messageId);
 }
