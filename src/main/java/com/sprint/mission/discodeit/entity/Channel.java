@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.entity;
 import java.io.Serializable;
 
 public class Channel extends Base implements Serializable {
+
     private String name;
     private String topic;
     private ChannelType type;
@@ -13,9 +14,17 @@ public class Channel extends Base implements Serializable {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("채널 이름은 null이 될 수 없습니다.");
         }
+        if (type == null) {
+            throw new IllegalArgumentException("채널 타입은 null이 될 수 없습니다.");
+        }
         this.name = name;
-        this.topic = topic;
         this.type = type;
+    }
+
+    public Channel(String name, ChannelType type, String topic, String description) {
+        this(name, type); // 첫 번째 생성자 호출 → 여기서 name/type 유효성 검사 수행됨
+        this.topic = topic;
+        this.description = description;
     }
 
     public String getName() {return name;}
