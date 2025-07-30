@@ -7,17 +7,17 @@ public class Message {
     private String content;             //메시지 내용
     private UUID userId;                //작성자 아이디
     private UUID channelId;             //작성 채널 아이디
-    private final Long createAt;        //생성 시간
-    private Long updateAt;              //수정 시간
+    private final Long createdAt;        //생성 시간
+    private Long updatedAt;              //수정 시간
 
     public Message() {
         this.id = UUID.randomUUID();
-        this.createAt = System.currentTimeMillis();
+        this.createdAt = System.currentTimeMillis();
     }
 
     public Message(String content, UUID userId, UUID channelId) {
         this.id = UUID.randomUUID();
-        this.createAt = System.currentTimeMillis();
+        this.createdAt = System.currentTimeMillis();
         this.content = content;
         this.userId = userId;
         this.channelId = channelId;
@@ -39,16 +39,16 @@ public class Message {
         return channelId;
     }
 
-    public Long getCreateAt() {
-        return createAt;
+    public Long getCreatedAt() {
+        return createdAt;
     }
 
-    public Long getUpdateAt() {
-        return updateAt;
+    public Long getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdateAt(Long updateAt) {
-        this.updateAt = updateAt;
+    public void setUpdatedAt(Long updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public void setContent(String content) {
@@ -62,8 +62,8 @@ public class Message {
                 ", 내용 = '" + content + '\'' +
                 ", 사용자 ID = " + userId +
                 ", 채널 ID = " + channelId +
-                ", 생성 시간 = " + createAt +
-                ", 수정 시간 = " + updateAt +
+                ", 생성 시간 = " + createdAt +
+                ", 수정 시간 = " + updatedAt +
                 " }";
     }
 }

@@ -3,20 +3,20 @@ package com.sprint.mission.discodeit.entity;
 import java.util.UUID;
 
 public class Channel {
-    private UUID id;                //고유 아이디
+    private final UUID id;                //고유 아이디
     private String name;            //채널 명
     private String description;     //채널 설명
-    private Long createAt;          //생성시간
-    private Long updateAt;          //수정 시간
+    private final Long createdAt;          //생성시간
+    private Long updatedAt;          //수정 시간
 
     public Channel() {
         this.id = UUID.randomUUID();
-        this.createAt = System.currentTimeMillis();
+        this.createdAt = System.currentTimeMillis();
     }
 
     public Channel(String name, String description) {
         this.id = UUID.randomUUID();
-        this.createAt = System.currentTimeMillis();
+        this.createdAt = System.currentTimeMillis();
         this.name = name;
         this.description = description;
     }
@@ -33,16 +33,16 @@ public class Channel {
         return description;
     }
 
-    public Long getCreateAt() {
-        return createAt;
+    public Long getCreatedAt() {
+        return createdAt;
     }
 
-    public Long getUpdateAt() {
-        return updateAt;
+    public Long getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdateAt(Long updateAt) {
-        this.updateAt = updateAt;
+    public void setUpdatedAt(Long updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public void setDescription(String description) {
@@ -55,8 +55,8 @@ public class Channel {
                 "아이디 = " + id +
                 ", 이름 = '" + name + '\'' +
                 ", 설명 = '" + description + '\'' +
-                ", 생성 시간 = " + createAt +
-                ", 수정 시간 = " + updateAt +
+                ", 생성 시간 = " + createdAt +
+                ", 수정 시간 = " + updatedAt +
                 " }";
     }
 }
