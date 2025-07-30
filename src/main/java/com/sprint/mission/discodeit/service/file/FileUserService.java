@@ -13,8 +13,8 @@ public class FileUserService implements UserService {
     @Override
     public User create(String name, String email, String password) {
         // 중복검사
-        if (!userRepository.findByName(name).isEmpty()) {
-            throw new IllegalArgumentException("이미 사용중인 이름입니다." + name);
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException(String.format("이미 사용 중인 이메일입니다: %s", email));
         }
 
         User user = new User(name, email, password);
@@ -24,6 +24,11 @@ public class FileUserService implements UserService {
     @Override
     public Optional<User> findById(UUID id) {
         return Optional.ofNullable(userRepository.findById(id));
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override

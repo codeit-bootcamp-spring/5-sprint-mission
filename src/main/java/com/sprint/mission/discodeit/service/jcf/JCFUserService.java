@@ -12,21 +12,35 @@ public class JCFUserService implements UserService {
     private final UserRepository userRepository =  new JCFUserRepository();
 
     // 생성
+    @Override
     public User create(String name, String email, String password) {
+        // 중복검사
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException(String.format("이미 사용 중인 이메일입니다: %s", email));
+        }
+
         User user = new User(name, email, password);
         return userRepository.save(user);
     }
 
     //조회
+    @Override
     public Optional<User> findById(UUID id) {
         return Optional.ofNullable(userRepository.findById(id));
     }
 
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
     public List<User> findAll() {
         return userRepository.findAll();
     }
 
     // 수정
+    @Override
     public User update(UUID id, String name) {
         User user = userRepository.findById(id);
         if (user == null) {
@@ -37,6 +51,7 @@ public class JCFUserService implements UserService {
     }
 
     // 삭제
+    @Override
     public boolean delete(UUID id) {
         return userRepository.delete(id);
     }
