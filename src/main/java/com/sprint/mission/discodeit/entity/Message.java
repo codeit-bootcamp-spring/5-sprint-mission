@@ -1,11 +1,12 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.util.UUID; // UUID를 사용하기 위한 import
-
+import java.io.Serializable; // 직렬화 기능 sprint-2
 
 //채널 도메인 모델 클래스
 // 채널 고유 ID, 생성 시간, 수정 시간, 이름, 채널 설명을 관리한다.
-public class Message {
+// implements Serializable 직렬화 상속 sprint-2
+public class Message implements Serializable {
     private UUID messageId; //객체를 식별하기 위한 고유 id (UUID type)
     private Long createdAt; // 객체 생성 시간 저장 (Unix time stamp, Long type)
     private Long updatedAt; // 객체 수정 시간 (Unix time stamp, Long type)
