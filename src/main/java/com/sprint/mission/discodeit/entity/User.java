@@ -24,6 +24,7 @@ public class User implements Serializable {
         this.userId = UUID.randomUUID(); // 새로운 UUID를 생성하여 id 초기화
         this.createdAt = System.currentTimeMillis(); // 현재 시간을 유닉스 타임스탬프로 createdAt 초기화
         this.updatedAt = this.createdAt; // 초기 updatedAt은 createdAt과 동일하게 설정한다.this.userName = userName;
+        this.userName = userName;
         this.email = email;
         }
 
