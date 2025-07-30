@@ -8,7 +8,7 @@ import java.util.*;
 
 public class JCFUserSerivce implements UserService {
 
-    UserRepository repo;
+   private final UserRepository repo;
 
     public JCFUserSerivce(UserRepository repo) {
         this.repo = repo;
@@ -40,8 +40,8 @@ public class JCFUserSerivce implements UserService {
     }
 
     @Override
-    public User deleteUser(UUID userId) {
-       return repo.delete(userId);
+    public void deleteUser(UUID userId) {
+      repo.delete(userId);
     }
 
     @Override
