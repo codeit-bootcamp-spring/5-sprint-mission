@@ -17,7 +17,7 @@ public class JCFUserService implements UserService {
     // 사용자 추가
     @Override
     public User create(String name, String email, String password) {
-        if (name == null || email == null || password == null || name.isBlank() || email.isBlank() || password.isBlank()) {
+        if (name == null || name.isBlank() || email == null || email.isBlank() || password == null || password.isBlank()) {
             return null;
         }
         User user = new User(name, email, password);

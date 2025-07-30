@@ -17,7 +17,7 @@ public class JCFMessageService implements MessageService {
     // 메시지 추가
     @Override
     public Message create(String content, UUID userId, UUID channelId) {
-        if (content == null || userId == null || channelId == null || content.isBlank()) {
+        if (content == null || content.isBlank() || userId == null || channelId == null) {
             return null;
         }
         Message message = new Message(content, userId, channelId);

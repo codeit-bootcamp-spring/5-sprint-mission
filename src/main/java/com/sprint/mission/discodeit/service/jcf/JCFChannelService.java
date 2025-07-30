@@ -17,7 +17,7 @@ public class JCFChannelService implements ChannelService {
     // 채널 추가
     @Override
     public Channel create(String name, UUID ownerId) {
-        if (name == null || ownerId == null || name.isBlank()) {
+        if (name == null || name.isBlank() || ownerId == null) {
             return null;
         }
         Channel channel = new Channel(name, ownerId);
