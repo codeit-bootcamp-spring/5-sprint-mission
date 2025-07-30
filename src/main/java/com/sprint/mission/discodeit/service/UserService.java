@@ -9,14 +9,14 @@ public interface UserService {
     //생성
     User create(String userId, String name, String password);
     //읽기
-    User get(String userId);
+    User get(UUID id);
     //모두 읽기
     List<User> getAll();
     //수정
-    User updateUserName(String userId, String name);
+    User updateUserName(UUID id, String name);
 
-    User updatePassword(String userId, String oldPassword, String newPassword);
+    User updatePassword(UUID id, String oldPassword, String newPassword);
 
     //삭제
-    boolean delete(String userId);
+    void delete(UUID id);
 }

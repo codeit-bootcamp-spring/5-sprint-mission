@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 public class JCFUserService implements UserService {
 
@@ -38,9 +39,9 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User get(String userId) {
+    public User get(UUID userId) {
         return data.stream()
-                .filter(user -> user.getUserId().equals(userId))
+                .filter(user -> user.getId().equals(userId))
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("해당 ID의 사용자를 찾을 수 없습니다"));
     }
@@ -51,22 +52,22 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User updateUserName(String userId, String name) {
+    public User updateUserName(UUID id, String name) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("이름을 입력해주세요.");
         }
 
-        User user = get(userId);
+        User user = get(id);
         user.setName(name);
         return user;
     }
 
     @Override
-    public User updatePassword(String userId, String oldPassword, String newPassword) {
+    public User updatePassword(UUID id, String oldPassword, String newPassword) {
         if (oldPassword == null || oldPassword.isBlank() || newPassword == null || newPassword.isBlank()) {
             throw new IllegalArgumentException("기존 비밀번호와 새 비밀번호를 모두 입력해주세요.");
         }
-        User user = get(userId);
+        User user = get(id);
         if (!user.getPassword().equals(oldPassword)) {
             throw new IllegalArgumentException("기존 비밀번호가 일치하지 않습니다.");
         }
@@ -76,8 +77,8 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public boolean delete(String userId) {
-        User user = get(userId);
-        return data.remove(user);
+    public void delete(UUID id) {
+        User user = get(id);
+        data.remove(user);
     }
 }

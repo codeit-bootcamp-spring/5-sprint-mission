@@ -83,12 +83,11 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public boolean delete(UUID messageId) {
+    public void delete(UUID messageId) {
         Message message = messages.get(messageId);
         if (!messages.containsKey(messageId)) {
             throw new NoSuchElementException("삭제할 메시지가 없습니다.");
         }
         messages.remove(messageId);
-        return true;
     }
 }

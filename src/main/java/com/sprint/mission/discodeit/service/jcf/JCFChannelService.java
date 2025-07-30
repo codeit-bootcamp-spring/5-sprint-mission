@@ -29,9 +29,9 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel get(String name) {
+    public Channel get(UUID id) {
         for (Channel ch : channels.values()) {
-            if (ch.getName().equalsIgnoreCase(name)) {
+            if (ch.getId().equals(id)) {
                 return ch;
             }
         }
@@ -69,11 +69,9 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public boolean delete(UUID uuid) {
+    public void delete(UUID uuid) {
         if (channels.containsKey(uuid)) {
             channels.remove(uuid);
-            return true;
         }
-        return false;
     }
 }
