@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,9 +13,13 @@ import java.util.*;
 public class FileMessageService implements MessageService {
 
     private final Path directory;
+    UserService userService;
+    ChannelService channelService;
 
-    public FileMessageService(Path directory) {
+    public FileMessageService(Path directory, UserService userService, ChannelService channelService) {
         this.directory = directory;
+        this.userService = userService;
+        this.channelService = channelService;
         initPath(directory);
     }
 
@@ -67,6 +73,8 @@ public class FileMessageService implements MessageService {
 
     @Override
     public Message create(Message message) {
+        userService.searchById(message.getSenderId());
+        channelService.searchById(message.getChannelId());
         return save(message);
     }
 
@@ -88,7 +96,8 @@ public class FileMessageService implements MessageService {
     public Message updateChannelId(UUID id, UUID channelId) {
         Message message = searchById(id);
         message.updateChannelId(channelId);
-        return save(message);    }
+        return save(message);
+    }
 
     @Override
     public Message delete(UUID id) {

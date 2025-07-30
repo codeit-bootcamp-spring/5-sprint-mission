@@ -68,12 +68,12 @@ public class Message implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
-        return createdAt == message.createdAt && updatedAt == message.updatedAt && Objects.equals(id, message.id) && Objects.equals(content, message.content) && Objects.equals(senderId, message.senderId);
+        return createdAt == message.createdAt && updatedAt == message.updatedAt && Objects.equals(id, message.id) && Objects.equals(content, message.content) && Objects.equals(senderId, message.senderId) && Objects.equals(channelId, message.channelId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, createdAt, updatedAt, content, senderId);
+        return Objects.hash(id, createdAt, updatedAt, content, senderId, channelId);
     }
 
     @Override

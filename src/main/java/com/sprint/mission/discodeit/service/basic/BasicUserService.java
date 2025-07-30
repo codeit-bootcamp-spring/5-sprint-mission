@@ -45,7 +45,7 @@ public class BasicUserService implements UserService {
 
     @Override
     public User delete(UUID id) {
-        return repo.delete(id).orElseThrow(NoSuchElementException::new);
+        return repo.delete(id).orElseThrow(() -> new NoSuchElementException("해당하는 유저를 찾을 수 없습니다."));
     }
 
     @Override
@@ -55,13 +55,13 @@ public class BasicUserService implements UserService {
 
     @Override
     public User searchById(UUID id) {
-        return repo.searchById(id).orElseThrow(NoSuchElementException::new);
+        return repo.searchById(id).orElseThrow(() -> new NoSuchElementException("해당하는 유저를 찾을 수 없습니다."));
     }
 
     @Override
     public List<User> searchByName(String name) {
         if (repo.searchByName(name).isEmpty()) {
-            throw new NoSuchElementException();
+            throw new NoSuchElementException("해당하는 유저를 찾을 수 없습니다.");
         }
         return repo.searchByName(name);
     }

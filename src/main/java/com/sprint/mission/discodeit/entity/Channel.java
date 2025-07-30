@@ -114,24 +114,24 @@ public class Channel implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Channel channel = (Channel) o;
-        return createdAt == channel.createdAt && updatedAt == channel.updatedAt && Objects.equals(id, channel.id) && Objects.equals(name, channel.name) && Objects.equals(users, channel.users);
+        return createdAt == channel.createdAt && updatedAt == channel.updatedAt && Objects.equals(id, channel.id) && Objects.equals(name, channel.name) && Objects.equals(users, channel.users) && Objects.equals(description, channel.description) && channelType == channel.channelType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, createdAt, updatedAt, name, users);
+        return Objects.hash(id, createdAt, updatedAt, name, users, description, channelType);
     }
 
     @Override
     public String toString() {
         return "Channel{" +
                 "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", createdAt=" + Instant.ofEpochMilli(createdAt) +
+                ", updatedAt=" + Instant.ofEpochMilli(updatedAt) +
                 ", name='" + name + '\'' +
                 ", users=" + users +
                 ", description='" + description + '\'' +
-                ", channelType='" + channelType + '\'' +
+                ", channelType=" + channelType +
                 '}';
     }
 }
