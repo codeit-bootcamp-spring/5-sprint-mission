@@ -1,27 +1,28 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+@Getter
 public class Base {
     private final UUID id;
-    private final Long createdAt;
-    private Long updatedAt;
+    private final Instant createdAt;
+    private Instant updatedAt;
 
     public Base() {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
+        this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
     }
 
-
-    public UUID getId() {return id;}
-    public Long getCreatedAt() {return createdAt;}
-    public Long getUpdatedAt() {return updatedAt;}
-    public void updateTimestamp() {this.updatedAt = System.currentTimeMillis();}
+    public void updateTimestamp() {
+        this.updatedAt = Instant.now();
+    }
 
     // 생성 시각 포맷팅
     public String getCreatedAtFormatted() {
@@ -34,9 +35,8 @@ public class Base {
     }
 
     // 날짜(시간)포맷팅 로직
-    private String formatTimestamp(Long timestamp) {
-        LocalDateTime dateTime = LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+    private String formatTimestamp(Instant timestamp) {
+        LocalDateTime dateTime = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault());
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 }
