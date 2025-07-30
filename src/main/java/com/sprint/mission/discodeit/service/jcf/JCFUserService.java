@@ -31,8 +31,7 @@ public class JCFUserService implements UserService {
 
     @Override
     public boolean update(UUID id, String newName) {
-        repository.update(id, newName);
-        return false;
+        return repository.update(id, newName);
     }
 
     @Override

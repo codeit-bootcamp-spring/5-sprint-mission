@@ -20,10 +20,10 @@ public class JavaApplication {
         User found = userService.read(user.getId());
         System.out.println("[조회 - 성공] " + found);
 
-        // 단건 조회 - 실패 (없는 ID)
+        // 단건 조회 - 실패
         UUID fakeId = UUID.randomUUID();
         User notFound = userService.read(fakeId);
-        System.out.println("[조회 - 실패] ID: " + fakeId + " → " + notFound); // null 기대
+        System.out.println("[조회 - 실패] ID: " + fakeId + " → " + notFound);
 
         // 전체 조회
         System.out.println("[전체 조회]");
@@ -36,15 +36,15 @@ public class JavaApplication {
 
         // 수정 - 실패
         boolean updateFail = userService.update(fakeId, "ghost");
-        System.out.println("[수정 - 실패] 존재하지 않는 ID: " + fakeId + " → 변경됨: " + updateFail);
+        System.out.println("[수정 - 실패] 존재하지 않는 ID: " + fakeId + " → 변경: " + updateFail);
 
         // 삭제 - 성공
         userService.delete(user.getId());
         System.out.println("[삭제 - 성공] " + user.getId());
-        System.out.println("[삭제 후 조회] " + userService.read(user.getId())); // null 기대
+        System.out.println("[삭제 후 조회] " + userService.read(user.getId()));
 
         // 삭제 - 실패
-        userService.delete(fakeId); // 없어도 예외 발생 안 하면 무시됨
+        userService.delete(fakeId);
         System.out.println("[삭제 - 실패] (이미 없는 ID) " + fakeId);
     }
 
@@ -54,7 +54,7 @@ public class JavaApplication {
 
         userCRUDTest(userService);
 
-        // Optional: 테스트 후 파일 초기화
+        // 테스트 후 파일 초기화
         // ((FileUserRepository) userRepository).clearFile();
     }
 }

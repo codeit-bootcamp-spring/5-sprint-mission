@@ -28,7 +28,7 @@ public class JCFUserRepository implements UserRepository {
     public boolean update(UUID id, String newName) {
         User user = data.get(id);
         if (user != null) {
-            user.withName(newName);  // 이름 변경 및 수정 시간 갱신
+            user.withName(newName);
             return true;
         }
         return false;

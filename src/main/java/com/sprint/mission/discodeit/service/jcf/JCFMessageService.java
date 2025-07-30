@@ -39,9 +39,11 @@ public class JCFMessageService implements MessageService {
         Message original = data.get(id);
         if (original != null) {
             original.updateContent(updatedMessage.getContent());
+            return true;
         }
         return false;
     }
+
 
     @Override
     public void delete(UUID id) {
