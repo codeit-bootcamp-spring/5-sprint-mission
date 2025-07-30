@@ -12,12 +12,12 @@ import java.util.UUID;
 
 public class BasicMessageService implements MessageService {
 
-    MessageRepository repo;
+    MessageRepository messageRepository;
     UserService userService;
     ChannelService channelService;
 
-    public BasicMessageService(MessageRepository repo, UserService userService, ChannelService channelService) {
-        this.repo = repo;
+    public BasicMessageService(MessageRepository messageRepository, UserService userService, ChannelService channelService) {
+        this.messageRepository = messageRepository;
         this.userService = userService;
         this.channelService = channelService;
     }
@@ -26,48 +26,48 @@ public class BasicMessageService implements MessageService {
     public Message create(Message message) {
         userService.searchById(message.getSenderId());
         channelService.searchById(message.getChannelId());
-        return repo.save(message);
+        return messageRepository.save(message);
     }
 
     @Override
     public Message updateContent(UUID id, String content) {
         Message message = searchById(id);
         message.updateContent(content);
-        return repo.save(message);
+        return messageRepository.save(message);
     }
 
     @Override
     public Message updateSenderId(UUID id, UUID senderId) {
         Message message = searchById(id);
         message.updateSenderId(senderId);
-        return repo.save(message);
+        return messageRepository.save(message);
     }
 
     @Override
     public Message updateChannelId(UUID id, UUID channelId) {
         Message message = searchById(id);
         message.updateSenderId(id);
-        return repo.save(message);
+        return messageRepository.save(message);
     }
 
     @Override
     public Message delete(UUID id) {
-        return repo.delete(id).orElseThrow(() -> new NoSuchElementException("해당하는 메세지를 찾을 수 없습니다."));
+        return messageRepository.delete(id).orElseThrow(() -> new NoSuchElementException("해당하는 메세지를 찾을 수 없습니다."));
     }
 
     @Override
     public void deleteAll() {
-        repo.deleteAll();
+        messageRepository.deleteAll();
     }
 
     @Override
     public Message searchById(UUID id) {
-        return repo.searchById(id).orElseThrow(() -> new NoSuchElementException("해당하는 메세지를 찾을 수 없습니다."));
+        return messageRepository.searchById(id).orElseThrow(() -> new NoSuchElementException("해당하는 메세지를 찾을 수 없습니다."));
     }
 
     @Override
     public List<Message> searchByContent(String content) {
-        List<Message> messages = repo.searchByContent(content);
+        List<Message> messages = messageRepository.searchByContent(content);
         if (messages.isEmpty()) {
             throw new NoSuchElementException("해당하는 메세지를 찾을 수 없습니다.");
         }
@@ -76,7 +76,7 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public List<Message> searchBySenderId(UUID id) {
-        List<Message> messages = repo.searchBySenderId(id);
+        List<Message> messages = messageRepository.searchBySenderId(id);
         if (messages.isEmpty()) {
             throw new NoSuchElementException("해당하는 메세지를 찾을 수 없습니다.");
         }
@@ -85,6 +85,6 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public List<Message> searchAll() {
-        return repo.searchAll();
+        return messageRepository.searchAll();
     }
 }

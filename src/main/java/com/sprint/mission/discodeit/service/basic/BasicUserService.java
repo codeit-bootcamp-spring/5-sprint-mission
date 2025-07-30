@@ -11,63 +11,63 @@ import java.util.UUID;
 
 public class BasicUserService implements UserService {
 
-    UserRepository repo;
+    UserRepository userRepository;
 
-    public BasicUserService(UserRepository repo) {
-        this.repo = repo;
+    public BasicUserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public User create(User user) {
-        return repo.save(user);
+        return userRepository.save(user);
     }
 
     @Override
     public User updateName(UUID id, String name) {
         User user = searchById(id);
         user.updateName(name);
-        return repo.save(user);
+        return userRepository.save(user);
     }
 
     @Override
     public User addChannel(UUID id, Channel channel) {
         User user = searchById(id);
         user.addChannel(channel);
-        return repo.save(user);
+        return userRepository.save(user);
     }
 
     @Override
     public User deleteChannel(UUID id, Channel channel) {
         User user = searchById(id);
         user.deleteChannel(channel);
-        return repo.save(user);
+        return userRepository.save(user);
     }
 
     @Override
     public User delete(UUID id) {
-        return repo.delete(id).orElseThrow(() -> new NoSuchElementException("해당하는 유저를 찾을 수 없습니다."));
+        return userRepository.delete(id).orElseThrow(() -> new NoSuchElementException("해당하는 유저를 찾을 수 없습니다."));
     }
 
     @Override
     public void deleteAll() {
-        repo.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Override
     public User searchById(UUID id) {
-        return repo.searchById(id).orElseThrow(() -> new NoSuchElementException("해당하는 유저를 찾을 수 없습니다."));
+        return userRepository.searchById(id).orElseThrow(() -> new NoSuchElementException("해당하는 유저를 찾을 수 없습니다."));
     }
 
     @Override
     public List<User> searchByName(String name) {
-        if (repo.searchByName(name).isEmpty()) {
+        if (userRepository.searchByName(name).isEmpty()) {
             throw new NoSuchElementException("해당하는 유저를 찾을 수 없습니다.");
         }
-        return repo.searchByName(name);
+        return userRepository.searchByName(name);
     }
 
     @Override
     public List<User> searchAll() {
-        return repo.searchAll();
+        return userRepository.searchAll();
     }
 }
