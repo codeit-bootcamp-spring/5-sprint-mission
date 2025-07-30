@@ -3,13 +3,13 @@ package com.sprint.mission.discodeit.entity;
 import java.util.UUID;
 
 public class Message {
-    private UUID id;
-    private Long createdAt;
+    private final UUID id;
+    private final Long createdAt;
     private Long updatedAt;
 
     private String content; // 내용
-    private UUID userId; // 작성자
-    private UUID channelId; // 체널
+    private final UUID userId; // 작성자
+    private final UUID channelId; // 체널
 
     public Message(String content, UUID userId, UUID channelId) {
         this.id = UUID.randomUUID();

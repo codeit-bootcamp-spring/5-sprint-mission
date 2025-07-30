@@ -3,8 +3,8 @@ package com.sprint.mission.discodeit.entity;
 import java.util.UUID;
 
 public class Channel {
-    private UUID id;
-    private Long createdAt;
+    private final UUID id;
+    private final Long createdAt;
     private Long updatedAt;
 
     private String name; // 채널명
