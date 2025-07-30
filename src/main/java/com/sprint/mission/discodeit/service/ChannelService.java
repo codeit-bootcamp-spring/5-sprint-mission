@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,10 +13,10 @@ public interface ChannelService {
      * 새로운 채널을 생성
      *
      * @param name  채널 이름
-     * @param topic 채널 주제
+     * @param type 채널 타입
      * @return 생성된 Channel 객체
      */
-    Channel create(String name, String topic);
+    Channel create(String name, ChannelType type);
 
     /**
      * 채널 검색
