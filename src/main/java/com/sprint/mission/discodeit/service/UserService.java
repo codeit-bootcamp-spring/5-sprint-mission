@@ -24,6 +24,14 @@ public interface UserService {
     Optional<User> findById(UUID id);
 
     /**
+     * 아이디로 유저 조회
+     *
+     * @param email  유저 이메일
+     * @return 찾은 User 객체
+     */
+    Optional<User> findByEmail(String email);
+
+    /**
      * 아이디로 유저목록 조회
      * @return 찾은 User 객체 리스트
      */
