@@ -11,7 +11,7 @@ import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 public class AppConfig {
 
     public UserService userService(){
-        UserService userService = new JCFUserService(channelService());
+        UserService userService = new JCFUserService();
         return userService;
     }
 

@@ -1,78 +1,67 @@
 package com.sprint.mission.discodeit.service.jcf;
 
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.dto.AddUserDto;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class JCFUserService implements UserService {
-    private static final Map<UUID,User> data = new HashMap<>();
 
     private final ChannelService channelService;
-    public JCFUserService(ChannelService channelService) {
+    private final UserRepository userRepository;
+
+    public JCFUserService(ChannelService channelService, UserRepository userRepository) {
         this.channelService = channelService;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public void add(User user) {
-        if(user == null){
-            throw new IllegalArgumentException("user는 null일 수 없다.");
-        }
-        data.put(user.getId(), user);
+    public User addUser(AddUserDto addUserDto) {
+        User user = new User(addUserDto.getUserName(), addUserDto.getEmail(), addUserDto.getPassword(), addUserDto.getPhoneNumber());
+        Optional<User> addedUser = userRepository.save(user);
+        return addedUser.orElseThrow();
     }
 
     @Override
-    public User findOne(UUID userId) {
-        if(userId == null){
-            throw new IllegalArgumentException("userId는 null일 수 없다.");
-        }
-        return data.get(userId);
+    public User getUserById(UUID userId) {
+        return userRepository.findById(userId).orElseThrow();
     }
 
     @Override
-    public List<User> findAll() {
-        return new ArrayList<>(data.values());
+    public List<User> getAllUser() {
+        return userRepository.findAll();
     }
 
     @Override
-    public void update(UUID originUserUuid , User newUser) {
-        if(originUserUuid == null || newUser == null){
-            throw new IllegalArgumentException("userId 혹은 user는 null일 수 없다.");
-        }
-
-        User existingUser = data.remove(originUserUuid);
-
-        existingUser.updateUserName(newUser.getUserName());
-        existingUser.updateEmail(newUser.getEmail());
-        existingUser.updatePassword(newUser.getPassword());
-        existingUser.updatePhoneNumber(newUser.getPhoneNumber());
-
-        data.put(existingUser.getId(), existingUser);
-    }
-    @Override
-    public void delete(UUID userId) {
-        if(userId == null){
-            throw new IllegalArgumentException("userId는 null일 수 없다.");
-        }
-
-        data.remove(userId);
+    public User updateUser(UUID userId, AddUserDto addUserDto) {
+        User user = userRepository.findById(userId).orElseThrow();
+        user.updateUserName(addUserDto.getUserName());
+        user.updateEmail(addUserDto.getEmail());
+        user.updatePassword(addUserDto.getPassword());
+        user.updatePhoneNumber(addUserDto.getPhoneNumber());
+        return userRepository.save(user).orElseThrow();
     }
 
     @Override
-    public void deleteAll(){
-        data.clear();
+    public void deleteUser(UUID userId) {
+        userRepository.findById(userId).ifPresent(userRepository::delete);
     }
 
     @Override
-    public void joinChannel(UUID channelId, UUID userId) {
-        if(channelId == null || userId == null){
-            throw new IllegalArgumentException("channelId와 userId는 null일 수 없다.");
-        }
+    public void deleteAllUser() {
+        userRepository.deleteAll();
+    }
 
-        Channel channel = channelService.findOne(channelId);
-        User user = findOne(userId);
-        channel.addUser(user);
+    @Override
+    public void joinChannel(UUID userId, UUID channelId) {
+        /**
+         * 나중에 channel의 set에 데이터 넣는 코드 작성해야함
+         */
+
     }
 }

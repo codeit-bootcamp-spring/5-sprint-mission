@@ -1,60 +1,66 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class JCFChannelService implements ChannelService {
-    private static final Map<UUID,Channel> data = new HashMap<>();
 
-    public JCFChannelService() {}
+   private final ChannelRepository channelRepository;
+   private final UserService userService;
 
-    @Override
-    public void add(Channel channel) {
-        if(channel == null){
-            throw new IllegalArgumentException("channel은 null일 수 없다.");
-        }
-        data.put(channel.getId(), channel);
+    public JCFChannelService(ChannelRepository channelRepository, UserService userService) {
+        this.channelRepository = channelRepository;
+        this.userService = userService;
     }
 
     @Override
-    public Channel findOne(UUID channelId) {
-        if(channelId == null){
-            throw new IllegalArgumentException("channelId은 null일 수 없다.");
-        }
-        return data.get(channelId);
-    }
+    public Channel addChannel(String channelName, UUID ownerUserId) {
+        User userById = userService.getUserById(ownerUserId);
 
-    @Override
-    public List<Channel> findAll() {
-        return new ArrayList<>(data.values());
-    }
-
-    @Override
-    public void update(UUID channelId, Channel channel) {
-        if(channelId == null || channel == null){
-            throw new IllegalArgumentException("channelId 혹은 channel은 null일 수 없다");
+        if(userById == null){
+            throw new IllegalArgumentException("userId가 잘못됨");
         }
 
-        Channel origin = data.remove(channelId);
-        origin.updateChannelName(channel.getChannelName());
-        data.put(origin.getId(), origin);
+        Channel channel = new Channel(channelName, userById);
+        Optional<Channel> addedChannel = channelRepository.save(channel);
+
+        return addedChannel.orElseThrow();
     }
 
     @Override
-    public void delete(UUID channelId) {
-        if(channelId == null){
-            throw new IllegalArgumentException("channelId은 null일 수 없다.");
-        }
-        data.remove(channelId);
+    public Channel getChannelById(UUID channelId) {
+        Optional<Channel> foundedChannel = channelRepository.findById(channelId);
+        return foundedChannel.orElseThrow();
+
     }
 
     @Override
-    public void deleteAll() {
-        data.clear();
+    public List<Channel> getAllChannel() {
+        return channelRepository.findAll();
     }
 
+    @Override
+    public Channel updateChannel(UUID channelId, String channelName) {
+        Channel channel = channelRepository.findById(channelId).orElseThrow();
+        channel.updateChannelName(channelName);
+        channelRepository.save(channel);
+        return channel;
+    }
 
+    @Override
+    public void deleteChannel(UUID channelId) {
+        channelRepository.findById(channelId).ifPresent(channelRepository::delete);
+    }
 
+    @Override
+    public void deleteAllChannel() {
+        channelRepository.deleteAll();
+    }
 }

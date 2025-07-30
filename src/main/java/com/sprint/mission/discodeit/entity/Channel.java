@@ -7,8 +7,8 @@ import java.util.Set;
 public class Channel extends BaseEntity {
     private final User ownerUser;
     private String channelName;
-    private Set<User> users = new HashSet<>();
-    private Set<Message> messages = new HashSet<>();
+    private final Set<User> users = new HashSet<>();
+    private final Set<Message> messages = new HashSet<>();
 
     public Channel(
             String channelName, User ownerUser
@@ -27,8 +27,11 @@ public class Channel extends BaseEntity {
     }
 
     public void updateChannelName(String channelName) {
-        this.channelName = channelName;
-        super.updateUpdatedAt();
+        if(!this.channelName.equals(channelName)){
+            this.channelName = channelName;
+            super.updateUpdatedAt();
+        }
+
     }
 
     public Set<User> getUsers() {

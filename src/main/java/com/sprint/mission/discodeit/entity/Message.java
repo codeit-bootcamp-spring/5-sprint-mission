@@ -29,8 +29,10 @@ public class Message extends BaseEntity{
     }
 
     public void updateContent(String content) {
-        this.content = content;
-        super.updateUpdatedAt();
+        if(!this.content.equals(content)){
+            this.content = content;
+            super.updateUpdatedAt();
+        }
     }
 
     @Override
