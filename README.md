@@ -112,19 +112,19 @@
 ---
 # mission-3
 
-- [ ] Spring Initializr를 통해 zip 파일을 다운로드하세요.
-  - [ ] 빌드 시스템은 Gradle - Groovy를 사용합니다.
-  - [ ] 언어는 Java 17를 사용합니다.
-  - [ ] Spring Boot의 버전은 3.4.0입니다.
-  - [ ] GroupId는 com.sprint.mission입니다.
-  - [ ] ArtifactId와 Name은 discodeit입니다.
-  - [ ] packaging 형식은 Jar입니다
-  - [ ] Dependency를 추가합니다.
-    - [ ] Lombok
-    - [ ] Spring Web
-  - [ ] zip 파일을 압축해제하고 원래 진행 중이던 프로젝트에 붙여넣기하세요. 일부 파일은 덮어쓰기할 수 있습니다.
-  -[ ] application.properties 파일을 yaml 형식으로 변경하세요.
-  - [ ] DiscodeitApplication의 main 메서드를 실행하고 로그를 확인해보세요.
+- [x] Spring Initializr를 통해 zip 파일을 다운로드하세요.
+  - [x] 빌드 시스템은 Gradle - Groovy를 사용합니다.
+  - [x] 언어는 Java 17를 사용합니다.
+  - [x] Spring Boot의 버전은 ~~3.4.0~~ (3.5.4로 했음)입니다.
+  - [x] GroupId는 com.sprint.mission입니다.
+  - [x] ArtifactId와 Name은 discodeit입니다.
+  - [x] packaging 형식은 Jar입니다
+  - [x] Dependency를 추가합니다.
+    - [x] Lombok
+    - [x] Spring Web
+  - [x] zip 파일을 압축해제하고 원래 진행 중이던 프로젝트에 붙여넣기하세요. 일부 파일은 덮어쓰기할 수 있습니다.
+  - [x] application.properties 파일을 yaml 형식으로 변경하세요.
+  - [x] DiscodeitApplication의 main 메서드를 실행하고 로그를 확인해보세요.
 
 ### Bean 선언 및 테스트
 - [ ] File*Repository 구현체를 Repository 인터페이스의 Bean으로 등록하세요.
