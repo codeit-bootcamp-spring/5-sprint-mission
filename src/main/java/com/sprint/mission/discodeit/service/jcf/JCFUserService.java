@@ -6,15 +6,19 @@ import com.sprint.mission.discodeit.service.UserService;
 import java.util.*;
 
 public class JCFUserService implements UserService {
-    final Map<UUID, User> data = new HashMap<>();
+    private final Map<UUID, User> data;
+
+    public JCFUserService() {
+        data = new HashMap<>();
+    }
 
     @Override
-    public User create(String username, String password) {
-        if (username == null || password == null || username.isBlank() || password.isBlank()) {
-            throw new IllegalArgumentException("username or password is null or blank");
+    public User create(String username, String email, String password) {
+        if (username == null || username.isBlank() || email == null || email.isBlank() || password == null || password.isBlank()) {
+            throw new IllegalArgumentException("username or email or password is null or blank");
         }
 
-        User user = new User(username, password);
+        User user = new User(username, email, password);
         data.put(user.getId(), user);
         return user;
     }
@@ -33,19 +37,22 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User update(UUID userId, String username, String password) {
+    public User update(UUID userId, String newUsername, String newEmail, String newPassword) {
         User user = data.get(userId);
 
         if (user == null) {
             throw new NoSuchElementException("user not found");
         }
 
-        user.update(username, password);
+        user.update(newUsername, newEmail, newPassword);
         return user;
     }
 
     @Override
     public void delete(UUID userId) {
+        if (!data.containsKey(userId)) {
+            throw new NoSuchElementException("user not found");
+        }
         data.remove(userId);
     }
 }
