@@ -16,11 +16,12 @@ public class Message implements Serializable {
     private UUID senderId;
     private UUID channelId;
 
-    public Message(String content, UUID senderId) {
+    public Message(String content, UUID senderId, UUID channelId) {
         id = UUID.randomUUID();
         createdAt = Instant.now().toEpochMilli();
         updatedAt = createdAt;
         this.senderId = senderId;
+        this.channelId = channelId;
         this.content = content;
     }
 
@@ -48,30 +49,19 @@ public class Message implements Serializable {
         return senderId;
     }
 
-    public Message updateContent(String content) {
-        if (content.equals(this.content)) {
-            System.out.println("기존 메세지 내용과 같은 내용입니다.");
-            return this;
-        }
+    public void updateContent(String content) {
         this.content = content;
         updatedAt = Instant.now().toEpochMilli();
-        return this;
     }
 
-    public Message updateSenderId(UUID senderId) {
-        if (senderId.equals(this.senderId)) {
-            System.out.println("기존 메세지 발신인과 같은 유저입니다.");
-            return this;
-        }
+    public void updateSenderId(UUID senderId) {
         this.senderId = senderId;
         updatedAt = Instant.now().toEpochMilli();
-        return this;
     }
 
-    public Message updateChannelId(UUID channelId) {
+    public void updateChannelId(UUID channelId) {
         this.channelId = channelId;
         updatedAt = Instant.now().toEpochMilli();
-        return this;
     }
 
     @Override

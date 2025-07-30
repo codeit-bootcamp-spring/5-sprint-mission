@@ -6,10 +6,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class FileMessageService implements MessageService {
 
@@ -32,7 +29,9 @@ public class FileMessageService implements MessageService {
 
     private Message save(Message message) {
         Path messageDirectory = Path.of(directory.toString() + "/" + message.getId());
-
+        if (Files.exists(messageDirectory)) {
+            delete(message.getId());
+        }
         try (FileOutputStream fos = new FileOutputStream(messageDirectory.toFile());
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(message);
@@ -42,7 +41,7 @@ public class FileMessageService implements MessageService {
         return message;
     }
 
-    private List<Message> load(Path directory) {
+    private Map<UUID, Message> load(Path directory) {
         if (Files.exists(directory)) {
             try {
                 List<Message> messages = Files.list(directory)
@@ -55,12 +54,14 @@ public class FileMessageService implements MessageService {
                                 throw new RuntimeException(e);
                             }
                         }).toList();
-                return messages;
+                Map<UUID, Message> messageMap = new HashMap<>();
+                messages.forEach(m -> messageMap.put(m.getId(), m));
+                return messageMap;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            return new ArrayList<>();
+            return new HashMap<>();
         }
     }
 
@@ -70,51 +71,65 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public Message update(Message message) {
+    public Message updateContent(UUID id, String content) {
+        Message message = searchById(id);
+        message.updateContent(content);
         return save(message);
     }
 
     @Override
+    public Message updateSenderId(UUID id, UUID senderId) {
+        Message message = searchById(id);
+        message.updateSenderId(senderId);
+        return save(message);
+    }
+
+    @Override
+    public Message updateChannelId(UUID id, UUID channelId) {
+        Message message = searchById(id);
+        message.updateChannelId(channelId);
+        return save(message);    }
+
+    @Override
     public Message delete(UUID id) {
         Path messageDirectory = Path.of(directory.toString() + "/" + id);
-        Message message = searchById(id).orElse(null);
+        Message message = searchById(id);
         if (Files.exists(messageDirectory)) {
             try {
                 Files.delete(messageDirectory);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } else {
-            System.out.println("존재하지 않는 메세지입니다.");
         }
         return message;
     }
 
     @Override
     public void deleteAll() {
-        for (Message message : load(directory)) {
+        for (Message message : load(directory).values()) {
             delete(message.getId());
         }
     }
 
     @Override
-    public Optional<Message> searchById(UUID id) {
-        Message m = null;
-        for (Message message : load(directory)) {
-            if (message.getId().equals(id)) {
-                m = message;
-            }
+    public Message searchById(UUID id) {
+        Message message = load(directory).getOrDefault(id, null);
+        if (message == null) {
+            throw new NoSuchElementException("해당하는 메세지를 찾을 수 없습니다.");
         }
-        return Optional.ofNullable(m);
+        return message;
     }
 
     @Override
     public List<Message> searchByContent(String content) {
         List<Message> messages = new ArrayList<>();
-        for (Message message : load(directory)) {
+        for (Message message : load(directory).values()) {
             if (message.getContent().contains(content)) {
                 messages.add(message);
             }
+        }
+        if (messages.isEmpty()) {
+            throw new NoSuchElementException("해당하는 메세지를 찾을 수 없습니다.");
         }
         return messages;
     }
@@ -123,16 +138,19 @@ public class FileMessageService implements MessageService {
     public List<Message> searchBySenderId(UUID id) {
         List<Message> messages = new ArrayList<>();
 
-        for (Message message : load(directory)) {
+        for (Message message : load(directory).values()) {
             if (message.getSenderId().equals(id)) {
                 messages.add(message);
             }
+        }
+        if (messages.isEmpty()) {
+            throw new NoSuchElementException("해당하는 메세지를 찾을 수 없습니다.");
         }
         return messages;
     }
 
     @Override
     public List<Message> searchAll() {
-        return load(directory);
+        return new ArrayList<>(load(directory).values());
     }
 }

@@ -19,13 +19,30 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public Message update(Message message) {
-        return data.put(message.getId(), message);
+    public Message updateContent(UUID id, String content) {
+        Message message = searchById(id);
+        message.updateContent(content);
+        return create(message);
+    }
+
+    @Override
+    public Message updateSenderId(UUID id, UUID senderId) {
+        Message message = searchById(id);
+        message.updateSenderId(senderId);
+        return create(message);
+    }
+
+    @Override
+    public Message updateChannelId(UUID id, UUID channelId) {
+        Message message = searchById(id);
+        message.updateChannelId(channelId);
+        return create(message);
     }
 
     @Override
     public Message delete(UUID id) {
-        return data.remove(id);
+        Message message = searchById(id);
+        return data.remove(message.getId());
     }
 
     @Override
@@ -34,8 +51,12 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public Optional<Message> searchById(UUID id) {
-        return Optional.ofNullable(data.get(id));
+    public Message searchById(UUID id) {
+        Message message = data.getOrDefault(id, null);
+        if (message == null) {
+            throw new NoSuchElementException("해당하는 메세지를 찾을 수 없습니다.");
+        }
+        return message;
     }
 
     @Override

@@ -14,17 +14,13 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public void save(Message message) {
-        data.put(message.getId(), message);
+    public Message save(Message message) {
+        return data.put(message.getId(), message);
     }
 
     @Override
-    public void delete(Message message) {
-        if (!data.containsKey(message.getId())) {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
-        }
-        data.remove(message.getId());
+    public Optional<Message> delete(UUID id) {
+        return Optional.ofNullable(data.remove(id));
     }
 
     @Override
@@ -33,12 +29,8 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Message searchById(UUID id) {
-        if (!data.containsKey(id)) {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
-        }
-        return data.get(id);
+    public Optional<Message> searchById(UUID id) {
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
@@ -48,10 +40,6 @@ public class JCFMessageRepository implements MessageRepository {
             if (message.getContent().contains(content)) {
                 messages.add(message);
             }
-        }
-        if (messages.isEmpty()) {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
         }
         return messages;
     }
@@ -63,10 +51,6 @@ public class JCFMessageRepository implements MessageRepository {
             if (message.getSenderId().equals(id)) {
                 messages.add(message);
             }
-        }
-        if (messages.isEmpty()) {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
         }
         return messages;
     }

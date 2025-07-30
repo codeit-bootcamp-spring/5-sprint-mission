@@ -27,18 +27,21 @@ public class FileMessageRepository implements MessageRepository {
         }
     }
 
-    public void save(Message message) {
+    public Message save(Message message) {
         Path messageDirectory = Path.of(directory.toString() + "/" + message.getId());
-
+        if(Files.exists(messageDirectory)) {
+            delete(message.getId());
+        }
         try (FileOutputStream fos = new FileOutputStream(messageDirectory.toFile());
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(message);
+            return message;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private List<Message> load(Path directory) {
+    private Map<UUID, Message> load(Path directory) {
         if (Files.exists(directory)) {
             try {
                 List<Message> messages = Files.list(directory)
@@ -51,59 +54,50 @@ public class FileMessageRepository implements MessageRepository {
                                 throw new RuntimeException(e);
                             }
                         }).toList();
-                return messages;
+                Map<UUID, Message> messageMap = new HashMap<>();
+                messages.forEach(m -> messageMap.put(m.getId(), m));
+                return messageMap;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            return new ArrayList<>();
+            return new HashMap<>();
         }
     }
 
     @Override
-    public void delete(Message message) {
-        Path messageDirectory = Path.of(directory.toString() + "/" + message.getId());
+    public Optional<Message> delete(UUID id) {
+        Path messageDirectory = Path.of(directory.toString() + "/" + id);
+        Message message = searchById(id).orElse(null);
         if (Files.exists(messageDirectory)) {
             try {
                 Files.delete(messageDirectory);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } else {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
         }
+        return Optional.ofNullable(message);
     }
 
     @Override
     public void deleteAll() {
-        for (Message message : load(directory)) {
-            delete(message);
+        for (Message message : load(directory).values()) {
+            delete(message.getId());
         }
     }
 
     @Override
-    public Message searchById(UUID id) {
-        for (Message m : load(directory)) {
-            if (m.getId().equals(id)) {
-                return m;
-            }
-        }
-        System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-        throw new NoSuchElementException();
+    public Optional<Message> searchById(UUID id) {
+        return Optional.ofNullable(load(directory).get(id));
     }
 
     @Override
     public List<Message> searchByContent(String content) {
         List<Message> messages = new ArrayList<>();
-        for (Message m : load(directory)) {
+        for (Message m : load(directory).values()) {
             if (m.getContent().contains(content)) {
                 messages.add(m);
             }
-        }
-        if (messages.isEmpty()) {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
         }
         return messages;
     }
@@ -111,20 +105,16 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public List<Message> searchBySenderId(UUID id) {
         List<Message> messages = new ArrayList<>();
-        for (Message m : load(directory)) {
+        for (Message m : load(directory).values()) {
             if (id.equals(m.getSenderId())) {
                 messages.add(m);
             }
-        }
-        if (messages.isEmpty()) {
-            System.err.println("해당하는 메세지를 찾을 수 없습니다.");
-            throw new NoSuchElementException();
         }
         return messages;
     }
 
     @Override
     public List<Message> searchAll() {
-        return load(directory);
+        return new ArrayList<>(load(directory).values());
     }
 }
