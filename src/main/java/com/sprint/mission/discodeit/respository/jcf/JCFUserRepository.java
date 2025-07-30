@@ -22,15 +22,8 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public User findById(UUID id) {
-        return data.get(id);
-    }
-
-    @Override
-    public List<User> findByName(String name) {
-        return data.values().stream()
-                .filter(user -> user.getName().equals(name))
-                .collect(Collectors.toList());
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
@@ -38,6 +31,13 @@ public class JCFUserRepository implements UserRepository {
         return data.values().stream()
                 .filter(user -> user.getEmail().equals(email))
                 .findFirst();
+    }
+
+    @Override
+    public List<User> findByName(String name) {
+        return data.values().stream()
+                .filter(user -> user.getName().equals(name))
+                .collect(Collectors.toList());
     }
 
     @Override

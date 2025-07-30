@@ -30,8 +30,15 @@ public class FileUserRepository extends FileStore<User> implements UserRepositor
     }
 
     @Override
-    public User findById(UUID id) {
-        return userMap.get(id);
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(userMap.get(id));
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userMap.values().stream()
+                .filter(user -> user.getEmail().equals(email))
+                .findFirst();
     }
 
     @Override
