@@ -138,8 +138,8 @@ public class JavaApplication {
 
         // 1. 메시지 등록 (Create) - 유효한 사용자 및 채널
         Message msg1 = new Message("Hello everyone!", user1.getUserId(), channel1.getChannelId());
-        Message msg2 = new Message("Hello everyone!", user2.getUserId(), channel2.getChannelId());
-        Message msg3 = new Message("Hello everyone!", user3.getUserId(), channel2.getChannelId());
+        Message msg2 = new Message("안녕하세요!", user1.getUserId(), channel1.getChannelId());
+        Message msg3 = new Message("누구세요", user1.getUserId(), channel1.getChannelId());
         messageService.create(msg1);
         messageService.create(msg2);
         messageService.create(msg3);

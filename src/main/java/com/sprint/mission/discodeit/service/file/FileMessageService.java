@@ -24,6 +24,8 @@ public class FileMessageService implements MessageService {
 
     public FileMessageService() {
         this.directory = Paths.get(System.getProperty("user.dir"), "message_data");
+        this.userService = new FileUserService();       // 직접 기본 구현체 생성
+        this.channelService = new FileChannelService(); // 직접 기본 구현체 생성
         if (!Files.exists(directory)) {
             try {
                 Files.createDirectories(this.directory);
@@ -121,15 +123,16 @@ public class FileMessageService implements MessageService {
             return Optional.empty();
         }
         Path filePath = this.directory.resolve(messageId + ".ser");
+
         if(!Files.exists(filePath)) {
             return Optional.empty();
         } try (ObjectOutputStream oos = new ObjectOutputStream( new FileOutputStream(filePath.toFile()))) {
-            oos.writeObject(messageId);
+            oos.writeObject(updatedMessage);
         } catch (IOException e) {
             System.err.println("오류 : Message 업데이트 실패: "  + filePath + " / "+ e.getMessage());
             return Optional.empty();
         }
-        System.out.println("messageId : " + messageId);
+        System.out.println("updatedMessage : " + updatedMessage);
         return Optional.of(updatedMessage);
     }
 
