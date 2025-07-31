@@ -19,5 +19,5 @@ public interface ChannelService {
     Channel update(UUID channelId, String name, UUID ownerId);
 
     // 채널 삭제
-    boolean delete(UUID channelId);
+    void delete(UUID channelId);
 }

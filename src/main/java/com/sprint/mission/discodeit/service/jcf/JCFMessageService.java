@@ -3,67 +3,56 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFMessageService implements MessageService {
-    private final List<Message> messageList;
+    private final Map<UUID, Message> messageMap;
 
     public JCFMessageService() {
-        messageList = new ArrayList<>();
+        messageMap = new HashMap<>();
     }
 
     // 메시지 추가
     @Override
     public Message create(String content, UUID userId, UUID channelId) {
         if (content == null || content.isBlank() || userId == null || channelId == null) {
-            return null;
+            throw new IllegalArgumentException("Message info is invalid");
         }
         Message message = new Message(content, userId, channelId);
-        messageList.add(message);
+        messageMap.put(message.getId(), message);
         return message;
     }
 
     // 메시지 조회
     @Override
     public Message find(UUID messageId) {
-        for (Message message : messageList) {
-            if (message.getId().equals(messageId)) {
-                return message;
-            }
+        Message message = messageMap.get(messageId);
+        if (message == null) {
+            throw new NoSuchElementException("Message not found");
         }
-        return null;
+        return message;
     }
 
     // 메시지 전체 조회
     @Override
     public List<Message> findAll() {
-        return messageList;
+        return new ArrayList<>(messageMap.values());
     }
 
     // 메시지 수정
     @Override
     public Message update(UUID messageId, String content) {
-        for (Message message : messageList) {
-            if (message.getId().equals(messageId)) {
-                message.update(content);
-                return message;
-            }
+        Message message = messageMap.get(messageId);
+        if (message == null) {
+            throw new NoSuchElementException("Message not found");
         }
-        return null;
+        message.update(content);
+        return message;
     }
 
     // 메시지 삭제
     @Override
-    public boolean delete(UUID messageId) {
-        for (int i = 0; i < messageList.size(); i++) {
-            Message message = messageList.get(i);
-            if (message.getId().equals(messageId)) {
-                messageList.remove(i);
-                return true;
-            }
-        }
-        return false;
+    public void delete(UUID messageId) {
+        messageMap.remove(messageId);
     }
 }

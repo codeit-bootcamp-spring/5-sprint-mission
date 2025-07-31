@@ -19,5 +19,5 @@ public interface UserService {
     User update(UUID userId, String name, String email, String password);
 
     // 사용자 삭제
-    boolean delete(UUID userId);
+    void delete(UUID userId);
 }

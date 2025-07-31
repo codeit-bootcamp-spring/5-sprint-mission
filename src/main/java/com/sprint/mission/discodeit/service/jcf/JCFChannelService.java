@@ -3,67 +3,56 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFChannelService implements ChannelService {
-    private final List<Channel> channelList;
+    private final Map<UUID, Channel> channelMap;
 
     public JCFChannelService() {
-        channelList = new ArrayList<>();
+        channelMap = new HashMap<>();
     }
 
     // 채널 추가
     @Override
     public Channel create(String name, UUID ownerId) {
         if (name == null || name.isBlank() || ownerId == null) {
-            return null;
+            throw new IllegalArgumentException("Channel info is invalid");
         }
         Channel channel = new Channel(name, ownerId);
-        channelList.add(channel);
+        channelMap.put(channel.getId(), channel);
         return channel;
     }
 
     // 채널 조회
     @Override
     public Channel find(UUID channelId) {
-        for (Channel channel : channelList) {
-            if (channel.getId().equals(channelId)) {
-                return channel;
-            }
+        Channel channel = channelMap.get(channelId);
+        if (channel == null) {
+            throw new NoSuchElementException("Channel not found");
         }
-        return null;
+        return channel;
     }
 
     // 채널 전체 조회
     @Override
     public List<Channel> findAll() {
-        return channelList;
+        return new ArrayList<>(channelMap.values());
     }
 
     // 채널 수정
     @Override
     public Channel update(UUID channelId, String name, UUID ownerId) {
-        for (Channel channel : channelList) {
-            if (channel.getId().equals(channelId)) {
-                channel.update(name, ownerId);
-                return channel;
-            }
+        Channel channel = channelMap.get(channelId);
+        if (channel == null) {
+            throw new NoSuchElementException("Channel not found");
         }
-        return null;
+        channel.update(name, ownerId);
+        return channel;
     }
 
     // 채널 삭제
     @Override
-    public boolean delete(UUID channelId) {
-        for (int i = 0; i < channelList.size(); i++) {
-            Channel channel = channelList.get(i);
-            if (channel.getId().equals(channelId)) {
-                channelList.remove(i);
-                return true;
-            }
-        }
-        return false;
+    public void delete(UUID channelId) {
+        channelMap.remove(channelId);
     }
 }

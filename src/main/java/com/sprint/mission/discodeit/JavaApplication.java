@@ -52,7 +52,7 @@ public class JavaApplication {
         // 사용자 삭제 & 조회
         System.out.println("\n====사용자 삭제====");
         System.out.println("삭제 전 | " + userService.find(user2.getId()));
-        System.out.println("삭제 결과 | " + userService.delete(user2.getId()));
+        userService.delete(user2.getId());
         System.out.println("삭제 후 | " + userService.find(user2.getId()) + '\n' + userService.findAll());
         System.out.println("<<<<User Test End>>>>");
     }
@@ -87,7 +87,7 @@ public class JavaApplication {
         // 채널 삭제 & 조회
         System.out.println("\n====채널 삭제====");
         System.out.println("삭제 전 | " + channelService.find(channel3.getId()));
-        System.out.println("삭제 결과 | " + channelService.delete(channel3.getId()));
+        channelService.delete(channel3.getId());
         System.out.println("삭제 후 | " + channelService.find(channel3.getId()) + '\n' + channelService.findAll());
         System.out.println("<<<<Channel Test End>>>>");
     }
@@ -124,7 +124,7 @@ public class JavaApplication {
         // 메시지 삭제 & 조회
         System.out.println("\n====메시지 삭제====");
         System.out.println("삭제 전 | " + messageService.find(message3.getId()));
-        System.out.println("삭제 결과 | " + messageService.delete(message3.getId()));
+        messageService.delete(message3.getId());
         System.out.println("삭제 후 | " + messageService.find(message3.getId()) + '\n' + messageService.findAll());
         System.out.println("<<<<Message Test End>>>>");
     }
