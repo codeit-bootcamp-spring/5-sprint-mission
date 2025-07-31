@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FileUserService implements UserService {
@@ -31,12 +32,30 @@ public class FileUserService implements UserService {
 
     @Override
     public boolean update(UUID id, String newName) {
-        return repository.update(id, newName); // ← 결과 그대로 반환
+        return repository.update(id, newName);
     }
 
     @Override
     public void delete(UUID id) {
         repository.delete(id);
     }
+
+    @Override
+    public User create(String name, String email, String password) {
+        User user = new User(name, email, password); // 새로운 생성자 필요
+        repository.save(user);
+        return user;
+    }
+
+    @Override
+    public List<User> findAll() {
+        return repository.findAll();
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(repository.findById(id));
+    }
 }
+
 
