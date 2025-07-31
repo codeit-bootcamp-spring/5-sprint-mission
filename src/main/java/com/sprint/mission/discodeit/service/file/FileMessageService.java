@@ -36,14 +36,15 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public boolean updateById(UUID id, User user, Channel channel, String message) {
+    public boolean updateById(UUID id, User user, Channel channel, String originalMessage, String updateMessage) {
         return messageRepository.findAll().stream()
                 .filter(m -> m.getId().equals(id))
                 .filter(m -> m.getUser().equals(user))
                 .filter(m -> m.getChannel().equals(channel))
+                .filter(m -> m.getMessage().equals(originalMessage))
                 .findFirst()
                 .map(m -> {
-                    Message update = new Message(id, user, channel, message, m.getCreateAt());
+                    Message update = new Message(id, user, channel, updateMessage, m.getCreateAt());
                     messageRepository.update(id, update);
                     return true;
                 })

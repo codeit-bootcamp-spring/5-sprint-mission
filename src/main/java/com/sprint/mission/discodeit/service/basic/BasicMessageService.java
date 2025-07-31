@@ -34,15 +34,15 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public boolean updateById(UUID id, User user, Channel channel, String message) {
+    public boolean updateById(UUID id, User user, Channel channel, String originalMessage, String updateMessage) {
         return messageRepository.findAll().stream()
                 .filter(m -> m.getId().equals(id))
                 .filter(m -> m.getUser().equals(user))
-                .filter(m -> m.getMessage().equals(message))
+                .filter(m -> m.getMessage().equals(originalMessage))
                 .findFirst()
                 .map(m -> {
-                    Message updateMessage = new Message(m.getId(), user, channel, message, m.getCreateAt());
-                    messageRepository.update(id, updateMessage);
+                    Message message = new Message(m.getId(), user, channel, updateMessage, m.getCreateAt());
+                    messageRepository.update(id, message);
                     return true;
                 })
                 .orElse(false);

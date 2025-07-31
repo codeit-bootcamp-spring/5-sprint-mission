@@ -36,10 +36,11 @@ public interface MessageService {
      * @param id 수정할 메시지의 ID
      * @param user 메시지를 수정하려는 사용자
      * @param channel 메시지가 속한 채널
-     * @param message 수정할 메시지 내용
+     * @param originalMessage 원본 메시지 내용
+     * @param updateMessage 수정할 메시지 내용
      * @return 수정 성공 여부
      */
-    boolean updateById(UUID id, User user, Channel channel, String message);
+    boolean updateById(UUID id, User user, Channel channel, String originalMessage, String updateMessage);
 
     /**
      * 메시지를 삭제합니다.

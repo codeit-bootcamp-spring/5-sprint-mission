@@ -37,14 +37,14 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public boolean updateById(UUID id, User user, Channel channel, String message) {
+    public boolean updateById(UUID id, User user, Channel channel, String originalMessage, String updateMessage) {
         List<Message> messageList = messageRepository.findAll();
         for (Message m : messageList) {
             if (!m.getId().equals(id)) continue;
             if (!m.getUser().equals(user)) continue;
             if (!m.getChannel().equals(channel)) continue;
 
-            m.updateMessage(message);
+            m.updateMessage(updateMessage);
             break;
         }
 
