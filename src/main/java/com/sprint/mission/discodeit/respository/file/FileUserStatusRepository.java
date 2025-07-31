@@ -2,10 +2,8 @@ package com.sprint.mission.discodeit.respository.file;
 
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.respository.UserStatusRepository;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+
+import java.util.*;
 
 public class FileUserStatusRepository extends FileStore<UserStatus> implements UserStatusRepository {
 
@@ -28,12 +26,10 @@ public class FileUserStatusRepository extends FileStore<UserStatus> implements U
 
     // 사용자 상태 조회
     @Override
-    public boolean findByUserId(UUID userId){
-        UserStatus userStatus = data.values().stream()
+    public Optional<UserStatus> findById(UUID userId){
+        return data.values().stream()
                 .filter(status -> status.getUserId().equals(userId))
-                .findFirst()
-                .orElse(null);
-        return userStatus != null && userStatus.isOnline();
+                .findFirst();
     }
 
     // 전체 상태 조회
