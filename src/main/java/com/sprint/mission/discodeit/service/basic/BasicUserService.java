@@ -38,7 +38,7 @@ public class BasicUserService implements UserService {
 		User newUser = new User(loginId, password, defaultNickname);
 		userRepository.save(newUser);
 
-		return newUser;
+		return getUserById(newUser.getId());
 	}
 
 	@Override

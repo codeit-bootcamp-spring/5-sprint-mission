@@ -29,7 +29,7 @@ public class BasicChannelService implements ChannelService {
 		Channel newChannel = new Channel(channelName);
 		channelRepository.save(newChannel);
 
-		return newChannel;
+		return getChannelByUUID(newChannel.getId());
 	}
 
 	@Override
