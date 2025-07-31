@@ -100,7 +100,7 @@ public class JavaApplication {
         System.out.println("\n=== [MESSAGE 테스트] ===");
 
         // 생성
-        Message msg = new Message(UUID.randomUUID(), UUID.randomUUID(), "반갑습니다!", System.currentTimeMillis());
+        Message msg = new Message(UUID.randomUUID(), UUID.randomUUID(), "반갑습니다!!", System.currentTimeMillis());
         messageService.create(msg);
         System.out.println("[생성] " + msg);
 
