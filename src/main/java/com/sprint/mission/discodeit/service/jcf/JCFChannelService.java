@@ -41,15 +41,11 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel updateById(UUID channelId, String channelName, String channelDescription) {
-        List<Channel> channels = getAll();
-        for (Channel channel : channels) {
-            if (channel.getId().equals(channelId)) {
-                channel.updateChannel(channelName, channelDescription, Instant.now().getEpochSecond());
+        Channel findChannel = channelRepository.findById(channelId);
+        Channel updateChannel = new Channel(findChannel.getId(), channelName, channelDescription, findChannel.getCreateAt());
+        channelRepository.update(channelId, updateChannel);
 
-                return channel;
-            }
-        }
-        return null;
+        return updateChannel;
     }
 
     @Override

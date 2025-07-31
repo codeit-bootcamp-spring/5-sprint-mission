@@ -43,7 +43,12 @@ public class JCFChannelRepository implements ChannelRepository {
 
     @Override
     public void update(UUID id, Channel updatedChannel) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        for (int i = 0; i < channels.size(); i++) {
+            if (channels.get(i).getId().equals(id)) {
+                channels.set(i, updatedChannel);
+                break;
+            }
+        }
     }
 
     @Override

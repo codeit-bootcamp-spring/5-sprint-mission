@@ -54,12 +54,20 @@ public class JCFUserRepository implements UserRepository {
 
     @Override
     public boolean updateByEmail(String email, String userName, String nickname, String password, String phoneNumber) {
-        throw new UnsupportedOperationException("JCFUserRepository does not support update");
+        User user = findByEmail(email);
+        if (user == null) return false;
+
+        user.updateUser(email, userName, nickname, password, phoneNumber);
+        return true;
     }
 
     @Override
     public boolean updateByUserName(String userName, String email, String nickname, String password, String phoneNumber) {
-        throw new UnsupportedOperationException("JCFUserRepository does not support update");
+        User user = findByUserName(userName);
+        if (user == null) return false;
+
+        user.updateUser(email, userName, nickname, password, phoneNumber);
+        return true;
     }
 
     @Override

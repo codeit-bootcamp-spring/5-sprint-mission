@@ -53,23 +53,13 @@ public class JCFUserService implements UserService {
     @Override
     public boolean updateByEmail(String email, String userName, String nickname, String password, String phoneNumber) {
         if (userRepository.findByUserName(userName) != null) return false;
-
-        User user = userRepository.findByEmail(email);
-        if (user == null) return false;
-
-        user.updateUser(email, userName, nickname, password, phoneNumber);
-        return true;
+        return userRepository.updateByEmail(email, userName, nickname, password, phoneNumber);
     }
 
     @Override
     public boolean updateByUserName(String userName, String email, String nickname, String password, String phoneNumber) {
         if (userRepository.findByEmail(email) != null) return false;
-
-        User user = userRepository.findByUserName(userName);
-        if (user == null) return false;
-
-        user.updateUser(email, userName, nickname, password, phoneNumber);
-        return true;
+        return userRepository.updateByUserName(userName, email, nickname, password, phoneNumber);
     }
 
     @Override
