@@ -3,6 +3,9 @@ package com.sprint.mission.discodeit.entity;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 public class Message extends Base implements Serializable {
@@ -10,6 +13,7 @@ public class Message extends Base implements Serializable {
     private final User sender; //발신자는 변경할 수 없음
     private final Channel channel; //채널은 변경할 수 없음
     private String content;
+    private final List<UUID> files = new ArrayList<>();
 
     public Message(User sender, Channel channel, String content) {
         this.sender = sender;
@@ -22,6 +26,16 @@ public class Message extends Base implements Serializable {
             throw new IllegalArgumentException("메시지 내용은 비어 있을 수 없습니다.");
         }
         this.content = newContent;
+        updateTimestamp();
+    }
+
+    public void updateFiles(UUID fileID) {
+        this.files.add(fileID);
+        updateTimestamp();
+    }
+
+    public void removeFiles(UUID fileID) {
+        this.files.remove(fileID);
         updateTimestamp();
     }
 

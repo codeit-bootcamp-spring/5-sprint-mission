@@ -36,28 +36,6 @@ public class BinaryContent {
         LocalDateTime dateTime = LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault());
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
-
-    // 프로필 이미지
-    public static class ProfileImage extends BinaryContent {
-
-        private final UUID userId;
-
-        public ProfileImage(User user, BinaryContentDto dto) {
-            super(dto);
-            this.userId = user.getId();
-        }
-    }
-
-    // 메시지 파일
-    public static class MessageFile extends BinaryContent {
-
-        private final UUID messageId;
-
-        public MessageFile(Message message, BinaryContentDto dto) {
-            super(dto);
-            this.messageId = message.getId();
-        }
-    }
 }
 
 

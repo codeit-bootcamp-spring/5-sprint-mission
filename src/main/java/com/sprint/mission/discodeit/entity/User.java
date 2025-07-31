@@ -1,36 +1,37 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Getter
 public class User extends Base implements Serializable {
 
     private String name;
     private String email;
-    private String password;
+    private UUID profileId;
+    @JsonIgnore private String password;
 
     public User(String name, String email, String password) {
-        if(name==null || name.isBlank()){ throw new IllegalArgumentException("이름은 null이거나 공백일 수 없습니다");}
-        if(email==null || email.isBlank()){ throw new IllegalArgumentException("이메일은 null이거나 공백일 수 없습니다");}
-        if(password==null || password.isBlank()){ throw new IllegalArgumentException("비밀번호는 null이거나 공백일 수 없습니다");}
         this.name = name;
         this.email = email;
         this.password = password;
     }
 
     public void updateName(String newName) {
-        if(newName==null || newName.isBlank()){
-            throw new IllegalArgumentException("이름은 null이거나 공백일 수 없습니다");
-        }
         this.name = newName;
         updateTimestamp();
     }
 
     public void updateEmail(String newEmail) {
-        if(newEmail==null || newEmail.isBlank()){ throw new IllegalArgumentException("이메일은 null이 될 수 없음");}
         this.email = newEmail;
+        updateTimestamp();
+    }
+
+    public void updateProfileId(UUID newProfileId) {
+        this.profileId = newProfileId;
         updateTimestamp();
     }
 
