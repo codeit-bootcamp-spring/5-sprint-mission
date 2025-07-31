@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.dto.AddUserDto;
 import com.sprint.mission.discodeit.entity.User;
@@ -10,13 +10,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+
 @Deprecated
-public class JCFUserService implements UserService {
+public class FileUserService implements UserService {
 
     private final UserRepository userRepository;
     private final ChannelService channelService;
 
-    public JCFUserService(UserRepository userRepository, ChannelService channelService) {
+    public FileUserService(UserRepository userRepository, ChannelService channelService) {
         this.userRepository = userRepository;
         this.channelService = channelService;
     }
