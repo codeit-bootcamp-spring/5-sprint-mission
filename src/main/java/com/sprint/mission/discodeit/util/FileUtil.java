@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.config;
+package com.sprint.mission.discodeit.util;
 
 import com.sprint.mission.discodeit.entity.BaseEntity;
 
@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 public class FileUtil {
-    private final static String basePath = System.getProperty("user.dir");
+    private final static String basePath = System.getProperty("user.dir")+"/src/main/java/com/sprint/mission/discodeit/repository/file/data";
     private final static String extension = ".ser";
     private FileUtil(){}
 

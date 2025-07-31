@@ -1,11 +1,10 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.config.FileUtil;
+import com.sprint.mission.discodeit.util.FileUtil;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +18,6 @@ public class FileUserRepository implements UserRepository {
     @Override
     public Optional<User> save(User user){
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + user.getId() + FileUtil.getExtension());
-
-        if(!Files.exists(directoryPath)){
-            directoryPath.toFile().mkdirs();
-        }
         FileUtil.saveEntity(filePath, user);
 
         return Optional.of(user);
@@ -31,7 +26,6 @@ public class FileUserRepository implements UserRepository {
     @Override
     public Optional<User> findById(UUID userId) {
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + userId + FileUtil.getExtension());
-
         return FileUtil.loadEntity(filePath, User.class);
     }
 

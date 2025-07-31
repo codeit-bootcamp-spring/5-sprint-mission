@@ -23,8 +23,8 @@ public class JavaApplication {
     public static void main(String[] args) {
         try{
             UserServiceTest.testAll();
-//            MessageServiceTest.testAll();
-//            ChannelServiceTest.testAll();
+            MessageServiceTest.testAll();
+            ChannelServiceTest.testAll();
         } catch(Exception e){
             GlobalExceptionHandler.handleException(e);
         }
@@ -98,6 +98,7 @@ public class JavaApplication {
 
             List<Channel> before = channelService.getAllChannel();
 
+            userService.deleteUser(user1.getId());
             channelService.deleteChannel(channel1.getId());
 
             List<Channel> after = channelService.getAllChannel();
@@ -157,7 +158,7 @@ public class JavaApplication {
             Message updatedMessage = messageService.updateMessage(originMessage.getId(), "메시지 업데이트 내용");
 
             boolean result1 = originMessage.getId().equals(updatedMessage.getId());
-            boolean result2 = originMessage.getContent().equals(updatedMessage.getContent());
+            boolean result2 = updatedMessage.getContent().equals("메시지 업데이트 내용");
 
             if(result1 && result2){
                 System.out.println("MessageServiceTest: 메시지 업데이트 : O");
