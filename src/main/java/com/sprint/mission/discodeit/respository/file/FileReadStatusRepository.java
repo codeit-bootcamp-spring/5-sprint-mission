@@ -16,7 +16,7 @@ public class FileReadStatusRepository extends FileStore<ReadStatus> implements R
         }
     }
 
-    // 메시지 읽은 시각 저장 / 갱신
+    // 메시지 상태 저장 / 갱신
     @Override
     public void save(ReadStatus readStatus) {
         data.put(readStatus.getId(), readStatus);
@@ -38,12 +38,9 @@ public class FileReadStatusRepository extends FileStore<ReadStatus> implements R
     // 특정 채널의 메시지 상태
     @Override
     public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
-        for (ReadStatus readStatus : data.values()) {
-            if (readStatus.getUserId().equals(userId) && readStatus.getChannelId().equals(channelId)) {
-                return Optional.of(readStatus);
-            }
-        }
-        return Optional.empty();
+        return data.values().stream()
+                .filter(rs -> rs.getUserId().equals(userId) && rs.getChannelId().equals(channelId))
+                .findFirst();
     }
 
 
