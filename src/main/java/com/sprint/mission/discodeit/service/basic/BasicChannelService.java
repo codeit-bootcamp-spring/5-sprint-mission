@@ -1,17 +1,19 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.basic;
+
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
 
-
-public class JCFChannelService implements ChannelService {
+public class BasicChannelService implements ChannelService {
 
     private final ChannelRepository repo;
 
-    public JCFChannelService(ChannelRepository repo) {
+    public BasicChannelService(ChannelRepository repo) {
         this.repo = repo;
     }
 

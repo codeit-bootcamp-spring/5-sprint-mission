@@ -1,22 +1,27 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-public class Channel {
+public class Channel implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private UUID id;
     private Long createdAt; // 생성시간
     private Long updatedAt; // 수정시간
 
-
-    private String channelname; // 채널이름
+    private String channelname;
 
     public Channel(String channelname) {
         this.id = UUID.randomUUID();
-        this.channelname = channelname;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = createdAt;
+        this.channelname = channelname;
     }
+
 
     public UUID getId() {
         return id;
@@ -34,8 +39,8 @@ public class Channel {
         return channelname;
     }
 
-    public void update(String channelname){
-        this.channelname = channelname;
+    public void update(String content){
+        this.channelname = content;
         this.updatedAt = System.currentTimeMillis();
     }
 
