@@ -7,8 +7,8 @@ import java.util.UUID;
 
 public interface MessageService {
     Message create(Message message);
-    Message findById(UUID id);
-    List<Message> findAll();
-    boolean update(UUID id, Message message);
+    Message read(UUID id);
+    List<Message> readAll();
+    boolean update(UUID id, String newContent); // ← boolean 반환
     void delete(UUID id);
 }
