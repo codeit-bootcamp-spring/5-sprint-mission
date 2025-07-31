@@ -32,18 +32,10 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public boolean update(UUID id, Channel updatedChannel) {
-        Channel current = data.get(id);
-        if (current == null) return false;
-        Channel newChannel = new Channel(
-                current.getId(),
-                current.getCreatedAt(),
-                System.currentTimeMillis(),
-                updatedChannel.getName(),
-                updatedChannel.getDescription(),
-                updatedChannel.getChannelType(),
-                updatedChannel.isPrivate()
-        );
-        data.put(id, newChannel);
+        if (!data.containsKey(id)) {
+            return false;
+        }
+        data.put(id, updatedChannel);
         return true;
     }
 

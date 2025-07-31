@@ -1,8 +1,12 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Channel {
+public class Channel implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
     private final long createdAt;
     private final long updatedAt;
@@ -33,7 +37,18 @@ public class Channel {
         return new Channel(id, createdAt, System.currentTimeMillis(), newName, description, channelType, isPrivate);
     }
 
-    // Getters
+    public Channel withDescription(String newDescription) {
+        return new Channel(id, createdAt, System.currentTimeMillis(), name, newDescription, channelType, isPrivate);
+    }
+
+    public Channel withChannelType(String newType) {
+        return new Channel(id, createdAt, System.currentTimeMillis(), name, description, newType, isPrivate);
+    }
+
+    public Channel withPrivacy(boolean newPrivacy) {
+        return new Channel(id, createdAt, System.currentTimeMillis(), name, description, channelType, newPrivacy);
+    }
+
     public UUID getId() {
         return id;
     }
@@ -61,5 +76,19 @@ public class Channel {
     public boolean isPrivate() {
         return isPrivate;
     }
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", channelType='" + channelType + '\'' +
+                ", isPrivate=" + isPrivate +
+                '}';
+    }
 }
+
 
