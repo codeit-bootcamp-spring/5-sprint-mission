@@ -43,11 +43,16 @@ public class JCFMessageRepository implements MessageRepository {
 
     @Override
     public void update(UUID id, Message message) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        for (int i = 0; i < messages.size(); i++) {
+            if (messages.get(i).getId().equals(id)) {
+                messages.set(i, message);
+                break;
+            }
+        }
     }
 
     @Override
     public boolean delete(UUID id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return messages.removeIf(message -> message.getId().equals(id));
     }
 }
