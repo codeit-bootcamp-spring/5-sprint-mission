@@ -100,15 +100,14 @@ public class BasicChannelService implements ChannelService {
 
         List<Channel> channels = channelRepository.findAllByUserId(userId);
 
-        return channels.stream().map(c -> {
-            return ChannelDto.DetailResponse.builder()
-                .id(c.getId())
-                .name(c.getName())
-                .description(c.getDescription())
+        return channels.stream().map(c ->
+            ChannelDto.DetailResponse.builder()
+            .id(c.getId())
+            .name(c.getName())
+            .description(c.getDescription())
 //                .lastMessageCreatedAt()
-                .userIds(c.getUserIds())
-                .build();
-        }).collect(Collectors.toList());
+            .userIds(c.getUserIds())
+            .build()).collect(Collectors.toList());
     }
 
     public ChannelDto.DetailResponse update(ChannelDto.UpdateRequest request){

@@ -1,9 +1,6 @@
 package com.sprint.mission.discodeit.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
@@ -13,6 +10,7 @@ public class UserDto {
     @Getter
     @Setter
     @NoArgsConstructor
+    @RequiredArgsConstructor
     public static class CreateRequest {
         private String name;
         private String email;
@@ -23,6 +21,7 @@ public class UserDto {
     @Getter
     @Setter
     @NoArgsConstructor
+    @RequiredArgsConstructor
     public static class UpdateRequest {
         private UUID id;
         private String name;

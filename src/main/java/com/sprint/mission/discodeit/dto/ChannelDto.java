@@ -1,10 +1,7 @@
 package com.sprint.mission.discodeit.dto;
 
 import com.sprint.mission.discodeit.entity.ChannelType;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,7 +10,7 @@ import java.util.UUID;
 public class ChannelDto {
 
     @Getter
-    @Setter
+    @NoArgsConstructor
     @RequiredArgsConstructor
     public static class CreateRequest {
         ChannelType type;
@@ -24,7 +21,7 @@ public class ChannelDto {
     }
 
     @Getter
-    @Setter
+    @NoArgsConstructor
     @RequiredArgsConstructor
     public static class UpdateRequest {
         UUID id;
@@ -33,7 +30,6 @@ public class ChannelDto {
     }
 
     @Getter
-    @Setter
     @RequiredArgsConstructor
     @Builder
     public static class DetailResponse {
