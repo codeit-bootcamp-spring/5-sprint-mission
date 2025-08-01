@@ -1,8 +1,5 @@
 package com.sprint.mission.discodeit.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.lang.Nullable;
 import java.util.UUID;
 
