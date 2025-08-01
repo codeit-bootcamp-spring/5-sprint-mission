@@ -10,119 +10,111 @@ import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
+import javax.swing.*;
+import java.util.List;
 import java.util.UUID;
 
 public class JavaApplication {
     public static void main(String[] args) {
 
         /*
-        * Map을 이용한 JCF(java collection framework)의 서비스 구현체
-        * Channel, Message, User 객체 세 가지를
-        * 생성 -> 조회 -> 수정 -> 삭제 테스트하는 파일
-        * */
+         * Map을 이용한 JCF(java collection framework)의 서비스 구현체
+         * Channel, Message, User 객체 세 가지를
+         * 생성 -> 조회 -> 수정 -> 삭제 테스트하는 파일
+         * */
 
-        //User 테스트
+        /* given - when - then 테스트
+         * ~인 상황에서, ~를 했을때, ~의 결과가 나와야 한다.
+         */
 
-        //1. 유저 서비스 구현체 생성
+
+        //User Test
+        //1. Given: 구현체 및 객체 생성
         UserService userService = new JCFUserService();
+        User user = new User("test1", "1234");
 
-        //2. 유저 객체 생성 및 등록
-        User user = new User("test1", "1234"); // 일반 생성자 호출
-        userService.create(user);
-        System.out.println("유저 등록: " + user.getId());
-        System.out.println("유저 아이디 확인 : " + user.getUserId());
-        System.out.println("유저 비밀번호 확인 :" + user.getPassword());
+        //2. When: 등록/조회/수정
+        userService.create(user); // 유저 등록
+        User founduser = userService.findById(user.getId()); // 단건 조회
+        List<User> allUsers = userService.findAll(); // 전체 조회
+        founduser.updateTime(); // 메모리에서만 수정 시간 갱신
+        userService.update(founduser); // 저장소 Map까지 수정
 
+        //3. Then: 등록/조회/수정 검증
+        System.out.println("✅유저 등록: " + founduser.getId());
+        System.out.println("✅유저 아이디 조회: " + founduser.getUserId());
+        System.out.println("✅유저  비밀번호 조회: " + founduser.getPassword());
+        System.out.println("✅유저 단건 조회:" + userService.findById(user.getId()));
+        System.out.println("유저 전체 조회" + userService.findAll());
+        System.out.println("✅유저 수정 후 조회: " + userService.findById(user.getId()));
 
-        //3. 단건 조회
-        User foundUser = userService.findById(user.getId());
-        System.out.println("유저 단건 조회: " + foundUser.getId());
-
-        //4. 전체 조회
-        System.out.println("유저 전체 조회: " + userService.findAll());
-
-        //5. 수정
-        foundUser.updateTime(); //수정 시간만 바꾸기
-        userService.update(foundUser); //Map에 반영
-
-        //6. 수정 확인
-        System.out.println("유저 수정 후 조회: " + userService.findById(user.getId()));
-
-        //7. 삭제
+        //4. When: 삭제
         userService.delete(user.getId());
 
-        //8. 삭제 확인
-        System.out.println("유저 삭제 후 조회: " + userService.findById(user.getId()));
-        System.out.println("----------------------------------------------------");
+        //5. Then: 삭제 검증
+        System.out.println("✅유저 삭제 후 조회: " + userService.findById(user.getId()));
+        System.out.println("--------------------------------------------------------");
 
-        //Channel 테스트
+        //Channel Test
+        //1. Given: 구현체 및 객체 생성
+        ChannelService channelService = new JCFChannelService(); 
+        Channel channel = new Channel("테스트제목", "설명테스트", "voice"); 
 
-        //1. 채널 서비스 구현체 생성
-        ChannelService channelService = new JCFChannelService();
+        //2. When: 등록/조회/수정
+        channelService.create(channel); // 채널 등록
+        Channel foundChannel = channelService.findById(channel.getId());//단건 조회
+        List<Channel> allChannel = channelService.findAll();//전체 조회
+        foundChannel.updateTime(); // 메모리안에서만 수정시간 갱신
+        channelService.update(foundChannel);// 저장소 Map 값까지 수정
 
-        //2. 채널 객체 생성 및 등록
-        Channel channel = new Channel("공지", "팀 전체 공지 채널", "text"); //uuid 자동 생성
-        channelService.create(channel); //map에 저장
-        System.out.println("채널 등록 ID: " + channel.getId()); //생성자에서 만든 uuid
-        System.out.println("채널 타이틀: " + channel.getTitle());
-        System.out.println("채널 설명: " + channel.getDescription());
-        System.out.println("채널 타입: " + channel.getType());
+        //3. Then: 등록/조회/수정 검증
+        System.out.println("✅채널 등록: " + channel.getId());
+        System.out.println("✅채널 제목 조회: " + channel.getTitle());
+        System.out.println("✅채널 설명 조회: " + channel.getDescription());
+        System.out.println("✅채널 타입 조회: " + channel.getChanneltype());
+        System.out.println("✅채널 단건 조회: " + channelService.findById(channel.getId()));
+        System.out.println("✅채널 전체 조회: " + channelService.findAll());
+        System.out.println("✅채널 수정 후 조회: " + channelService.findById(channel.getId()));
 
-        //3. 등록한 채널 ID 단건 조회
-        Channel foundChannel = channelService.findById(channel.getId());
-        System.out.println("채널 단건 조회:" + foundChannel.getId());
+        //4. When: 삭제
+        channelService.delete(foundChannel.getId());
 
-        //4. 전체 조회 (List 형태로 반환)
-        System.out.println("채널 전체 조회" + channelService.findAll());
-
-        //5. 수정
-        foundChannel.updateTime(); //수정 시간만 바꾸기
-        channelService.update(foundChannel); //Map에 덮어쓰기
-
-        //6. 수정된 데이터 확인
-        System.out.println("채넣 수정 후 조회: " + channelService.findById(channel.getId()).getUpdateAt());
-
-        //7. 삭제
-        channelService.delete(channel.getId());
-
-        //8. 삭제 확인
-        System.out.println("채널 삭제 후 조회: " + channelService.findById(channel.getId()));
-        System.out.println("----------------------------------------------------");
+        //5. Then: 삭제 검증
+        System.out.println("✅채널 삭제 후 조회: " + channelService.findById(channel.getId()));
+        System.out.println("--------------------------------------------------------");
 
 
-        //Message 테스트
+        //Message Test
+        //1. Given: 구현체 및 객체 생성
+        MessageService messageService = new JCFMessageService(); 
+        Message message = new Message("테스트", UUID.randomUUID(), UUID.randomUUID()); 
 
-        //1. 메세지 서비스 구현체 생성
-        MessageService messageService = new JCFMessageService();
 
-        //2. 메세지 객체 생성 및 등록
-        Message message = new Message("테스트용", UUID.randomUUID(), UUID.randomUUID());
-        messageService.create(message);
-        System.out.println("message 등록: ID: " + message.getId());
-        System.out.println("message 보낸 사람: " + message.getSender());
-        System.out.println("message 받는 사람: " +message.getReceiver());
+        //2. When: 등록/조회/수정
+        messageService.create(message); // 등록
+        Message foundMessage = messageService.findById(message.getId()); //단건 조회
+        List<Message> allMessage = messageService.findAll(); // 전체 조회
+        foundMessage.updateTime(); // 메모리 안에서만 수정 시간 갱신
+        messageService.update(foundMessage); // 저장소 Map까지 수정
 
-        //3. ID로 단건 조회
-        Message foundMessage = messageService.findById(message.getId());
-        System.out.println("단건 메세지 조회: " + foundMessage.getId());
+        //3. Then: 등록/조회/수정 검증
+        System.out.println("✅메세지 등록: " + message.getId());
+        System.out.println("✅메세지 내용 조회: " + message.getContent());
+        System.out.println("✅메세지 보낸 사람 조회: " + message.getSender());
+        System.out.println("✅메세지 채널ID 조회: " + message.getChannelId());
+        System.out.println("✅메세지 단건 조회: " + messageService.findById(message.getId()));
+        System.out.println("✅메세지 전체 조회: " + messageService.findAll());
+        System.out.println("✅수정 메세지 조회: " + messageService.findById(message.getId()));
 
-        //4. 전체조회(모든 메세지)
-        System.out.println("전체 메세지 조회: " + messageService.findAll());
+        //4. When: 삭제
+        messageService.delete(foundMessage);
 
-        //5. 수정
-        foundMessage.updateTime(); //수정 시간만 바꾸기
-        messageService.update(foundMessage); //다시 Map에 저장
-
-        //6. 수정결과 출력해보기
-        System.out.println("메세지 수정 후 조회: " + foundMessage); //객체 toString 출력
-
-        //7. 삭제
-        messageService.delete(message);
-
-        //8. 삭제 확인
-        System.out.println("메세지 삭제 후 조회: " + messageService.findById(message.getId()));
-        System.out.println("----------------------------------------------------");
+        //5. Then: 삭제 검증
+        System.out.println("✅삭제 후 메세지 조회: " + messageService.findById(foundMessage.getId()));
+        System.out.println("--------------------------------------------------------");
 
 
     }
+
+
 }

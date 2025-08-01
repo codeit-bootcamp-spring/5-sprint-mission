@@ -5,12 +5,12 @@ import java.util.UUID;
 //엔티티
 public class Message {
     //필드
-    private UUID id; // 고유 id (내부 식별자)
+    private final UUID id; // 메시지 ㅠ 고유 id (내부 식별자)
     private Long createdAt; // 생성시간
     private Long updatedAt; // 수정시간
     private String content; // 내용
-    private UUID sender; // 보낸 사람
-    private UUID receiver; // 받는 사람
+    private UUID channelId; // 채널 id
+    private UUID sender; // 채널 기준으로 누가 보냈는지
 
 
 
@@ -25,13 +25,13 @@ public class Message {
 
     //일반 생성자
     //사용자로부터 받는 값
-    public Message(String content, UUID sender, UUID receiver) {
+    public Message(String content, UUID sender, UUID channelId) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = createdAt;
         this.content = content;
+        this.channelId = channelId;
         this.sender = sender;
-        this.receiver = receiver;
     }
 
     //Getter
@@ -56,12 +56,12 @@ public class Message {
         return content;
     }
 
-    public UUID getSender() {
-        return sender;
+    public UUID getChannelId() {
+        return channelId;
     }
 
-    public UUID getReceiver() {
-        return receiver;
+    public UUID getSender() {
+        return sender;
     }
 
     //toString
@@ -72,8 +72,8 @@ public class Message {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", content='" + content + '\'' +
+                ", channelId=" + channelId +
                 ", sender=" + sender +
-                ", receiver=" + receiver +
                 '}';
     }
 }

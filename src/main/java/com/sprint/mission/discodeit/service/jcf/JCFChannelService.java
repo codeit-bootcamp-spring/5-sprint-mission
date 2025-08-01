@@ -28,9 +28,7 @@ public class JCFChannelService implements ChannelService {
     //부모 클래스나 인터페이스에 정의된 메서드를 자식 클래스에서 재정의
     @Override
     public void create(Channel channel) {
-        data.put(channel.getId(),channel); //채널 객체 받아 map에 uuid-채널 구조로 저장
-
-
+        data.put(channel.getId(), channel); //채널 객체 받아 map에 uuid-채널 구조로 저장
     }
 
     @Override
@@ -45,7 +43,7 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public void update(Channel channel) {
-        data.put(channel.getId(),channel);
+        data.put(channel.getId(), channel);
 
     }
 

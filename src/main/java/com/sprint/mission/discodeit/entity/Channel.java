@@ -5,12 +5,12 @@ import java.util.UUID;
 //엔티티
 public class Channel {
     //필드
-    private UUID id; // 고유 id (내부 식별자)
+    private final UUID id; // 채널고유 id (내부 식별자)
     private Long createdAt; // 생성시간
     private Long updatedAt; // 수정시간
     private String title; // 채널 이름
     private String description; // 채널 설명
-    private String type; // 음성채널 or 일반채널
+    private String channeltype; // 음성채널 or 일반채널
 
 
     //기본 생성자
@@ -22,13 +22,13 @@ public class Channel {
     }
 
     //일반 생성자
-    public Channel(String title, String description, String type) {
+    public Channel(String title, String description, String channeltype) {
         this.id = UUID.randomUUID(); //생성자 내부 초기화
         this.createdAt = System.currentTimeMillis(); //생성자 내부 초기화
         this.updatedAt = createdAt; //생성자 내부 초기화
         this.title = title;
         this.description = description;
-        this.type = type;
+        this.channeltype = channeltype;
     }
 
     //Getter
@@ -52,8 +52,8 @@ public class Channel {
         return description;
     }
 
-    public String getType() {
-        return type;
+    public String getChanneltype() {
+        return channeltype;
     }
 
     //메서드
@@ -71,7 +71,7 @@ public class Channel {
                 ", updatedAt=" + updatedAt +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", type='" + type + '\'' +
+                ", channeltype='" + channeltype + '\'' +
                 '}';
     }
 }
