@@ -18,7 +18,4 @@ public interface BinaryContentRepository {
     // 전체 상태 조회
     List<BinaryContent> findAll();
 
-
-
-
 }

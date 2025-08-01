@@ -11,6 +11,11 @@ import java.util.UUID;
 
 /**
  * 이미지, 파일 등 바이너리 데이터를 표현하는 도메인 모델입니다. 사용자의 프로필 이미지, 메시지에 첨부된 파일을 저장하기 위해 활용합니다.
+ * <p>{@link #id} - User 또는 Message의 PK로 사용</p>
+ * <p>{@link #createdAt}</p>
+ * <p>{@link #name}</p>
+ * <p>{@link #contentType}</p>
+ * <p>{@link #data}</p>
  **/
 @Getter
 public class BinaryContent {
@@ -19,8 +24,19 @@ public class BinaryContent {
     private final Instant createdAt;
 
     // 바이너리 정보
-    private final String name; // 파일명
-    private final String contentType; // MIME 타입 ex: image/png application/pdf
+    /**
+     * 파일명 ex: image.png
+     **/
+    private final String name;
+
+    /**
+     * MIME 타입 ex: "image/png", "application/pdf"
+     **/
+    private final String contentType;
+
+    /**
+     * 바이너리 데이터
+     **/
     private final byte[] data;
 
 
