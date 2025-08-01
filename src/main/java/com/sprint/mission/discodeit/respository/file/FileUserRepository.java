@@ -2,17 +2,15 @@ package com.sprint.mission.discodeit.respository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.UserRepository;
-import org.springframework.stereotype.Repository;
 import java.util.*;
-import java.util.stream.Collectors;
 
-@Repository
 public class FileUserRepository extends FileStore<User> implements UserRepository {
 
     private final Map<UUID, User> userMap = new HashMap<>();
 
-    public FileUserRepository() {
-        super("data/user.store");
+
+    public FileUserRepository(String rootDir) {
+        super(rootDir + "user.store");
         Map<UUID, User> loaded = loadFromFile();
         if (loaded != null) {
             userMap.putAll(loaded);
@@ -44,10 +42,10 @@ public class FileUserRepository extends FileStore<User> implements UserRepositor
     }
 
     @Override
-    public List<User> findByName(String name) {
+    public Optional<User> findByName(String name) {
         return userMap.values().stream()
-                .filter(user -> user.getName().equals(name))
-                .collect(Collectors.toList());
+                .filter(user -> user.getEmail().equals(name))
+                .findFirst();
     }
 
     @Override

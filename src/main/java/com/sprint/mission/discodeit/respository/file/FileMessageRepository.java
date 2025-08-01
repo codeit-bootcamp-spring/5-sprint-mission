@@ -5,13 +5,13 @@ import com.sprint.mission.discodeit.respository.MessageRepository;
 import org.springframework.stereotype.Repository;
 import java.util.*;
 
-@Repository
+
 public class FileMessageRepository extends FileStore<Message> implements MessageRepository {
 
     private final Map<UUID, Message> messageMap = new HashMap<>();
 
-    public FileMessageRepository() {
-        super("data/message.store");
+    public FileMessageRepository(String rootDir) {
+        super(rootDir + "message.store");
         Map<UUID, Message> loaded = loadFromFile();
         messageMap.putAll(loaded);
     }

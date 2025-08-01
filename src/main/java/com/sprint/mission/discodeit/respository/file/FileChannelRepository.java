@@ -5,13 +5,13 @@ import com.sprint.mission.discodeit.respository.ChannelRepository;
 import org.springframework.stereotype.Repository;
 import java.util.*;
 
-@Repository
+
 public class FileChannelRepository extends FileStore<Channel> implements ChannelRepository {
 
     private final Map<UUID, Channel> channelMap = new HashMap<>();
 
-    public FileChannelRepository() {
-        super("data/channel.store");
+    public FileChannelRepository(String rootDir) {
+        super(rootDir + "channel.store");
         Map<UUID, Channel> loaded = loadFromFile();
         channelMap.putAll(loaded);
     }
