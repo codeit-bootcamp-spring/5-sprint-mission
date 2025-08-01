@@ -43,12 +43,21 @@ public class JCFUserService implements UserService {
 
     @Override
     public void update(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("USER 값이 NULL입니다.");
+        }
         data.put(user.getId(),user); //같은 uuid면 message 값 덮어씀
 
     }
 
     @Override
     public void delete(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID 값이 NUll입니다.");
+        }
+        if (!data.containsKey(id)) {
+            throw new IllegalArgumentException("해당 ID를 가진 유저가 존재하지 않습니다.");
+        }
         data.remove(id);
 
     }

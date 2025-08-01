@@ -54,11 +54,13 @@ public class JavaApplication {
         //5. Then: 삭제 검증
         System.out.println("✅유저 삭제 후 조회: " + userService.findById(user.getId()));
         System.out.println("--------------------------------------------------------");
+        System.out.println("--------------------------------------------------------");
+
 
         //Channel Test
         //1. Given: 구현체 및 객체 생성
-        ChannelService channelService = new JCFChannelService(); 
-        Channel channel = new Channel("테스트제목", "설명테스트", "voice"); 
+        ChannelService channelService = new JCFChannelService();
+        Channel channel = new Channel("테스트제목", "설명테스트", "voice");
 
         //2. When: 등록/조회/수정
         channelService.create(channel); // 채널 등록
@@ -82,12 +84,19 @@ public class JavaApplication {
         //5. Then: 삭제 검증
         System.out.println("✅채널 삭제 후 조회: " + channelService.findById(channel.getId()));
         System.out.println("--------------------------------------------------------");
+        System.out.println("--------------------------------------------------------");
 
 
         //Message Test
+        //테스트위해 sender & channel 다시 등록
+        User sender = new User("senderUser", "pw1234");
+        userService.create(sender);
+        Channel messageChannel = new Channel("메세지 테스트 채널", "채팅용", "text");
+        channelService.create(messageChannel);
+
         //1. Given: 구현체 및 객체 생성
-        MessageService messageService = new JCFMessageService(); 
-        Message message = new Message("테스트", UUID.randomUUID(), UUID.randomUUID()); 
+        MessageService messageService = new JCFMessageService(userService); //유저 유효성 검사위해 userService 전달
+        Message message = new Message("테스트내용", sender.getId(), messageChannel.getId());
 
 
         //2. When: 등록/조회/수정
@@ -111,6 +120,7 @@ public class JavaApplication {
 
         //5. Then: 삭제 검증
         System.out.println("✅삭제 후 메세지 조회: " + messageService.findById(foundMessage.getId()));
+        System.out.println("--------------------------------------------------------");
         System.out.println("--------------------------------------------------------");
 
 
