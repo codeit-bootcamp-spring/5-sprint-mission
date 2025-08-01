@@ -105,7 +105,7 @@ public class JavaApplication {
         System.out.println("\n--- User Exception Handling ---");
 
         try {
-           userService.delete(userToBeDeleted.getId());
+            userService.delete(userToBeDeleted.getId());
         } catch (NoSuchElementException e) {
             System.out.println("  - 'OldUser' 재삭제 시도 (예외 발생): " + e.getMessage());
         }
@@ -168,7 +168,7 @@ public class JavaApplication {
 
         channelGeneral.addUser(userAdmin);
         channelGeneral.addUser(userGuest);
-        System.out.println("  - #general-chat 채널에 사용자 AdminBot, GuestUser 추가: " );
+        System.out.println("  - #general-chat 채널에 사용자 AdminBot, GuestUser 추가: ");
         System.out.println(channelService.find(channelGeneral.getId()));
 
         channelDev.addUser(userDev);
@@ -237,7 +237,7 @@ public class JavaApplication {
         }
 
         try {
-            System.out.println( channelService.create("", "some description"));
+            System.out.println(channelService.create("", "some description"));
         } catch (IllegalArgumentException e) {
             System.out.println("  - 빈 채널 이름 생성 시도 (예외 발생): " + e.getMessage());
         }
@@ -269,13 +269,13 @@ public class JavaApplication {
         Message msg4 = messageService.create(channelGeneral.getId(), userDev.getId(), "이 메시지는 곧 삭제될 예정입니다.");
 
 
-        System.out.println("  - 생성된 메시지: " + msg1.getContent() + ", " + msg2.getContent() + ", " + msg3.getContent() + "," +msg4.getContent());
+        System.out.println("  - 생성된 메시지: " + msg1.getContent() + ", " + msg2.getContent() + ", " + msg3.getContent() + "," + msg4.getContent());
 
         System.out.println("\n--- Message 조회(단건, 다건) ---");
 
-        System.out.println("  - '새로운 기능~' 메시지 단건 조회: " );
+        System.out.println("  - '새로운 기능~' 메시지 단건 조회: ");
         System.out.println(messageService.find(msg3.getId()));
-        System.out.println("  - '삭제될 예정~' 메시지 단건 조회: " );
+        System.out.println("  - '삭제될 예정~' 메시지 단건 조회: ");
         System.out.println(messageService.find(msg4.getId()));
 
         List<Message> allMessages = messageService.findAll();
@@ -284,16 +284,16 @@ public class JavaApplication {
 
         System.out.println("\n--- Message 수정 ---");
 
-        System.out.println(" - 공지 메시지 수정 전 조회: " );
+        System.out.println(" - 공지 메시지 수정 전 조회: ");
         System.out.println(messageService.find(msg1.getId()));
-        System.out.println(" - 일반 메시지 수정 전 조회: " );
+        System.out.println(" - 일반 메시지 수정 전 조회: ");
         System.out.println(messageService.find(msg2.getId()));
 
         System.out.println("\n--- Message 수정된 데이터 조회 ---");
 
         messageService.update(msg1.getId(), "[긴급 공지] 서버 점검이 완료되었습니다. 접속 가능합니다!");
         System.out.println(" - 공지 메시지 수정 후 조회: ");
-        System.out.println( messageService.find(msg1.getId()));
+        System.out.println(messageService.find(msg1.getId()));
         messageService.update(msg2.getId(), "안녕하세요! 잘 부탁드립니다. (수정됨)");
         System.out.println(" - 일반 메시지 수정 후 조회: ");
         System.out.println(messageService.find(msg2.getId()));
@@ -318,14 +318,14 @@ public class JavaApplication {
         }
 
         try {
-            System.out.println( messageService.create(channelGeneral.getId(), userGuest.getId(), ""));
+            System.out.println(messageService.create(channelGeneral.getId(), userGuest.getId(), ""));
         } catch (IllegalArgumentException e) {
             System.out.println("  - 빈 메시지 내용 생성 시도 (예외 발생): " + e.getMessage());
         }
 
         System.out.println("\n--- 심화 요구 사항: 연관된 도메인 모델 데이터 테스트 ---");
         try {
-            System.out.println( messageService.create(channelGeneral.getId(), UUID.randomUUID(), "유효하지 않은 사용자의 메시지"));
+            System.out.println(messageService.create(channelGeneral.getId(), UUID.randomUUID(), "유효하지 않은 사용자의 메시지"));
         } catch (IllegalArgumentException e) {
             System.out.println("  - 유효하지 않은 사용자 메시지 생성 시도 (예외 발생): " + e.getMessage());
         }
