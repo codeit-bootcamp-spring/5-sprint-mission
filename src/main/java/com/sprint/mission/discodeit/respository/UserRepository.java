@@ -35,7 +35,7 @@ public interface UserRepository {
      * @param name 조회할 사용자 이름
      * @return 해당 이름을 가진 사용자 리스트 (중복 가능성 있음)
      */
-    List<User> findByName(String name);
+    Optional<User> findByName(String name);
 
     /**
      * 이메일을 기준으로 사용자를 조회
