@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.StringJoiner;
 import java.util.UUID;
 
@@ -15,10 +16,15 @@ public class Message implements Serializable {
 
     private String content;
 
+    private UUID channelId;
+    private UUID authorId;
+
     public Message(String content) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
+        this.createdAt = Instant.now().getEpochSecond();
         this.updatedAt = createdAt;
+        this.channelId = channelId;
+        this.authorId = authorId;
         this.content = content;
     }
 
@@ -39,18 +45,35 @@ public class Message implements Serializable {
         return content;
     }
 
-    public void update(String content){
-        this.content = content;
-        this.updatedAt = System.currentTimeMillis();
+    public UUID getChannelId() {
+        return channelId;
     }
+
+    public UUID getAuthorId() {
+        return authorId;
+    }
+
+    public void update(String content){
+        boolean flag = false;
+        if(content != null && !content.equals(this.content)){
+            this.content = content;
+            flag = true;
+        }
+        if(flag){
+            this.updatedAt = Instant.now().getEpochSecond();
+        }
+    }
+
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", Message.class.getSimpleName() + "[", "]")
-                .add("id = " + id)
-                .add("content = '" + content + "'")
-                .add("createdAt = " + createdAt)
-                .add("updatedAt = " + updatedAt)
-                .toString();
+        return "Message{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", content='" + content + '\'' +
+                ", channelId=" + channelId +
+                ", authorId=" + authorId +
+                '}';
     }
 }
