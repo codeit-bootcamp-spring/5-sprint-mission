@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 
@@ -9,14 +10,7 @@ import java.util.UUID;
 
 public interface ChannelService {
 
-    /**
-     * 새로운 채널을 생성
-     *
-     * @param name  채널 이름
-     * @param type 채널 타입
-     * @return 생성된 Channel 객체
-     */
-    Channel create(String name, ChannelType type);
+    Channel create(ChannelDto.Create dto);
 
     /**
      * 채널 검색
@@ -53,6 +47,8 @@ public interface ChannelService {
      * @return 변경된 채널 객체
      * */
     Channel updateTopic(UUID id, String topic);
+
+    Channel updateDescription(UUID id, String description);
 
     /**
      * 채널 삭제

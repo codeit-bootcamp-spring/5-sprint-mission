@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
@@ -9,22 +10,10 @@ import java.util.UUID;
 
 public interface MessageService {
 
-    /**
-     * 모든 메시지
-     *
-     * @return 메시지 List
-     */
+    Message create(MessageDto.Create dto);
+
     List<Message> findAll();
 
-    /**
-     * 새로운 메시지 생성
-     *
-     * @param user  User 객체
-     * @param channel Channel 객체
-     * @param content 메시지 내용
-     * @return 생성된 Message 객체
-     */
-    Message create(User user, Channel channel, String content);
 
     /**
      * 문자가 포함된 메시지 검색
