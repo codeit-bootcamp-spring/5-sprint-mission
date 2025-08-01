@@ -26,6 +26,8 @@ public class UserDto {
     public static class UpdateRequest {
         private UUID id;
         private String name;
+        private String email;
+        private String password;
         private MultipartFile profileImage;
     }
 

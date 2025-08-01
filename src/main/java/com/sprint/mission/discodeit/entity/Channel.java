@@ -1,12 +1,14 @@
 package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Getter
+@ToString
 public class Channel extends BaseEntity {
 
     private ChannelType type;
@@ -77,20 +79,5 @@ public class Channel extends BaseEntity {
         if (messageId != null) {
             this.messageIds.remove(messageId);
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Channel{" +
-            "type=" + type +
-            ", name='" + name + '\'' +
-            ", description='" + description + '\'' +
-            ", adminUserId=" + adminUserId +
-            ", userIds=" + userIds +
-            ", messageIds=" + messageIds +
-            ", id=" + id +
-            ", createdAt=" + createdAt +
-            ", updatedAt=" + updatedAt +
-            '}';
     }
 }

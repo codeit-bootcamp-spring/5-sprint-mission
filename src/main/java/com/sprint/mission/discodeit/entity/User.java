@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.dto.UserDto;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.UUID;
 
 @Getter
-@Builder
+@ToString
 public class User extends BaseEntity {
     private String name;
     private String email;
@@ -28,22 +28,22 @@ public class User extends BaseEntity {
     }
 
 
-    public void update(String newName, String newEmail, String newPassword, UUID profileId) {
+    public void update(UserDto.UpdateRequest request, UUID profileId) {
         boolean anyValueUpdated = false;
 
-        if (newName != null && !newName.equals(this.name)) {
-            this.name = newName;
+        if (request.getName() != null && !request.getName().equals(this.name)) {
+            this.name = request.getName();
             anyValueUpdated = true;
         }
-        if (newEmail != null && !newEmail.equals(this.email)) {
-            this.email = newEmail;
+        if (request.getEmail() != null && !request.getEmail().equals(this.email)) {
+            this.email = request.getEmail();
             anyValueUpdated = true;
         }
-        if (newPassword != null && !newPassword.equals(this.password)) {
-            this.password = newPassword;
+        if (request.getPassword() != null && !request.getPassword().equals(this.password)) {
+            this.password = request.getPassword();
             anyValueUpdated = true;
         }
-        if(profileId != null && !profileId.equals(this.profileId)) {
+        if (profileId != null && !profileId.equals(this.profileId)) {
             this.profileId = profileId;
             anyValueUpdated = true;
         }
@@ -61,18 +61,5 @@ public class User extends BaseEntity {
             request.getPassword(),
             profileId
         );
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-            "name='" + name + '\'' +
-            ", email='" + email + '\'' +
-            ", password='" + password + '\'' +
-            ", profileId=" + profileId +
-            ", id=" + id +
-            ", createdAt=" + createdAt +
-            ", updatedAt=" + updatedAt +
-            '}';
     }
 }

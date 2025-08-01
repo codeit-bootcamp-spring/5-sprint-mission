@@ -17,7 +17,19 @@ public interface UserService {
 
     User update(UUID id, String name, UUID profileId);
 
+    // TODO mission 3 인터페이스 정리 예정 : create, find, findall, update, delete
+
+    UserDto.DetailResponse create(UserDto.CreateRequest request);
+
+    UserDto.DetailResponse update(UserDto.UpdateRequest request);
+
+    UserDto.DetailResponse findById(UUID id);
+
+    List<UserDto.DetailResponse> findAll();
+
     void delete(UUID id);
 
     void deleteAll();
+
+
 }

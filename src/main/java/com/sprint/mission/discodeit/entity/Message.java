@@ -1,12 +1,14 @@
 package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Getter
+@ToString
 public class Message extends BaseEntity {
     private String text;
     private UUID channelId;
@@ -40,17 +42,5 @@ public class Message extends BaseEntity {
         if (anyValueUpdated) {
             updateTimestamp();
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Message{" +
-            "id=" + id +
-            ", text='" + text + '\'' +
-            ", channelId=" + channelId +
-            ", authorId=" + authorId +
-            ", createdAt=" + createdAt +
-            ", updatedAt=" + updatedAt +
-            '}';
     }
 }

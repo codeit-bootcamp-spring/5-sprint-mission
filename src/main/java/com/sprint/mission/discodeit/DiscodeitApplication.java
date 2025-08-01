@@ -40,13 +40,20 @@ public class DiscodeitApplication implements CommandLineRunner {
 
 	@Autowired
 	public DiscodeitApplication(UserService userService, ChannelService channelService, MessageService messageService) {
+
 		this.userService = userService;
 		this.channelService = channelService;
 		this.messageService = messageService;
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(DiscodeitApplication.class, args);
+		org.springframework.context.ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, new String[0]);
+		context.getBean(DiscodeitApplication.class).run(args);
+
+		UserService userService1 = context.getBean(UserService.class);
+		ChannelService channelService1 = context.getBean(ChannelService.class);
+		MessageService messageService1 = context.getBean(MessageService.class);
+
 	}
 
 	@Override

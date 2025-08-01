@@ -7,9 +7,9 @@ import java.util.UUID;
 
 @Getter
 public class ReadStatus extends BaseEntity {
-    private final UUID userId;
-    private final UUID channelId;
-    private final Instant lastReadAt;
+    private UUID userId;
+    private UUID channelId;
+    private Instant lastReadAt;
 
     public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
         super();

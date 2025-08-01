@@ -16,4 +16,6 @@ public interface ChannelRepository {
     void deleteById(UUID id);
 
     void deleteAll();
+
+    List<Channel> findAllByUserId(UUID userId);
 }
