@@ -5,7 +5,15 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0-SNAPSHOT'
+
+compileJava {
+    exclude 'excluded/**'
+}
+
+compileTestJava {
+    exclude 'excluded/**'
+}
 
 java {
     toolchain {
@@ -35,7 +43,24 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testImplementation 'org.assertj:assertj-core:3.27.0'
+
 }
+
+//test {
+//    useJUnitPlatform()
+//    testLogging {
+//        events "passed", "skipped", "failed", "standard_out", "standard_error"
+//        showStandardStreams = true
+//        exceptionFormat = "full"
+//        showCauses = true
+//        showStackTraces = true
+//    }
+//
+//    // 테스트 결과를 항상 출력
+//    outputs.upToDateWhen { false }
+//}
 
 tasks.named('test') {
     useJUnitPlatform()
