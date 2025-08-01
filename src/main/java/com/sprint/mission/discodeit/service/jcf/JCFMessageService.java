@@ -20,8 +20,8 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public Message findMessage(String content) {
-        Message message = messages.get(content);
+    public Message findMessage(UUID msgId) {
+        Message message = messages.get(msgId.toString());
         if (message == null) {
             System.out.println("해당 메시지가 없습니다.");
         }
@@ -37,20 +37,20 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public void updateMessage(String content, String newContent) {
-        Message message = messages.remove(content);
-        if (message == null) {
-            System.out.println("수정할 메시지가 없습니다.");
+    public void updateMessage(UUID msgId, String newMsg) {
+        Message msg = messages.get(msgId.toString());
+        if (msg == null) {
+            System.out.println("해당 ID의 메시지를 찾을 수 없습니다.");
             return;
         }
-        message.setContent(newContent);
-        messages.put(newContent, message);
-        System.out.println("메시지가 수정되었습니다: " + message);
+
+        msg.setContent(newMsg);
+        System.out.println("메시지가 수정되었습니다: " + msg);
     }
 
     @Override
-    public void deleteMessage(String content) {
-        Message removed = messages.remove(content);
+    public void deleteMessage(UUID msgId) {
+        Message removed = messages.remove(msgId.toString());
         if (removed == null) {
             System.out.println("삭제할 메시지가 없습니다.");
         } else {

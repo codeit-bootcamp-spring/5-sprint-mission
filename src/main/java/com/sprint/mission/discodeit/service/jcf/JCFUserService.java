@@ -9,16 +9,17 @@ public class JCFUserService implements UserService {
     private final Map<UUID, User> users = new HashMap<>();
 
     @Override
-    public void createUser(String username, String password) {
+    public User createUser(String username, String email, String password) {
         for (User u : users.values()) {
             if (u.getUsername().equals(username)) {
                 System.out.println("이미 존재하는 사용자명입니다.");
-                return;
+                return u;
             }
         }
-        User user = new User(username, password);
+        User user = new User(username, email, password);
         users.put(user.getId(), user);
         System.out.println("사용자가 생성되었습니다: " + user);
+        return user;
     }
 
     @Override

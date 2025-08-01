@@ -1,21 +1,28 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
-public class Message {
+public class Message implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private final UUID msgId;
     private String content;
     private final String channelName;
     private final String creatorUserId;
-    private final Long createdAt;
-    private Long updatedAt;
+    private final Long createdAt = System.currentTimeMillis();
+    private Long updatedAt = System.currentTimeMillis();
+
 
     public Message(String content, String channelName, String creatorUserId) {
-        long now = System.currentTimeMillis();
+        this.msgId = UUID.randomUUID();
         this.content = content;
         this.channelName = channelName;
         this.creatorUserId = creatorUserId;
-        this.createdAt = now;
-        this.updatedAt = now;
+        this.updatedAt = getUpdatedAt();
     }
 
     public String getContent() {
@@ -38,6 +45,10 @@ public class Message {
         return updatedAt;
     }
 
+    public UUID getMsgId() {
+        return msgId;
+    }
+
     public void setContent(String content) {
         this.content = content;
     }
@@ -48,25 +59,25 @@ public class Message {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Message{");
-        sb.append("content='").append(content).append('\'');
-        sb.append(", channelName='").append(channelName).append('\'');
-        sb.append(", creatorUserId='").append(creatorUserId).append('\'');
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append('}');
-        return sb.toString();
+        return "Message{" +
+                "msgId=" + msgId +
+                ", content='" + content + '\'' +
+                ", channelName='" + channelName + '\'' +
+                ", creatorUserId='" + creatorUserId + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
-        return Objects.equals(content, message.content) && Objects.equals(channelName, message.channelName) && Objects.equals(creatorUserId, message.creatorUserId);
+        return Objects.equals(msgId, message.msgId) && Objects.equals(content, message.content) && Objects.equals(channelName, message.channelName) && Objects.equals(creatorUserId, message.creatorUserId) && Objects.equals(createdAt, message.createdAt) && Objects.equals(updatedAt, message.updatedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(content, channelName, creatorUserId);
+        return Objects.hash(msgId, content, channelName, creatorUserId, createdAt, updatedAt);
     }
 }

@@ -1,19 +1,38 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
-public class Channel {
+public class Channel implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private final String id;
     private final String channelName;
     private final String creatorUser;
-    private final Long createdAt;
-    private Long updatedAt;
+    private final long createdAt;
+    private long updatedAt;
 
-    public Channel(String name, String creatorUser) {
-        long now = System.currentTimeMillis();
-        this.channelName = name;
+    public Channel(String channelName, String creatorUser) {
+        this.id = UUID.randomUUID().toString();
+        this.channelName = channelName;
         this.creatorUser = creatorUser;
-        this.createdAt = now;
-        this.updatedAt = now;
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = this.createdAt;
+    }
+
+    public void update() {
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public String getChannelName() {

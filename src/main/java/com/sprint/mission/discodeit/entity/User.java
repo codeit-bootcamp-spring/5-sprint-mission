@@ -1,28 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-public class User {
+public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
+    private String email;
     private String username;
     private String password;
-    private final Long createdAt;
-    private Long updatedAt;
+    private final Long createdAt = System.currentTimeMillis();
+    private Long updatedAt = System.currentTimeMillis();
 
-    public User(String username, String password) {
-        long now = System.currentTimeMillis();
+    public User(String username, String email, String password) {
         this.id = UUID.randomUUID();
         this.username = username;
         this.password = password;
-        this.createdAt = now;
-        this.updatedAt = now;
+        this.email = email;
+        this.updatedAt = getUpdatedAt();
     }
 
     public void update(String newUsername, String newPassword) {
         this.username = newUsername;
         this.password = newPassword;
         this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public UUID getId() {

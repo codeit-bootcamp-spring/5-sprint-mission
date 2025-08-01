@@ -21,7 +21,7 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel findChannel(String channelName) {
+    public Channel findByChannelName(String channelName) {
         Channel ch = channels.get(channelName);
         if (ch == null) {
             System.out.println("채널이 존재하지 않습니다: " + channelName);
