@@ -29,9 +29,17 @@ public class Message extends BaseEntity {
         this.attachmentIds = attachmentIds != null ? attachmentIds : new ArrayList<>();
     }
 
-    public void update(String text) {
-        this.text = text;
-        updateTimestamp();
+    public void update(String newText) {
+        boolean anyValueUpdated = false;
+
+        if (newText != null && !newText.equals(this.text)) {
+            this.text = newText;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            updateTimestamp();
+        }
     }
 
     @Override

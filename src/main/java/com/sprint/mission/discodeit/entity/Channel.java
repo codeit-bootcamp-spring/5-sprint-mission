@@ -38,10 +38,21 @@ public class Channel extends BaseEntity {
         this.messageIds = messageIds == null ? new ArrayList<>(List.of()) : messageIds;
     }
 
-    public void update(String name, String description) {
-        this.name = name;
-        this.description = description;
-        updateTimestamp();
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            updateTimestamp();
+        }
     }
 
     public void addUser(UUID userId) {
