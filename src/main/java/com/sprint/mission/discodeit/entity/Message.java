@@ -4,6 +4,8 @@ import com.sprint.mission.discodeit.service.SoftDeletable;
 
 import java.util.UUID;
 
+import static java.time.Instant.*;
+
 public class Message implements SoftDeletable {
 
     // 소프트 삭제 여부 (true면 삭제된 상태)
@@ -19,8 +21,8 @@ public class Message implements SoftDeletable {
     // 생성자
     public Message(UUID userId, UUID channelId, String content) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.createdAt = now().getEpochSecond();
+        this.updatedAt = now().getEpochSecond();
         this.content = content;
         this.userId = userId;
         this.channelId = channelId;
@@ -37,7 +39,7 @@ public class Message implements SoftDeletable {
     // 정보 업데이트
     public void update(String content) {
         this.content = content;
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = now().getEpochSecond();
     }
 
     // 소프트 삭제 여부 반환

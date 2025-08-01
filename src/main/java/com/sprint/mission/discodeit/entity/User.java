@@ -2,9 +2,12 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.service.SoftDeletable;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static java.time.Instant.*;
 
 public class User implements SoftDeletable {
 
@@ -14,18 +17,22 @@ public class User implements SoftDeletable {
     private final UUID id;                                      // 고유 아이디
     private final Long createdAt;                               // 생성일
     private final List<UUID> channelIds =  new ArrayList<>();   // 참가한 채널의 UUID를 담을 수 있는 리스트
-    private final List<UUID> messageIds =  new ArrayList<>();   // 작성한 메세지의 UUID를 담을 수 있는 리스트
+    private final List<UUID> messageIds =  new ArrayList<>();   // 작성한 메시지의 UUID를 담을 수 있는 리스트
     private Long updatedAt;                                     // 정보 업데이트일
     private String name;                                        // 이름
     private int age;                                            // 나이
+    private String email;                                       // 미션 1 PR에서 추가하길 권고 -> 반영
+    private String password;                                    // 미션 1 PR에서 추가하길 권고 -> 반영
 
     // 생성자
-    public User(String name, int age) {
+    public User(String name, int age,  String email, String password) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.createdAt = now().getEpochSecond();
+        this.updatedAt = now().getEpochSecond();
         this.name = name;
         this.age = age;
+        this.email = email;
+        this.password = password;
     }
 
     // 반환 함수들
@@ -41,7 +48,7 @@ public class User implements SoftDeletable {
     public void update(String name, int age) {
         this.name = name;
         this.age = age;
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = now().getEpochSecond();
     }
 
     // 채널 참가
@@ -51,7 +58,7 @@ public class User implements SoftDeletable {
         }
 
         channelIds.add(channelId);
-        this.updatedAt = System.currentTimeMillis(); // 채널 추가할 때도 시간 업데이트
+        this.updatedAt = now().getEpochSecond(); // 채널 추가할 때도 시간 업데이트
         return true;
     }
 
@@ -62,18 +69,18 @@ public class User implements SoftDeletable {
         }
 
         channelIds.remove(channelId);
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = now().getEpochSecond();
         return true;
     }
 
-    // 메세지 아이디 추가
+    // 메시지 아이디 추가
     public boolean addMessage(UUID messageId) {
         if (this.messageIds.contains(messageId)) {
             return false;
         }
 
         messageIds.add(messageId);
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = now().getEpochSecond();
         return true;
     }
 

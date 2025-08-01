@@ -1,8 +1,7 @@
-package com.sprint.mission.discodeit.jcf;
+package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.util.Logger;
 
 import java.util.*;
 
@@ -10,12 +9,21 @@ import static com.sprint.mission.discodeit.util.Logger.*;
 
 public class JCFMessageService implements MessageService {
 
-    Map<UUID, Message> messages = new HashMap<>();
+    JCFUserService jcfUserService;
+    JCFChannelService jcfChannelService;
+    Map<UUID, Message> data;
+
+    public JCFMessageService(JCFChannelService jcfChannelService, JCFUserService jcfUserService) {
+        this.data = new HashMap<>();
+        this.jcfUserService = jcfUserService;
+        this.jcfChannelService = jcfChannelService;
+    }
 
     // 메시지 생성
     @Override
-    public void create(Message message) {
-        messages.put(message.getId(), message);
+    public Message create(UUID userId, UUID channelId, String content) {
+        Message message = new Message(userId, channelId, content);
+        data.put(message.getId(), message);
         log("createMessage", String.format(
                 "메시지 생성 완료 → ID: %s, 작성자 ID: %s, 채널 ID: %s, 내용: \"%s\"",
                 message.getId(),
@@ -23,34 +31,50 @@ public class JCFMessageService implements MessageService {
                 message.getChannelId(),
                 message.getContent()
         ));
+
+        return message;
     }
 
     // 삭제되지 않은 메시지 조회
     @Override
-    public Message findById(UUID id) {
-        Message message = messages.get(id);
+    public Message findById(UUID id, boolean log) {
+        Message message = data.get(id);
+
         if (message != null && !message.isDeleted()) {
-            return message;
+            if (log) {
+                log("findMessageById", String.format("메시지 조회 성공 → ID: %s, 작성자 ID: %s, 채널 ID: %s, 내용: \"%s\"",
+                        message.getId(),
+                        message.getUserId(),
+                        message.getChannelId(),
+                        message.getContent()
+                ));
+
+                return message;
+            }
         }
-        return null;
+
+        if (log) {
+            log("findMessageById", String.format("조회 실패 → ID %s의 메시지가 존재하지 않거나 삭제됨", id));
+        }
+
+        return message;
     }
 
     // 삭제되지 않은 메시지 리스트 반환
     @Override
     public List<Message> findAll() {
-        List<Message> result = new ArrayList<>();
-        for (Message message : messages.values()) {
-            if (!message.isDeleted()) {
-                result.add(message);
-            }
-        }
+        List<Message> result = data.values().stream()
+                .filter(message -> !message.isDeleted())
+                .toList();
+
+        log("findAllMessage", String.format("전체 메세지 수: %d개", result.size()));
         return result;
     }
 
     // 메시지 정보 업데이트 (삭제된 메세지는 제외)
     @Override
     public void update(UUID id, String content) {
-        Message message = messages.get(id);
+        Message message = data.get(id);
         if (message != null && !message.isDeleted()) {
             String oldContent = message.getContent();
             message.update(content);
@@ -68,7 +92,7 @@ public class JCFMessageService implements MessageService {
     // 메시지 삭제 (소프트 삭제 적용)
     @Override
     public void delete(UUID id) {
-        Message message = messages.get(id);
+        Message message = data.get(id);
         if (message != null && !message.isDeleted()) {
             message.delete();
             log("deleteMessage", String.format(
@@ -84,6 +108,6 @@ public class JCFMessageService implements MessageService {
 
     // 삭제 여부와 무관하게 메시지 존재 여부 확인
     public boolean exists(UUID id) {
-        return messages.containsKey(id);
+        return data.containsKey(id);
     }
 }

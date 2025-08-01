@@ -1,40 +1,39 @@
 package com.sprint.mission.discodeit.app;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.jcf.JCFUserService;
-import com.sprint.mission.discodeit.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.jcf.SimpleChatService;
+import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
+import com.sprint.mission.discodeit.service.jcf.JCFUserService;
+import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
+import com.sprint.mission.discodeit.service.jcf.SimpleChatService;
 
 import java.util.List;
+
+import static com.sprint.mission.discodeit.entity.ChannelType.*;
 
 public class JavaApplication {
 
     public static void main(String[] args) {
         JCFUserService jcfUserService = new JCFUserService();
         JCFChannelService jcfChannelService = new JCFChannelService();
-        JCFMessageService JCFMessageService = new JCFMessageService();
-        SimpleChatService simpleChatService = new SimpleChatService(jcfUserService, jcfChannelService, JCFMessageService);
+        JCFMessageService jcfMessageService = new JCFMessageService(jcfChannelService, jcfUserService);
+        SimpleChatService simpleChatService = new SimpleChatService(jcfUserService, jcfChannelService, jcfMessageService);
 
         userCRUDTest(jcfUserService);
         channelCRUDTest(jcfChannelService, jcfUserService, simpleChatService);
-        messageCRUDTest(JCFMessageService, jcfChannelService, jcfUserService, simpleChatService);
-        edgeCaseTest(simpleChatService, jcfUserService, jcfChannelService, JCFMessageService);
+        messageCRUDTest(jcfMessageService, jcfChannelService, jcfUserService, simpleChatService);
+        edgeCaseTest(simpleChatService, jcfUserService, jcfChannelService, jcfMessageService);
     }
 
     private static void userCRUDTest(JCFUserService jcfUserService) {
         System.out.println("\n=== 유저 테스트 시작 ===");
 
         // 3개의 유저 객체 생성
-        User user1 = new User("임재혁", 27);
-        User user2 = new User("임꺽정", 80);
-        User user3 = new User("임재범", 50);
-
-        jcfUserService.create(user1);
-        jcfUserService.create(user2);
-        jcfUserService.create(user3);
+        User user1 = jcfUserService.create("임재혁", 27, "jae1234@example.com", "password123");
+        User user2 = jcfUserService.create("임꺽정", 80, "jae1234@example.com", "password123");
+        User user3 = jcfUserService.create("임재범", 50, "jae1234@example.com", "password123");
 
         // 단건 조회
         jcfUserService.findById(user3.getId(), true);
@@ -63,11 +62,8 @@ public class JavaApplication {
         User user2 = users.get(1);
 
         // 3개의 채널 객체 생성
-        Channel channel1 = new Channel("자바 공부 채널", "자바 스터디 채널입니다.");
-        Channel channel2 = new Channel("스프링 공부 채널", "스프링 스터디 채널입니다.");
-
-        jcfChannelService.create(channel1);
-        jcfChannelService.create(channel2);
+        Channel channel1 = jcfChannelService.create("자바 공부 채널", "자바 스터디 채널입니다.", PUBLIC);
+        Channel channel2 = jcfChannelService.create("스프링 공부 채널", "스프링 스터디 채널입니다.", PUBLIC);
 
         // 채널 참여 (유저&채널)
         simpleChatService.joinChannel(user1.getId(), channel1.getId());
@@ -79,7 +75,7 @@ public class JavaApplication {
         jcfUserService.findAll();
 
         // 수정, 스프링 공부 채널 -> 운영체제 공부 채널
-        jcfChannelService.update(channel2.getId(), "운영체제 공부 채널", "운영체제 스터디 채널입니다.");
+        jcfChannelService.update(channel2.getId(), "운영체제 공부 채널", "운영체제 스터디 채널입니다.", PUBLIC);
         jcfChannelService.findById(channel2.getId(), true);
 
         // 삭제, 알고리즘 공부 채널 +  유저2 채널 참여 정보에서 알고리즘 공부 채널 제거
@@ -152,13 +148,10 @@ public class JavaApplication {
         System.out.println("\n=== 엣지 케이스 테스트 시작 ===");
 
         // 유저 및 채널 기본 생성
-        User user1 = new User("중복참가자", 22);
-        User user2 = new User("삭제유저", 33);
-        userService.create(user1);
-        userService.create(user2);
+        User user1 = userService.create("중복참가자", 22, "jae1234@example.com", "password123");
+        User user2 = userService.create("삭제유저", 33, "jae1234@example.com", "password123");
 
-        Channel channel = new Channel("엣지 채널", "예외 케이스용 채널");
-        channelService.create(channel);
+        Channel channel = channelService.create("엣지 채널", "예외 케이스용 채널", PUBLIC);
         chatService.joinChannel(user1.getId(), channel.getId());
 
         // 이미 참여한 유저가 다시 채널에 참가
@@ -181,8 +174,7 @@ public class JavaApplication {
 
         // 참여하지 않은 유저가 메시지 보내는 경우
         System.out.println("\n[비참여 유저의 메시지 전송]");
-        User outsider = new User("비참여자", 20);
-        userService.create(outsider);
+        User outsider = userService.create("비참여자", 20, "jae1234@example.com", "password123");
         chatService.sendMessage(outsider.getId(), channel.getId(), "저는 참여한 적 없는데요?");
     }
 }

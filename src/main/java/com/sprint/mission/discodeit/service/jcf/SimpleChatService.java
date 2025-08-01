@@ -1,9 +1,8 @@
-package com.sprint.mission.discodeit.jcf;
+package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.ChatService;
-import com.sprint.mission.discodeit.util.Logger;
 
 import java.util.Date;
 import java.util.UUID;
@@ -93,8 +92,7 @@ public class SimpleChatService implements ChatService {
             return false;
         }
 
-        Message message = new Message(userId, channelId, content);
-        jcfMessageService.create(message);
+        Message message = jcfMessageService.create(userId, channelId, content);
         jcfChannelService.addMessage(channelId, message.getId());
         jcfUserService.addMessage(userId, message.getId());
 
@@ -142,7 +140,7 @@ public class SimpleChatService implements ChatService {
                 continue;
             }
 
-            Message message = jcfMessageService.findById(messageId);
+            Message message = jcfMessageService.findById(messageId, true);
             if (message == null) {
                 log("SYSTEM", "삭제된 메시지입니다.");
                 continue;
