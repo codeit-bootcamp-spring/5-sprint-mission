@@ -21,7 +21,7 @@ public class FileUserService implements UserService {
             return null;
         }
 
-        if (user.getName() == null || user.getEmail() == null || user.getpassword() == null) {
+        if (user.getName() == null || user.getEmail() == null || user.getPassword() == null) {
             return null;
         }
 
@@ -35,7 +35,7 @@ public class FileUserService implements UserService {
             return null;
         }
 
-        return userRepository.save(new User(name, email, password, true));
+        return userRepository.save(new User(name, email, password, null));
     }
 
     @Override
@@ -45,24 +45,24 @@ public class FileUserService implements UserService {
 
     @Override
     public User get(UUID id) {
-        return userRepository.findById(id);
+        return userRepository.findById(id).orElse(null);
     }
 
     @Override
-    public User update(UUID id, String name, boolean isOnline) {
-        User user = userRepository.findById(id);
+    public User update(UUID id, String name, UUID profileId) {
+        User user = userRepository.findById(id).orElse(null);
 
         if (user == null) {
             return null;
         }
 
-        user.update(name, isOnline);
+        user.update(name, profileId);
         return user;
     }
 
     @Override
     public void delete(UUID id) {
-        User user = userRepository.findById(id);
+        User user = userRepository.findById(id).orElse(null);
 
         if (user != null) {
             userRepository.deleteById(id);

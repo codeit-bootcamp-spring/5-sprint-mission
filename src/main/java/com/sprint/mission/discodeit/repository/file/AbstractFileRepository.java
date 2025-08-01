@@ -21,8 +21,8 @@ public abstract class AbstractFileRepository<T extends BaseEntity> {
         return entity;
     }
 
-    public T findById(UUID id) {
-        return data.get(id);
+    public Optional<T> findById(UUID id) {
+        return Optional.of(data.get(id));
     }
 
     public List<T> findAll() {
@@ -36,6 +36,11 @@ public abstract class AbstractFileRepository<T extends BaseEntity> {
 
     public void deleteAll() {
         data.clear();
+        writeToFile();
+    }
+
+    public void delete(UUID id) {
+        data.remove(id);
         writeToFile();
     }
 

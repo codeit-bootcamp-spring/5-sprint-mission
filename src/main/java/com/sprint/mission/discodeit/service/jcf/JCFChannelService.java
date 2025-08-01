@@ -43,12 +43,12 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel get(UUID id) {
-        return channelRepository.findById(id);
+        return channelRepository.findById(id).orElse(null);
     }
 
     @Override
     public Channel update(UUID id, String name, String description) {
-        Channel channel = channelRepository.findById(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         if (channel == null) {
             return null;
@@ -60,7 +60,7 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public void delete(UUID id) {
-        Channel channel = channelRepository.findById(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         if (channel != null) {
             channelRepository.deleteById(id);

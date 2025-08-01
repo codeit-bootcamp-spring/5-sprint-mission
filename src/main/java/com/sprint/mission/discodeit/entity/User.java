@@ -1,39 +1,39 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.dto.UserDto;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.util.UUID;
+
+@Getter
+@Builder
 public class User extends BaseEntity {
     private String name;
     private String email;
     private String password;
-    private Boolean isOnline;
+    private UUID profileId;
 
-    public User(String name, String email, String password, boolean isOnline) {
+    public User(String name, String email, String password, UUID profileId) {
         super();
         this.name = name;
         this.email = email;
         this.password = password;
-        this.isOnline = isOnline;
+        this.profileId = profileId;
     }
 
-    public Boolean getOnline() {
-        return isOnline;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getpassword() {
-        return password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void update(String name, boolean isOnline) {
+    public void update(String name, UUID profileId) {
         this.name = name;
-        this.isOnline = isOnline;
-        setUpdatedAt(System.currentTimeMillis());
+        this.profileId = profileId;
+    }
+
+    public static User of(UserDto.CreateRequest request, UUID profileId) {
+        return new User(
+            request.getName(),
+            request.getEmail(),
+            request.getPassword(),
+            profileId
+        );
     }
 
     @Override
@@ -42,7 +42,7 @@ public class User extends BaseEntity {
             "name='" + name + '\'' +
             ", email='" + email + '\'' +
             ", password='" + password + '\'' +
-            ", isOnline=" + isOnline +
+            ", profileId=" + profileId +
             ", id=" + id +
             ", createdAt=" + createdAt +
             ", updatedAt=" + updatedAt +

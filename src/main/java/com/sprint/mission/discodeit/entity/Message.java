@@ -1,34 +1,37 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+@Getter
 public class Message extends BaseEntity {
     private String text;
     private UUID channelId;
-    private UUID userId;
+    private final UUID authorId;
+    private final List<UUID> attachmentIds;
 
-    public Message(String text, UUID channelId, UUID userId) {
+    public Message(String text, UUID channelId, UUID authorId) {
         super();
         this.text = text;
         this.channelId = channelId;
-        this.userId = userId;
+        this.authorId = authorId;
+        this.attachmentIds = new ArrayList<>();
     }
 
-    public String getText() {
-        return text;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public UUID getUserId() {
-        return userId;
+    public Message(String text, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+        super();
+        this.text = text;
+        this.channelId = channelId;
+        this.authorId = authorId;
+        this.attachmentIds = attachmentIds != null ? attachmentIds : new ArrayList<>();
     }
 
     public void update(String text) {
         this.text = text;
-        setUpdatedAt(System.currentTimeMillis());
+        updateTimestamp();
     }
 
     @Override
@@ -37,7 +40,7 @@ public class Message extends BaseEntity {
             "id=" + id +
             ", text='" + text + '\'' +
             ", channelId=" + channelId +
-            ", userId=" + userId +
+            ", authorId=" + authorId +
             ", createdAt=" + createdAt +
             ", updatedAt=" + updatedAt +
             '}';

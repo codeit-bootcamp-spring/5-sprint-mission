@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.BaseEntity;
+import com.sprint.mission.discodeit.entity.Channel;
 
 import java.util.*;
 
@@ -16,8 +17,8 @@ public class AbstractJCFRepository<T extends BaseEntity> {
         return entity;
     }
 
-    public T findById(UUID id) {
-        return data.get(id);
+    public Optional<T> findById(UUID id) {
+        return Optional.of(data.get(id));
     }
 
     public List<T> findAll() {
@@ -30,5 +31,9 @@ public class AbstractJCFRepository<T extends BaseEntity> {
 
     public void deleteAll() {
         data.clear();
+    }
+
+    public void delete(UUID id) {
+        data.remove(id);
     }
 }

@@ -3,16 +3,16 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
+@RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
-
-    public BasicMessageService(MessageRepository messageRepository) {
-        this.messageRepository = messageRepository;
-    }
 
     @Override
     public Message create(Message message) {
@@ -21,7 +21,7 @@ public class BasicMessageService implements MessageService {
             return null;
         }
 
-        if (message.getText() == null || message.getChannelId() == null || message.getUserId() == null) {
+        if (message.getText() == null || message.getChannelId() == null || message.getAuthorId() == null) {
             return null;
         }
 
@@ -45,12 +45,12 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public Message get(UUID id) {
-        return messageRepository.findById(id);
+        return messageRepository.findById(id).orElse(null);
     }
 
     @Override
     public Message update(UUID id, String text) {
-        Message message = messageRepository.findById(id);
+        Message message = messageRepository.findById(id).orElse(null);
 
         if (message == null) {
             return null;
@@ -62,7 +62,7 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public void delete(UUID id) {
-        Message message = messageRepository.findById(id);
+        Message message = messageRepository.findById(id).orElse(null);
 
         if (message != null) {
             messageRepository.deleteById(id);
