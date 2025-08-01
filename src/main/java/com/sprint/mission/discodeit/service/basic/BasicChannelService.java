@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.respository.ChannelRepository;
@@ -15,8 +16,8 @@ public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
 
     @Override
-    public Channel create(String name, ChannelType type) {
-        Channel channel = new Channel(name, type);
+    public Channel create(ChannelDto.Create dto) {
+        Channel channel = new Channel(dto.name(), dto.type());
         return channelRepository.save(channel);
     }
 
@@ -52,6 +53,16 @@ public class BasicChannelService implements ChannelService {
             throw new NoSuchElementException("해당 ID의 토픽이 존재하지 않습니다.");
         }
         channel.updateTopic(topic);
+        return channelRepository.save(channel);
+    }
+
+    @Override
+    public Channel updateDescription(UUID id, String description) {
+        Channel channel = channelRepository.findById(id);
+        if (channel == null) {
+            throw new NoSuchElementException("채널이 존재하지 않습니다.");
+        }
+        channel.updateDescription(description);
         return channelRepository.save(channel);
     }
 
