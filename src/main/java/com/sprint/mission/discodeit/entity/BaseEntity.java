@@ -3,7 +3,9 @@ package com.sprint.mission.discodeit.entity;
 import java.util.UUID;
 
 
-public class BaseEntity {
+import java.io.Serializable;
+
+public class BaseEntity implements Serializable {
     protected UUID id;
     protected Long createdAt;
     protected Long updatedAt;

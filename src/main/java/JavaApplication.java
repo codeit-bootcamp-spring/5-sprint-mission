@@ -9,13 +9,26 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-import com.sprint.mission.discodeit.service.factory.ServiceFactory;
-
 public class JavaApplication {
 
-    private static UserService userService = ServiceFactory.createUserService();
-    private static ChannelService channelService = ServiceFactory.createChannelService();
-    private static MessageService messageService = ServiceFactory.createMessageService();
+    // JCF Repository를 사용하는 서비스 초기화
+    // JCF Repository를 사용하는 서비스 초기화
+    // private static com.sprint.mission.discodeit.repository.jcf.JCFUserRepository jcfUserRepository = new com.sprint.mission.discodeit.repository.jcf.JCFUserRepository();
+    // private static com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository jcfChannelRepository = new com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository();
+    // private static com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository jcfMessageRepository = new com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository();
+
+    // private static UserService userService = new com.sprint.mission.discodeit.service.basic.BasicUserService(jcfUserRepository);
+    // private static ChannelService channelService = new com.sprint.mission.discodeit.service.basic.BasicChannelService(jcfChannelRepository);
+    // private static MessageService messageService = new com.sprint.mission.discodeit.service.basic.BasicMessageService(jcfMessageRepository, jcfUserRepository, jcfChannelRepository);
+
+    // File Repository를 사용하는 서비스 초기화 (테스트 시 주석 해제)
+     private static com.sprint.mission.discodeit.repository.file.FileUserRepository fileUserRepository = new com.sprint.mission.discodeit.repository.file.FileUserRepository();
+     private static com.sprint.mission.discodeit.repository.file.FileChannelRepository fileChannelRepository = new com.sprint.mission.discodeit.repository.file.FileChannelRepository();
+     private static com.sprint.mission.discodeit.repository.file.FileMessageRepository fileMessageRepository = new com.sprint.mission.discodeit.repository.file.FileMessageRepository();
+
+     private static UserService userService = new com.sprint.mission.discodeit.service.basic.BasicUserService(fileUserRepository);
+     private static ChannelService channelService = new com.sprint.mission.discodeit.service.basic.BasicChannelService(fileChannelRepository);
+     private static MessageService messageService = new com.sprint.mission.discodeit.service.basic.BasicMessageService(fileMessageRepository, fileUserRepository, fileChannelRepository);
 
 
     public static void main(String[] args) {
