@@ -4,6 +4,9 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.enums.ChannelType;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -12,6 +15,7 @@ import com.sprint.mission.discodeit.service.file.FileMessageService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
+import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.List;
 
@@ -37,9 +41,9 @@ public class JavaApplication {
         System.out.println("유저 조회(단건): " + userService.findById(user1.getId()));
 
         // 삭제
+        List<User> foundUsersAfterDelete = userService.findAll();
         userService.delete(user1.getId());
         userService.delete(user2.getId());
-        List<User> foundUsersAfterDelete = userService.findAll();
         System.out.println("유저 삭제: " + foundUsersAfterDelete.size());
     }
 
@@ -61,9 +65,9 @@ public class JavaApplication {
         System.out.println("채널 조회(단건): " + channelService.findById(channel1.getId()));
 
         // 삭제
+        List<Channel> foundChannelsAfterDelete = channelService.findAll();
         channelService.delete(channel1.getId());
         channelService.delete(channel2.getId());
-        List<Channel> foundChannelsAfterDelete = channelService.findAll();
         System.out.println("채널 삭제: " + foundChannelsAfterDelete.size());
     }
 
@@ -88,15 +92,29 @@ public class JavaApplication {
         System.out.println("메시지 수정: " + updatedMessage.getContent());
         System.out.println("메시지 조회(단건): " + messageService.findById(message1.getId()));
 
-        // 삭제
+        // 메시지 삭제
+        List<Message> foundMessagesAfterDelete = messageService.findAll();
         messageService.delete(message1.getId());
         messageService.delete(message2.getId());
-        List<Message> foundMessagesAfterDelete = messageService.findAll();
         System.out.println("메시지 삭제: " + foundMessagesAfterDelete.size());
+
+        // 채널 삭제
+        List<Channel> foundChannelsAfterDelete = channelService.findAll();
+        channelService.delete(channel.getId());
+        System.out.println("채널 삭제: " + foundChannelsAfterDelete.size());
+
+        // 유저 삭제
+        List<User> foundUsersAfterDelete = userService.findAll();
+        userService.delete(user.getId());
+        System.out.println("유저 삭제: " + foundUsersAfterDelete.size());
     }
 
 
     public static void main(String[] args) throws InterruptedException {
+//        UserService userService = new JCFUserService();
+//        ChannelService channelService = new JCFChannelService();
+//        MessageService messageService = new JCFMessageService(channelService, userService);
+
         UserService userService = new FileUserService();
         ChannelService channelService = new FileChannelService();
         MessageService messageService = new FileMessageService(channelService, userService);
