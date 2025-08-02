@@ -34,6 +34,19 @@ public class Message {
         this.sender = sender;
     }
 
+    //복사생성자
+    //메세지 객체 안의 있는 값들 복사해서 새로운 Message 만듦
+    public Message(Message other) {
+        this.id = other.id;
+        this.createdAt = other.createdAt;
+        this.updatedAt = other.updatedAt;
+        this.content = other.content;
+        this.channelId = other.channelId;
+        this.sender = other.sender;
+    }
+
+
+
     //Getter
     public UUID getId() {
         return id;

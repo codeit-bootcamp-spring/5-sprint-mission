@@ -52,10 +52,14 @@ public class JavaApplication {
         userService.delete(user.getId());
 
         //5. Then: 삭제 검증
-        System.out.println("✅유저 삭제 후 조회: " + userService.findById(user.getId()));
+        try {
+            User afterDelete = userService.findById(user.getId());
+            System.out.println("✅유저 삭제 후 조회: " + afterDelete);
+        } catch (IllegalArgumentException e) {
+            System.out.println("✅❗삭제된 유저는 더이상 조회할 수 없습니다.");
+        }
         System.out.println("--------------------------------------------------------");
         System.out.println("--------------------------------------------------------");
-
 
         //Channel Test
         //1. Given: 구현체 및 객체 생성
@@ -82,7 +86,12 @@ public class JavaApplication {
         channelService.delete(foundChannel.getId());
 
         //5. Then: 삭제 검증
-        System.out.println("✅채널 삭제 후 조회: " + channelService.findById(channel.getId()));
+        try {
+            Channel afterDelete = channelService.findById(channel.getId());
+            System.out.println("✅채널 삭제 후 조회: " + afterDelete);
+        } catch (IllegalArgumentException e) {
+            System.out.println("✅❗삭제된 채널은 더이상 조회할 수 없습니다.");
+        }
         System.out.println("--------------------------------------------------------");
         System.out.println("--------------------------------------------------------");
 
@@ -119,7 +128,12 @@ public class JavaApplication {
         messageService.delete(foundMessage);
 
         //5. Then: 삭제 검증
-        System.out.println("✅삭제 후 메세지 조회: " + messageService.findById(foundMessage.getId()));
+        try {
+            Message afterDelete = messageService.findById(foundMessage.getId());
+            System.out.println("✅삭제 후 메세지 조회: " + afterDelete);
+        } catch (IllegalArgumentException e) {
+            System.out.println("✅❗삭제된 메세지는 더이상 조회할 수 없습니다.");
+        }
         System.out.println("--------------------------------------------------------");
         System.out.println("--------------------------------------------------------");
 

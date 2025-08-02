@@ -30,6 +30,16 @@ public class User {
         this.password = password; //파라미터로 받음
     }
 
+
+    //복사본 생성자
+    public User(User other) {
+        this.id = other.id;
+        this.createdAt = other.createdAt;
+        this.updatedAt = other.updatedAt;
+        this.userId = other.userId;
+        this.password = other.password;
+    }
+
     //Getter
     public UUID getId() {
         return id;

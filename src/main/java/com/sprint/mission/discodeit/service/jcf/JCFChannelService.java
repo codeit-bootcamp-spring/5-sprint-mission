@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.util.HashMap;
@@ -33,7 +34,11 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel findById(UUID id) {
-        return data.get(id);
+        Channel channel = data.get(id);
+        if (channel ==null) {
+            throw new IllegalArgumentException(("해당 ID를 가진 채널이 존재하지 않습니다."));
+        }
+        return new Channel(channel); //원본 수정 방지용
     }
 
     @Override

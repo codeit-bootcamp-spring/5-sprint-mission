@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 
@@ -33,7 +34,11 @@ public class JCFUserService implements UserService {
 
     @Override
     public User findById(UUID id) {
-        return data.get(id);
+        User user = data.get(id);
+        if (user == null) {
+            throw new IllegalArgumentException("해당 Id를 가진 유저가 존재하지 않습니다.");
+        }
+        return new User(user); //원본 수정 방지용
     }
 
     @Override

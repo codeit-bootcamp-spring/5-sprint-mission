@@ -41,18 +41,24 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public Message findById(UUID id) {
-        return data.get(id);
+        Message message = data.get(id);
+        if (message == null) {
+            throw new IllegalArgumentException("아이디가 NULL값입니다.");
+        }
+        return new Message(message); // 원본(data.get(id)) 수정 방지용
+
+
     }
 
     @Override
     public List<Message> findAll() {
-        return List.copyOf(data.values()); //map에 저장된 키값만 꺼내서 불변 리스트로 return 해줌
+        return List.copyOf(data.values()); //copyOf: map에 저장된 키값만 꺼내서 외부에서 수정못하게 막아줌
     }
 
     @Override
     public void update(Message message) {
         if (message == null) {
-            throw new IllegalArgumentException("메세지가 NULL입니다.");
+            throw new IllegalArgumentException("메세지가 NULL값입니다.");
         }
         data.put(message.getId(), message); //같은 uuid면 message 값 덮어씀
     }

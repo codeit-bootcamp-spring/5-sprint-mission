@@ -31,6 +31,15 @@ public class Channel {
         this.channeltype = channeltype;
     }
 
+    //복사본 생성자
+    public Channel(Channel other) {
+        this.id = other.id;
+        this.createdAt = other.createdAt;
+        this.updatedAt = other.updatedAt;
+        this.title = other.title;
+        this.channeltype = other.channeltype;
+    }
+
     //Getter
     public UUID getId() {
         return id;
