@@ -11,21 +11,21 @@ public class JCFMessageService implements MessageService {
 
     private final Map<UUID, Message> data;
 
-    private final ChannelService channelService;
     private final UserService userService;
+    private final ChannelService channelService;
 
-    public JCFMessageService(ChannelService channelService, UserService userService) {
+    public JCFMessageService(UserService userService, ChannelService channelService) {
         this.data = new HashMap<>();
 
-        this.channelService = channelService;
         this.userService = userService;
+        this.channelService = channelService;
     }
 
     @Override
     public Message create(UUID authorId, UUID channelId, String content) {
         try {
-            channelService.findById(channelId);
             userService.findById(authorId);
+            channelService.findById(channelId);
         } catch (NoSuchElementException e) {
             throw e;
         }
@@ -60,9 +60,7 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public void delete(UUID id) {
-        if (!data.containsKey(id) || data.get(id) == null) {
-            throw new NoSuchElementException("Message with id " + id + " not found");
-        }
-        data.remove(id);
+        Message message = findById(id);
+        data.remove(message.getId());
     }
 }

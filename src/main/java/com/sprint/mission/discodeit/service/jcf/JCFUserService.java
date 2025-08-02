@@ -24,14 +24,14 @@ public class JCFUserService implements UserService {
         return user;
     }
 
-    // 옵셔널을 사용하면 코드를 간략화 할 수 있다 (중요)
+    // 옵셔널을 사용하면 코드를 간략화 할 수 있다
     @Override
     public User findById(UUID id) {
         return Optional.ofNullable(data.get(id))
                 .orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
     }
 
-    // stream().toList() 메서드를 사용하면 새로운 불변 리스트를 반환한다. (중요)
+    // stream().toList() 메서드를 사용하면 새로운 불변 리스트를 반환한다.
     // 복사본 생성 -> 불변 리스트로 변환
     @Override
     public List<User> findAll() {
@@ -46,14 +46,9 @@ public class JCFUserService implements UserService {
         return user;
     }
 
-    // data.get(id) == null 검사 추가
     @Override
     public void delete(UUID id) {
-        if (!data.containsKey(id) || data.get(id) == null) {
-            throw new NoSuchElementException("User with id " + id + " not found");
-
-        }
-
-        data.remove(id);
+        User user = findById(id);
+        data.remove(user.getId());
     }
 }

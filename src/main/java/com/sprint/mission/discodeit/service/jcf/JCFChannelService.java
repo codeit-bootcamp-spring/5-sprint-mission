@@ -46,9 +46,7 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public void delete(UUID id) {
-        if (!data.containsKey(id) || data.get(id) == null) {
-            throw new NoSuchElementException("Channel with id " + id + " not found");
-        }
-        data.remove(id);
+        Channel channel = findById(id);
+        data.remove(channel.getId());
     }
 }
