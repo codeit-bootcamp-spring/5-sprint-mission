@@ -35,7 +35,7 @@ public class JCFChannelService implements ChannelService {
     @Override
     public Channel findById(UUID id) {
         Channel channel = data.get(id);
-        if (channel ==null) {
+        if (channel == null) {
             throw new IllegalArgumentException(("해당 ID를 가진 채널이 존재하지 않습니다."));
         }
         return new Channel(channel); //원본 수정 방지용
@@ -67,7 +67,7 @@ public class JCFChannelService implements ChannelService {
         if (id == null) {
             throw new IllegalArgumentException("ID가 NULL입니다.");
         }
-        if(!data.containsKey(id)) {
+        if (!data.containsKey(id)) {
             throw new IllegalArgumentException("해당 ID를 가진 채널이 존재하지 않습니다. + id");
         }
         data.remove(id);

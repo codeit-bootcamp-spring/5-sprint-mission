@@ -13,7 +13,6 @@ public class Message {
     private UUID sender; // 채널 기준으로 누가 보냈는지
 
 
-
     //기본생성자
     //매개변수X
     public Message() {
@@ -44,7 +43,6 @@ public class Message {
         this.channelId = other.channelId;
         this.sender = other.sender;
     }
-
 
 
     //Getter
@@ -80,14 +78,7 @@ public class Message {
     //toString
     @Override
     public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", content='" + content + '\'' +
-                ", channelId=" + channelId +
-                ", sender=" + sender +
-                '}';
+        return "Message{" + "id=" + id + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", content='" + content + '\'' + ", channelId=" + channelId + ", sender=" + sender + '}';
     }
 }
 

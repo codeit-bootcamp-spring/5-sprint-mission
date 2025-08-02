@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.run;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -64,7 +65,7 @@ public class JavaApplication {
         //Channel Test
         //1. Given: 구현체 및 객체 생성
         ChannelService channelService = new JCFChannelService();
-        Channel channel = new Channel("테스트제목", "설명테스트", "voice");
+        Channel channel = new Channel("테스트제목", "설명테스트", ChannelType.VOICE);
 
         //2. When: 등록/조회/수정
         channelService.create(channel); // 채널 등록
@@ -77,7 +78,7 @@ public class JavaApplication {
         System.out.println("✅채널 등록: " + channel.getId());
         System.out.println("✅채널 제목 조회: " + channel.getTitle());
         System.out.println("✅채널 설명 조회: " + channel.getDescription());
-        System.out.println("✅채널 타입 조회: " + channel.getChanneltype());
+        System.out.println("✅채널 타입 조회: " + channel.getChannelType());
         System.out.println("✅채널 단건 조회: " + channelService.findById(channel.getId()));
         System.out.println("✅채널 전체 조회: " + channelService.findAll());
         System.out.println("✅채널 수정 후 조회: " + channelService.findById(channel.getId()));
@@ -100,7 +101,7 @@ public class JavaApplication {
         //테스트위해 sender & channel 다시 등록
         User sender = new User("senderUser", "pw1234");
         userService.create(sender);
-        Channel messageChannel = new Channel("메세지 테스트 채널", "채팅용", "text");
+        Channel messageChannel = new Channel("메세지 테스트 채널", "채팅용", ChannelType.VOICE);
         channelService.create(messageChannel);
 
         //1. Given: 구현체 및 객체 생성

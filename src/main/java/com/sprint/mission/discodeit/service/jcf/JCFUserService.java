@@ -28,7 +28,7 @@ public class JCFUserService implements UserService {
     //부모 클래스나 인터페이스에서 정의된 메서드를 자식 클래스에서 재정의
     @Override
     public void create(User user) {
-        data.put(user.getId(),user); // 유저 객체 받아 map에 uuid-user 구조로 저장
+        data.put(user.getId(), user); // 유저 객체 받아 map에 uuid-user 구조로 저장
 
     }
 
@@ -51,7 +51,7 @@ public class JCFUserService implements UserService {
         if (user == null) {
             throw new IllegalArgumentException("USER 값이 NULL입니다.");
         }
-        data.put(user.getId(),user); //같은 uuid면 message 값 덮어씀
+        data.put(user.getId(), user); //같은 uuid면 message 값 덮어씀
 
     }
 

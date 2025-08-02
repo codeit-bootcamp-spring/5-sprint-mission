@@ -10,8 +10,7 @@ public class Channel {
     private Long updatedAt; // 수정시간
     private String title; // 채널 이름
     private String description; // 채널 설명
-    private String channeltype; // 음성채널 or 일반채널
-
+    private ChannelType channelType; // 음성채널 or 일반채널
 
     //기본 생성자
     //매개변수X
@@ -22,13 +21,13 @@ public class Channel {
     }
 
     //일반 생성자
-    public Channel(String title, String description, String channeltype) {
+    public Channel(String title, String description, ChannelType channelType) {
         this.id = UUID.randomUUID(); //생성자 내부 초기화
         this.createdAt = System.currentTimeMillis(); //생성자 내부 초기화
         this.updatedAt = createdAt; //생성자 내부 초기화
         this.title = title;
         this.description = description;
-        this.channeltype = channeltype;
+        this.channelType = channelType;
     }
 
     //복사본 생성자
@@ -37,7 +36,7 @@ public class Channel {
         this.createdAt = other.createdAt;
         this.updatedAt = other.updatedAt;
         this.title = other.title;
-        this.channeltype = other.channeltype;
+        this.channelType = other.channelType;
     }
 
     //Getter
@@ -61,17 +60,16 @@ public class Channel {
         return description;
     }
 
-    public String getChanneltype() {
-        return channeltype;
+    public ChannelType getChannelType() {
+        return channelType;
     }
 
     //메서드
-   public void updateTime() {
+    public void updateTime() {
         this.updatedAt = System.currentTimeMillis();
-   }
+    }
 
-
-   //toString
+    //toString
     @Override
     public String toString() {
         return "Channel{" +
@@ -80,7 +78,7 @@ public class Channel {
                 ", updatedAt=" + updatedAt +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", channeltype='" + channeltype + '\'' +
+                ", channeltype='" + channelType + '\'' +
                 '}';
     }
 }
