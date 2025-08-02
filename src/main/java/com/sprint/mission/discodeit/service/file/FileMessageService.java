@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -16,7 +18,10 @@ public class FileMessageService implements MessageService {
 
     private final Path DIRECTORY_PATH = Paths.get("./data/messages");
 
-    public FileMessageService() {
+    private final ChannelService channelService;
+    private final UserService userService;
+
+    public FileMessageService(ChannelService channelService, UserService userService) {
         if (Files.notExists(DIRECTORY_PATH)) {
             try {
                 Files.createDirectories(DIRECTORY_PATH);
@@ -24,6 +29,9 @@ public class FileMessageService implements MessageService {
                 throw new RuntimeException("Failed to create directory: " + DIRECTORY_PATH, e);
             }
         }
+
+        this.channelService = channelService;
+        this.userService = userService;
     }
 
     private Path getMessageFilePath(UUID id) {
@@ -33,6 +41,13 @@ public class FileMessageService implements MessageService {
 
     @Override
     public Message create(UUID authorId, UUID channelId, String content) {
+        try {
+            channelService.findById(channelId);
+            userService.findById(authorId);
+        } catch (NoSuchElementException e) {
+            throw e;
+        }
+
         Message message = new Message(authorId,
                 channelId,
                 content
