@@ -1,11 +1,16 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
 import static java.time.Instant.*;
 
-public class Message {
+public class Message implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final UUID id;
     private final UUID authorId;
@@ -46,6 +51,18 @@ public class Message {
     }
 
     public boolean isContentChanged(String content) {
-        return content != null && Objects.equals(this.content, content);
+        return content != null && !Objects.equals(this.content, content);
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", authorId=" + authorId +
+                ", channelId=" + channelId +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", content='" + content + '\'' +
+                '}';
     }
 }

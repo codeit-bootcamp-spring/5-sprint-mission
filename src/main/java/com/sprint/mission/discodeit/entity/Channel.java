@@ -2,12 +2,17 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.enums.ChannelType;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
 import static java.time.Instant.*;
 
-public class Channel {
+public class Channel implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final UUID id;
     private final Long createdAt;
@@ -58,14 +63,26 @@ public class Channel {
     }
 
     public boolean isNameChanged(String name) {
-        return name != null && Objects.equals(this.name, name);
+        return name != null && !Objects.equals(this.name, name);
     }
 
     public boolean isDescriptionChanged(String description) {
-        return description != null && Objects.equals(this.description, description);
+        return description != null && !Objects.equals(this.description, description);
     }
 
     public boolean isTypeChanged(ChannelType type) {
-        return type != null && Objects.equals(this.type, type);
+        return type != null && !Objects.equals(this.type, type);
+    }
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", type=" + type +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

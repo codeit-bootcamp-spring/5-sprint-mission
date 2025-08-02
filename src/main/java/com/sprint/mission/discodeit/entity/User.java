@@ -1,11 +1,16 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
 import static java.time.Instant.*;
 
-public class User {
+public class User implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final UUID id;
     private final Long createdAt;
@@ -56,14 +61,26 @@ public class User {
     }
 
     public boolean isNameChanged(String name) {
-        return name != null && Objects.equals(this.name, name);
+        return name != null && !Objects.equals(this.name, name);
     }
 
     public boolean isEmailChanged(String email) {
-        return email != null && Objects.equals(this.email, email);
+        return email != null && !Objects.equals(this.email, email);
     }
 
     public boolean isPasswordChanged(String password) {
-        return password != null && Objects.equals(this.password, password);
+        return password != null && !Objects.equals(this.password, password);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }
