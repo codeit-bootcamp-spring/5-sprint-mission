@@ -7,8 +7,6 @@ import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.*;
 
-import static com.sprint.mission.discodeit.util.Logger.log;
-
 public class JCFMessageService implements MessageService {
 
     private final Map<UUID, Message> data;

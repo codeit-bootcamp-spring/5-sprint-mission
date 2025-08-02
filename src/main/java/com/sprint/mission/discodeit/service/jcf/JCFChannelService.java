@@ -11,7 +11,7 @@ public class JCFChannelService implements ChannelService {
     private final Map<UUID, Channel> data;
 
     public JCFChannelService() {
-        this.data = new  HashMap<>();
+        this.data = new HashMap<>();
     }
 
     @Override
