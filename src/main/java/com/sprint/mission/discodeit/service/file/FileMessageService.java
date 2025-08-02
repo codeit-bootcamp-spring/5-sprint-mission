@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -11,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -79,7 +81,8 @@ public class FileMessageService implements MessageService {
             throw new RuntimeException("Failed to read message: " + id, e);
         }
 
-        return message;
+        return Optional.ofNullable(message)
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + id + " not found"));
     }
 
     @Override
@@ -105,25 +108,17 @@ public class FileMessageService implements MessageService {
 
     @Override
     public Message update(UUID id, String content) {
-        File originalFile = getMessageFilePath(id).toFile();
-        File tempFile = new File(getMessageFilePath(id) + ".tmp");
+        Message message = findById(id);
 
-        Message message;
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(originalFile));
-             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(tempFile))
+        try(FileOutputStream fos = new FileOutputStream(getMessageFilePath(id).toFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
 
-            message = (Message) ois.readObject();
             message.update(content);
             oos.writeObject(message);
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Failed to read message: " + id, e);
-        }
-
-        if (!originalFile.delete() || !tempFile.renameTo(originalFile)) {
-            throw new RuntimeException("Failed to replace message file after update");
         }
 
         return message;
@@ -132,7 +127,8 @@ public class FileMessageService implements MessageService {
     @Override
     public void delete(UUID id) {
         try {
-            Files.delete(getMessageFilePath(id));
+            Message message = findById(id);
+            Files.delete(getMessageFilePath(message.getId()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to read message: " + id, e);
         }

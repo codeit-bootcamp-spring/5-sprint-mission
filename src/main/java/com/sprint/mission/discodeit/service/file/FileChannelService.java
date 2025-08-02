@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.enums.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
 
@@ -10,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -64,7 +66,8 @@ public class FileChannelService implements ChannelService {
             throw new RuntimeException("Failed to read channel: " + id, e);
         }
 
-        return channel;
+        return Optional.ofNullable(channel)
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
     }
 
     @Override
@@ -90,25 +93,17 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public Channel update(UUID id, String name, String description, ChannelType type) {
-        File originalFile = getChannelFilePath(id).toFile();
-        File tempFile = new File(getChannelFilePath(id) + ".tmp");
+        Channel channel = findById(id);
 
-        Channel channel;
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(originalFile));
-             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(tempFile))
+        try(FileOutputStream fos = new FileOutputStream(getChannelFilePath(id).toFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
 
-            channel = (Channel) ois.readObject();
             channel.update(name, description, type);
             oos.writeObject(channel);
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Failed to read channel: " + id, e);
-        }
-
-        if (!originalFile.delete() || !tempFile.renameTo(originalFile)) {
-            throw new RuntimeException("Failed to replace channel file after update");
         }
 
         return channel;
@@ -117,7 +112,8 @@ public class FileChannelService implements ChannelService {
     @Override
     public void delete(UUID id) {
         try {
-            Files.delete(getChannelFilePath(id));
+            Channel channel = findById(id);
+            Files.delete(getChannelFilePath(channel.getId()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to read channel: " + id, e);
         }

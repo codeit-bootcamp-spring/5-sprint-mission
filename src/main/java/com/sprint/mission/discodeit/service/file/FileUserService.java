@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -64,7 +65,8 @@ public class FileUserService implements UserService {
             throw new RuntimeException("Failed to read user: " + id, e);
         }
 
-        return user;
+        return Optional.ofNullable(user)
+                .orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
     }
 
     @Override
@@ -90,25 +92,17 @@ public class FileUserService implements UserService {
 
     @Override
     public synchronized User update(UUID id, String name, String email, String password) {
-        File originalFile = getUserFilePath(id).toFile();
-        File tempFile = new File(getUserFilePath(id) + ".tmp");
+        User user = findById(id);
 
-        User user;
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(originalFile));
-             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(tempFile))
+        try(FileOutputStream fos = new FileOutputStream(getUserFilePath(id).toFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
 
-            user = (User) ois.readObject();
             user.update(name, email, password);
             oos.writeObject(user);
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Failed to read user: " + id, e);
-        }
-
-        if (!originalFile.delete() || !tempFile.renameTo(originalFile)) {
-            throw new RuntimeException("Failed to replace user file after update");
         }
 
         return user;
@@ -117,7 +111,8 @@ public class FileUserService implements UserService {
     @Override
     public void delete(UUID id) {
         try {
-            Files.delete(getUserFilePath(id));
+            User user = findById(id);
+            Files.delete(getUserFilePath(user.getId()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to read user: " + id, e);
         }
