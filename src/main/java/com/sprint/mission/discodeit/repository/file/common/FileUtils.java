@@ -88,4 +88,20 @@ public class FileUtils {
             throw new RuntimeException("File deleting Exception");
         }
     }
+
+    public static <T> void deleteAll(Path subDir) {
+        Path directory = BASE_PATH.resolve(subDir);
+        File folder = new File(directory.toString());
+
+        if (folder.exists()) {
+            File[] files = folder.listFiles();
+            if (files == null) {
+                return;
+            }
+
+            for (int i = files.length - 1; i >= 0; i--) {
+                files[i].delete();
+            }
+        }
+    }
 }
