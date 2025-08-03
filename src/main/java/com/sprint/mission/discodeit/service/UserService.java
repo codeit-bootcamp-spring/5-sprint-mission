@@ -6,18 +6,13 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    // 사용자 추가
     User create(String name, String email, String password);
 
-    // 사용자 조회
     User find(UUID userId);
 
-    // 사용자 전체 조회
     List<User> findAll();
 
-    // 사용자 수정
     User update(UUID userId, String name, String email, String password);
 
-    // 사용자 삭제
-    void delete(UUID userId);
+    boolean delete(UUID userId);
 }

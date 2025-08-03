@@ -12,7 +12,6 @@ public class JCFMessageService implements MessageService {
         messageMap = new HashMap<>();
     }
 
-    // 메시지 추가
     @Override
     public Message create(String content, UUID userId, UUID channelId) {
         if (content == null || content.isBlank() || userId == null || channelId == null) {
@@ -23,7 +22,6 @@ public class JCFMessageService implements MessageService {
         return message;
     }
 
-    // 메시지 조회
     @Override
     public Message find(UUID messageId) {
         Message message = messageMap.get(messageId);
@@ -33,13 +31,11 @@ public class JCFMessageService implements MessageService {
         return message;
     }
 
-    // 메시지 전체 조회
     @Override
     public List<Message> findAll() {
         return new ArrayList<>(messageMap.values());
     }
 
-    // 메시지 수정
     @Override
     public Message update(UUID messageId, String content) {
         Message message = messageMap.get(messageId);
@@ -50,9 +46,8 @@ public class JCFMessageService implements MessageService {
         return message;
     }
 
-    // 메시지 삭제
     @Override
-    public void delete(UUID messageId) {
-        messageMap.remove(messageId);
+    public boolean delete(UUID messageId) {
+        return messageMap.remove(messageId, find(messageId));
     }
 }

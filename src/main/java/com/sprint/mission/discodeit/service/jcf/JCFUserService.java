@@ -12,7 +12,6 @@ public class JCFUserService implements UserService {
         userMap = new HashMap<>();
     }
 
-    // 사용자 추가
     @Override
     public User create(String name, String email, String password) {
         if (name == null || name.isBlank() || email == null || email.isBlank() || password == null || password.isBlank()) {
@@ -23,7 +22,6 @@ public class JCFUserService implements UserService {
         return user;
     }
 
-    // 사용자 조회
     @Override
     public User find(UUID userId) {
         User user = userMap.get(userId);
@@ -33,13 +31,11 @@ public class JCFUserService implements UserService {
         return user;
     }
 
-    // 사용자 전체 조회
     @Override
     public List<User> findAll() {
         return new ArrayList<>(userMap.values());
     }
 
-    // 사용자 수정
     @Override
     public User update(UUID userId, String name, String email, String password) {
         User user = userMap.get(userId);
@@ -50,10 +46,8 @@ public class JCFUserService implements UserService {
         return user;
     }
 
-
-    // 사용자 삭제
     @Override
-    public void delete(UUID userId) {
-        userMap.remove(userId);
+    public boolean delete(UUID userId) {
+        return userMap.remove(userId, find(userId));
     }
 }
