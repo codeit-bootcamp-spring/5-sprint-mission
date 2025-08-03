@@ -1,51 +1,49 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 public class JCFMessageService implements MessageService {
-    private final Map<UUID, Message> data;
+    private final MessageRepository messageRepository;
 
     public JCFMessageService() {
-        this.data = new HashMap<>();
+        this.messageRepository = new JCFMessageRepository();
     }
 
     @Override
-    public Message save(Message msg) {
-        validate(msg);
-        data.put(msg.getId(), msg);
-        return msg;
+    public Message save(Message messageDto) {
+        validate(messageDto);
+        return messageRepository.save(messageDto);
     }
 
     @Override
     public Message findById(UUID id) {
-        return Optional.ofNullable(data.get(id))
+        return messageRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Message not found: " + id));
     }
 
     @Override
     public List<Message> findAll() {
-        return List.copyOf(data.values());
+        return messageRepository.findAll();
     }
 
     @Override
     public Message update(UUID id, Message msgDto) {
         validate(msgDto);
-
-        Message msg = Optional.ofNullable(data.get(id))
-                .orElseThrow(() -> new NoSuchElementException("Message not found: " + id));
-
-        msg.editContent(msgDto.getContent());
-
-        return msg;
+        Message msg = findById(id);
+        return messageRepository.update(msg.getId(), msgDto);
     }
 
     @Override
     public void delete(UUID id) {
-        Optional.ofNullable(data.remove(id))
-                .orElseThrow(() -> new NoSuchElementException("Message not found: " + id));
+        Message msg = findById(id);
+        messageRepository.delete(msg.getId());
     }
 
     private void validate(Message msgDto) {

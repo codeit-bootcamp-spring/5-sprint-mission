@@ -1,50 +1,49 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 public class JCFChannelService implements ChannelService {
-    private final Map<UUID, Channel> data;
+    private final ChannelRepository channelRepository;
 
     public JCFChannelService() {
-        this.data = new HashMap<>();
+        this.channelRepository = new JCFChannelRepository();
     }
 
     @Override
-    public Channel save(Channel channel) {
-        validate(channel);
-        data.put(channel.getId(), channel);
-        return channel;
+    public Channel save(Channel channelDto) {
+        validate(channelDto);
+        return channelRepository.save(channelDto);
     }
 
     @Override
     public Channel findById(UUID id) {
-        return Optional.ofNullable(data.get(id))
+        return channelRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
     }
 
     @Override
     public List<Channel> findAll() {
-        return List.copyOf(data.values());
+        return channelRepository.findAll();
     }
 
     @Override
     public Channel update(UUID id, Channel channelDto) {
         validate(channelDto);
-
-        Channel channel = Optional.ofNullable(data.get(id))
-                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
-
-        channel.update(channelDto.getName(), channelDto.getDescription());
-        return channel;
+        Channel ch = findById(id);
+        return channelRepository.update(ch.getId(), channelDto);
     }
 
     @Override
     public void delete(UUID id) {
-        Optional.ofNullable(data.remove(id))
-                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
+        Channel ch = findById(id);
+        channelRepository.delete(ch.getId());
     }
 
     private void validate(Channel chDto) {

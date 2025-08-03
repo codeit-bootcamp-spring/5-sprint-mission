@@ -1,51 +1,49 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 public class JCFUserService implements UserService {
-    private final Map<UUID, User> data;
+    private final UserRepository userRepository;
 
     public JCFUserService() {
-        this.data = new HashMap<>();
+        this.userRepository = new JCFUserRepository();
     }
 
     @Override
-    public User save(User user) {
-        validate(user);
-        data.put(user.getId(), user);
-        return user;
+    public User save(User userDto) {
+        validate(userDto);
+        return userRepository.save(userDto);
     }
 
     @Override
     public User findById(UUID id) {
-        return Optional.ofNullable(data.get(id))
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
+        return userRepository.findById(id).
+                orElseThrow(() -> new NoSuchElementException("User not found: " + id));
     }
 
     @Override
     public List<User> findAll() {
-        return List.copyOf(data.values());
+        return userRepository.findAll();
     }
 
     @Override
     public User update(UUID id, User userDto) {
         validate(userDto);
-
-        User user = Optional.ofNullable(data.get(id))
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
-
-        user.update(userDto.getName(), userDto.getNickname(), userDto.getPassword());
-
-        return user;
+        User user = findById(id);
+        return userRepository.update(user.getId(), userDto);
     }
 
     @Override
     public void delete(UUID id) {
-        Optional.ofNullable(data.remove(id))
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
+        User user = findById(id);
+        userRepository.delete(user.getId());
     }
 
     private void validate(User userDto) {
