@@ -14,23 +14,23 @@ public class UserServiceTest {
     }
 
     public void runAllTest() {
-        beforeEach();
         save();
+        afterEach();
 
-        beforeEach();
         findOne();
+        afterEach();
 
-        beforeEach();
         findAll();
+        afterEach();
 
-        beforeEach();
         update();
+        afterEach();
 
-        beforeEach();
         delete();
+        afterEach();
     }
 
-    public void beforeEach() {
+    public void afterEach() {
         userService.deleteAll();
     }
 
