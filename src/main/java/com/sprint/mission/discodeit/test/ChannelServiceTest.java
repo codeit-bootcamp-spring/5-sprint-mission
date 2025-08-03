@@ -2,13 +2,16 @@ package com.sprint.mission.discodeit.test;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public class ChannelServiceTest {
-    private ChannelService channelService;
+    private final ChannelService channelService;
+
+    public ChannelServiceTest(ChannelService channelService) {
+        this.channelService = channelService;
+    }
 
     public void runAllTest() {
         beforeEach();
@@ -28,7 +31,7 @@ public class ChannelServiceTest {
     }
 
     public void beforeEach() {
-        channelService = new JCFChannelService();
+        channelService.deleteAll();
     }
 
     public void save() {
@@ -69,7 +72,7 @@ public class ChannelServiceTest {
         printResult("findAll", allChannels.size() == 3);
     }
 
-    private void update() {
+    public void update() {
         printLine("update");
 
         Channel channel = new Channel("질문방", "질문 있으면 하는 방");
@@ -77,18 +80,17 @@ public class ChannelServiceTest {
 
         Channel updateChannel = channelService.update(channel.getId(), new Channel("Q&A", "공지 봐주세요"));
 
-        boolean isSuccess = channel.getName().equals(updateChannel.getName())
-                && channel.getDescription().equals(updateChannel.getDescription());
+        boolean isSuccess = "Q&A".equals(updateChannel.getName())
+                && "공지 봐주세요".equals(updateChannel.getDescription());
 
         printResult("update", isSuccess);
     }
 
-    private void delete() {
+    public void delete() {
         printLine("delete");
 
         Channel channel = new Channel("질문방", "질문 있으면 하는 방");
         channelService.save(channel);
-
         channelService.delete(channel.getId());
 
         try {

@@ -6,17 +6,20 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public class MessageServiceTest {
-    private MessageService messageService;
-    private UserService userService;
-    private ChannelService channelService;
+    private final MessageService messageService;
+    private final UserService userService;
+    private final ChannelService channelService;
+
+    public MessageServiceTest(MessageService messageService, UserService userService, ChannelService channelService) {
+        this.messageService = messageService;
+        this.userService = userService;
+        this.channelService = channelService;
+    }
 
     public void runAllTest() {
         beforeEach();
@@ -36,9 +39,9 @@ public class MessageServiceTest {
     }
 
     public void beforeEach() {
-        messageService = new JCFMessageService();
-        userService = new JCFUserService();
-        channelService = new JCFChannelService();
+        messageService.deleteAll();
+        userService.deleteAll();
+        channelService.deleteAll();
     }
 
     public void save() {
@@ -89,12 +92,11 @@ public class MessageServiceTest {
 
         User user = userService.save(new User("홍길동", "길동2", "1234"));
         Channel channel = channelService.save(new Channel("소통해요", "소통방입니다"));
-
         Message message = messageService.save(new Message(channel.getId(), user.getId(), "채팅 테스트"));
-
         messageService.update(message.getId(), new Message(message.getChannelId(), message.getAuthorId(), "내용 수정"));
 
-        boolean isSuccess = "내용 수정".equals(message.getContent());
+        Message updated = messageService.findById(message.getId());
+        boolean isSuccess = "내용 수정".equals(updated.getContent());
 
         printResult("update", isSuccess);
     }

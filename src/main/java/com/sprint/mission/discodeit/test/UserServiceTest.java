@@ -2,13 +2,16 @@ package com.sprint.mission.discodeit.test;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public class UserServiceTest {
-    private UserService userService;
+    private final UserService userService;
+
+    public UserServiceTest(UserService userService) {
+        this.userService = userService;
+    }
 
     public void runAllTest() {
         beforeEach();
@@ -28,7 +31,7 @@ public class UserServiceTest {
     }
 
     public void beforeEach() {
-        userService = new JCFUserService();
+        userService.deleteAll();
     }
 
     public void save() {
@@ -73,7 +76,7 @@ public class UserServiceTest {
         printResult("findAll", allUsers.size() == 3);
     }
 
-    private void update() {
+    public void update() {
         printLine("update");
 
         User user = new User("홍길동", "hong", "1111");
@@ -81,19 +84,18 @@ public class UserServiceTest {
 
         User updateUser = userService.update(user.getId(), new User("홍남동", "동에번쩍", "4321"));
 
-        boolean isSuccess = user.getName().equals(updateUser.getName())
-                && user.getNickname().equals(updateUser.getNickname())
-                && user.getPassword().equals(updateUser.getPassword());
+        boolean isSuccess = "홍남동".equals(updateUser.getName())
+                && "동에번쩍".equals(updateUser.getNickname())
+                && "4321".equals(updateUser.getPassword());
 
         printResult("update", isSuccess);
     }
 
-    private void delete() {
+    public void delete() {
         printLine("delete");
 
         User user = new User("홍길동", "hong", "1111");
         userService.save(user);
-
         userService.delete(user.getId());
 
         try {
