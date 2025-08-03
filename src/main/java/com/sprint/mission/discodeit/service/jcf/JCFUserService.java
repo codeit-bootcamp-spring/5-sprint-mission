@@ -2,60 +2,70 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 
 import java.util.*;
 
 public class JCFUserService implements UserService {
-    final Map<UUID, User> data= new HashMap<>();
+    private final JCFUserRepository jur;
+
+
+    public JCFUserService() {
+        this.jur = new JCFUserRepository();
+    }
 
     @Override
     public void createUser(String username, String password) {
         User user=new User(username, password);
-        data.put(user.getId(),user);
+        User userResult = jur.save(user);
+        System.out.println(userResult.toString());
     }
 
     @Override
     public User readByIdUser(UUID name) {
-        return data.entrySet().stream()
-                .filter(entry->entry.getKey().equals(name))
-                .map(Map.Entry::getValue)
-                .findFirst().orElse(null);
+        return jur.findById(name).orElse(null);
     }
 
     @Override
     public void readAllUser() {
-       data.entrySet().stream()
-               .forEach(entry->
-                       System.out.println(entry.getKey()+" "+entry.getValue()));
+       List<User> userList =jur.findAll();
+       long num = jur.count();
+       if(num>0){
+           System.out.println("현재 등록된 유저는 "+num+"명 입니다.");
+           for(User user : userList){
+               System.out.println(user.toString());
+           }
+       }else{
+           System.out.println("현재 등록된 유저가 없습니다.");
+       }
 
     }
 
     @Override
-    public void updateUser(UUID name, String username, String password) {
-        for(Map.Entry<UUID,User>entry : data.entrySet()){
-            UUID id = entry.getKey();
-            User user = entry.getValue();
-            if(id.equals(name)){
-                user.update(username,password);
+    public void updateUser(UUID userUUID, String username, String password) {
+        if(jur.existsById(userUUID)){
+            if(jur.update(userUUID,username,password)){
                 System.out.println("수정 성공하였습니다.");
-                return;
+            }else{
+                System.out.println("수정 실패하였습니다.");
             }
+        }else{
+            System.out.println("유저UUID가 존재하지 않습니다.");
         }
-        System.out.println("수정 실패하였습니다.");
     }
 
     @Override
     public void deleteByIdUser(UUID user) {
-        for(Map.Entry<UUID, User>entry:data.entrySet()){
-            UUID userID = entry.getKey();
-            if(userID.equals(user)){
-                data.remove(userID);
-                System.out.println("삭제 성공하였습니다.");
-                return;
-            }
-        }
-        System.out.println("삭제 실패하였습니다.");
+       if(jur.existsById(user)) {
+           if (jur.delete(user)) {
+               System.out.println("삭제 성공하였습니다.");
+           } else {
+               System.out.println("삭제 실패하였습니다.");
+           }
+       }else{
+           System.out.println("유저UUID가 존재하지 않습니다.");
+       }
     }
 }

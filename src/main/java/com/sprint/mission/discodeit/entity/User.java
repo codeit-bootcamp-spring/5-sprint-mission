@@ -1,10 +1,15 @@
 package com.sprint.mission.discodeit.entity;
 
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private String username;
     private String password;
 
@@ -24,7 +29,7 @@ public class User extends BaseEntity {
 
 
     public void update(String username,String password){
-        super.update();
+        super.updateTimestamp();
         this.username=username;
         this.password=password;
     }
@@ -33,9 +38,10 @@ public class User extends BaseEntity {
     public String toString() {
         final StringBuffer sb = new StringBuffer("User{");
         sb.append(super.getId());
-        sb.append("username='").append(username).append('\'');
+        sb.append(" username='").append(username).append('\'');
         sb.append(", password='").append(password);
-        sb.append('}');
+        sb.append("'}");
         return sb.toString();
     }
+
 }

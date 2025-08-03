@@ -1,8 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Message extends BaseEntity {
+public class Message extends BaseEntity implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private UUID userId;
     private UUID channelId;
     private String content;
@@ -26,17 +31,18 @@ public class Message extends BaseEntity {
         return content;
     }
     public void update(String content){
-        super.update();
+        super.updateTimestamp();
         this.content=content;
     }
 
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("Message{");
-        sb.append("userId=").append(userId);
+        sb.append(super.getId());
+        sb.append(" userId=").append(userId);
         sb.append(", channelId=").append(channelId);
         sb.append(", content='").append(content).append('\'');
-        sb.append('}');
+        sb.append("'}");
         return sb.toString();
     }
 }
