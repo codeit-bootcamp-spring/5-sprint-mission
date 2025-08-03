@@ -1,5 +1,10 @@
 plugins {
     id 'java'
+    id 'application'
+}
+
+application {
+    mainClass = 'com.sprint.mission.discodeit.JavaApplication'
 }
 
 group = 'com.sprint.mission'
