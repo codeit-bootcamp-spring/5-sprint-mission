@@ -15,4 +15,6 @@ public interface ChannelService {
     Channel update(UUID id, Channel channelDto);
 
     void delete(UUID id);
+
+    void deleteAll();
 }

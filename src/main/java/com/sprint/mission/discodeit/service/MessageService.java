@@ -15,4 +15,6 @@ public interface MessageService {
     Message update(UUID id, Message messageDto);
 
     void delete(UUID id);
+
+    void deleteAll();
 }
