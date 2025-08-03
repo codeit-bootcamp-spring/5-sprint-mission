@@ -3,68 +3,51 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFUserService implements UserService {
-    private final List<User> userList;
+    private final Map<UUID, User> userMap;
 
     public JCFUserService() {
-        userList = new ArrayList<>();
+        userMap = new HashMap<>();
     }
 
-    // 사용자 추가
     @Override
-    public User insert(String name, String email, String password) {
-        if (name == null || email == null || password == null || name.isBlank() || email.isBlank() || password.isBlank()) {
-            return null;
+    public User create(String name, String email, String password) {
+        if (name == null || name.isBlank() || email == null || email.isBlank() || password == null || password.isBlank()) {
+            throw new IllegalArgumentException("User info is invalid");
         }
         User user = new User(name, email, password);
-        userList.add(user);
+        userMap.put(user.getId(), user);
         return user;
     }
 
-    // 사용자 조회
     @Override
-    public User selectOne(UUID userId) {
-        for (User user : userList) {
-            if (user.getId().equals(userId)) {
-                return user;
-            }
+    public User find(UUID userId) {
+        User user = userMap.get(userId);
+        if (user == null) {
+            throw new NoSuchElementException("User not found");
         }
-        return null;
+        return user;
     }
 
-    // 사용자 전체 조회
     @Override
-    public List<User> selectAll() {
-        return userList;
+    public List<User> findAll() {
+        return new ArrayList<>(userMap.values());
     }
 
-    // 사용자 수정
     @Override
     public User update(UUID userId, String name, String email, String password) {
-        for (User user : userList) {
-            if (user.getId().equals(userId)) {
-                user.update(name, email, password);
-                return user;
-            }
+        User user = userMap.get(userId);
+        if (user == null) {
+            throw new NoSuchElementException("User not found");
         }
-        return null;
+        user.update(name, email, password);
+        return user;
     }
 
-
-    // 사용자 삭제
     @Override
     public boolean delete(UUID userId) {
-        for (int i = 0; i < userList.size(); i++) {
-            User user = userList.get(i);
-            if (user.getId().equals(userId)) {
-                userList.remove(i);
-                return true;
-            }
-        }
-        return false;
+        return userMap.remove(userId, find(userId));
     }
 }

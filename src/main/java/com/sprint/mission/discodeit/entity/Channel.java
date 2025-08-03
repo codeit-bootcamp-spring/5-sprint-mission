@@ -1,20 +1,27 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Channel {
-    private UUID id;
-    private Long createdAt;
+public class Channel implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private final UUID id;
+    private final Long createdAt;
     private Long updatedAt;
 
-    private String name; // 채널명
-    private UUID ownerId; // 채널 소유자
+    private ChannelType type;
+    private String name;
+    private String description;
 
-    public Channel(String name, UUID ownerId) {
+    public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
+        this.type = type;
         this.name = name;
-        this.ownerId = ownerId;
+        this.description = description;
     }
 
     public UUID getId() {
@@ -29,18 +36,22 @@ public class Channel {
         return updatedAt;
     }
 
+    public ChannelType getType() {
+        return type;
+    }
+
     public String getName() {
         return name;
     }
 
-    public UUID getOwnerId() {
-        return ownerId;
+    public String getDescription() {
+        return description;
     }
 
-    public void update(String name, UUID ownerId) {
+    public void update(String name, String description) {
         this.updatedAt = System.currentTimeMillis();
         this.name = name;
-        this.ownerId = ownerId;
+        this.description = description;
     }
 
     @Override
@@ -49,8 +60,9 @@ public class Channel {
                 "id=" + id +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", type=" + type +
                 ", name='" + name + '\'' +
-                ", ownerId=" + ownerId +
+                ", description=" + description +
                 '}';
     }
 }
