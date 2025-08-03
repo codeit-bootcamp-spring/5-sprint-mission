@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -17,32 +18,35 @@ public class JCFChannelService implements ChannelService {
 
 
     @Override
-    public Channel createChannel(String channelname) {
-        Channel channel = new Channel(channelname);
-        return repo.save(channel);
+    public Channel create(ChannelType type, String name, String description) {
+        Channel channel = new Channel(type, name, description);
+        repo.save(channel);
+        return channel;
     }
 
     @Override
-    public Optional<Channel> getChannel(UUID channelId) {
-        Optional<Channel> channel = repo.findById(channelId);
+    public Optional<Channel> find(UUID id) {
+        Optional<Channel> channel = repo.findById(id);
         if (channel.isEmpty()) {
-            throw new NoSuchElementException("channel with id " + channelId + " not found");
+            throw new NoSuchElementException("Channel with id " + id + " not found");
         }
         return channel;
     }
 
     @Override
-    public List<Channel> getAllChannels() {
+    public List<Channel> findAll() {
         return repo.findAll();
     }
 
     @Override
-    public Channel updateChannel(UUID channelId, String channelname) {
-        return repo.update(channelId,channelname);
+    public Channel update(UUID id, String name, String description) {
+        Channel channel = repo.findById(id).orElse(null);
+        channel.update(name, description);
+        return repo.save(channel);
     }
 
     @Override
-    public void deleteChannel(UUID channelId) {
-        repo.delete(channelId);
+    public void delete(UUID id) {
+        repo.delete(id);
     }
 }
