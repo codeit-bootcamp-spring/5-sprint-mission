@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
-public class MessageRun {
+public class MessageRun{
     private final Scanner sc;
     private final MessageService messageService;
     private final UserService userService;
@@ -27,7 +27,7 @@ public class MessageRun {
         this.channelService = channelService;
     }
 
-    public void run() {
+    public void run() throws Exception{
         while (true) {
             System.out.println("\n[메시지 서비스 메뉴]");
             System.out.println("1. 메시지 등록");
@@ -63,7 +63,7 @@ public class MessageRun {
 
     /* ========== CRUD 로직 ========== */
 
-    private void createMessage() {
+    private void createMessage() throws Exception{
         System.out.print("유저 이름: ");
         String userName = sc.nextLine();
         System.out.print("비밀번호: ");
@@ -91,7 +91,7 @@ public class MessageRun {
         System.out.println("등록 완료!\n[채널: " + channel.getName() + "]\n[내용: " + msg.getContent() + "]");
     }
 
-    private void getMessage() {
+    private void getMessage() throws Exception{
         System.out.print("조회할 메시지 내용: ");
         String content = sc.nextLine().trim();
 
@@ -119,7 +119,7 @@ public class MessageRun {
         }
     }
 
-    private void getAllMessages() {
+    private void getAllMessages() throws Exception{
         List<Message> messages = messageService.getAll();
         if (messages.isEmpty()) {
             System.out.println("등록된 메시지 없음");
@@ -133,7 +133,7 @@ public class MessageRun {
         System.out.println("-------------------------------------------");
     }
 
-    private void updateMessage() {
+    private void updateMessage() throws Exception{
         System.out.print("수정할 메시지 내용: ");
         String oldContent = sc.nextLine().trim();
         Message msg = messageService.get(oldContent);
@@ -152,7 +152,7 @@ public class MessageRun {
         System.out.println("수정 완료");
     }
 
-    private void deleteMessage() {
+    private void deleteMessage() throws Exception{
         System.out.print("삭제할 메시지 내용: ");
         String content = sc.nextLine().trim();
         Message msg = messageService.get(content);

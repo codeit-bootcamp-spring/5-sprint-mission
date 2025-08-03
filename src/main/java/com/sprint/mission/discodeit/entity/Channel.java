@@ -1,9 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
-public class Channel {
+public class Channel implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private final UUID id;
     private final Long createdAt;
     private final UUID creatorUserId;  // 생성자 userId 추가

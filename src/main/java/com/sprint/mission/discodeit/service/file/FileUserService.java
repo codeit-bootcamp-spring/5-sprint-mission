@@ -1,24 +1,33 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-public class JCFUserService implements UserService {
-    private static final JCFUserService instance = new JCFUserService();
-    private final UserRepository userRepository;
+public class FileUserService implements UserService {
+    private static final FileUserService singleton;
 
-    private JCFUserService() {
-        this.userRepository = new JCFUserRepository();
+    static {
+        try {
+            singleton = new FileUserService();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static JCFUserService getInstance() {
-        return instance;
+    private final UserRepository userRepository;
+
+    private FileUserService() throws IOException {
+        this.userRepository = new FileUserRepository();  // FileUserRepository 의존
+    }
+
+    public static FileUserService getInstance() {
+        return singleton;
     }
 
     @Override

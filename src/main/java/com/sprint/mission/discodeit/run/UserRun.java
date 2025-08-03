@@ -15,7 +15,7 @@ public class UserRun {
         this.userService = userService;
     }
 
-    public void run() {
+    public void run() throws Exception{
         while (true) {
             System.out.println("\n[유저 서비스 메뉴]");
             System.out.println("1. 유저 등록");
@@ -49,7 +49,7 @@ public class UserRun {
         }
     }
 
-    private void createUser() {
+    private void createUser() throws Exception{
         System.out.print("이름: ");
         String name = sc.nextLine();
         System.out.print("이메일: ");
@@ -69,7 +69,7 @@ public class UserRun {
     }
 
 
-    private void getUser() {
+    private void getUser() throws Exception{
         System.out.print("정보 조회할 유저 이름: ");
         String name = sc.nextLine().trim();
         User user = userService.get(name);
@@ -83,7 +83,7 @@ public class UserRun {
         System.out.println("유저 정보:\n" + user);
     }
 
-    private void getAllUsers() {
+    private void getAllUsers() throws Exception{
         List<User> users = userService.getAll();
         if (users.isEmpty()) {
             System.out.println("등록된 유저 없음");
@@ -97,7 +97,7 @@ public class UserRun {
         System.out.println("-------------------------------------------");
     }
 
-    private void updateUser() {
+    private void updateUser() throws Exception{
         System.out.print("수정할 유저 이름: ");
         String name = sc.nextLine().trim();
         User user = userService.get(name);
@@ -120,7 +120,7 @@ public class UserRun {
         System.out.println("수정 완료");
     }
 
-    private void deleteUser() {
+    private void deleteUser() throws Exception{
         System.out.print("삭제할 유저 이름: ");
         String name = sc.nextLine().trim();
         User user = userService.get(name);
