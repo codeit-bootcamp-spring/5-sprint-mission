@@ -4,16 +4,16 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
-import javax.swing.*;
 import java.util.List;
-import java.util.UUID;
 
 public class JavaApplication {
     public static void main(String[] args) {
@@ -64,8 +64,15 @@ public class JavaApplication {
 
         //Channel Test
         //1. Given: 구현체 및 객체 생성
-        ChannelService channelService = new JCFChannelService();
-        Channel channel = new Channel("테스트제목", "설명테스트", ChannelType.VOICE);
+
+        //JCF Test 코드
+        // ChannelService channelService = new FileChannelService();
+        //Channel channel = new Channel("테스트제목", "설명테스트", ChannelType.VOICE);
+
+        //File Test 코드
+        ChannelRepository channelRepository = new FileChannelRepository();
+        ChannelService channelService = new FileChannelService(channelRepository);
+        Channel channel = new Channel("테스트제목", "설명테수투", ChannelType.VOICE);
 
         //2. When: 등록/조회/수정
         channelService.create(channel); // 채널 등록
@@ -88,8 +95,8 @@ public class JavaApplication {
 
         //5. Then: 삭제 검증
         try {
-            Channel afterDelete = channelService.findById(channel.getId());
-            System.out.println("✅채널 삭제 후 조회: " + afterDelete);
+            channelService.findById(channel.getId());
+            System.out.println("❌ 삭제된 채널이 조회됩니다. 오류!");
         } catch (IllegalArgumentException e) {
             System.out.println("✅❗삭제된 채널은 더이상 조회할 수 없습니다.");
         }
