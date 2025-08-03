@@ -15,11 +15,10 @@ public class Message implements Serializable {
     private Long updatedAt; // 수정시간
 
     private String content;
-
     private UUID channelId;
     private UUID authorId;
 
-    public Message(String content) {
+    public Message(String content, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now().getEpochSecond();
         this.updatedAt = createdAt;
