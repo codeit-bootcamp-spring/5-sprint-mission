@@ -8,9 +8,9 @@ import java.util.UUID;
 public abstract class BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private UUID id;
-    private long createdAt;
-    private long updatedAt;
+    protected UUID id;
+    protected long createdAt;
+    protected long updatedAt;
 
     //기본생성자
     public BaseEntity() {

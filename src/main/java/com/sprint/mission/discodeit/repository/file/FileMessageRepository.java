@@ -109,8 +109,13 @@ public class FileMessageRepository implements MessageRepository {
             e.printStackTrace();
             return false;
         }
+        if(message.getContent().equals(content)){
+            System.out.println("수정 전과 일치합니다.");
+            return false;
+        }else{
+            message.update(content);
+        }
 
-        message.update(content);
         try (FileOutputStream fos = new FileOutputStream(file);
              ObjectOutputStream oos = new ObjectOutputStream(fos);){
             oos.writeObject(message);

@@ -108,8 +108,12 @@ public class FileUserRepository implements UserRepository {
             e.printStackTrace();
             return false;
         }
-
-        user.update(username,password);
+        if(user.getUsername().equals(username) && user.getPassword().equals(password)){
+            System.out.println("수정 전과 일치합니다.");
+            return false;
+        }else {
+            user.update(username, password);
+        }
         try (FileOutputStream fos = new FileOutputStream(file);
              ObjectOutputStream oos = new ObjectOutputStream(fos);){
             oos.writeObject(user);

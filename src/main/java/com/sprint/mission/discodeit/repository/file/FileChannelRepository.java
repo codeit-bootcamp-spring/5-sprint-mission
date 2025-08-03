@@ -110,8 +110,12 @@ public class FileChannelRepository implements ChannelRepository {
             e.printStackTrace();
             return false;
         }
-
-        channel.update(channelname, description);
+        if(channel.getChannelName().equals(channelname) && channel.getDescription().equals(description)){
+            System.out.println("수정 전과 일치합니다.");
+            return false;
+        }else {
+            channel.update(channelname, description);
+        }
         try (FileOutputStream fos = new FileOutputStream(file);
              ObjectOutputStream oos = new ObjectOutputStream(fos);){
             oos.writeObject(channel);
