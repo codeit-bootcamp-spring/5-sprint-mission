@@ -98,11 +98,11 @@ public class FileUserRepository implements UserRepository {
         }
 
         // 유저 이름 수정
-        user1.update(user.getUsername());
+        user1.update(user.getUsername( ), user.getEmail(), user.getPassword());
 
         // 수정된 유저 정보 파일에 저장하기
        save(user1);
-        return user1;
+       return user1;
     }
 
     @Override

@@ -35,9 +35,6 @@ public class JCFUserRepository implements UserRepository {
 
     @Override
     public User update(UUID id, User user) {
-        if(!data.containsKey(id)){
-            throw new NoSuchElementException("User with id "  + id + "not found");
-        }
         data.put(id, user);
         return user;
 
@@ -45,9 +42,6 @@ public class JCFUserRepository implements UserRepository {
 
     @Override
     public void delete(UUID id) {
-        if(!data.containsKey(id)){
-            throw new NoSuchElementException("User with id " + id + " not found");
-        }
         data.remove(id);
     }
 

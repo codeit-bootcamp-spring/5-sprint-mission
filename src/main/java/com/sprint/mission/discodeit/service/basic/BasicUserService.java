@@ -14,17 +14,14 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User createUser(String username) {
-        User user = new User(username);
+    public User createUser(String username, String email, String password) {
+        User user = new User(username, email, password);
        return repo.save(user);
     }
 
     @Override
     public Optional<User> getUser(UUID userId) {
         Optional<User> user = repo.findById(userId);
-        if(user.isEmpty()){
-            throw new NoSuchElementException("User with id " + userId + " not found");
-        }
         return user;
     }
 
