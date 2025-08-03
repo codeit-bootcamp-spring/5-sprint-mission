@@ -48,4 +48,9 @@ public class JCFMessageRepository implements MessageRepository {
         }
         data.remove(id);
     }
+
+    @Override
+    public void delete(Message message) {
+        delete(message.getId());
+    }
 }

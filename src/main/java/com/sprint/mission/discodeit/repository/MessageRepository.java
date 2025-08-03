@@ -16,4 +16,6 @@ public interface MessageRepository {
     void update(Message message); //수정
 
     void delete(UUID id); //삭제
+
+    void delete(Message message);
 }

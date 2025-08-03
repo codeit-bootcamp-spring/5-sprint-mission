@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class FileChannelRepository implements ChannelRepository {
 
-    private static final String FILE_PATH = "users.dat";
+    private static final String FILE_PATH = "channel.dat";
     private final Map<UUID, Channel> data = load(); //시작할때 로드함
 
     @Override
