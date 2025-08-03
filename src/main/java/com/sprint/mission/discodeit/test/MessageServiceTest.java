@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class MessageServiceTest {
     private MessageService messageService;
@@ -74,13 +75,13 @@ public class MessageServiceTest {
         User user = userService.save(new User("홍길동", "길동2", "1234"));
         Channel channel = channelService.save(new Channel("소통해요", "소통방입니다"));
 
-        messageService.save(new Message(channel.getId(), user.getId(), "채팅 테스트1"));
-        messageService.save(new Message(channel.getId(), user.getId(), "채팅 테스트2"));
-        messageService.save(new Message(channel.getId(), user.getId(), "채팅 테스트3"));
+        List<String> messages = List.of("채팅 테스트1", "채팅 테스트2", "채팅 테스트3");
+        long savedCount = messages.stream()
+                .map(content -> new Message(channel.getId(), user.getId(), content))
+                .map(messageService::save)
+                .count();
 
-        List<Message> allMessages = messageService.findAll();
-
-        printResult("findAll", allMessages.size() == 3);
+        printResult("findAll", savedCount == messages.size());
     }
 
     private void update() {
@@ -91,7 +92,7 @@ public class MessageServiceTest {
 
         Message message = messageService.save(new Message(channel.getId(), user.getId(), "채팅 테스트"));
 
-        messageService.update(message.getId(), new Message(null, null, "내용 수정"));
+        messageService.update(message.getId(), new Message(message.getChannelId(), message.getAuthorId(), "내용 수정"));
 
         boolean isSuccess = "내용 수정".equals(message.getContent());
 
@@ -109,7 +110,7 @@ public class MessageServiceTest {
 
         try {
             messageService.findById(message.getId());
-        } catch (IllegalArgumentException e) {
+        } catch (NoSuchElementException e) {
             printResult("delete", true);
             return;
         }

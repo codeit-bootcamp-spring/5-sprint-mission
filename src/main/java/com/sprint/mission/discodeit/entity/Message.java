@@ -9,6 +9,16 @@ public class Message extends BaseEntity {
     private String content;
 
     public Message(UUID channelId, UUID authorId, String content) {
+        if (channelId == null) {
+            throw new IllegalArgumentException("Channel ID is required");
+        }
+        if (authorId == null) {
+            throw new IllegalArgumentException("Author ID is required");
+        }
+        if (content == null || content.isBlank()) {
+            throw new IllegalArgumentException("Content is required");
+        }
+
         this.channelId = channelId;
         this.authorId = authorId;
         this.content = content;
@@ -27,21 +37,31 @@ public class Message extends BaseEntity {
     }
 
     public void editContent(String content) {
-        this.content = content;
+        if (content == null || content.equals(this.content)) {
+            return;
+        }
 
-        setUpdatedAt(System.currentTimeMillis());
+        this.content = content;
+        this.setUpdatedAt(System.currentTimeMillis());
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
         Message message = (Message) o;
-        return Objects.equals(channelId, message.channelId) && Objects.equals(authorId, message.authorId) && Objects.equals(content, message.content);
+        return Objects.equals(getId(), message.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(channelId, authorId, content);
+        return Objects.hash(getId());
     }
 
     @Override

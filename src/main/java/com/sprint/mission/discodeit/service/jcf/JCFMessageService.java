@@ -3,10 +3,7 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFMessageService implements MessageService {
     private final Map<UUID, Message> data;
@@ -17,22 +14,15 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public Message save(Message msg) {
-        if (isNotValid(msg)) {
-            throw new IllegalArgumentException("invalid message data");
-        }
-
+        validate(msg);
         data.put(msg.getId(), msg);
         return msg;
     }
 
     @Override
     public Message findById(UUID id) {
-        Message msg = data.get(id);
-        if (msg == null) {
-            throw new IllegalArgumentException("message not found");
-        }
-
-        return msg;
+        return Optional.ofNullable(data.get(id))
+                .orElseThrow(() -> new NoSuchElementException("Message not found: " + id));
     }
 
     @Override
@@ -42,14 +32,10 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public Message update(UUID id, Message msgDto) {
-        Message msg = data.get(id);
-        if (msg == null) {
-            throw new IllegalArgumentException("message not found");
-        }
+        validate(msgDto);
 
-        if (msgDto == null || msgDto.getContent() == null) {
-            throw new IllegalArgumentException("invalid message data");
-        }
+        Message msg = Optional.ofNullable(data.get(id))
+                .orElseThrow(() -> new NoSuchElementException("Message not found: " + id));
 
         msg.editContent(msgDto.getContent());
 
@@ -58,12 +44,22 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public void delete(UUID id) {
-        data.remove(id);
+        Optional.ofNullable(data.remove(id))
+                .orElseThrow(() -> new NoSuchElementException("Message not found: " + id));
     }
 
-    private boolean isNotValid(Message msg) {
-        return msg == null || msg.getChannelId() == null || msg.getAuthorId() == null
-                || msg.getContent() == null || msg.getContent().isBlank();
+    private void validate(Message msgDto) {
+        if (msgDto == null) {
+            throw new IllegalArgumentException("Message must not be null");
+        }
+        if (msgDto.getChannelId() == null) {
+            throw new IllegalArgumentException("Message channel is required");
+        }
+        if (msgDto.getAuthorId() == null) {
+            throw new IllegalArgumentException("Message author is required");
+        }
+        if (msgDto.getContent() == null || msgDto.getContent().isBlank()) {
+            throw new IllegalArgumentException("Message content is required");
+        }
     }
-
 }
