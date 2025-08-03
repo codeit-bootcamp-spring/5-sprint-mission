@@ -3,10 +3,7 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFUserService implements UserService {
     private final Map<UUID, User> data;
@@ -17,21 +14,15 @@ public class JCFUserService implements UserService {
 
     @Override
     public User save(User user) {
-        if (isNotValid(user)) {
-            throw new IllegalArgumentException("invalid user info");
-        }
-
+        validate(user);
         data.put(user.getId(), user);
         return user;
     }
 
     @Override
     public User findById(UUID id) {
-        if (data.get(id) == null) {
-            throw new IllegalArgumentException("user not found");
-        }
-
-        return data.get(id);
+        return Optional.ofNullable(data.get(id))
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
     }
 
     @Override
@@ -41,14 +32,10 @@ public class JCFUserService implements UserService {
 
     @Override
     public User update(UUID id, User userDto) {
-        User user = data.get(id);
-        if (user == null) {
-            throw new IllegalArgumentException("user not found");
-        }
+        validate(userDto);
 
-        if (isNotValid(userDto)) {
-            throw new IllegalArgumentException("invalid user info");
-        }
+        User user = Optional.ofNullable(data.get(id))
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
 
         user.update(userDto.getName(), userDto.getNickname(), userDto.getPassword());
 
@@ -57,13 +44,22 @@ public class JCFUserService implements UserService {
 
     @Override
     public void delete(UUID id) {
-        User removed = data.remove(id);
-        removed.withdraw();
+        Optional.ofNullable(data.remove(id))
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
     }
 
-    private boolean isNotValid(User user) {
-        return user == null || user.getName() == null || user.getName().isBlank()
-                || user.getNickname() == null || user.getNickname().isBlank()
-                || user.getPassword() == null || user.getPassword().isBlank();
+    private void validate(User userDto) {
+        if (userDto == null) {
+            throw new IllegalArgumentException("User must not be null");
+        }
+        if (userDto.getName() == null || userDto.getName().isBlank()) {
+            throw new IllegalArgumentException("User name is required");
+        }
+        if (userDto.getNickname() == null || userDto.getNickname().isBlank()) {
+            throw new IllegalArgumentException("User nickname is required");
+        }
+         if (userDto.getPassword() == null || userDto.getPassword().isBlank()) {
+            throw new IllegalArgumentException("User password is required");
+        }
     }
 }

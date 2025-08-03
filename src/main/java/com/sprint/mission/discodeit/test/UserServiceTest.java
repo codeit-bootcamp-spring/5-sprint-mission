@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class UserServiceTest {
     private UserService userService;
@@ -97,7 +98,7 @@ public class UserServiceTest {
 
         try {
             userService.findById(user.getId());
-        } catch (IllegalArgumentException e) {
+        } catch (NoSuchElementException e) {
             printResult("delete", true);
             return;
         }

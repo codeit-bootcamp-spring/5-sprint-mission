@@ -6,7 +6,6 @@ public class User extends BaseEntity {
     private String name;
     private String nickname;
     private String password;
-    private Long deletedAt;
 
     public User(String name, String nickname, String password) {
         this.name = name;
@@ -26,31 +25,30 @@ public class User extends BaseEntity {
         return password;
     }
 
-    public Long getDeletedAt() {
-        return deletedAt;
-    }
-
     public void update(String name, String nickname, String password) {
         this.name = name;
         this.nickname = nickname;
         this.password = password;
-        setUpdatedAt(System.currentTimeMillis());
-    }
-
-    public void withdraw() {
-        this.deletedAt = System.currentTimeMillis();
+        this.setUpdatedAt(System.currentTimeMillis());
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
         User user = (User) o;
-        return Objects.equals(name, user.name) && Objects.equals(nickname, user.nickname) && Objects.equals(password, user.password) && Objects.equals(deletedAt, user.deletedAt);
+        return Objects.equals(getId(), user.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, nickname, password, deletedAt);
+        return Objects.hash(getId());
     }
 
     @Override
@@ -58,7 +56,6 @@ public class User extends BaseEntity {
         return super.toString() + " User{" +
                 "name='" + name + '\'' +
                 ", nickname='" + nickname + '\'' +
-                ", password='" + password + '\'' +
                 '}';
     }
 }
