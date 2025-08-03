@@ -1,26 +1,38 @@
 package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
+import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 
 public class JavaApplication {
-    private static JCFUserService userService;
-    private static JCFChannelService channelService;
-    private static JCFMessageService messageService;
+    private static UserService userService;
+    private static ChannelService channelService;
+    private static MessageService messageService;
 
     public static void main(String[] args) {
-        userService = new JCFUserService();
-        channelService = new JCFChannelService();
-        messageService = new JCFMessageService();
+        UserRepository userRepository = new FileUserRepository();
+        ChannelRepository channelRepository = new FileChannelRepository();
+        MessageRepository messageRepository = new FileMessageRepository();
+
+        userService = new FileUserService();
+        channelService = new FileChannelService();
+        messageService = new FileMessageService();
 
         userCRUDTest();
-        System.out.println("\n======================================================================");
         channelCRUDTest();
-        System.out.println("\n======================================================================");
         messageCRUDTest();
     }
 
@@ -38,6 +50,7 @@ public class JavaApplication {
         // 사용자 조회
         System.out.println("\n====사용자 조회====");
         System.out.println("----단건 조회----");
+
         System.out.println(userService.find(user1.getId()));
 
         System.out.println("----전체 조회----");
@@ -52,8 +65,7 @@ public class JavaApplication {
         // 사용자 삭제 & 조회
         System.out.println("\n====사용자 삭제====");
         System.out.println("삭제 전 | " + userService.find(user2.getId()));
-        userService.delete(user2.getId());
-        System.out.println("삭제 후 | " + userService.find(user2.getId()) + '\n' + userService.findAll());
+        System.out.println("삭제 결과 | " + userService.delete(user2.getId()));
         System.out.println("<<<<User Test End>>>>");
     }
 
@@ -64,9 +76,9 @@ public class JavaApplication {
         System.out.println("\n<<<<Channel Test Start>>>>");
         // 채널 등록
         System.out.println("====채널 등록====");
-        Channel channel1 = channelService.create("채널A", user1.getId());
-        Channel channel2 = channelService.create("채널b", user2.getId());
-        Channel channel3 = channelService.create("채널C", user2.getId());
+        Channel channel1 = channelService.create(ChannelType.PUBLIC, "채널A", user1.getId());
+        Channel channel2 = channelService.create(ChannelType.PUBLIC, "채널b", user2.getId());
+        Channel channel3 = channelService.create(ChannelType.PUBLIC, "채널C", user2.getId());
         System.out.println(channel1);
         System.out.println(channel2);
         System.out.println(channel3);
@@ -81,14 +93,13 @@ public class JavaApplication {
         // 채널 수정
         System.out.println("\n====채널 수정====");
         System.out.println("수정 전 | " + channelService.find(channel2.getId()));
-        channelService.update(channel2.getId(), "채널B", user1.getId());
+        channelService.update(channel2.getId(), "채널B", channel2.getOwnerId());
         System.out.println("수정 후 | " + channelService.find(channel2.getId()));
 
         // 채널 삭제 & 조회
         System.out.println("\n====채널 삭제====");
         System.out.println("삭제 전 | " + channelService.find(channel3.getId()));
         channelService.delete(channel3.getId());
-        System.out.println("삭제 후 | " + channelService.find(channel3.getId()) + '\n' + channelService.findAll());
         System.out.println("<<<<Channel Test End>>>>");
     }
 
@@ -124,8 +135,7 @@ public class JavaApplication {
         // 메시지 삭제 & 조회
         System.out.println("\n====메시지 삭제====");
         System.out.println("삭제 전 | " + messageService.find(message3.getId()));
-        messageService.delete(message3.getId());
-        System.out.println("삭제 후 | " + messageService.find(message3.getId()) + '\n' + messageService.findAll());
+        System.out.println("삭제 결과 | " + messageService.delete(message3.getId()));
         System.out.println("<<<<Message Test End>>>>");
     }
 }
