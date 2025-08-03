@@ -13,7 +13,5 @@ public interface MessageRepository {
 
     List<Message> findAll();
 
-    Message update(UUID id, Message messageDto);
-
     void delete(UUID id);
 }

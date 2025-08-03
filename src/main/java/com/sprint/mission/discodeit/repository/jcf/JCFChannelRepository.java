@@ -29,13 +29,6 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public Channel update(UUID id, Channel channelDto) {
-        Channel ch = data.get(id);
-        ch.update(channelDto.getName(), channelDto.getDescription());
-        return ch;
-    }
-
-    @Override
     public void delete(UUID id) {
         data.remove(id);
     }

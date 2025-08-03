@@ -29,13 +29,6 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Message update(UUID id, Message messageDto) {
-        Message msg = data.get(id);
-        msg.editContent(messageDto.getContent());
-        return msg;
-    }
-
-    @Override
     public void delete(UUID id) {
         data.remove(id);
     }

@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.List;
@@ -37,7 +36,8 @@ public class JCFUserService implements UserService {
     public User update(UUID id, User userDto) {
         validate(userDto);
         User user = findById(id);
-        return userRepository.update(user.getId(), userDto);
+        user.update(userDto.getName(), userDto.getNickname(), userDto.getPassword());
+        return user;
     }
 
     @Override

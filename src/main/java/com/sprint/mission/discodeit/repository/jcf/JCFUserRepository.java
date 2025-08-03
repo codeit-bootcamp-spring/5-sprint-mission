@@ -29,13 +29,6 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public User update(UUID id, User userDto) {
-        User user = data.get(id);
-        user.update(userDto.getName(), userDto.getNickname(), userDto.getPassword());
-        return user;
-    }
-
-    @Override
     public void delete(UUID id) {
         data.remove(id);
     }

@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.util.List;
@@ -37,7 +36,8 @@ public class JCFMessageService implements MessageService {
     public Message update(UUID id, Message msgDto) {
         validate(msgDto);
         Message msg = findById(id);
-        return messageRepository.update(msg.getId(), msgDto);
+        msg.editContent(msgDto.getContent());
+        return msg;
     }
 
     @Override

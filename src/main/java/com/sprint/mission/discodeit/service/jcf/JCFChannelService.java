@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.util.List;
@@ -37,7 +36,8 @@ public class JCFChannelService implements ChannelService {
     public Channel update(UUID id, Channel channelDto) {
         validate(channelDto);
         Channel ch = findById(id);
-        return channelRepository.update(ch.getId(), channelDto);
+        ch.update(channelDto.getName(), channelDto.getDescription());
+        return ch;
     }
 
     @Override
