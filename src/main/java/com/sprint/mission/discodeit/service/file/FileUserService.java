@@ -1,100 +1,58 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.io.*;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
 
 public class FileUserService implements UserService {
 
-    private static final String USER_DATA_DIR = "user_data";
+    private final UserRepository userRepository;
 
-    public FileUserService() {
-        File dataDir = new File(USER_DATA_DIR);
-        if (!dataDir.exists()) {
-            dataDir.mkdirs();
-        }
-    }
-
-    private String getUserFilePath(UUID userId) {
-        return USER_DATA_DIR + File.separator + userId.toString() + ".ser";
+    public FileUserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public User create(String username, String password) {
         User user = new User(username, password);
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getUserFilePath(user.getId())))) {
-            oos.writeObject(user);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return user;
+        return userRepository.save(user);
     }
 
     @Override
     public User find(UUID userId) {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getUserFilePath(userId)))) {
-            return (User) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            return null;
-        }
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("user not found"));
     }
 
     @Override
     public List<User> findAll() {
-        List<User> users = new ArrayList<>();
-        File dataDir = new File(USER_DATA_DIR);
-        File[] userFiles = dataDir.listFiles((dir, name) -> name.endsWith(".ser"));
-        if (userFiles != null) {
-            for (File file : userFiles) {
-                try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-                    users.add((User) ois.readObject());
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return users;
+        return userRepository.findAll();
     }
 
     @Override
     public User update(UUID id, String username, String password) {
         User user = find(id);
-        if (user != null) {
-            user.update(username, password);
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getUserFilePath(user.getId())))) {
-                oos.writeObject(user);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return user;
+        user.update(username, password);
+        return userRepository.save(user);
     }
 
     @Override
     public void delete(UUID id) {
-        File userFile = new File(getUserFilePath(id));
-        if (userFile.exists()) {
-            userFile.delete();
-        }
+        userRepository.deleteById(id);
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
-        return findAll().stream()
-                .filter(user -> user.getUsername().equals(username))
-                .findFirst();
+        return userRepository.findByUsername(username);
     }
 
     @Override
     public void clear() {
-        File dataDir = new File(USER_DATA_DIR);
-        File[] userFiles = dataDir.listFiles((dir, name) -> name.endsWith(".ser"));
-        if (userFiles != null) {
-            for (File file : userFiles) {
-                file.delete();
-            }
-        }
+        userRepository.clear();
     }
 }

@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.io.Serializable;
 
 public class BaseEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
     protected UUID id;
     protected Long createdAt;
     protected Long updatedAt;

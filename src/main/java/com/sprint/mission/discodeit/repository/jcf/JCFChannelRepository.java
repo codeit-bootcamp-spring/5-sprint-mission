@@ -45,4 +45,9 @@ public class JCFChannelRepository implements ChannelRepository {
     public void clear() {
         data.clear();
     }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return data.containsKey(id);
+    }
 }

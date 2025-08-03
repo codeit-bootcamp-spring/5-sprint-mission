@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public class Message extends BaseEntity {
@@ -8,17 +9,22 @@ public class Message extends BaseEntity {
     private UUID authorId;
 
     public Message(UUID channelId, UUID authorId, String content) {
-        super(UUID.randomUUID(), System.currentTimeMillis(), System.currentTimeMillis());
+        super(UUID.randomUUID(), Instant.now().getEpochSecond(), Instant.now().getEpochSecond());
         this.channelId = channelId;
         this.authorId = authorId;
         this.content = content;
     }
 
     public void update(String content) {
-        if (content != null) {
+        boolean anyValueUpdated = false;
+        if (content != null && !content.equals(this.content)) {
             this.content = content;
+            anyValueUpdated = true;
         }
-        this.updatedAt = System.currentTimeMillis();
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
+        }
     }
 
     public UUID getMessageId() {

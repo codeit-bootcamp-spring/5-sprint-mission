@@ -13,4 +13,5 @@ public interface ChannelRepository {
     void deleteById(UUID id);
     Optional<Channel> findByChannelName(String channelName);
     void clear();
+    boolean existsById(UUID id);
 }

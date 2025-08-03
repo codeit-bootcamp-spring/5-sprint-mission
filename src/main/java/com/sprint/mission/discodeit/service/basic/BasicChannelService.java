@@ -33,7 +33,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     public Channel find(UUID channelId) {
         return channelRepository.findById(channelId)
-                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + channelId));
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
     }
 
     @Override
@@ -50,8 +50,8 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public void delete(UUID channelId) {
-        if (channelRepository.findById(channelId).isEmpty()) {
-            throw new NoSuchElementException("Channel not found: " + channelId);
+        if (!channelRepository.existsById(channelId)) {
+            throw new NoSuchElementException("Channel with id " + channelId + " not found");
         }
         channelRepository.deleteById(channelId);
     }

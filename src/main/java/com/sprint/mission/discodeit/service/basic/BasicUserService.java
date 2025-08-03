@@ -37,7 +37,7 @@ public class BasicUserService implements UserService {
     @Override
     public User find(UUID userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("user not found"));
+                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
     }
 
     @Override
@@ -54,8 +54,8 @@ public class BasicUserService implements UserService {
 
     @Override
     public void delete(UUID id) {
-        if (userRepository.findById(id).isEmpty()) {
-            throw new NoSuchElementException("user not found");
+        if (!userRepository.existsById(id)) {
+            throw new NoSuchElementException("User with id " + id + " not found");
         }
         userRepository.deleteById(id);
     }

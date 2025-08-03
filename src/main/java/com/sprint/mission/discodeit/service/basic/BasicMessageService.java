@@ -23,15 +23,15 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public Message create(UUID channelId, UUID authorId, String content) {
+    public Message create(String content, UUID channelId, UUID authorId) {
         if (content == null || content.isBlank()) {
             throw new IllegalArgumentException("Message content cannot be null or blank.");
         }
-        if (userRepository.findById(authorId).isEmpty()) {
-            throw new IllegalArgumentException("User not found: " + authorId);
+        if (!userRepository.existsById(authorId)) {
+            throw new IllegalArgumentException("User not found with id: " + authorId);
         }
-        if (channelRepository.findById(channelId).isEmpty()) {
-            throw new IllegalArgumentException("Channel not found: " + channelId);
+        if (!channelRepository.existsById(channelId)) {
+            throw new IllegalArgumentException("Channel not found with id: " + channelId);
         }
 
         Message message = new Message(channelId, authorId, content);
@@ -41,7 +41,7 @@ public class BasicMessageService implements MessageService {
     @Override
     public Message find(UUID messageId) {
         return messageRepository.findById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("Message not found: " + messageId));
+                .orElseThrow(() -> new NoSuchElementException("Message not found with id: " + messageId));
     }
 
     @Override
@@ -58,8 +58,8 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public void delete(UUID messageId) {
-        if (messageRepository.findById(messageId).isEmpty()) {
-            throw new NoSuchElementException("Message not found: " + messageId);
+        if (!messageRepository.existsById(messageId)) {
+            throw new NoSuchElementException("Message not found with id: " + messageId);
         }
         messageRepository.deleteById(messageId);
     }

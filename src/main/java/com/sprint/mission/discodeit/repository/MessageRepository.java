@@ -12,4 +12,5 @@ public interface MessageRepository {
     List<Message> findAll();
     void deleteById(UUID id);
     void clear();
+    boolean existsById(UUID id);
 }

@@ -34,7 +34,7 @@ public class JCFMessageService implements MessageService {
 
 
       @Override
-      public Message create(UUID channelId, UUID authorId, String content) {
+      public Message create(String content, UUID channelId, UUID authorId) {
           if (content == null || content.isBlank()) {
               throw new IllegalArgumentException("Message content cannot be null or blank.");
           }

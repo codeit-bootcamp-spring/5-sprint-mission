@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -8,7 +9,7 @@ public class User extends BaseEntity {
     private String password;
 
     public User(String username, String password) {
-        super(UUID.randomUUID(), System.currentTimeMillis(), System.currentTimeMillis());
+        super(UUID.randomUUID(), Instant.now().getEpochSecond(), Instant.now().getEpochSecond());
         this.username = username;
         this.password = password;
     }
@@ -35,14 +36,19 @@ public class User extends BaseEntity {
 
 
     public void update(String username, String password) {
-        if (username != null) {
+        boolean anyValueUpdated = false;
+        if (username != null && !username.equals(this.username)) {
             this.username = username;
+            anyValueUpdated = true;
         }
-        if (password != null) {
+        if (password != null && !password.equals(this.password)) {
             this.password = password;
+            anyValueUpdated = true;
         }
-        // 업데이트 시각을 현재 시각으로 갱신합니다.
-        this.updatedAt = System.currentTimeMillis();
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
+        }
     }
 
     @Override

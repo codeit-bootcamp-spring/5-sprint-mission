@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +12,7 @@ public class Channel extends BaseEntity {
     private String description;
 
     public Channel(String channelName, String description) {
-        super(UUID.randomUUID(), System.currentTimeMillis(), System.currentTimeMillis());
+        super(UUID.randomUUID(), Instant.now().getEpochSecond(), Instant.now().getEpochSecond());
         this.channelName = channelName;
         this.description = description;
         this.users = new ArrayList<>();
@@ -30,7 +31,7 @@ public class Channel extends BaseEntity {
         }
 
         if (isUpdated) {
-            this.updatedAt = System.currentTimeMillis();
+            this.updatedAt = Instant.now().getEpochSecond();
         }
     }
 
