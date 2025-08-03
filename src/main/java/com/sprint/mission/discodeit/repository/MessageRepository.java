@@ -7,11 +7,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageRepository {
-    Message save(Message user);
+    Message save(Message message);
 
-    Optional<Message> findById(UUID id);
+    Optional<Message> findById(UUID messageId);
 
     List<Message> findAll();
 
-    boolean delete(UUID id);
+    boolean delete(UUID messageId);
 }

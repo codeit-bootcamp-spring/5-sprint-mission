@@ -31,11 +31,11 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public Channel create(ChannelType type, String name, UUID ownerId) {
-        if (type == null || name == null || name.isBlank() || ownerId == null) {
+    public Channel create(ChannelType type, String name, String description) {
+        if (type == null || name == null || name.isBlank() || description == null || description.isBlank()) {
             throw new IllegalArgumentException("Channel info is invalid");
         }
-        Channel channel = new Channel(type, name, ownerId);
+        Channel channel = new Channel(type, name, description);
         Path path = Paths.get(DIRECTORY, channel.getId() + EXTENSION);
 
         try (
@@ -86,7 +86,7 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public Channel update(UUID channelId, String name, UUID ownerId) {
+    public Channel update(UUID channelId, String name, String description) {
         Channel oldChannel = null;
         Path path = Paths.get(DIRECTORY, channelId.toString() + EXTENSION);
 
@@ -103,7 +103,7 @@ public class FileChannelService implements ChannelService {
 
         Channel channel = Optional.ofNullable(oldChannel)
                 .orElseThrow(() -> new NoSuchElementException("Channel not found"));
-        channel.update(name, ownerId);
+        channel.update(name, description);
 
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());

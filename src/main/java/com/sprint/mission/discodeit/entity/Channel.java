@@ -13,15 +13,15 @@ public class Channel implements Serializable {
     private Long updatedAt;
 
     private ChannelType type;
-    private String name; // 채널명
-    private UUID ownerId; // 채널 소유자
+    private String name;
+    private String description;
 
-    public Channel(ChannelType type, String name, UUID ownerId) {
+    public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.type = type;
         this.name = name;
-        this.ownerId = ownerId;
+        this.description = description;
     }
 
     public UUID getId() {
@@ -44,14 +44,14 @@ public class Channel implements Serializable {
         return name;
     }
 
-    public UUID getOwnerId() {
-        return ownerId;
+    public String getDescription() {
+        return description;
     }
 
-    public void update(String name, UUID ownerId) {
+    public void update(String name, String description) {
         this.updatedAt = System.currentTimeMillis();
         this.name = name;
-        this.ownerId = ownerId;
+        this.description = description;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class Channel implements Serializable {
                 ", updatedAt=" + updatedAt +
                 ", type=" + type +
                 ", name='" + name + '\'' +
-                ", ownerId=" + ownerId +
+                ", description=" + description +
                 '}';
     }
 }

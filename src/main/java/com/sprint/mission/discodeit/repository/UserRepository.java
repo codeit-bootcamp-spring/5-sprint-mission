@@ -9,9 +9,9 @@ import java.util.UUID;
 public interface UserRepository {
     User save(User user);
 
-    Optional<User> findById(UUID id);
+    Optional<User> findById(UUID userId);
 
     List<User> findAll();
 
-    boolean delete(UUID id);
+    boolean delete(UUID userId);
 }

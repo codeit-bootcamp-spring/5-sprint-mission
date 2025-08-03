@@ -14,11 +14,11 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel create(ChannelType type, String name, UUID ownerId) {
-        if (type ==null || name == null || name.isBlank() || ownerId == null) {
+    public Channel create(ChannelType type, String name, String description) {
+        if (type ==null || name == null || name.isBlank() || description == null || description.isBlank()) {
             throw new IllegalArgumentException("Channel info is invalid");
         }
-        Channel channel = new Channel(type, name, ownerId);
+        Channel channel = new Channel(type, name, description);
         channelMap.put(channel.getId(), channel);
         return channel;
     }
@@ -38,12 +38,12 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel update(UUID channelId, String name, UUID ownerId) {
+    public Channel update(UUID channelId, String name, String description) {
         Channel channel = channelMap.get(channelId);
         if (channel == null) {
             throw new NoSuchElementException("Channel not found");
         }
-        channel.update(name, ownerId);
+        channel.update(name, description);
         return channel;
     }
 

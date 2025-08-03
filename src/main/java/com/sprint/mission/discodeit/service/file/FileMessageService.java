@@ -30,11 +30,11 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public Message create(String content, UUID userId, UUID channelId) {
-        if (content == null || content.isBlank() || userId == null || channelId == null) {
+    public Message create(String content, UUID channelId, UUID userId) {
+        if (content == null || content.isBlank() || channelId == null || userId == null) {
             throw new IllegalArgumentException("Message info is invalid");
         }
-        Message message = new Message(content, userId, channelId);
+        Message message = new Message(content, channelId, userId);
         Path path = Paths.get(DIRECTORY, message.getId() + EXTENSION);
 
         try (
