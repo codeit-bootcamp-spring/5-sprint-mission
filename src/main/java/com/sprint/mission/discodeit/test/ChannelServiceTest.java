@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class ChannelServiceTest {
     private ChannelService channelService;
@@ -92,7 +93,7 @@ public class ChannelServiceTest {
 
         try {
             channelService.findById(channel.getId());
-        } catch (IllegalArgumentException e) {
+        } catch (NoSuchElementException e) {
             printResult("delete", true);
             return;
         }

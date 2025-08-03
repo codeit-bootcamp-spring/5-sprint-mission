@@ -20,22 +20,30 @@ public class Channel extends BaseEntity {
     }
 
     public void update(String name, String description) {
-        this.name = name;
-        this.description = description;
-
-        setUpdatedAt(System.currentTimeMillis());
+        if (name != null && !this.name.equals(name) && description != null && !this.description.equals(description)) {
+            this.name = name;
+            this.description = description;
+            this.setUpdatedAt(System.currentTimeMillis());
+        }
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
         Channel channel = (Channel) o;
-        return Objects.equals(name, channel.name) && Objects.equals(description, channel.description);
+        return Objects.equals(getId(), channel.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description);
+        return Objects.hash(getId());
     }
 
     @Override

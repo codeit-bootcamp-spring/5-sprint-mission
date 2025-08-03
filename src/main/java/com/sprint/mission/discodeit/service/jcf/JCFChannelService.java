@@ -3,10 +3,7 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFChannelService implements ChannelService {
     private final Map<UUID, Channel> data;
@@ -17,19 +14,15 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel save(Channel channel) {
-        if (isNotValid(channel)) {
-            throw new IllegalArgumentException("invalid channel data");
-        }
+        validate(channel);
         data.put(channel.getId(), channel);
         return channel;
     }
 
     @Override
     public Channel findById(UUID id) {
-        if (data.get(id) == null) {
-            throw new IllegalArgumentException("channel not found");
-        }
-        return data.get(id);
+        return Optional.ofNullable(data.get(id))
+                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
     }
 
     @Override
@@ -39,28 +32,30 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel update(UUID id, Channel channelDto) {
-        Channel channel = data.get(id);
-        if (channel == null) {
-            throw new IllegalArgumentException("channel not found");
-        }
+        validate(channelDto);
 
-        if (isNotValid(channelDto)) {
-            throw new IllegalArgumentException("invalid channel data");
-        }
+        Channel channel = Optional.ofNullable(data.get(id))
+                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
 
         channel.update(channelDto.getName(), channelDto.getDescription());
-
         return channel;
     }
 
     @Override
     public void delete(UUID id) {
-        data.remove(id);
+        Optional.ofNullable(data.remove(id))
+                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
     }
 
-    private boolean isNotValid(Channel ch) {
-        return ch == null || ch.getName() == null || ch.getName().isBlank()
-                || ch.getDescription() == null;
+    private void validate(Channel chDto) {
+        if (chDto == null) {
+            throw new IllegalArgumentException("Channel must not be null");
+        }
+        if (chDto.getName() == null || chDto.getName().isBlank()) {
+            throw new IllegalArgumentException("Channel name is required");
+        }
+        if (chDto.getDescription() == null) {
+            throw new IllegalArgumentException("Channel description must not be null");
+        }
     }
-
 }
