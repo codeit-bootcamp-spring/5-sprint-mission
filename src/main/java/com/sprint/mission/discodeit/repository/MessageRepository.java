@@ -13,8 +13,6 @@ public interface MessageRepository {
 
     List<Message> findAll();
 
-    Message update(UUID id, String content);
-
     Message delete(UUID id);
 
     boolean existById(UUID id);
