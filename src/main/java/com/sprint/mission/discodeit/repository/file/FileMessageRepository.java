@@ -80,30 +80,6 @@ public class FileMessageRepository implements MessageRepository{
     }
 
     @Override
-    public Message update(UUID id, String content) {
-        Message message;
-        Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
-
-       if(!Files.exists(path)) {
-           throw new NoSuchElementException("Message with id" +  id + " does not exist");
-       }
-
-       try(FileInputStream fis = new FileInputStream(path.toFile());
-            ObjectInputStream ois = new ObjectInputStream(fis)){
-           message = (Message) ois.readObject();
-       }catch (IOException | ClassNotFoundException e){
-           throw new RuntimeException(e);
-       }
-
-       // 메세지 내용 수정
-       message.update(content);
-
-       // 수정된 메세지 파일에 저장하기
-        save(message);
-        return message;
-    }
-
-    @Override
     public Message delete(UUID id) {
         Message message;
         Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);

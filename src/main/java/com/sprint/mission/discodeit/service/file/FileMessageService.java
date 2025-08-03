@@ -17,8 +17,8 @@ public class FileMessageService implements MessageService{
     }
 
     @Override
-    public Message createMessage(String content) {
-        return messageRepo.save(new Message(content));
+    public Message createMessage(String content, UUID chanelId, UUID authorId) {
+        return null;
     }
 
     @Override
@@ -33,7 +33,9 @@ public class FileMessageService implements MessageService{
 
     @Override
     public Message updateMessage(UUID messageId, String content) {
-        return messageRepo.update(messageId, content);
+        Message message = messageRepo.findById(messageId).orElse(null);
+        message.update(content);
+        return messageRepo.save(message);
     }
 
     @Override

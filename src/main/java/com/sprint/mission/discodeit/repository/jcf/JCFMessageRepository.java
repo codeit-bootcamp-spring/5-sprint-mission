@@ -32,16 +32,6 @@ public class JCFMessageRepository implements MessageRepository {
         return new ArrayList<>(data.values());
     }
 
-    @Override
-    public Message update(UUID id, String content) {
-        Message message = data.get(id);
-
-        if(!data.containsKey(id)){
-            throw new NoSuchElementException("Message with id "  + id + "not found");
-        }
-        message.update(content);
-        return message;
-    }
 
     @Override
     public Message delete(UUID id) {

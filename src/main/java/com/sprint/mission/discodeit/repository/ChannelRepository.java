@@ -11,8 +11,6 @@ public interface ChannelRepository {
 
     List<Channel> findAll();
 
-    Channel update(UUID id, String content);
-
     Channel delete(UUID id);
 
     boolean existById(UUID id);
