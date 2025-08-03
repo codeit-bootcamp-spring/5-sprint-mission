@@ -84,28 +84,6 @@ public class FileChannelRepository implements ChannelRepository {
         }
     }
 
-    @Override
-    public Channel update(UUID id, String content) {
-        Channel channel ;
-        Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
-
-        if(!Files.exists(path)) {
-            throw new NoSuchElementException("Channel with id " + id + " doest not exist");
-        }
-
-        try(FileInputStream fis = new FileInputStream(path.toFile());
-        ObjectInputStream ois = new ObjectInputStream(fis)){
-            channel = (Channel) ois.readObject();
-        }catch(IOException | ClassNotFoundException e){
-            throw new RuntimeException(e);
-        }
-
-        channel.update(content);
-
-        save(channel);
-        return channel;
-    }
-
 
     @Override
     public Channel delete(UUID id) {

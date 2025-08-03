@@ -18,8 +18,8 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public Message createMessage(String content) {
-        Message message = new Message(content);
+    public Message createMessage(String content, UUID channelId, UUID authorId) {
+        Message message = new Message(content, channelId, authorId);
         return repo.save(message);
     }
 
@@ -39,7 +39,9 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public Message updateMessage(UUID messageId, String content) {
-        return repo.update(messageId, content);
+        Message message = repo.findById(messageId).orElse(null);
+        message.update(content);
+        return repo.save(message);
     }
 
     @Override

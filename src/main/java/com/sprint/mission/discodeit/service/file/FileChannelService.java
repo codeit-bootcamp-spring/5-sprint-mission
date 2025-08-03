@@ -1,43 +1,53 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
 public class FileChannelService implements ChannelService {
 
-    private final FileChannelRepository fileRepo;
+    private final FileChannelRepository repo;
 
-    public FileChannelService(FileChannelRepository fileRepo) {
-        this.fileRepo = fileRepo;
+    public FileChannelService(FileChannelRepository repo) {
+        this.repo = repo;
+    }
+
+
+    @Override
+    public Channel create(ChannelType type, String name, String description) {
+        Channel channel = new Channel(type, name, description);
+        return repo.save(channel);
     }
 
     @Override
-    public Channel createChannel(String channelname) {
-        return fileRepo.save(new Channel(channelname));
+    public Optional<Channel> find(UUID id) {
+        Optional<Channel> channel = repo.findById(id);
+        if (channel.isEmpty()) {
+            throw new NoSuchElementException("Channel with id " + id + " does not exist");
+        }
+        return repo.findById(id);
     }
 
     @Override
-    public Optional<Channel> getChannel(UUID channelId) {
-        return fileRepo.findById(channelId);
+    public List<Channel> findAll() {
+        return repo.findAll();
     }
 
     @Override
-    public List<Channel> getAllChannels() {
-        return fileRepo.findAll();
+    public Channel update(UUID id, String name, String description) {
+        Channel channel = repo.findById(id).orElse(null);
+        channel.update(name, description);
+        return repo.save(channel);
     }
 
     @Override
-    public Channel updateChannel(UUID channelId, String channelname) {
-        return fileRepo.update(channelId, channelname);
-    }
-
-    @Override
-    public void deleteChannel(UUID channelId) {
-        fileRepo.delete(channelId);
+    public void delete(UUID id) {
+        repo.delete(id);
     }
 }

@@ -32,16 +32,6 @@ public class JCFChannelRepository implements ChannelRepository {
         return new ArrayList<>(data.values());
     }
 
-    @Override
-    public Channel update(UUID id, String content) {
-       Channel channel = data.get(id);
-
-       if(!data.containsKey(id)) {
-           throw new NoSuchElementException("Channel with id " + id + " does not exist");
-       }
-       channel.update(content);
-       return channel;
-    }
 
     @Override
     public Channel delete(UUID id) {
