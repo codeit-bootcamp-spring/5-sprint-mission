@@ -13,7 +13,7 @@ public interface UserService {
      * @param password 채널 주제
      * @return 생성된 User 객체
      */
-    User create(String name, String password);
+    User create(String name, String email, String password);
 
     /**
      * 아이디로 유저 조회
@@ -22,6 +22,14 @@ public interface UserService {
      * @return 찾은 User 객체
      */
     Optional<User> findById(UUID id);
+
+    /**
+     * 아이디로 유저 조회
+     *
+     * @param email  유저 이메일
+     * @return 찾은 User 객체
+     */
+    Optional<User> findByEmail(String email);
 
     /**
      * 아이디로 유저목록 조회
@@ -40,6 +48,6 @@ public interface UserService {
     /**
      * 아이디로 유저삭제
      */
-    void delete(UUID id);
+    boolean delete(UUID id);
 
 }

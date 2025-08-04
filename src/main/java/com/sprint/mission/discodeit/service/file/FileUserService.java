@@ -1,17 +1,15 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.UserRepository;
-import com.sprint.mission.discodeit.respository.jcf.JCFUserRepository;
+import com.sprint.mission.discodeit.respository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.*;
-import java.util.UUID;
 
-public class JCFUserService implements UserService {
+public class FileUserService implements UserService {
 
-    private final UserRepository userRepository =  new JCFUserRepository();
+    private final UserRepository userRepository = new FileUserRepository();
 
-    // 생성
     @Override
     public User create(String name, String email, String password) {
         // 중복검사
@@ -23,7 +21,6 @@ public class JCFUserService implements UserService {
         return userRepository.save(user);
     }
 
-    //조회
     @Override
     public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
@@ -39,19 +36,14 @@ public class JCFUserService implements UserService {
         return userRepository.findAll();
     }
 
-    // 수정
     @Override
     public User update(UUID id, String name) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("해당 ID의 사용자를 찾을 수 없습니다"));
-
-        user.updateName(name);
-        return userRepository.save(user); // 변경된 사용자 저장
+        return userRepository.update(id, name);
     }
 
-    // 삭제
     @Override
     public boolean delete(UUID id) {
         return userRepository.delete(id);
     }
+
 }
