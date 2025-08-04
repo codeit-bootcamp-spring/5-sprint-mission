@@ -16,7 +16,7 @@ public interface MessageService {
 
     List<Message> findByContent(String content);
 
-    Message update(UUID id, String message);
+    Message update(UUID messageId, String message);
 
     void attachFile(UUID messageId, UUID fileId);
 

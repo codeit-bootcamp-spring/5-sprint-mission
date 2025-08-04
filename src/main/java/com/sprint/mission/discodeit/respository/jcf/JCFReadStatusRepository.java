@@ -28,4 +28,18 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
                 .filter(rs -> rs.getChannelId().equals(channelId))
                 .toList();
     }
+
+    /**
+     * 특정 유저가 가진 모든 채널의 읽음 상태 조회
+     */
+    @Override
+    public List<ReadStatus> findAllByUserId(UUID userId) {
+        List<ReadStatus> result = new ArrayList<>();
+        for (ReadStatus readStatus : data.values()) {
+            if (readStatus.getUserId().equals(userId)) {
+                result.add(readStatus);
+            }
+        }
+        return result;
+    }
 }

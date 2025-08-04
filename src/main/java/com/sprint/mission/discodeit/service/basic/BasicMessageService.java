@@ -29,8 +29,8 @@ public class BasicMessageService implements MessageService {
             for (UUID fileId : dto.fileIds()) {
                 message.updateFile(fileId);
             }
-            messageRepository.save(message); // 파일 추가 후 다시 저장
         }
+        messageRepository.save(message);
         return message;
     }
 
