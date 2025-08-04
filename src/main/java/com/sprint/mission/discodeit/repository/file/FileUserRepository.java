@@ -23,7 +23,7 @@ public class FileUserRepository implements UserRepository {
     public User findById(UUID id) {
         User found = data.get(id);
         if (found == null) {
-            throw new IllegalArgumentException("해당 ID의 유저가 없습니다.");
+            return null;
         }
         return new User(found); // 복사본 반환
     }

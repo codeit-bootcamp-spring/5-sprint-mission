@@ -130,7 +130,7 @@ public class JavaApplication {
 
         //File Test 코드
         MessageRepository messageRepository = new FileMessageRepository();
-        MessageService messageService = new FileMessageService(messageRepository);
+        MessageService messageService = new FileMessageService(messageRepository, userService);
         Message message = new Message("테스트내용", sender.getId(), messageChannel.getId());
 
         //2. When: 등록/조회/수정

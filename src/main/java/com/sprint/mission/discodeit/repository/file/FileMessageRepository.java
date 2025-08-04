@@ -44,7 +44,11 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public void delete(UUID id) {
-        
+        if (!data.containsKey(id)) {
+            throw new IllegalArgumentException("삭제할 메시지가 존재하지 않습니다.");
+        }
+        data.remove(id); // 메모리에서 삭제
+        saveToFile();    // 파일에도 반영
     }
 
     @Override

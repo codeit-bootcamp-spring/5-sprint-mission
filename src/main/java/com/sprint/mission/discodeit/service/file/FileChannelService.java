@@ -19,6 +19,12 @@ public class FileChannelService implements ChannelService {
     @Override
 
     public void create(Channel channel) {
+        if (channel == null) {
+            throw new IllegalArgumentException("채널 정보가 없습니다");
+        }
+        if (channel.getTitle() == null || channel.getTitle().isEmpty()) {
+            throw new IllegalArgumentException("채널 이름을 입력해주세요.");
+        }
         repository.save(channel);
     }
 
