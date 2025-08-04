@@ -8,8 +8,8 @@ import java.util.UUID;
 /**
  * 사용자가 채널 별 마지막으로 메시지를 읽은 시간을 표현하는 도메인 모델.
  * 사용자별 각 채널에 읽지 않은 메시지를 확인하기 위해 활용합니다.
- * <p>{@link #userId}</p>
- * <p>{@link #channelId}</p>
+ * <p>{@link #userId} FK</p>
+ * <p>{@link #channelId} FK</p>
  * <p>{@link #lastReadAt}</p>
  * <p>{@link #updateLastReadAt(Instant)}</p>
  * <p>{@link #isRead(Instant)}</p>

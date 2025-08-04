@@ -10,6 +10,7 @@ import java.util.UUID;
 
 /**
  * 사용자 별 마지막으로 확인된 접속 시간을 표현하는 도메인 모델. 사용자의 온라인 상태를 확인하기 위해 활용합니다.
+ * <p>{@link #userId} - FK</p>
  * {@link #isOnline()}
  * {@link #updateLastAccessedAt()}
  **/

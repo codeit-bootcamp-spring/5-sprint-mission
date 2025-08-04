@@ -13,7 +13,8 @@ public class Message extends Base implements Serializable {
     private final User sender; //발신자는 변경할 수 없음
     private final Channel channel; //채널은 변경할 수 없음
     private String content;
-    private UUID fileId;
+    private final List<UUID> files = new ArrayList<>();
+
 
     public Message(User sender, Channel channel, String content) {
         this.sender = sender;
@@ -29,14 +30,17 @@ public class Message extends Base implements Serializable {
         updateTimestamp();
     }
 
-    public void updateFile(UUID fileID) {
-        this.fileId = fileID;
-        updateTimestamp();
+    public void updateFile(UUID fileId) {
+        if (fileId != null && !files.contains(fileId)) {
+            files.add(fileId);
+            updateTimestamp();
+        }
     }
 
-    public void removeFile(UUID fileID) {
-        this.fileId = null;
-        updateTimestamp();
+    public void removeFile(UUID fileId) {
+        if (files.remove(fileId)) {
+            updateTimestamp();
+        }
     }
 
     @Override
