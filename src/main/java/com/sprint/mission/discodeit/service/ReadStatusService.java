@@ -20,7 +20,7 @@ public interface ReadStatusService {
      * 사용자가 채널에서 마지막으로 읽은 시각을 조회
      * 그러기 위해서는 userId와 channelId로 조회해야함
      */
-    Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
+    ReadStatus findByUserIdAndChannelId(UUID userId, UUID channelId);
 
 
     /**
