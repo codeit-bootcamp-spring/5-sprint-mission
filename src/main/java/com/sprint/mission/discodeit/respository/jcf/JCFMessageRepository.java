@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.respository.MessageRepository;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class JCFMessageRepository implements MessageRepository {
     
@@ -43,6 +44,25 @@ public class JCFMessageRepository implements MessageRepository {
                 .filter(msg -> msg.getChannel().getId().equals(channelId))
                 .map(Message::getCreatedAt)
                 .max(Comparator.naturalOrder());
+    }
+
+    // 해당 채널의 모든 메시지 조회
+    @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return data.values().stream()
+                .filter(msg -> msg.getChannel().getId().equals(channelId))
+                .sorted(Comparator.comparing(Message::getCreatedAt)) // optional: 정렬
+                .collect(Collectors.toList());
+    }
+
+    // 특정 시점 이후의 메시지만 조회
+    @Override
+    public List<Message> findAllByChannelIdAfter(UUID channelId, Instant after) {
+        return data.values().stream()
+                .filter(msg -> msg.getChannel().getId().equals(channelId))
+                .filter(msg -> msg.getCreatedAt().isAfter(after))
+                .sorted(Comparator.comparing(Message::getCreatedAt)) // optional: 정렬
+                .collect(Collectors.toList());
     }
 
     @Override

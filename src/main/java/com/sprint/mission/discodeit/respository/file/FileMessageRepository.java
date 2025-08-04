@@ -5,39 +5,41 @@ import com.sprint.mission.discodeit.respository.MessageRepository;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class FileMessageRepository extends FileStore<Message> implements MessageRepository {
 
-    private final Map<UUID, Message> messageMap = new HashMap<>();
+    private final Map<UUID, Message> data = new HashMap<>();
 
     public FileMessageRepository(String rootDir) {
         super(rootDir + "message.store");
         Map<UUID, Message> loaded = loadFromFile();
-        messageMap.putAll(loaded);
+        data.putAll(loaded);
     }
 
+    // 메시지 저장
     @Override
     public Message save(Message message) {
-        messageMap.put(message.getId(), message);
-        saveToFile(messageMap);
+        data.put(message.getId(), message);
+        saveToFile(data);
         return message;
     }
 
     @Override
     public Optional<Message> findById(UUID id) {
-        return Optional.ofNullable(messageMap.get(id));
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
     public List<Message> findAll() {
-        return new ArrayList<>(messageMap.values());
+        return new ArrayList<>(data.values());
     }
 
     @Override
     public List<Message> findByContent(String str) {
         List<Message> result = new ArrayList<>();
-        for (Message message : messageMap.values()) {
+        for (Message message : data.values()) {
             if (message.getContent().contains(str)) {
                 result.add(message);
             }
@@ -47,17 +49,36 @@ public class FileMessageRepository extends FileStore<Message> implements Message
 
     @Override
     public Optional<Instant> findLastCreatedAtByChannelId(UUID channelId) {
-        return messageMap.values().stream()
+        return data.values().stream()
                 .filter(msg -> msg.getChannel().getId().equals(channelId))
                 .map(Message::getCreatedAt)
                 .max(Comparator.naturalOrder());
     }
 
+    // 해당 채널의 모든 메시지 조회
+    @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return data.values().stream()
+                .filter(msg -> msg.getChannel().getId().equals(channelId))
+                .sorted(Comparator.comparing(Message::getCreatedAt)) // optional: 정렬
+                .collect(Collectors.toList());
+    }
+
+    // 특정 시점 이후의 메시지만 조회
+    @Override
+    public List<Message> findAllByChannelIdAfter(UUID channelId, Instant after) {
+        return data.values().stream()
+                .filter(msg -> msg.getChannel().getId().equals(channelId))
+                .filter(msg -> msg.getCreatedAt().isAfter(after))
+                .sorted(Comparator.comparing(Message::getCreatedAt)) // optional: 정렬
+                .collect(Collectors.toList());
+    }
+
     @Override
     public boolean deleteById(UUID id) {
-        boolean removed = messageMap.remove(id) != null;
+        boolean removed = data.remove(id) != null;
         if (removed) {
-            saveToFile(messageMap);
+            saveToFile(data);
         }
         return removed;
     }
