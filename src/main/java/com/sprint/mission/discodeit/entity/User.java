@@ -9,7 +9,7 @@ import java.util.UUID;
 public class User extends Base  {
 
     private String name;
-    private String email;
+    private final String email;
     private UUID profileId;
     @JsonIgnore private String password;
 
@@ -24,28 +24,13 @@ public class User extends Base  {
         updateTimestamp();
     }
 
-    public void updateEmail(String newEmail) {
-        this.email = newEmail;
-        updateTimestamp();
-    }
-
     public void updateProfileId(UUID newProfileId) {
         this.profileId = newProfileId;
         updateTimestamp();
     }
 
-    public void updatePassword(String currentPassword, String newPassword) {
-        if(!this.password.equals(currentPassword)){
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
-        }
-        if(newPassword==null || newPassword.isBlank()){
-            throw new IllegalArgumentException("새 비밀번호는 null이거나 공백일 수 없습니다.");
-        }
-        if (newPassword.equals(currentPassword)) {
-            throw new IllegalArgumentException("새 비밀번호는 기존 비밀번호와 달라야 합니다.");
-        }
-        // 추후 hash 처리 로직 추가
-        this.password = newPassword;
+    public void updatePassword(String password) {
+        this.password = password;
         updateTimestamp();
     }
 

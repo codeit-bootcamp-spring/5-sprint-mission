@@ -2,7 +2,9 @@ package com.sprint.mission.discodeit.respository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.UserRepository;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FileUserRepository extends FileStore<User> implements UserRepository {
 
@@ -41,21 +43,13 @@ public class FileUserRepository extends FileStore<User> implements UserRepositor
     }
 
     @Override
-    public Optional<User> findByName(String name) {
+    public List<User> findByName(String name) {
         return userMap.values().stream()
                 .filter(user -> user.getEmail().equals(name))
-                .findFirst();
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public Optional<User> update(UUID id, String name) {
-        return Optional.ofNullable(userMap.get(id))
-                .map(user -> {
-                    user.updateName(name);
-                    saveToFile(userMap);
-                    return user;
-                });
-    }
+
 
     @Override
     public boolean delete(UUID id) {

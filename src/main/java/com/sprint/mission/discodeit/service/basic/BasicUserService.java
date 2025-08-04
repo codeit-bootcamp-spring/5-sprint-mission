@@ -27,10 +27,7 @@ public class BasicUserService implements UserService {
 
     @Override
     public User create(UserDto.Create dto) {
-        // name 중복 검사
-        userRepository.findByName(dto.name()).ifPresent(user -> {
-            throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
-        });
+
         // email 중복검사
         if (userRepository.findByEmail(dto.email()).isPresent()) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
@@ -61,30 +58,18 @@ public class BasicUserService implements UserService {
 
         // 이름 수정
         if (dto.name() != null) {
-            // name 중복 검사
-            userRepository.findByName(dto.name()).ifPresent(u -> {
-                throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
-            });
             user.updateName(dto.name());
-        }
-
-        // email 수정
-        if (dto.email() != null && !dto.email().equals(user.getEmail())) {
-            userRepository.findByEmail(dto.email()).ifPresent(duplicate -> {
-                throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
-            });
-            user.updateEmail(dto.email());
         }
 
         // 프로필 이미지 수정
         if (dto.profileImage() != null) {
             BinaryContent newImage = new BinaryContent(dto.profileImage());
             binaryContentRepository.save(newImage);
+            user.updateProfileId(newImage.getId());
         }
 
         // 변경된 user 저장
         userRepository.save(user);
-
         return user;
     }
 
