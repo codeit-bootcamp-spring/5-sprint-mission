@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.respository.jcf;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.respository.ReadStatusRepository;
 
 import java.util.*;

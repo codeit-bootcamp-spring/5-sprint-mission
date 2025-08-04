@@ -1,12 +1,11 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
+
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 public interface ReadStatusService {
     /**

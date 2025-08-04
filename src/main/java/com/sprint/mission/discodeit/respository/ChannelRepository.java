@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.respository;
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 
 import java.util.List;

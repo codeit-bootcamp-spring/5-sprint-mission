@@ -1,16 +1,19 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.dto.MessageDto;
-import com.sprint.mission.discodeit.dto.UserDto;
-import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

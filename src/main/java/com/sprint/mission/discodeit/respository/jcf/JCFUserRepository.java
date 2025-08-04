@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.UserRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class JCFUserRepository implements UserRepository {
 

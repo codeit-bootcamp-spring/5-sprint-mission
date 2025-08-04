@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.respository.jcf;
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.respository.ChannelRepository;
+
 import java.util.*;
 
 public class JCFChannelRepository implements ChannelRepository {

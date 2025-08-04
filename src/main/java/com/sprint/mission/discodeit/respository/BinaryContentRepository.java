@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.respository;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.UserStatus;
 
 import java.util.List;
 import java.util.Optional;

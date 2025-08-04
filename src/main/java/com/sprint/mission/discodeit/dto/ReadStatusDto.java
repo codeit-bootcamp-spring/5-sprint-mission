@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.dto;
 
-import org.springframework.lang.Nullable;
-
 import java.util.UUID;
 
 public class ReadStatusDto {

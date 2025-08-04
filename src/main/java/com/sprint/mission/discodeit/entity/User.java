@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 @Getter
