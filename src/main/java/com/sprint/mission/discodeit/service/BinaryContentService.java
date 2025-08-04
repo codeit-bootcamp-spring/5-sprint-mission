@@ -7,8 +7,7 @@ public interface BinaryContentService {
 
     void save(BinaryContent binaryContent);
 
-    Optional<BinaryContent> findById(UUID id);
-
     List<BinaryContent> findAll();
 
+    Optional<BinaryContent> findById(UUID id);
 }
