@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.respository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.respository.ChannelRepository;
-import org.springframework.stereotype.Repository;
+
 import java.util.*;
 
 
@@ -24,8 +24,13 @@ public class FileChannelRepository extends FileStore<Channel> implements Channel
     }
 
     @Override
-    public Channel findById(UUID id) {
-        return channelMap.get(id);
+    public List<Channel> findAll() {
+        return new ArrayList<>(channelMap.values());
+    }
+
+    @Override
+    public Optional<Channel> findById(UUID id) {
+        return Optional.ofNullable(channelMap.get(id));
     }
 
     @Override
@@ -40,28 +45,25 @@ public class FileChannelRepository extends FileStore<Channel> implements Channel
     }
 
     @Override
-    public List<Channel> findAll() {
-        return new ArrayList<>(channelMap.values());
-    }
-
-    @Override
-    public Channel updateName(UUID id, String name) {
+    public Optional<Channel> updateName(UUID id, String name) {
         Channel channel = channelMap.get(id);
         if (channel != null) {
             channel.updateName(name);
             saveToFile(channelMap);
+            return Optional.of(channel);
         }
-        return channel;
+        return Optional.empty();
     }
 
     @Override
-    public Channel updateTopic(UUID id, String topic) {
+    public Optional<Channel> updateTopic(UUID id, String topic) {
         Channel channel = channelMap.get(id);
         if (channel != null) {
             channel.updateTopic(topic);
             saveToFile(channelMap);
+            return Optional.of(channel);
         }
-        return channel;
+        return Optional.empty();
     }
 
     @Override

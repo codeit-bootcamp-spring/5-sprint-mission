@@ -2,7 +2,8 @@ package com.sprint.mission.discodeit.respository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.respository.MessageRepository;
-import org.springframework.stereotype.Repository;
+
+import java.time.Instant;
 import java.util.*;
 
 
@@ -24,8 +25,8 @@ public class FileMessageRepository extends FileStore<Message> implements Message
     }
 
     @Override
-    public Message findById(UUID id) {
-        return messageMap.get(id);
+    public Optional<Message> findById(UUID id) {
+        return Optional.ofNullable(messageMap.get(id));
     }
 
     @Override
@@ -34,7 +35,7 @@ public class FileMessageRepository extends FileStore<Message> implements Message
     }
 
     @Override
-    public List<Message> findByStr(String str) {
+    public List<Message> findByContent(String str) {
         List<Message> result = new ArrayList<>();
         for (Message message : messageMap.values()) {
             if (message.getContent().contains(str)) {
@@ -42,6 +43,14 @@ public class FileMessageRepository extends FileStore<Message> implements Message
             }
         }
         return result;
+    }
+
+    @Override
+    public Optional<Instant> findLastCreatedAtByChannelId(UUID channelId) {
+        return messageMap.values().stream()
+                .filter(msg -> msg.getChannel().getId().equals(channelId))
+                .map(Message::getCreatedAt)
+                .max(Comparator.naturalOrder());
     }
 
     @Override

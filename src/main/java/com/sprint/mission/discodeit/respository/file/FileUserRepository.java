@@ -8,7 +8,6 @@ public class FileUserRepository extends FileStore<User> implements UserRepositor
 
     private final Map<UUID, User> userMap = new HashMap<>();
 
-
     public FileUserRepository(String rootDir) {
         super(rootDir + "user.store");
         Map<UUID, User> loaded = loadFromFile();
@@ -49,13 +48,13 @@ public class FileUserRepository extends FileStore<User> implements UserRepositor
     }
 
     @Override
-    public User update(UUID id, String name) {
-        User user = userMap.get(id);
-        if (user != null) {
-            user.updateName(name);
-            saveToFile(userMap);
-        }
-        return user;
+    public Optional<User> update(UUID id, String name) {
+        return Optional.ofNullable(userMap.get(id))
+                .map(user -> {
+                    user.updateName(name);
+                    saveToFile(userMap);
+                    return user;
+                });
     }
 
     @Override
