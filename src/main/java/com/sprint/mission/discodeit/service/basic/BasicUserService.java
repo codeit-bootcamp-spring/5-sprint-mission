@@ -89,37 +89,20 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public List<UserDto.View> findAll() {
-        return userRepository.findAll().stream()
-                .map(user -> new UserDto.View(
-                        user.getId(),
-                        user.getName(),
-                        user.getEmail(),
-                        userStatusService.isOnline(user.getId())
-                ))
-                .toList();
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     @Override
-    public Optional<UserDto.View> findById(UUID id) {
+    public User findById(UUID id) {
         return userRepository.findById(id)
-                .map(user -> new UserDto.View(
-                        user.getId(),
-                        user.getName(),
-                        user.getEmail(),
-                        userStatusService.isOnline(user.getId())
-                ));
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자가 존재하지 않습니다."));
     }
 
     @Override
-    public Optional<UserDto.View> findByEmail(String email) {
+    public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .map(user -> new UserDto.View(
-                        user.getId(),
-                        user.getName(),
-                        user.getEmail(),
-                        userStatusService.isOnline(user.getId())
-                ));
+                .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자가 존재하지 않습니다."));
     }
 
 

@@ -22,8 +22,14 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Optional<Channel> findById(UUID id) {
-        return Optional.ofNullable(channelRepository.findById(id));
+    public List<Channel> findAll() {
+        return channelRepository.findAll();
+    }
+
+    @Override
+    public Channel findById(UUID id) {
+        return channelRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
     }
 
     @Override
@@ -32,36 +38,28 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public List<Channel> findAll() {
-        return channelRepository.findAll();
-    }
-
-    @Override
     public Channel updateName(UUID id, String name) {
-        Channel channel = channelRepository.findById(id);
-        if (channel == null) {
-            throw new NoSuchElementException("해당 ID의 채널이 존재하지 않습니다.");
-        }
+        Channel channel = channelRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
+
         channel.updateName(name);
         return channelRepository.save(channel);
     }
 
     @Override
     public Channel updateTopic(UUID id, String topic) {
-        Channel channel = channelRepository.findById(id);
-        if (channel == null) {
-            throw new NoSuchElementException("해당 ID의 토픽이 존재하지 않습니다.");
-        }
+        Channel channel = channelRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
+
         channel.updateTopic(topic);
         return channelRepository.save(channel);
     }
 
     @Override
     public Channel updateDescription(UUID id, String description) {
-        Channel channel = channelRepository.findById(id);
-        if (channel == null) {
-            throw new NoSuchElementException("채널이 존재하지 않습니다.");
-        }
+        Channel channel = channelRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
+
         channel.updateDescription(description);
         return channelRepository.save(channel);
     }

@@ -2,9 +2,12 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.dto.MessageDto;
+import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.respository.MessageRepository;
+import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -14,11 +17,21 @@ import java.util.*;
 public class BasicMessageService implements MessageService {
 
     private final MessageRepository messageRepository;
+    private final UserService userService;
+    private final ChannelService channelService;
 
     @Override
     public Message create(MessageDto.Create dto) {
-        Message message = new Message(dto.user(), dto.channel(), dto.content());
-        return messageRepository.save(message);
+        User user = userService.findById(dto.userId());
+        Channel channel = channelService.findById(dto.channelId());
+        Message message = new Message(user, channel, dto.content());
+        if (dto.fileIds() != null) {
+            for (UUID fileId : dto.fileIds()) {
+                message.updateFile(fileId);
+            }
+            messageRepository.save(message); // 파일 추가 후 다시 저장
+        }
+        return message;
     }
 
     @Override
@@ -27,10 +40,10 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public List<Message> findByStr(String str) {
+    public List<Message> findByContent(String content) {
         List<Message> result = new ArrayList<>();
         for (Message message : messageRepository.findAll()) {
-            if (message.getContent().contains(str)) {
+            if (message.getContent().contains(content)) {
                 result.add(message);
             }
         }
@@ -39,17 +52,34 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public Message update(UUID id, String newMessage) {
-        Message message = messageRepository.findById(id);
-        if (message == null) {
-            throw new NoSuchElementException("해당 ID의 메시지가 존재하지 않습니다.");
-        }
+        Message message = messageRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+
         message.updateContent(newMessage);
         messageRepository.save(message);
         return message;
     }
 
     @Override
-    public boolean deleteById(UUID id) {
+    public void attachFile(UUID messageId, UUID fileId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+
+        message.updateFile(fileId); // 도메인 객체 내 로직 호출
+        messageRepository.save(message); // 변경사항 저장
+    }
+
+    @Override
+    public void detachFile(UUID messageId, UUID fileId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+
+        message.removeFile(fileId);
+        messageRepository.save(message);
+    }
+
+    @Override
+    public boolean delete(UUID id) {
         return messageRepository.deleteById(id);
     }
 }

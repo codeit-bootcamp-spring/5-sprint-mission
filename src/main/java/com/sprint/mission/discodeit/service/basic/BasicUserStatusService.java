@@ -7,7 +7,6 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -19,8 +18,10 @@ public class BasicUserStatusService implements UserStatusService {
     // 온라인 상태 여부
     @Override
     public boolean isOnline(UUID userId) {
-        Optional<UserStatus> status =  userStatusRepository.findById(userId);
-        return status.isPresent() && status.get().isOnline();
+        UserStatus status =  userStatusRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        return status.isOnline();
     }
 
     // 마지막 접속 시간 업데이트
