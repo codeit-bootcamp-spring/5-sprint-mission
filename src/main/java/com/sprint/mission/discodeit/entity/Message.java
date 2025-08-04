@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
-public class Message extends Base implements Serializable {
+public class Message extends Base{
 
     private final User sender; //발신자는 변경할 수 없음
     private final Channel channel; //채널은 변경할 수 없음

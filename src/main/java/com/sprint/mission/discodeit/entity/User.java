@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Getter
-public class User extends Base implements Serializable {
+public class User extends Base  {
 
     private String name;
     private String email;

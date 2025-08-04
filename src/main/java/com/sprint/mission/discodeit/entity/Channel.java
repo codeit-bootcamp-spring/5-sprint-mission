@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.io.Serializable;
 
 @Getter
-public class Channel extends Base implements Serializable {
+public class Channel extends Base {
 
     private String name;
     private String topic;
@@ -13,13 +13,6 @@ public class Channel extends Base implements Serializable {
     private String description;
 
     public Channel(String name, ChannelType type) {
-        // null 체크
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("채널 이름은 null이 될 수 없습니다.");
-        }
-        if (type == null) {
-            throw new IllegalArgumentException("채널 타입은 null이 될 수 없습니다.");
-        }
         this.name = name;
         this.type = type;
     }
@@ -31,9 +24,6 @@ public class Channel extends Base implements Serializable {
     }
 
     public void updateName(String name) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("채널 이름은 null이 될 수 없습니다.");
-        }
         this.name = name;
         updateTimestamp();
     }
@@ -45,10 +35,12 @@ public class Channel extends Base implements Serializable {
 
     public void updateType(ChannelType newType) {
         this.type = newType;
+        updateTimestamp();
     }
 
     public void updateDescription(String description) {
         this.description = description;
+        updateTimestamp();
     }
 
     @Override

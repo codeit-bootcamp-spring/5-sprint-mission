@@ -15,7 +15,7 @@ import java.util.UUID;
  * {@link #updateLastAccessedAt()}
  **/
 @Getter
-public class UserStatus extends Base implements Serializable {
+public class UserStatus extends Base {
     private final UUID userId;
     private Instant lastAccessedAt;
 
