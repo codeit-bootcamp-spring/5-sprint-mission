@@ -7,16 +7,12 @@ import java.util.UUID;
 
 public interface UserStatusRepository {
 
-    /**
-     * 사용자 상태 조회
-     * @param userId 사용자 아이디
-     * @return UserStatus 객체 반환
-     **/
-    Optional<UserStatus> findById(UUID userId);
+    void save(UserStatus userStatus);
 
-    // 전체 상태 조회
     List<UserStatus> findAll();
 
-    // 상태 저장(갱신)
-    void save(UserStatus userStatus);
+    Optional<UserStatus> findById(UUID userId);
+
+
+
 }
