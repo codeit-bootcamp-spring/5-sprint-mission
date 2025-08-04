@@ -7,6 +7,7 @@ public class Channel {
     private Long createdAt;
     private Long updatedAt;
 
+    // 변경점
     // 내가 디스코드에서 필요한 필드를 추가적으로 설계하는 자리
     private String channelName; // 채널의 이름
     private String channelIntroduction; // 채널의 소개
