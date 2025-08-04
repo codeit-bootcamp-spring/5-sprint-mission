@@ -41,19 +41,22 @@ public class BasicReadStatusService implements ReadStatusService {
 
     @Override
     public List<ReadStatusDto.ChannelUnreadStatus> getUnreadChannels(UUID userId) {
+        // 모든 채널에 대한 읽음 상태 조회
         List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(userId);
 
         return readStatuses.stream()
                 .map(rs -> {
-                    UUID channelId = rs.getChannelId();
-                    Instant lastReadAt = rs.getLastReadAt();
+                    UUID channelId = rs.getChannelId(); // 채널 아이디 추출
 
+                    // 해당 채널에서 마지막으로 생성된 메시지 시간
                     Optional<Instant> latestMessageAtOpt = messageRepository.findLastCreatedAtByChannelId(channelId);
 
+                    // 안읽은 메시지가 있는지
                     boolean hasUnread = latestMessageAtOpt
-                            .map(latest -> lastReadAt == null || latest.isAfter(lastReadAt))
-                            .orElse(false);
+                            .map(latest -> !rs.isRead(latest)) // 최신 메시지가 읽음 상태인지 확인
+                            .orElse(false); // 없으면 읽음 처리
 
+                    // 채널 Id와 읽음 상태를 반환
                     return new ReadStatusDto.ChannelUnreadStatus(channelId, hasUnread);
                 })
                 .collect(Collectors.toList());
