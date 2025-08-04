@@ -5,6 +5,7 @@ import java.util.UUID;
 
 //엔티티
 public class User implements Serializable {
+    
     //직렬화된 객체의 버전을 명시적으로 지정
     private static final long serialVersionUID = 1L;
     //필드
