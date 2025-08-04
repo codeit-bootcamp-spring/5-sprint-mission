@@ -30,7 +30,14 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public Channel findById(UUID id) {
-        return repository.findById(id);
+        if (id == null) {
+            throw new IllegalArgumentException("조회할 채널의 ID가 null입니다.");
+        }
+        Channel original = repository.findById(id);
+        if (original == null) {
+            throw new IllegalArgumentException("해당 채널이 존재하지 않습니다.");
+        }
+        return new Channel(original); // 복사본 리턴
     }
 
     @Override
@@ -40,11 +47,23 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public void update(Channel channel) {
+        if (channel == null) {
+            throw new IllegalArgumentException("채널이 null값입니다.");
+        }
+        if (channel.getTitle() == null || channel.getTitle().isEmpty()) {
+            throw new IllegalArgumentException("채널 이름을 적어주세요.");
+        }
         repository.update(channel);
     }
 
     @Override
     public void delete(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("채널 ID가 null값입니다.");
+        }
+        if (repository.findById(id) == null) {
+            throw new IllegalArgumentException("삭제할 채널이 존재하지 않습니다.");
+        }
         repository.delete(id);
     }
 }

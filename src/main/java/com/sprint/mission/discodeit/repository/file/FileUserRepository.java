@@ -40,9 +40,6 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public void delete(UUID id) {
-        if (!data.containsKey(id)) {
-            throw new IllegalArgumentException("해당 ID의 유저가 없습니다.");
-        }
         data.remove(id);
         saveToFile();
     }

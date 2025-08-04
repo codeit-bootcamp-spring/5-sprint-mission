@@ -25,7 +25,7 @@ public class FileChannelRepository implements ChannelRepository {
     public Channel findById(UUID id) {
         Channel found = data.get(id);
         if (found == null) {
-            throw new IllegalArgumentException("해당 ID의 채널이 없습니다.");
+            return null;
         }
         return new Channel(found); // 복사해서 반환
     }
@@ -42,9 +42,6 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public void delete(UUID id) {
-        if (!data.containsKey(id)) {
-            throw new IllegalArgumentException("해당 ID의 채널이 없습니다.");
-        }
         data.remove(id);
         saveToFile();
     }

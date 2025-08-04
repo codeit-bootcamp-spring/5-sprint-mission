@@ -33,9 +33,12 @@ public class FileMessageService implements MessageService {
 
     @Override
     public Message findById(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("조회할 메세지 ID가 null입니다.");
+        }
         Message original = repository.findById(id);
         if (original == null) {
-            throw new IllegalArgumentException("조회할 메세지 ID가 null입니다.");
+            throw new IllegalArgumentException("존재하지 않는 메세지입니다.");
         }
         return new Message(original); // 복사본 리턴
     }
@@ -62,6 +65,15 @@ public class FileMessageService implements MessageService {
 
     @Override
     public void delete(Message message) {
+        if (message == null) {
+            throw new IllegalArgumentException("삭제할 메세지가 null입니다.");
+        }
+        if (message.getId() == null) {
+            throw new IllegalArgumentException("삭제할 메세지 ID가 null입니다.");
+        }
+        if (repository.findById(message.getId()) == null) {
+            throw new IllegalArgumentException("삭제할 메세지가 존재하지 않습니다.");
+        }
         repository.delete(message.getId());
     }
 }
