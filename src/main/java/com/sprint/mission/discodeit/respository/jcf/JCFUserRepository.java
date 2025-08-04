@@ -41,12 +41,13 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public User update(UUID id, String name) {
+    public Optional<User> update(UUID id, String name) {
         User user = data.get(id);
         if (user != null) {
-            user.updateName(name); // 혹은 user.setName(name); 네 메서드 이름에 맞게
+            user.updateName(name);
+            return Optional.of(user);
         }
-        return user;
+        return Optional.empty();
     }
 
     @Override
