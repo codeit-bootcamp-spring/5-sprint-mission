@@ -1,8 +1,15 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.util.*;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
-public class Channel {
+public class Channel implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
     private final Long createdAt;
     private Long updatedAt;
@@ -15,39 +22,57 @@ public class Channel {
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = this.createdAt;   // channel이름이 수정되면 시간을 타임스탬프로 나타내자
         this.channelName = channelName;
-        this.userIds = new HashSet<>();
+        this.userIds = new HashSet<>();    // 멤버 Id를 저장할 HastSet 초기화
     }
 
-    public UUID getId() { return id; }
-    public long getCreatedAt() { return createdAt; }
-    public long getUpdatedAt() { return updatedAt; }
-    public String getName() { return channelName; }
-    public Set<UUID> getUserIds() { return userIds; }
+    public UUID getId() {
+        return id;
+    }
 
-    public void updateName(String channelName) {
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getChannelName() {
+        return channelName;
+    }
+
+    public Set<UUID> getUserIds() {
+        return new HashSet<>(userIds); // 채널 멤버 ID들의 불변 Set
+    }
+
+    public void updateChannelName(String newChannelName) {
         this.channelName = channelName;
         this.updatedAt = System.currentTimeMillis();
     }
 
-    public void join (UUID id) {
-        userIds.add(id);
+    public boolean join(UUID userId) {
         this.updatedAt = System.currentTimeMillis();
+        return this.userIds.add(userId);
     }
 
-    public void leave (UUID id) {
-        userIds.remove(id);
+    public boolean leave(UUID userId) {
         this.updatedAt = System.currentTimeMillis();
+        return this.userIds.remove(userId);
+    }
+
+    public boolean isMember(UUID userId) {
+        this.updatedAt = System.currentTimeMillis();
+        return this.userIds.contains(id);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Channel{");
-        sb.append("id=").append(id);
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append(", channelName='").append(channelName).append('\'');
-        sb.append(", userIds=").append(userIds);
-        sb.append('}');
-        return sb.toString();
+        return "Channel{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", channelName='" + channelName + '\'' +
+                ", userCount=" + userIds.size() +
+                '}';
     }
 }

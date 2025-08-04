@@ -1,8 +1,14 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
-public class Message {
+public class Message implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
     private final Long createdAt;
     private Long updatedAt;
@@ -12,6 +18,13 @@ public class Message {
     private String content;
 
     public Message(UUID userId, UUID channelId, String content) {
+        Objects.requireNonNull(userId, "userId cannot be null"); // null 체크
+        Objects.requireNonNull(channelId, "userId cannot be null"); // null 체크
+
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("content cannot be null or empty");
+        }
+
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = this.createdAt;
@@ -45,8 +58,8 @@ public class Message {
     }
 
     public void updateContent(String newContent) {
-        this.content = newContent;
-        this.updatedAt = System.currentTimeMillis();
+            this.content = newContent;
+            this.updatedAt = System.currentTimeMillis();
     }
 
     @Override
