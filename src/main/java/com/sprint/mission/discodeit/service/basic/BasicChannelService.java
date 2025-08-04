@@ -17,6 +17,12 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public Channel create(ChannelDto.Create dto) {
+        if (dto.name() == null || dto.name().isBlank()) {
+            throw new IllegalArgumentException("채널 이름은 필수입니다.");
+        }
+        if (dto.type() == null) {
+            throw new IllegalArgumentException("채널 이름은 필수입니다.");
+        }
         Channel channel = new Channel(dto.name(), dto.type());
         return channelRepository.save(channel);
     }
