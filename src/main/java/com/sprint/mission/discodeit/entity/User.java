@@ -1,12 +1,16 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class User {
+public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private final UUID id;
     private final long createdAt;
     private long updatedAt;
@@ -48,18 +52,15 @@ public class User {
         return channels;
     }
 
-    public User updateName(String name) {
+    public void updateName(String name) {
         this.name = name;
         updatedAt = Instant.now().toEpochMilli();
-        return this;
     }
 
     public void addChannel(Channel channel) {
-        if (!channels.contains(channel.getId())) {
-            this.channels.add(channel.getId());
-            channel.getUsers().add(this.id);
-            updatedAt = Instant.now().toEpochMilli();
-        }
+        this.channels.add(channel.getId());
+        channel.getUsers().add(this.id);
+        updatedAt = Instant.now().toEpochMilli();
     }
 
     public void deleteChannel(Channel channel) {

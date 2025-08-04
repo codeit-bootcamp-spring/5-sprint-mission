@@ -6,13 +6,17 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MessageService {
-    void createMessage(Message message);
+    Message create(Message message);
 
-    void updateMessage(Message message);
+    Message updateContent(UUID id, String content);
 
-    void deleteMessage(Message message);
+    Message updateSenderId(UUID id, UUID senderId);
 
-    Message searchByIndex(int i);
+    Message updateChannelId(UUID id, UUID channelId);
+
+    Message delete(UUID id);
+
+    void deleteAll();
 
     Message searchById(UUID id);
 
@@ -20,5 +24,5 @@ public interface MessageService {
 
     List<Message> searchBySenderId(UUID id);
 
-    List<Message> getAllMessages();
+    List<Message> searchAll();
 }

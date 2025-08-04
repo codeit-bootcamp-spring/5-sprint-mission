@@ -1,22 +1,27 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    void createUser(User user);
+    User create(User user);
 
-    void updateUser(User user);
+    User updateName(UUID id, String name);
 
-    void deleteUser(User user);
+    User addChannel(UUID id, Channel channel);
 
-    User searchByIndex(int i);
+    User deleteChannel(UUID id, Channel channel);
+
+    User delete(UUID id);
+
+    void deleteAll();
 
     User searchById(UUID id);
 
     List<User> searchByName(String name);
 
-    List<User> getAllUsers();
+    List<User> searchAll();
 }

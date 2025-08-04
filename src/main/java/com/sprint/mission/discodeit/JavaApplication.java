@@ -3,91 +3,184 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.basic.BasicChannelService;
+import com.sprint.mission.discodeit.service.basic.BasicMessageService;
+import com.sprint.mission.discodeit.service.basic.BasicUserService;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
+import java.nio.file.Path;
 import java.util.UUID;
 
 public class JavaApplication {
-    public static void main(String[] args) {
-        UserService userService = new JCFUserService();
-        ChannelService channelService = new JCFChannelService();
-        MessageService messageService = new JCFMessageService();
 
-        // 생성
-        userService.createUser(new User("testUser1"));
-        userService.createUser(new User("testUser2"));
-        userService.createUser(new User("testuser3"));
-        channelService.createChannel(new Channel("testChannel1"));
-        channelService.createChannel(new Channel("testChannel2"));
-        channelService.createChannel(new Channel("testchannel3"));
-        messageService.createMessage(new Message("test Message1", userService.searchByIndex(0).getId()));
-        messageService.createMessage(new Message("test Message2", userService.searchByIndex(0).getId()));
-        messageService.createMessage(new Message("test message3", userService.searchByIndex(1).getId()));
+    // File 레포지토리 선언
+//    static UserRepository userRepo = new FileUserRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/userDirectory/"));
+//    static ChannelRepository channelRepo = new FileChannelRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/channelDirectory/"));
+//    static MessageRepository messageRepo = new FileMessageRepository(Path.of("/Users/apple/dev_source/5-sprint-mission/messageDirectory/"));
+
+    // JCF 레포지토리 선언
+//    static UserRepository userRepo = new JCFUserRepository();
+//    static ChannelRepository channelRepo = new JCFChannelRepository();
+//    static MessageRepository messageRepo = new JCFMessageRepository();
+
+//    static UserService userService = new FileUserService(Path.of("/Users/apple/dev_source/5-sprint-mission/userDirectory/"));
+//    static ChannelService channelService = new FileChannelService(Path.of("/Users/apple/dev_source/5-sprint-mission/channelDirectory/"));
+//    static MessageService messageService = new FileMessageService(Path.of("/Users/apple/dev_source/5-sprint-mission/messageDirectory/"), userService, channelService);
+
+    static UserService userService = new JCFUserService();
+    static ChannelService channelService = new JCFChannelService();
+    static MessageService messageService = new JCFMessageService(userService, channelService);
+
+//    static UserService userService = new BasicUserService(userRepo);
+//    static ChannelService channelService = new BasicChannelService(channelRepo);
+//    static MessageService messageService = new BasicMessageService(messageRepo, userService, channelService);
+
+    // 테스트용 uuid, String
+    static UUID testId = UUID.randomUUID();
+    static String testString = "testString";
+
+
+    public static void main(String[] args) {
+
+        // 초기화
+        userService.deleteAll();
+        channelService.deleteAll();
+        messageService.deleteAll();
+
+        // 인스턴스 생성
+        userService.create(new User("홍길동"));
+        userService.create(new User("홍길순"));
+        userService.create(new User("박길동"));
+        userService.create(new User("김길동"));
+
+        channelService.create(new Channel("코드잇 스프린트 백엔드", "Spring 백엔드 학습 채널입니다.", Channel.ChannelType.PUBLIC));
+        channelService.create(new Channel("코드잇 스프린트 프론트엔드", "프론트엔드 학습 채널입니다.", Channel.ChannelType.PUBLIC));
+        channelService.create(new Channel("스프린트 커뮤니티", "스프린트 소통 채널입니다", Channel.ChannelType.PUBLIC));
+        channelService.create(new Channel("마작 공부", "마작에 대해서 배우는 채널입니다.", Channel.ChannelType.PRIVATE));
+
+        messageService.create(new Message("안녕하세요?", userService.searchAll().get(0).getId(), channelService.searchAll().get(0).getId()));
+        messageService.create(new Message("안녕하시렵니까?", userService.searchAll().get(0).getId(), channelService.searchAll().get(0).getId()));
+        messageService.create(new Message("다음에 뵙겠습니다.", userService.searchAll().get(1).getId(), channelService.searchAll().get(1).getId()));
+        messageService.create(new Message("기체후 일향 만강 하옵니까?", userService.searchAll().get(1).getId(), channelService.searchAll().get(1).getId()));
+
+        testUserService();
+        testChannelService();
+        testMessageService();
+    }
+
+    static void testUserService() {
+        System.out.println("-------------------------------------------- 유저 서비스 테스트 --------------------------------------------");
+        System.out.println("------------전체 목록------------");
+        userService.searchAll().forEach(System.out::println);
+        System.out.println("-------------------------------");
+
+        // 등록
+        User user1 = new User("test1");
+        userService.create(user1);
 
         // 조회
-        System.out.println(userService.searchByIndex(0));
-        System.out.println(channelService.searchByIndex(0));
-        System.out.println(messageService.searchByIndex(0));
-        System.out.println("조회 테스트 시작\n" + userService.searchByName("User").toString().replace("}, ", "},\n"));
-        System.out.println(channelService.searchByName("Channel").toString().replace("}, ", "},\n"));
-        System.out.println(messageService.searchByContent("Mess").toString().replace("}, ", "},\n"));
-        System.out.println(messageService.searchBySenderId(userService.searchByIndex(0).getId()).toString().replace("}, ", "},\n"));
-        System.out.println("테스트 끝");
-        System.out.println(userService.searchById(userService.searchByIndex(0).getId()));
-        System.out.println(channelService.searchById(channelService.searchByIndex(0).getId()));
-        System.out.println(messageService.searchById(messageService.searchByIndex(0).getId()));
-        System.out.println("---------------------------------------------------------------------------------");
+        System.out.println(userService.searchById(user1.getId()));
+//        System.out.println(userService.searchById(testId)); // 조회 오류 테스트
+        System.out.println("searchByName(\"홍\") 검색 결과");
+        userService.searchByName("홍").forEach(System.out::println);
+//        userService.searchByName(testString).forEach(System.out::println); // 조회 오류 테스트 2
 
-        // 모두 조회
-        System.out.println(userService.getAllUsers().toString().replace("}, ", "},\n"));
-        System.out.println(channelService.getAllChannels().toString().replace("}, ", "},\n"));
-        System.out.println(messageService.getAllMessages().toString().replace("}, ", "},\n"));
-        System.out.println("---------------------------------------------------------------------------------");
+        // 수정
+        System.out.println("수정 전 : " + userService.searchById(user1.getId()));
+        userService.updateName(user1.getId(), "updatedName");
+//        userService.updateName(testId, "updatedName"); // 수정 오류 테스트
+        System.out.println("수정 후 : " + userService.searchById(user1.getId()));
 
-        // 수정 및 조회
-        userService.searchByIndex(0).addChannel(channelService.searchByIndex(0));
-        userService.searchByIndex(0).addChannel(channelService.searchByIndex(1));
-        channelService.searchByIndex(0).addUser(userService.searchByIndex(0));
-        channelService.searchByIndex(0).addUser(userService.searchByIndex(1));
-        userService.updateUser(userService.searchByIndex(0).updateName("updatedName"));
-        channelService.updateChannel(channelService.searchByIndex(0).updateName("updatedName"));
-        messageService.updateMessage(messageService.searchByIndex(0).updateContent("updatedContent"));
-        System.out.println(userService.searchByIndex(0));
-        System.out.println(channelService.searchByIndex(0));
-        System.out.println(messageService.searchByIndex(0));
-        System.out.println("Channels of User");
-        for (UUID channelId : userService.searchByIndex(0).getChannels()) {
-            System.out.println(channelService.searchById(channelId).toString());
-        }
-        System.out.println("Users of Channel");
-        for (UUID userId : channelService.searchByIndex(0).getUsers()) {
-            System.out.println(userService.searchById(userId).toString());
-        }
-        userService.searchByIndex(0).deleteChannel(channelService.searchByIndex(0));
-        channelService.searchByIndex(0).deleteUser(userService.searchByIndex(0));
-        System.out.println("Channels of User");
-        for (UUID channelId : userService.searchByIndex(0).getChannels()) {
-            System.out.println(channelService.searchById(channelId).toString());
-        }
-        System.out.println("Users of Channel");
-        for (UUID userId : channelService.searchByIndex(0).getUsers()) {
-            System.out.println(userService.searchById(userId).toString());
-        }
-
-        System.out.println("---------------------------------------------------------------------------------");
-
-        // 삭제 및 조회
-        userService.deleteUser(userService.searchByIndex(1));
-        channelService.deleteChannel(channelService.searchByIndex(0));
-        messageService.deleteMessage(messageService.searchByIndex(0));
-
-        System.out.println(userService.getAllUsers().toString().replace("}, ", "},\n"));
-        System.out.println(channelService.getAllChannels().toString().replace("}, ", "},\n"));
-        System.out.println(messageService.getAllMessages().toString().replace("}, ", "},\n"));
+        // 삭제
+        userService.delete(user1.getId());
+//        userService.delete(testId); // 삭제 오류 테스트
+        userService.searchAll().forEach(System.out::println);
     }
+
+    static void testChannelService() {
+        System.out.println("-------------------------------------------- 채널 서비스 테스트 --------------------------------------------");
+        System.out.println("------------전체 목록------------");
+        channelService.searchAll().forEach(System.out::println);
+        System.out.println("-------------------------------");
+
+        // 등록
+        Channel channel1 = new Channel("test", "testDescription", Channel.ChannelType.PUBLIC);
+        channelService.create(channel1);
+
+        // 조회
+        System.out.println(channelService.searchById(channel1.getId()));
+//        System.out.println(channelService.searchById(testId)); // 조회 오류 테스트
+        System.out.println("searchByName(\"코드잇\") 검색 결과");
+        channelService.searchByName("코드잇").forEach(System.out::println);
+//        channelService.searchByName(testString).forEach(System.out::println); // 조회 오류 테스트
+
+        // 수정 - 확인
+        System.out.println("수정 전 : " + channelService.searchById(channel1.getId()));
+        channelService.updateName(channel1.getId(), "updatedName");
+        channelService.updateDescription(channel1.getId(), "updatedDescription");
+        channelService.updateChannelType(channel1.getId(), Channel.ChannelType.PRIVATE);
+//        channelService.updateName(testId, "updatedName2"); // 수정 오류 테스트
+//        channelService.updateDescription(testId, "updatedDescription2");
+//        channelService.updateChannelType(testId, Channel.ChannelType.PUBLIC);
+        System.out.println("수정 후 : " + channelService.searchById(channel1.getId()));
+
+        // 삭제 - 확인
+        channelService.delete(channel1.getId());
+//        channelService.delete(testId); // 삭제 오류 테스트
+        channelService.searchAll().forEach(System.out::println);
+    }
+
+    static void testMessageService() {
+        System.out.println("-------------------------------------------- 메세지 서비스 테스트 --------------------------------------------");
+        System.out.println("------------전체 목록------------");
+        messageService.searchAll().forEach(System.out::println);
+        System.out.println("-------------------------------");
+
+        // 등록
+        Message message1 = new Message("test message1", userService.searchAll().get(0).getId(), channelService.searchAll().get(0).getId());
+        messageService.create(message1);
+
+        // 조회
+        System.out.println(messageService.searchById(message1.getId()));
+//        System.out.println(messageService.searchById(testId)); // 조회 오류 테스트
+        System.out.println("searchByContent(\"안녕\") 검색 결과");
+        messageService.searchByContent("안녕").forEach(System.out::println);
+        System.out.println("searchBySenderId() 검색 결과");
+        messageService.searchBySenderId(userService.searchAll().get(0).getId()).forEach(System.out::println);
+//        messageService.searchByContent(testString).forEach(System.out::println); // 조회 오류 테스트2
+//        messageService.searchBySenderId(testId).forEach(System.out::println);
+
+        // 수정 - 확인
+        System.out.println("수정 전 : " + messageService.searchById(message1.getId()));
+        messageService.updateContent(message1.getId(), "updatedContent");
+        messageService.updateSenderId(message1.getId(), userService.searchAll().get(1).getId());
+        messageService.updateChannelId(message1.getId(), channelService.searchAll().get(1).getId());
+//        messageService.updateContent(testId, testString); // 수정 오류 테스트
+//        messageService.updateSenderId(testId, testId);
+//        messageService.updateChannelId(testId, testId);
+        System.out.println("수정 후 : " + messageService.searchById(message1.getId()));
+
+        // 삭제 - 확인
+        messageService.delete(message1.getId());
+//        messageService.delete(testId); // 삭제 오류 테스트
+        messageService.searchAll().forEach(System.out::println);
+    }
+
 }
