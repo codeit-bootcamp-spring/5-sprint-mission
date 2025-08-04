@@ -1,21 +1,25 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ChannelService {
-    Channel createChannel(String name, String description);
+    // 생성
+    Channel createChannel(String name, String description, ChannelType channelType);
 
     // 읽기 & 모두 읽기
-    Channel readChannel(UUID id);
+    Optional<Channel> readChannel(UUID id);
     List<Channel> readAllChannels();
 
     // 수정
-    Channel updateChannelname(UUID id, String name);
-    Channel updateDescription(UUID id, String description);
+    Channel updateChannel(Channel channel);
 
     // 삭제
-    boolean deleteChannel(UUID id);
+    void deleteChannel(UUID id);
+
+
 }

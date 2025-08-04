@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-public class User {
+public class User implements Serializable {
     private final UUID id;
     private String username;
     private String password;
@@ -50,6 +51,8 @@ public class User {
     public int getAge() {
         return age;
     }
+
+    public void setAge(int age) {}
 
 
     public String getEmail() {

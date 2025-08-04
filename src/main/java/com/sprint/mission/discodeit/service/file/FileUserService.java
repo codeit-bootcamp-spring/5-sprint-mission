@@ -1,17 +1,19 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-public class JCFUserService implements UserService {
+public class FileUserService implements UserService {
 
     private final UserRepository userRepository;
 
-    public JCFUserService(JCFUserRepository userRepository) {
+    public FileUserService(FileUserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -24,7 +26,12 @@ public class JCFUserService implements UserService {
 
     @Override
     public Optional<User> readUser(UUID id) {
-        return userRepository.findById(id);
+        if (userRepository.existsById(id)) {
+            System.out.println("조회 성공: " + userRepository.findById(id).get());
+            return userRepository.findById(id);
+        }
+        System.out.println("등록된 회원이 없습니다.");
+        return Optional.empty();
     }
 
     @Override
@@ -34,22 +41,17 @@ public class JCFUserService implements UserService {
 
     @Override
     public User updateUser(User user) {
-        try {
-            userRepository.update(user.getId(), user);
+        if (userRepository.existsById(user.getId())) {
             System.out.println("수정 완료: " + user);
-        } catch (NoSuchElementException e) {
-            System.out.println("User not found");
+            return userRepository.update(user.getId(), user);
+        } else {
+            System.out.println("수정 실패");
+            return null;
         }
-        return user;
     }
 
     @Override
     public void deleteUser(UUID id) {
-        if (userRepository.existsById(id)) {
-            System.out.println("삭제 성공");
-            userRepository.deleteById(id);
-        } else {
-            System.out.println("User not found");
-        }
+        userRepository.deleteById(id);
     }
 }

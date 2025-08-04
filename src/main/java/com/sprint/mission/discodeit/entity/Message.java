@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-public class Message {
+public class Message implements Serializable {
     private final UUID id;
     private final UUID senderId;
-    private UUID channelId;
+    private final UUID channelId;
 
     private String name;
     private String title;
@@ -62,6 +63,8 @@ public class Message {
     public String toString() {
         return "Message{" +
                 "id=" + id +
+                ", senderId=" + senderId +
+                ", channelId=" + channelId +
                 ", name='" + name + '\'' +
                 ", title='" + title + '\'' +
                 ", content='" + content + '\'' +

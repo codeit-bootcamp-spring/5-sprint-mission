@@ -1,20 +1,23 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-public class Channel {
+public class Channel implements Serializable {
     private final UUID id;
     private String name;
     private String description;
+    private ChannelType channelType;
 
     private long createdAt;
     private long updatedAt;
 
-    public Channel(String name, String description) {
+    public Channel(String name, String description, ChannelType channelType) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.description = description;
+        this.channelType = channelType;
         this.createdAt = Instant.now().getEpochSecond();
         this.updatedAt = createdAt;
     }
@@ -41,6 +44,14 @@ public class Channel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public ChannelType getChannelType() {
+        return channelType;
+    }
+
+    public void setChannelType(ChannelType channelType) {
+        this.channelType = channelType;
     }
 
     @Override
