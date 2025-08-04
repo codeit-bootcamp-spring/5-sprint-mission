@@ -1,14 +1,17 @@
 package com.sprint.mission.discodeit.dto;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.User;
 import org.springframework.lang.Nullable;
+
+import java.util.List;
+import java.util.UUID;
 
 public class MessageDto {
 
     public record Create(
-            User user,
-            Channel channel,
-            String content
+            UUID userId,
+            UUID channelId,
+            String content,
+            @Nullable
+            List<UUID> fileIds
     ) {}
 }
