@@ -34,8 +34,9 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
-    public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
-        return readStatusRepository.findByUserIdAndChannelId(userId, channelId);
+    public ReadStatus findByUserIdAndChannelId(UUID userId, UUID channelId) {
+        return readStatusRepository.findByUserIdAndChannelId(userId, channelId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 채널 읽기 상태가 존재하지 않습니다."));
     }
 
     @Override
