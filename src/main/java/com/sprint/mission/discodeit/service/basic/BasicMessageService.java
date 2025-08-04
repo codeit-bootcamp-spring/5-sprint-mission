@@ -1,16 +1,16 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.util.List;
 import java.util.UUID;
 
-public class JCFMessageService implements MessageService {
-    private final JCFMessageRepository messageRepository;
+public class BasicMessageService implements MessageService {
+    private final MessageRepository messageRepository;
 
-    public JCFMessageService(JCFMessageRepository messageRepository) {
+    public BasicMessageService(MessageRepository messageRepository) {
         this.messageRepository = messageRepository;
     }
 

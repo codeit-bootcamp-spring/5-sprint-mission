@@ -8,6 +8,8 @@ import java.util.UUID;
 public interface UserService {
     User create(User user);
 
+    User create(String name, String email, String password);
+
     List<User> getAll();
 
     User get(UUID id);
@@ -15,4 +17,6 @@ public interface UserService {
     User update(UUID id, String name, boolean isOnline);
 
     void delete(UUID id);
+
+    void deleteAll();
 }

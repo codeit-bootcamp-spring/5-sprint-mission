@@ -1,16 +1,16 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.List;
 import java.util.UUID;
 
-public class JCFUserService implements UserService {
-    private final JCFUserRepository userRepository;
+public class FileUserService implements UserService {
+    private final FileUserRepository userRepository;
 
-    public JCFUserService(JCFUserRepository userRepository) {
+    public FileUserService(FileUserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

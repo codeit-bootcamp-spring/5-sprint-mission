@@ -18,28 +18,16 @@ public class Message extends BaseEntity {
         return text;
     }
 
-    private void setText(String text) {
-        this.text = text;
-    }
-
     public UUID getChannelId() {
         return channelId;
-    }
-
-    private void setChannelId(UUID channelId) {
-        this.channelId = channelId;
     }
 
     public UUID getUserId() {
         return userId;
     }
 
-    private void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
     public void update(String text) {
-        setText(text);
+        this.text = text;
         setUpdatedAt(System.currentTimeMillis());
     }
 
