@@ -80,7 +80,6 @@ public abstract class BaseEntity {
 
     @Override
     public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String createdAtStr = FORMATTER.format(Instant.ofEpochMilli(createdAt));
         String updatedAtStr = FORMATTER.format(Instant.ofEpochMilli(updatedAt));
         return "BaseEntity{"
