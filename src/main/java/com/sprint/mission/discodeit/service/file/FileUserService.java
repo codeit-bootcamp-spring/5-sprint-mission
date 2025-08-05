@@ -45,7 +45,6 @@ public class FileUserService extends BaseFileService<User> implements UserServic
         update(user.getId(), u -> {
             u.setDeactivated(false);
             u.setStatus(Status.ONLINE);
-            u.touch();
         });
 
         return getOrThrow(user.getId());
