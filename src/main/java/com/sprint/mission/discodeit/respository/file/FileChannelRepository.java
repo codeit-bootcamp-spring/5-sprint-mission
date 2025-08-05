@@ -11,7 +11,7 @@ public class FileChannelRepository extends FileStore<Channel> implements Channel
     private final Map<UUID, Channel> channelMap = new HashMap<>();
 
     public FileChannelRepository(String rootDir) {
-        super(rootDir + "channel.store");
+        super(rootDir + "channel.ser");
         Map<UUID, Channel> loaded = loadFromFile();
         channelMap.putAll(loaded);
     }

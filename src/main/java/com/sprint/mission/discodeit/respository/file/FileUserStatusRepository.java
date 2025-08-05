@@ -10,7 +10,7 @@ public class FileUserStatusRepository extends FileStore<UserStatus> implements U
     private final Map<UUID, UserStatus> data = new HashMap<>();
 
     public FileUserStatusRepository(String rootDir) {
-        super(rootDir + "userStatus.store");
+        super(rootDir + "userStatus.ser");
         Map<UUID, UserStatus> loaded = loadFromFile();
         if (loaded != null) {
             data.putAll(loaded);

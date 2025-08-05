@@ -11,7 +11,7 @@ public class FileUserRepository extends FileStore<User> implements UserRepositor
     private final Map<UUID, User> userMap = new HashMap<>();
 
     public FileUserRepository(String rootDir) {
-        super(rootDir + "user.store");
+        super(rootDir + "user.ser");
         Map<UUID, User> loaded = loadFromFile();
         if (loaded != null) {
             userMap.putAll(loaded);

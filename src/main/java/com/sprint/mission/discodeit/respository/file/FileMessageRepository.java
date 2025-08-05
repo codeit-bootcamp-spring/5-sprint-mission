@@ -13,7 +13,7 @@ public class FileMessageRepository extends FileStore<Message> implements Message
     private final Map<UUID, Message> data = new HashMap<>();
 
     public FileMessageRepository(String rootDir) {
-        super(rootDir + "message.store");
+        super(rootDir + "message.ser");
         Map<UUID, Message> loaded = loadFromFile();
         data.putAll(loaded);
     }

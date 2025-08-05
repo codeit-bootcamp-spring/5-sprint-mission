@@ -9,7 +9,7 @@ public class FileReadStatusRepository extends FileStore<ReadStatus> implements R
     private final Map<UUID, ReadStatus> data = new HashMap<>();
 
     public FileReadStatusRepository(String rootDir) {
-        super(rootDir + "readStatus.store");
+        super(rootDir + "readStatus.ser");
         Map<UUID, ReadStatus> loaded = loadFromFile();
         if (loaded != null) {
             data.putAll(loaded);

@@ -10,7 +10,7 @@ public class FileBinaryContentRepository extends FileStore<BinaryContent> implem
     private final Map<UUID, BinaryContent> data = new HashMap<>();
 
     public FileBinaryContentRepository(String rootDir) {
-        super(rootDir + "binaryContent.store");
+        super(rootDir + "binaryContent.ser");
         Map<UUID, BinaryContent> loaded = loadFromFile();
         if (loaded != null) {
             data.putAll(loaded);
