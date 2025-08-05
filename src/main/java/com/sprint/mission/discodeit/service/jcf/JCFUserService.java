@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 
@@ -27,13 +28,17 @@ public class JCFUserService implements UserService {
     //부모 클래스나 인터페이스에서 정의된 메서드를 자식 클래스에서 재정의
     @Override
     public void create(User user) {
-        data.put(user.getId(),user); // 유저 객체 받아 map에 uuid-user 구조로 저장
+        data.put(user.getId(), user); // 유저 객체 받아 map에 uuid-user 구조로 저장
 
     }
 
     @Override
     public User findById(UUID id) {
-        return data.get(id);
+        User user = data.get(id);
+        if (user == null) {
+            throw new IllegalArgumentException("해당 Id를 가진 유저가 존재하지 않습니다.");
+        }
+        return new User(user); //원본 수정 방지용
     }
 
     @Override
@@ -43,12 +48,21 @@ public class JCFUserService implements UserService {
 
     @Override
     public void update(User user) {
-        data.put(user.getId(),user); //같은 uuid면 message 값 덮어씀
+        if (user == null) {
+            throw new IllegalArgumentException("USER 값이 NULL입니다.");
+        }
+        data.put(user.getId(), user); //같은 uuid면 message 값 덮어씀
 
     }
 
     @Override
     public void delete(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID 값이 NUll입니다.");
+        }
+        if (!data.containsKey(id)) {
+            throw new IllegalArgumentException("해당 ID를 가진 유저가 존재하지 않습니다.");
+        }
         data.remove(id);
 
     }
