@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class JCFUserService implements UserService {
+public class FileUserService implements UserService {
     private final UserRepository repository;
 
-    public JCFUserService(UserRepository repository) {
+    public FileUserService(UserRepository repository) {
         this.repository = repository;
     }
 
@@ -40,10 +40,9 @@ public class JCFUserService implements UserService {
         repository.delete(id);
     }
 
-    // ✅ 추가 구현
     @Override
     public User create(String name, String email, String password) {
-        User user = new User(name, email, password); // 해당 생성자 필요
+        User user = new User(name, email, password); // 새로운 생성자 필요
         repository.save(user);
         return user;
     }
