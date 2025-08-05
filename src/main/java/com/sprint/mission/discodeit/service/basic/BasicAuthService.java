@@ -25,6 +25,7 @@ public class BasicAuthService implements AuthService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
+        userStatusService.updateLastAccessedAt(user); // 접속 시각 갱신
         boolean isOnline = userStatusService.isOnline(user.getId());
 
         // 로그인 성공 시 DTO 반환
