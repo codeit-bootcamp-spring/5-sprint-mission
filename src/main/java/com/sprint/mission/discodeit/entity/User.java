@@ -1,20 +1,27 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.dto.user.UpdateUserRequest;
+import lombok.Getter;
+
+import java.time.Instant;
 import java.util.UUID;
 
-public class User {
-    private final UUID id;
+@Getter
+public class User extends BaseEntity {
+    private UUID profileId;
     private String email;
     private String userName;
     private String nickname;
     private String password;
     private String phoneNumber;
-    private final Long createAt;
-    private Long updateAt;
 
-    public User(UUID id, Long createAt, String email, String userName, String nickname, String password, String phoneNumber) {
-        this.id = id;
-        this.createAt = createAt;
+    public User(UUID profileId, String email, String userName, String nickname, String password, String phoneNumber) {
+        this(UUID.randomUUID(), profileId, Instant.now(), email, userName, nickname, password, phoneNumber);
+    }
+
+    public User(UUID id, UUID profileId, Instant createAt, String email, String userName, String nickname, String password, String phoneNumber) {
+        super(id, createAt);
+        this.profileId = profileId;
         this.email = email;
         this.userName = userName;
         this.nickname = nickname;
@@ -22,51 +29,17 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public UUID getId() {
-        return id;
+    public void update(UpdateUserRequest request) {
+        if (request.email() != null) this.email = request.email();
+        if (request.userName() != null) this.userName = request.userName();
+        if (request.nickname() != null) this.nickname = request.nickname();
+        if (request.password() != null) this.password = request.password();
+        if (request.phoneNumber() != null) this.phoneNumber = request.phoneNumber();
+        updateTimeStamp();
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public Long getCreateAt() {
-        return createAt;
-    }
-
-    public Long getUpdateAt() {
-        return updateAt;
-    }
-
-    public void updateUser(String email, String userName, String nickname, String password, String phoneNumber, Long updateAt) {
-        this.email = email;
-        this.userName = userName;
-        this.nickname = nickname;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-        this.updateAt = updateAt;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("----- ").append(userName).append(" info -----\n")
-                .append("고유ID: ").append(id).append('\n')
-                .append("이메일: ").append(email).append('\n')
-                .append("별명: ").append(nickname).append('\n')
-                .append("비밀번호: ").append(password).append('\n')
-                .append("전화번호: ").append(phoneNumber).append('\n')
-                .append("가입시기: ").append(createAt).append('\n')
-                .append("프로필 변경 시기:  ").append(updateAt).append('\n');
-
-        return sb.toString();
+    public void changeProfileId(UUID profileId) {
+        this.profileId = profileId;
+        updateTimeStamp();
     }
 }
