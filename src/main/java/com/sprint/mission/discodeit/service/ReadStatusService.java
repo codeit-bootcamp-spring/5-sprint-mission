@@ -17,13 +17,13 @@ public interface ReadStatusService {
 
     /**
      * 사용자가 채널에서 마지막으로 읽은 시각을 조회
-     * 그러기 위해서는 userId와 channelId로 조회해야함
+     * userId와 channelId로 조회
      */
     ReadStatus findByUserIdAndChannelId(UUID userId, UUID channelId);
 
 
     /**
-     * 사용자가 속한 모든 채널에 대해 읽지 않은 메시지가 있는지 여부를 반환합니다.
+     * 사용자가 속한 모든 채널에 대해 읽지 않은 메시지가 있는지 여부를 반환
      * - 메시지의 마지막 생성 시각과 비교하여 판별
      * - 모든 채널에 대한 "읽지 않음 상태"를 반환하는 리스트
      *
@@ -34,7 +34,7 @@ public interface ReadStatusService {
 
 
     /**
-     * 사용자가 특정 채널에서 아직 읽지 않은 메시지 개수를 반환합니다.
+     * 사용자가 특정 채널에서 아직 읽지 않은 메시지 개수를 반환
      * - 메시지.createdAt > readStatus.lastReadAt 인 메시지 수
      *
      * @param userId    사용자 ID
@@ -45,7 +45,7 @@ public interface ReadStatusService {
 
 
     /**
-     * 채널 내 모든 사용자들의 읽음 상태를 반환합니다.
+     * 채널 내 모든 사용자들의 읽음 상태를 반환
      *
      * @param channelId 채널 ID
      * @return List<ReadStatus>
