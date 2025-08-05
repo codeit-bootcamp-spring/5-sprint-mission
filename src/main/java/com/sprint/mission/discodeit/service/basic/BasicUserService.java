@@ -1,26 +1,24 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-public class JCFUserService implements UserService {
+public class BasicUserService implements UserService {
     private final UserRepository userRepository;
 
-    public JCFUserService() {
-        userRepository = new JCFUserRepository();
+    public BasicUserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public boolean register(String email, String userName, String nickname, String password, String phoneNumber) {
         if (userRepository.findByEmail(email) != null) return false;
         if (userRepository.findByUserName(userName) != null) return false;
-
         userRepository.save(new User(UUID.randomUUID(), Instant.now().getEpochSecond(), email, userName, nickname, password, phoneNumber));
         return true;
     }
@@ -32,7 +30,7 @@ public class JCFUserService implements UserService {
 
     @Override
     public User getByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByUserName(email);
     }
 
     @Override

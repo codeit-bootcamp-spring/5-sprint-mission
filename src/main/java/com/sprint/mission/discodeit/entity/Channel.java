@@ -1,16 +1,19 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.time.Instant;
 import java.util.UUID;
 
-public class Channel {
-    private final UUID id;
+
+public class Channel extends BaseEntity {
     private String channelName;
     private String channelDescription;
-    private final Long createAt;
-    private Long updateAt;
 
+    public Channel(String channelName, String channelDescription) {
+        this(UUID.randomUUID(), channelName, channelDescription, Instant.now().getEpochSecond());
+    }
+  
     public Channel(UUID id, String channelName, String channelDescription, Long createAt) {
-        this.id = id;
+        super(id, createAt);
         this.channelName = channelName;
         this.channelDescription = channelDescription;
         this.createAt = createAt;
@@ -28,18 +31,10 @@ public class Channel {
         return channelDescription;
     }
 
-    public Long getCreateAt() {
-        return createAt;
-    }
-
-    public Long getUpdateAt() {
-        return updateAt;
-    }
-
     public void updateChannel(String channelName, String channelDescription, Long updateAt) {
         this.channelName = channelName;
         this.channelDescription = channelDescription;
-        this.updateAt = updateAt;
+        super.updateTimeStamp();
     }
 
     @Override
