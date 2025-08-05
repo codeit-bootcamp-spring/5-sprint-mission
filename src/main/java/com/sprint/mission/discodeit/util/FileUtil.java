@@ -32,14 +32,6 @@ public class FileUtil {
         }
     }
 
-    /**
-     * IOExcetion 혹은 ClassNotFoundException 외 Exception 발생시
-     *  IllegalArgumentException 발생으로 처리하려는것으로 보여요
-     * 다만 실제로 try 내부에서 두 Exception외 다른 Exception이 발생하면
-     *  아래에 있는 IllegalArgumentException 부분으로 내려오는게 아닌 외부로 바로 Exception을 던지기때문에 현재 구조를 적합하지 않아요
-     *
-     * 아래와 같은 구조의 코드로 고민해보면 어떨까요
-     */
     public static <T> Optional<T> loadEntity(Path path, Class<T> type){
         try{
             FileInputStream fileInputStream = new FileInputStream(path.toFile());
@@ -50,14 +42,12 @@ public class FileUtil {
             if(type.isInstance(readObject)){
                 return Optional.of(type.cast(readObject));
             }
-        }catch(Exception e ){
-            System.out.println("FileUtil.loadEntity Error : " + e.getMessage());
-
-            throw new IllegalArgumentException("FileUtil.loadEntity Error");
+        }catch(Exception e){
+            System.out.println("FileUtil.loadEntity Error: " + e.getMessage());
+            throw new IllegalArgumentException("loadEntity Error", e);
         }
 
         return Optional.empty();
-
     }
 
 }
