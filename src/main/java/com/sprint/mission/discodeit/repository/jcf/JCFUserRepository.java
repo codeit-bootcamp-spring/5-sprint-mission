@@ -1,32 +1,32 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
 
 import java.util.*;
 
-public class JCFChannelRepository implements ChannelRepository {
-    private final Map<UUID, Channel> data;
+public class JCFUserRepository implements UserRepository {
+    private final Map<UUID, User> data;
 
-    public JCFChannelRepository() {
+    public JCFUserRepository() {
         data = new HashMap<>();
     }
 
     @Override
-    public Channel save(Channel channel) {
-        data.put(channel.getId(), channel);
-        return channel;
+    public User save(User user) {
+        data.put(user.getId(), user);
+        return user;
     }
 
     @Override
-    public Optional<Channel> findById(UUID id) {
+    public Optional<User> findById(UUID id) {
         if (data.containsKey(id))
             return Optional.of(data.get(id));
         return Optional.empty();
     }
 
     @Override
-    public List<Channel> findAll() {
+    public List<User> findAll() {
         return new ArrayList<>(data.values());
     }
 
@@ -36,9 +36,9 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public Channel delete(UUID id) {
+    public User delete(UUID id) {
         if (!data.containsKey(id))
-            throw new NoSuchElementException("Channel with id " + id + " not found");
+            throw new NoSuchElementException("User with id " + id + " not found");
         return data.remove(id);
     }
 

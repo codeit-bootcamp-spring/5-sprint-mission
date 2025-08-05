@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 
 import java.util.*;
 
-public class JCFMessageRepository implements UserRepository {
-    private final Map<UUID, User> data;
+public class JCFMessageRepository implements MessageRepository {
+    private final Map<UUID, Message> data;
 
     public JCFMessageRepository() {
         data = new HashMap<>();
@@ -14,20 +14,20 @@ public class JCFMessageRepository implements UserRepository {
 
 
     @Override
-    public User save(User user) {
-        data.put(user.getId(), user);
-        return user;
+    public Message save(Message message) {
+        data.put(message.getId(), message);
+        return message;
     }
 
     @Override
-    public Optional<User> findById(UUID id) {
+    public Optional<Message> findById(UUID id) {
         if (data.containsKey(id))
             return Optional.of(data.get(id));
         return Optional.empty();
     }
 
     @Override
-    public List<User> findAll() {
+    public List<Message> findAll() {
         return new ArrayList<>(data.values());
     }
 
@@ -37,7 +37,7 @@ public class JCFMessageRepository implements UserRepository {
     }
 
     @Override
-    public User delete(UUID id) {
+    public Message delete(UUID id) {
         if (!data.containsKey(id)) {
             throw new NoSuchElementException("Message with id " + id + " not found");
         }

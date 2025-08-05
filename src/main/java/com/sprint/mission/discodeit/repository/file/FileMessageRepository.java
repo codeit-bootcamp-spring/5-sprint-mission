@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -12,65 +12,67 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-public class FileUserRepository implements UserRepository {
+public class FileMessageRepository implements MessageRepository {
     private final Path DIRECTORY;
     private final String EXTENSION;
 
-    public FileUserRepository() {
-        this.DIRECTORY = Path.of("USER");
+
+    public FileMessageRepository() {
+        this.DIRECTORY = Path.of("MESSAGE");
         this.EXTENSION = ".ser";
         if (!DIRECTORY.toFile().exists()) {
             try {
-                Files.createDirectories(DIRECTORY);
+                Files.createDirectory(DIRECTORY);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
+
     @Override
-    public User save(User user) {
-        Path path = DIRECTORY.resolve(user.getId() + EXTENSION);
+    public Message save(Message message) {
+        Path path = DIRECTORY.resolve(message.getId() + EXTENSION);
         try (FileOutputStream fos = new FileOutputStream(path.toFile());
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(user);
+            oos.writeObject(message);
             oos.flush();
-            return user;
+            return message;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Optional<User> findById(UUID id) {
+    public Optional<Message> findById(UUID id) {
         Path path = DIRECTORY.resolve(id + EXTENSION);
         try (FileInputStream fis = new FileInputStream(path.toFile());
              ObjectInputStream ois = new ObjectInputStream(fis)) {
-            User user = (User) ois.readObject();
-            return Optional.of(user);
+            Message message = (Message) ois.readObject();
+            return Optional.of(message);
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public List<User> findAll() {
+    public List<Message> findAll() {
         if (Files.isDirectory(DIRECTORY)) {
             try {
-                List<User> users = Files.list(DIRECTORY)
+                List<Message> messages = Files.list(DIRECTORY)
                         .filter(path -> path.toString().endsWith(EXTENSION))
                         .map(paths -> {
                                     try (FileInputStream fis = new FileInputStream(paths.toFile());
                                          ObjectInputStream ois = new ObjectInputStream(fis)) {
-                                        User user = (User) ois.readObject();
-                                        return user;
+                                        Message message = (Message) ois.readObject();
+                                        return message;
                                     } catch (IOException | ClassNotFoundException e) {
                                         throw new RuntimeException(e);
                                     }
                                 }
                         )
                         .toList();
-                return users;
+                return messages;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -88,16 +90,15 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public User delete(UUID id) {
+    public Message delete(UUID id) {
         Path path = DIRECTORY.resolve(id + EXTENSION);
         try {
-            User user = findById(id).orElseThrow(() -> new RuntimeException("사용자에서 해당 " + id + "를 찾을 수 없습니다."));
+            Message message = findById(id).orElseThrow(() -> new RuntimeException("메시지에서 해당 " + id + "를 찾을 수 없습니다."));
             Files.deleteIfExists(path);
-            return user;
+            return message;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Override
