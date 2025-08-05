@@ -33,6 +33,7 @@ public class JavaApplication {
     // ------------------ [User Test] ------------------
     private static void userCRUDTest(UserService userService) {
         System.out.println("=== [USER 테스트] ===");
+
         User user = new User("김유민");
         userService.create(user);
         System.out.println("[생성] " + user);
