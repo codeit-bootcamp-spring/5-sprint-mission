@@ -9,8 +9,8 @@ import java.util.UUID;
 @Getter
 public class Message extends Base{
 
-    private final User sender; //발신자는 변경할 수 없음
-    private final Channel channel; //채널은 변경할 수 없음
+    private final User sender;
+    private final Channel channel;
     private String content;
     private final List<UUID> files = new ArrayList<>();
 
@@ -22,9 +22,6 @@ public class Message extends Base{
     }
 
     public void updateContent(String newContent) {
-        if (newContent == null || newContent.isBlank()) {
-            throw new IllegalArgumentException("메시지 내용은 비어 있을 수 없습니다.");
-        }
         this.content = newContent;
         updateTimestamp();
     }

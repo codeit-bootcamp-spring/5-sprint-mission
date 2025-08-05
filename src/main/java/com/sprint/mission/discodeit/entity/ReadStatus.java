@@ -6,11 +6,11 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * 사용자가 채널 별 마지막으로 메시지를 읽은 시간을 표현하는 도메인 모델.
- * 사용자별 각 채널에 읽지 않은 메시지를 확인하기 위해 활용합니다.
+ * 사용자가 채널 별 마지막으로 메시지를 읽은 시간을 표현하는 도메인 모델
+ * 사용자별 각 채널에 읽지 않은 메시지를 확인하기 위해 활용
  * <p>{@link #userId} FK</p>
  * <p>{@link #channelId} FK</p>
- * <p>{@link #lastReadAt}</p>
+ * <p>{@link #lastReadAt} - 마지막으로 읽은 시간</p>
  * <p>{@link #updateLastReadAt(Instant)}</p>
  * <p>{@link #isRead(Instant)}</p>
  **/
@@ -39,7 +39,7 @@ public class ReadStatus extends Base {
     /**
      * 주어진 메시지의 상태 확인
      * @param messageCreatedAt 메시지의 생성 시각
-     * @return true면 이미 읽은 메시지, false면 안 읽은 메시지
+     * @return true - 읽은 메시지, false - 안 읽은 메시지
      */
     public boolean isRead(Instant messageCreatedAt) {
         return lastReadAt != null && !messageCreatedAt.isAfter(lastReadAt);

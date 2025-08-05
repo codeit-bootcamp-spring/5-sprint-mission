@@ -16,7 +16,7 @@ public class Channel extends Base {
     }
 
     public Channel(String name, ChannelType type, String topic, String description) {
-        this(name, type); // 첫 번째 생성자 호출 → 여기서 name/type 유효성 검사 수행됨
+        this(name, type);
         this.topic = topic;
         this.description = description;
     }
