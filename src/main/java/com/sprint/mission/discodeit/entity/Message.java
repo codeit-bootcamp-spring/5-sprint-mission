@@ -1,20 +1,21 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-public class Message {
+public class Message implements Serializable {
     private final UUID id;
     private final UUID channelId;
-
     private final Long createAt;
-    private Long modifyAt;
+    private final UUID author;
 
-    private final User author;
     private String message;
     private boolean allMentioned;
 
-    public Message(UUID channelId, String message, User author, boolean allMentioned) {
+    private Long modifyAt;
+
+    public Message(UUID channelId, String message, UUID author, boolean allMentioned) {
         this.id = UUID.randomUUID();
         Instant now = Instant.now();
         this.createAt = now.getEpochSecond();
@@ -41,16 +42,27 @@ public class Message {
 
     public String getMessage() { return message; }
 
-    public User getAuthor() { return author; }
+    public UUID getAuthor() { return author; }
 
     public boolean isAllMentioned() { return allMentioned; }
 
-    public void update(MessageDTO messageDTO) {
-        this.message = messageDTO.getMessage();
-        this.allMentioned =  messageDTO.isAllMentioned();
+    public void update(String message, boolean allMentioned) {
+        int sameValueCount = 0;
+        if(this.message.equals(message)){
+            System.out.println("[Alarm] : The original message and the message to be changed are the same.");
+            sameValueCount++;
+        }
+        if(this.allMentioned == allMentioned){
+            System.out.println("[Alarm] : There is no change in all_mentioned value  .");
+            sameValueCount++;
+        }
+        this.message = message;
+        this.allMentioned =  allMentioned;
 
-        Instant now = Instant.now();
-        this.modifyAt = now.getEpochSecond();
+        if (sameValueCount != 2) {
+            Instant now = Instant.now();
+            this.modifyAt = now.getEpochSecond();
+        }
     }
 
     @Override

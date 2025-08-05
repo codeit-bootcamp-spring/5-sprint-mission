@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserDTO;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.*;
@@ -12,11 +12,12 @@ public class JCFUserService implements UserService {
     public JCFUserService() {}
 
     @Override
-    public User createUser(String email, String username, String password, String discriminator, String status) {
+    public User createUser(String email, String username, String password, String discriminator, UserStatus status) {
         try {
             checkValidate(email, username, password, discriminator, status);
         } catch (IllegalArgumentException e) {
             System.out.println("[Error] " + e.getMessage());
+            e.printStackTrace();
         }
 
         User user = new User(email, username, password, discriminator, status);
@@ -25,7 +26,7 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User findById(UUID userId) throws NullPointerException, IllegalArgumentException {
+    public User findById(UUID userId) {
         if(userId == null) {
             throw new NullPointerException("User id is wrong");
         }
@@ -36,21 +37,21 @@ public class JCFUserService implements UserService {
             }
         }
 
-        throw new IllegalArgumentException("User not found");
+        throw new NoSuchElementException("User (" + userId + ") not found");
     }
 
     @Override
     public List<User> findAll() { return data; }
 
     @Override
-    public User update(UserDTO userDTO) throws IllegalArgumentException, NullPointerException {
-        if(userDTO.getId() == null) {
+    public User update(UUID userId, String email, String username, String password, String discriminator, UserStatus status) throws IllegalArgumentException, NullPointerException {
+        if(userId == null) {
             throw new NullPointerException("User id is null.");
         }
-        checkValidate(userDTO.getEmail(), userDTO.getUsername(), userDTO.getPassword(), userDTO.getDiscriminator(), userDTO.getStatus());
+        checkValidate(email, username, password, discriminator, status);
         for(User u : data) {
-            if(u.getId().equals(userDTO.getId())) {
-                u.update(userDTO);
+            if(u.getId().equals(userId) && u.getDiscriminator().equals(discriminator)) {
+                u.update(email, username, password, status);
                 return u;
             }
         }
@@ -75,27 +76,19 @@ public class JCFUserService implements UserService {
         throw new IllegalArgumentException("User does not already exist.");
     }
 
-    @Override
-    public UserDTO createUserDTO(UUID userId, String email, String username, String password, String discriminator, String status) {
-        if(userId == null) {
-            throw new NullPointerException("User id is wrong");
-        }
-        checkValidate(email, username, password, discriminator, status);
-        return new UserDTO(userId, email, username, password, discriminator, status);
-    }
 
     @Override
-    public void checkValidate(String email, String username, String password, String discriminator, String status) {
+    public void checkValidate(String email, String username, String password, String discriminator, UserStatus status) {
         if(email == null || email.isBlank()) {
-            throw new IllegalArgumentException("email is null or blank");
+            throw new IllegalArgumentException("email is null or blank.");
         } if(username == null || username.isBlank()) {
-            throw new IllegalArgumentException("username is null or blank ");
+            throw new IllegalArgumentException("username is null or blank.");
         } if(password == null || password.isBlank()) {
-            throw new IllegalArgumentException("password is null or blank");
+            throw new IllegalArgumentException("password is null or blank.");
         } if(discriminator == null || discriminator.isBlank()) {
-            throw new IllegalArgumentException("discriminator is null or blank");
-        } if(status == null || status.isBlank()) {
-            throw new IllegalArgumentException("status is null or blank");
+            throw new IllegalArgumentException("discriminator is null or blank.");
+        } if(status == null) {
+            throw new IllegalArgumentException("status is null.");
         }
     }
 }
