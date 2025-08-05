@@ -47,7 +47,7 @@ public class FileUserRepository implements UserRepository {
         Path path = resolvePath(userId);
         if (Files.exists(path)) {
             try(FileInputStream fis = new FileInputStream(path.toFile());
-            ObjectInputStream ois = new ObjectInputStream(fis)) {
+                ObjectInputStream ois = new ObjectInputStream(fis)) {
                 userNullable = (User) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);

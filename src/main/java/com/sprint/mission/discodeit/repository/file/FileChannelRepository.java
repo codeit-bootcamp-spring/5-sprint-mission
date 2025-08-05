@@ -32,7 +32,7 @@ public class FileChannelRepository implements ChannelRepository {
     public Channel save(Channel channel) {
         Path path = resolvePath(channel.getId());
         try (FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(channel);
         } catch (IOException e) {
             throw new RuntimeException(e);

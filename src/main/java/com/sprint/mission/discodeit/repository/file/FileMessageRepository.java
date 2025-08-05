@@ -46,7 +46,7 @@ public class FileMessageRepository implements MessageRepository {
         Path path = resolvePath(messageId);
         if (Files.exists(path)) {
             try (FileInputStream fis = new FileInputStream(path.toFile());
-            ObjectInputStream ois = new ObjectInputStream(fis)) {
+                 ObjectInputStream ois = new ObjectInputStream(fis)) {
                 messageNullable = (Message) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
@@ -62,7 +62,7 @@ public class FileMessageRepository implements MessageRepository {
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (FileInputStream fis = new FileInputStream(path.toFile());
-                        ObjectInputStream ois = new ObjectInputStream(fis)) {
+                             ObjectInputStream ois = new ObjectInputStream(fis)) {
                             return (Message) ois.readObject();
                         } catch (IOException | ClassNotFoundException e) {
                             throw new RuntimeException(e);
