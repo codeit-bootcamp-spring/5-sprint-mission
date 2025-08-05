@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.UserService;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -19,7 +20,7 @@ public class ChannelRun {
         this.userService = userService;
     }
 
-    public void run() {
+    public void run() throws Exception {
         while (true) {
             System.out.println("\n[채널 서비스 메뉴]");
             System.out.println("1. 채널 등록");
@@ -53,7 +54,7 @@ public class ChannelRun {
         }
     }
 
-    private void createChannel() {
+    private void createChannel() throws Exception {
         System.out.print("채널명: ");
         String name = sc.nextLine().trim();
 
@@ -74,7 +75,7 @@ public class ChannelRun {
         System.out.println("등록 완료:\n[채널명: " + newChannel.getName() + "]\n[작성자: " + userName + "]");
     }
 
-    private void getChannel() {
+    private void getChannel() throws Exception {
         System.out.print("조회할 채널명: ");
         String name = sc.nextLine().trim();
         Channel channel = channelService.get(name);
@@ -85,7 +86,7 @@ public class ChannelRun {
         System.out.println("채널 정보:\n" + channel);
     }
 
-    private void getAllChannels() {
+    private void getAllChannels() throws Exception{
         List<Channel> channels = channelService.getAll();
         if (channels.isEmpty()) {
             System.out.println("등록된 채널 없음");
@@ -99,7 +100,7 @@ public class ChannelRun {
         System.out.println("-------------------------------------------");
     }
 
-    private void updateChannel() {
+    private void updateChannel() throws Exception{
         System.out.print("수정할 채널명: ");
         String name = sc.nextLine().trim();
         Channel channel = channelService.get(name);
@@ -130,7 +131,7 @@ public class ChannelRun {
         System.out.println("수정 완료");
     }
 
-    private void deleteChannel() {
+    private void deleteChannel() throws Exception{
         System.out.print("삭제할 채널명: ");
         String name = sc.nextLine().trim();
         Channel channel = channelService.get(name);

@@ -1,25 +1,34 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-public final class JCFMessageService implements MessageService {
-    private static final JCFMessageService instance = new JCFMessageService();
+public final class FileMessageService implements MessageService {
+
+    private static final FileMessageService singleton;
+
+    static {
+        try {
+            singleton = new FileMessageService();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static FileMessageService getInstance() {
+        return singleton;
+    }
 
     private final MessageRepository repository;
 
-    private JCFMessageService() {
-        this.repository = new JCFMessageRepository();
-    }
-
-    public static JCFMessageService getInstance() {
-        return instance;
+    private FileMessageService() throws IOException {
+        this.repository = new FileMessageRepository();
     }
 
     @Override
