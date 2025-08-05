@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-public class User {
-    private UUID id;
+public class User implements Serializable {
+    private final UUID id;
     private String username;
     private String password;
     private int age;
@@ -31,10 +32,6 @@ public class User {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -55,6 +52,8 @@ public class User {
         return age;
     }
 
+    public void setAge(int age) {}
+
 
     public String getEmail() {
         return email;
@@ -64,18 +63,16 @@ public class User {
         this.email = email;
     }
 
-
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("User{");
-        sb.append("id=").append(id);
-        sb.append(", username='").append(username).append('\'');
-        sb.append(", password='").append(password).append('\'');
-        sb.append(", age=").append(age);
-        sb.append(", email='").append(email).append('\'');
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append('}');
-        return sb.toString();
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", age=" + age +
+                ", email='" + email + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

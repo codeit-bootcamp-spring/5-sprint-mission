@@ -1,20 +1,23 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-public class Channel {
-    private UUID id;
+public class Channel implements Serializable {
+    private final UUID id;
     private String name;
     private String description;
+    private ChannelType channelType;
 
     private long createdAt;
     private long updatedAt;
 
-    public Channel(String name, String description) {
+    public Channel(String name, String description, ChannelType channelType) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.description = description;
+        this.channelType = channelType;
         this.createdAt = Instant.now().getEpochSecond();
         this.updatedAt = createdAt;
     }
@@ -25,10 +28,6 @@ public class Channel {
 
     public UUID getId() {
         return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -47,16 +46,22 @@ public class Channel {
         this.description = description;
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Channel{");
-        sb.append("id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", description='").append(description).append('\'');
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append('}');
-        return sb.toString();
+    public ChannelType getChannelType() {
+        return channelType;
     }
 
+    public void setChannelType(ChannelType channelType) {
+        this.channelType = channelType;
+    }
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

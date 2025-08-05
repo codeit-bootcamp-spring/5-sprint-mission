@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
@@ -10,16 +11,14 @@ public interface UserService {
     User createUser(String username, String password, int age, String email);
 
     // 읽기 & 모두 읽기
-    User readUser(UUID id);
+    Optional<User> readUser(UUID id);
     List<User> readAllUsers();
 
     // 수정
-    User updateUsername(UUID id, String username);
-    User updatePassword(UUID id, String password);
-    User updateEmail(UUID id, String email);
+    User updateUser(User user);
 
     // 삭제
-    boolean deleteUser(UUID id);
+    void deleteUser(UUID id);
 
 
 }

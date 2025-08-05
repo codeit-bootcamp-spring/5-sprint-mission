@@ -1,17 +1,20 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-public class JCFChannelService implements ChannelService {
+public class FileChannelService implements ChannelService {
+
     private final ChannelRepository channelRepository;
 
-    public JCFChannelService(JCFChannelRepository channelRepository) {
+    public FileChannelService(FileChannelRepository channelRepository) {
         this.channelRepository = channelRepository;
     }
 
@@ -24,7 +27,12 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Optional<Channel> readChannel(UUID id) {
-        return channelRepository.findById(id);
+        if (channelRepository.existsById(id)) {
+            System.out.println("조회 성공: " + channelRepository.findById(id).get());
+            return channelRepository.findById(id);
+        }
+        System.out.println("등록된 회원이 없습니다.");
+        return Optional.empty();
     }
 
     @Override
@@ -34,22 +42,17 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel updateChannel(Channel channel) {
-        try {
-            channelRepository.update(channel.getId(), channel);
+        if (channelRepository.existsById(channel.getId())) {
             System.out.println("수정 완료: " + channel);
-        } catch (NoSuchElementException e) {
-            System.out.println("Channel not found");
+            return channelRepository.update(channel.getId(), channel);
+        } else {
+            System.out.println("수정 실패");
+            return null;
         }
-        return channel;
     }
 
     @Override
     public void deleteChannel(UUID id) {
-        if (channelRepository.existsById(id)) {
-            System.out.println("삭제 성공");
-            channelRepository.deleteById(id);
-        } else {
-            System.out.println("Channel not found");
-        }
+        channelRepository.deleteById(id);
     }
 }
