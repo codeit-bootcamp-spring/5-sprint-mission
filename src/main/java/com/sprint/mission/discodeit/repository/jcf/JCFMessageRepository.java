@@ -13,7 +13,7 @@ public class JCFMessageRepository implements MessageRepository {
     @Override
     public Optional<Message> save(Message message) {
         if(message == null){
-            throw new IllegalArgumentException("message 파라미터가 null 입니다.");
+            return Optional.empty();
         }
 
         data.put(message.getId(), message);
@@ -25,7 +25,7 @@ public class JCFMessageRepository implements MessageRepository {
         if(data.containsKey(messageId)){
             return Optional.of(data.get(messageId));
         }
-        throw new IllegalArgumentException("존재하지 않는 메시지 입니다.");
+        return Optional.empty();
     }
 
     @Override

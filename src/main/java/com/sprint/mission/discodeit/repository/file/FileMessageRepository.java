@@ -17,6 +17,10 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public Optional<Message> save(Message message) {
+        if(message == null){
+            return Optional.empty();
+        }
+
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + message.getId() + FileUtil.getExtension());
         FileUtil.saveEntity(filePath, message);
         return Optional.of(message);

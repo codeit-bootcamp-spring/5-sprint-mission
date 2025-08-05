@@ -13,7 +13,7 @@ public class JCFChannelRepository implements ChannelRepository {
     @Override
     public Optional<Channel> save(Channel channel) {
         if(channel == null){
-            throw new IllegalArgumentException("channel 파라미터가 null 입니다.");
+            return Optional.empty();
         }
 
         data.put(channel.getId(), channel);
@@ -25,7 +25,8 @@ public class JCFChannelRepository implements ChannelRepository {
         if(data.containsKey(channelId)){
             return Optional.of(data.get(channelId));
         }
-        throw new IllegalArgumentException("존재하지 않는 채널입니다.");
+        return Optional.empty();
+
     }
 
     @Override

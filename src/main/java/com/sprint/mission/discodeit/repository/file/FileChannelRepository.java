@@ -17,6 +17,10 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public Optional<Channel> save(Channel channel) {
+        if (channel == null) {
+            return Optional.empty();
+        }
+
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + channel.getId() + FileUtil.getExtension());
         FileUtil.saveEntity(filePath, channel);
 

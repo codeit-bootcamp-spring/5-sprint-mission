@@ -17,6 +17,10 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public Optional<User> save(User user){
+        if(user == null){
+            return Optional.empty();
+        }
+
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + user.getId() + FileUtil.getExtension());
         FileUtil.saveEntity(filePath, user);
 
