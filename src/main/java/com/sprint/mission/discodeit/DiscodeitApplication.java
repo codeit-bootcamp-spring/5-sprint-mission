@@ -85,6 +85,8 @@ public class DiscodeitApplication implements CommandLineRunner {
         channelService.deleteAll();
         userService.deleteAll();
         readStatusService.deleteAll();
+        userStatusService.deleteAll();
+        binaryContentService.deleteAll();
     }
 
     public void testUserService() {
