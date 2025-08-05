@@ -135,10 +135,10 @@
   - [x]  JavaApplication의 main 메소드의 셋업, 테스트 부분의 코드를 DiscodeitApplication클래스로 복사하세요.
 
 ### Spring 핵심 개념 이해하기
-- [ ] JavaApplication과 DiscodeitApplication에서 Service를 초기화하는 방식의 차이에 대해 다음의 키워드를 중심으로 정리해보세요.
-  - [ ] IoC Container
-  - [ ] Dependency Injection
-  - [ ] Bean
+- [x] JavaApplication과 DiscodeitApplication에서 Service를 초기화하는 방식의 차이에 대해 다음의 키워드를 중심으로 정리해보세요.
+  - [x] IoC Container
+  - [x] Dependency Injection
+  - [x] Bean
 
 ### Lombok 적용
 - [x] 도메인 모델의 getter 메소드를 @Getter로 대체해보세요.
@@ -279,8 +279,8 @@
 
 ## 심화 요구사항
 
-- [ ]  Repository 구현체 중에 어떤 구현체를 Bean으로 등록할지 Java 코드의 변경 없이 application.yaml 설정 값을 통해 제어해보세요.
-- [ ] discodeit.repository.type 설정값에 따라 Repository 구현체가 정해집니다.
-  - [ ] 값이 jcf 이거나 없으면 JCF*Repository 구현체가 Bean으로 등록되어야 합니다.
-  - [ ] 값이 file 이면 File*Repository 구현체가 Bean으로 등록되어야 합니다.
-- [ ] File*Repository 구현체의 파일을 저장할 디렉토리 경로를 application.yaml 설정 값을 통해 제어해보세요.
+- [x]  Repository 구현체 중에 어떤 구현체를 Bean으로 등록할지 Java 코드의 변경 없이 application.yaml 설정 값을 통해 제어해보세요.
+- [x] discodeit.repository.type 설정값에 따라 Repository 구현체가 정해집니다.
+  - [x] 값이 jcf 이거나 없으면 JCF*Repository 구현체가 Bean으로 등록되어야 합니다.
+  - [x] 값이 file 이면 File*Repository 구현체가 Bean으로 등록되어야 합니다.
+- [x] File*Repository 구현체의 파일을 저장할 디렉토리 경로를 application.yaml 설정 값을 통해 제어해보세요.
