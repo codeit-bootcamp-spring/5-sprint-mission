@@ -51,7 +51,7 @@ public class BasicUserService implements UserService {
 
     @Override
     public void deleteUser(UUID userId) {
-        userRepository.findById(userId).ifPresent(userRepository::delete);
+        userRepository.delete(userId);
     }
 
     @Override
@@ -60,18 +60,12 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public void joinChannel(UUID channelId, User user) {
-        if(user == null){
-            throw new IllegalArgumentException("user 파라미터가 null 입니다.");
-        }
-        channelService.addUserToChannel(channelId, user);
+    public void joinChannel(UUID channelId, UUID userId) {
+        channelService.addUserToChannel(channelId, userId);
     }
 
     @Override
-    public void exitChannel(UUID channelId, User user) {
-        if(user == null){
-            throw new IllegalArgumentException("user 파라미터가 null 입니다.");
-        }
-        channelService.deleteUserFromChannel(channelId, user);
+    public void exitChannel(UUID channelId, UUID userId) {
+        channelService.deleteUserFromChannel(channelId, userId);
     }
 }

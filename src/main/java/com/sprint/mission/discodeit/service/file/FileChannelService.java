@@ -19,16 +19,13 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public Channel addChannel(String channelName, User ownerUser) {
-        if(ownerUser == null){
-            throw new IllegalArgumentException("userId가 잘못됨");
-        }
-
-        Channel channel = new Channel(channelName, ownerUser);
+    public Channel addChannel(String channelName, UUID ownerUserId) {
+        Channel channel = new Channel(channelName, ownerUserId);
         Optional<Channel> addedChannel = channelRepository.save(channel);
 
         return addedChannel.orElseThrow();
     }
+
 
     @Override
     public Channel getChannelById(UUID channelId) {
@@ -52,8 +49,9 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public void deleteChannel(UUID channelId) {
-        channelRepository.findById(channelId).ifPresent(channelRepository::delete);
+        channelRepository.delete(channelId);
     }
+
 
     @Override
     public void deleteAllChannel() {
@@ -61,18 +59,18 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public void addUserToChannel(UUID channelId, User user) {
+    public void addUserToChannel(UUID channelId, UUID userId) {
         Optional<Channel> optionalChannel = channelRepository.findById(channelId);
         Channel channel = optionalChannel.orElseThrow();
-        channel.addUser(user);
+        channel.addUserId(userId);
         channelRepository.save(channel);
     }
 
     @Override
-    public void deleteUserFromChannel(UUID channelId, User user) {
+    public void deleteUserFromChannel(UUID channelId, UUID userId) {
         Optional<Channel> optionalChannel = channelRepository.findById(channelId);
         Channel channel = optionalChannel.orElseThrow();
-        channel.removeUser(user);
+        channel.removeUserId(userId);
         channelRepository.save(channel);
     }
 }

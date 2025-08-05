@@ -34,9 +34,8 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public void delete(Message message) {
-        UUID id = message.getId();
-        data.remove(id);
+    public void delete(UUID messageId) {
+        data.remove(messageId);
     }
 
     @Override
