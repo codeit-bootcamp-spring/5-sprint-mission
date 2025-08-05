@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.FriendRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.FriendRequestService;
 import com.sprint.mission.discodeit.service.UserService;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,129 +17,128 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class FileFriendRequestService extends BaseFileService<FriendRequest>
-    implements FriendRequestService {
-  private final UserService userService;
+public class FileFriendRequestService extends BaseFileService<FriendRequest> implements FriendRequestService {
+    private final UserService userService;
 
-  private final Map<UUID, Set<UUID>> sentIndex = new HashMap<>();
-  private final Map<UUID, Set<UUID>> receivedIndex = new HashMap<>();
+    private final Map<UUID, Set<UUID>> sentIndex = new HashMap<>();
+    private final Map<UUID, Set<UUID>> receivedIndex = new HashMap<>();
 
-  public FileFriendRequestService(UserService userService) {
-    super("friendRequests.ser");
-    this.userService = userService;
-  }
-
-  @Override
-  public boolean hardDeleteById(UUID id) {
-    Optional<FriendRequest> frOpt = findById(id);
-
-    if (frOpt.isEmpty()) {
-      throw new NoSuchElementException("해당 id의 친구 요청을 찾을 수 없습니다.");
+    public FileFriendRequestService(UserService userService) {
+        super("friendRequests.ser");
+        this.userService = userService;
     }
 
-    boolean deleted = super.hardDeleteById(id);
+    @Override
+    public boolean hardDeleteById(UUID id) {
+        Optional<FriendRequest> frOpt = findById(id);
 
-    if (deleted) {
-      FriendRequest fr = frOpt.get();
-
-      Set<UUID> sentSet = sentIndex.get(fr.getSenderId());
-      if (sentSet != null) {
-        sentSet.remove(fr.getReceiverId());
-        if (sentSet.isEmpty()) {
-          sentIndex.remove(fr.getSenderId());
+        if (frOpt.isEmpty()) {
+            throw new NoSuchElementException("해당 id의 친구 요청을 찾을 수 없습니다.");
         }
-      }
 
-      Set<UUID> receivedSet = receivedIndex.get(fr.getReceiverId());
-      if (receivedSet != null) {
-        receivedSet.remove(fr.getSenderId());
-        if (receivedSet.isEmpty()) {
-          receivedIndex.remove(fr.getReceiverId());
+        boolean deleted = super.hardDeleteById(id);
+
+        if (deleted) {
+            FriendRequest fr = frOpt.get();
+
+            Set<UUID> sentSet = sentIndex.get(fr.getSenderId());
+            if (sentSet != null) {
+                sentSet.remove(fr.getReceiverId());
+                if (sentSet.isEmpty()) {
+                    sentIndex.remove(fr.getSenderId());
+                }
+            }
+
+            Set<UUID> receivedSet = receivedIndex.get(fr.getReceiverId());
+            if (receivedSet != null) {
+                receivedSet.remove(fr.getSenderId());
+                if (receivedSet.isEmpty()) {
+                    receivedIndex.remove(fr.getReceiverId());
+                }
+            }
         }
-      }
+
+        return deleted;
     }
 
-    return deleted;
-  }
+    @Override
+    public FriendRequest save(FriendRequest friendRequest) {
+        if (existsById(friendRequest.getId())) {
+            throw new IllegalArgumentException("중복된 id가 존재합니다.");
+        }
 
-  @Override
-  public FriendRequest save(FriendRequest friendRequest) {
-    if (existsById(friendRequest.getId())) {
-      throw new IllegalArgumentException("중복된 id가 존재합니다.");
+        UUID senderId = friendRequest.getSenderId();
+        UUID receiverId = friendRequest.getReceiverId();
+
+        if (senderId.equals(receiverId)) {
+            throw new IllegalArgumentException("자기 자신에게 친구 요청을 보낼 수 없습니다.");
+        }
+
+        userService.getOrThrow(senderId);
+        User receiver = userService.getOrThrow(receiverId);
+
+        if (userService.getFriends(senderId).contains(receiver)) {
+            throw new IllegalArgumentException("이미 친구입니다.");
+        }
+
+        boolean alreadySent =
+                sentIndex.getOrDefault(senderId, Collections.emptySet()).contains(receiverId);
+        boolean alreadyReceived =
+                sentIndex.getOrDefault(receiverId, Collections.emptySet()).contains(senderId);
+
+        if (alreadySent || alreadyReceived) {
+            throw new IllegalStateException("이미 친구 요청이 존재합니다.");
+        }
+
+        data.values().add(friendRequest);
+        sentIndex.computeIfAbsent(senderId, k -> new HashSet<>()).add(receiverId);
+        receivedIndex.computeIfAbsent(receiverId, k -> new HashSet<>()).add(senderId);
+        return friendRequest;
     }
 
-    UUID senderId = friendRequest.getSenderId();
-    UUID receiverId = friendRequest.getReceiverId();
+    @Override
+    public void acceptFriendRequest(UUID requestId) {
+        FriendRequest fr = getOrThrow(requestId);
 
-    if (senderId.equals(receiverId)) {
-      throw new IllegalArgumentException("자기 자신에게 친구 요청을 보낼 수 없습니다.");
+        userService.addFriend(fr.getSenderId(), fr.getReceiverId());
+        userService.addFriend(fr.getReceiverId(), fr.getSenderId());
+
+        hardDeleteById(requestId);
     }
 
-    userService.getOrThrow(senderId);
-    User receiver = userService.getOrThrow(receiverId);
+    @Override
+    public void declineFriendRequest(UUID requestId) {
+        if (findById(requestId).isEmpty()) {
+            throw new NoSuchElementException("이미 처리된 요청입니다.");
+        }
 
-    if (userService.getFriends(senderId).contains(receiver)) {
-      throw new IllegalArgumentException("이미 친구입니다.");
+        hardDeleteById(requestId);
     }
 
-    boolean alreadySent =
-        sentIndex.getOrDefault(senderId, Collections.emptySet()).contains(receiverId);
-    boolean alreadyReceived =
-        sentIndex.getOrDefault(receiverId, Collections.emptySet()).contains(senderId);
+    @Override
+    public void clearFriendRequests(UUID userId) {
+        Set<UUID> alreadyDeleted = new HashSet<>();
 
-    if (alreadySent || alreadyReceived) {
-      throw new IllegalStateException("이미 친구 요청이 존재합니다.");
+        List<FriendRequest> requestsToDelete = new ArrayList<>();
+        requestsToDelete.addAll(getReceivedRequests(userId));
+        requestsToDelete.addAll(getSentRequests(userId));
+
+        requestsToDelete.stream()
+                .filter(fr -> alreadyDeleted.add(fr.getId()))
+                .forEach(fr -> hardDeleteById(fr.getId()));
     }
 
-    data.values().add(friendRequest);
-    sentIndex.computeIfAbsent(senderId, k -> new HashSet<>()).add(receiverId);
-    receivedIndex.computeIfAbsent(receiverId, k -> new HashSet<>()).add(senderId);
-    return friendRequest;
-  }
-
-  @Override
-  public void acceptFriendRequest(UUID requestId) {
-    FriendRequest fr = getOrThrow(requestId);
-
-    userService.addFriend(fr.getSenderId(), fr.getReceiverId());
-    userService.addFriend(fr.getReceiverId(), fr.getSenderId());
-
-    hardDeleteById(requestId);
-  }
-
-  @Override
-  public void declineFriendRequest(UUID requestId) {
-    if (findById(requestId).isEmpty()) {
-      throw new NoSuchElementException("이미 처리된 요청입니다.");
+    @Override
+    public List<FriendRequest> getSentRequests(UUID senderId) {
+        return data.values().stream()
+                .filter(fr -> fr.getSenderId().equals(senderId))
+                .collect(Collectors.toList());
     }
 
-    hardDeleteById(requestId);
-  }
-
-  @Override
-  public void clearFriendRequests(UUID userId) {
-    Set<UUID> alreadyDeleted = new HashSet<>();
-
-    List<FriendRequest> requestsToDelete = new ArrayList<>();
-    requestsToDelete.addAll(getReceivedRequests(userId));
-    requestsToDelete.addAll(getSentRequests(userId));
-
-    requestsToDelete.stream()
-        .filter(fr -> alreadyDeleted.add(fr.getId()))
-        .forEach(fr -> hardDeleteById(fr.getId()));
-  }
-
-  @Override
-  public List<FriendRequest> getSentRequests(UUID senderId) {
-    return data.values().stream()
-        .filter(fr -> fr.getSenderId().equals(senderId))
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<FriendRequest> getReceivedRequests(UUID receiverId) {
-    return data.values().stream()
-        .filter(fr -> fr.getReceiverId().equals(receiverId))
-        .collect(Collectors.toList());
-  }
+    @Override
+    public List<FriendRequest> getReceivedRequests(UUID receiverId) {
+        return data.values().stream()
+                .filter(fr -> fr.getReceiverId().equals(receiverId))
+                .collect(Collectors.toList());
+    }
 }

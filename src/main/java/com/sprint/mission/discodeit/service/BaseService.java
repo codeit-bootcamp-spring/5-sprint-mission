@@ -6,25 +6,25 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface BaseService<T> {
-  List<T> findAll();
+    List<T> findAll();
 
-  List<T> findAllIncludingDeleted();
+    List<T> findAllIncludingDeleted();
 
-  Optional<T> findById(UUID id);
+    Optional<T> findById(UUID id);
 
-  List<T> findAllByIds(Collection<UUID> ids);
+    List<T> findAllByIds(Collection<UUID> ids);
 
-  boolean existsById(UUID id);
+    boolean existsById(UUID id);
 
-  T getOrThrow(UUID id);
+    T getOrThrow(UUID id);
 
-  T save(T entity);
+    T save(T entity);
 
-  boolean hardDeleteById(UUID id);
+    boolean hardDeleteById(UUID id);
 
-  boolean deleteById(UUID id);
+    boolean deleteById(UUID id);
 
-  boolean restoreById(UUID id);
+    boolean restoreById(UUID id);
 
-  long count();
+    long count();
 }

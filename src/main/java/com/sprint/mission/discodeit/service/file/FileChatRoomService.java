@@ -17,15 +17,19 @@ public class FileChatRoomService extends BaseFileService<ChatRoom> implements Ch
   private final GuildService guildService;
   private final ChannelService channelService;
   private final MessageService messageService;
-  
-  public FileChatRoomService(UserService userService, GuildService guildService, ChannelService channelService, MessageService messageService) {
+
+  public FileChatRoomService(
+      UserService userService,
+      GuildService guildService,
+      ChannelService channelService,
+      MessageService messageService) {
     super("chatRooms.ser");
     this.userService = userService;
     this.guildService = guildService;
     this.channelService = channelService;
     this.messageService = messageService;
   }
-  
+
   @Override
   public ChatRoom save(ChatRoom chatRoom) {
     if (chatRoom.isChannelChatRoom()) {

@@ -11,7 +11,7 @@
     http://checkstyle.org (or in your downloaded distribution).
 
     To completely disable a check, just comment it out or delete it from the file.
-    To suppress certain violations, please review suppression filters.
+    To suppress certain violations please review suppression filters.
 
     Authors: Max Vetrenko, Mauryan Kansara, Ruslan Diachenko, Roman Ivanov.
  -->
@@ -54,7 +54,7 @@
 
     <module name="LineLength">
         <property name="fileExtensions" value="java"/>
-        <property name="max" value="100"/>
+        <property name="max" value="140"/>
         <property name="ignorePattern"
                   value="^package.*|^import.*|href\s*=\s*&quot;[^&quot;]*&quot;|http://|https://|ftp://"/>
     </module>
@@ -70,7 +70,7 @@
             <message key="matchxpath.match" value="''//'' must be followed by a whitespace."/>
         </module>
         <module name="IllegalTokenText">
-            <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
+            <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL, TEXT_BLOCK_CONTENT"/>
             <property name="format"
                       value="\\u00(09|0(a|A)|0(c|C)|0(d|D)|22|27|5(C|c))|\\(0(10|11|12|14|15|42|47)|134)"/>
             <property name="message"
@@ -86,10 +86,10 @@
         <module name="NoLineWrap">
             <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>
         </module>
-        <module name="NeedBraces">
-            <property name="tokens"
-                      value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
-        </module>
+        <!--        <module name="NeedBraces">-->
+        <!--            <property name="tokens"-->
+        <!--                      value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>-->
+        <!--        </module>-->
         <module name="LeftCurly">
             <property name="id" value="LeftCurlyEol"/>
             <property name="tokens"
@@ -306,12 +306,12 @@
                      value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
         </module>
         <module name="Indentation">
-            <property name="basicOffset" value="2"/>
-            <property name="braceAdjustment" value="2"/>
-            <property name="caseIndent" value="2"/>
-            <property name="throwsIndent" value="4"/>
-            <property name="lineWrappingIndentation" value="4"/>
-            <property name="arrayInitIndent" value="2"/>
+            <property name="basicOffset" value="4"/>
+            <property name="braceAdjustment" value="4"/>
+            <property name="caseIndent" value="4"/>
+            <property name="throwsIndent" value="8"/>
+            <property name="lineWrappingIndentation" value="8"/>
+            <property name="arrayInitIndent" value="4"/>
         </module>
 
         <module name="AbbreviationAsWordInName">
@@ -326,12 +326,12 @@
         <module name="OverloadMethodsDeclarationOrder"/>
         <module name="ConstructorsDeclarationGrouping"/>
         <module name="VariableDeclarationUsageDistance"/>
-        <module name="CustomImportOrder">
-            <property name="sortImportsInGroupAlphabetically" value="true"/>
-            <property name="separateLineBetweenGroups" value="true"/>
-            <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
-            <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
-        </module>
+        <!--        <module name="CustomImportOrder">-->
+        <!--            <property name="sortImportsInGroupAlphabetically" value="true"/>-->
+        <!--            <property name="separateLineBetweenGroups" value="true"/>-->
+        <!--            <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>-->
+        <!--            <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>-->
+        <!--        </module>-->
         <module name="MethodParamPad">
             <property name="tokens"
                       value="CTOR_DEF, LITERAL_NEW, METHOD_CALL, METHOD_DEF, CTOR_CALL,
@@ -340,8 +340,12 @@
         <module name="NoWhitespaceBefore">
             <property name="tokens"
                       value="COMMA, SEMI, POST_INC, POST_DEC, DOT,
-                    LABELED_STAT, METHOD_REF"/>
+                    LABELED_STAT, METHOD_REF, ELLIPSIS"/>
             <property name="allowLineBreaks" value="true"/>
+        </module>
+        <module name="SuppressionXpathSingleFilter">
+            <property name="checks" value="NoWhitespaceBefore"/>
+            <property name="query" value="//ELLIPSIS[preceding-sibling::TYPE/ANNOTATIONS/ANNOTATION]"/>
         </module>
         <module name="ParenPad">
             <property name="tokens"
@@ -385,6 +389,35 @@
             <property name="target"
                       value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
         </module>
+        <module name="JavadocMethod">
+            <property name="accessModifiers" value="public"/>
+            <property name="allowMissingParamTags" value="true"/>
+            <property name="allowMissingReturnTag" value="true"/>
+            <property name="allowedAnnotations" value="Override, Test"/>
+            <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF, COMPACT_CTOR_DEF"/>
+        </module>
+        <!--        <module name="MissingJavadocMethod">-->
+        <!--            <property name="scope" value="protected"/>-->
+        <!--            <property name="allowMissingPropertyJavadoc" value="true"/>-->
+        <!--            <property name="allowedAnnotations" value="Override, Test"/>-->
+        <!--            <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF,-->
+        <!--                                   COMPACT_CTOR_DEF"/>-->
+        <!--        </module>-->
+        <module name="SuppressionXpathSingleFilter">
+            <property name="checks" value="MissingJavadocMethod"/>
+            <property name="query" value="//*[self::METHOD_DEF or self::CTOR_DEF
+                                 or self::ANNOTATION_FIELD_DEF or self::COMPACT_CTOR_DEF]
+                                 [ancestor::*[self::INTERFACE_DEF or self::CLASS_DEF
+                                 or self::RECORD_DEF or self::ENUM_DEF]
+                                 [not(./MODIFIERS/LITERAL_PUBLIC)]]"/>
+        </module>
+        <!--        <module name="MissingJavadocType">-->
+        <!--            <property name="scope" value="protected"/>-->
+        <!--            <property name="tokens"-->
+        <!--                      value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,-->
+        <!--                      RECORD_DEF, ANNOTATION_DEF"/>-->
+        <!--            <property name="excludeScope" value="nothing"/>-->
+        <!--        </module>-->
         <module name="MethodName">
             <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
             <message key="name.invalidPattern"
