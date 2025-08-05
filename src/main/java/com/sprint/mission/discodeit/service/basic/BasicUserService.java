@@ -42,8 +42,9 @@ public class BasicUserService implements UserService {
 
         // 프로필 이미지가 있을 경우
         if(dto.profileImage() != null){
-            BinaryContent image = new BinaryContent(dto.profileImage());
+            BinaryContent image = BinaryContent.from(dto.profileImage());
             binaryContentRepository.save(image);
+            user.updateProfileId(image.getId());
         }
 
         return user;
@@ -62,7 +63,7 @@ public class BasicUserService implements UserService {
 
         // 프로필 이미지 수정
         if (dto.profileImage() != null) {
-            BinaryContent newImage = new BinaryContent(dto.profileImage());
+            BinaryContent newImage = BinaryContent.from(dto.profileImage());
             binaryContentRepository.save(newImage);
             user.updateProfileId(newImage.getId());
         }

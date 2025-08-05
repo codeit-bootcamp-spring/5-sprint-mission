@@ -40,17 +40,31 @@ public class BinaryContent {
     private final byte[] data;
 
 
-    public BinaryContent(BinaryContentDto dto) {
+    public BinaryContent(String name, String contentType, byte[] data) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
-        this.name = dto.getName();
-        this.contentType = dto.getContentType();
-        this.data = dto.getData();
+        this.name = name;
+        this.contentType = contentType;
+        this.data = data;
+    }
+
+    public static BinaryContent from(BinaryContentDto dto) {
+        return new BinaryContent(dto.getName(), dto.getContentType(), dto.getData());
     }
 
     public String getCreatedAtFormatted() {
         LocalDateTime dateTime = LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault());
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    @Override
+    public String toString() {
+        return String.format("""
+        [BinaryContent]
+        - 파일명: %s
+        - 타입: %s
+        - 크기: %d bytes
+        """, name, contentType, data != null ? data.length : 0);
     }
 }
 
