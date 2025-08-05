@@ -7,17 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    User create(User user);
-
-    User create(String name, String email, String password);
-
-    List<User> getAll();
-
-    User get(UUID id);
-
-    User update(UUID id, String name, UUID profileId);
-
-    // TODO mission 3 인터페이스 정리 예정 : create, find, findall, update, delete
 
     UserDto.DetailResponse create(UserDto.CreateRequest request);
 

@@ -20,7 +20,7 @@ public class ChannelDto {
     }
 
     @Getter
-    @RequiredArgsConstructor
+    @Builder
     public static class UpdateRequest {
         UUID id;
         String name;

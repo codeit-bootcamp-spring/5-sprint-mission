@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class BasicUserService implements UserService {
 
     private final UserRepository userRepository;
-    // TODO 추후 구현 후 의존성 확인
     private final BinaryContentRepository binaryContentRepository;
     private final UserStatusRepository userStatusRepository;
 
@@ -139,7 +138,7 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        userStatusRepository.deleteByUserId(userId);
+        userStatusRepository.delete(userId);
         if (user.getProfileId() != null) {
             binaryContentRepository.delete(user.getProfileId());
         }
@@ -151,31 +150,5 @@ public class BasicUserService implements UserService {
     public void deleteAll() {
         // 관련된 도메인도 같이 삭제합니다. BinaryContent(프로필), UserStatus
         userRepository.deleteAll();
-    }
-
-    // TODO 기존 mission 불필요 메소드들 추후 제거
-    @Override
-    public User create(User user) {
-        return null;
-    }
-
-    @Override
-    public User create(String name, String email, String password) {
-        return null;
-    }
-
-    @Override
-    public List<User> getAll() {
-        return List.of();
-    }
-
-    @Override
-    public User get(UUID id) {
-        return null;
-    }
-
-    @Override
-    public User update(UUID id, String name, UUID profileId) {
-        return null;
     }
 }

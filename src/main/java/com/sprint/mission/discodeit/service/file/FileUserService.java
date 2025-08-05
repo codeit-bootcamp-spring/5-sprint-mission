@@ -16,52 +16,6 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public User create(User user) {
-
-        if (user == null) {
-            return null;
-        }
-
-        if (user.getName() == null || user.getEmail() == null || user.getPassword() == null) {
-            return null;
-        }
-
-        return userRepository.save(user);
-    }
-
-    @Override
-    public User create(String name, String email, String password) {
-
-        if (name == null || email == null || password == null) {
-            return null;
-        }
-
-        return userRepository.save(new User(name, email, password, null));
-    }
-
-    @Override
-    public List<User> getAll() {
-        return userRepository.findAll();
-    }
-
-    @Override
-    public User get(UUID id) {
-        return userRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public User update(UUID id, String name, UUID profileId) {
-        User user = userRepository.findById(id).orElse(null);
-
-        if (user == null) {
-            return null;
-        }
-
-        user.update(name, profileId);
-        return user;
-    }
-
-    @Override
     public UserDto.DetailResponse create(UserDto.CreateRequest request) {
         return null;
     }

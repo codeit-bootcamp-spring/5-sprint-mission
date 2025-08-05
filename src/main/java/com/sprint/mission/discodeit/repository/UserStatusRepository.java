@@ -15,11 +15,7 @@ public interface UserStatusRepository {
 
     List<UserStatus> findAll();
 
-    UserStatus update(UUID id);
-
-    UserStatus updateByUserId(UUID userId);
-
     void delete(UUID id);
 
-    void deleteByUserId(UUID userId);
+    void deleteAll();
 }

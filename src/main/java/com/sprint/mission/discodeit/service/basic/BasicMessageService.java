@@ -26,60 +26,18 @@ public class BasicMessageService implements MessageService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public Message create(Message message) {
-
-        if (message == null) {
-            return null;
-        }
-
-        if (message.getText() == null || message.getChannelId() == null || message.getAuthorId() == null) {
-            return null;
-        }
-
-        return messageRepository.save(message);
-    }
-
-    @Override
-    public Message create(String text, UUID channelId, UUID userId) {
-
-        if (text == null || channelId == null || userId == null) {
-            return null;
-        }
-
-        return messageRepository.save(new Message(text, channelId, userId));
-    }
-
-    @Override
-    public List<Message> getAll() {
-        return messageRepository.findAll();
-    }
-
-    @Override
-    public Message get(UUID id) {
-        return messageRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public Message update(UUID id, String text) {
-        Message message = messageRepository.findById(id).orElse(null);
-
-        if (message == null) {
-            return null;
-        }
-
-        message.update(text);
-        return messageRepository.save(message);
-    }
-    // TODO 불필요 정리 예정
-
-    @Override
     public MessageDto.DetailResponse create(MessageDto.CreateRequest request) {
-
-        Message message = messageRepository.save(new Message(request.getText(), request.getChannelId(), request.getAuthorId()));
         User author = userRepository.findById(request.getAuthorId()).orElse(null);
         Channel channel = channelRepository.findById(request.getChannelId()).orElse(null);
 
+        if (author == null || channel == null) {
+            return null;
+        }
+
+        Message message = messageRepository.save(new Message(request.getText(), request.getChannelId(), request.getAuthorId()));
+
         return MessageDto.DetailResponse.builder()
+            .id(message.getId())
             .channelId(message.getChannelId())
             .authorId(message.getAuthorId())
             .channelName(channel.getName())
@@ -98,12 +56,15 @@ public class BasicMessageService implements MessageService {
             return null;
         }
 
-        message.update(request.getText());
-
         User author = userRepository.findById(message.getAuthorId()).orElse(null);
         Channel channel = channelRepository.findById(message.getChannelId()).orElse(null);
+        if (author == null || channel == null) {
+            return null;
+        }
 
+        message.update(request.getText());
         return MessageDto.DetailResponse.builder()
+            .id(message.getId())
             .channelId(message.getChannelId())
             .authorId(message.getAuthorId())
             .channelName(channel.getName())
@@ -125,6 +86,7 @@ public class BasicMessageService implements MessageService {
         Channel channel = channelRepository.findById(message.getChannelId()).orElse(null);
 
         return MessageDto.DetailResponse.builder()
+            .id(message.getId())
             .channelId(message.getChannelId())
             .authorId(message.getAuthorId())
             .channelName(channel.getName())
@@ -140,19 +102,26 @@ public class BasicMessageService implements MessageService {
         List<Message> messages = messageRepository.findAllByChannelId(channelId);
 
         Channel channel = channelRepository.findById(channelId).orElse(null);
-
-        // TODO  추후 유저 작업..
+        List<User> users = messages.stream()
+            .map(Message::getAuthorId)
+            .distinct()
+            .map(id -> userRepository.findById(id).orElse(null))
+            .toList();
 
         return messages.stream().map(m ->
             MessageDto.DetailResponse.builder()
-            .channelId(m.getChannelId())
-            .authorId(m.getAuthorId())
-            .channelName(channel.getName())
-//                .authorName() // TODO 추후 작업...
-            .text(m.getText())
-            .createdAt(m.getCreatedAt())
-            .updatedAt(m.getUpdatedAt())
-            .build()).collect(Collectors.toList());
+                .id(m.getId())
+                .channelId(m.getChannelId())
+                .authorId(m.getAuthorId())
+                .channelName(channel.getName())
+                .authorName(users.stream()
+                    .filter(u -> u.getId().equals(m.getAuthorId()))
+                    .findFirst().orElse(null).getName())
+                .text(m.getText())
+                .createdAt(m.getCreatedAt())
+                .updatedAt(m.getUpdatedAt())
+                .build())
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -162,10 +131,12 @@ public class BasicMessageService implements MessageService {
 
         if (message != null) {
             messageRepository.delete(id);
-            if(!message.getAttachmentIds().isEmpty()){
+            if (!message.getAttachmentIds().isEmpty()) {
                 List<BinaryContent> contents = binaryContentRepository.findAllByIdIn(message.getAttachmentIds());
 
-                contents.forEach(c -> {binaryContentRepository.delete(c.getId());});
+                contents.forEach(c -> {
+                    binaryContentRepository.delete(c.getId());
+                });
             }
         }
     }

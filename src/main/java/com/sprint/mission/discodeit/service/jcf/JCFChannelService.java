@@ -18,50 +18,6 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel create(Channel channel) {
-
-        if (channel == null) {
-            return null;
-        }
-
-        return channelRepository.save(channel);
-    }
-
-    @Override
-    public Channel create(ChannelType type, String name, String description, UUID adminUserId) {
-
-        if (type == null || name == null || adminUserId == null) {
-            return null;
-        }
-
-        return channelRepository.save(new Channel(type, name, description, adminUserId));
-    }
-
-    @Override
-    public List<Channel> getAll() {
-        return channelRepository.findAll();
-    }
-
-    @Override
-    public Channel get(UUID id) {
-        return channelRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public Channel update(UUID id, String name, String description) {
-        Channel channel = channelRepository.findById(id).orElse(null);
-
-        if (channel == null) {
-            return null;
-        }
-
-        channel.update(name, description);
-        return channelRepository.save(channel);
-    }
-
-    // TODO 추후 불필요 메서드 제거
-
-    @Override
     public ChannelDto.DetailResponse create(ChannelDto.CreateRequest request) {
         return null;
     }

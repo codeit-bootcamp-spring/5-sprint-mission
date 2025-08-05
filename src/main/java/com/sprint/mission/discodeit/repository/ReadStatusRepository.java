@@ -11,9 +11,11 @@ public interface ReadStatusRepository {
 
     Optional<ReadStatus> findById(UUID id);
 
+    List<ReadStatus> findAll();
+
     List<ReadStatus> findAllByUserId(UUID userId);
 
-    ReadStatus update(UUID id);
-
     void delete(UUID id);
+
+    void deleteAll();
 }

@@ -28,11 +28,19 @@ public class Channel extends BaseEntity {
         this.messageIds = new ArrayList<>();
     }
 
+    public Channel(ChannelType type, String name, String description, UUID adminUserId, List<UUID> userIds) {
+        super();
+        this.type = type == null ? ChannelType.PUBLIC : type;
+        this.name = name;
+        this.description = description;
+        this.adminUserId = adminUserId;
+        this.userIds = userIds == null ? new ArrayList<>(List.of(adminUserId)) : userIds;
+        this.messageIds = new ArrayList<>(List.of());
+    }
 
     public Channel(ChannelType type, String name, String description, UUID adminUserId, List<UUID> userIds, List<UUID> messageIds) {
         super();
         this.type = type == null ? ChannelType.PUBLIC : type;
-        this.type = ChannelType.PUBLIC;
         this.name = name;
         this.description = description;
         this.adminUserId = adminUserId;

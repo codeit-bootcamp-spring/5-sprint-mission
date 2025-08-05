@@ -11,7 +11,7 @@ import java.util.UUID;
 public class ReadStatusDto
 {
     @Getter
-    @RequiredArgsConstructor
+    @Builder
     public static class CreateRequest {
         UUID userId;
         UUID channelId;
@@ -24,6 +24,6 @@ public class ReadStatusDto
         UUID id;
         UUID userId;
         UUID channelId;
-        Instant readAt;
+        Instant lastReadAt;
     }
 }

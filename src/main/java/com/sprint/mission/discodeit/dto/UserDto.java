@@ -18,8 +18,7 @@ public class UserDto {
     }
 
     @Getter
-    @Setter
-    @RequiredArgsConstructor
+    @Builder
     public static class UpdateRequest {
         private UUID id;
         private String name;

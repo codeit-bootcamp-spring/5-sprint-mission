@@ -21,18 +21,4 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
             .filter(readStatus -> readStatus.getUserId().equals(userId))
             .collect(Collectors.toList());
     }
-
-    @Override
-    public ReadStatus update(UUID id) {
-        ReadStatus readStatus = data.get(id);
-
-        if(readStatus == null) {
-            return null;
-        }
-
-        readStatus.update();
-        save(readStatus);
-
-        return readStatus;
-    }
 }

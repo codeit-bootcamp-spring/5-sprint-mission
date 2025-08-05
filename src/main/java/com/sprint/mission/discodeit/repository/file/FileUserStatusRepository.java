@@ -21,42 +21,4 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
             .filter(us -> us.getUserId().equals(id))
             .findFirst();
     }
-
-    @Override
-    public UserStatus update(UUID id) {
-
-        UserStatus userStatus = data.get(id);
-        if(userStatus == null) {
-            return null;
-        }
-
-        userStatus.update();
-        save(userStatus);
-
-        return userStatus;
-    }
-
-    @Override
-    public UserStatus updateByUserId(UUID userId) {
-
-        UserStatus userStatus = findByUserId(userId).orElse(null);
-        if(userStatus == null) {
-            return null;
-        }
-
-        userStatus.update();
-        save(userStatus);
-
-        return userStatus;
-    }
-
-    @Override
-    public void deleteByUserId(UUID userId) {
-        UserStatus userStatus = findByUserId(userId).orElse(null);
-        if(userStatus == null) {
-            return;
-        }
-
-        delete(userStatus.getId());
-    }
 }

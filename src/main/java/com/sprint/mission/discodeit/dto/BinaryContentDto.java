@@ -12,7 +12,7 @@ import java.util.UUID;
 public class BinaryContentDto {
 
     @Getter
-    @RequiredArgsConstructor
+    @Builder
     public static class CreateRequest{
         // TODO 추후 요구 조건에 맞춰서 변경 필요할듯?
         MultipartFile file;
@@ -26,5 +26,6 @@ public class BinaryContentDto {
         String contentType;
         Long size;
         Instant createdAt;
+        byte[] content;
     }
 }

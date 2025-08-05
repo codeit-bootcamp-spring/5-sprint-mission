@@ -5,72 +5,109 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Repository
 public class FileBinaryContentRepository implements BinaryContentRepository {
-    private static final String DATA_DIR = "data.dir";
-    private final String filename;
-    protected final Map<UUID, BinaryContent> data;
+    private final Path DIRECTORY;
+    private final String EXTENSION = ".ser";
 
-    public FileBinaryContentRepository(){
-        this.filename = DATA_DIR + "/binaryContents.ser";
-        this.data = readFromFile();
+    public FileBinaryContentRepository() {
+        this.DIRECTORY = Paths.get(System.getProperty("binaryContent.dir"), "file-data", "BinaryContent");
+        if (Files.notExists(DIRECTORY)) {
+            try {
+                Files.createDirectories(DIRECTORY);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private Path resolvePath(UUID id) {
+        return DIRECTORY.resolve(id + EXTENSION);
     }
 
     @Override
-    public BinaryContent save(BinaryContent entity) {
-        data.put(entity.getId(), entity);
-        writeToFile();
-        return entity;
+    public BinaryContent save(BinaryContent binaryContent) {
+        Path path = resolvePath(binaryContent.getId());
+        try (
+            FileOutputStream fos = new FileOutputStream(path.toFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
+            oos.writeObject(binaryContent);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return binaryContent;
     }
 
     @Override
     public Optional<BinaryContent> findById(UUID id) {
-        return Optional.of(data.get(id));
+        BinaryContent userNullable = null;
+        Path path = resolvePath(id);
+        if (Files.exists(path)) {
+            try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                userNullable = (BinaryContent) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Optional.ofNullable(userNullable);
     }
 
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
-        return List.of();
-    }
-
-    public List<BinaryContent> findAll() {
-        return new ArrayList<>(data.values());
-    }
-
-    public void deleteAll() {
-        data.clear();
-        writeToFile();
-    }
-
-    public void delete(UUID id) {
-        data.remove(id);
-        writeToFile();
-    }
-
-    private Map<UUID, BinaryContent> readFromFile() {
-        File file = new File(filename);
-        if (!file.exists()) {
-            return new HashMap<>();
-        }
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (Map<UUID, BinaryContent>) ois.readObject();
-        } catch (Exception e) {
-            return new HashMap<>();
-        }
-    }
-
-    private void writeToFile() {
-        File file = new File(filename);
         try {
-            file.getParentFile().mkdirs();
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-                oos.writeObject(data);
-            }
-        } catch (Exception e) {
-            // 따로 처리 필요하면...
+            return Files.list(DIRECTORY)
+                .filter(path -> path.toString().endsWith(EXTENSION))
+                .map(path -> {
+                    try (
+                        FileInputStream fis = new FileInputStream(path.toFile());
+                        ObjectInputStream ois = new ObjectInputStream(fis)
+                    ) {
+                        return (BinaryContent) ois.readObject();
+                    } catch (IOException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .filter(content -> ids.contains(content.getId()))
+                .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void delete(UUID id) {
+        Path path = resolvePath(id);
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteAll() {
+        try {
+            Files.list(DIRECTORY)
+                .filter(path -> path.toString().endsWith(EXTENSION))
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

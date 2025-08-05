@@ -198,84 +198,84 @@
     - PRIVATE 채널과 PUBLIC 채널을 생성하는 메소드를 분리합니다.
     - [x] 분리된 각각의 메소드를 DTO를 활용해 파라미터를 그룹화합니다.
     - PRIVATE 채널을 생성할 때:
-      - [ ] 채널에 참여하는 User의 정보를 받아 User 별 ReadStatus 정보를 생성합니다.
+      - [x] 채널에 참여하는 User의 정보를 받아 User 별 ReadStatus 정보를 생성합니다.
       - [x] name과 description 속성은 생략합니다.
     - PUBLIC 채널을 생성할 때에는 기존 로직을 유지합니다.
   - find
     - DTO를 활용하여:
-      - [ ] 해당 채널의 가장 최근 메시지의 시간 정보를 포함합니다.
-      - [ ] PRIVATE 채널인 경우 참여한 User의 id 정보를 포함합니다.
+      - [x] 해당 채널의 가장 최근 메시지의 시간 정보를 포함합니다.
+      - [x] PRIVATE 채널인 경우 참여한 User의 id 정보를 포함합니다.
   - findAll
     - DTO를 활용하여:
-      - [ ] 해당 채널의 가장 최근 메시지의 시간 정보를 포함합니다.
-      - [ ] PRIVATE 채널인 경우 참여한 User의 id 정보를 포함합니다.
-    - [ ] 특정 User가 볼 수 있는 Channel 목록을 조회하도록 조회 조건을 추가하고, 메소드 명을 변경합니다. findAllByUserId
-    - [ ] PUBLIC 채널 목록은 전체 조회합니다.
-    - [ ] PRIVATE 채널은 조회한 User가 참여한 채널만 조회합니다.
+      - [x] 해당 채널의 가장 최근 메시지의 시간 정보를 포함합니다.
+      - [x] PRIVATE 채널인 경우 참여한 User의 id 정보를 포함합니다.
+    - [x] 특정 User가 볼 수 있는 Channel 목록을 조회하도록 조회 조건을 추가하고, 메소드 명을 변경합니다. findAllByUserId
+    - [x] PUBLIC 채널 목록은 전체 조회합니다.
+    - [x] PRIVATE 채널은 조회한 User가 참여한 채널만 조회합니다.
   - update
-    - [ ] DTO를 활용해 파라미터를 그룹화합니다.
+    - [x] DTO를 활용해 파라미터를 그룹화합니다.
       - 수정 대상 객체의 id 파라미터, 수정할 값 파라미터
-    - [ ] PRIVATE 채널은 수정할 수 없습니다.
+    - [x] PRIVATE 채널은 수정할 수 없습니다.
   - delete
-    - [ ] 관련된 도메인도 같이 삭제합니다.
+    - [x] 관련된 도메인도 같이 삭제합니다.
       - Message, ReadStatus  
 
 #### MessageService 고도화
 
   - create
-    - [ ] 선택적으로 여러 개의 첨부파일을 같이 등록할 수 있습니다.
-    - [ ] DTO를 활용해 파라미터를 그룹화합니다.
+    - [x] 선택적으로 여러 개의 첨부파일을 같이 등록할 수 있습니다.
+    - [x] DTO를 활용해 파라미터를 그룹화합니다.
   - findAll
-    - [ ] 특정 Channel의 Message 목록을 조회하도록 조회 조건을 추가하고, 메소드 명을 변경합니다. findallByChannelId
+    - [x] 특정 Channel의 Message 목록을 조회하도록 조회 조건을 추가하고, 메소드 명을 변경합니다. findallByChannelId
   - update
-    - [ ] DTO를 활용해 파라미터를 그룹화합니다.
+    - [x] DTO를 활용해 파라미터를 그룹화합니다.
       - 수정 대상 객체의 id 파라미터, 수정할 값 파라미터
   - delete
-    - [ ] 관련된 도메인도 같이 삭제합니다.
+    - [x] 관련된 도메인도 같이 삭제합니다.
       - 첨부파일(BinaryContent)
 
 #### ReadStatusService 구현
 
   - create
-    - [ ] DTO를 활용해 파라미터를 그룹화합니다.
-    - [ ] 관련된 Channel이나 User가 존재하지 않으면 예외를 발생시킵니다.
-    - [ ] 같은 Channel과 User와 관련된 객체가 이미 존재하면 예외를 발생시킵니다.
+    - [x] DTO를 활용해 파라미터를 그룹화합니다.
+    - [x] 관련된 Channel이나 User가 존재하지 않으면 예외를 발생시킵니다.
+    - [x] 같은 Channel과 User와 관련된 객체가 이미 존재하면 예외를 발생시킵니다.
   - find
-    - [ ] id로 조회합니다.
+    - [x] id로 조회합니다.
   - findAllByUserId
-    - [ ] userId를 조건으로 조회합니다.
+    - [x] userId를 조건으로 조회합니다.
   - update
-    - [ ] DTO를 활용해 파라미터를 그룹화합니다.
+    - [x] DTO를 활용해 파라미터를 그룹화합니다.
       - 수정 대상 객체의 id 파라미터, 수정할 값 파라미터
   - delete
-    - [ ] id로 삭제합니다.
+    - [x] id로 삭제합니다.
 
 #### UserStatusService 고도화
   - create  
-    - [ ] DTO를 활용해 파라미터를 그룹화합니다.
-    - [ ] 관련된 User가 존재하지 않으면 예외를 발생시킵니다.
-    - [ ] 같은 User와 관련된 객체가 이미 존재하면 예외를 발생시킵니다.
+    - [x] DTO를 활용해 파라미터를 그룹화합니다.
+    - [x] 관련된 User가 존재하지 않으면 예외를 발생시킵니다.
+    - [x] 같은 User와 관련된 객체가 이미 존재하면 예외를 발생시킵니다.
   - find
-    - [ ] id로 조회합니다.
+    - [x] id로 조회합니다.
   - findAll
-    - [ ] 모든 객체를 조회합니다.
+    - [x] 모든 객체를 조회합니다.
   - update
-    - [ ] DTO를 활용해 파라미터를 그룹화합니다.
+    - [x] DTO를 활용해 파라미터를 그룹화합니다.
       - 수정 대상 객체의 id 파라미터, 수정할 값 파라미터
   - updateByUserId
-    - [ ] userId 로 특정 User의 객체를 업데이트합니다.
+    - [x] userId 로 특정 User의 객체를 업데이트합니다.
   - delete
-    - [ ] id로 삭제합니다.
+    - [x] id로 삭제합니다.
 
 #### BinaryContentService 구현
   - create
-    - [ ] DTO를 활용해 파라미터를 그룹화합니다.
+    - [x] DTO를 활용해 파라미터를 그룹화합니다.
   - find
-    - [ ] id로 조회합니다.
+    - [x] id로 조회합니다.
   - findAllByIdIn
-    - [ ] id 목록으로 조회합니다.
+    - [x] id 목록으로 조회합니다.
   - delete
-    - [ ] id로 삭제합니다.
+    - [x] id로 삭제합니다.
 
 ## 심화 요구사항
 

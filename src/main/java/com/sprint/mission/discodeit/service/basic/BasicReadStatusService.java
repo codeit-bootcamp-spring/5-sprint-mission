@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
@@ -13,25 +14,72 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicReadStatusService implements ReadStatusService {
 
-    ReadStatusRepository readStatusRepository;
+    private final ReadStatusRepository readStatusRepository;
 
     @Override
-    public ReadStatus create(ReadStatus readStatus) {
-        return readStatusRepository.save(readStatus);
+    public ReadStatusDto.DetailResponse create(ReadStatusDto.CreateRequest request) {
+        ReadStatus readStatus = new ReadStatus(request.getUserId(), request.getChannelId());
+        readStatusRepository.save(readStatus);
+
+        return ReadStatusDto.DetailResponse.builder()
+            .id(readStatus.getId())
+            .channelId(readStatus.getChannelId())
+            .userId(readStatus.getUserId())
+            .lastReadAt(readStatus.getLastReadAt())
+            .build();
     }
 
     @Override
-    public ReadStatus find(UUID id) {
-        return readStatusRepository.findById(id).orElse(null);
+    public ReadStatusDto.DetailResponse find(UUID id) {
+        ReadStatus readStatus = readStatusRepository.findById(id).orElse(null);
+
+        if (readStatus == null) {
+            return null;
+        }
+
+        return ReadStatusDto.DetailResponse.builder()
+            .id(readStatus.getId())
+            .channelId(readStatus.getChannelId())
+            .userId(readStatus.getUserId())
+            .lastReadAt(readStatus.getLastReadAt())
+            .build();
     }
 
     @Override
-    public List<ReadStatus> findAllByUserId(UUID userId) {
-        return readStatusRepository.findAllByUserId(userId);
+    public List<ReadStatusDto.DetailResponse> findAllByUserId(UUID userId) {
+        List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(userId);
+
+        return readStatuses.stream()
+            .map(rs ->
+                ReadStatusDto.DetailResponse.builder()
+                    .id(rs.getId())
+                    .channelId(rs.getChannelId())
+                    .userId(rs.getUserId())
+                    .lastReadAt(rs.getLastReadAt())
+                    .build())
+            .toList();
     }
 
     @Override
     public void delete(UUID id) {
         readStatusRepository.delete(id);
+    }
+
+    @Override
+    public void deleteAll() {
+        readStatusRepository.deleteAll();
+    }
+
+    public ReadStatus update(UUID id) {
+
+        ReadStatus readStatus = readStatusRepository.findById(id).orElse(null);
+
+        if (readStatus == null) {
+            return null;
+        }
+
+        readStatus.update();
+
+        return readStatusRepository.save(readStatus);
     }
 }

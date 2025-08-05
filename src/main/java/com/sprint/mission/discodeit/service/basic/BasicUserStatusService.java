@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.UserStatusDto;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -13,35 +14,90 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicUserStatusService implements UserStatusService {
 
-    UserStatusRepository userStatusRepository;
+    private final UserStatusRepository userStatusRepository;
 
     @Override
-    public UserStatus create(UserStatus readStatus) {
-        return userStatusRepository.save(readStatus);
+    public UserStatusDto.DetailResponse create(UserStatusDto.CreateRequest request) {
+        UserStatus userStatus = userStatusRepository.save(UserStatus.of(request.getUserId()));
+
+        return UserStatusDto.DetailResponse.builder()
+            .id(userStatus.getId())
+            .userId(userStatus.getUserId())
+            .lastLogin(userStatus.getLastLogin())
+            .build();
     }
 
     @Override
-    public UserStatus find(UUID id) {
-        return userStatusRepository.findById(id).orElse(null);
+    public UserStatusDto.DetailResponse find(UUID id) {
+        UserStatus userStatus = userStatusRepository.findById(id).orElse(null);
+        if (userStatus == null) {
+            return null;
+        }
+
+        return UserStatusDto.DetailResponse.builder()
+            .id(userStatus.getId())
+            .userId(userStatus.getUserId())
+            .lastLogin(userStatus.getLastLogin())
+            .build();
     }
 
     @Override
-    public List<UserStatus> findAll() {
-        return userStatusRepository.findAll();
+    public List<UserStatusDto.DetailResponse> findAll() {
+        List<UserStatus> userStatuses = userStatusRepository.findAll();
+
+        return userStatuses.stream()
+            .map(us -> UserStatusDto.DetailResponse.builder()
+                .id(us.getId())
+                .userId(us.getUserId())
+                .lastLogin(us.getLastLogin())
+                .build())
+            .toList();
     }
 
     @Override
-    public UserStatus update(UUID id) {
-        return userStatusRepository.update(id);
+    public UserStatusDto.DetailResponse update(UUID id) {
+
+        UserStatus userStatus = userStatusRepository.findById(id).orElse(null);
+        if (userStatus == null) {
+            return null;
+        }
+
+        userStatus.update();
+
+        userStatusRepository.save(userStatus);
+
+        return UserStatusDto.DetailResponse.builder()
+            .id(userStatus.getId())
+            .userId(userStatus.getUserId())
+            .lastLogin(userStatus.getLastLogin())
+            .build();
     }
 
     @Override
-    public UserStatus updateByUserId(UUID userId) {
-        return userStatusRepository.updateByUserId(userId);
+    public UserStatusDto.DetailResponse updateByUserId(UUID userId) {
+
+        UserStatus userStatus = userStatusRepository.findByUserId(userId).orElse(null);
+        if (userStatus == null) {
+            return null;
+        }
+
+        userStatus.update();
+        userStatusRepository.save(userStatus);
+
+        return UserStatusDto.DetailResponse.builder()
+            .id(userStatus.getId())
+            .userId(userStatus.getUserId())
+            .lastLogin(userStatus.getLastLogin())
+            .build();
     }
 
     @Override
     public void delete(UUID id) {
         userStatusRepository.delete(id);
+    }
+
+    @Override
+    public void deleteAll() {
+        userStatusRepository.deleteAll();
     }
 }
