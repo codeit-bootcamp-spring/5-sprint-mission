@@ -6,7 +6,11 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.*;
 
 public class JCFUserRepository implements UserRepository {
-    private final Map<UUID, User> data = new HashMap<>();
+    private final Map<UUID, User> data;
+
+    public  JCFUserRepository() {
+        this.data = new HashMap<>();
+    }
 
     @Override
     public User save(User user) {
@@ -15,16 +19,18 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public User find(UUID userId) {
-        User userNullable = this.data.get(userId);
-
-        return Optional.ofNullable(userNullable)
-                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+    public Optional<User> find(UUID userId) {
+        return Optional.ofNullable(this.data.get(userId));
     }
 
     @Override
     public List<User> findAll() {
         return this.data.values().stream().toList();
+    }
+
+    @Override
+    public boolean existById(UUID userId) {
+        return data.containsKey(userId);
     }
 
     @Override

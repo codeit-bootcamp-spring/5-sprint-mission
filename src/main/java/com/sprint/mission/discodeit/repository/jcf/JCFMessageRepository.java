@@ -6,7 +6,11 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import java.util.*;
 
 public class JCFMessageRepository implements MessageRepository {
-    private final Map<UUID, Message> data = new HashMap<>();
+    private final Map<UUID, Message> data;
+
+    public  JCFMessageRepository() {
+        this.data = new HashMap<>();
+    }
 
     @Override
     public Message save(Message message) {
@@ -15,16 +19,18 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Message find(UUID messageId) {
-        Message messageNullable = this.data.get(messageId);
-
-        return Optional.ofNullable(messageNullable)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+    public Optional<Message> find(UUID messageId) {
+        return Optional.ofNullable(this.data.get(messageId));
     }
 
     @Override
     public List<Message> findAll() {
         return this.data.values().stream().toList();
+    }
+
+    @Override
+    public boolean existById(UUID messageId) {
+        return data.containsKey(messageId);
     }
 
     @Override
