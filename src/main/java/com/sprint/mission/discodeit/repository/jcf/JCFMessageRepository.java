@@ -1,22 +1,16 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 
 import java.util.*;
 
-public class JCFMessageService implements MessageService {
-    private final Map<UUID, Message> data;
-
-    public JCFMessageService() {
-        this.data = new HashMap<>();
-    }
+public class JCFMessageRepository implements MessageRepository {
+    private final Map<UUID, Message> data = new HashMap<>();
 
     @Override
-    public Message create(String content, UUID channelId, UUID authorId) {
-        Message message = new Message(content, channelId, authorId);
+    public Message save(Message message) {
         this.data.put(message.getId(), message);
-
         return message;
     }
 
@@ -31,16 +25,6 @@ public class JCFMessageService implements MessageService {
     @Override
     public List<Message> findAll() {
         return this.data.values().stream().toList();
-    }
-
-    @Override
-    public Message update(UUID messageId, String newContent) {
-        Message messageNullable = this.data.get(messageId);
-        Message message = Optional.ofNullable(messageNullable)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
-        message.update(newContent);
-
-        return message;
     }
 
     @Override

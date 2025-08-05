@@ -1,22 +1,28 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
-public class Message {
-    private final UUID id;
+public class Message implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private transient UUID id;
     private Long createdAt;
     private Long updatedAt;
+    //
     private String content;
+    //
+    private transient UUID channelId;
+    private transient UUID authorId;
 
-    public Message() {
+    public Message(String content, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
-    }
-
-    public Message(UUID id, String content) {
-        this.id = id;
+        this.createdAt = Instant.now().getEpochSecond();
+        //
         this.content = content;
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.channelId = channelId;
+        this.authorId = authorId;
     }
 
     public UUID getId() {
@@ -35,21 +41,23 @@ public class Message {
         return content;
     }
 
-    public void updateUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
+    public UUID getChannelId() {
+        return channelId;
     }
 
-    public void updateContent(String content) {
-        this.content = content;
+    public UUID getAuthorId() {
+        return authorId;
     }
 
-    @Override
-    public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", content='" + content + '\'' +
-                '}';
+    public void update(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
+        }
     }
 }
