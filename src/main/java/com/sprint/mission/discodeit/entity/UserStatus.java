@@ -24,4 +24,9 @@ public class UserStatus extends BaseEntity{
     public static UserStatus of(UUID userId) {
         return new UserStatus(userId, Instant.now());
     }
+
+    public void update() {
+        this.lastLogin = Instant.now();
+        updateTimestamp();
+    }
 }

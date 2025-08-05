@@ -17,4 +17,9 @@ public class ReadStatus extends BaseEntity {
         this.channelId = channelId;
         this.lastReadAt = lastReadAt;
     }
+
+    public void update(){
+        this.lastReadAt = Instant.now();
+        updateTimestamp();
+    }
 }

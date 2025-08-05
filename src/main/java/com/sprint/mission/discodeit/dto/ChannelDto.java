@@ -10,8 +10,7 @@ import java.util.UUID;
 public class ChannelDto {
 
     @Getter
-    @NoArgsConstructor
-    @RequiredArgsConstructor
+    @Builder
     public static class CreateRequest {
         ChannelType type;
         String name;
@@ -21,17 +20,17 @@ public class ChannelDto {
     }
 
     @Getter
-    @NoArgsConstructor
     @RequiredArgsConstructor
     public static class UpdateRequest {
         UUID id;
         String name;
         String description;
+        UUID userId;
     }
 
     @Getter
-    @RequiredArgsConstructor
     @Builder
+    @ToString
     public static class DetailResponse {
         UUID id;
         String name;

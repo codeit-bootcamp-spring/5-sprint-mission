@@ -1,31 +1,41 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.entity.BaseEntity;
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.*;
 
-public abstract class AbstractFileRepository<T extends BaseEntity> {
+@Repository
+public class FileBinaryContentRepository implements BinaryContentRepository {
     private static final String DATA_DIR = "data.dir";
     private final String filename;
-    protected final Map<UUID, T> data;
+    protected final Map<UUID, BinaryContent> data;
 
-    protected AbstractFileRepository(String entityName) {
-        this.filename = DATA_DIR + "/" + entityName + ".ser";
+    public FileBinaryContentRepository(){
+        this.filename = DATA_DIR + "/binaryContents.ser";
         this.data = readFromFile();
     }
 
-    public T save(T entity) {
+    @Override
+    public BinaryContent save(BinaryContent entity) {
         data.put(entity.getId(), entity);
         writeToFile();
         return entity;
     }
 
-    public Optional<T> findById(UUID id) {
+    @Override
+    public Optional<BinaryContent> findById(UUID id) {
         return Optional.of(data.get(id));
     }
 
-    public List<T> findAll() {
+    @Override
+    public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
+        return List.of();
+    }
+
+    public List<BinaryContent> findAll() {
         return new ArrayList<>(data.values());
     }
 
@@ -39,14 +49,14 @@ public abstract class AbstractFileRepository<T extends BaseEntity> {
         writeToFile();
     }
 
-    private Map<UUID, T> readFromFile() {
+    private Map<UUID, BinaryContent> readFromFile() {
         File file = new File(filename);
         if (!file.exists()) {
             return new HashMap<>();
         }
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (Map<UUID, T>) ois.readObject();
+            return (Map<UUID, BinaryContent>) ois.readObject();
         } catch (Exception e) {
             return new HashMap<>();
         }

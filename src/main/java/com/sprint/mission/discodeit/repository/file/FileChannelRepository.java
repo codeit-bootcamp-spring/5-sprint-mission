@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 public class FileChannelRepository extends AbstractFileRepository<Channel> implements ChannelRepository {
@@ -14,9 +15,10 @@ public class FileChannelRepository extends AbstractFileRepository<Channel> imple
         super("channels");
     }
 
-    // TODO mission 조건에 맞도록 추후 구현
     public List<Channel> findAllByUserId(UUID userId){
 
-        return null;
+        return data.values().stream()
+            .filter(c -> c.getUserIds().contains(userId))
+            .collect(Collectors.toList());
     }
 }

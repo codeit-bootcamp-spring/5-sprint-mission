@@ -8,7 +8,7 @@
 
     @Getter
     public class BaseEntity implements Serializable {
-        protected static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
         protected UUID id;
         protected Instant createdAt;
         protected Instant updatedAt;

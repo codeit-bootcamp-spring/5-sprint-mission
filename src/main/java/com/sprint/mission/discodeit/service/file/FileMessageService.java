@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.file;
 
+import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -60,12 +61,34 @@ public class FileMessageService implements MessageService {
         return messageRepository.save(message);
     }
 
+    // TODO 불필요 삭제 예정
+
+    @Override
+    public MessageDto.DetailResponse create(MessageDto.CreateRequest request) {
+        return null;
+    }
+
+    @Override
+    public MessageDto.DetailResponse update(MessageDto.UpdateRequest request) {
+        return null;
+    }
+
+    @Override
+    public MessageDto.DetailResponse findById(UUID id) {
+        return null;
+    }
+
+    @Override
+    public List<MessageDto.DetailResponse> findAllByChannelId(UUID channelId) {
+        return List.of();
+    }
+
     @Override
     public void delete(UUID id) {
         Message message = messageRepository.findById(id).orElse(null);
 
         if (message != null) {
-            messageRepository.deleteById(id);
+            messageRepository.delete(id);
         }
     }
 

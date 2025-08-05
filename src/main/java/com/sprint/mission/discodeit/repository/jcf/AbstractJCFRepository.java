@@ -25,10 +25,6 @@ public class AbstractJCFRepository<T extends BaseEntity> {
         return new ArrayList<>(data.values());
     }
 
-    public void deleteById(UUID id) {
-        data.remove(id);
-    }
-
     public void deleteAll() {
         data.clear();
     }

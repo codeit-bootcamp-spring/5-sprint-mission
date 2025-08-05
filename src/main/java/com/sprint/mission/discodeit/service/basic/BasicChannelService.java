@@ -4,6 +4,8 @@ import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,16 +18,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
+    private final ReadStatusRepository readStatusRepository;
+    private final MessageRepository messageRepository;
 
     public ChannelDto.DetailResponse create(ChannelDto.CreateRequest request) {
 
         Channel channel = null;
 
         // 분리된 각각의 메소드를 DTO를 활용해 파라미터를 그룹화합니다.
-        if(request.getType().equals(ChannelType.PRIVATE)){
+        if (request.getType().equals(ChannelType.PRIVATE)) {
             channel = createPrivate(request);
-        }
-        else {
+        } else {
             channel = createPublic(request);
         }
 
@@ -38,27 +41,27 @@ public class BasicChannelService implements ChannelService {
             .build();
     }
 
-    private Channel createPrivate(ChannelDto.CreateRequest request){
+    private Channel createPrivate(ChannelDto.CreateRequest request) {
         // 채널에 참여하는 User의 정보를 받아 User 별 ReadStatus 정보를 생성합니다.
         // name과 description 속성은 생략합니다.
         return new Channel(ChannelType.PRIVATE, "", "", request.getAdminUserId());
     }
 
-    private Channel createPublic(ChannelDto.CreateRequest request){
+    private Channel createPublic(ChannelDto.CreateRequest request) {
         // PUBLIC 채널을 생성할 때에는 기존 로직을 유지합니다.
         return new Channel(ChannelType.PUBLIC, request.getName()
             , request.getDescription(), request.getAdminUserId());
     }
 
-    public ChannelDto.DetailResponse findById(UUID id){
+    public ChannelDto.DetailResponse findById(UUID id) {
 
         Channel channel = channelRepository.findById(id).orElse(null);
 
-        if(channel == null){
+        if (channel == null) {
             return null;
         }
 
-        if(channel.getType().equals(ChannelType.PRIVATE)){
+        if (channel.getType().equals(ChannelType.PRIVATE)) {
             // 해당 채널의 가장 최근 메시지의 시간 정보를 포함합니다.
             // PRIVATE 채널인 경우 참여한 User의 id 정보를 포함합니다. > 근데 난 원래 갖고 있었는데?
             return ChannelDto.DetailResponse.builder()
@@ -79,7 +82,7 @@ public class BasicChannelService implements ChannelService {
             .build();
     }
 
-    public List<ChannelDto.DetailResponse> findAll(){
+    public List<ChannelDto.DetailResponse> findAll() {
         List<Channel> channels = channelRepository.findAll();
 
         return channels.stream().map(c -> {
@@ -93,7 +96,7 @@ public class BasicChannelService implements ChannelService {
         }).collect(Collectors.toList());
     }
 
-    public List<ChannelDto.DetailResponse> findAllByUserId(UUID userId){
+    public List<ChannelDto.DetailResponse> findAllByUserId(UUID userId) {
         // 특정 User가 볼 수 있는 Channel 목록을 조회하도록 조회 조건을 추가하고, 메소드 명을 변경합니다. findAllByUserId
         // PUBLIC 채널 목록은 전체 조회합니다.
         // PRIVATE 채널은 조회한 User가 참여한 채널만 조회합니다.
@@ -102,19 +105,41 @@ public class BasicChannelService implements ChannelService {
 
         return channels.stream().map(c ->
             ChannelDto.DetailResponse.builder()
-            .id(c.getId())
-            .name(c.getName())
-            .description(c.getDescription())
+                .id(c.getId())
+                .name(c.getName())
+                .description(c.getDescription())
 //                .lastMessageCreatedAt()
-            .userIds(c.getUserIds())
-            .build()).collect(Collectors.toList());
+                .userIds(c.getUserIds())
+                .build()).collect(Collectors.toList());
     }
 
-    public ChannelDto.DetailResponse update(ChannelDto.UpdateRequest request){
+    public ChannelDto.DetailResponse update(ChannelDto.UpdateRequest request) {
         // 수정 대상 객체의 id 파라미터, 수정할 값 파라미터
         // PRIVATE 채널은 수정할 수 없습니다.
 
-        return null;
+        Channel channel = channelRepository.findById(request.getId()).orElse(null);
+
+        if(channel == null) {
+            return null;
+        }
+
+        if(request.getName() != null && request.getDescription() != null) {
+            channel.update(request.getName(), request.getDescription());
+        }
+
+        if(request.getUserId() != null){
+            channel.addUser(request.getUserId());
+        }
+
+        channelRepository.save(channel);
+
+        return ChannelDto.DetailResponse.builder()
+            .id(channel.getId())
+            .name(channel.getName())
+            .description(channel.getDescription())
+//                .lastMessageCreatedAt() // TODO 마지막 메세지 시간
+            .userIds(channel.getUserIds())
+            .build();
     }
 
     @Override
@@ -123,7 +148,18 @@ public class BasicChannelService implements ChannelService {
         Channel channel = channelRepository.findById(id).orElse(null);
 
         if (channel != null) {
-            channelRepository.deleteById(id);
+            channelRepository.delete(id);
+
+            messageRepository.findAllByChannelId(id).forEach(m -> {
+                messageRepository.delete(m.getId());
+            });
+
+            channel.getUserIds().forEach(userId -> {
+                readStatusRepository.findAllByUserId(userId)
+                    .forEach(rs -> {
+                        readStatusRepository.delete(rs.getId());
+                    });
+            });
         }
     }
 

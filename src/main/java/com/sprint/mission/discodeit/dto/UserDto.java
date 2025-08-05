@@ -7,10 +7,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 public class UserDto {
+
     @Getter
-    @Setter
-    @NoArgsConstructor
-    @RequiredArgsConstructor
+    @Builder
     public static class CreateRequest {
         private String name;
         private String email;
@@ -20,7 +19,6 @@ public class UserDto {
 
     @Getter
     @Setter
-    @NoArgsConstructor
     @RequiredArgsConstructor
     public static class UpdateRequest {
         private UUID id;
@@ -40,6 +38,7 @@ public class UserDto {
 
     @Getter
     @Builder
+    @ToString
     public static class DetailResponse {
         private UUID id;
         private String name;

@@ -13,7 +13,6 @@ import java.util.UUID;
 public class MessageDto {
 
     @Getter
-    @NoArgsConstructor
     @RequiredArgsConstructor
     public static class CreateRequest {
         UUID channelId;
@@ -23,7 +22,6 @@ public class MessageDto {
     }
 
     @Getter
-    @NoArgsConstructor
     @RequiredArgsConstructor
     public static class UpdateRequest {
         UUID id;

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.jcf;
 
+import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -60,12 +61,34 @@ public class JCFMessageService implements MessageService {
         return messageRepository.save(message);
     }
 
+    // TODO 추후 불필요 메서드 제거
+
+    @Override
+    public MessageDto.DetailResponse create(MessageDto.CreateRequest request) {
+        return null;
+    }
+
+    @Override
+    public MessageDto.DetailResponse update(MessageDto.UpdateRequest request) {
+        return null;
+    }
+
+    @Override
+    public MessageDto.DetailResponse findById(UUID id) {
+        return null;
+    }
+
+    @Override
+    public List<MessageDto.DetailResponse> findAllByChannelId(UUID channelId) {
+        return List.of();
+    }
+
     @Override
     public void delete(UUID id) {
         Message message = messageRepository.findById(id).orElse(null);
 
         if (message != null) {
-            messageRepository.deleteById(id);
+            messageRepository.delete(id);
         }
     }
 

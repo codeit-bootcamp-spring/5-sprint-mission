@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.MessageDto;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
@@ -160,7 +161,12 @@ public class BasicMessageService implements MessageService {
         Message message = messageRepository.findById(id).orElse(null);
 
         if (message != null) {
-            messageRepository.deleteById(id);
+            messageRepository.delete(id);
+            if(!message.getAttachmentIds().isEmpty()){
+                List<BinaryContent> contents = binaryContentRepository.findAllByIdIn(message.getAttachmentIds());
+
+                contents.forEach(c -> {binaryContentRepository.delete(c.getId());});
+            }
         }
     }
 

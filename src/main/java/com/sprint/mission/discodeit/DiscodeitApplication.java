@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -10,9 +12,7 @@ import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
-import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.*;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
@@ -37,41 +37,53 @@ public class DiscodeitApplication implements CommandLineRunner {
 	private final UserService userService;
 	private final ChannelService channelService;
 	private final MessageService messageService;
+	private final ReadStatusService readStatusService;
+	private final UserStatusService userStatusService;
 
 	@Autowired
-	public DiscodeitApplication(UserService userService, ChannelService channelService, MessageService messageService) {
+	public DiscodeitApplication(UserService userService, ChannelService channelService, MessageService messageService
+		, UserStatusService userStatusService, ReadStatusService readStatusService) {
 
 		this.userService = userService;
 		this.channelService = channelService;
 		this.messageService = messageService;
+		this.userStatusService = userStatusService;
+		this.readStatusService = readStatusService;
 	}
 
 	public static void main(String[] args) {
-		org.springframework.context.ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, new String[0]);
-		context.getBean(DiscodeitApplication.class).run(args);
-
-		UserService userService1 = context.getBean(UserService.class);
-		ChannelService channelService1 = context.getBean(ChannelService.class);
-		MessageService messageService1 = context.getBean(MessageService.class);
-
+		SpringApplication.run(DiscodeitApplication.class, new String[0]);
 	}
 
 	@Override
 	public void run(String... args) {
-		testUserService(userService);
-		testChannelService(channelService);
-		testMessageService(messageService);
-		testCoreService(messageService, userService, channelService);
+		testUserService();
+		testChannelService();
+		testMessageService();
+		testCoreService();
 	}
 
 
-	static User setupUser(UserService userService) {
-		User user = userService.create("test", "test@test.com", "test1234");
+	static UserDto.DetailResponse setupUser(UserService userService) {
+		UserDto.DetailResponse user = userService.create(
+			UserDto.CreateRequest.builder()
+				.name("test")
+				.email("test@test.com")
+				.password("test1234")
+				.build()
+		);
 		return user;
 	}
 
-	static Channel setupChannel(ChannelService channelService, User user) {
-		Channel channel = channelService.create(ChannelType.PUBLIC, "Test Target", "Test Target 채널입니다.", user.getId());
+	static ChannelDto.DetailResponse setupChannel(ChannelService channelService, UserDto.DetailResponse user) {
+		ChannelDto.DetailResponse channel = channelService.create(
+			ChannelDto.CreateRequest.builder()
+				.type(ChannelType.PUBLIC)
+				.name("Test Channel")
+				.description("Test Channel Description")
+				.adminUserId(user.getId())
+				.build());
+
 		return channel;
 	}
 
@@ -79,108 +91,108 @@ public class DiscodeitApplication implements CommandLineRunner {
 		Message message = messageService.create("안녕하세요.", channel.getId(), author.getId());
 		System.out.println("메시지 생성: " + message.getId());
 	}
+//
+//	public static void testJCFService() {
+//
+//		System.out.println("============= JCF Service 테스트 시작 =============");
+//		JCFChannelRepository jcfChannelRepository = new JCFChannelRepository();
+//		JCFUserRepository jcfUserRepository = new JCFUserRepository();
+//		JCFMessageRepository jcfMessageRepository = new JCFMessageRepository();
+//
+//		JCFUserService userService = new JCFUserService(jcfUserRepository);
+//		JCFChannelService channelService = new JCFChannelService(jcfChannelRepository);
+//		JCFMessageService messageService = new JCFMessageService(jcfMessageRepository);
+//
+//		testUserService(userService);
+//		testChannelService(channelService);
+//		testMessageService(messageService);
+//		testCoreService(messageService, userService, channelService);
+//		System.out.println("============= JCF Service 테스트 끝 =============");
+//	}
+//
+//	public static void testFileService() {
+//		System.out.println("============= File Service 테스트 시작 =============");
+//
+//		FileChannelRepository fileChannelRepository = new FileChannelRepository();
+//		FileUserRepository fileUserRepository = new FileUserRepository();
+//		FileMessageRepository fileMessageRepository = new FileMessageRepository();
+//
+//		FileChannelService fileChannelService = new FileChannelService(fileChannelRepository);
+//		FileUserService fileUserService = new FileUserService(fileUserRepository);
+//		FileMessageService fileMessageService = new FileMessageService(fileMessageRepository);
+//
+//		testUserService(fileUserService);
+//		testChannelService(fileChannelService);
+//		testMessageService(fileMessageService);
+//		testCoreService(fileMessageService, fileUserService, fileChannelService);
+//		System.out.println("============= File Service 테스트 끝 =============");
+//	}
+//
+//	public static void testBasicService() {
+//
+//		System.out.println("============= Basic JCF Service 테스트 시작 =============");
+//
+//		JCFChannelRepository jcfChannelRepository = new JCFChannelRepository();
+//		JCFUserRepository jcfUserRepository = new JCFUserRepository();
+//		JCFMessageRepository jcfMessageRepository = new JCFMessageRepository();
+//
+//		UserService jcfUserService = new BasicUserService(jcfUserRepository, null, null);
+//		ChannelService jcfChannelService = new BasicChannelService(jcfChannelRepository);
+//		MessageService jcfMessageService = new BasicMessageService(jcfMessageRepository);
+//
+//		testUserService(jcfUserService);
+//		testChannelService(jcfChannelService);
+//		testMessageService(jcfMessageService);
+//		testCoreService(jcfMessageService, jcfUserService, jcfChannelService);
+//
+//		jcfMessageService.deleteAll();
+//		jcfUserService.deleteAll();
+//		jcfChannelService.deleteAll();
+//
+//		System.out.println("============= Basic JCF Service 테스트 시작 =============");
+//
+//		System.out.println("============= Basic File Service 테스트 시작 =============");
+//
+//		FileChannelRepository fileChannelRepository = new FileChannelRepository();
+//		FileUserRepository fileUserRepository = new FileUserRepository();
+//		FileMessageRepository fileMessageRepository = new FileMessageRepository();
+//
+//		UserService fileUserService = new BasicUserService(fileUserRepository, null, null);
+//		ChannelService fileChannelService = new BasicChannelService(fileChannelRepository);
+//		MessageService fileMessageService = new BasicMessageService(fileMessageRepository);
+//
+//		testUserService(fileUserService);
+//		testChannelService(fileChannelService);
+//		testMessageService(fileMessageService);
+//		testCoreService(fileMessageService, fileUserService, fileChannelService);
+//
+//		fileMessageService.deleteAll();
+//		fileUserService.deleteAll();
+//		fileChannelService.deleteAll();
+//
+//		System.out.println("============= Basic File Service 테스트 끝 =============");
+//	}
 
-	public static void testJCFService() {
-
-		System.out.println("============= JCF Service 테스트 시작 =============");
-		JCFChannelRepository jcfChannelRepository = new JCFChannelRepository();
-		JCFUserRepository jcfUserRepository = new JCFUserRepository();
-		JCFMessageRepository jcfMessageRepository = new JCFMessageRepository();
-
-		JCFUserService userService = new JCFUserService(jcfUserRepository);
-		JCFChannelService channelService = new JCFChannelService(jcfChannelRepository);
-		JCFMessageService messageService = new JCFMessageService(jcfMessageRepository);
-
-		testUserService(userService);
-		testChannelService(channelService);
-		testMessageService(messageService);
-		testCoreService(messageService, userService, channelService);
-		System.out.println("============= JCF Service 테스트 끝 =============");
-	}
-
-	public static void testFileService() {
-		System.out.println("============= File Service 테스트 시작 =============");
-
-		FileChannelRepository fileChannelRepository = new FileChannelRepository();
-		FileUserRepository fileUserRepository = new FileUserRepository();
-		FileMessageRepository fileMessageRepository = new FileMessageRepository();
-
-		FileChannelService fileChannelService = new FileChannelService(fileChannelRepository);
-		FileUserService fileUserService = new FileUserService(fileUserRepository);
-		FileMessageService fileMessageService = new FileMessageService(fileMessageRepository);
-
-		testUserService(fileUserService);
-		testChannelService(fileChannelService);
-		testMessageService(fileMessageService);
-		testCoreService(fileMessageService, fileUserService, fileChannelService);
-		System.out.println("============= File Service 테스트 끝 =============");
-	}
-
-	public static void testBasicService() {
-
-		System.out.println("============= Basic JCF Service 테스트 시작 =============");
-
-		JCFChannelRepository jcfChannelRepository = new JCFChannelRepository();
-		JCFUserRepository jcfUserRepository = new JCFUserRepository();
-		JCFMessageRepository jcfMessageRepository = new JCFMessageRepository();
-
-		UserService jcfUserService = new BasicUserService(jcfUserRepository, null, null);
-		ChannelService jcfChannelService = new BasicChannelService(jcfChannelRepository);
-		MessageService jcfMessageService = new BasicMessageService(jcfMessageRepository);
-
-		testUserService(jcfUserService);
-		testChannelService(jcfChannelService);
-		testMessageService(jcfMessageService);
-		testCoreService(jcfMessageService, jcfUserService, jcfChannelService);
-
-		jcfMessageService.deleteAll();
-		jcfUserService.deleteAll();
-		jcfChannelService.deleteAll();
-
-		System.out.println("============= Basic JCF Service 테스트 시작 =============");
-
-		System.out.println("============= Basic File Service 테스트 시작 =============");
-
-		FileChannelRepository fileChannelRepository = new FileChannelRepository();
-		FileUserRepository fileUserRepository = new FileUserRepository();
-		FileMessageRepository fileMessageRepository = new FileMessageRepository();
-
-		UserService fileUserService = new BasicUserService(fileUserRepository, null, null);
-		ChannelService fileChannelService = new BasicChannelService(fileChannelRepository);
-		MessageService fileMessageService = new BasicMessageService(fileMessageRepository);
-
-		testUserService(fileUserService);
-		testChannelService(fileChannelService);
-		testMessageService(fileMessageService);
-		testCoreService(fileMessageService, fileUserService, fileChannelService);
-
-		fileMessageService.deleteAll();
-		fileUserService.deleteAll();
-		fileChannelService.deleteAll();
-
-		System.out.println("============= Basic File Service 테스트 끝 =============");
-	}
-
-	public static void testUserService(UserService userService) {
+	public void testUserService() {
 
 		System.out.println("============= 유저 테스트 시작 =============");
 
-		User user = setupUser(userService);
+		UserDto.DetailResponse user = setupUser(userService);
 
-		System.out.println("User 목록 : " + userService.getAll());
+		System.out.println("User 목록 : " + userService.findAll());
 
-		User target = userService.get(user.getId());
+		UserDto.DetailResponse target = userService.findById(user.getId());
 		System.out.println("유저 ID로 찾기 : " + target);
 		if (target != null) {
 			userService.update(target.getId(), "Update Target User", null);
 			System.out.println("Test Target 유저 변경 : " + target);
 		}
 
-		System.out.println("User 목록 : " + userService.getAll());
+		System.out.println("User 목록 : " + userService.findAll());
 
 		System.out.println("Update Target User 유저 삭제");
 		userService.delete(target.getId());
-		System.out.println("채널 목록 : " + userService.getAll());
+		System.out.println("채널 목록 : " + userService.findAll());
 
 		userService.deleteAll();
 
@@ -188,37 +200,36 @@ public class DiscodeitApplication implements CommandLineRunner {
 
 	}
 
-	public static void testChannelService(ChannelService channelService) {
+	public void testChannelService() {
 
 		System.out.println("============= 채널 테스트 시작 =============");
 
-		User user = new User("Test Target", "test@test.com", "tester", null);
+		UserDto.DetailResponse user = setupUser(userService);
 
-		Channel testChannel = setupChannel(channelService, user);
+		ChannelDto.DetailResponse testChannel = setupChannel(channelService, user);
 
-		System.out.println("채널 목록 : " + channelService.getAll());
+		System.out.println("채널 목록 : " + channelService.findAll());
 
-		Channel target = channelService.get(testChannel.getId());
+		ChannelDto.DetailResponse target = channelService.findById(testChannel.getId());
 		System.out.println("채널 ID로 찾기 : " + target);
 		if (target != null) {
 			channelService.update(target.getId(), "Update Test Target", "Update Test Target");
 			System.out.println("Test Target 채널 변경 : " + target);
 		}
-		System.out.println("채널 목록 : " + channelService.getAll());
+		System.out.println("채널 목록 : " + channelService.findAll());
 
 		System.out.println("채널에 유저 추가");
-		testChannel.addUser(new User("Test add User", "test@test.com", "tester", null).getId());
-		System.out.println("채널 목록 : " + channelService.getAll());
+		System.out.println("채널 목록 : " + channelService.findAll());
 
 		System.out.println("Test Target 채널 삭제");
 		channelService.delete(target.getId());
-		System.out.println("채널 목록 : " + channelService.getAll());
+		System.out.println("채널 목록 : " + channelService.findAll());
 
 		channelService.deleteAll();
 		System.out.println("============= 채널 테스트 끝 =============");
 	}
 
-	public static void testMessageService(MessageService messageService) {
+	public void testMessageService() {
 
 		System.out.println("============= 메세지 테스트 시작 =============");
 
@@ -259,7 +270,7 @@ public class DiscodeitApplication implements CommandLineRunner {
 
 	}
 
-	public static void testCoreService(MessageService messageService, UserService userService, ChannelService channelService) {
+	public void testCoreService() {
 
 		System.out.println("============= 채팅, 채널관리 테스트 시작 =============");
 
