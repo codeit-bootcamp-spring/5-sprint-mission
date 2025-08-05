@@ -25,12 +25,10 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public Message create(MessageDto.Create dto) {
-        User user = userService.findById(dto.userId());
-        Channel channel = channelService.findById(dto.channelId());
-        Message message = new Message(user, channel, dto.content());
+        Message message = new Message(dto.userId(), dto.channelId(), dto.content());
         if (dto.fileIds() != null) {
             for (UUID fileId : dto.fileIds()) {
-                message.updateFile(fileId);
+                message.addFile(fileId);
             }
         }
         messageRepository.save(message);
@@ -68,7 +66,7 @@ public class BasicMessageService implements MessageService {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
 
-        message.updateFile(fileId); // 도메인 객체 내 로직 호출
+        message.addFile(fileId); // 도메인 객체 내 로직 호출
         messageRepository.save(message); // 변경사항 저장
     }
 

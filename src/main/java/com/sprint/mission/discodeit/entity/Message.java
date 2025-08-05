@@ -9,15 +9,15 @@ import java.util.UUID;
 @Getter
 public class Message extends Base{
 
-    private final User sender;
-    private final Channel channel;
+    private final UUID userId;
+    private final UUID channelId;
     private String content;
     private final List<UUID> files = new ArrayList<>();
 
 
-    public Message(User sender, Channel channel, String content) {
-        this.sender = sender;
-        this.channel = channel;
+    public Message(UUID userId, UUID channelId, String content) {
+        this.userId = userId;
+        this.channelId = channelId;
         this.content = content;
     }
 
@@ -26,7 +26,7 @@ public class Message extends Base{
         updateTimestamp();
     }
 
-    public void updateFile(UUID fileId) {
+    public void addFile(UUID fileId) {
         if (fileId != null && !files.contains(fileId)) {
             files.add(fileId);
             updateTimestamp();
@@ -37,13 +37,5 @@ public class Message extends Base{
         if (files.remove(fileId)) {
             updateTimestamp();
         }
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "\n작성자: %-10s  채널: %-10s  내용: %-10s  보낸시간: %-10s",
-                sender.getName(), channel.getName(), getContent(), getCreatedAtFormatted()
-        );
     }
 }

@@ -50,7 +50,7 @@ public class FileMessageRepository extends FileStore<Message> implements Message
     @Override
     public Optional<Instant> findLastCreatedAtByChannelId(UUID channelId) {
         return data.values().stream()
-                .filter(msg -> msg.getChannel().getId().equals(channelId))
+                .filter(m -> m.getChannelId().equals(channelId))
                 .map(Message::getCreatedAt)
                 .max(Comparator.naturalOrder());
     }
@@ -59,7 +59,7 @@ public class FileMessageRepository extends FileStore<Message> implements Message
     @Override
     public List<Message> findAllByChannelId(UUID channelId) {
         return data.values().stream()
-                .filter(msg -> msg.getChannel().getId().equals(channelId))
+                .filter(m -> m.getChannelId().equals(channelId))
                 .sorted(Comparator.comparing(Message::getCreatedAt)) // optional: 정렬
                 .collect(Collectors.toList());
     }
@@ -68,8 +68,8 @@ public class FileMessageRepository extends FileStore<Message> implements Message
     @Override
     public List<Message> findAllByChannelIdAfter(UUID channelId, Instant after) {
         return data.values().stream()
-                .filter(msg -> msg.getChannel().getId().equals(channelId))
-                .filter(msg -> msg.getCreatedAt().isAfter(after))
+                .filter(m -> m.getChannelId().equals(channelId))
+                .filter(m -> m.getCreatedAt().isAfter(after))
                 .sorted(Comparator.comparing(Message::getCreatedAt)) // optional: 정렬
                 .collect(Collectors.toList());
     }
