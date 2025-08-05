@@ -1,4 +1,4 @@
-package com.sprint.mission;
+package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.config.AppConfig;
 import com.sprint.mission.discodeit.dto.AddUserDto;
@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class JavaApplication {
 
@@ -46,8 +47,8 @@ public class JavaApplication {
             User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
             User user2 = userService.addUser(new AddUserDto("username2", "<EMAIL>", "1234", "010-1234-5678"));
 
-            Channel channel1 = channelService.addChannel("channel1", user1);
-            Channel channel2 = channelService.addChannel("channel2", user2);
+            Channel channel1 = channelService.addChannel("channel1", user1.getId());
+            Channel channel2 = channelService.addChannel("channel2", user2.getId());
 
             Channel findChannel1 = channelService.getChannelById(channel1.getId());
             boolean result1 = channel1.equals(findChannel1);
@@ -70,7 +71,7 @@ public class JavaApplication {
 
             User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
 
-            Channel channel = channelService.addChannel("channel1", user1);
+            Channel channel = channelService.addChannel("channel1", user1.getId());
             Channel originChannel = channelService.getChannelById(channel.getId());
 
             channelService.updateChannel(originChannel.getId(), "update1");
@@ -94,7 +95,7 @@ public class JavaApplication {
 
             User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
 
-            Channel channel1 = channelService.addChannel("channel1", user1);
+            Channel channel1 = channelService.addChannel("channel1", user1.getId());
 
             List<Channel> before = channelService.getAllChannel();
 
@@ -127,13 +128,13 @@ public class JavaApplication {
             userService.deleteAllUser();
 
             User user = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
-            Channel channel = channelService.addChannel("channel1", user);
-            Message message1 = messageService.addMessage("message1", channel, user);
+            Channel channel = channelService.addChannel("channel1", user.getId());
+            Message message1 = messageService.addMessage("message1", user.getId());
 
             Message findMessage1 = messageService.getMessageById(message1.getId());
             boolean result1 = message1.equals(findMessage1);
 
-            Message message2 = messageService.addMessage("message1", channel, user);
+            Message message2 = messageService.addMessage("message1", user.getId());
 
             List<Message> findAllMessage = messageService.getAllMessage();
             boolean result2 = findAllMessage.contains(message2);
@@ -151,8 +152,8 @@ public class JavaApplication {
             userService.deleteAllUser();
 
             User user = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
-            Channel channel = channelService.addChannel("channel1", user);
-            Message message1 = messageService.addMessage("message1", channel, user);
+            Channel channel = channelService.addChannel("channel1", user.getId());
+            Message message1 = messageService.addMessage("message1", user.getId());
 
             Message originMessage = messageService.getMessageById(message1.getId());
             Message updatedMessage = messageService.updateMessage(originMessage.getId(), "메시지 업데이트 내용");
@@ -173,8 +174,8 @@ public class JavaApplication {
             userService.deleteAllUser();
 
             User user = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
-            Channel channel = channelService.addChannel("channel1", user);
-            Message message1 = messageService.addMessage("message1", channel, user);
+            Channel channel = channelService.addChannel("channel1", user.getId());
+            Message message1 = messageService.addMessage("message1", user.getId());
 
             List<Message> before = messageService.getAllMessage();
 
@@ -268,24 +269,24 @@ public class JavaApplication {
             User user1 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
             User user2 = userService.addUser(new AddUserDto("username1", "<EMAIL>", "1234", "010-1234-5678"));
 
-            Channel channel1 = channelService.addChannel("channel1", user1);
+            Channel channel1 = channelService.addChannel("channel1", user1.getId());
 
-            userService.joinChannel(channel1.getId(), user2);
+            userService.joinChannel(channel1.getId(), user2.getId());
 
             Channel channelById1 = channelService.getChannelById(channel1.getId());
-            Set<User> usersOfChannel1 = channelById1.getUsers();
-            boolean result1 = usersOfChannel1.contains(user2);
+            Set<UUID> usersId = channelById1.getUsersId();
+            boolean result1 = usersId.contains(user2.getId());
 
-            userService.exitChannel(channel1.getId(), user2);
+            userService.exitChannel(channel1.getId(), user2.getId());
 
             Channel channelById2 = channelService.getChannelById(channel1.getId());
-            Set<User> usersOfChannel2 = channelById2.getUsers();
-            boolean result2 = !usersOfChannel2.contains(user2);
+            Set<UUID> usersId1 = channelById2.getUsersId();
+            boolean result2 = !usersId1.contains(user2.getId());
 
             if(result1 && result2){
-                System.out.println("UserServiceTest: 채널참가 : O");
+                System.out.println("UserServiceTest: 채널참가 및 나가기 : O");
             }else{
-                System.out.println("UserServiceTest: 채널참가 : X");
+                System.out.println("UserServiceTest: 채널참가 및 나가기: X");
             }
         }
     }

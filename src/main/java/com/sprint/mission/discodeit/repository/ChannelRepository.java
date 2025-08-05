@@ -10,6 +10,6 @@ public interface ChannelRepository {
     Optional<Channel> save(Channel channel);
     Optional<Channel> findById(UUID channelId);
     List<Channel> findAll();
-    void delete(Channel channel);
+    void delete(UUID channelId);
     void deleteAll();
 }

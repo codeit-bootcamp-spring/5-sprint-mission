@@ -2,29 +2,24 @@ package com.sprint.mission.discodeit.entity;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
 public class Message extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final Channel channel;
-    private final User authorUser;
+    private final UUID authorUserId;
     private String content;
 
     public Message(
-            String content, Channel channel, User authorUser
+            String content, UUID authorUserId
     ) {
         super();
-        this.channel = channel;
-        this.authorUser = authorUser;
+        this.authorUserId = authorUserId;
         this.content = content;
     }
 
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public User getAuthorUser() {
-        return authorUser;
+    public UUID getAuthorUserId() {
+        return authorUserId;
     }
 
     public String getContent() {
@@ -42,19 +37,18 @@ public class Message extends BaseEntity implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
-        return Objects.equals(channel, message.channel) && Objects.equals(authorUser, message.authorUser) && Objects.equals(content, message.content);
+        return Objects.equals(authorUserId, message.authorUserId) && Objects.equals(content, message.content);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(channel, authorUser, content);
+        return Objects.hash(authorUserId, content);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Message{");
-        sb.append("channel=").append(channel);
-        sb.append(", authorUser=").append(authorUser);
+        final StringBuffer sb = new StringBuffer("Message{");
+        sb.append("authorUserId=").append(authorUserId);
         sb.append(", content='").append(content).append('\'');
         sb.append('}');
         return sb.toString();

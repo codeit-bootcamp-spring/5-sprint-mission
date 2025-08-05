@@ -21,10 +21,11 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public Message addMessage(String messageContent, Channel channel, User user) {
-        Message message = new Message(messageContent, channel, user);
+    public Message addMessage(String messageContent, UUID userId) {
+        Message message = new Message(messageContent, userId);
         return messageRepository.save(message).orElseThrow();
     }
+
 
     @Override
     public Message getMessageById(UUID messageId) {
@@ -45,7 +46,7 @@ public class FileMessageService implements MessageService {
 
     @Override
     public void deleteMessage(UUID messageId) {
-        messageRepository.findById(messageId).ifPresent(messageRepository::delete);
+        messageRepository.delete(messageId);
     }
 
     @Override

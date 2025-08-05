@@ -56,12 +56,8 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    public void delete(Message message) {
-        Path path = Path.of(directoryPath.toAbsolutePath() + "/" + message.getId() + FileUtil.getExtension());
-
-        if(!path.toFile().exists()){
-            throw new IllegalArgumentException("존재하지 않는 메시지입니다.");
-        }
+    public void delete(UUID messageId) {
+        Path path = Path.of(directoryPath.toAbsolutePath() + "/" + messageId + FileUtil.getExtension());
 
         path.toFile().delete();
     }
@@ -69,10 +65,6 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public void deleteAll() {
         File directory = new File(directoryPath.toAbsolutePath() + "/");
-
-        if(!directory.exists() || !directory.isDirectory()){
-            throw new IllegalArgumentException("존재하지 않는 메시지 디렉토리입니다.");
-        }
 
         File[] files = directory.listFiles();
         if(files != null){

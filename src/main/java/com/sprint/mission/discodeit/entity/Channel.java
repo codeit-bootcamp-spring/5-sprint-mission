@@ -4,25 +4,26 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 public class Channel extends BaseEntity implements Serializable{
     private static final long serialVersionUID = 1L;
 
-    private final User ownerUser;
+    private final UUID ownerUserId;
     private String channelName;
-    private final Set<User> users = new HashSet<>();
-    private final Set<Message> messages = new HashSet<>();
+    private final Set<UUID> usersId = new HashSet<>();
+    private final Set<UUID> messagesId = new HashSet<>();
 
     public Channel(
-            String channelName, User ownerUser
+            String channelName, UUID ownerUserId
     ) {
         super();
         this.channelName = channelName;
-        this.ownerUser = ownerUser;
+        this.ownerUserId = ownerUserId;
     }
 
-    public User getOwnerUser() {
-        return ownerUser;
+    public UUID getOwnerUserId() {
+        return ownerUserId;
     }
 
     public String getChannelName() {
@@ -37,45 +38,47 @@ public class Channel extends BaseEntity implements Serializable{
 
     }
 
-    public Set<User> getUsers() {
-        return users;
+    public void addUserId(UUID userId) {
+        usersId.add(userId);
     }
 
-    public void addUser(User user) {
-        this.users.add(user);
+    public void addMessageId(UUID messageId) {
+        messagesId.add(messageId);
+    }
+    public void removeUserId(UUID userId) {
+        usersId.remove(userId);
+    }
+    public void removeMessageId(UUID messageId) {
+        messagesId.remove(messageId);
     }
 
-    public void removeUser(User user) {
-        this.users.remove(user);
+    public Set<UUID> getUsersId() {
+        return usersId;
     }
 
-    public Set<Message> getMessages() {
-        return messages;
-    }
-
-    public void addMessage(Message message) {
-        this.messages.add(message);
+    public Set<UUID> getMessagesId() {
+        return messagesId;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Channel channel = (Channel) o;
-        return Objects.equals(ownerUser, channel.ownerUser) && Objects.equals(channelName, channel.channelName) && Objects.equals(users, channel.users) && Objects.equals(messages, channel.messages);
+        return Objects.equals(ownerUserId, channel.ownerUserId) && Objects.equals(channelName, channel.channelName) && Objects.equals(usersId, channel.usersId) && Objects.equals(messagesId, channel.messagesId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ownerUser, channelName, users, messages);
+        return Objects.hash(ownerUserId, channelName, usersId, messagesId);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Channel{");
-        sb.append("ownerUser=").append(ownerUser);
+        final StringBuffer sb = new StringBuffer("Channel{");
+        sb.append("ownerUserId=").append(ownerUserId);
         sb.append(", channelName='").append(channelName).append('\'');
-        sb.append(", users=").append(users);
-        sb.append(", messages=").append(messages);
+        sb.append(", usersId=").append(usersId);
+        sb.append(", messagesId=").append(messagesId);
         sb.append('}');
         return sb.toString();
     }
