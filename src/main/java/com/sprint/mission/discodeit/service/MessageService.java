@@ -13,8 +13,12 @@ public interface MessageService {
 
     //약속
     void create(Message message); //생성
+
     Message findById(UUID id); //하나만 찾기
+
     List<Message> findAll(); //리스트에 넣음
+
     void update(Message message); //수정
+
     void delete(Message message); //삭제
 }

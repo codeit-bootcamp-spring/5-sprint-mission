@@ -13,8 +13,12 @@ public interface ChannelService {
 
     //약속
     void create(Channel channel); //저장
+
     Channel findById(UUID id); //UUID로 채널 찾기
+
     List<Channel> findAll(); //모든 채널 리스트로 반환
+
     void update(Channel channel); // 채널 수정
+
     void delete(UUID id); //UUID로 채널 삭제
 }

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.util.HashMap;
@@ -28,14 +29,16 @@ public class JCFChannelService implements ChannelService {
     //부모 클래스나 인터페이스에 정의된 메서드를 자식 클래스에서 재정의
     @Override
     public void create(Channel channel) {
-        data.put(channel.getId(),channel); //채널 객체 받아 map에 uuid-채널 구조로 저장
-
-
+        data.put(channel.getId(), channel); //채널 객체 받아 map에 uuid-채널 구조로 저장
     }
 
     @Override
     public Channel findById(UUID id) {
-        return data.get(id);
+        Channel channel = data.get(id);
+        if (channel == null) {
+            throw new IllegalArgumentException(("해당 ID를 가진 채널이 존재하지 않습니다."));
+        }
+        return new Channel(channel); //원본 수정 방지용
     }
 
     @Override
@@ -45,12 +48,28 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public void update(Channel channel) {
-        data.put(channel.getId(),channel);
+        if (channel == null) {
+            throw new IllegalArgumentException("채널이 null입니다.");
+        }
+        if (channel.getId() == null) {
+            throw new IllegalArgumentException("채널 ID가 null입니다.");
+        }
+        // 현재 data Map 안에, 이 채널의 ID를 가진 값이 없다면
+        if (!data.containsKey(channel.getId())) {
+            throw new IllegalArgumentException("해당 ID를 가진 채널이 존재하지 않습니다.");
+        }
+        data.put(channel.getId(), channel);
 
     }
 
     @Override
     public void delete(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID가 NULL입니다.");
+        }
+        if (!data.containsKey(id)) {
+            throw new IllegalArgumentException("해당 ID를 가진 채널이 존재하지 않습니다. + id");
+        }
         data.remove(id);
     }
 }
