@@ -25,7 +25,7 @@ public class LoginResponse {
 
 	private LoginResponse(User user) {
 		this.id = user.getId();
-		this .createdAt = user.getCreatedAt();
+		this.createdAt = user.getCreatedAt();
 		this.updatedAt = user.getUpdatedAt();
 		this.email = user.getEmail();
 		this.defaultNickname = user.getDefaultNickname();

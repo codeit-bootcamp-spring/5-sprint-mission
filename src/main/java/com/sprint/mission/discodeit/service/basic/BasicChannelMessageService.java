@@ -5,13 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.NotChannelMemberException;
 import com.sprint.mission.discodeit.exception.UnauthorizedMessageAccessException;
@@ -35,7 +32,7 @@ public class BasicChannelMessageService implements ChannelMessageService{
 		// User user = userService.getUserById(new GetUserByIdRequest(authorUUID));
 		Channel channel = channelService.getChannelByUUID(channelUUID);
 
-		if (!channel.getChannelUsersUUID().contains(authorUUID)) {
+		if (!channel.getMemberIds().contains(authorUUID)) {
 			throw new NotChannelMemberException();
 		}
 

@@ -1,20 +1,24 @@
 package com.sprint.mission.discodeit.service.file;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.dto.request.channel.CreatePrivateChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.CreatePublicChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.DeleteChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.GetChannelByChannelIdRequest;
+import com.sprint.mission.discodeit.dto.request.channel.GetChannelBychannelName;
+import com.sprint.mission.discodeit.dto.request.channel.GetChannelsByUserRequest;
+import com.sprint.mission.discodeit.dto.request.channel.JoinChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.LeaveChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.UpdateUserNicknameRequest;
+import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
+import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
+import com.sprint.mission.discodeit.dto.response.channel.DeleteChannelResponse;
+import com.sprint.mission.discodeit.dto.response.channel.JoinChannelResponse;
+import com.sprint.mission.discodeit.dto.response.channel.LeaveChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -82,7 +86,7 @@ public class FileChannelService implements ChannelService {
 	}
 
 	@Override
-	public boolean updateChannelName(User user, UUID channelUUID, String channelNewName) {
+	public boolean updateChannelName(UUID channelUUID, String channelNewName) {
 		if(channelRepository.existsByName(channelNewName)) {
 			return false;
 		}
@@ -149,5 +153,50 @@ public class FileChannelService implements ChannelService {
 
 	public void saveChannel(Channel channel) {
 		channelRepository.save(channel);
+	}
+
+	@Override
+	public CreateChannelResponse createPublicChannel(CreatePublicChannelRequest request) {
+		return null;
+	}
+
+	@Override
+	public CreateChannelResponse createPrivateChannel(CreatePrivateChannelRequest request) {
+		return null;
+	}
+
+	@Override
+	public JoinChannelResponse joinChannel(JoinChannelRequest request) {
+		return null;
+	}
+
+	@Override
+	public LeaveChannelResponse leaveChannel(LeaveChannelRequest request) {
+		return null;
+	}
+
+	@Override
+	public List<ChannelResponse> getChannelsByUserId(GetChannelsByUserRequest request) {
+		return List.of();
+	}
+
+	@Override
+	public ChannelResponse getChannelByName(GetChannelBychannelName request) {
+		return null;
+	}
+
+	@Override
+	public ChannelResponse getChannelByUUID(GetChannelByChannelIdRequest request) {
+		return null;
+	}
+
+	@Override
+	public boolean updateUserNickname(UpdateUserNicknameRequest request) {
+		return false;
+	}
+
+	@Override
+	public DeleteChannelResponse deleteChannel(DeleteChannelRequest request) {
+		return null;
 	}
 }

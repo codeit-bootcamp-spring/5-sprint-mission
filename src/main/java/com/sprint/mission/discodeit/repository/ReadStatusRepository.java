@@ -16,6 +16,7 @@ public interface ReadStatusRepository {
 	List<ReadStatus> findAll();
 	void deleteById(UUID id);
 	void deleteByChannelId(UUID channelId);
+	void deleteByUserIdAndChannelId(UUID userId, UUID channelId);
 	boolean existsByChannelIdAndUserId(UUID channelId, UUID userId);
 
 	void createDirectoryIfNotExists();

@@ -53,6 +53,11 @@ public class JCFUserRepository implements UserRepository {
 	}
 
 	@Override
+	public Optional<User> findByLoginIdAnaPassword(String loginId, String password) {
+		return Optional.empty();
+	}
+
+	@Override
 	public List<User> findAll() {
 		List<User> userList = new ArrayList<>();
 		for (User user : userMap.values()) {

@@ -8,7 +8,7 @@ import com.sprint.mission.discodeit.dto.request.user.DeleteUserByIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.DeleteUserByLoingIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.GetUserByLoginIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.LoginRequest;
+import com.sprint.mission.discodeit.dto.request.auth.LoginRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
 import com.sprint.mission.discodeit.dto.response.user.CreateUserResponse;
 import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;

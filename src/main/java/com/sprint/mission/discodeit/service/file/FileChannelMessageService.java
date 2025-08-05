@@ -7,11 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelMessageService;
@@ -40,7 +38,7 @@ public class FileChannelMessageService implements ChannelMessageService {
 		// }
 
 		Channel channel = channelOpt.get();
-		if (!channel.getChannelUsersUUID().contains(authorUUID)) {
+		if (!channel.getMemberIds().contains(authorUUID)) {
 			return; // 또는 예외 던지기
 		}
 

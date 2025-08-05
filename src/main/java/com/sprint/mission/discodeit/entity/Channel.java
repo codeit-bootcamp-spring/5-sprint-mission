@@ -14,8 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @AllArgsConstructor
 @Data
@@ -29,7 +27,7 @@ public class Channel implements Serializable {
 	private String type = "PUBLIC"; // 채널 타입, PUBLIC 또는 PRIVATE
 	private Instant updatedAt;
 	private String channelName;
-	private final List<UUID> channelUsersUUID;
+	private final List<UUID> memberIds;
 	private final List<UUID> channelMessagesUUID;
 	// userUUID
 	private final Map<UUID, String> userNicknames;
@@ -37,7 +35,7 @@ public class Channel implements Serializable {
 
 	public Channel(String channelName) {
 		this.channelName = Objects.requireNonNull(channelName, "채널 이름은 필수 입력값입니다.");
-		channelUsersUUID = new ArrayList<>();
+		memberIds = new ArrayList<>();
 		channelMessagesUUID = new ArrayList<>();
 		userNicknames = new ConcurrentHashMap<UUID, String>();
 
@@ -46,14 +44,28 @@ public class Channel implements Serializable {
 		updatedAt = createdAt;
 	}
 
+	public Channel(List<UUID> userUUIDs) {
+		memberIds = new ArrayList<>();
+		channelMessagesUUID = new ArrayList<>();
+		userNicknames = new ConcurrentHashMap<UUID, String>();
+
+		id = UUID.randomUUID();
+		type = "PRIVATE";
+		channelName = "private-"+id;
+		createdAt = Instant.now();
+		updatedAt = createdAt;
+		this.memberIds.addAll(userUUIDs);
+	}
+
 	public Channel(Channel original) {
 		this.id = original.id;
 		this.createdAt = original.createdAt;
-		this.channelUsersUUID = new ArrayList<>(original.channelUsersUUID);
+		this.memberIds = new ArrayList<>(original.memberIds);
 		this.channelMessagesUUID = new ArrayList<>(original.channelMessagesUUID);
 		this.userNicknames = new HashMap<>(original.userNicknames);
 		this.channelName = original.channelName;
 		this.updatedAt = original.updatedAt;
+		this.type = original.type;
 	}
 
 	public String getUserNickname(UUID userUUID) {
@@ -69,7 +81,7 @@ public class Channel implements Serializable {
 	}
 
 	public void addUser(UUID userUUID) {
-		this.channelUsersUUID.add(userUUID);
+		this.memberIds.add(userUUID);
 	}
 
 	public void addMessage(UUID messageUUID) {
@@ -81,7 +93,7 @@ public class Channel implements Serializable {
 	}
 
 	public void removeUser(UUID userUUID) {
-		this.channelUsersUUID.remove(userUUID);
+		this.memberIds.remove(userUUID);
 	}
 
 	public void removeMessage(UUID messageUUID) {

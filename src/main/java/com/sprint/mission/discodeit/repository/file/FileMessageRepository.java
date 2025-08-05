@@ -88,6 +88,25 @@ public class FileMessageRepository implements MessageRepository {
 		saveFile();
 	}
 
+	// 데이터 많아지면 역색인 Map 사용 고려하기!
+	// 일단 넘어가자 할 게 많다...
+	@Override
+	public void deleteByChannelId(UUID channelId) {
+		if (channelId == null) {
+			return;
+		}
+		List<UUID> deleteMessages = new ArrayList<>();
+		for (Message message : messageMap.values()) {
+			if (channelId.equals(message.getChannelUUID())) {
+				deleteMessages.add(message.getId());
+			}
+		}
+		for (UUID id : deleteMessages) {
+			messageMap.remove(id);
+		}
+		saveFile();
+	}
+
 	@Override
 	public void createDirectoryIfNotExists() {
 		try {

@@ -72,6 +72,11 @@ public class JCFMessageRepository implements MessageRepository {
 	}
 
 	@Override
+	public void deleteByChannelId(UUID channelId) {
+		System.out.println("미구현");
+	}
+
+	@Override
 	public void createDirectoryIfNotExists() {
 
 	}

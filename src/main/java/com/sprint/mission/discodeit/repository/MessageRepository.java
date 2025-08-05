@@ -14,6 +14,7 @@ public interface MessageRepository {
 	// List<Message> findByAuthorId(UUID authorId);
 	// List<Message> findByChannelIdAndAuthorId(UUID channelId, UUID authorId);
 	void deleteById(UUID messageId);
+	void deleteByChannelId(UUID channelId);
 
 	void createDirectoryIfNotExists();
 	void loadFile();

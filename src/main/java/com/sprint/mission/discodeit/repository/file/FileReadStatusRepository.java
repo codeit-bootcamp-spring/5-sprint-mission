@@ -163,6 +163,18 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 	}
 
 	@Override
+	public void deleteByUserIdAndChannelId(UUID userId, UUID channelId) {
+		if (userId == null || channelId == null) {
+			return;
+		}
+		List<ReadStatus> toDelete = findByChannelIdAndUserId(channelId, userId);
+		for (ReadStatus rs : toDelete) {
+			deleteById(rs.getId());
+		}
+
+	}
+
+	@Override
 	public boolean existsByChannelIdAndUserId(UUID channelId, UUID userId) {
 		if (channelId == null || userId == null) {
 			return false;

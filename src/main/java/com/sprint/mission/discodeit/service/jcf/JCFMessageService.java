@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -34,7 +33,7 @@ public class JCFMessageService implements MessageService {
 		Channel channel = channelService.getChannelByUUID(channelUUID);
 		// if(user == null || channel == null) return false;
 
-		if(!channel.getChannelUsersUUID().contains(authorUUID)) {
+		if(!channel.getMemberIds().contains(authorUUID)) {
 			return false;
 		}
 
