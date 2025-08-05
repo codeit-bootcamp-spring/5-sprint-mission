@@ -18,7 +18,7 @@ public class BasicUserStatusService implements UserStatusService {
     // 온라인 상태 여부
     @Override
     public boolean isOnline(UUID userId) {
-        UserStatus status =  userStatusRepository.findById(userId)
+        UserStatus status =  userStatusRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         return status.isOnline();
@@ -28,7 +28,7 @@ public class BasicUserStatusService implements UserStatusService {
     @Override
     public void updateLastAccessedAt(User user) {
         // 기존 UserStatus 조회 (없으면 새로 생성)
-         UserStatus status = userStatusRepository.findById(user.getId())
+         UserStatus status = userStatusRepository.findByUserId(user.getId())
                 .orElseGet(() -> new UserStatus(user));
 
         status.updateLastAccessedAt(); // 마지막 접속시간 갱신

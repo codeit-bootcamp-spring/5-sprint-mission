@@ -26,7 +26,7 @@ public class FileUserStatusRepository extends FileStore<UserStatus> implements U
 
     // 사용자 상태 조회
     @Override
-    public Optional<UserStatus> findById(UUID userId){
+    public Optional<UserStatus> findByUserId(UUID userId){
         return data.values().stream()
                 .filter(status -> status.getUserId().equals(userId))
                 .findFirst();
