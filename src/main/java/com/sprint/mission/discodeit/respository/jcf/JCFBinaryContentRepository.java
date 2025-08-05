@@ -16,13 +16,11 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
 
     @Override
     public Optional<BinaryContent> findById(UUID id) {
-        return data.values().stream()
-                .filter(binaryContent -> binaryContent.getId().equals(id))
-                .findFirst();
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
     public List<BinaryContent> findAll() {
-        return new ArrayList<>(data.values());
+        return List.copyOf(data.values());
     }
 }

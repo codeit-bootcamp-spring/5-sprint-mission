@@ -27,7 +27,7 @@ public class FileUserRepository extends FileStore<User> implements UserRepositor
 
     @Override
     public List<User> findAll() {
-        return new ArrayList<>(userMap.values());
+        return List.copyOf(userMap.values());
     }
 
     @Override

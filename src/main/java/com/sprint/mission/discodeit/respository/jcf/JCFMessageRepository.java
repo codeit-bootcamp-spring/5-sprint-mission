@@ -24,7 +24,7 @@ public class JCFMessageRepository implements MessageRepository {
 
     @Override
     public List<Message> findAll() {
-        return new ArrayList<>(data.values());
+        return List.copyOf(data.values());
     }
 
     @Override

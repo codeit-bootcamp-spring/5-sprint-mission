@@ -33,7 +33,7 @@ public class FileMessageRepository extends FileStore<Message> implements Message
 
     @Override
     public List<Message> findAll() {
-        return new ArrayList<>(data.values());
+        return List.copyOf(data.values());
     }
 
     @Override

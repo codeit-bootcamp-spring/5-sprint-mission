@@ -25,7 +25,7 @@ public class FileChannelRepository extends FileStore<Channel> implements Channel
 
     @Override
     public List<Channel> findAll() {
-        return new ArrayList<>(channelMap.values());
+        return List.copyOf(channelMap.values());
     }
 
     @Override

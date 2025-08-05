@@ -32,7 +32,7 @@ public class FileBinaryContentRepository extends FileStore<BinaryContent> implem
 
     @Override
     public List<BinaryContent> findAll() {
-        return new ArrayList<>(data.values());
+        return List.copyOf(data.values());
     }
 
 
