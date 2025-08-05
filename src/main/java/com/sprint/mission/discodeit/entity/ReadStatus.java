@@ -21,7 +21,6 @@ public class ReadStatus extends Base {
     private Instant lastReadAt;
 
     public ReadStatus(User user, Channel channel) {
-        super(); // id, createdAt 초기화
         this.userId = user.getId();
         this.channelId = channel.getId();
         this.lastReadAt = null; // 아직 읽은 메시지 없음
