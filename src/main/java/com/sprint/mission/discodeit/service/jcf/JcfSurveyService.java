@@ -2,53 +2,55 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Survey;
 import com.sprint.mission.discodeit.service.SurveyService;
+
 import java.util.List;
 import java.util.UUID;
 
 public class JcfSurveyService extends BaseJcfService<Survey> implements SurveyService {
-  private static final JcfSurveyService instance = new JcfSurveyService();
+    private static final JcfSurveyService instance = new JcfSurveyService();
 
-  private JcfSurveyService() {}
-
-  public static JcfSurveyService getInstance() {
-    return instance;
-  }
-
-  @Override
-  public Survey save(Survey survey) {
-    if (findById(survey.getId()).isPresent()) {
-      throw new IllegalArgumentException("중복된 id가 존재합니다.");
+    private JcfSurveyService() {
     }
-    data.add(survey);
-    return survey;
-  }
 
-  @Override
-  public void updateClosed(UUID surveyId, boolean isClosed) {
-    update(surveyId, s -> s.setClosed(isClosed));
-  }
+    public static JcfSurveyService getInstance() {
+        return instance;
+    }
 
-  @Override
-  public void vote(UUID surveyId, int answerIndex, UUID voterId) {
-    data.stream()
-        .filter(s -> s.getId().equals(surveyId))
-        .findFirst()
-        .ifPresent(s -> s.vote(answerIndex, voterId));
-  }
+    @Override
+    public Survey save(Survey survey) {
+        if (findById(survey.getId()).isPresent()) {
+            throw new IllegalArgumentException("중복된 id가 존재합니다.");
+        }
+        data.add(survey);
+        return survey;
+    }
 
-  @Override
-  public void vote(UUID surveyId, List<Integer> answerIndices, UUID voterId) {
-    data.stream()
-        .filter(s -> s.getId().equals(surveyId))
-        .findFirst()
-        .ifPresent(s -> s.vote(answerIndices, voterId));
-  }
+    @Override
+    public void updateClosed(UUID surveyId, boolean isClosed) {
+        update(surveyId, s -> s.setClosed(isClosed));
+    }
 
-  @Override
-  public void unvote(UUID surveyId, UUID voterId) {
-    data.stream()
-        .filter(s -> s.getId().equals(surveyId))
-        .findFirst()
-        .ifPresent(s -> s.unvote(voterId));
-  }
+    @Override
+    public void vote(UUID surveyId, int answerIndex, UUID voterId) {
+        data.stream()
+                .filter(s -> s.getId().equals(surveyId))
+                .findFirst()
+                .ifPresent(s -> s.vote(answerIndex, voterId));
+    }
+
+    @Override
+    public void vote(UUID surveyId, List<Integer> answerIndices, UUID voterId) {
+        data.stream()
+                .filter(s -> s.getId().equals(surveyId))
+                .findFirst()
+                .ifPresent(s -> s.vote(answerIndices, voterId));
+    }
+
+    @Override
+    public void unvote(UUID surveyId, UUID voterId) {
+        data.stream()
+                .filter(s -> s.getId().equals(surveyId))
+                .findFirst()
+                .ifPresent(s -> s.unvote(voterId));
+    }
 }

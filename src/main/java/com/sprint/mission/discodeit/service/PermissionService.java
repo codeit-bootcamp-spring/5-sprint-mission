@@ -7,11 +7,9 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface PermissionService {
-    Set<Permission> resolveUserPermissions(
-            UUID guildId, UUID channelId, UUID userId, Set<RoleType> roleTypes);
+    Set<Permission> resolveUserPermissions(UUID guildId, UUID channelId, UUID userId, Set<RoleType> roleTypes);
 
-    Set<Permission> resolveUserPermissions(
-            UUID guildId, UUID channelId, Set<RoleType> roleTypes);
+    Set<Permission> resolveUserPermissions(UUID guildId, UUID channelId, Set<RoleType> roleTypes);
 
     Set<Permission> resolveUserPermissions(UUID guildId, Set<RoleType> roleTypes);
 

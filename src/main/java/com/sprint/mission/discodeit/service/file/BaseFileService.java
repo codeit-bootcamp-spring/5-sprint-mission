@@ -31,7 +31,6 @@ public abstract class BaseFileService<T extends BaseEntity> implements BaseServi
         load();
     }
 
-    @SuppressWarnings("unchecked")
     private void load() {
         File file = new File(storageFile);
         if (!file.exists() || file.length() == 0) {
