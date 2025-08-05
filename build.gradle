@@ -8,11 +8,11 @@ group = 'com.sprint.mission'
 version = '1.0.0-SNAPSHOT'
 
 compileJava {
-    exclude 'excluded/**'
+    exclude '**/excluded/**'
 }
 
 compileTestJava {
-    exclude 'excluded/**'
+    exclude '**/excluded/**'
 }
 
 java {

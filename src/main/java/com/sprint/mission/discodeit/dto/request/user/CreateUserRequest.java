@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto;
+package com.sprint.mission.discodeit.dto.request.user;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -15,24 +15,29 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class UserCreateRequest {
+public class CreateUserRequest {
 	private String loginId;
 	private String password;
-	private String nickname;
+	private String defaultNickname;
 	private String email;
 	@Nullable
-	private UserProfileImageDTO profileImage;
+	private CreateUserProfileImageRequest profileImage;
 
-	public User toUser(){
+	public User toUser() {
+		return toUser(null);
+	}
+
+	public User toUser(UUID profileId){
 		Instant now = Instant.now();
 
 		return User.builder()
 				.id(UUID.randomUUID())
 				.createdAt(now)
 				.updatedAt(now)
+				.profileId(profileId)
 				.loginId(loginId)
 				.password(password)
-				.defaultNickname(nickname)
+				.defaultNickname(defaultNickname)
 				.email(email)
 				.build();
 	}

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,20 +19,22 @@ public class User implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	// createdAt, updateAt : Unix timeStamp
 	private final UUID id;
 	private final Instant createdAt;
-	private String email;
 	private Instant updatedAt;
+	private String email;
 	private String loginId;
 	private String password;
 	private String defaultNickname;
+	@Nullable
+	private UUID profileId;
 
-	public User(String loginId, String password, String defaultNickname, String email) {
+	public User(String loginId, String password, String defaultNickname, String email, @Nullable UUID profileId) {
 		this.loginId = loginId;
 		this.password = password;
 		this.defaultNickname = defaultNickname;
 		this.email = email;
+		this.profileId = profileId;
 
 		id = UUID.randomUUID();
 		createdAt = Instant.now();
@@ -43,6 +46,8 @@ public class User implements Serializable {
 		this.id = original.id;
 		this.createdAt = original.createdAt;
 		this.updatedAt = original.updatedAt;
+		this.email = original.email;
+		this.profileId = original.profileId;
 		this.loginId = original.loginId;
 		this.password = original.password;
 		this.defaultNickname = original.defaultNickname;
@@ -57,6 +62,11 @@ public class User implements Serializable {
 		this.email = Objects.requireNonNull(email, "이메일은 필수 입력값입니다.");
 	}
 
+	public void updateProfileId(@Nullable UUID profileId) {
+		updateUpdatedAt();
+		this.profileId = profileId;
+	}
+
 	public void updatePassword(String password) {
 		updateUpdatedAt();
 		this.password = Objects.requireNonNull(password, "비밀번호는 필수 입력값입니다.");
@@ -65,6 +75,11 @@ public class User implements Serializable {
 	public void updateDefaultNickname(String defaultNickname) {
 		updateUpdatedAt();
 		this.defaultNickname = Objects.requireNonNull(defaultNickname, "닉네임은 필수 입력값입니다.");
+	}
+
+	public void removeProfile() {
+		updateUpdatedAt();
+		this.profileId = null;
 	}
 
 	public User copy() {

@@ -16,13 +16,12 @@ import com.sprint.mission.discodeit.exception.NotChannelMemberException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
 	private final ChannelRepository channelRepository;
-
-	public BasicChannelService(@Qualifier("fileChannelRepository") ChannelRepository channelRepository) {
-		this.channelRepository = channelRepository;
-	}
 
 	@Override
 	public Channel createChannel(String channelName) {

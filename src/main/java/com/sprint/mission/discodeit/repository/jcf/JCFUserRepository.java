@@ -89,6 +89,27 @@ public class JCFUserRepository implements UserRepository {
 	}
 
 	@Override
+	public void createDirectoryIfNotExists() {
+
+	}
+
+	@Override
+	public void loadFile() {
+
+	}
+
+	@Override
+	public void saveFile() {
+
+	}
+
+	@Override
+	public boolean existsById(UUID id) {
+		if (id == null) return false;
+		return userMap.containsKey(id);
+	}
+
+	@Override
 	public boolean existsByLoginId(String loginId) {
 		if (loginId == null) return false;
 		return loginIdToUUID.containsKey(loginId);

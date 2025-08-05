@@ -1,27 +1,33 @@
 package com.sprint.mission.discodeit.service;
 
 import java.util.List;
-import java.util.UUID;
 
-import com.sprint.mission.discodeit.dto.UserCreateRequest;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
+import com.sprint.mission.discodeit.dto.request.user.DeleteUserByIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.DeleteUserByLoingIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.GetUserByLoginIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.LoginRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
+import com.sprint.mission.discodeit.dto.response.user.CreateUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.LoginResponse;
+import com.sprint.mission.discodeit.dto.response.user.UpdateUserPasswordResponse;
+import com.sprint.mission.discodeit.dto.response.user.GetUserResponse;
 
 public interface UserService {
-	//
-	User login(String loginId, String password);
-
 	// 생성
-	User createUser(UserCreateRequest request);
+	CreateUserResponse createUser(CreateUserRequest request);
 
 	// 읽기
-	User getUserById(UUID id);
-	User getUserByLoginId(String loginId);
-	List<User> getAllUsers();
+	GetUserResponse getUserById(GetUserByIdRequest request);
+	GetUserResponse getUserByLoginId(GetUserByLoginIdRequest request);
+	List<GetUserResponse> getAllUsers();
 	
 	// 수정
-	boolean updateUserPassword(UUID id, String password);
+	UpdateUserPasswordResponse updateUserPassword(UpdateUserPasswordRequest request);
 	
 	// 삭제
-	boolean deleteUser(UUID id);
-	boolean deleteUser(String LoginId);
+	DeleteUserResponse deleteUser(DeleteUserByIdRequest request);
+	DeleteUserResponse deleteUser(DeleteUserByLoingIdRequest request);
 }

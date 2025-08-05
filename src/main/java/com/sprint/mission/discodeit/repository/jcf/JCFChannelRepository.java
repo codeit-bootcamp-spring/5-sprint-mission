@@ -91,4 +91,19 @@ public class JCFChannelRepository implements ChannelRepository {
 		}
 	}
 
+	@Override
+	public void createDirectoryIfNotExists() {
+
+	}
+
+	@Override
+	public void loadFile() {
+
+	}
+
+	@Override
+	public void saveFile() {
+
+	}
+
 }

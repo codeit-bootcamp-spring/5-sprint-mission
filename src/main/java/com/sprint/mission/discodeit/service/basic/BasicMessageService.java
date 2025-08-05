@@ -13,16 +13,14 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelMessageService;
 import com.sprint.mission.discodeit.service.MessageService;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
 	private final MessageRepository messageRepository;
 	private final ChannelMessageService channelMessageService;
 
-	public BasicMessageService(@Qualifier("fileMessageRepository") MessageRepository messageRepository,
-							   @Qualifier("basicChannelMessageService") ChannelMessageService channelMessageService) {
-		this.messageRepository = messageRepository;
-		this.channelMessageService = channelMessageService;
-	}
 
 	@Override
 	public boolean createMessage(UUID authorUUID, UUID channelUUID, String message) {

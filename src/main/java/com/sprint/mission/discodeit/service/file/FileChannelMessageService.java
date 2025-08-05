@@ -32,12 +32,12 @@ public class FileChannelMessageService implements ChannelMessageService {
 
 	@Override
 	public void createMessage(UUID authorUUID, UUID channelUUID, String text) {
-		User user = userService.getUserById(authorUUID);
+		// User user = userService.getUserById(authorUUID);
 		Optional<Channel> channelOpt = channelRepository.findById(channelUUID);
 
-		if (user == null || channelOpt.isEmpty()) {
-			return; // 또는 예외 던지기
-		}
+		// if (user == null || channelOpt.isEmpty()) {
+		// 	return; // 또는 예외 던지기
+		// }
 
 		Channel channel = channelOpt.get();
 		if (!channel.getChannelUsersUUID().contains(authorUUID)) {

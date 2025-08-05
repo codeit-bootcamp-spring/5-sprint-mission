@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto;
+package com.sprint.mission.discodeit.dto.request.user;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -12,15 +12,17 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 @Builder
-public class UserProfileImageDTO {
+public class CreateUserProfileImageRequest {
 	private final String filename;
-	private final String type;
+	private final String contentType;
+	private final Long size;
 	private final byte[] content;
 
 	public BinaryContent toBinaryContent() {
 		return BinaryContent.builder()
 				.filename(filename)
-				.type(type)
+				.contentType(contentType)
+				.size(size)
 				.content(content)
 				.id(UUID.randomUUID())
 				.createdAt(Instant.now())

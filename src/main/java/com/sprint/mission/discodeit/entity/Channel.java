@@ -26,12 +26,14 @@ public class Channel implements Serializable {
 
 	private final UUID id;
 	private final Instant createdAt;
+	private String type = "PUBLIC"; // 채널 타입, PUBLIC 또는 PRIVATE
 	private Instant updatedAt;
 	private String channelName;
 	private final List<UUID> channelUsersUUID;
 	private final List<UUID> channelMessagesUUID;
 	// userUUID
 	private final Map<UUID, String> userNicknames;
+
 
 	public Channel(String channelName) {
 		this.channelName = Objects.requireNonNull(channelName, "채널 이름은 필수 입력값입니다.");

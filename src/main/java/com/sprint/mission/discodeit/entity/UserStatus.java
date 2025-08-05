@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -10,17 +12,29 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 @Builder
-public class UserStatus {
+public class UserStatus implements Serializable {
+	@Serial
+	private static final long serialVersionUID = 1L;
+
 	private final UUID id;
 	private final UUID userId;
-	private Instant createdAt;
 	private Instant updatedAt;
 
-	public UserStatus(UUID id, UUID userID){
-		this.id = id;
+	public UserStatus(UUID userID){
 		this.userId = userID;
-		this.createdAt = Instant.now();
-		updatedAt = createdAt;
+
+		this.id = UUID.randomUUID();
+		this.updatedAt = Instant.now();
+	}
+
+	public UserStatus(UserStatus original) {
+		this.id = original.id;
+		this.userId = original.userId;
+		this.updatedAt = original.updatedAt;
+	}
+
+	public UserStatus copy() {
+		return new UserStatus(this);
 	}
 
 	public void updateUpdatedAt(){

@@ -15,4 +15,8 @@ public interface ChannelRepository {
 	void deleteById(UUID channelId);
 	void deleteByName(String channelName);
 
+	void createDirectoryIfNotExists();
+	void loadFile();
+	void saveFile();
+
 }

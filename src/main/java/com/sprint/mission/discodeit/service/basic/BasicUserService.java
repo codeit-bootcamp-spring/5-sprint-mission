@@ -1,106 +1,120 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import java.util.List;
-import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.sprint.mission.discodeit.dto.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
+import com.sprint.mission.discodeit.dto.request.user.DeleteUserByIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.DeleteUserByLoingIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.GetUserByLoginIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.LoginRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
+import com.sprint.mission.discodeit.dto.response.user.CreateUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.GetUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.LoginResponse;
+import com.sprint.mission.discodeit.dto.response.user.UpdateUserPasswordResponse;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.DuplicateEmailException;
 import com.sprint.mission.discodeit.exception.DuplicateLoginIdException;
 import com.sprint.mission.discodeit.exception.InvalidPasswordException;
 import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.file.FileUserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class BasicUserService implements UserService {
 	private final UserRepository userRepository;
-
-	public BasicUserService(@Qualifier("fileUserRepository") UserRepository userRepository) {
-		this.userRepository = userRepository;
-	}
+	private final UserStatusRepository userStatusRepository;
+	private final BinaryContentRepository binaryContentRepository;
 
 	@Override
-	public User login(String loginId, String password) {
-		User user = userRepository.findByLoginId(loginId)
-			.orElseThrow(UserNotFoundException::new);
-
-		if (!user.getPassword().equals(password)) {
-			throw new InvalidPasswordException();
-		}
-
-		return user;
-	}
-
-	@Override
-	public User createUser(UserCreateRequest request) {
+	public CreateUserResponse createUser(CreateUserRequest request) {
 		if (userRepository.existsByLoginId(request.getLoginId())) {
 			throw new DuplicateLoginIdException();
 		}
 
 		if (userRepository.existsByEmail(request.getEmail())) {
-			throw new DuplicateLoginIdException();
+			throw new DuplicateEmailException();
 		}
 
 		User user = request.toUser();
 		userRepository.save(user);
 
-		return getUserById(user.getId());
+		UserStatus userStatus = new UserStatus(user.getId());
+		userStatusRepository.save(userStatus);
+
+		return CreateUserResponse.success(user);
 	}
 
 	@Override
-	public User getUserById(UUID id) {
-		return userRepository.findById(id)
-			.orElseThrow(UserNotFoundException::new);
-	}
-
-	@Override
-	public User getUserByLoginId(String loginId) {
-		return userRepository.findByLoginId(loginId)
-			.orElseThrow(UserNotFoundException::new);
-	}
-
-
-	@Override
-	public List<User> getAllUsers() {
-		return userRepository.findAll();
-	}
-
-	@Override
-	public boolean updateUserPassword(UUID id, String password) {
-		User user = userRepository.findById(id)
+	public GetUserResponse getUserById(GetUserByIdRequest request) {
+		User user = userRepository.findById(request.getId())
 			.orElseThrow(UserNotFoundException::new);
 
-		user.updatePassword(password);
+		return GetUserResponse.success(user);
+	}
+
+	@Override
+	public GetUserResponse getUserByLoginId(GetUserByLoginIdRequest request) {
+		User user = userRepository.findByLoginId(request.getLoginId())
+			.orElseThrow(UserNotFoundException::new);
+
+		return GetUserResponse.success(user);
+	}
+
+
+	@Override
+	public List<GetUserResponse> getAllUsers() {
+		return userRepository.findAll().stream()
+			.map(GetUserResponse::success)
+			.toList();
+	}
+
+	@Override
+	public UpdateUserPasswordResponse updateUserPassword(UpdateUserPasswordRequest request) {
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		if (!user.getPassword().equals(request.getCurrentPassword())) {
+			throw new InvalidPasswordException();
+		}
+
+		user.updatePassword(request.getNewPassword());
 
 		userRepository.save(user);
 
-		// 만약 비밀번호 설정 제약이 있다면 받은 비밀번호 검사 후 boolean타입으로 반환
-		return true;
+		// 만약 비밀번호 설정 제약이 있다면 받은 비밀번호 검사 후 Response 반환
+		return new UpdateUserPasswordResponse(true);
 	}
 
 	@Override
-	public boolean deleteUser(UUID id) {
-		userRepository.findById(id)
-			.orElseThrow(UserNotFoundException::new);
+	public DeleteUserResponse deleteUser(DeleteUserByIdRequest request) {
+		if (!userRepository.existsById(request.getId())) {
+			throw new UserNotFoundException();
+		}
 
-		userRepository.deleteById(id);
+		userRepository.deleteById(request.getId());
 
-		return true;
+		return new DeleteUserResponse(true);
 	}
 
 	@Override
-	public boolean deleteUser(String LoginId) {
-		userRepository.findByLoginId(LoginId)
-			.orElseThrow(UserNotFoundException::new);
+	public DeleteUserResponse deleteUser(DeleteUserByLoingIdRequest request) {
+		if (!userRepository.existsByLoginId(request.getLoginId())) {
+			throw new UserNotFoundException();
+		}
 
-		userRepository.deleteByLoginId(LoginId);
+		userRepository.deleteByLoginId(request.getLoginId());
 
-		return true;
+		return new DeleteUserResponse(true);
 	}
 }

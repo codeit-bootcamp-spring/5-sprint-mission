@@ -71,4 +71,19 @@ public class JCFMessageRepository implements MessageRepository {
 		messageMap.remove(messageId);
 	}
 
+	@Override
+	public void createDirectoryIfNotExists() {
+
+	}
+
+	@Override
+	public void loadFile() {
+
+	}
+
+	@Override
+	public void saveFile() {
+
+	}
+
 }

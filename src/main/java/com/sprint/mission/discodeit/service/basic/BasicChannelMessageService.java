@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
@@ -18,22 +19,20 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelMessageService;
 import com.sprint.mission.discodeit.service.UserService;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class BasicChannelMessageService implements ChannelMessageService{
 	private final MessageRepository messageRepository;
 	private final UserService userService;
 	private final BasicChannelService channelService;
 
-	public BasicChannelMessageService(@Qualifier("fileMessageRepository") MessageRepository messageRepository, UserService userService
-		, BasicChannelService channelService) {
-		this.messageRepository = messageRepository;
-		this.userService = userService;
-		this.channelService = channelService;
-	}
+
 
 	@Override
 	public void createMessage(UUID authorUUID, UUID channelUUID, String text) {
-		User user = userService.getUserById(authorUUID);
+		// User user = userService.getUserById(new GetUserByIdRequest(authorUUID));
 		Channel channel = channelService.getChannelByUUID(channelUUID);
 
 		if (!channel.getChannelUsersUUID().contains(authorUUID)) {

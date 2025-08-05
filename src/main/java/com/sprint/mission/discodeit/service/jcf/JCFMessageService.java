@@ -30,9 +30,9 @@ public class JCFMessageService implements MessageService {
 	public boolean createMessage(UUID authorUUID, UUID channelUUID, String text) {
 		if(authorUUID == null || channelUUID == null || text == null) return false;
 
-		User user = userService.getUserById(authorUUID);
+		// User user = userService.getUserById(authorUUID);
 		Channel channel = channelService.getChannelByUUID(channelUUID);
-		if(user == null || channel == null) return false;
+		// if(user == null || channel == null) return false;
 
 		if(!channel.getChannelUsersUUID().contains(authorUUID)) {
 			return false;

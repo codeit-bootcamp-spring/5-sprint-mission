@@ -10,8 +10,10 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 public interface BinaryContentRepository {
 	void save(BinaryContent binaryContent);
 	Optional<BinaryContent> findById(UUID id);
-	Optional<BinaryContent> findByFilename(String filename);
-	Optional<BinaryContent> findByType(String type);
 	List<BinaryContent> findAll();
 	void deleteById(UUID ID);
+
+	void createDirectoryIfNotExists();
+	void loadFile();
+	void saveFile();
 }
