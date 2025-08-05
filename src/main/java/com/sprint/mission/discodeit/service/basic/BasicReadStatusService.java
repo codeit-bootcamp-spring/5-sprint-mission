@@ -39,6 +39,14 @@ public class BasicReadStatusService implements ReadStatusService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 채널 읽기 상태가 존재하지 않습니다."));
     }
 
+    /**
+     * 사용자가 속한 모든 채널에 대해 읽지 않은 메시지가 있는지 여부를 반환
+     * - 메시지의 마지막 생성 시각과 비교하여 판별
+     * - 모든 채널에 대한 "읽지 않음 상태"를 반환하는 리스트
+     *
+     * @param userId 사용자 ID
+     * @return List<ChannelUnreadDto> (채널 ID + hasUnread)
+     */
     @Override
     public List<ReadStatusDto.ChannelUnreadStatus> getUnreadChannels(UUID userId) {
         // 모든 채널에 대한 읽음 상태 조회
@@ -62,11 +70,19 @@ public class BasicReadStatusService implements ReadStatusService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 사용자가 특정 채널에서 아직 읽지 않은 메시지 개수를 반환
+     * - 메시지.createdAt > readStatus.lastReadAt 인 메시지 수
+     *
+     * @param userId    사용자 ID
+     * @param channelId 채널 ID
+     * @return 읽지 않은 메시지 수
+     */
     @Override
     public int countUnreadMessages(UUID userId, UUID channelId) {
         Instant lastReadAt = readStatusRepository.findByUserIdAndChannelId(userId, channelId)
-                .map(ReadStatus::getLastReadAt)
-                .orElse(null);
+                .map(ReadStatus::getLastReadAt) // Optional<ReadStatus> → Optional<Instant>
+                .orElse(null); // 없으면 null 반환
 
         if (lastReadAt == null) {
             // 한 번도 읽지 않은 경우 전체 메시지 수 리턴
@@ -74,11 +90,5 @@ public class BasicReadStatusService implements ReadStatusService {
         } else {
             return messageRepository.findAllByChannelIdAfter(channelId, lastReadAt).size();
         }
-    }
-
-
-    @Override
-    public List<ReadStatus> findAllByChannelId(UUID channelId) {
-        return readStatusRepository.findAllByChannelId(channelId);
     }
 }

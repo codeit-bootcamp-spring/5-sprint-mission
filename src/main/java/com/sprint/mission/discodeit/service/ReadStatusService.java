@@ -44,11 +44,4 @@ public interface ReadStatusService {
     int countUnreadMessages(UUID userId, UUID channelId);
 
 
-    /**
-     * 채널 내 모든 사용자들의 읽음 상태를 반환
-     *
-     * @param channelId 채널 ID
-     * @return List<ReadStatus>
-     */
-    List<ReadStatus> findAllByChannelId(UUID channelId);
 }

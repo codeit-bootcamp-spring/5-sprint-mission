@@ -205,10 +205,6 @@ public class DiscodeitApplication implements CommandLineRunner {
         ReadStatus rs = readStatusService.findByUserIdAndChannelId(user.getId(), channel.getId());
         System.out.println("| 현재 읽은 시간: " + rs.getLastReadAt());
 
-        // findAllByChannelId
-        List<ReadStatus> channelStatuses = readStatusService.findAllByChannelId(channel.getId());
-        System.out.println("| 채널의 모든 사용자 읽기 상태 수: " + channelStatuses.size()); // 기대: 1
-
         System.out.println("[ReadStatusService 기능 테스트 완료]");
 
     }
