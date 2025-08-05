@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.util.*;
@@ -13,11 +13,11 @@ public class JCFChannelService implements ChannelService {
 
 
     @Override
-    public Channel createChannel(String name) {
+    public Channel createChannel(ChannelType type, String name) {
         if(name == null || name.isBlank()){
             throw new IllegalArgumentException("name is null");
         }
-        Channel channel = new Channel(name);
+        Channel channel = new Channel(type, name);
         data.put(channel.getId() , channel);
         return channel;
     }
@@ -36,8 +36,8 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel update(UUID channelId, String name) {
-        if (name == null || name.isBlank()) {
+    public Channel update(UUID channelId,ChannelType type, String name) {
+        if (name == null || name.isBlank() || type == null) {
             throw new IllegalArgumentException("name is null or blank");
         }
 
@@ -45,7 +45,7 @@ public class JCFChannelService implements ChannelService {
         if (channel == null) {
             throw new NoSuchElementException("channel not found");
         }
-        Channel updatedChannel = new Channel(name);
+        Channel updatedChannel = new Channel(type, name);
         data.put(channelId, updatedChannel);
         return updatedChannel;
     }
