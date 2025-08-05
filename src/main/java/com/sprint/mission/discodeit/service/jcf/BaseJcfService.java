@@ -40,7 +40,14 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
 
   @Override
   public Optional<T> findById(UUID id) {
-    return data.stream().filter(e -> idEquals(e, id) && !e.isDeleted()).findFirst();
+    return data.stream().filter(e -> !e.isDeleted() && idEquals(e, id)).findFirst();
+  }
+
+  @Override
+  public List<T> findAllByIds(Collection<UUID> ids) {
+    return data.stream()
+        .filter(e -> !e.isDeleted() && ids.contains(e.getId()))
+        .collect(Collectors.toList());
   }
 
   @Override
@@ -55,13 +62,6 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
             () ->
                 new NoSuchElementException(
                     String.format("엔티티(%s)를 찾을 수 없습니다: %s", getEntityName(), id)));
-  }
-
-  @Override
-  public List<T> findAllById(Collection<UUID> ids) {
-    return data.stream()
-        .filter(e -> ids.contains(e.getId()) && !e.isDeleted())
-        .collect(Collectors.toList());
   }
 
   @Override
@@ -81,14 +81,18 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
   }
 
   @Override
-  public void deleteById(UUID id) {
-    Optional<T> target = data.stream().filter(e -> idEquals(e, id) && !e.isDeleted()).findFirst();
-    target.ifPresent(BaseEntity::delete);
+  public boolean deleteById(UUID id) {
+    Optional<T> target = data.stream().filter(e -> !e.isDeleted() && idEquals(e, id)).findFirst();
+    if (target.isPresent()) {
+      target.get().delete();
+      return true;
+    }
+    return false;
   }
 
   @Override
   public boolean restoreById(UUID id) {
-    Optional<T> target = data.stream().filter(e -> idEquals(e, id) && e.isDeleted()).findFirst();
+    Optional<T> target = data.stream().filter(e -> !e.isDeleted() && idEquals(e, id)).findFirst();
     target.ifPresent(BaseEntity::restore);
     return target.isPresent();
   }

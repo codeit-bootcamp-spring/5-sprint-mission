@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
-
 import static com.sprint.mission.discodeit.utility.StringUtil.normalizeString;
 
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.utility.Validators;
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,7 +13,9 @@ import java.util.Set;
 import java.util.UUID;
 import org.mindrot.jbcrypt.BCrypt;
 
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Serializable {
+  @Serial private static final long serialVersionUID = 1L;
+
   private String email;
   private String globalName;
   private String username;

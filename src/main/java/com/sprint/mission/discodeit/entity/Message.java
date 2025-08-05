@@ -2,12 +2,16 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.utility.StringUtil;
 import com.sprint.mission.discodeit.utility.Validators;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-public class Message extends BaseEntity {
+public class Message extends BaseEntity implements Serializable {
+  @Serial private static final long serialVersionUID = 1L;
+
   private final UUID senderId;
   private String content;
   private List<String> files;

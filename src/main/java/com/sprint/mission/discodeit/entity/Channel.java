@@ -4,6 +4,8 @@ import com.sprint.mission.discodeit.enums.Permission;
 import com.sprint.mission.discodeit.enums.RoleType;
 import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.utility.Validators;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,7 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class Channel extends BaseEntity {
+public class Channel extends BaseEntity implements Serializable {
+  @Serial private static final long serialVersionUID = 1L;
+
   private final UUID guildId;
   private String name;
   private ChannelType type;
@@ -87,8 +91,7 @@ public class Channel extends BaseEntity {
     if (id == null) {
       throw new IllegalArgumentException("User ID must not be null.");
     }
-    return Collections.unmodifiableSet(
-        userPermissions.getOrDefault(id, Collections.emptySet()));
+    return Collections.unmodifiableSet(userPermissions.getOrDefault(id, Collections.emptySet()));
   }
 
   public void setPermissionsToUser(UUID id, Set<Permission> permissions) {

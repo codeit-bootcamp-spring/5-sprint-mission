@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,7 +10,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class ChatRoom extends BaseEntity {
+public class ChatRoom extends BaseEntity implements Serializable {
+  @Serial private static final long serialVersionUID = 1L;
+
   private UUID channelId;
   private UUID guildId;
   private final Set<UUID> participants = new HashSet<>();

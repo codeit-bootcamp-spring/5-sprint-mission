@@ -1,14 +1,9 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
-import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
-import com.sprint.mission.discodeit.service.FriendRequestService;
-import com.sprint.mission.discodeit.service.GuildService;
 import com.sprint.mission.discodeit.service.UserService;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -16,57 +11,29 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class JcfUserService extends BaseJcfService<User> implements UserService {
-  private static final JcfUserService instance = new JcfUserService();
-
-  private FriendRequestService friendRequestService;
-  private GuildService guildService;
-
-  private JcfUserService() {}
-
-  public static JcfUserService getInstance() {
-    return instance;
-  }
-
-  public void setFriendRequestService(FriendRequestService friendRequestService) {
-    this.friendRequestService = friendRequestService;
-  }
-
-  public void setGuildService(GuildService guildService) {
-    this.guildService = guildService;
+public class FileUserService extends BaseFileService<User> implements UserService {
+  public FileUserService() {
+    super("users.ser");
   }
 
   @Override
   public Optional<User> findByEmail(String email) {
-    return data.stream()
+    return data.values().stream()
         .filter(u -> !u.isDeleted() && u.getEmail().equalsIgnoreCase(email))
         .findFirst();
   }
 
   @Override
   public Optional<User> findByUsername(String username) {
-    return data.stream()
+    return data.values().stream()
         .filter(u -> !u.isDeleted() && u.getUsername().equals(username))
         .findFirst();
   }
 
   @Override
-  public User save(User user) {
-    if (findByEmail(user.getEmail()).isPresent()) {
-      throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
-    }
-
-    if (findByUsername(user.getUsername()).isPresent()) {
-      throw new IllegalArgumentException("중복된 사용자명이 존재합니다.");
-    }
-
-    return super.save(user);
-  }
-
-  @Override
   public User login(String email, String password) {
     User user =
-        data.stream()
+        data.values().stream()
             .filter(
                 u ->
                     !u.isDeleted()
@@ -82,6 +49,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
     user.setDeactivated(false);
     user.setStatus(Status.ONLINE);
     user.touch();
+    saveToFile();
     return user;
   }
 
@@ -102,24 +70,8 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
 
   @Override
   public void deleteAccount(UUID userId) {
-    friendRequestService.clearFriendRequests(userId);
-
-    User user = getOrThrow(userId);
-    for (UUID friendId : new HashSet<>(user.getFriends())) {
-      removeFriend(friendId, userId);
-    }
-
-    List<Guild> guildsToRemove = new ArrayList<>();
-    for (UUID guildId : user.getGuilds()) {
-      Guild guild = guildService.getOrThrow(guildId);
-      if (guild.isOwner(userId)) {
-        guildsToRemove.add(guild);
-      }
-    }
-    for (Guild guild : guildsToRemove) {
-      guildService.deleteGuild(guild.getId(), userId);
-    }
-    deleteById(userId);
+    hardDeleteById(userId);
+    // 의존성
   }
 
   @Override
@@ -127,8 +79,7 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
     if (keyword == null || keyword.isBlank()) {
       throw new IllegalArgumentException("검색어를 입력해주세요.");
     }
-
-    return data.stream()
+    return data.values().stream()
         .filter(User::isActive)
         .filter(
             u ->
@@ -181,13 +132,13 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   }
 
   @Override
-  public void updateSubscribedToNewsletter(UUID userId, boolean isSubscribedToNewsletter) {
-    update(userId, u -> u.setSubscribedToNewsletter(isSubscribedToNewsletter));
+  public void updateSubscribedToNewsletter(UUID userId, boolean sub) {
+    update(userId, u -> u.setSubscribedToNewsletter(sub));
   }
 
   @Override
-  public void updatePhoneNumber(UUID userId, String phoneNumber) {
-    update(userId, u -> u.setPhoneNumber(phoneNumber));
+  public void updatePhoneNumber(UUID userId, String phone) {
+    update(userId, u -> u.setPhoneNumber(phone));
   }
 
   @Override
@@ -209,8 +160,8 @@ public class JcfUserService extends BaseJcfService<User> implements UserService 
   }
 
   @Override
-  public void updateVerified(UUID userId, boolean isVerified) {
-    update(userId, u -> u.setVerified(isVerified));
+  public void updateVerified(UUID userId, boolean verified) {
+    update(userId, u -> u.setVerified(verified));
   }
 
   @Override

@@ -9,6 +9,12 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.exception.ValidationException;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileChatRoomService;
+import com.sprint.mission.discodeit.service.file.FileFriendRequestService;
+import com.sprint.mission.discodeit.service.file.FileGuildService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 import com.sprint.mission.discodeit.service.jcf.JcfChannelService;
 import com.sprint.mission.discodeit.service.jcf.JcfChatRoomService;
 import com.sprint.mission.discodeit.service.jcf.JcfFriendRequestService;
@@ -24,18 +30,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class JavaApplication {
-  private final JcfUserService userService = JcfUserService.getInstance();
-  private final JcfFriendRequestService friendRequestService =
+  private final JcfUserService userService1 = JcfUserService.getInstance();
+  private final JcfFriendRequestService friendRequestService1 =
       JcfFriendRequestService.getInstance();
-  private final JcfMessageService messageService = JcfMessageService.getInstance();
-  private final JcfChatRoomService chatRoomService = JcfChatRoomService.getInstance();
-  private final JcfGuildService guildService = JcfGuildService.getInstance();
-  private final JcfChannelService channelService = JcfChannelService.getInstance();
-  private final JcfSurveyService surveyService = JcfSurveyService.getInstance();
+  private final JcfMessageService messageService1 = JcfMessageService.getInstance();
+  private final JcfChatRoomService chatRoomService1 = JcfChatRoomService.getInstance();
+  private final JcfGuildService guildService1 = JcfGuildService.getInstance();
+  private final JcfChannelService channelService1 = JcfChannelService.getInstance();
+  private final JcfSurveyService surveyService1 = JcfSurveyService.getInstance();
+  private final FileUserService userService = new FileUserService();
+  private final FileFriendRequestService friendRequestService =
+      new FileFriendRequestService(userService);
+  private final FileMessageService messageService = new FileMessageService(userService);
+  private final FileGuildService guildService = new FileGuildService(userService);
+  private final FileChannelService channelService = new FileChannelService(guildService);
+  private final FileChatRoomService chatRoomService =
+      new FileChatRoomService(userService, guildService, channelService, messageService);
   private User me;
   private UUID enteredGuildId;
 
@@ -148,17 +163,17 @@ public class JavaApplication {
   }
 
   private void mainMenu() {
-    userService.setFriendRequestService(friendRequestService);
-    userService.setGuildService(guildService);
-    friendRequestService.setUserService(userService);
-    messageService.setUserService(userService);
-    chatRoomService.setUserService(userService);
-    chatRoomService.setGuildService(guildService);
-    chatRoomService.setMessageService(messageService);
-    chatRoomService.setChannelService(channelService);
-    channelService.setGuildService(guildService);
+    // userService.setFriendRequestService(friendRequestService);
+    // userService.setGuildService(guildService);
+    // friendRequestService.setUserService(userService);
+    // messageService.setUserService(userService);
+    // chatRoomService.setUserService(userService);
+    // chatRoomService.setGuildService(guildService);
+    // chatRoomService.setMessageService(messageService);
+    // chatRoomService.setChannelService(channelService);
+    // channelService.setGuildService(guildService);
 
-    seedTestUsers();
+    // seedTestUsers();
 
     runMenu(
         new Menu("=====***** 메인 메뉴 *****=====", false)
@@ -727,6 +742,10 @@ public class JavaApplication {
           }
         case "2":
           try {
+            Set<UUID> guildIds = userService.getGuilds(me.getId());
+            for (UUID guildId : guildIds) {
+              guildService.deleteById(guildId);
+            }
             userService.deleteAccount(me.getId());
           } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -1104,7 +1123,7 @@ public class JavaApplication {
     printGuidePrevious();
 
     while (true) {
-      List<Guild> guilds = userService.getGuilds(me.getId()).stream().toList();
+      List<Guild> guilds = guildService.findGuildsJoinedByUser(me.getId());
 
       if (guilds.isEmpty()) {
         System.out.println("🔍 입장한 서버가 없습니다.");
@@ -1137,7 +1156,7 @@ public class JavaApplication {
   private void openGuild() {
     printGuidePrevious();
 
-    List<Guild> guilds = userService.getGuilds(me.getId()).stream().toList();
+    List<Guild> guilds = guildService.findGuildsJoinedByUser(me.getId());
 
     if (guilds.isEmpty()) {
       System.out.println("🔍 입장한 서버가 없습니다.");

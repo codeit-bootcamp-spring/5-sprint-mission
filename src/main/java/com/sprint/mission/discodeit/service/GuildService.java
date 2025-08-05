@@ -12,6 +12,8 @@ public interface GuildService extends BaseService<Guild> {
 
   List<Guild> findGuildsOwnedByUser(UUID userId);
 
+  List<Guild> findGuildsJoinedByUser(UUID userId);
+
   List<Guild> searchGuilds(String keyword);
 
   void deleteGuild(UUID guildId, UUID ownerId);

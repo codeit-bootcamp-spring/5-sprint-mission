@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.entity.Guild;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.user.Status;
 import java.time.LocalDate;
@@ -56,7 +55,7 @@ public interface UserService extends BaseService<User> {
 
   void removeFriend(UUID userId, UUID friendId);
 
-  Set<Guild> getGuilds(UUID userId);
+  Set<UUID> getGuilds(UUID userId);
 
   void addGuild(UUID userId, UUID guildId);
 

@@ -12,7 +12,7 @@ public interface BaseService<T> {
 
   Optional<T> findById(UUID id);
 
-  List<T> findAllById(Collection<UUID> ids);
+  List<T> findAllByIds(Collection<UUID> ids);
 
   boolean existsById(UUID id);
 
@@ -22,7 +22,7 @@ public interface BaseService<T> {
 
   boolean hardDeleteById(UUID id);
 
-  void deleteById(UUID id);
+  boolean deleteById(UUID id);
 
   boolean restoreById(UUID id);
 
