@@ -1,12 +1,16 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String userName;
     private String email;
     private String password;
     private String phoneNumber;
+
 
     public User(
             String userName, String email, String password, String phoneNumber
@@ -67,6 +71,18 @@ public class User extends BaseEntity {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(userName, user.userName) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(phoneNumber, user.phoneNumber);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("User{");
+        sb.append("userName='").append(userName).append('\'');
+        sb.append(", email='").append(email).append('\'');
+        sb.append(", id='").append(this.getId()).append('\'');
+        sb.append(", password='").append(password).append('\'');
+        sb.append(", phoneNumber='").append(phoneNumber).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 
     @Override

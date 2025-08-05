@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Message extends BaseEntity{
+public class Message extends BaseEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final Channel channel;
     private final User authorUser;
     private String content;
@@ -10,6 +13,7 @@ public class Message extends BaseEntity{
     public Message(
             String content, Channel channel, User authorUser
     ) {
+        super();
         this.channel = channel;
         this.authorUser = authorUser;
         this.content = content;
@@ -28,8 +32,10 @@ public class Message extends BaseEntity{
     }
 
     public void updateContent(String content) {
-        this.content = content;
-        super.updateUpdatedAt();
+        if(!this.content.equals(content)){
+            this.content = content;
+            super.updateUpdatedAt();
+        }
     }
 
     @Override
@@ -42,5 +48,15 @@ public class Message extends BaseEntity{
     @Override
     public int hashCode() {
         return Objects.hash(channel, authorUser, content);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Message{");
+        sb.append("channel=").append(channel);
+        sb.append(", authorUser=").append(authorUser);
+        sb.append(", content='").append(content).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

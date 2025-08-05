@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Deprecated
-public class JCFMessageService implements MessageService {
+public class FileMessageService implements MessageService {
 
     private final MessageRepository messageRepository;
 
-    public JCFMessageService(
+    public FileMessageService(
             MessageRepository messageRepository
     ) {
         this.messageRepository = messageRepository;
