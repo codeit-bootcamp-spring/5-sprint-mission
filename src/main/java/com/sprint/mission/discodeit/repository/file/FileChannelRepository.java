@@ -13,7 +13,11 @@ import java.util.UUID;
 public class FileChannelRepository extends AbstractFileRepository<Channel> implements ChannelRepository {
 
     public FileChannelRepository() {
-        super("channels");
+        super("data.dir", "channels");
+    }
+
+    public FileChannelRepository(String basePath) {
+        super(basePath, "channels");
     }
 
     public List<Channel> findAllByUserId(UUID userId) {

@@ -10,7 +10,11 @@ import java.util.Optional;
 public class FileUserRepository extends AbstractFileRepository<User> implements UserRepository {
 
     public FileUserRepository() {
-        super("users");
+        super("data.dir", "users");
+    }
+
+    public FileUserRepository(String basePath) {
+        super(basePath, "users");
     }
 
     @Override

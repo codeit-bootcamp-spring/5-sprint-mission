@@ -2,15 +2,20 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+@Repository
 public class JCFMessageRepository extends AbstractJCFRepository<Message> implements MessageRepository {
 
     // TODO mission에 맞춰 구현
     @Override
     public List<Message> findAllByChannelId(UUID channelId) {
-        return null;
+        return data.values().stream()
+            .filter(m -> m.getChannelId().equals(channelId))
+            .collect(Collectors.toList());
     }
 }

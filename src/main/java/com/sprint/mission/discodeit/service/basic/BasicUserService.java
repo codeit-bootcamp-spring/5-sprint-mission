@@ -26,9 +26,6 @@ public class BasicUserService implements UserService {
     @Override
     public UserDto.DetailResponse create(UserDto.CreateRequest request) {
 
-        // 선택적으로 프로필 이미지를 같이 등록할 수 있습니다.
-        // 유저를 등록하기 위해 필요한 파라미터, 프로필 이미지를 등록하기 위해 필요한 파라미터 등
-        // username과 email은 다른 유저와 같으면 안됩니다.
         if (userRepository.existsByUsername(request.getName())) {
             throw new IllegalArgumentException("이미 사용 중인 username입니다.");
         }
@@ -62,8 +59,6 @@ public class BasicUserService implements UserService {
 
     @Override
     public UserDto.DetailResponse findById(UUID userId) {
-        // 사용자의 온라인 상태 정보를 같이 포함하세요.
-        // 패스워드 정보는 제외하세요.
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -134,7 +129,6 @@ public class BasicUserService implements UserService {
 
     @Override
     public void delete(UUID userId) {
-        // 관련된 도메인도 같이 삭제합니다. BinaryContent(프로필), UserStatus
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -148,7 +142,6 @@ public class BasicUserService implements UserService {
 
     @Override
     public void deleteAll() {
-        // 관련된 도메인도 같이 삭제합니다. BinaryContent(프로필), UserStatus
         userRepository.deleteAll();
     }
 }

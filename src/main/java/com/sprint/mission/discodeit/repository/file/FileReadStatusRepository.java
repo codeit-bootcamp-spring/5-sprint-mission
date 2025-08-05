@@ -11,7 +11,11 @@ import java.util.stream.Collectors;
 @Repository
 public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus> implements ReadStatusRepository {
     public FileReadStatusRepository() {
-        super("readStatus");
+        super("data.dir", "readStatus");
+    }
+
+    public FileReadStatusRepository(String basePath) {
+        super(basePath, "readStatus");
     }
 
     @Override

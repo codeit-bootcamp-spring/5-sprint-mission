@@ -6,12 +6,11 @@ import java.io.*;
 import java.util.*;
 
 public abstract class AbstractFileRepository<T extends BaseEntity> {
-    private static final String DATA_DIR = "data.dir";
     private final String filename;
     protected final Map<UUID, T> data;
 
-    protected AbstractFileRepository(String entityName) {
-        this.filename = DATA_DIR + "/" + entityName + ".ser";
+    protected AbstractFileRepository(String basePath, String entityName) {
+        this.filename = basePath + "/" + entityName + ".ser";
         this.data = readFromFile();
     }
 

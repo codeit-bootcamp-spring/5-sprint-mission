@@ -16,7 +16,18 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     private final String EXTENSION = ".ser";
 
     public FileBinaryContentRepository() {
-        this.DIRECTORY = Paths.get(System.getProperty("binaryContent.dir"), "file-data", "BinaryContent");
+        this.DIRECTORY = Paths.get("data.dir", "binaryContent");
+        if (Files.notExists(DIRECTORY)) {
+            try {
+                Files.createDirectories(DIRECTORY);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public FileBinaryContentRepository(String basePath) {
+        this.DIRECTORY = Paths.get(basePath, "binaryContent");
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
