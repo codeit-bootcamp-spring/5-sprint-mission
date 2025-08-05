@@ -14,7 +14,7 @@ public class FileChannelService extends BaseFileService<Channel> implements Chan
     private final GuildService guildService;
 
     public FileChannelService(GuildService guildService) {
-        super("channels.ser");
+        super(Channel.class);
         this.guildService = guildService;
     }
 

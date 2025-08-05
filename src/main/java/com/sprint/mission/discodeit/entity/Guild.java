@@ -3,8 +3,6 @@ package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.enums.Permission;
 import com.sprint.mission.discodeit.utility.Validators;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -15,10 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class Guild extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
+public class Guild extends BaseEntity {
     private String name;
     private Boolean discoverable;
     private UUID ownerId;
@@ -26,14 +21,13 @@ public class Guild extends BaseEntity implements Serializable {
     private final List<Channel> channels = new ArrayList<>();
     private final Set<UUID> bans = new HashSet<>();
 
-    private static final Set<Permission> DEFAULT_PERMISSIONS =
-            EnumSet.of(Permission.READ_MESSAGES, Permission.SEND_MESSAGES);
+    private static final Set<Permission> DEFAULT_PERMISSIONS = EnumSet.of(Permission.READ_MESSAGES, Permission.SEND_MESSAGES);
 
     public Guild(String name, boolean discoverable, UUID ownerId) {
         setName(name);
         setDiscoverable(discoverable);
-        setOwnerId(ownerId);
         addMember(ownerId);
+        setOwnerId(ownerId);
     }
 
     public String getName() {
@@ -99,11 +93,7 @@ public class Guild extends BaseEntity implements Serializable {
         if (id == null) {
             throw new IllegalArgumentException("User ID must not be null.");
         }
-        members.putIfAbsent(
-                id,
-                id.equals(ownerId)
-                        ? EnumSet.of(Permission.ADMINISTRATOR)
-                        : EnumSet.copyOf(DEFAULT_PERMISSIONS));
+        members.putIfAbsent(id, id.equals(ownerId) ? EnumSet.of(Permission.ADMINISTRATOR) : EnumSet.copyOf(DEFAULT_PERMISSIONS));
     }
 
     public void updateMemberPermissions(UUID id, Set<Permission> permissions) {
@@ -163,20 +153,6 @@ public class Guild extends BaseEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "Guild{"
-                + "name='"
-                + name
-                + '\''
-                + ", discoverable="
-                + discoverable
-                + ", ownerId="
-                + ownerId
-                + ", members="
-                + members
-                + ", channels="
-                + channels
-                + ", bans="
-                + bans
-                + '}';
+        return "Guild{" + "name='" + name + '\'' + ", discoverable=" + discoverable + ", ownerId=" + ownerId + ", members=" + members + ", channels=" + channels + ", bans=" + bans + '}';
     }
 }

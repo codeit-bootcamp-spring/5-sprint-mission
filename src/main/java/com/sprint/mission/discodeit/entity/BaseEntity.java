@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class BaseEntity {
+public abstract class BaseEntity implements Serializable {
     private final UUID id;
     private final Long createdAt;
     private Long updatedAt;
@@ -18,6 +19,7 @@ public abstract class BaseEntity {
         this.id = id != null ? id : UUID.randomUUID();
         this.createdAt = createdAt == null || createdAt > 0 ? createdAt : Long.valueOf(System.currentTimeMillis());
         this.updatedAt = updatedAt == null || updatedAt > 0 ? updatedAt : this.createdAt;
+        this.deleted = false;
     }
 
     protected BaseEntity(UUID id, long createdAt) {

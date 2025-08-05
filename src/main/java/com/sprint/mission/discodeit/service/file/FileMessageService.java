@@ -13,21 +13,16 @@ public class FileMessageService extends BaseFileService<Message> implements Mess
     private final UserService userService;
 
     public FileMessageService(UserService userService) {
-        super("messages.ser");
+        super(Message.class);
         this.userService = userService;
     }
 
     @Override
     public Message save(Message message) {
-        if (findById(message.getId()).isPresent()) {
-            throw new IllegalArgumentException("중복된 id가 존재합니다.");
-        }
-
-        User sender = userService.getOrThrow(message.getSenderId());
-        if (sender.isBanned() || sender.isDeactivated()) {
-            throw new IllegalStateException("유저를 찾을 수 없습니다.");
-        }
-
+        if (existsById(message.getId())) throw new IllegalArgumentException("중복된 ID가 존재합니다.");
+        UUID senderId = message.getSenderId();
+        User sender = userService.getOrThrow(senderId);
+        if (sender.isBanned() || sender.isDeactivated()) throw new IllegalStateException("비활성화되었거나 정지된 유저입니다.");
         return super.save(message);
     }
 
@@ -48,8 +43,8 @@ public class FileMessageService extends BaseFileService<Message> implements Mess
 
     @Override
     public void printSenderAndContent(UUID messageId) {
-        String content = getOrThrow(messageId).getContent();
-        User sender = userService.getOrThrow(getOrThrow(messageId).getSenderId());
-        System.out.println(sender.getGlobalName() + ": " + content);
+        Message message = getOrThrow(messageId);
+        User sender = userService.getOrThrow(message.getSenderId());
+        System.out.println(sender.getGlobalName() + ": " + message.getContent());
     }
 }

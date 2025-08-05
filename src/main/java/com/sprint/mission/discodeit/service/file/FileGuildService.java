@@ -16,7 +16,7 @@ public class FileGuildService extends BaseFileService<Guild> implements GuildSer
     private final UserService userService;
 
     public FileGuildService(UserService userService) {
-        super("guilds.ser");
+        super(Guild.class);
         this.userService = userService;
     }
 

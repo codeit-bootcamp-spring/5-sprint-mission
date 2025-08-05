@@ -24,7 +24,7 @@ public class FileChatRoomService extends BaseFileService<ChatRoom> implements Ch
             GuildService guildService,
             ChannelService channelService,
             MessageService messageService) {
-        super("chatRooms.ser");
+        super(ChatRoom.class);
         this.userService = userService;
         this.guildService = guildService;
         this.channelService = channelService;
@@ -44,7 +44,8 @@ public class FileChatRoomService extends BaseFileService<ChatRoom> implements Ch
 
     @Override
     public boolean existsByParticipants(int participantsHashcode) {
-        return data.values().stream().anyMatch(cr -> participantsHashcode == cr.participantsHashcode());
+        return findAll().stream()
+                .anyMatch(cr -> cr.participantsHashcode() == participantsHashcode);
     }
 
     @Override
@@ -54,8 +55,8 @@ public class FileChatRoomService extends BaseFileService<ChatRoom> implements Ch
     }
 
     @Override
-    public List<UUID> getMessages(UUID id) {
-        return getOrThrow(id).getMessages();
+    public List<UUID> getMessages(UUID chatRoomId) {
+        return getOrThrow(chatRoomId).getMessages();
     }
 
     @Override

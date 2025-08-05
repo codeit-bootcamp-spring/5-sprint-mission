@@ -1,13 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.UUID;
 
-public class FriendRequest extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
+public class FriendRequest extends BaseEntity {
     private final UUID senderId;
     private final UUID receiverId;
 

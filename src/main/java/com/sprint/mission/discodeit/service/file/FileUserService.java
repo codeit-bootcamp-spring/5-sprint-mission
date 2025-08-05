@@ -14,44 +14,41 @@ import java.util.stream.Collectors;
 
 public class FileUserService extends BaseFileService<User> implements UserService {
     public FileUserService() {
-        super("users.ser");
+        super(User.class);
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
-        return data.values().stream()
-                .filter(u -> !u.isDeleted() && u.getEmail().equalsIgnoreCase(email))
+        return findAll().stream()
+                .filter(u -> u.getEmail().equalsIgnoreCase(email))
                 .findFirst();
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
-        return data.values().stream()
-                .filter(u -> !u.isDeleted() && u.getUsername().equals(username))
+        return findAll().stream()
+                .filter(u -> u.getUsername().equals(username))
                 .findFirst();
     }
 
     @Override
     public User login(String email, String password) {
-        User user =
-                data.values().stream()
-                        .filter(
-                                u ->
-                                        !u.isDeleted()
-                                                && u.getEmail().equalsIgnoreCase(email)
-                                                && u.checkPassword(password))
-                        .findFirst()
-                        .orElseThrow(() -> new NoSuchElementException("이메일 또는 비밀번호가 일치하지 않습니다."));
+        User user = findAll().stream()
+                .filter(u -> u.getEmail().equalsIgnoreCase(email) && u.checkPassword(password))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("이메일 또는 비밀번호가 일치하지 않습니다."));
 
         if (user.isBanned()) {
             throw new IllegalArgumentException("정지된 계정입니다.");
         }
 
-        user.setDeactivated(false);
-        user.setStatus(Status.ONLINE);
-        user.touch();
-        saveToFile();
-        return user;
+        update(user.getId(), u -> {
+            u.setDeactivated(false);
+            u.setStatus(Status.ONLINE);
+            u.touch();
+        });
+
+        return getOrThrow(user.getId());
     }
 
     @Override
@@ -71,7 +68,7 @@ public class FileUserService extends BaseFileService<User> implements UserServic
 
     @Override
     public void deleteAccount(UUID userId) {
-        hardDeleteById(userId);
+        deleteById(userId);
         // 의존성
     }
 
@@ -80,13 +77,15 @@ public class FileUserService extends BaseFileService<User> implements UserServic
         if (keyword == null || keyword.isBlank()) {
             throw new IllegalArgumentException("검색어를 입력해주세요.");
         }
-        return data.values().stream()
+
+        String lowerKeyword = keyword.toLowerCase();
+
+        return findAll().stream()
                 .filter(User::isActive)
-                .filter(
-                        u ->
-                                u.getGlobalName().contains(keyword)
-                                        || u.getUsername().contains(keyword)
-                                        || u.getEmail().toLowerCase().contains(keyword.toLowerCase()))
+                .filter(u ->
+                        u.getGlobalName().toLowerCase().contains(lowerKeyword)
+                                || u.getUsername().toLowerCase().contains(lowerKeyword)
+                                || u.getEmail().toLowerCase().contains(lowerKeyword))
                 .toList();
     }
 

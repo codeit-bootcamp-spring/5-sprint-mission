@@ -15,13 +15,6 @@ import com.sprint.mission.discodeit.service.file.FileFriendRequestService;
 import com.sprint.mission.discodeit.service.file.FileGuildService;
 import com.sprint.mission.discodeit.service.file.FileMessageService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
-import com.sprint.mission.discodeit.service.jcf.JcfChannelService;
-import com.sprint.mission.discodeit.service.jcf.JcfChatRoomService;
-import com.sprint.mission.discodeit.service.jcf.JcfFriendRequestService;
-import com.sprint.mission.discodeit.service.jcf.JcfGuildService;
-import com.sprint.mission.discodeit.service.jcf.JcfMessageService;
-import com.sprint.mission.discodeit.service.jcf.JcfSurveyService;
-import com.sprint.mission.discodeit.service.jcf.JcfUserService;
 import com.sprint.mission.discodeit.utility.InputHandler;
 import com.sprint.mission.discodeit.utility.Validators;
 
@@ -36,22 +29,20 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class JavaApplication {
-    private final JcfUserService userService1 = JcfUserService.getInstance();
-    private final JcfFriendRequestService friendRequestService1 =
-            JcfFriendRequestService.getInstance();
-    private final JcfMessageService messageService1 = JcfMessageService.getInstance();
-    private final JcfChatRoomService chatRoomService1 = JcfChatRoomService.getInstance();
-    private final JcfGuildService guildService1 = JcfGuildService.getInstance();
-    private final JcfChannelService channelService1 = JcfChannelService.getInstance();
-    private final JcfSurveyService surveyService1 = JcfSurveyService.getInstance();
+    // private final JcfUserService userService1 = JcfUserService.getInstance();
+    // private final JcfFriendRequestService friendRequestService1 =
+    //         JcfFriendRequestService.getInstance();
+    // private final JcfMessageService messageService1 = JcfMessageService.getInstance();
+    // private final JcfChatRoomService chatRoomService1 = JcfChatRoomService.getInstance();
+    // private final JcfGuildService guildService1 = JcfGuildService.getInstance();
+    // private final JcfChannelService channelService1 = JcfChannelService.getInstance();
+    // private final JcfSurveyService surveyService1 = JcfSurveyService.getInstance();
     private final FileUserService userService = new FileUserService();
-    private final FileFriendRequestService friendRequestService =
-            new FileFriendRequestService(userService);
+    private final FileFriendRequestService friendRequestService = new FileFriendRequestService(userService);
     private final FileMessageService messageService = new FileMessageService(userService);
     private final FileGuildService guildService = new FileGuildService(userService);
     private final FileChannelService channelService = new FileChannelService(guildService);
-    private final FileChatRoomService chatRoomService =
-            new FileChatRoomService(userService, guildService, channelService, messageService);
+    private final FileChatRoomService chatRoomService = new FileChatRoomService(userService, guildService, channelService, messageService);
     private User me;
     private UUID enteredGuildId;
 
@@ -66,12 +57,9 @@ public class JavaApplication {
 
     private void seedTestUsers() {
         try {
-            userService.save(
-                    new User("a@a.aa", "user1", "1111aaaa", LocalDate.of(1995, 4, 10), true, "globalName1"));
-            userService.save(
-                    new User("b@b.bb", "user2", "2222bbbb", LocalDate.of(1995, 4, 11), false, "globalName2"));
-            userService.save(
-                    new User("c@c.cc", "user3", "3333cccc", LocalDate.of(1995, 3, 11), false, "globalName3"));
+            userService.save(new User("a@a.aa", "user1", "1111aaaa", LocalDate.of(1995, 4, 10), true, "globalName1"));
+            userService.save(new User("b@b.bb", "user2", "2222bbbb", LocalDate.of(1995, 4, 11), false, "globalName2"));
+            userService.save(new User("c@c.cc", "user3", "3333cccc", LocalDate.of(1995, 3, 11), false, "globalName3"));
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -176,65 +164,23 @@ public class JavaApplication {
 
         // seedTestUsers();
 
-        runMenu(
-                new Menu("=====***** 메인 메뉴 *****=====", false)
-                        .add("회원가입", this::register)
-                        .add("로그인", this::login)
-                        .add("이메일로 회원 조회", this::findUserByEmail)
-                        .add("모든 회원 조회", this::showAllUsers)
-                        .add("유저 검색", this::searchUsers)
-                        .add("유저 밴", this::banUser)
-                        .add("유저 밴 해제", this::unbanUser)
-                        .add("종료", this::exitSystem));
+        runMenu(new Menu("=====***** 메인 메뉴 *****=====", false).add("회원가입", this::register).add("로그인", this::login).add("이메일로 회원 조회", this::findUserByEmail).add("모든 회원 조회", this::showAllUsers).add("유저 검색", this::searchUsers).add("유저 밴", this::banUser).add("유저 밴 해제", this::unbanUser).add("종료", this::exitSystem));
     }
 
     private void userMenu() {
-        runMenu(
-                new Menu("=====***** 회원 메뉴 *****=====")
-                        .add("프로필 편집", this::editProfileMenu)
-                        .add("친구 목록 편집", this::editFriendMenu)
-                        .add("서버 목록 편집", this::editGuildsMenu)
-                        .add("메시지 편집", this::editDirectMessageMenu)
-                        .add("로그아웃", this::logout));
+        runMenu(new Menu("=====***** 회원 메뉴 *****=====").add("프로필 편집", this::editProfileMenu).add("친구 목록 편집", this::editFriendMenu).add("서버 목록 편집", this::editGuildsMenu).add("메시지 편집", this::editDirectMessageMenu).add("로그아웃", this::logout));
     }
 
     private void editProfileMenu() {
-        runMenu(
-                new Menu("=====***** 프로필 편집 메뉴 *****=====")
-                        .add("이메일 변경", this::changeEmail)
-                        .add("별명 변경", this::changeGlobalName)
-                        .add("사용자명 변경", this::changeUsername)
-                        .add("비밀번호 변경", this::changePassword)
-                        .add("생년월일 변경", this::changeBirthDate)
-                        .add("이메일로 소식 받기 변경", this::changeIsSubscribedToNewsletter)
-                        .add("휴대폰 번호 변경", this::changePhoneNumber)
-                        .add("상태 변경", this::changeStatus)
-                        .add("회원 탈퇴", this::deleteAccount)
-                        .add("뒤로가기", this::goPreviousMenu));
+        runMenu(new Menu("=====***** 프로필 편집 메뉴 *****=====").add("이메일 변경", this::changeEmail).add("별명 변경", this::changeGlobalName).add("사용자명 변경", this::changeUsername).add("비밀번호 변경", this::changePassword).add("생년월일 변경", this::changeBirthDate).add("이메일로 소식 받기 변경", this::changeIsSubscribedToNewsletter).add("휴대폰 번호 변경", this::changePhoneNumber).add("상태 변경", this::changeStatus).add("회원 탈퇴", this::deleteAccount).add("뒤로가기", this::goPreviousMenu));
     }
 
     private void editFriendMenu() {
-        runMenu(
-                new Menu("=====***** 친구 목록 편집 메뉴 *****=====")
-                        .add("친구 목록 보기", this::showFriends)
-                        .add("친구 요청", this::sendFriendRequest)
-                        .add("친구 요청 취소", this::viewSentFriendRequests)
-                        .add("친구 요청 응답", this::viewReceivedFriendRequests)
-                        .add("친구 삭제", this::deleteFriend)
-                        .add("뒤로가기", this::goPreviousMenu));
+        runMenu(new Menu("=====***** 친구 목록 편집 메뉴 *****=====").add("친구 목록 보기", this::showFriends).add("친구 요청", this::sendFriendRequest).add("친구 요청 취소", this::viewSentFriendRequests).add("친구 요청 응답", this::viewReceivedFriendRequests).add("친구 삭제", this::deleteFriend).add("뒤로가기", this::goPreviousMenu));
     }
 
     private void editGuildsMenu() {
-        runMenu(
-                new Menu("=====***** 서버 목록 편집 메뉴*****=====")
-                        .add("모든 서버 조회", this::showGuilds)
-                        .add("서버 만들기", this::createGuild)
-                        .add("서버 삭제", this::deleteGuild)
-                        .add("서버 참가", this::joinGuild)
-                        .add("서버 나가기", this::exitGuild)
-                        .add("서버 열기", this::openGuild)
-                        .add("서버 검색", this::searchGuild)
-                        .add("뒤로가기", this::goPreviousMenu));
+        runMenu(new Menu("=====***** 서버 목록 편집 메뉴*****=====").add("모든 서버 조회", this::showGuilds).add("서버 만들기", this::createGuild).add("서버 삭제", this::deleteGuild).add("서버 참가", this::joinGuild).add("서버 나가기", this::exitGuild).add("서버 열기", this::openGuild).add("서버 검색", this::searchGuild).add("뒤로가기", this::goPreviousMenu));
     }
 
     private void guildMenu() {
@@ -242,8 +188,7 @@ public class JavaApplication {
         Menu menu = new Menu("=====***** 서버 메뉴 *****=====");
 
         if (guild.isPresent()) {
-            boolean isOwner =
-                    guild.map(Guild::getOwnerId).map(ownerId -> ownerId.equals(me.getId())).orElse(false);
+            boolean isOwner = guild.map(Guild::getOwnerId).map(ownerId -> ownerId.equals(me.getId())).orElse(false);
             if (isOwner) {
                 menu.add("서버 편집", this::editGuildMenu);
             }
@@ -255,31 +200,14 @@ public class JavaApplication {
     }
 
     private void editGuildMenu() {
-        runMenu(
-                new Menu("=====***** 서버 편집 메뉴 *****=====")
-                        .add("주인 변경", this::changeGuildOwner)
-                        .add("이름 변경", this::changeGuildName)
-                        .add("공개 여부 변경", this::changeGuildPublic)
-                        .add("멤버 강퇴", this::kickMember)
-                        .add("모든 채널 조회", this::showChannels)
-                        .add("채널 생성", this::createChannel)
-                        .add("채널 수정", this::updateChannel)
-                        .add("채널 삭제", this::deleteChannel)
-                        .add("뒤로가기", this::goPreviousMenu));
+        runMenu(new Menu("=====***** 서버 편집 메뉴 *****=====").add("주인 변경", this::changeGuildOwner).add("이름 변경", this::changeGuildName).add("공개 여부 변경", this::changeGuildPublic).add("멤버 강퇴", this::kickMember).add("모든 채널 조회", this::showChannels).add("채널 생성", this::createChannel).add("채널 수정", this::updateChannel).add("채널 삭제", this::deleteChannel).add("뒤로가기", this::goPreviousMenu));
     }
 
     private void editDirectMessageMenu() {
-        runMenu(
-                new Menu("=====***** 메시지 편집 메뉴*****=====")
-                        .add("대화방 생성", this::createChatRoom)
-                        .add("메시지 보내기", this::sendMessageToChatRoom)
-                        .add("메시지 보기", () -> {
-                        })
-                        .add("메시지 수정하기", () -> {
-                        })
-                        .add("메시지 삭제하기", () -> {
-                        })
-                        .add("뒤로가기", this::goPreviousMenu));
+        runMenu(new Menu("=====***** 메시지 편집 메뉴*****=====").add("대화방 생성", this::createChatRoom).add("메시지 보내기", this::sendMessageToChatRoom).add("메시지 보기", () -> {
+        }).add("메시지 수정하기", () -> {
+        }).add("메시지 삭제하기", () -> {
+        }).add("뒤로가기", this::goPreviousMenu));
     }
 
     private void register() {
@@ -350,15 +278,7 @@ public class JavaApplication {
         }
 
         try {
-            if (userService.save(
-                    new User(
-                            email.toLowerCase(),
-                            username,
-                            password,
-                            birthDate,
-                            isSubscribedToNewsletter,
-                            globalName))
-                    != null) {
+            if (userService.save(new User(email.toLowerCase(), username, password, birthDate, isSubscribedToNewsletter, globalName)) != null) {
                 System.out.println("✅ 회원가입이 완료되었습니다.");
             } else {
                 System.out.println("🚫 다시 시도해주세요.\n");
@@ -401,7 +321,7 @@ public class JavaApplication {
         if (me != null) {
             try {
                 userService.logout(me.getId());
-                System.out.println("\n" + me.getUsername() + "님, 로그아웃 되었습니다.");
+                System.out.println("\n" + userService.findById(me.getId()).orElseThrow().getUsername() + "님, 로그아웃 되었습니다.");
                 me = null;
                 System.out.println("메인 메뉴로 이동합니다.");
             } catch (Exception e) {
@@ -420,9 +340,7 @@ public class JavaApplication {
                 return;
             }
 
-            userService
-                    .findByEmail(email)
-                    .ifPresentOrElse(System.out::println, () -> System.out.println("등록된 회원이 없습니다."));
+            userService.findByEmail(email).ifPresentOrElse(System.out::println, () -> System.out.println("등록된 회원이 없습니다."));
         }
     }
 
@@ -446,11 +364,7 @@ public class JavaApplication {
             }
 
             System.out.println("\n검색 결과:");
-            results.forEach(
-                    user ->
-                            System.out.printf(
-                                    "- 별명: %s | 사용자명: %s | 이메일: %s%n",
-                                    user.getGlobalName(), user.getUsername(), user.getEmail()));
+            results.forEach(user -> System.out.printf("- 별명: %s | 사용자명: %s | 이메일: %s%n", user.getGlobalName(), user.getUsername(), user.getEmail()));
         }
     }
 
@@ -528,27 +442,22 @@ public class JavaApplication {
             System.out.println("등록된 사용자가 없습니다.");
             return;
         }
-        users.forEach(
-                user ->
-                        System.out.printf(
-                                "- 별명: %s | 사용자명: %s | 이메일: %s | 정지: %s%n",
-                                user.getGlobalName(),
-                                user.getUsername(),
-                                user.getEmail(),
-                                user.isBanned() ? "O" : "X"));
+        users.forEach(user -> System.out.printf("- id: %s | 별명: %s | 사용자명: %s | 이메일: %s | 정지: %s%n", user.getId(), user.getGlobalName(), user.getUsername(), user.getEmail(), user.isBanned() ? "O" : "X"));
     }
 
     private void changeEmail() {
         printGuidePrevious();
-        System.out.println("현재 이메일 : " + me.getEmail());
 
         while (true) {
+            String oldEmail = userService.findById(me.getId()).orElseThrow().getEmail();
+            System.out.println("현재 이메일 : " + oldEmail);
+
             String email = InputHandler.getValidEmail("변경할 이메일 : ");
             if (email == null) {
                 return;
             }
 
-            if (email.equals(me.getEmail())) {
+            if (email.equals(oldEmail)) {
                 System.out.println("기존과 동일한 이메일입니다.");
                 continue;
             }
@@ -572,13 +481,12 @@ public class JavaApplication {
         printGuidePrevious();
         String globalName;
         while (true) {
-            System.out.println("현재 별명 : " + me.getGlobalName());
+            System.out.println("현재 별명 : " + userService.findById(me.getId()).orElseThrow().getGlobalName());
             try {
                 globalName = InputHandler.getInputOrBack("변경할 별명 : ");
                 if (globalName == null) {
                     return;
                 }
-
                 userService.updateGlobalName(me.getId(), Validators.validateGlobalName(globalName));
                 break;
             } catch (Exception e) {
@@ -589,7 +497,8 @@ public class JavaApplication {
 
     private void changeUsername() {
         printGuidePrevious();
-        String oldUsername = me.getUsername();
+
+        String oldUsername = userService.findById(me.getId()).orElseThrow().getUsername();
         String newUsername;
         while (true) {
             System.out.println("현재 사용자명 : " + oldUsername);
@@ -633,7 +542,7 @@ public class JavaApplication {
         printGuidePrevious();
         while (true) {
             try {
-                System.out.println("현재 생년월일 : " + me.getBirthDate());
+                System.out.println("현재 생년월일 : " + userService.findById(me.getId()).orElseThrow().getBirthDate());
                 LocalDate birthDate;
 
                 birthDate = InputHandler.getValidDate("변경할 생년월일");
@@ -653,7 +562,7 @@ public class JavaApplication {
         printGuidePrevious();
         while (true) {
             try {
-                System.out.println("현재 이메일 소식 수신 여부 : " + (me.isSubscribedToNewsletter() ? "yes" : "no"));
+                System.out.println("현재 이메일 소식 수신 여부 : " + (userService.findById(me.getId()).orElseThrow().isSubscribedToNewsletter() ? "yes" : "no"));
 
                 Boolean isSubscribedToNewsletter = InputHandler.getYesOrNo("이메일로 소식 받기");
                 if (isSubscribedToNewsletter == null) {
@@ -672,7 +581,7 @@ public class JavaApplication {
         printGuidePrevious();
         while (true) {
             try {
-                String oldPhoneNumber = me.getPhoneNumber();
+                String oldPhoneNumber = userService.findById(me.getId()).orElseThrow().getPhoneNumber();
                 String newPhoneNumber;
                 System.out.println("현재 휴대폰 번호 : " + oldPhoneNumber);
                 newPhoneNumber = InputHandler.getInputOrBack("변경할 휴대폰 번호 : ");
@@ -696,8 +605,9 @@ public class JavaApplication {
     private void changeStatus() {
         while (true) {
             try {
+                Status oldStatus = userService.findById(me.getId()).orElseThrow().getStatus();
                 printGuidePrevious();
-                System.out.println("현재 상태 : " + me.getStatus());
+                System.out.println("현재 상태 : " + oldStatus);
                 for (int i = 0; i < Status.values().length; i++) {
                     System.out.println((i + 1) + ". " + Status.values()[i]);
                 }
@@ -709,7 +619,7 @@ public class JavaApplication {
 
                 Status status = Status.values()[Integer.parseInt(idxStr) - 1];
 
-                if (status.equals(me.getStatus())) {
+                if (status.equals(oldStatus)) {
                     continue;
                 }
 
@@ -738,7 +648,7 @@ public class JavaApplication {
                     try {
                         userService.deactivateAccount(me.getId());
                         logout();
-                        System.out.println("계정이 비활성화되었습니다. 로그인 시 계정이 활성화됩니다.\n");
+                        System.out.println("계정이 비활성화되었습니다. 로그인 시 계정이 활성화됩니다.");
                         return;
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -777,11 +687,7 @@ public class JavaApplication {
         }
 
         System.out.println("\n친구 목록:");
-        friends.forEach(
-                f ->
-                        System.out.printf(
-                                "- 별명: %s | 사용자명: %s | 이메일: %s%n",
-                                f.getGlobalName(), f.getUsername(), f.getEmail()));
+        friends.forEach(f -> System.out.printf("- 별명: %s | 사용자명: %s | 이메일: %s%n", f.getGlobalName(), f.getUsername(), f.getEmail()));
     }
 
     private void sendFriendRequest() {
@@ -803,7 +709,7 @@ public class JavaApplication {
                 continue;
             }
 
-            if (me.getFriends().contains(receiver.getId())) {
+            if (userService.findById(me.getId()).orElseThrow().getFriends().contains(receiver.getId())) {
                 System.out.println("⚠ 이미 친구입니다.");
                 continue;
             }
@@ -834,10 +740,7 @@ public class JavaApplication {
             for (int i = 0; i < friendRequests.size(); i++) {
                 FriendRequest fr = friendRequests.get(i);
                 Optional<User> sender = userService.findById(fr.getSenderId());
-                String senderInfo =
-                        sender
-                                .map(u -> String.format("%s (%s)", u.getGlobalName(), u.getEmail()))
-                                .orElse("알 수 없음");
+                String senderInfo = sender.map(u -> String.format("%s (%s)", u.getGlobalName(), u.getEmail())).orElse("알 수 없음");
                 System.out.println((i + 1) + ". " + senderInfo);
             }
 
@@ -891,10 +794,7 @@ public class JavaApplication {
             for (int i = 0; i < friendRequests.size(); i++) {
                 FriendRequest fr = friendRequests.get(i);
                 Optional<User> receiver = userService.findById(fr.getReceiverId());
-                String receiverInfo =
-                        receiver
-                                .map(u -> String.format("%s (%s)", u.getGlobalName(), u.getEmail()))
-                                .orElse("알 수 없음");
+                String receiverInfo = receiver.map(u -> String.format("%s (%s)", u.getGlobalName(), u.getEmail())).orElse("알 수 없음");
                 System.out.println((i + 1) + ". " + receiverInfo);
             }
 
@@ -942,8 +842,7 @@ public class JavaApplication {
             System.out.println("\n친구 목록:");
             for (int i = 0; i < friends.size(); i++) {
                 User f = friends.get(i);
-                System.out.printf(
-                        "%d. %s (%s, %s)\n", i + 1, f.getGlobalName(), f.getUsername(), f.getEmail());
+                System.out.printf("%d. %s (%s, %s)\n", i + 1, f.getGlobalName(), f.getUsername(), f.getEmail());
             }
 
             printGuidePrevious();
@@ -961,9 +860,7 @@ public class JavaApplication {
 
                 User friend = friends.get(idx);
 
-                Boolean confirm =
-                        InputHandler.getYesOrNo(
-                                String.format("%s(%s)님을 정말 삭제하시겠습니까?", friend.getGlobalName(), friend.getEmail()));
+                Boolean confirm = InputHandler.getYesOrNo(String.format("%s(%s)님을 정말 삭제하시겠습니까?", friend.getGlobalName(), friend.getEmail()));
                 if (confirm == null) {
                     return;
                 }
@@ -1021,7 +918,7 @@ public class JavaApplication {
         while (true) {
             String name = InputHandler.getInputOrBack("서버 이름 : ");
             if (name == null || name.isBlank()) {
-                name = me.getUsername() + "님의 서버";
+                name = userService.findById(me.getId()).orElseThrow().getUsername() + "님의 서버";
             }
 
             Boolean isPublic = InputHandler.getYesOrNo("공개 여부");
@@ -1032,10 +929,8 @@ public class JavaApplication {
             try {
                 Guild guild = guildService.save(new Guild(name, isPublic, me.getId()));
                 if (guild != null) {
-                    Channel defaultChatChannel =
-                            channelService.save(new Channel(guild.getId(), "일반", ChannelType.CHAT));
-                    Channel defaultVoiceChannel =
-                            channelService.save(new Channel(guild.getId(), "일반", ChannelType.VOICE));
+                    Channel defaultChatChannel = channelService.save(new Channel(guild.getId(), "일반", ChannelType.CHAT));
+                    Channel defaultVoiceChannel = channelService.save(new Channel(guild.getId(), "일반", ChannelType.VOICE));
                     guildService.addChannel(guild.getId(), defaultChatChannel);
                     guildService.addChannel(guild.getId(), defaultVoiceChannel);
                     userService.addGuild(me.getId(), guild.getId());
@@ -1235,10 +1130,7 @@ public class JavaApplication {
                 return;
             }
 
-            List<UUID> members =
-                    guild.getMembers().keySet().stream()
-                            .filter(id -> !id.equals(guild.getOwnerId()))
-                            .toList();
+            List<UUID> members = guild.getMembers().keySet().stream().filter(id -> !id.equals(guild.getOwnerId())).toList();
 
             if (members.isEmpty()) {
                 System.out.println("새로운 주인으로 지정할 멤버가 없습니다.");
@@ -1247,8 +1139,7 @@ public class JavaApplication {
 
             for (int i = 0; i < members.size(); i++) {
                 Optional<User> member = userService.findById(members.get(i));
-                System.out.println(
-                        (i + 1) + ". " + member.map(User::getEmail).orElse(members.get(i).toString()));
+                System.out.println((i + 1) + ". " + member.map(User::getEmail).orElse(members.get(i).toString()));
             }
 
             String memberIdxStr = InputHandler.getInputOrBack("새로운 주인(멤버) 번호 : ");
@@ -1295,7 +1186,7 @@ public class JavaApplication {
             }
 
             if (guildName.isBlank()) {
-                guildName = me.getUsername() + "님의 서버";
+                guildName = userService.findById(me.getId()).orElseThrow().getUsername() + "님의 서버";
             }
 
             try {
@@ -1338,10 +1229,7 @@ public class JavaApplication {
                 return;
             }
 
-            List<UUID> memberList =
-                    guild.getMembers().keySet().stream()
-                            .filter(id -> !id.equals(guild.getOwnerId()))
-                            .toList();
+            List<UUID> memberList = guild.getMembers().keySet().stream().filter(id -> !id.equals(guild.getOwnerId())).toList();
 
             if (memberList.isEmpty()) {
                 System.out.println("추방할 멤버가 없습니다.");
@@ -1351,8 +1239,7 @@ public class JavaApplication {
             System.out.println("회원 목록:");
             for (int i = 0; i < memberList.size(); i++) {
                 Optional<User> user = userService.findById(memberList.get(i));
-                System.out.println(
-                        (i + 1) + ". " + user.map(User::getEmail).orElse(memberList.get(i).toString()));
+                System.out.println((i + 1) + ". " + user.map(User::getEmail).orElse(memberList.get(i).toString()));
             }
 
             String indexStr = InputHandler.getInputOrBack("추방할 멤버 번호 : ");
@@ -1549,8 +1436,7 @@ public class JavaApplication {
             System.out.println("\n선택할 친구 목록:");
             for (int i = 0; i < friends.size(); i++) {
                 User f = friends.get(i);
-                System.out.printf(
-                        "%d. %s (%s, %s)\n", i + 1, f.getGlobalName(), f.getUsername(), f.getEmail());
+                System.out.printf("%d. %s (%s, %s)\n", i + 1, f.getGlobalName(), f.getUsername(), f.getEmail());
             }
             System.out.println("\n선택된 친구 목록:");
             for (User f : selectedParticipants) {
@@ -1590,10 +1476,7 @@ public class JavaApplication {
 
             selectedParticipants.add(me);
             try {
-                ChatRoom chatRoom =
-                        chatRoomService.save(
-                                new ChatRoom(
-                                        selectedParticipants.stream().map(User::getId).collect(Collectors.toSet())));
+                ChatRoom chatRoom = chatRoomService.save(new ChatRoom(selectedParticipants.stream().map(User::getId).collect(Collectors.toSet())));
                 if (chatRoom != null) {
                     for (User u : selectedParticipants) {
                         u.addChatRoom(chatRoom.getId());
@@ -1611,7 +1494,7 @@ public class JavaApplication {
     public void sendMessageToChatRoom() {
         while (true) {
             printGuidePrevious();
-            List<UUID> myChatRoomIds = me.getChatRooms().stream().toList();
+            List<UUID> myChatRoomIds = userService.findById(me.getId()).orElseThrow().getChatRooms().stream().toList();
 
             if (myChatRoomIds.isEmpty()) {
                 System.out.println("참여 중인 채팅방이 없습니다.");
@@ -1626,8 +1509,7 @@ public class JavaApplication {
                     continue;
                 }
 
-                List<String> participantsNames =
-                        chatRoomService.getParticipantNames(chatRoom.get().getId());
+                List<String> participantsNames = chatRoomService.getParticipantNames(chatRoom.get().getId());
 
                 System.out.printf("%2d. %s\n", i + 1, String.join(", ", participantsNames));
             }

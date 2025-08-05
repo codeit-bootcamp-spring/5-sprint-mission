@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -9,10 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class Survey extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
+public class Survey extends BaseEntity {
     private final UUID senderId;
     private final String question;
     private final Long durationMillis;
@@ -41,6 +36,7 @@ public class Survey extends BaseEntity implements Serializable {
         if (answers == null || answers.isEmpty()) {
             throw new IllegalArgumentException("이런, 뭔가를 잊으신 것 같아요. 답변은 하나 이상 추가해주세요.");
         }
+        this.closed = false;
         this.answers = new ArrayList<>(answers);
         this.voteCounts = new ArrayList<>(this.answers.size());
         this.voters = new ArrayList<>(this.answers.size());

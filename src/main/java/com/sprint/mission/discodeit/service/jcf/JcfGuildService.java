@@ -47,11 +47,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
     @Override
     public List<Guild> findGuildsJoinedByUser(UUID id) {
-        return userService.getGuilds(id).stream()
-                .map(this::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+        return userService.getGuilds(id).stream().map(this::findById).filter(Optional::isPresent).map(Optional::get).toList();
     }
 
     @Override
@@ -92,18 +88,16 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
     public void updateOwnerId(UUID guildId, UUID oldOwnerId, UUID newOwnerId) {
         userService.getOrThrow(oldOwnerId);
         userService.getOrThrow(newOwnerId);
-        if (!getOrThrow(guildId).isOwner(oldOwnerId)) {
-            throw new IllegalArgumentException("서버 주인 변경 권한이 없습니다.");
-        }
 
-        update(
-                guildId,
-                g -> {
-                    if (g.isNotMember(newOwnerId)) {
-                        throw new IllegalArgumentException("해당 유저는 이 서버의 멤버가 아닙니다.");
-                    }
-                    g.setOwnerId(newOwnerId);
-                });
+        update(guildId, g -> {
+            if (!g.isOwner(oldOwnerId)) {
+                throw new IllegalArgumentException("서버 주인 변경 권한이 없습니다.");
+            }
+            if (g.isNotMember(newOwnerId)) {
+                throw new IllegalArgumentException("해당 유저는 이 서버의 멤버가 아닙니다.");
+            }
+            g.setOwnerId(newOwnerId);
+        });
     }
 
     @Override
@@ -118,8 +112,7 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
     @Override
     public List<Channel> getChannels(UUID guildId) {
-        Guild guild = getOrThrow(guildId);
-        return guild.getChannels();
+        return getOrThrow(guildId).getChannels();
     }
 
     @Override
@@ -130,39 +123,37 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
     }
 
     @Override
-    public void removeMember(UUID guildId, UUID member) {
-        if (getOrThrow(guildId).isOwner(member)) {
-            throw new IllegalArgumentException("서버 주인 변경 후 퇴장이 가능합니다");
+    public void removeMember(UUID guildId, UUID memberId) {
+        Guild guild = getOrThrow(guildId);
+
+        if (guild.isOwner(memberId)) {
+            throw new IllegalArgumentException("서버 주인 변경 후에만 퇴장할 수 있습니다.");
         }
-        update(guildId, g -> g.removeMember(member));
+
+        userService.removeGuild(memberId, guildId);
+        update(guildId, g -> g.removeMember(memberId));
     }
 
     @Override
-    public boolean isMember(UUID guildId, UUID member) {
-        Guild guild = getOrThrow(guildId);
-        return guild.getMembers().containsKey(member);
+    public boolean isMember(UUID guildId, UUID memberId) {
+        return getOrThrow(guildId).getMembers().containsKey(memberId);
     }
 
     @Override
     public List<UUID> getMemberIds(UUID guildId) {
-        Guild guild = getOrThrow(guildId);
-        return List.copyOf(guild.getMembers().keySet());
+        return List.copyOf(getOrThrow(guildId).getMembers().keySet());
     }
 
     @Override
     public int getMemberCount(UUID guildId) {
-        Guild guild = getOrThrow(guildId);
-        return guild.getMembers().size();
+        return getOrThrow(guildId).getMembers().size();
     }
 
     @Override
-    public Set<Permission> getMemberPermissions(UUID guildId, UUID member) {
+    public Set<Permission> getMemberPermissions(UUID guildId, UUID memberId) {
         Guild guild = getOrThrow(guildId);
-        Set<Permission> permissions = guild.getMembers().get(member);
-        if (permissions == null) {
-            return Collections.emptySet();
-        }
-        return Collections.unmodifiableSet(permissions);
+        Set<Permission> permissions = guild.getMembers().get(memberId);
+        return permissions == null ? Collections.emptySet() : Collections.unmodifiableSet(permissions);
     }
 
     @Override
@@ -188,19 +179,16 @@ public class JcfGuildService extends BaseJcfService<Guild> implements GuildServi
 
     @Override
     public boolean isBanned(UUID guildId, UUID userId) {
-        Guild guild = getOrThrow(guildId);
-        return guild.getBans().contains(userId);
+        return getOrThrow(guildId).getBans().contains(userId);
     }
 
     @Override
     public Set<UUID> getBannedUsers(UUID guildId) {
-        Guild guild = getOrThrow(guildId);
-        return guild.getBans();
+        return getOrThrow(guildId).getBans();
     }
 
     @Override
     public int getBanCount(UUID guildId) {
-        Guild guild = getOrThrow(guildId);
-        return guild.getBans().size();
+        return getOrThrow(guildId).getBans().size();
     }
 }

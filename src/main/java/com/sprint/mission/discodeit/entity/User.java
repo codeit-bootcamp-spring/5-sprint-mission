@@ -4,8 +4,6 @@ import com.sprint.mission.discodeit.enums.user.Status;
 import com.sprint.mission.discodeit.utility.Validators;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,9 +12,7 @@ import java.util.UUID;
 
 import static com.sprint.mission.discodeit.utility.StringUtil.normalizeString;
 
-public class User extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class User extends BaseEntity {
     private String email;
     private String globalName;
     private String username;
@@ -45,6 +41,9 @@ public class User extends BaseEntity implements Serializable {
         this.phoneNumber = "";
         this.avatar = "";
         this.bio = "";
+        this.verified = false;
+        this.deactivated = false;
+        this.banned = false;
     }
 
     public String getEmail() {
@@ -248,7 +247,6 @@ public class User extends BaseEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" + "email='" + email + '\'' + ", globalName='" + globalName + '\'' + ", username='" + username
-                + '\'' + ", status=" + status + ", deactivated=" + deactivated + ", banned=" + banned + '}';
+        return "User{" + "email='" + email + '\'' + ", globalName='" + globalName + '\'' + ", username='" + username + '\'' + ", status=" + status + ", deactivated=" + deactivated + ", banned=" + banned + '}';
     }
 }
