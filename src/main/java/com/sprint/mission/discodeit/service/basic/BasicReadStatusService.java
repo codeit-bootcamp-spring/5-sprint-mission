@@ -1,8 +1,12 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,10 +18,27 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicReadStatusService implements ReadStatusService {
 
+    private final UserRepository userRepository;
+    private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
 
     @Override
     public ReadStatusDto.DetailResponse create(ReadStatusDto.CreateRequest request) {
+        User user = userRepository.findById(request.getUserId()).orElse(null);
+        if (user == null) {
+            throw new IllegalArgumentException("Not Found User");
+        }
+
+        Channel channel = channelRepository.findById(request.getChannelId()).orElse(null);
+        if (channel == null) {
+            throw new IllegalArgumentException("Not Found Channel");
+        }
+
+        if (readStatusRepository.findAllByUserId(request.getUserId()).stream()
+            .anyMatch(rs -> rs.getChannelId().equals(request.getChannelId()))) {
+            throw new IllegalArgumentException("Already Registered Read Status");
+        }
+
         ReadStatus readStatus = new ReadStatus(request.getUserId(), request.getChannelId());
         readStatusRepository.save(readStatus);
 

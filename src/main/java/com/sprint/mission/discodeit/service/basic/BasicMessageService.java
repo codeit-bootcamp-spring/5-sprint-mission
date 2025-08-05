@@ -141,7 +141,6 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public void delete(UUID id) {
-        // 관련된 도메인도 같이 삭제합니다. 첨부파일(BinaryContent)
         Message message = messageRepository.findById(id).orElse(null);
 
         if (message != null) {

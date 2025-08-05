@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 @Repository
 public class JCFMessageRepository extends AbstractJCFRepository<Message> implements MessageRepository {
 
-    // TODO mission에 맞춰 구현
     @Override
     public List<Message> findAllByChannelId(UUID channelId) {
         return data.values().stream()

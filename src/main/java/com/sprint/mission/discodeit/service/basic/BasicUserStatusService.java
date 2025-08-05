@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.UserStatusDto;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +16,22 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicUserStatusService implements UserStatusService {
 
+    private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
 
     @Override
     public UserStatusDto.DetailResponse create(UserStatusDto.CreateRequest request) {
-        UserStatus userStatus = userStatusRepository.save(UserStatus.of(request.getUserId()));
+        User user = userRepository.findById(request.getUserId()).orElse(null);
+        if(user == null) {
+            throw new IllegalArgumentException("Not Found User");
+        }
+
+        UserStatus userStatus = userStatusRepository.findByUserId(request.getUserId()).orElse(null);
+        if(userStatus != null) {
+            throw new IllegalArgumentException("Already Registered User");
+        }
+
+        userStatus = userStatusRepository.save(UserStatus.of(request.getUserId()));
 
         return UserStatusDto.DetailResponse.builder()
             .id(userStatus.getId())
