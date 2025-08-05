@@ -31,12 +31,11 @@ public class BinaryContent implements Serializable {
     private final UUID id;
     private final Instant createdAt;
 
-    // 바이너리 정보
+    // 파일 정보
     private final String fileName;
     private final String contentType;
     private final byte[] content;
     private final long fileSize;
-
 
     public BinaryContent(String fileName, String contentType, byte[] content, long fileSize) {
         this.id = UUID.randomUUID();
@@ -47,9 +46,7 @@ public class BinaryContent implements Serializable {
         this.fileSize = fileSize;
     }
 
-    /**
-     * DTO 기반 생성
-     */
+    // Dto 기반 생성
     public static BinaryContent from(BinaryContentDto dto) {
         return new BinaryContent(
                 dto.getFileName(),
@@ -58,24 +55,6 @@ public class BinaryContent implements Serializable {
                 dto.getFileSize()
         );
     }
-
-    /**
-     * MultipartFile 기반 생성 (웹 업로드 대응)
-     */
-    public static BinaryContent from(MultipartFile file) {
-        try {
-            return new BinaryContent(
-                    file.getOriginalFilename(),
-                    file.getContentType(),
-                    file.getBytes(),
-                    file.getSize()
-            );
-        } catch (IOException e) {
-            throw new RuntimeException("파일 변환 실패", e);
-        }
-    }
-
-
 
     public String getCreatedAtFormatted() {
         LocalDateTime dateTime = LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault());
