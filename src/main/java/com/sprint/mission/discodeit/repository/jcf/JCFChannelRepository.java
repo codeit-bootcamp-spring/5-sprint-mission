@@ -7,7 +7,11 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import java.util.*;
 
 public class JCFChannelRepository implements ChannelRepository {
-    private final Map<UUID, Channel> data = new HashMap<>();
+    private final Map<UUID, Channel> data;
+
+    public JCFChannelRepository() {
+        this.data = new HashMap<>();
+    }
 
     @Override
     public Channel save(Channel channel) {
@@ -16,15 +20,18 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public Channel find(UUID channelId) {
-        Channel channelNullable = this.data.get(channelId);
-        return Optional.ofNullable(channelNullable)
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+    public Optional<Channel> find(UUID channelId) {
+        return Optional.ofNullable(data.get(channelId));
     }
 
     @Override
     public List<Channel> findAll() {
         return this.data.values().stream().toList();
+    }
+
+    @Override
+    public boolean existById(UUID channelId) {
+        return data.containsKey(channelId);
     }
 
     @Override
