@@ -1,69 +1,27 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
-public class Channel {
-    private final UUID id;
+public class Channel implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private transient UUID id;
     private Long createdAt;
     private Long updatedAt;
 
-    // 변경점
-    // 내가 디스코드에서 필요한 필드를 추가적으로 설계하는 자리
-    private String channelName; // 채널의 이름
-    private String channelIntroduction; // 채널의 소개
-    private final ChannelType type; // 채널의 형태(공개/비공개, 문자채팅/음성채팅)
+    private ChannelType type;
+    private String name;
+    private String description;
 
-    public enum ChannelType{
-        PUBLICCHAT(1), PUBLICVOICE(2), PRIVATECHAT(3), PRIVATEVOICE(4);
-
-        private final int typeValue;
-
-        ChannelType(int typeValue) {
-            this.typeValue = typeValue;
-        }
-
-        public int getTypeValue() {
-            return typeValue;
-        }
-
-        public static ChannelType fromValue(int typeValue) {
-            for (ChannelType type : ChannelType.values()) {
-                if (type.getTypeValue() == typeValue) {
-                    return type;
-                }
-            }
-            throw new IllegalArgumentException("유효하지 않은 타입입니다 : " + typeValue);
-        }
-
-        public static ChannelType fromName(String channelName) {
-            for (ChannelType type : ChannelType.values()) {
-                if (type.name().equalsIgnoreCase(channelName)) {
-                    return type;
-                }
-            }
-            throw new IllegalArgumentException("유효하지 않은 채널 이름입니다 : " + channelName);
-        }
-    }
-
-    public Channel() { // 기본 생성자
+    public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = this.createdAt;
-        this.type = ChannelType.PUBLICCHAT; // 기본설정 공개 채팅방
-    }
+        this.createdAt = Instant.now().getEpochSecond();
 
-    public Channel(String channelName, String channelIntroduction, ChannelType type) {
-        id = UUID.randomUUID();
-        this.channelName = channelName;
-        this.channelIntroduction = channelIntroduction;
         this.type = type;
-        createdAt = System.currentTimeMillis();
-        this.updatedAt = createdAt;
-    }
-
-    public Channel(String channelName, String channelIntroduction, int typeValue) {
-        // Int로 channelType 지정하는 오버로딩 메서드
-        this(channelName, channelIntroduction, ChannelType.fromValue(typeValue));
+        this.name = name;
+        this.description = description;
     }
 
     public UUID getId() {
@@ -78,41 +36,31 @@ public class Channel {
         return updatedAt;
     }
 
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public String getChannelIntroduction() {
-        return channelIntroduction;
-    }
-
     public ChannelType getType() {
         return type;
     }
 
-    public void updateUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
+    public String getName() {
+        return name;
     }
 
-    public void updateChannelName(String channelName) {
-        this.channelName = channelName;
-        this.updatedAt = System.currentTimeMillis();
+    public String getDescription() {
+        return description;
     }
 
-    public void updateChannelIntroduction(String channelIntroduction) {
-        this.channelIntroduction = channelIntroduction;
-        this.updatedAt = System.currentTimeMillis();
-    }
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
 
-    @Override
-    public String toString() {
-        return "Channel{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", channelName='" + channelName + '\'' +
-                ", channelIntroduction='" + channelIntroduction + '\'' +
-                ", type=" + type +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
+        }
     }
 }
