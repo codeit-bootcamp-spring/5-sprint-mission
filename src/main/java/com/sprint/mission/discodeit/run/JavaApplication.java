@@ -4,16 +4,20 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 
-import javax.swing.*;
 import java.util.List;
-import java.util.UUID;
 
 public class JavaApplication {
     public static void main(String[] args) {
@@ -31,8 +35,14 @@ public class JavaApplication {
 
         //User Test
         //1. Given: 구현체 및 객체 생성
-        UserService userService = new JCFUserService();
-        User user = new User("test1", "1234");
+        //JCF Test 코드
+        //UserService userService = new JCFUserService();
+        //User user = new User("test1", "1234");
+
+        //File Test 코드
+        UserRepository userRepository = new FileUserRepository();
+        UserService userService = new FileUserService(userRepository);
+        User user = new User("테스트1", "1234");
 
         //2. When: 등록/조회/수정
         userService.create(user); // 유저 등록
@@ -45,8 +55,8 @@ public class JavaApplication {
         System.out.println("✅유저 등록: " + founduser.getId());
         System.out.println("✅유저 아이디 조회: " + founduser.getUserId());
         System.out.println("✅유저  비밀번호 조회: " + founduser.getPassword());
-        System.out.println("✅유저 단건 조회:" + userService.findById(user.getId()));
-        System.out.println("유저 전체 조회" + userService.findAll());
+        System.out.println("✅유저 단건 조회: " + userService.findById(user.getId()));
+        System.out.println("유저 전체 조회: " + userService.findAll());
         System.out.println("✅유저 수정 후 조회: " + userService.findById(user.getId()));
 
         //4. When: 삭제
@@ -64,8 +74,15 @@ public class JavaApplication {
 
         //Channel Test
         //1. Given: 구현체 및 객체 생성
-        ChannelService channelService = new JCFChannelService();
-        Channel channel = new Channel("테스트제목", "설명테스트", ChannelType.VOICE);
+
+        //JCF Test 코드
+        // ChannelService channelService = new FileChannelService();
+        //Channel channel = new Channel("테스트제목", "설명테스트", ChannelType.VOICE);
+
+        //File Test 코드
+        ChannelRepository channelRepository = new FileChannelRepository();
+        ChannelService channelService = new FileChannelService(channelRepository);
+        Channel channel = new Channel("테스트제목", "설명테수투", ChannelType.VOICE);
 
         //2. When: 등록/조회/수정
         channelService.create(channel); // 채널 등록
@@ -88,8 +105,8 @@ public class JavaApplication {
 
         //5. Then: 삭제 검증
         try {
-            Channel afterDelete = channelService.findById(channel.getId());
-            System.out.println("✅채널 삭제 후 조회: " + afterDelete);
+            channelService.findById(channel.getId());
+            System.out.println("❌ 삭제된 채널이 조회됩니다. 오류!");
         } catch (IllegalArgumentException e) {
             System.out.println("✅❗삭제된 채널은 더이상 조회할 수 없습니다.");
         }
@@ -105,9 +122,16 @@ public class JavaApplication {
         channelService.create(messageChannel);
 
         //1. Given: 구현체 및 객체 생성
-        MessageService messageService = new JCFMessageService(userService); //유저 유효성 검사위해 userService 전달
-        Message message = new Message("테스트내용", sender.getId(), messageChannel.getId());
 
+        //JCF Test 코드
+        //MessageService messageService = new JCFMessageService(userService); //유저 유효성 검사위해 userService 전달
+        //Message message = new Message("테스트내용", sender.getId(), messageChannel.getId());
+
+
+        //File Test 코드
+        MessageRepository messageRepository = new FileMessageRepository();
+        MessageService messageService = new FileMessageService(messageRepository, userService);
+        Message message = new Message("테스트내용", sender.getId(), messageChannel.getId());
 
         //2. When: 등록/조회/수정
         messageService.create(message); // 등록
