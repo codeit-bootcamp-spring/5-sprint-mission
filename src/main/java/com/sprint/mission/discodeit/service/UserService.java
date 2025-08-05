@@ -18,6 +18,8 @@ public interface UserService {
 
     User update(UserDto.Update dto);
 
+    User updatePassword(UUID userId, String currentPassword, String newPassword);
+
     boolean delete(UUID id);
 
 }

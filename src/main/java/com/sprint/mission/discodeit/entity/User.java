@@ -11,7 +11,8 @@ public class User extends Base  {
     private String name;
     private final String email;
     private UUID profileId;
-    @JsonIgnore private String password;
+    @JsonIgnore
+    private String password; // JSON 직렬화(역직렬화) 시 password 필드를 무시하여 응답에 포함되지 않도록 설정
 
     public User(String name, String email, String password) {
         this.name = name;

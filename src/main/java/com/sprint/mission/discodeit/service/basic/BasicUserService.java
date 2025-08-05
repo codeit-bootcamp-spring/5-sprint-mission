@@ -89,6 +89,27 @@ public class BasicUserService implements UserService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자가 존재하지 않습니다."));
     }
 
+    @Override
+    public User updatePassword(UUID userId, String currentPassword, String newPassword) {
+
+        // 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자가 존재하지 않습니다."));
+
+        // 현재 비밀번호 검증
+        if(!user.getPassword().equals(currentPassword)){
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        // 새 비밀번호 유효성 검사
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new IllegalArgumentException("새 비밀번호는 비어 있을 수 없습니다.");
+        }
+
+        // 비밀번호 변경 및 저장
+        user.updatePassword(newPassword);
+        return userRepository.save(user);
+    }
 
     @Override
     public boolean delete(UUID id) {
