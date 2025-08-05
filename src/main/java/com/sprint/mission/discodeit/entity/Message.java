@@ -12,13 +12,13 @@ public class Message extends Base{
     private final UUID userId;
     private final UUID channelId;
     private String content;
-    private final List<UUID> files = new ArrayList<>();
-
+    private final List<UUID> files;
 
     public Message(UUID userId, UUID channelId, String content) {
         this.userId = userId;
         this.channelId = channelId;
         this.content = content;
+        this.files = new ArrayList<>();
     }
 
     public void updateContent(String newContent) {
