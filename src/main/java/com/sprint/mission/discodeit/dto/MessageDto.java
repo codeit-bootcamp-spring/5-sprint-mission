@@ -35,6 +35,7 @@ public class MessageDto {
         String authorName;
         String channelName;
         String text;
+        List<UUID> additionalFileIds;
         Instant createdAt;
         Instant updatedAt;
     }

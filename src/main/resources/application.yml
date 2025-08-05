@@ -3,6 +3,6 @@ spring:
     name: discodeit
 discodeit:
   repository:
-    type: jcf  # jcf or file
+    type: file  # jcf or file
     file:
       base-path: ./data.dir

@@ -39,7 +39,7 @@ public class BasicAuthService implements AuthService {
             .name(user.getName())
             .email(user.getEmail())
             .profileId(user.getProfileId())
-            .isOnline(userStatus != null || userStatus.isOnline())
+            .isOnline(userStatus.isOnline())
             .createdAt(user.getCreatedAt())
             .updatedAt(user.getUpdatedAt())
             .build();

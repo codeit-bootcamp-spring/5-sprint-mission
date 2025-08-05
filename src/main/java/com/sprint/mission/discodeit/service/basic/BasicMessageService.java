@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -36,6 +37,13 @@ public class BasicMessageService implements MessageService {
 
         Message message = messageRepository.save(new Message(request.getText(), request.getChannelId(), request.getAuthorId()));
 
+        List<BinaryContent> contents = new ArrayList<>();
+        if( request.getAdditionalFiles() != null && !request.getAdditionalFiles().isEmpty()){
+            contents.addAll(request.getAdditionalFiles().stream()
+                .map(file -> binaryContentRepository.save(BinaryContent.of(file)))
+                .toList());
+        }
+
         return MessageDto.DetailResponse.builder()
             .id(message.getId())
             .channelId(message.getChannelId())
@@ -45,6 +53,7 @@ public class BasicMessageService implements MessageService {
             .text(message.getText())
             .createdAt(message.getCreatedAt())
             .updatedAt(message.getUpdatedAt())
+            .additionalFileIds(contents.stream().map(BinaryContent::getId).toList())
             .build();
     }
 
@@ -72,6 +81,7 @@ public class BasicMessageService implements MessageService {
             .text(message.getText())
             .createdAt(message.getCreatedAt())
             .updatedAt(message.getUpdatedAt())
+            .additionalFileIds(message.getAttachmentIds())
             .build();
     }
 
@@ -94,6 +104,7 @@ public class BasicMessageService implements MessageService {
             .text(message.getText())
             .createdAt(message.getCreatedAt())
             .updatedAt(message.getUpdatedAt())
+            .additionalFileIds(message.getAttachmentIds())
             .build();
     }
 
@@ -102,6 +113,9 @@ public class BasicMessageService implements MessageService {
         List<Message> messages = messageRepository.findAllByChannelId(channelId);
 
         Channel channel = channelRepository.findById(channelId).orElse(null);
+        if(channel == null) {
+            return List.of();
+        }
         List<User> users = messages.stream()
             .map(Message::getAuthorId)
             .distinct()
@@ -120,6 +134,7 @@ public class BasicMessageService implements MessageService {
                 .text(m.getText())
                 .createdAt(m.getCreatedAt())
                 .updatedAt(m.getUpdatedAt())
+                .additionalFileIds(m.getAttachmentIds())
                 .build())
             .collect(Collectors.toList());
     }
