@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.entity;
 import java.time.Instant;
 import java.util.UUID;
 
+
 public class User extends BaseEntity {
     private String email;
     private String userName;

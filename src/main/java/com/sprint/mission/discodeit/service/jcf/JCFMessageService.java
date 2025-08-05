@@ -43,7 +43,6 @@ public class JCFMessageService implements MessageService {
             if (!m.getId().equals(id)) continue;
             if (!m.getUser().equals(user)) continue;
             if (!m.getChannel().equals(channel)) continue;
-
             m.updateMessage(updateMessage);
             break;
         }
