@@ -20,7 +20,7 @@ public class Guild extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String name;
-    private boolean discoverable;
+    private Boolean discoverable;
     private UUID ownerId;
     private final Map<UUID, Set<Permission>> members = new HashMap<>();
     private final List<Channel> channels = new ArrayList<>();
@@ -48,7 +48,7 @@ public class Guild extends BaseEntity implements Serializable {
         return discoverable;
     }
 
-    public void setDiscoverable(boolean discoverable) {
+    public void setDiscoverable(Boolean discoverable) {
         this.discoverable = discoverable;
     }
 

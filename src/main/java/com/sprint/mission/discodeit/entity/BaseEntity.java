@@ -8,16 +8,16 @@ import java.util.UUID;
 
 public abstract class BaseEntity {
     private final UUID id;
-    private final long createdAt;
-    private long updatedAt;
-    private boolean deleted;
+    private final Long createdAt;
+    private Long updatedAt;
+    private Boolean deleted;
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
-    protected BaseEntity(UUID id, long createdAt, long updatedAt) {
+    protected BaseEntity(UUID id, Long createdAt, Long updatedAt) {
         this.id = id != null ? id : UUID.randomUUID();
-        this.createdAt = createdAt > 0 ? createdAt : System.currentTimeMillis();
-        this.updatedAt = updatedAt > 0 ? updatedAt : this.createdAt;
+        this.createdAt = createdAt == null || createdAt > 0 ? createdAt : Long.valueOf(System.currentTimeMillis());
+        this.updatedAt = updatedAt == null || updatedAt > 0 ? updatedAt : this.createdAt;
     }
 
     protected BaseEntity(UUID id, long createdAt) {
@@ -32,11 +32,11 @@ public abstract class BaseEntity {
         return id;
     }
 
-    public long getCreatedAt() {
+    public Long getCreatedAt() {
         return createdAt;
     }
 
-    public long getUpdatedAt() {
+    public Long getUpdatedAt() {
         return updatedAt;
     }
 
@@ -44,7 +44,7 @@ public abstract class BaseEntity {
         this.updatedAt = System.currentTimeMillis();
     }
 
-    public boolean isDeleted() {
+    public Boolean isDeleted() {
         return deleted;
     }
 

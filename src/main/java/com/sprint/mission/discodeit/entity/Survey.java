@@ -15,9 +15,9 @@ public class Survey extends BaseEntity implements Serializable {
 
     private final UUID senderId;
     private final String question;
-    private final long durationMillis;
-    private final boolean duplicateResponseAllowed;
-    private boolean closed;
+    private final Long durationMillis;
+    private final Boolean duplicateResponseAllowed;
+    private Boolean closed;
     private final List<String> answers;
     private final List<Integer> voteCounts;
     private final List<Set<UUID>> voters;
@@ -25,15 +25,15 @@ public class Survey extends BaseEntity implements Serializable {
     public Survey(
             UUID senderId,
             String question,
-            long durationMillis,
-            boolean duplicateResponseAllowed,
+            Long durationMillis,
+            Boolean duplicateResponseAllowed,
             List<String> answers) {
         this.senderId = senderId;
         if (question == null || question.isBlank()) {
             throw new IllegalArgumentException("이런, 뭔가를 잊으신 것 같아요. 질문을 추가해주세요.");
         }
         this.question = question;
-        if (durationMillis < 0) {
+        if (durationMillis != null && durationMillis < 0) {
             throw new IllegalArgumentException("지속 시간은 음수일 수 없습니다.");
         }
         this.durationMillis = durationMillis;
@@ -62,19 +62,19 @@ public class Survey extends BaseEntity implements Serializable {
         return question;
     }
 
-    public long getDurationMillis() {
+    public Long getDurationMillis() {
         return durationMillis;
     }
 
-    public boolean isDuplicateResponseAllowed() {
+    public Boolean isDuplicateResponseAllowed() {
         return duplicateResponseAllowed;
     }
 
-    public boolean isClosed() {
+    public Boolean isClosed() {
         return closed;
     }
 
-    public void setClosed(boolean closed) {
+    public void setClosed(Boolean closed) {
         this.closed = closed;
     }
 

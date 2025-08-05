@@ -17,31 +17,24 @@ import static com.sprint.mission.discodeit.utility.StringUtil.normalizeString;
 public class User extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
     private String email;
     private String globalName;
     private String username;
     private String password;
     private LocalDate birthDate;
-    private boolean subscribedToNewsletter;
+    private Boolean subscribedToNewsletter;
     private Status status;
     private String phoneNumber;
     private String avatar;
     private String bio;
-    private boolean verified;
-    private boolean deactivated;
-    private boolean banned;
+    private Boolean verified;
+    private Boolean deactivated;
+    private Boolean banned;
     private final Set<UUID> friends = new HashSet<>();
     private final Set<UUID> guilds = new HashSet<>();
     private final Set<UUID> chatRooms = new HashSet<>();
 
-    public User(
-            String email,
-            String username,
-            String password,
-            LocalDate birthDate,
-            boolean subscribedToNewsletter,
-            String globalName) {
+    public User(String email, String username, String password, LocalDate birthDate, Boolean subscribedToNewsletter, String globalName) {
         setEmail(email);
         setPassword(password);
         setUsername(username);
@@ -106,11 +99,11 @@ public class User extends BaseEntity implements Serializable {
         this.birthDate = birthDate;
     }
 
-    public boolean isSubscribedToNewsletter() {
+    public Boolean isSubscribedToNewsletter() {
         return subscribedToNewsletter;
     }
 
-    public void setSubscribedToNewsletter(boolean subscribedToNewsletter) {
+    public void setSubscribedToNewsletter(Boolean subscribedToNewsletter) {
         this.subscribedToNewsletter = subscribedToNewsletter;
     }
 
@@ -150,27 +143,27 @@ public class User extends BaseEntity implements Serializable {
         this.bio = Validators.validateBio(bio);
     }
 
-    public boolean isVerified() {
+    public Boolean isVerified() {
         return verified;
     }
 
-    public void setVerified(boolean verified) {
+    public void setVerified(Boolean verified) {
         this.verified = verified;
     }
 
-    public boolean isDeactivated() {
+    public Boolean isDeactivated() {
         return deactivated;
     }
 
-    public void setDeactivated(boolean deactivated) {
+    public void setDeactivated(Boolean deactivated) {
         this.deactivated = deactivated;
     }
 
-    public boolean isBanned() {
+    public Boolean isBanned() {
         return banned;
     }
 
-    public void setBanned(boolean banned) {
+    public void setBanned(Boolean banned) {
         this.banned = banned;
     }
 
@@ -255,22 +248,7 @@ public class User extends BaseEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "User{"
-                + "email='"
-                + email
-                + '\''
-                + ", globalName='"
-                + globalName
-                + '\''
-                + ", username='"
-                + username
-                + '\''
-                + ", status="
-                + status
-                + ", deactivated="
-                + deactivated
-                + ", banned="
-                + banned
-                + '}';
+        return "User{" + "email='" + email + '\'' + ", globalName='" + globalName + '\'' + ", username='" + username
+                + '\'' + ", status=" + status + ", deactivated=" + deactivated + ", banned=" + banned + '}';
     }
 }

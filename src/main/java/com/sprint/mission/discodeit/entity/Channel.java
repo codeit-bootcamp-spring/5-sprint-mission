@@ -18,10 +18,10 @@ public class Channel extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final UUID guildId;
     private String name;
     private ChannelType type;
-    private boolean isPublic;
+    private Boolean isPublic;
+    private final UUID guildId;
     private final Set<UUID> joinedUsers = new HashSet<>();
     private final Map<RoleType, Set<Permission>> rolePermissions = new HashMap<>();
     private final Map<UUID, Set<Permission>> userPermissions = new HashMap<>();
@@ -55,11 +55,11 @@ public class Channel extends BaseEntity implements Serializable {
         this.type = type;
     }
 
-    public boolean isPublic() {
+    public Boolean isPublic() {
         return isPublic;
     }
 
-    public void setPublic(boolean isPublic) {
+    public void setPublic(Boolean isPublic) {
         this.isPublic = isPublic;
     }
 
