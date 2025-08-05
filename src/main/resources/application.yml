@@ -4,5 +4,4 @@ spring:
 discodeit:
   repository:
     type: file  # jcf or file
-    file:
-      base-path: ./data.dir
+    file-path: ./data.dir
