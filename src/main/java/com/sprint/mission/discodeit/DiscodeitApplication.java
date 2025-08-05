@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -54,17 +55,20 @@ public class DiscodeitApplication implements CommandLineRunner {
         testUser = userService.create(new UserDto.Create("테스트유저", "test@example.com", "1234", null));
         testChannel = channelService.create(new ChannelDto.Create("테스트채널", ChannelType.TEXT, null, null));
 
-        System.out.println("\n 🚀 유저 테스트 🚀 \n");
-        testUser();
+//        System.out.println("\n 🚀 유저 테스트 🚀 \n");
+//        testUser();
+//
+//        System.out.println("\n 🚀 채널 테스트 🚀 \n");
+//        testChannel();
+//
+//        System.out.println("\n 🚀 메시지 테스트 🚀 \n");
+//        testMessage();
+//
+//        System.out.println("\n 🚀 메시지 상태 테스트 🚀 \n");
+//        testReadStatus();
 
-        System.out.println("\n 🚀 채널 테스트 🚀 \n");
-        testChannel();
-
-        System.out.println("\n 🚀 메시지 테스트 🚀 \n");
-        testMessage();
-
-        System.out.println("\n 🚀 메시지 상태 테스트 🚀 \n");
-        testReadStatus();
+        System.out.println("\n 🚀 바이너리 파일 테스트 🚀 \n");
+        testBinaryContent();
 
     }
 
@@ -207,6 +211,34 @@ public class DiscodeitApplication implements CommandLineRunner {
 
         System.out.println("[ReadStatusService 기능 테스트 완료]");
 
+    }
+
+    private void testBinaryContent() {
+        // 가짜 파일 생성용 DTO 작성
+        BinaryContentDto dto = new BinaryContentDto(
+                "hello.txt",
+                "text/plain",
+                "Hello, Discodeit!".getBytes()
+        );
+
+        // 3도메인 객체 생성 및 저장
+        BinaryContent file = BinaryContent.from(dto);
+        binaryContentService.save(file);
+        System.out.println("--- 파일 저장 완료 ---");
+        System.out.println(file);
+
+        // 4. 전체 파일 조회
+        List<BinaryContent> files = binaryContentService.findAll();
+        System.out.println("--- 전체 파일 목록 ---");
+        files.forEach(System.out::println);
+
+        // 5. ID로 파일 조회
+        UUID fileId = file.getId();
+        Optional<BinaryContent> found = binaryContentService.findById(fileId);
+        System.out.println("--- ID로 조회한 파일 ---");
+        found.ifPresent(System.out::println);
+
+        System.out.println("✅ BinaryContent 테스트 완료");
     }
 
     private void sleep(long millis) {
