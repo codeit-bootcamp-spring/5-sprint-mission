@@ -5,41 +5,125 @@ import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FileChannelService implements ChannelService {
-    private final FileChannelRepository channelRepo;
+    private final Path DIRECTORY;
+    private final String EXTENSION = ".ser";
 
     public FileChannelService(FileChannelRepository channelRepo) {
-        this.channelRepo = channelRepo;
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "data", Channel.class.getSimpleName());
+        if (!Files.exists(DIRECTORY)) {
+            try {
+                Files.createDirectories(DIRECTORY);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private Path resolvePath(UUID channelId) {
+        return DIRECTORY.resolve(channelId.toString() + EXTENSION);
     }
 
     @Override
     public Channel create(ChannelType type, String name, String description) {
         Channel channel = new Channel(type, name, description);
-        return channelRepo.save(channel);
+        Path path = resolvePath(UUID.randomUUID());
+        try (FileOutputStream fos = new FileOutputStream(path.toFile());
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            oos.writeObject(channel);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return channel;
     }
 
     @Override
     public Channel find(UUID channelId) {
-        return channelRepo.find(channelId);
+        Channel channelNullable = null;
+        Path path = resolvePath(channelId);
+        if (Files.exists(path)) {
+            try (FileInputStream fis = new FileInputStream(path.toFile());
+                 ObjectInputStream ois = new ObjectInputStream(fis)) {
+                channelNullable = (Channel) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Optional.ofNullable(channelNullable)
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
     }
 
     @Override
     public List<Channel> findAll() {
-        return channelRepo.findAll();
+        try {
+            return Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (Channel) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Channel update(UUID channelId, String newName, String newDescription) {
-        Channel channel = channelRepo.find(channelId);
+        Channel channelNullable = null;
+        Path path = resolvePath(channelId);
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                channelNullable = (Channel) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        Channel channel = Optional.ofNullable(channelNullable)
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
         channel.update(newName, newDescription);
-        return channelRepo.save(channel);
+
+        try(
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
+            oos.writeObject(channel);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return channel;
     }
 
     @Override
     public void delete(UUID channelId) {
-        channelRepo.delete(channelId);
+        Path path = resolvePath(channelId);
+        if (Files.notExists(path)) {
+            throw new NoSuchElementException("Channel with id " + channelId + " not found");
+        }
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
