@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.user.UserRegisterDto;
+import com.sprint.mission.discodeit.dto.user.UserUpdateDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -25,7 +27,7 @@ public class BasicUserService implements UserService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public User create(UserDto.Create dto) {
+    public User create(UserRegisterDto dto) {
 
         // email 중복검사
         if (userRepository.findByEmail(dto.email()).isPresent()) {
@@ -51,7 +53,7 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User update(UserDto.Update dto) {
+    public User update(UserUpdateDto dto) {
         // 사용자 조회
         User user = userRepository.findById(dto.id())
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
