@@ -25,12 +25,7 @@ public class MessageService {
     private final BinaryContentRepository binaryContentRepository;
 
     public Message create(MessageCreateRequest request) {
-        if (!channelRepository.existsById(request.channelId())) {
-            throw new NoSuchElementException("Channel not found with id " + request.channelId());
-        }
-        if (!userRepository.existsById(request.authorId())) {
-            throw new NoSuchElementException("Author not found with id " + request.authorId());
-        }
+        validate(request.authorId(), request.channelId());
 
         Message message = new Message(request.content(), request.channelId(), request.authorId());
 
@@ -70,5 +65,14 @@ public class MessageService {
 
     public void deleteAll() {
         messageRepository.findAll().forEach(m -> delete(m.getId()));
+    }
+
+    private void validate(UUID authorId, UUID channelId) {
+        if (!userRepository.existsById(authorId) || !channelRepository.existsById(channelId)) {
+            throw new NoSuchElementException("해당 유저 또는 채널을 찾을 수 없습니다.");
+        }
+        if(authorId ==  null || channelId == null) {
+            throw new IllegalArgumentException("authorId와 channelId는 null일 수 없습니다.");
+        }
     }
 }
