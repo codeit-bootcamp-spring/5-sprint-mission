@@ -14,4 +14,12 @@ public class ReadStatus {
 
     private UUID channelId;
     private UUID userId;
+
+    public ReadStatus(User user, Channel channel) {
+        this.id = UUID.randomUUID();
+        this.userId = user.getId();
+        this.channelId = channel.getId();
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
 }

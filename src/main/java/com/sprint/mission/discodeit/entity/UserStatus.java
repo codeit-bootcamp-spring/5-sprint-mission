@@ -1,13 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
-@RequiredArgsConstructor
 public class UserStatus {
 
     private UUID id;
@@ -19,6 +17,7 @@ public class UserStatus {
     public UserStatus(User user) {
         super();
         this.id = user.getId();
+        this.createdAt = Instant.now();
         this.lastActive = Instant.now();
     }
 

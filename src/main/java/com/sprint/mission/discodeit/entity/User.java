@@ -18,6 +18,8 @@ public class User implements Serializable {
     private String email;
     private String password;
 
+    private UUID profileId;
+
     public User(String username, String email, String password) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
@@ -45,5 +47,18 @@ public class User implements Serializable {
         if (anyValueUpdated) {
             this.updatedAt = Instant.now();
         }
+    }
+
+    public void updateProfileId(UUID newId) {
+        this.profileId = newId;
+        this.updatedAt = Instant.now();
+    }
+
+    public void updateName(String name) {
+        this.username = name;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
     }
 }
