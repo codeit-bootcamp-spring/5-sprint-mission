@@ -91,17 +91,15 @@ public class DiscodeitApplication {
         return binaryContentService.create(request);
     }
 
-    static Message messageCreateTest(MessageService messageService, Channel channel, User author, BinaryContent binaryContent, String content) {
-        List<UUID> attachmentIds = new ArrayList<>();
-        attachmentIds.add(binaryContent.getId());
+    static Message createMessage(MessageService messageService, UUID channelId, UUID authorId, List<UUID> attachmentIds, String content) {
         MessageCreateRequest messageCreateRequest = new MessageCreateRequest(
-                content, channel.getId(), author.getId(), attachmentIds);
+                content, channelId, authorId, attachmentIds);
         return messageService.create(messageCreateRequest);
     }
 
-    static Message messageCreateTest(MessageService messageService, Channel channel, User author, String content) {
+    static Message createMessage(MessageService messageService, UUID channelId, UUID authorId, String content) {
         MessageCreateRequest messageCreateRequest = new MessageCreateRequest(
-                content, channel.getId(), author.getId(), null);
+                content, channelId, authorId, null);
         return messageService.create(messageCreateRequest);
     }
 
@@ -214,8 +212,10 @@ public class DiscodeitApplication {
         exeCheck("삭제 후 전체 조회", () -> userStatusService.findAll().forEach(System.out::println));
     }
 
-    static void channelTest(ChannelService channelService, MessageService messageService
-            , ReadStatusService readStatusService, UserService userService) {
+    static void channelTest(ChannelService channelService
+            , MessageService messageService
+            , ReadStatusService readStatusService
+            , UserService userService) {
         section("Channel 테스트");
         // private 채널에 등록할 유저 리스트 생성
         List<User> users = new ArrayList<>();
@@ -237,10 +237,10 @@ public class DiscodeitApplication {
         Channel privateChannel = channelPrivateOpt.orElseThrow(NoSuchElementException::new);
 
         // 채널에 등록할 메세지 생성
-        messageCreateTest(messageService, publicChannel, users.get(0), "안녕하세요");
-        messageCreateTest(messageService, publicChannel, users.get(1), "안녕하세요");
-        messageCreateTest(messageService, privateChannel, users.get(1), "안녕하세요");
-        messageCreateTest(messageService, privateChannel, users.get(2), "안녕하세요");
+        createMessage(messageService, publicChannel.getId(), users.get(0).getId(), "안녕하세요");
+        createMessage(messageService, publicChannel.getId(), users.get(1).getId(), "안녕하세요");
+        createMessage(messageService, privateChannel.getId(), users.get(1).getId(), "안녕하세요");
+        createMessage(messageService, privateChannel.getId(), users.get(2).getId(), "안녕하세요");
 
         exeCheck("findAllByChannelId : 메세지 생성 확인, publicChannel"
                 , () -> messageService.findAllByChannelId(publicChannel.getId()).forEach(System.out::println));
@@ -288,37 +288,59 @@ public class DiscodeitApplication {
         exeCheck("readStatus 삭제 확인", () -> System.out.println(readStatusService.findAllByUserId(users.get(1).getId()).isEmpty()));
     }
 
-    static void messageTest(MessageService messageService, BinaryContentService binaryContentService, User user, Channel channel, BinaryContent binaryContent) {
-        System.out.println("-----------------------Message 테스트-----------------------");
-        System.out.println();
+    static void messageTest(MessageService messageService
+            , UserService userService
+            , ChannelService channelService
+            , BinaryContentService binaryContentService) {
+        section("Message 테스트");
+        User user1 = createUser(userService, "messageUser1", "4321", "message1@aaa.com");
+        User user2 = createUser(userService, "messageUser2", "4321", "message2@aaa.com");
+        List<User> users = new ArrayList<>();
+        users.add(user1);
+        users.add(user2);
+        Channel channel1 = createPublicChannel(channelService, "public", "public 채널");
+        Channel channel2 = createPrivateChannel(channelService, users, null, null);
+        BinaryContent binaryContent1 = createBinaryContent(binaryContentService, "images.jpg", "jpg");
+        BinaryContent binaryContent2 = createBinaryContent(binaryContentService, "images.jpg", "jpg");
+        List<UUID> attachmentIds = new ArrayList<>();
+        attachmentIds.add(binaryContent1.getId());
+        attachmentIds.add(binaryContent2.getId());
+
         // 생성
-        Message message = messageCreateTest(messageService, channel, user, binaryContent, "test1");
-        messageCreateTest(messageService, channel, user, "test2");
-        messageCreateTest(messageService, channel, user, "test3");
-        messageCreateTest(messageService, channel, user, "test4");
+        Optional<Message> messageOpt = exeCheck(
+                "create : 정상", () -> createMessage(messageService, channel1.getId(), user1.getId(), attachmentIds, "test1"));
+        exeCheck("create : 존재하지 않는 채널", () -> createMessage(messageService, testId, user1.getId(), attachmentIds, "test1"));
+        exeCheck("create : 존재하지 않는 유저", () -> createMessage(messageService, channel1.getId(), testId, attachmentIds, "test1"));
+        exeCheck("create : 둘 다 없을 때", () -> createMessage(messageService, testId, testId, attachmentIds, "test1"));
+        exeCheck("create : channelId == null", () -> createMessage(messageService, null, user1.getId(), attachmentIds, "test1"));
+        exeCheck("create : authorId = null", () -> createMessage(messageService, channel1.getId(), null, attachmentIds, "test1"));
+        exeCheck("create : 둘 다 null", () -> createMessage(messageService, null, null, attachmentIds, "test1"));
+        createMessage(messageService, channel1.getId(), user1.getId(), "test2");
+        createMessage(messageService, channel1.getId(), user1.getId(), "test4");
+        createMessage(messageService, channel2.getId(), user2.getId(), "test3");
+
+        Message message = messageOpt.orElseThrow(NoSuchElementException::new);
 
         // 조회
-        System.out.println("findById : ");
-        System.out.println(messageService.find(message.getId()));
-//        messageService.find(testId); // 존재하지 않는 id 예외 발생
+        exeCheck("findById : 정상", () -> messageService.find(message.getId()));
+        exeCheck("findById : 존재하지 않는 메세지", () -> messageService.find(testId));
         System.out.println("findAllByChannelId : ");
-        messageService.findAllByChannelId(channel.getId()).forEach(System.out::println);
-        System.out.println(messageService.findAllByChannelId(testId).isEmpty()); // 정상 작동 시 true
+        exeCheck("findAllByChannelId : 정상", () -> messageService.findAllByChannelId(channel1.getId()).forEach(System.out::println));
+        exeCheck("findAllByChannelId : 채널이 없을 시 empty 리스트", () -> System.out.println(messageService.findAllByChannelId(testId).isEmpty()));
 
         // 수정
-        System.out.println("수정 전 : ");
-        System.out.println(messageService.find(message.getId()).getContent());
-        MessageUpdateRequest messageUpdateRequest = new MessageUpdateRequest(message.getId(), "updatedContent");
-        MessageUpdateRequest messageUpdateRequest2 = new MessageUpdateRequest(testId, "updatedContent");
-        messageService.update(messageUpdateRequest);
-//        messageService.update(messageUpdateRequest2); // 존재하지 않는 메세지 예외 발생
-        System.out.println("수정 후 : ");
-        System.out.println(messageService.find(message.getId()).getContent());
+        exeCheck("수정 전 조회", () -> messageService.find(message.getId()));
+        MessageUpdateRequest updateRequest = new MessageUpdateRequest(message.getId(), "updatedContent");
+        MessageUpdateRequest updateNotFound = new MessageUpdateRequest(testId, "updatedContent");
+        exeCheck("update : 정상", () -> messageService.update(updateRequest));
+        exeCheck("update : 존재하지 않는 메세지", () -> messageService.update(updateNotFound));
+        exeCheck("수정 후 조회", () -> messageService.find(message.getId()));
 
         // 삭제
-        messageService.delete(message.getId());
-//        messageService.delete(message.getId()); // 삭제 및 예외 발생
-//        binaryContentService.findById(binaryContent.getId()); // 관련된 도메인 삭제
+        exeCheck("delete : 정상", () -> messageService.delete(message.getId()));
+        exeCheck("delete : 삭제된 메세지", () -> messageService.delete(message.getId()));
+        exeCheck("delete : 존재하지 않는 메세지", () -> messageService.delete(testId));
+        exeCheck("BinaryContent 삭제 확인", () -> binaryContentService.findAllByIdIn(attachmentIds));
     }
 
     static void readStatusTest(ReadStatusService readStatusService, ChannelService channelService, List<User> users, Channel channel) {
@@ -383,6 +405,11 @@ public class DiscodeitApplication {
         return channelService.createPrivate(channelCreateRequest);
     }
 
+    static Channel createPublicChannel(ChannelService channelService, String name, String description) {
+        ChannelCreateRequest channelCreateRequest = new ChannelCreateRequest(name, description, null);
+        return channelService.createPublic(channelCreateRequest);
+    }
+
 
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
@@ -406,13 +433,13 @@ public class DiscodeitApplication {
         Channel channel = setupChannel(channelService);
         BinaryContent binaryContent = createBinaryContent(binaryContentService, "images.jpg", "jpg");
         BinaryContent profileImage = createBinaryContent(binaryContentService, "images.jpg", "jpg");
-        Message message = messageCreateTest(messageService, channel, user, binaryContent, "안녕하세요.");
+        Message message = createMessage(messageService, channel.getId(), user.getId(), new ArrayList<>(), "안녕하세요.");
 
         binaryContentTest(binaryContentService, message);
         userTest(userService, userStatusService, binaryContentService);
         userStatusTest(userStatusService, user);
         channelTest(channelService, messageService, readStatusService, userService);
-//        messageTest(messageService, binaryContentService, user, channel, binaryContent);
+        messageTest(messageService, userService, channelService, binaryContentService);
 //        readStatusTest(readStatusService, channelService, user, channel);
 //        authTest(authService, user);
 
