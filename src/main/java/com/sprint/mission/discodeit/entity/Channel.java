@@ -14,8 +14,6 @@ public class Channel extends BaseEntity implements Serializable{
 
     private final UUID ownerUserId;
     private String channelName;
-    private final Set<UUID> usersId = new HashSet<>();
-    private final Set<UUID> messagesId = new HashSet<>();
 
     public Channel(
             String channelName, UUID ownerUserId
@@ -33,36 +31,24 @@ public class Channel extends BaseEntity implements Serializable{
 
     }
 
-    public void addUserId(UUID userId) {
-        usersId.add(userId);
-    }
-    public void removeUserId(UUID userId) {
-        usersId.remove(userId);
-    }
-    public void removeMessageId(UUID messageId) {
-        messagesId.remove(messageId);
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Channel{");
+        sb.append("ownerUserId=").append(ownerUserId);
+        sb.append(", channelName='").append(channelName).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Channel channel = (Channel) o;
-        return Objects.equals(ownerUserId, channel.ownerUserId) && Objects.equals(channelName, channel.channelName) && Objects.equals(usersId, channel.usersId) && Objects.equals(messagesId, channel.messagesId);
+        return Objects.equals(ownerUserId, channel.ownerUserId) && Objects.equals(channelName, channel.channelName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ownerUserId, channelName, usersId, messagesId);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("Channel{");
-        sb.append("ownerUserId=").append(ownerUserId);
-        sb.append(", channelName='").append(channelName).append('\'');
-        sb.append(", usersId=").append(usersId);
-        sb.append(", messagesId=").append(messagesId);
-        sb.append('}');
-        return sb.toString();
+        return Objects.hash(ownerUserId, channelName);
     }
 }
