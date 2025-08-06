@@ -7,9 +7,9 @@ import java.util.UUID;
 
 public interface MessageService {
 
-    void create(Message message);           // 생성
-    Message findById(UUID id);              // 단건 조회
-    List<Message> findAll();                // 다건 조회
-    void update(UUID id, String content);   // 업데이트
-    void delete(UUID id);                   // 삭제
+    Message create(UUID authorId, UUID channelId, String content);
+    Message findById(UUID id);
+    List<Message> findAll();
+    Message update(UUID id, String content);
+    void delete(UUID id);
 }

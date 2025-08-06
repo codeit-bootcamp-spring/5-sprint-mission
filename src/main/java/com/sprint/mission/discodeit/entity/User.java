@@ -1,92 +1,75 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.service.SoftDeletable;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
-public class User implements SoftDeletable {
+import static java.time.Instant.*;
 
-    // 소프트 삭제 여부 (true면 삭제된 상태)
-    private boolean deleted = false;
+public class User implements Serializable {
 
-    private final UUID id;                                      // 고유 아이디
-    private final Long createdAt;                               // 생성일
-    private final List<UUID> channelIds =  new ArrayList<>();   // 참가한 채널의 UUID를 담을 수 있는 리스트
-    private final List<UUID> messageIds =  new ArrayList<>();   // 작성한 메세지의 UUID를 담을 수 있는 리스트
-    private Long updatedAt;                                     // 정보 업데이트일
-    private String name;                                        // 이름
-    private int age;                                            // 나이
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    // 생성자
-    public User(String name, int age) {
+    private final UUID id;
+    private final Long createdAt;
+
+    private Long updatedAt;
+    private String name;
+    private String email;
+    private String password;
+
+    public User(String name, String email, String password) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.createdAt = now().getEpochSecond();
+
         this.name = name;
-        this.age = age;
+        this.email = email;
+        this.password = password;
+        this.updatedAt = now().getEpochSecond();
     }
 
-    // 반환 함수들
     public UUID getId() { return id; }
     public Long getCreatedAt() { return createdAt; }
-    public List<UUID> getChannelIds() { return channelIds; }
-    public List<UUID> getMessageIds() { return messageIds; }
     public Long getUpdatedAt() { return updatedAt; }
     public String getName() { return name; }
-    public int getAge() { return age; }
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
 
-    // 정보 업데이트
-    public void update(String name, int age) {
-        this.name = name;
-        this.age = age;
-        this.updatedAt = System.currentTimeMillis();
-    }
+    public void update(String name, String email, String password) {
+        boolean anyValueUpdated = false;
 
-    // 채널 참가
-    public boolean joinChannel(UUID channelId) {
-        if (this.channelIds.contains(channelId)) {
-            return false;
+        if(isNameChanged(name)) {
+            this.name = name;
+            anyValueUpdated = true;
         }
 
-        channelIds.add(channelId);
-        this.updatedAt = System.currentTimeMillis(); // 채널 추가할 때도 시간 업데이트
-        return true;
-    }
-
-    // 채널 퇴장
-    public boolean leaveChannel(UUID channelId) {
-        if (!this.channelIds.contains(channelId)) {
-            return false;
+        if(isEmailChanged(email)) {
+            this.email = email;
+            anyValueUpdated = true;
         }
 
-        channelIds.remove(channelId);
-        this.updatedAt = System.currentTimeMillis();
-        return true;
-    }
-
-    // 메세지 아이디 추가
-    public boolean addMessage(UUID messageId) {
-        if (this.messageIds.contains(messageId)) {
-            return false;
+        if(isPasswordChanged(password)) {
+            this.password = password;
+            anyValueUpdated = true;
         }
 
-        messageIds.add(messageId);
-        this.updatedAt = System.currentTimeMillis();
-        return true;
+        if(anyValueUpdated) {
+            this.updatedAt = now().getEpochSecond();
+        }
     }
 
-    // 소프트 삭제 여부 반환
-    @Override
-    public boolean isDeleted() {
-        return this.deleted;
+    public boolean isNameChanged(String name) {
+        return name != null && !Objects.equals(this.name, name);
     }
 
-    // 소프트 삭제 처리
-    @Override
-    public void delete() {
-        deleted = true;
+    public boolean isEmailChanged(String email) {
+        return email != null && !Objects.equals(this.email, email);
+    }
+
+    public boolean isPasswordChanged(String password) {
+        return password != null && !Objects.equals(this.password, password);
     }
 
     @Override
@@ -96,8 +79,8 @@ public class User implements SoftDeletable {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", name='" + name + '\'' +
-                ", age=" + age +
-                ", channelIds=" + channelIds +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
                 '}';
     }
 }
