@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,31 +12,35 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository("fileChannelRepository")
 public class FileChannelRepository implements ChannelRepository {
-    private final String DIRECTORY;
-    private final String EXTENSION;
+    private final Path DIRECTORY;
+    private final String EXTENSION = ".ser";
 
     public FileChannelRepository() {
-        this.DIRECTORY = "CHANNEL";
-        this.EXTENSION = ".ser";
-        Path path = Paths.get(DIRECTORY);
-        if (!path.toFile().exists()) {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", Channel.class.getSimpleName());
+        if (Files.notExists(DIRECTORY)) {
             try {
-                Files.createDirectory(path);
+                Files.createDirectories(DIRECTORY);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
+    private Path resolvePath(UUID channelId) {
+        return DIRECTORY.resolve(channelId + EXTENSION);
+    }
+
     @Override
     public Channel save(Channel channel) {
-        Path path = Paths.get(DIRECTORY, channel.getId() + EXTENSION);
-        try (FileOutputStream fos = new FileOutputStream(path.toFile());
-             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+        Path path = resolvePath(channel.getId());
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
             oos.writeObject(channel);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
         return channel;
@@ -43,22 +48,25 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public Optional<Channel> findById(UUID channelId) {
-        Channel channel = null;
-        Path path = Paths.get(DIRECTORY, channelId.toString() + EXTENSION);
-        try (FileInputStream fis = new FileInputStream(path.toFile());
-             ObjectInputStream oos = new ObjectInputStream(fis)) {
-            channel = (Channel) oos.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        Channel channelNullable = null;
+        Path path = resolvePath(channelId);
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                channelNullable = (Channel) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
-        return Optional.ofNullable(channel);
+        return Optional.ofNullable(channelNullable);
     }
 
     @Override
     public List<Channel> findAll() {
-        Path directory = Paths.get(DIRECTORY);
         try {
-            return Files.list(directory)
+            return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (
@@ -77,8 +85,14 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     @Override
+    public boolean existsById(UUID channelId) {
+        Path path = resolvePath(channelId);
+        return Files.exists(path);
+    }
+
+    @Override
     public boolean delete(UUID channelId) {
-        Path path = Paths.get(DIRECTORY, channelId.toString() + EXTENSION);
+        Path path = resolvePath(channelId);
         try {
             return Files.deleteIfExists(path);
         } catch (IOException e) {

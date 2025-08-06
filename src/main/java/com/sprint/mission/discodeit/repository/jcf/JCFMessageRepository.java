@@ -20,15 +20,17 @@ public class JCFMessageRepository implements MessageRepository {
 
     @Override
     public Optional<Message> findById(UUID messageId) {
-        if (messageMap.containsKey(messageId)) {
-            return Optional.of(messageMap.get(messageId));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(messageMap.get(messageId));
     }
 
     @Override
     public List<Message> findAll() {
         return new ArrayList<>(messageMap.values());
+    }
+
+    @Override
+    public boolean existsById(UUID messageId) {
+        return this.messageMap.containsKey(messageId);
     }
 
     @Override

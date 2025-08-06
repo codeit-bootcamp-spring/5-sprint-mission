@@ -20,15 +20,17 @@ public class JCFUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findById(UUID userId) {
-        if (userMap.containsKey(userId)) {
-            return Optional.of(userMap.get(userId));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(userMap.get(userId));
     }
 
     @Override
     public List<User> findAll() {
         return new ArrayList<>(userMap.values());
+    }
+
+    @Override
+    public boolean existsById(UUID userId) {
+        return this.userMap.containsKey(userId);
     }
 
     @Override

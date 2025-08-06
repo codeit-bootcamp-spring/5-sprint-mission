@@ -20,15 +20,17 @@ public class JCFChannelRepository implements ChannelRepository {
 
     @Override
     public Optional<Channel> findById(UUID channelId) {
-        if (channelMap.containsKey(channelId)) {
-            return Optional.of(channelMap.get(channelId));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(channelMap.get(channelId));
     }
 
     @Override
     public List<Channel> findAll() {
         return new ArrayList<>(channelMap.values());
+    }
+
+    @Override
+    public boolean existsById(UUID channelId) {
+        return this.channelMap.containsKey(channelId);
     }
 
     @Override
