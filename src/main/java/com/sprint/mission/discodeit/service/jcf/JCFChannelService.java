@@ -42,31 +42,30 @@ public class JCFChannelService implements ChannelService {
 	}
 
 	@Override
-	public Channel findChannel(String channelName) {
+	public Channel getChannelByName(String channelName) {
 		if(!channelNameToUUID.containsKey(channelName)) return null;
 		return channelMap.get(channelNameToUUID.get(channelName));
 	}
 
 	@Override
-	public Channel findChannel(UUID channelUUID) {
+	public Channel getChannelByUUID(UUID channelUUID) {
 		return channelMap.get(channelUUID);
 	}
 
 	@Override
-	public List<String> findChannelMemberNickname(String channelName){
+	public List<String> getMemberNicknames(String channelName){
 		if (channelName == null || !channelNameToUUID.containsKey(channelName)) return new ArrayList<>();
 
 		Channel channel = channelMap.get(channelNameToUUID.get(channelName));
 		if (channel == null) return new ArrayList<>();
 
 		List<String> nicknameList = new ArrayList<>(channel.getUserNicknames().values());
-		nicknameList.sort((n1, n2) -> n1.compareTo(n2));
 
-		return nicknameList;
+		return nicknameList.stream().sorted().toList();
 	}
 
 	@Override
-	public List<Channel> findChannelAll() {
+	public List<Channel> getAllChannels() {
 		List<Channel> channelList = new ArrayList<>(channelMap.values());
 		channelList.sort((c1, c2) -> c1.getChannelName().compareTo(c2.getChannelName()));
 		return channelList;
@@ -96,7 +95,7 @@ public class JCFChannelService implements ChannelService {
 	public boolean updateUserNickname(UUID channelUUID, UUID userUUID, String newNickname) {
 		if (newNickname == null || newNickname.isEmpty()) return false;
 
-		Channel channel = findChannel(channelUUID);
+		Channel channel = getChannelByUUID(channelUUID);
 		if (channel == null) return false;
 
 		channel.addNickname(userUUID, newNickname);

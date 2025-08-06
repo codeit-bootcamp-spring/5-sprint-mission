@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository.jcf;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -19,68 +20,46 @@ public class JCFMessageRepository implements MessageRepository {
 
 	@Override
 	public void save(Message message) {
-		if (message == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-		if (message.getId() == null) {
-			throw new IllegalArgumentException("null!!");
+		if (message == null || message.getId() == null) {
+			return;
 		}
 
 		messageMap.put(message.getId(), message);
 	}
 
 	@Override
-	public Message findById(UUID messageId) {
-		if (messageId == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-
-		return messageMap.get(messageId);
+	public Optional<Message> findById(UUID messageId) {
+		return Optional.ofNullable(messageMap.get(messageId)).map(Message::copy);
 	}
 
 	@Override
 	public List<Message> findAll() {
-		return new ArrayList<>(messageMap.values());
+		List<Message> messages = new ArrayList<>();
+		for (Message message : messageMap.values()) {
+			messages.add(message.copy());
+		}
+		return messages;
 	}
 
 	@Override
 	public List<Message> findByChannelId(UUID channelId) {
 		if (channelId == null) {
-			throw new IllegalArgumentException("null!!");
+			return new ArrayList<>();
 		}
 
-		return messageMap.values().stream()
-			.filter(message -> channelId.equals(message.getChannelUUID()))
-			.collect(Collectors.toList());
-	}
-
-	@Override
-	public List<Message> findByAuthorId(UUID authorId) {
-		if (authorId == null) {
-			throw new IllegalArgumentException("null!!");
+		List<Message> messages = new ArrayList<>();
+		for (Message message : messageMap.values()) {
+			if (channelId.equals(message.getChannelUUID())) {
+				messages.add(message.copy());
+			}
 		}
-
-		return messageMap.values().stream()
-			.filter(message -> authorId.equals(message.getAuthorUUID()))
-			.collect(Collectors.toList());
-	}
-
-	@Override
-	public List<Message> findByChannelIdAndAuthorId(UUID channelId, UUID authorId) {
-		if (channelId == null || authorId == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-
-		return messageMap.values().stream()
-			.filter(message -> channelId.equals(message.getChannelUUID()) &&
-				authorId.equals(message.getAuthorUUID()))
-			.collect(Collectors.toList());
+		return messages;
 	}
 
 	@Override
 	public void deleteById(UUID messageId) {
 		if (messageId == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		messageMap.remove(messageId);

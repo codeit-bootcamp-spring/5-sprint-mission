@@ -11,7 +11,7 @@ public interface MessageService {
 
 	// 읽기
 	Message getMessage(UUID messageUUID);
-	List<Message> getMessageAll();
+	List<Message> getAllMessages();
 	List<Message> getMessageByAuthor(String targetAuthor, UUID channelUUID);
 	List<Message> getMessageByChannel(UUID channelUUID);
 

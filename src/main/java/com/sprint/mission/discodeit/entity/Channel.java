@@ -4,11 +4,12 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class Channel implements Serializable {
 	@Serial
@@ -17,21 +18,31 @@ public class Channel implements Serializable {
 	private final UUID id;
 	private final Long createdAt;
 	private Long updatedAt;
-	private String ChannelName;
+	private String channelName;
 	private final List<UUID> channelUsersUUID;
 	private final List<UUID> channelMessagesUUID;
 	// userUUID
 	private final Map<UUID, String> userNicknames;
 
 	public Channel(String channelName) {
-		ChannelName = channelName;
+		this.channelName = Objects.requireNonNull(channelName, "채널 이름은 필수 입력값입니다.");
 		channelUsersUUID = new ArrayList<>();
 		channelMessagesUUID = new ArrayList<>();
 		userNicknames = new ConcurrentHashMap<UUID, String>();
 
 		id = UUID.randomUUID();
 		createdAt = Instant.now().getEpochSecond();
-		updatedAt = Instant.now().getEpochSecond();
+		updatedAt = createdAt;
+	}
+
+	public Channel(Channel original) {
+		this.id = original.id;
+		this.createdAt = original.createdAt;
+		this.channelUsersUUID = new ArrayList<>(original.channelUsersUUID);
+		this.channelMessagesUUID = new ArrayList<>(original.channelMessagesUUID);
+		this.userNicknames = new HashMap<>(original.userNicknames);
+		this.channelName = original.channelName;
+		this.updatedAt = original.updatedAt;
 	}
 
 	public UUID getId() {
@@ -47,7 +58,7 @@ public class Channel implements Serializable {
 	}
 
 	public String getChannelName() {
-		return ChannelName;
+		return channelName;
 	}
 
 	public List<UUID> getChannelUsersUUID() {
@@ -71,7 +82,7 @@ public class Channel implements Serializable {
 	}
 
 	public void updateChannelName(String channelName) {
-		ChannelName = channelName;
+		this.channelName = channelName;
 	}
 
 	public void addUser(UUID userUUID) {
@@ -96,5 +107,9 @@ public class Channel implements Serializable {
 
 	public void removeNickname(UUID userUUID) {
 		this.userNicknames.remove(userUUID);
+	}
+
+	public Channel copy() {
+		return new Channel(this);
 	}
 }

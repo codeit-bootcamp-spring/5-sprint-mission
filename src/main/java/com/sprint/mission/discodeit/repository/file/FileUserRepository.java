@@ -10,16 +10,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.FileRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.FileService;
 
-public class FileUserRepository implements UserRepository, FileService {
+public class FileUserRepository implements UserRepository, FileRepository {
 	private static final String DATA_DIR = "data/";
 	private static final String USERS_FILE = DATA_DIR + "users";
 	private static final String LOGIN_MAPPING_FILE = DATA_DIR + "loginMapping";
@@ -35,11 +37,8 @@ public class FileUserRepository implements UserRepository, FileService {
 
 	@Override
 	public void save(User user) {
-		if (user == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-		if (user.getId() == null) {
-			throw new IllegalArgumentException("null!!");
+		if (user == null || user.getId() == null) {
+			return;
 		}
 
 		userMap.put(user.getId(), user);
@@ -50,34 +49,32 @@ public class FileUserRepository implements UserRepository, FileService {
 	}
 
 	@Override
-	public User findById(UUID id) {
-		if (id == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-
-		return userMap.get(id);
+	public Optional<User> findById(UUID id) {
+		return Optional.ofNullable(userMap.get(id)).map(User::copy);
 	}
 
 	@Override
-	public User findByLoginId(String loginId) {
-		if (loginId == null) {
-			throw new IllegalArgumentException("null!!");
+	public Optional<User> findByLoginId(String loginId) {
+		UUID userId = loginIdToUUID.get(loginId);
+		if(userId == null) {
+			return Optional.empty();
 		}
-
-		return userMap.get(loginIdToUUID.get(loginId));
+		return Optional.ofNullable(userMap.get(userId)).map(User::copy);
 	}
 
 	@Override
 	public List<User> findAll() {
-		List<User> userList = new ArrayList<>(userMap.values());
-		userList.sort((u1, u2) -> u1.getDefaultNickname().compareTo(u2.getDefaultNickname()));
-		return userList;
+		List<User> userList = new ArrayList<>();
+		for (User user : userMap.values()) {
+			userList.add(user.copy());
+		}
+		return userList.stream().sorted(Comparator.comparing(User::getDefaultNickname)).toList();
 	}
 
 	@Override
 	public void deleteById(UUID id) {
 		if (id == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		User user = userMap.get(id);
@@ -93,7 +90,7 @@ public class FileUserRepository implements UserRepository, FileService {
 	@Override
 	public void deleteByLoginId(String loginId){
 		if (loginId == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		UUID userId = loginIdToUUID.get(loginId);
@@ -106,9 +103,8 @@ public class FileUserRepository implements UserRepository, FileService {
 		}
 	}
 
-
-
-	public boolean isExistLoginId(String loginId) {
+	@Override
+	public boolean existsByLoginId(String loginId) {
 		if (loginId == null) return true;
 		return loginIdToUUID.containsKey(loginId);
 	}

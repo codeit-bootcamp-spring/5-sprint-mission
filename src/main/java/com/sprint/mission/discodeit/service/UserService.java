@@ -13,9 +13,9 @@ public interface UserService {
 	User createUser(String loginId, String password, String defaultNickname);
 	
 	// 읽기
-	User getUser(UUID id);
-	User getUser(String loginId);
-	List<User> getUserAll();
+	User getUserById(UUID id);
+	User getUserByLoginId(String loginId);
+	List<User> getAllUsers();
 	
 	// 수정
 	boolean updateUserPassword(UUID id, String password);

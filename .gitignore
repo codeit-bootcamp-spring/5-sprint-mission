@@ -287,7 +287,7 @@ gradle-app.setting
 *.hprof
 
 ### 커스텀 ###
-src/main/java/excluded
+src/main/java/excluded/*
 data
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,macos,windows

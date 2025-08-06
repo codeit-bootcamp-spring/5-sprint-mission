@@ -10,16 +10,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.service.FileService;
+import com.sprint.mission.discodeit.repository.FileRepository;
 
-public class FileChannelRepository implements ChannelRepository, FileService {
+public class FileChannelRepository implements ChannelRepository, FileRepository {
 	private static final String DATA_DIR = "data/";
 	private static final String CHANNELS_FILE = DATA_DIR + "channels";
 	private static final String CHANNEL_MAPPING_FILE = DATA_DIR + "channelMapping";
@@ -31,15 +33,16 @@ public class FileChannelRepository implements ChannelRepository, FileService {
 		channelMap = new ConcurrentHashMap<>();
 		channelNameToUUID = new ConcurrentHashMap<>();
 
+		createDirectoryIfNotExists();
+		loadFile(CHANNELS_FILE, channelMap);
+		loadFile(CHANNEL_MAPPING_FILE, channelNameToUUID);
+
 	}
 
 	@Override
 	public void save(Channel channel) {
-		if (channel == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-		if (channel.getId() == null) {
-			throw new IllegalArgumentException("null!!");
+		if (channel == null || channel.getId() == null) {
+			return;
 		}
 
 		channelMap.put(channel.getId(), channel);
@@ -50,29 +53,26 @@ public class FileChannelRepository implements ChannelRepository, FileService {
 	}
 
 	@Override
-	public Channel findById(UUID channelId) {
-		if (channelId == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-
-		return channelMap.get(channelId);
+	public Optional<Channel> findById(UUID channelId) {
+		return Optional.ofNullable(channelMap.get(channelId)).map(Channel::copy);
 	}
 
 	@Override
-	public Channel findByName(String channelName) {
-		if (channelName == null) {
-			throw new IllegalArgumentException("null!!");
-		}
-
+	public Optional<Channel> findByName(String channelName) {
 		UUID channelId = channelNameToUUID.get(channelName);
-		return channelId != null ? channelMap.get(channelId) : null;
+		if(channelId == null) {
+			return Optional.empty();
+		}
+		return Optional.ofNullable(channelMap.get(channelId)).map(Channel::copy);
 	}
 
 	@Override
 	public List<Channel> findAll() {
-		List<Channel> channelList = new ArrayList<>(channelMap.values());
-		channelList.sort((c1, c2) -> c1.getChannelName().compareTo(c2.getChannelName()));
-		return channelList;
+		List<Channel> channelList = new ArrayList<>();
+		for (Channel channel : channelMap.values()) {
+			channelList.add(channel.copy());
+		}
+		return channelList.stream().sorted(Comparator.comparing(Channel::getChannelName)).toList();
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class FileChannelRepository implements ChannelRepository, FileService {
 	@Override
 	public void deleteById(UUID channelId) {
 		if (channelId == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		Channel channel = channelMap.get(channelId);
@@ -100,7 +100,7 @@ public class FileChannelRepository implements ChannelRepository, FileService {
 	@Override
 	public void deleteByName(String channelName) {
 		if (channelName == null) {
-			throw new IllegalArgumentException("null!!");
+			return;
 		}
 
 		UUID channelId = channelNameToUUID.get(channelName);
