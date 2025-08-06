@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface BaseRepository<T> {
@@ -13,7 +14,7 @@ public interface BaseRepository<T> {
 
     List<T> findAllIncludingDeleted();
 
-    List<T> findAllByIds(Iterable<UUID> ids);
+    List<T> findAllByIds(Set<UUID> ids);
 
     boolean existsById(UUID id);
 
