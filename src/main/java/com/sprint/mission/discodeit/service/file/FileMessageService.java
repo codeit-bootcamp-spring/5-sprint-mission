@@ -28,6 +28,9 @@ public class FileMessageService implements MessageService {
         if (sender == null) {
             throw new IllegalArgumentException("보낸 유저가 존재하지 않습니다.");
         }
+        if (message == null) {
+            throw new IllegalArgumentException("메세지 값이 null입니다.");
+        }
         repository.save(message);
     }
 
