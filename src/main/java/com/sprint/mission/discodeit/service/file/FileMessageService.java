@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-public class JCFMessageService implements MessageService {
+public class FileMessageService implements MessageService {
     private final MessageRepository messageRepository;
 
-    public JCFMessageService(MessageRepository messageRepository) {
+    public FileMessageService(MessageRepository messageRepository) {
         this.messageRepository = messageRepository;
     }
 
@@ -33,11 +33,11 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public Message update(UUID id, Message msgDto) {
-        validate(msgDto);
+    public Message update(UUID id, Message messageDto) {
+        validate(messageDto);
         Message msg = findById(id);
-        msg.editContent(msgDto.getContent());
-        return msg;
+        msg.editContent(messageDto.getContent());
+        return messageRepository.save(msg);
     }
 
     @Override
