@@ -68,11 +68,11 @@ public class MessageService {
     }
 
     private void validate(UUID authorId, UUID channelId) {
-        if (!userRepository.existsById(authorId) || !channelRepository.existsById(channelId)) {
-            throw new NoSuchElementException("해당 유저 또는 채널을 찾을 수 없습니다.");
-        }
         if(authorId ==  null || channelId == null) {
             throw new IllegalArgumentException("authorId와 channelId는 null일 수 없습니다.");
+        }
+        if (!userRepository.existsById(authorId) || !channelRepository.existsById(channelId)) {
+            throw new NoSuchElementException("해당 유저 또는 채널을 찾을 수 없습니다.");
         }
     }
 }
