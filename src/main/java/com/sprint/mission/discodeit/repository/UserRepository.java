@@ -10,7 +10,6 @@ public interface UserRepository {
     User save(User user);
     Optional<User> findById(UUID id);
     List<User> findAll();
-    long count();
-    User delete(UUID id);
     boolean existsById(UUID id);
+    void deleteById(UUID id);
 }

@@ -1,47 +1,32 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
 public class Message implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
-    private final UUID id;              //고유 아이디
-    private String content;             //메시지 내용
-    private UUID userId;                //작성자 아이디
-    private UUID channelId;             //작성 채널 아이디
-    private final Long createdAt;        //생성 시간
-    private Long updatedAt;              //수정 시간
+    private UUID id;
+    private Long createdAt;
+    private Long updatedAt;
+    //
+    private String content;
+    //
+    private UUID channelId;
+    private UUID authorId;
 
-    public Message() {
+    public Message(String content, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-    }
-
-    public Message(String content, UUID userId, UUID channelId) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
+        this.createdAt = Instant.now().getEpochSecond();
+        //
         this.content = content;
-        this.userId = userId;
         this.channelId = channelId;
+        this.authorId = authorId;
     }
 
     public UUID getId() {
         return id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
     }
 
     public Long getCreatedAt() {
@@ -52,23 +37,27 @@ public class Message implements Serializable {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
+    public String getContent() {
+        return content;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public UUID getChannelId() {
+        return channelId;
     }
 
-    @Override
-    public String toString() {
-        return "메시지 { " +
-                "아이디 = " + id +
-                ", 내용 = '" + content + '\'' +
-                ", 사용자 ID = " + userId +
-                ", 채널 ID = " + channelId +
-                ", 생성 시간 = " + createdAt +
-                ", 수정 시간 = " + updatedAt +
-                " }";
+    public UUID getAuthorId() {
+        return authorId;
+    }
+
+    public void update(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
+        }
     }
 }
