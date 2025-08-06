@@ -89,9 +89,11 @@ public class UserService {
         }
 
         UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new NoSuchElementException("UserStatus Not found"));
+                .orElse(null);
 
+        if (userStatus != null) {
         userStatusRepository.deleteById(userStatus.getId());
+        }
         userRepository.deleteById(user.getId());
     }
 
