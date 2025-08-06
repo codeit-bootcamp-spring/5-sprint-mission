@@ -14,14 +14,14 @@ public class Message implements Serializable {
 
     private String content; // 내용
     private final UUID channelId; // 체널
-    private final UUID userId; // 작성자
+    private final UUID authorId; // 작성자
 
-    public Message(String content, UUID channelId, UUID userId) {
+    public Message(String content, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.content = content;
         this.channelId = channelId;
-        this.userId = userId;
+        this.authorId = authorId;
     }
 
     public UUID getId() {
@@ -40,12 +40,12 @@ public class Message implements Serializable {
         return content;
     }
 
-    public UUID getUserId() {
-        return userId;
-    }
-
     public UUID getChannelId() {
         return channelId;
+    }
+
+    public UUID getAuthorId() {
+        return authorId;
     }
 
     public void update(String content) {
@@ -61,7 +61,7 @@ public class Message implements Serializable {
                 ", updatedAt=" + updatedAt +
                 ", content='" + content + '\'' +
                 ", channelId=" + channelId +
-                ", userId=" + userId +
+                ", authorId=" + authorId +
                 '}';
     }
 }
