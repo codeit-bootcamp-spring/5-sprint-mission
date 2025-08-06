@@ -1,12 +1,9 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.request.ChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.response.ChannelFindResponse;
 import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.dto.response.ChannelFindResponse;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -24,14 +21,18 @@ public class ChannelService {
     private final MessageRepository messageRepository;
 
     public Channel createPublic(ChannelCreateRequest request) {
+        validateName(request.name());
         Channel channel = new Channel(ChannelType.PUBLIC, request.name(), request.description());
         return channelRepository.save(channel);
     }
 
     public Channel createPrivate(ChannelCreateRequest request) {
         Channel channel = new Channel(ChannelType.PRIVATE, null, null);
-        ReadStatus readStatus = new ReadStatus(request.user().getId(), channel.getId());
-        readStatusRepository.save(readStatus);
+        if (!request.users().isEmpty()) {
+            for (User user : request.users()) {
+                readStatusRepository.save(new ReadStatus(user.getId(), channel.getId()));
+            }
+        }
 
         return channelRepository.save(channel);
     }
@@ -107,6 +108,7 @@ public class ChannelService {
     }
 
     public Channel update(ChannelUpdateRequest request) {
+        validateName(request.newName());
         Channel channel = channelRepository.findById(request.id())
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + request.id() + " not found"));
         if (channel.getType() == ChannelType.PRIVATE) {
@@ -133,4 +135,9 @@ public class ChannelService {
         channelRepository.findAll().forEach(channel -> delete(channel.getId()));
     }
 
+    private void validateName(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Public 채널 이름은 null 이거나 empty 일 수 없습니다.");
+        }
+    }
 }
