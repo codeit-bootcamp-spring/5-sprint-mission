@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.dto.request.*;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
@@ -10,15 +12,49 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Supplier;
 
 @ConfigurationPropertiesScan
 @SpringBootApplication
 public class DiscodeitApplication {
     static UUID testId = UUID.randomUUID();
     static String testString = "testString";
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscodeitApplication.class);
+
+    static void section(String title) {
+        System.out.println("\n------------------------------------------------------------ " + title + " ------------------------------------------------------------\n");
+    }
+
+    static void exeCheck(String title, Runnable r) {
+        System.out.println("=== " + title + " ===");
+        try {
+            r.run();
+            System.out.println("** [SUCCESS] **");
+        } catch (RuntimeException e) {
+            System.out.println("** [FAILED] " + userMessage(e) + " **");
+            LOGGER.warn("실패 메서드 타이틀: {}", title, e);
+        }
+    }
+
+    static <T> Optional<T> exeCheck(String title, Supplier<T> s) {
+        System.out.println("=== " + title + " ===");
+        try {
+            T t = s.get();
+            System.out.println(t);
+            System.out.println("** [SUCCESS] **");
+            return Optional.ofNullable(t);
+        } catch (RuntimeException e) {
+            System.out.println("** [FAILED] " + userMessage(e) + " **");
+            LOGGER.warn("실패 메서드 타이틀: {}", title, e);
+            return Optional.empty();
+        }
+    }
+
+    static String userMessage(Throwable e) {
+        String msg = e.getMessage();
+        return (msg == null || msg.isBlank()) ? "오류가 발생했습니다." : msg;
+    }
 
     static User createUser(UserService userService, String username, String password, String email) {
         UserCreateRequest userCreateRequest = new UserCreateRequest(
@@ -60,126 +96,122 @@ public class DiscodeitApplication {
         attachmentIds.add(binaryContent.getId());
         MessageCreateRequest messageCreateRequest = new MessageCreateRequest(
                 content, channel.getId(), author.getId(), attachmentIds);
-        Message message = messageService.create(messageCreateRequest);
-        return message;
+        return messageService.create(messageCreateRequest);
     }
 
     static Message messageCreateTest(MessageService messageService, Channel channel, User author, String content) {
         MessageCreateRequest messageCreateRequest = new MessageCreateRequest(
                 content, channel.getId(), author.getId(), null);
-        Message message = messageService.create(messageCreateRequest);
-        return message;
+        return messageService.create(messageCreateRequest);
     }
 
     static void binaryContentTest(BinaryContentService binaryContentService, Message message) {
-        System.out.println("-----------------------BinaryContent 테스트-----------------------");
-        System.out.println();
-        BinaryContent savedContent = createBinaryContent(binaryContentService, "images.jpg", "jpg");
+        section("BinaryContent 테스트");
+        Optional<BinaryContent> binaryContentOpt = exeCheck(
+                "create : 정상", () -> createBinaryContent(binaryContentService, "image.jpg", "jpg"));
+        exeCheck("create : 존재하지 않는 파일", () -> createBinaryContent(binaryContentService, testString, "jpg"));
+        exeCheck("create : 잘못된 확장자", () -> createBinaryContent(binaryContentService, "image.jpg", "png"));
+        BinaryContent savedContent = binaryContentOpt.orElseThrow(NoSuchElementException::new);
 
         // 조회
-        System.out.print("findById : ");
-        System.out.println(binaryContentService.findById(savedContent.getId()).getId());
-        System.out.print("findAllByIdIn : ");
-        binaryContentService.findAllByIdIn(message.getAttachmentIds()).forEach(
-                content -> System.out.println(content.getId()));
+        exeCheck("findById : 정상", () -> System.out.println(binaryContentService.findById(savedContent.getId()).getId()));
+        exeCheck("findById : 존재하지 않는 ID", () -> System.out.println(binaryContentService.findById(testId).getId()));
+        exeCheck("findAllByIdIn : 정상", () -> binaryContentService.findAllByIdIn(message.getAttachmentIds()).forEach(
+                content -> System.out.println(content.getId())));
+        exeCheck("findAllByIdIn : 존재하지 않는 메세지", () -> binaryContentService.findAllByIdIn(new ArrayList<>()).forEach(
+                content -> System.out.println(content.getId())));
 
         // 삭제
-//        binaryContentService.delete(UUID.randomUUID()); // 예외 발생 확인
-        binaryContentService.delete(savedContent.getId());
-//        System.out.println(binaryContentService.findById(savedContent.getId())); // 예외 발생 확인
+        exeCheck("delete : 정상", () -> binaryContentService.delete(savedContent.getId()));
+        exeCheck("delete : 삭제된 content", () -> binaryContentService.delete(savedContent.getId()));
+        exeCheck("delete : 존재하지 않는 content", () -> binaryContentService.delete(testId));
     }
 
 
     static void userTest(UserService userService, UserStatusService userStatusService, BinaryContentService binaryContentService) {
-        System.out.println("-----------------------User 테스트-----------------------");
-        System.out.println();
+        section("User 테스트");
 
         BinaryContent profileImage = createBinaryContent(binaryContentService, "images.jpg", "jpg");
-        // 생성
-        UserCreateRequest userCreateRequest = new UserCreateRequest(
-                "test1", "aaa@aaa.com", "1234", false, null);
-        UserCreateRequest userCreateRequest2 = new UserCreateRequest(
-                "test1", "bbb@aaa.com", "1234", true, profileImage.getId());
-        UserCreateRequest userCreateRequest3 = new UserCreateRequest(
-                "test2", "aaa@aaa.com", "1234", true, profileImage.getId());
-        User user = userService.create(userCreateRequest);
-//        User user2 = userService.create(userCreateRequest2); // username 중복 체크 테스트
-//        User user3 = userService.create(userCreateRequest3); // email 중복 체크 테스트
 
+        // 생성
+        UserCreateRequest request1 = new UserCreateRequest(
+                "test1", "aaa@aaa.com", "1234", false, null);
+        UserCreateRequest requestUserNameDup = new UserCreateRequest(
+                "test1", "bbb@aaa.com", "1234", true, profileImage.getId());
+        UserCreateRequest requestEmailDup = new UserCreateRequest(
+                "test2", "aaa@aaa.com", "1234", true, profileImage.getId());
+        Optional<User> userOpt = exeCheck("create : 정상", () -> userService.create(request1));
+        User user = userOpt.orElseThrow(NoSuchElementException::new);
+        exeCheck("create : username 중복", () -> userService.create(requestUserNameDup));
+        exeCheck("create : email 중복", () -> userService.create(requestEmailDup));
 
         // 조회 - UserFindResponse 반환 확인 및 userStatus 생성 확인
-        System.out.println("findById : ");
-        System.out.println(userService.findById(user.getId()));
-//        userService.findById(testId); // 예외 발생 확인
-        System.out.println("findAll : ");
-        userService.findAll().forEach(System.out::println);
-        System.out.println("UserStatus : ");
-        System.out.println(userStatusService.findByUserId(user.getId()));
+        exeCheck("findById : 존재하는 유저", () -> userService.findById(user.getId()));
+        exeCheck("findById : 존재하지 않는 유저", () -> userService.findById(testId));
+        exeCheck("findAll", () -> userService.findAll().forEach(System.out::println));
+        exeCheck("UserStatus 생성 확인", () -> userStatusService.findByUserId(user.getId()));
 
         // 수정
-        System.out.println("수정 전 : ");
-        System.out.println(userService.findById(user.getId()));
-        UserUpdateRequest userUpdateRequest = new UserUpdateRequest(
+        exeCheck("수정 전 조회", () -> userService.findById(user.getId()));
+        UserUpdateRequest updateRequest = new UserUpdateRequest(
                 user.getId(), "updated", "updated@aaa.com"
                 , "12345", true, profileImage.getId());
-        UserUpdateRequest userUpdateRequest2 = new UserUpdateRequest(
+        UserUpdateRequest updateUsernameDup = new UserUpdateRequest(
                 user.getId(), "updated", "updated2@aaa.com"
                 , "12345", true, profileImage.getId());
-        UserUpdateRequest userUpdateRequest3 = new UserUpdateRequest(
+        UserUpdateRequest updateEmailDup = new UserUpdateRequest(
                 user.getId(), "updated2", "updated@aaa.com"
                 , "12345", true, profileImage.getId());
-        userService.update(userUpdateRequest);
-//        userService.update(userUpdateRequest2); // username 중복 체크 테스트
-//        userService.update(userUpdateRequest3); // email 중복 체크 테스트
-        System.out.println("수정 후 : ");
-        System.out.println(userService.findById(user.getId()));
+        exeCheck("update : 정상", () -> userService.update(updateRequest));
+        exeCheck("update : username 중복", () -> userService.update(updateUsernameDup));
+        exeCheck("update : email 중복", () -> userService.update(updateEmailDup));
+        exeCheck("수정 후 조회", () -> userService.findById(user.getId()));
 
         // 삭제
-        userService.delete(user.getId());
-//        System.out.println(userStatusService.findByUserId(user.getId())); // UserStatus 삭제 확인
-//        System.out.println(binaryContentService.findById(profileImage.getId())); // BinaryContent 삭제 확인
-//        System.out.println(userService.findById(user.getId())); // User 삭제 확인
-//        userService.delete(user.getId()); // 삭제 예외 처리 확인
-        System.out.println("삭제 후 전체 조회 : ");
-        userService.findAll().forEach(System.out::println);
+        exeCheck("delete : 정상", () -> userService.delete(user.getId()));
+        exeCheck("delete : user 삭제 확인", () -> userService.delete(user.getId()));
+        exeCheck("delete : 존재하지 않는 ID", () -> userService.delete(testId));
+        exeCheck("delete : UserStatus 삭제 확인", () -> userStatusService.findByUserId(user.getId()));
+        exeCheck("delete : BinaryContent 삭제 확인", () -> binaryContentService.findById(profileImage.getId()));
+        exeCheck("삭제 후 전체 조회", () -> userService.findAll().forEach(System.out::println));
+
     }
 
     static void userStatusTest(UserStatusService userStatusService, User user) {
-        System.out.println("-----------------------UserStatus 테스트-----------------------");
-        System.out.println();
+        section("UserStatus 테스트");
         // 생성
-//        UserStatusCreateRequest request = new UserStatusCreateRequest(user.getId());
-//        UserStatusCreateRequest request2 = new UserStatusCreateRequest(UUID.randomUUID());
-//        userStatusService.create(request); // 이미 존재하는 유저의 Status 생성 테스트
-//        userStatusService.create(request2); // 존재하지 않는 유저의 Status 생성 테스트
+        UserStatusCreateRequest requestDup = new UserStatusCreateRequest(user.getId());
+        UserStatusCreateRequest requestUserNotFound = new UserStatusCreateRequest(testId);
+        exeCheck("create : userStatus 중복", () -> userStatusService.create(requestDup));
+        exeCheck("create : 존재하지 않는 유저", () -> userStatusService.create(requestUserNotFound));
 
         // 조회
-        System.out.println("전체 조회");
-        userStatusService.findAll().forEach(System.out::println);
-        System.out.println("findByUserId : ");
-        UserStatus userStatus = userStatusService.findByUserId(user.getId());
-        System.out.println(userStatus);
-        System.out.println("findById : ");
-        System.out.println(userStatusService.findById(userStatus.getId()));
+        exeCheck("findAll", () -> userStatusService.findAll().forEach(System.out::println));
+        Optional<UserStatus> userStatusOpt = exeCheck("findByUserId : 정상", () -> userStatusService.findByUserId(user.getId()));
+        exeCheck("findByUserId : 존재하지 않는 UserId", () -> userStatusService.findByUserId(testId));
+        UserStatus userStatus = userStatusOpt.orElseThrow(NoSuchElementException::new);
+        exeCheck("findById : 정상", () -> userStatusService.findById(userStatus.getId()));
+        exeCheck("findById : 존재하지 않는 ID", () -> userStatusService.findById(testId));
 
         // 수정
-        System.out.println("수정 전 : ");
-        System.out.println(userStatusService.findById(userStatus.getId()).isLoginStatus());
-        UserStatusUpdateRequest userStatusUpdateRequest = new UserStatusUpdateRequest(userStatus.getId(), true);
-        userStatusService.update(userStatusUpdateRequest);
-        System.out.println("update 수정 후 : ");
-        System.out.println(userStatusService.findById(userStatus.getId()).isLoginStatus());
-        UserStatusUpdateRequest userStatusUpdateRequest2 = new UserStatusUpdateRequest(user.getId(), false);
-        userStatusService.updateByUserId(userStatusUpdateRequest2);
-        System.out.println("updateByUserId 수정 후 : ");
-        System.out.println(userStatusService.findById(userStatus.getId()).isLoginStatus());
+        exeCheck("수정 전 조회", () -> userStatusService.findById(userStatus.getId()));
+        UserStatusUpdateRequest updateRequest = new UserStatusUpdateRequest(userStatus.getId(), true);
+        UserStatusUpdateRequest updateNotFound = new UserStatusUpdateRequest(testId, false);
+        exeCheck("update : 정상", () -> userStatusService.update(updateRequest));
+        exeCheck("update : 존재하지 않는 ID", () -> userStatusService.update(updateNotFound));
+        exeCheck("updateById 수정 후 조회", () -> userStatusService.findById(userStatus.getId()));
+        UserStatusUpdateRequest updateRequest2 = new UserStatusUpdateRequest(user.getId(), false);
+        UserStatusUpdateRequest updateUserNotFound = new UserStatusUpdateRequest(testId, false);
+        exeCheck("updateByUserId : 정상", () -> userStatusService.updateByUserId(updateRequest2));
+        exeCheck("updateByUserId : 존재하지 않는 유저", () -> userStatusService.updateByUserId(updateUserNotFound));
+        exeCheck("updateByUserId 수정 후 조회", () -> userStatusService.findById(userStatus.getId()));
 
 
         // 삭제
-        userStatusService.delete(userStatus.getId());
-        System.out.println("삭제 후 전체 조회 : ");
-        userStatusService.findAll().forEach(System.out::println);
-
+        exeCheck("delete : 정상", () -> userStatusService.delete(userStatus.getId()));
+        exeCheck("delete : 존재하지 않는 ID", () -> userStatusService.delete(testId));
+        exeCheck("delete : 삭제된 ID", () -> userStatusService.delete(userStatus.getId()));
+        exeCheck("삭제 후 전체 조회", () -> userStatusService.findAll().forEach(System.out::println));
     }
 
     static void channelTest(ChannelService channelService, MessageService messageService, ReadStatusService readStatusService, User user) {
@@ -356,7 +388,7 @@ public class DiscodeitApplication {
 
         binaryContentTest(binaryContentService, message);
         userTest(userService, userStatusService, binaryContentService);
-//        userStatusTest(userStatusService, user);
+        userStatusTest(userStatusService, user);
 //        channelTest(channelService, messageService, readStatusService, user);
 //        messageTest(messageService, binaryContentService, user, channel, binaryContent);
 //        readStatusTest(readStatusService, channelService, user, channel);
