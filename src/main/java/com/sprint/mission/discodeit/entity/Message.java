@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Message {
+public class Message implements Serializable {
 
     private UUID id; // 메시지 고유 id
     private Long createdAt; // 생성 시간
