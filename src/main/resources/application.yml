@@ -1,0 +1,25 @@
+spring:
+  profiles:
+    active: prod
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework: INFO
+    com.sprint.mission: DEBUG
+
+app:
+  name: Discodeit
+  version: 1.0.0
+  server:
+    port: 8080
+    url: http://localhost:8080
+    timeout: 5000
+  admins:
+    - commicat.sup@gmail.com
+    - commicat2@gmail.com
+  metadata:
+    region: korea
+    owner: admin-team
