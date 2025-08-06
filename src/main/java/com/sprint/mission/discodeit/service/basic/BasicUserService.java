@@ -1,0 +1,47 @@
+package com.sprint.mission.discodeit.service.basic;
+
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.service.UserService;
+
+import java.util.*;
+
+public class BasicUserService implements UserService {
+    private final UserRepository repo;
+
+    public BasicUserService(UserRepository repo) {
+        this.repo = repo;
+    }
+
+    @Override
+    public User createUser(String username, String email, String password) {
+        User user = new User(username, email, password);
+       return repo.save(user);
+    }
+
+    @Override
+    public Optional<User> getUser(UUID userId) {
+        Optional<User> user = repo.findById(userId);
+        return user;
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return repo.findAll();
+    }
+
+    @Override
+    public User updateUser(UUID userId, User user) {
+       return repo.update(userId,user);
+    }
+
+    @Override
+    public void deleteUser(UUID userId) {
+        repo.delete(userId);
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return repo.existsById(id);
+    }
+}
