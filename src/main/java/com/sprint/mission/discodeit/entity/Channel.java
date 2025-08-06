@@ -12,15 +12,17 @@ import java.util.UUID;
 public class Channel extends BaseEntity implements Serializable{
     private static final long serialVersionUID = 1L;
 
+    private final ChannelType channelType;
     private final UUID ownerUserId;
     private String channelName;
 
     public Channel(
-            String channelName, UUID ownerUserId
+            String channelName, UUID ownerUserId, ChannelType channelType
     ) {
         super();
         this.channelName = channelName;
         this.ownerUserId = ownerUserId;
+        this.channelType = channelType;
     }
 
     public void updateChannelName(String channelName) {
@@ -34,7 +36,8 @@ public class Channel extends BaseEntity implements Serializable{
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("Channel{");
-        sb.append("ownerUserId=").append(ownerUserId);
+        sb.append("channelType=").append(channelType);
+        sb.append(", ownerUserId=").append(ownerUserId);
         sb.append(", channelName='").append(channelName).append('\'');
         sb.append('}');
         return sb.toString();
@@ -44,11 +47,11 @@ public class Channel extends BaseEntity implements Serializable{
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Channel channel = (Channel) o;
-        return Objects.equals(ownerUserId, channel.ownerUserId) && Objects.equals(channelName, channel.channelName);
+        return channelType == channel.channelType && Objects.equals(ownerUserId, channel.ownerUserId) && Objects.equals(channelName, channel.channelName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ownerUserId, channelName);
+        return Objects.hash(channelType, ownerUserId, channelName);
     }
 }
