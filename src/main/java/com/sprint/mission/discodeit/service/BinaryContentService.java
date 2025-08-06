@@ -6,9 +6,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +16,12 @@ public class BinaryContentService {
 
     public BinaryContent create(BinaryContentCreateRequest request) {
         BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(), request.size(), request.bytes());
+        if (!Arrays.stream(request.fileName().split("\\."))
+                .collect(Collectors.toCollection(LinkedList::new))
+                .getLast()
+                .equals(request.contentType())) {
+            throw new IllegalArgumentException("잘못된 확장자입니다.");
+        }
         return binaryContentRepository.save(binaryContent);
     }
 
