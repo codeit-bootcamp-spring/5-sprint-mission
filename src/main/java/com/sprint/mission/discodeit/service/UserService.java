@@ -38,9 +38,7 @@ public class UserService {
     }
 
     public UserFindResponse findById(UUID userId) {
-        User user = null;
-
-        user = userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
         return UserFindResponse.builder()
