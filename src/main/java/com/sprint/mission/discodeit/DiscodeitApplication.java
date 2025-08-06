@@ -108,9 +108,9 @@ public class DiscodeitApplication {
     static void binaryContentTest(BinaryContentService binaryContentService, Message message) {
         section("BinaryContent 테스트");
         Optional<BinaryContent> binaryContentOpt = exeCheck(
-                "create : 정상", () -> createBinaryContent(binaryContentService, "image.jpg", "jpg"));
+                "create : 정상", () -> createBinaryContent(binaryContentService, "images.jpg", "jpg"));
         exeCheck("create : 존재하지 않는 파일", () -> createBinaryContent(binaryContentService, testString, "jpg"));
-        exeCheck("create : 잘못된 확장자", () -> createBinaryContent(binaryContentService, "image.jpg", "png"));
+        exeCheck("create : 잘못된 확장자", () -> createBinaryContent(binaryContentService, "images.jpg", "png"));
         BinaryContent savedContent = binaryContentOpt.orElseThrow(NoSuchElementException::new);
 
         // 조회
@@ -118,7 +118,7 @@ public class DiscodeitApplication {
         exeCheck("findById : 존재하지 않는 ID", () -> System.out.println(binaryContentService.findById(testId).getId()));
         exeCheck("findAllByIdIn : 정상", () -> binaryContentService.findAllByIdIn(message.getAttachmentIds()).forEach(
                 content -> System.out.println(content.getId())));
-        exeCheck("findAllByIdIn : 존재하지 않는 메세지", () -> binaryContentService.findAllByIdIn(new ArrayList<>()).forEach(
+        exeCheck("findAllByIdIn : 메세지에 첨부파일이 없을 때", () -> binaryContentService.findAllByIdIn(new ArrayList<>()).forEach(
                 content -> System.out.println(content.getId())));
 
         // 삭제
@@ -169,7 +169,7 @@ public class DiscodeitApplication {
 
         // 삭제
         exeCheck("delete : 정상", () -> userService.delete(user.getId()));
-        exeCheck("delete : user 삭제 확인", () -> userService.delete(user.getId()));
+        exeCheck("delete : 삭제된 유저", () -> userService.delete(user.getId()));
         exeCheck("delete : 존재하지 않는 ID", () -> userService.delete(testId));
         exeCheck("delete : UserStatus 삭제 확인", () -> userStatusService.findByUserId(user.getId()));
         exeCheck("delete : BinaryContent 삭제 확인", () -> binaryContentService.findById(profileImage.getId()));
@@ -214,56 +214,78 @@ public class DiscodeitApplication {
         exeCheck("삭제 후 전체 조회", () -> userStatusService.findAll().forEach(System.out::println));
     }
 
-    static void channelTest(ChannelService channelService, MessageService messageService, ReadStatusService readStatusService, User user) {
-        System.out.println("-----------------------Channel 테스트-----------------------");
-        System.out.println();
+    static void channelTest(ChannelService channelService, MessageService messageService
+            , ReadStatusService readStatusService, UserService userService) {
+        section("Channel 테스트");
+        // private 채널에 등록할 유저 리스트 생성
+        List<User> users = new ArrayList<>();
+        users.add(createUser(userService, "channelUser1", "1234", "channel1@ch.com"));
+        users.add(createUser(userService, "channelUser2", "1234", "channel2@ch.com"));
+        users.add(createUser(userService, "channelUser3", "1234", "channel3@ch.com"));
+
         // 생성
-        ChannelCreateRequest channelCreateRequest = new ChannelCreateRequest(
-                "public", "public 채널입니다.", null);
-        ChannelCreateRequest channelCreateRequest2 = new ChannelCreateRequest(
-                null, null, user);
-        Channel publicChannel = channelService.createPublic(channelCreateRequest);
-        Channel privateChannel = channelService.createPrivate(channelCreateRequest2);
-        messageCreateTest(messageService, privateChannel, user, "안녕하세요");
-        messageCreateTest(messageService, privateChannel, user, "안녕하세요");
-        messageCreateTest(messageService, publicChannel, user, "안녕하세요");
-        messageCreateTest(messageService, publicChannel, user, "안녕하세요");
-        messageService.findAllByChannelId(privateChannel.getId()).forEach(System.out::println);
+        ChannelCreateRequest requestPublic = new ChannelCreateRequest("public", "public 채널입니다.", null);
+        ChannelCreateRequest requestNameNull = new ChannelCreateRequest(null, "public 채널입니다.", null);
+        ChannelCreateRequest requestNameEmpty = new ChannelCreateRequest("", "public 채널입니다.", null);
+        ChannelCreateRequest requestPrivate = new ChannelCreateRequest(null, null, users);
+
+        Optional<Channel> channelPublicOpt = exeCheck("createPublic : 정상", () -> channelService.createPublic(requestPublic));
+        exeCheck("createPublic : 채널 이름 null", () -> channelService.createPublic(requestNameNull));
+        exeCheck("createPublic : 채널 이름 empty", () -> channelService.createPublic(requestNameEmpty));
+        Optional<Channel> channelPrivateOpt = exeCheck("createPrivate", () -> channelService.createPrivate(requestPrivate));
+        Channel publicChannel = channelPublicOpt.orElseThrow(NoSuchElementException::new);
+        Channel privateChannel = channelPrivateOpt.orElseThrow(NoSuchElementException::new);
+
+        // 채널에 등록할 메세지 생성
+        messageCreateTest(messageService, publicChannel, users.get(0), "안녕하세요");
+        messageCreateTest(messageService, publicChannel, users.get(1), "안녕하세요");
+        messageCreateTest(messageService, privateChannel, users.get(1), "안녕하세요");
+        messageCreateTest(messageService, privateChannel, users.get(2), "안녕하세요");
+
+        exeCheck("findAllByChannelId : 메세지 생성 확인, publicChannel"
+                , () -> messageService.findAllByChannelId(publicChannel.getId()).forEach(System.out::println));
+        exeCheck("findAllByChannelId : 메세지 생성 확인, privateChannel"
+                , () -> messageService.findAllByChannelId(privateChannel.getId()).forEach(System.out::println));
+        exeCheck("ReadStatus 생성 확인", () -> readStatusService.findAllByUserId(users.get(1).getId()).forEach(System.out::println));
 
         // 조회
-        System.out.println("findById : ");
-        System.out.println(channelService.findById(privateChannel.getId()));
-        System.out.println(channelService.findById(publicChannel.getId()));
-//        System.out.println(channelService.findById(testId)); // 조회 오류 테스트
-        System.out.println("findAllByUserId : ");
-        channelService.findAllByUserId(user.getId()).forEach(System.out::println);
-        System.out.println("public 채널만 조회");
-        channelService.findAllByUserId(testId).forEach(System.out::println); // public 채널만 나와야 함
+        exeCheck("findById : 정상, public", () -> channelService.findById(publicChannel.getId()));
+        exeCheck("findById : 정상, private", () -> channelService.findById(privateChannel.getId()));
+        exeCheck("findById : 존재하지 않는 채널", () -> channelService.findById(testId));
+        exeCheck("findAllByUserId : 해당하는 유저가 있을 경우"
+                , () -> channelService.findAllByUserId(users.get(0).getId()).forEach(System.out::println));
+        exeCheck("findAllByUserId : public 채널만 조회됨"
+                , () -> channelService.findAllByUserId(testId).forEach(System.out::println));
 
         // 수정
-        ChannelUpdateRequest channelUpdateRequest = new ChannelUpdateRequest(
+        ChannelUpdateRequest updatedPublic = new ChannelUpdateRequest(
                 publicChannel.getId(), "updatedPublic", "수정된 public 채널입니다.");
-        ChannelUpdateRequest channelUpdateRequest2 = new ChannelUpdateRequest(
+        ChannelUpdateRequest updatedPrivate = new ChannelUpdateRequest(
                 privateChannel.getId(), "updatedPrivate", "수정된 private 채널입니다.");
-        ChannelUpdateRequest channelUpdateRequest3 = new ChannelUpdateRequest(
+        ChannelUpdateRequest updateNotFound = new ChannelUpdateRequest(
                 testId, "test", "test");
+        ChannelUpdateRequest updateNameNull = new ChannelUpdateRequest(
+                publicChannel.getId(), null, "test");
+        ChannelUpdateRequest updateNameEmpty = new ChannelUpdateRequest(
+                publicChannel.getId(), "", "test");
 
-        System.out.println("수정 전 : ");
-        System.out.println(channelService.findById(publicChannel.getId()));
-        channelService.update(channelUpdateRequest);
-//        channelService.update(channelUpdateRequest2); // private 채널 업데이트 오류
-//        channelService.update(channelUpdateRequest3); // 존재하지 않는 채널 업데이트 오류
-        System.out.println("수정 후 : ");
-        System.out.println(channelService.findById(publicChannel.getId()));
+        exeCheck("수정 전", () -> channelService.findById(publicChannel.getId()));
+        exeCheck("update : 정상", () -> channelService.update(updatedPublic));
+        exeCheck("update : private, 불가", () -> channelService.update(updatedPrivate));
+        exeCheck("update : 존재하지 않는 채널", () -> channelService.update(updateNotFound));
+        exeCheck("update : 채널 이름 null", () -> channelService.update(updateNameNull));
+        exeCheck("update : 채널 이름 empty", () -> channelService.update(updateNameEmpty));
+        exeCheck("수정 후", () -> channelService.findById(publicChannel.getId()));
 
         // 삭제
-        channelService.delete(publicChannel.getId());
-        channelService.delete(privateChannel.getId());
-        System.out.println("삭제 후 조회 : ");
-        channelService.findAllByUserId(user.getId()).forEach(System.out::println);
-        System.out.println(messageService.findAllByChannelId(privateChannel.getId()).isEmpty()); // 채널 메세지 삭제 확인
-        System.out.println(messageService.findAllByChannelId(publicChannel.getId()).isEmpty());  // -> 삭제됐을시 true
-        System.out.println(readStatusService.findAllByUserId(user.getId()).isEmpty()); // readStatus 삭제 확인
+        exeCheck("delete : 정상, public", () -> channelService.delete(publicChannel.getId()));
+        exeCheck("delete : 정상, private", () -> channelService.delete(privateChannel.getId()));
+        exeCheck("delete : 삭제된 채널", () -> channelService.delete(privateChannel.getId()));
+        exeCheck("delete : 존재하지 않는 채널", () -> channelService.delete(testId));
+        exeCheck("삭제 후 조회", () -> channelService.findAllByUserId(users.get(1).getId()).forEach(System.out::println));
+        exeCheck("채널 메세지 삭제 확인, public", () -> System.out.println(messageService.findAllByChannelId(publicChannel.getId()).isEmpty()));
+        exeCheck("채널 메세지 삭제 확인, private", () -> System.out.println(messageService.findAllByChannelId(privateChannel.getId()).isEmpty()));
+        exeCheck("readStatus 삭제 확인", () -> System.out.println(readStatusService.findAllByUserId(users.get(1).getId()).isEmpty()));
     }
 
     static void messageTest(MessageService messageService, BinaryContentService binaryContentService, User user, Channel channel, BinaryContent binaryContent) {
@@ -299,25 +321,25 @@ public class DiscodeitApplication {
 //        binaryContentService.findById(binaryContent.getId()); // 관련된 도메인 삭제
     }
 
-    static void readStatusTest(ReadStatusService readStatusService, ChannelService channelService, User user, Channel channel) {
+    static void readStatusTest(ReadStatusService readStatusService, ChannelService channelService, List<User> users, Channel channel) {
         System.out.println("-----------------------ReadStatus 테스트-----------------------");
         System.out.println();
         // 생성 - 직접 생성하는 객체가 아님
-        Channel channel1 = createPrivateChannel(channelService, user, "private1", "description");
-        Channel channel2 = createPrivateChannel(channelService, user, "private2", "description");
-        Channel channel3 = createPrivateChannel(channelService, user, "private3", "description");
+        Channel channel1 = createPrivateChannel(channelService, users, "private1", "description");
+        Channel channel2 = createPrivateChannel(channelService, users, "private2", "description");
+        Channel channel3 = createPrivateChannel(channelService, users, "private3", "description");
 //        ReadStatus readStatus = createReadStatus(readStatusService, user.getId(), channel1.getId()); // 이미 존재하는 객체
 //        createReadStatus(readStatusService, testId, channel1.getId()); // 존재하지 않는 채널 또는 유저
 //        createReadStatus(readStatusService, user.getId(), testId);
 //        createReadStatus(readStatusService, testId, testId);
 
         // 조회
-        ReadStatus readStatus = readStatusService.findAllByUserId(user.getId()).get(0);
+        ReadStatus readStatus = readStatusService.findAllByUserId(users.get(0).getId()).get(0);
         System.out.println("findById : ");
         System.out.println(readStatusService.findById(readStatus.getId()));
 //        readStatusService.findById(testId); // 예외 발생
         System.out.println("findAllByUserId : ");
-        readStatusService.findAllByUserId(user.getId()).forEach(System.out::println);
+        readStatusService.findAllByUserId(users.get(0).getId()).forEach(System.out::println);
         System.out.println(readStatusService.findAllByUserId(testId).isEmpty()); // 정상작동시 true 반환
 
         // 수정
@@ -356,8 +378,8 @@ public class DiscodeitApplication {
         return readStatusService.create(readStatusCreateRequest);
     }
 
-    static Channel createPrivateChannel(ChannelService channelService, User user, String name, String description) {
-        ChannelCreateRequest channelCreateRequest = new ChannelCreateRequest(name, description, user);
+    static Channel createPrivateChannel(ChannelService channelService, List<User> users, String name, String description) {
+        ChannelCreateRequest channelCreateRequest = new ChannelCreateRequest(name, description, users);
         return channelService.createPrivate(channelCreateRequest);
     }
 
@@ -389,10 +411,16 @@ public class DiscodeitApplication {
         binaryContentTest(binaryContentService, message);
         userTest(userService, userStatusService, binaryContentService);
         userStatusTest(userStatusService, user);
-//        channelTest(channelService, messageService, readStatusService, user);
+        channelTest(channelService, messageService, readStatusService, userService);
 //        messageTest(messageService, binaryContentService, user, channel, binaryContent);
 //        readStatusTest(readStatusService, channelService, user, channel);
 //        authTest(authService, user);
-    }
 
+        userService.deleteAll();
+        channelService.deleteAll();
+        messageService.deleteAll();
+        binaryContentService.deleteAll();
+        readStatusService.deleteAll();
+        userStatusService.deleteAll();
+    }
 }
