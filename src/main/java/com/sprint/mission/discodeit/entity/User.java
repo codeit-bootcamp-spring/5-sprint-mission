@@ -1,22 +1,27 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.UUID;
 
-public class User {
-    private UUID id;                //고유 아이디
+public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private final UUID id;                //고유 아이디
     private String password;        //비밀번호
     private String name;            //이름
-    private Long createAt;          //생성 시간
-    private Long updateAt;          //수정 시간
+    private final Long createdAt;          //생성 시간
+    private Long updatedAt;          //수정 시간
 
     public User() {
         this.id = UUID.randomUUID();
-        this.createAt = System.currentTimeMillis();
-    }
+        this.createdAt = System.currentTimeMillis();
+    };
 
     public User(String password, String name) {
         this.id = UUID.randomUUID();
-        this.createAt = System.currentTimeMillis();
+        this.createdAt = System.currentTimeMillis();
         this.password = password;
         this.name = name;
     }
@@ -33,16 +38,16 @@ public class User {
         return name;
     }
 
-    public Long getCreateAt() {
-        return createAt;
+    public Long getCreatedAt() {
+        return createdAt;
     }
 
-    public Long getUpdateAt() {
-        return updateAt;
+    public Long getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdateAt(Long updateAt) {
-        this.updateAt = updateAt;
+    public void setUpdatedAt(Long updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public void setPassword(String password) {
@@ -55,8 +60,8 @@ public class User {
                 "아이디 = " + id +
                 ", 비밀번호 = '" + password + '\'' +
                 ", 이름 = '" + name + '\'' +
-                ", 생성 시간 = " + createAt +
-                ", 수정 시간 = " + updateAt +
+                ", 생성 시간 = " + createdAt +
+                ", 수정 시간 = " + updatedAt +
                 " }";
     }
 }

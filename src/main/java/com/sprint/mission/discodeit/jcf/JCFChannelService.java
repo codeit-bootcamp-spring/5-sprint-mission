@@ -3,61 +3,58 @@ package com.sprint.mission.discodeit.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class JCFChannelService implements ChannelService {
-    private final List<Channel> channels = new ArrayList<>();
+    private final Map<UUID, Channel> data;
+
+    public JCFChannelService() {
+        data = new HashMap<>();
+    }
 
     @Override
     public Channel register(Channel channel) {
-        if (channel.getName() == null || channel.getDescription() == null || channel.getName().isBlank() || channel.getDescription().isBlank()) {
-            System.out.println("채널 등록 실패!");
-            return null;
-        }
-        channels.add(channel);
-        System.out.println("채널 : " + channel.getName() + " 등록 성공");
+        if (isInvalid(channel.getName()) || isInvalid(channel.getDescription()))
+            throw new IllegalArgumentException("채널 등록에 실패했습니다.");
+
+        data.put(channel.getId(), channel);
+        System.out.println("채널 : " + channel.getName() + " 등록 성공.");
         return channel;
     }
 
     @Override
     public Channel findById(UUID id) {
-        for (Channel channel : channels) {
-            if (channel.getId().equals(id)) {
-                return channel;
-            }
-        }
-        return null;
+        if(!data.containsKey(id))
+            throw new NoSuchElementException("채널에서 해당 " + id + "를 찾을 수 없습니다.");
+        return data.get(id);
     }
 
     @Override
     public List<Channel> findAll() {
-        return List.copyOf(channels);
+        return new ArrayList<>(data.values());
     }
 
     @Override
-    public Channel update(String name, String newDescription) {
-        if (newDescription != null && !newDescription.isBlank()) {
-            for (Channel channel : channels) {
-                if (channel.getName().equals(name)) {
-                    channel.setDescription(newDescription);
-                    channel.setUpdateAt(System.currentTimeMillis());
-                    return channel;
-                }
-            }
-        }
-        return null;
+    public Channel update(UUID id, String newDescription) {
+        if (isInvalid(newDescription))
+            throw new IllegalArgumentException("새로운 채널 설명을 입력하세요.");
+
+        Channel channel = findById(id);
+
+        channel.setDescription(newDescription);
+        channel.setUpdatedAt(System.currentTimeMillis());
+        return channel;
     }
 
     @Override
-    public Channel delete(String name) {
-        for (Channel channel : channels) {
-            if (channel.getName().equals(name)) {
-                channels.remove(channel);
-                return channel;
-            }
-        }
-        return null;
+    public Channel delete(UUID id) {
+        if (!data.containsKey(id))
+            throw new NoSuchElementException("채널에서 해당 " + id + "를 찾을 수 없습니다.");
+        else
+            return data.remove(id);
+    }
+
+    public boolean isInvalid(String value) {
+        return value == null || value.isBlank();
     }
 }
