@@ -88,12 +88,8 @@ public class UserService {
             binaryContentRepository.deleteById(user.getProfileId());
         }
 
-        UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-                .orElse(null);
+        userStatusRepository.findByUserId(user.getId()).ifPresent(userStatus -> userStatusRepository.deleteById(userStatus.getId()));
 
-        if (userStatus != null) {
-        userStatusRepository.deleteById(userStatus.getId());
-        }
         userRepository.deleteById(user.getId());
     }
 
