@@ -6,9 +6,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.service.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +22,7 @@ public class BasicAuthServiceTest {
     @Autowired
     private BasicAuthService basicAuthService;
     @Autowired
-    private BasicUserService basicUserService;
+    private UserService userService;
     @Autowired
     private BinaryContentService basicBinaryContentService;
 
@@ -48,9 +46,9 @@ public class BasicAuthServiceTest {
     @Test
     public void loginTest(){
         BinaryContent binaryContent = basicBinaryContentService.addBinaryContent(bytes);
-        basicUserService.addUser(addUserDto1);
+        userService.addUser(addUserDto1);
         addUserDto2 = new AddUserDto("testName2", "testMail2", "testPassword2", "testPhone2", binaryContent.getId());
-        basicUserService.addUser(addUserDto2);
+        userService.addUser(addUserDto2);
 
         LoginDto noBinaryLogin = basicAuthService.login("testName1", "testPassword1");
         LoginDto hasBinaryLogin = basicAuthService.login("testName2", "testPassword2");
@@ -64,14 +62,14 @@ public class BasicAuthServiceTest {
 
     @Test
     public void loginFailUserNameTest(){
-        basicUserService.addUser(addUserDto1);
+        userService.addUser(addUserDto1);
 
         Assertions.assertThatThrownBy(() -> basicAuthService.login("ohHateCoding", "testPassword2")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void loginFailPasswordTest(){
-        basicUserService.addUser(addUserDto1);
+        userService.addUser(addUserDto1);
 
         Assertions.assertThatThrownBy(() -> basicAuthService.login("testMail1", "wwww")).isInstanceOf(IllegalArgumentException.class);
     }

@@ -12,11 +12,11 @@ public class ReadStatus extends BaseEntity{
     private final UUID channelId;
     private Instant lastReadTime;
 
-    public ReadStatus(UUID userId, UUID channelId, Instant lastReadTime) {
+    public ReadStatus(UUID userId, UUID channelId) {
         super();
         this.userId = userId;
         this.channelId = channelId;
-        this.lastReadTime = lastReadTime;
+        this.lastReadTime = Instant.now();
     }
 
     public void updateLastReadTime() {

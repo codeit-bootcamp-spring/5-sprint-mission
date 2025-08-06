@@ -24,7 +24,6 @@ public class Message extends BaseEntity implements Serializable {
         super();
         this.authorUserId = authorUserId;
         this.channelId = channelId;
-
         this.content = content;
     }
 

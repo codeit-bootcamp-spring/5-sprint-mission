@@ -74,4 +74,9 @@ public class FileMessageRepository implements MessageRepository {
             }
         }
     }
+
+    @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return List.of();
+    }
 }
