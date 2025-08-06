@@ -1,80 +1,80 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
 public class User extends BaseEntity {
-  private  String username;
-  private  String password;
+    private String username;
+    private String password;
 
-  public User(String username, String password) {
-    super(UUID.randomUUID(), System.currentTimeMillis(), System.currentTimeMillis());
-    this.username = username;
-    this.password = password;
-  }
-
-  public UUID getId() {
-    return id;
-  }
-
-  public Long getCreatedAt() {
-    return createdAt;
-  }
-
-  public Long getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-
-  public void update(String username, String password) {
-    if (username != null) {
-      this.username = username;
+    public User(String username, String password) {
+        super(UUID.randomUUID(), Instant.now().getEpochSecond(), Instant.now().getEpochSecond());
+        this.username = username;
+        this.password = password;
     }
-    if (password != null) {
-      this.password = password;
+
+    public UUID getId() {
+        return id;
     }
-    // 업데이트 시각을 현재 시각으로 갱신합니다.
-    this.updatedAt = System.currentTimeMillis();
-  }
 
-  @Override
-  public String toString() {
-    return "User{" +
-        "id=" + id +
-        ", createdAt=" + createdAt +
-        ", updatedAt=" + updatedAt +
-        ", username='" + username + '\'' +
-        ", password='" + password + '\'' +
-        '}';
-  }
-
-
-  @Override
-  public boolean equals(Object o) {
-
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+    public Long getCreatedAt() {
+        return createdAt;
     }
-    User user = (User) o;
-    return Objects.equals(id, user.id) && Objects.equals(createdAt,
-        user.createdAt) && Objects.equals(updatedAt, user.updatedAt)
-        && Objects.equals(username, user.username) && Objects.equals(password,
-        user.password);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, createdAt, updatedAt, username, password);
-  }
+    public Long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+
+    public void update(String username, String password) {
+        boolean anyValueUpdated = false;
+        if (username != null && !username.equals(this.username)) {
+            this.username = username;
+            anyValueUpdated = true;
+        }
+        if (password != null && !password.equals(this.password)) {
+            this.password = password;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
 
 }

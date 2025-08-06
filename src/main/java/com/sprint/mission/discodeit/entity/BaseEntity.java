@@ -3,31 +3,42 @@ package com.sprint.mission.discodeit.entity;
 import java.util.UUID;
 
 
-public class BaseEntity {
-  protected final UUID id;
-  protected final Long createdAt;
-  protected Long updatedAt;
+import java.io.Serializable;
 
-  public BaseEntity(UUID id, Long createdAt, Long updatedAt) {
-    this.id = id;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-  }
+public class BaseEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
+    protected UUID id;
+    protected Long createdAt;
+    protected Long updatedAt;
 
-  public UUID getId() {
-    return id;
-  }
+    public BaseEntity(UUID id, Long createdAt, Long updatedAt) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 
-  public Long getCreatedAt() {
-    return createdAt;
-  }
+    public UUID getId() {
+        return id;
+    }
 
-  public Long getUpdatedAt() {
-    return updatedAt;
-  }
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-  public void setUpdatedAt(Long updatedAt) {
-    this.updatedAt = updatedAt;
-  }
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
 }
