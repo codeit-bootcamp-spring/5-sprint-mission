@@ -11,6 +11,14 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
     Map<UUID, BinaryContent> data = new HashMap<>();
 
     @Override
+    public Optional<BinaryContent> findById(UUID id) {
+        if(!data.containsKey(id)){
+            return Optional.empty();
+        }
+        return Optional.of(data.get(id));
+    }
+
+    @Override
     public void deleteById(UUID id) {
         data.remove(id);
     }
