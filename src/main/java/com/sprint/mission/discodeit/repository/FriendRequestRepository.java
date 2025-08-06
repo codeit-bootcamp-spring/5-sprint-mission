@@ -9,6 +9,4 @@ public interface FriendRequestRepository extends BaseRepository<FriendRequest> {
     List<FriendRequest> getSentRequests(UUID senderId);
 
     List<FriendRequest> getReceivedRequests(UUID receiverId);
-
-    void clearFriendRequests(UUID userId);
 }

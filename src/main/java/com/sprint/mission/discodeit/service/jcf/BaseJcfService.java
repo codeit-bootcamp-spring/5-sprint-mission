@@ -4,10 +4,10 @@ import com.sprint.mission.discodeit.entity.BaseEntity;
 import com.sprint.mission.discodeit.service.BaseService;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -45,7 +45,7 @@ public abstract class BaseJcfService<T extends BaseEntity> implements BaseServic
     }
 
     @Override
-    public List<T> findAllByIds(Collection<UUID> ids) {
+    public List<T> findAllByIds(Set<UUID> ids) {
         return data.stream()
                 .filter(e -> !e.isDeleted() && ids.contains(e.getId()))
                 .collect(Collectors.toList());

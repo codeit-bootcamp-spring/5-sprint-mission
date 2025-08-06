@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.service.file;
+package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.BaseEntity;
-import com.sprint.mission.discodeit.service.BaseService;
+import com.sprint.mission.discodeit.repository.BaseRepository;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,50 +12,58 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public abstract class BaseFileService<T extends BaseEntity> implements BaseService<T> {
+public abstract class BaseFileRepository<T extends BaseEntity> implements BaseRepository<T> {
     private static final String EXTENSION = ".ser";
 
     private final Path directory;
     private final Class<T> type;
 
-    protected BaseFileService(Class<T> type) {
-        if (type == null) throw new IllegalArgumentException("Type must not be null.");
+    protected BaseFileRepository(Class<T> type) {
+        this.type = type;
         this.directory = Paths.get(System.getProperty("user.dir"), "file-data-map", type.getSimpleName());
+
         try {
             if (Files.notExists(directory)) {
                 Files.createDirectories(directory);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to create storage directory", e);
+            throw new RuntimeException("Failed to create directory: " + directory, e);
         }
-
-        this.type = type;
     }
 
-    private Path resolvePath(UUID id) {
+    protected Path resolvePath(UUID id) {
         return directory.resolve(id + EXTENSION);
     }
 
     private Optional<T> readObject(Path path) {
-        try (FileInputStream fis = new FileInputStream(path.toFile()); ObjectInputStream ois = new ObjectInputStream(fis)) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile()))) {
             return Optional.of(type.cast(ois.readObject()));
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Failed to read entity from storage", e);
+            return Optional.empty();
         }
     }
 
-    protected void update(UUID id, Consumer<T> updater) {
-        T entity = getOrThrow(id);
-        updater.accept(entity);
-        entity.touch();
-        save(entity);
+    @Override
+    public T save(T entity) {
+        if (entity == null) throw new IllegalArgumentException("entity must not be null");
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(resolvePath(entity.getId()).toFile()))) {
+            oos.writeObject(entity);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save entity: " + entity.getId(), e);
+        }
+        return entity;
+    }
+
+    @Override
+    public Optional<T> findById(UUID id) {
+        Path path = resolvePath(id);
+        if (!Files.exists(path)) return Optional.empty();
+        return readObject(path).filter(e -> !e.isDeleted());
     }
 
     @Override
@@ -78,18 +86,6 @@ public abstract class BaseFileService<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-    public Optional<T> findById(UUID id) {
-        Path path = resolvePath(id);
-        if (!Files.exists(path)) return Optional.empty();
-        return readObject(path).filter(e -> !e.isDeleted());
-    }
-
-    @Override
-    public T getOrThrow(UUID id) {
-        return findById(id).orElseThrow(() -> new NoSuchElementException("엔티티를 찾을 수 없습니다: " + id));
-    }
-
-    @Override
     public List<T> findAllByIds(Set<UUID> ids) {
         try (Stream<Path> paths = Files.list(directory)) {
             return paths.filter(path -> path.toString().endsWith(EXTENSION)).map(this::readObject)
@@ -105,46 +101,28 @@ public abstract class BaseFileService<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-    public T save(T entity) {
-        if (entity == null) throw new IllegalArgumentException("엔티티는 null일 수 없습니다.");
-        Path path = resolvePath(entity.getId());
-        try (FileOutputStream fos = new FileOutputStream(path.toFile()); ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(entity);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return entity;
+    public boolean deleteById(UUID id) {
+        Optional<T> opt = findById(id);
+        opt.ifPresent(BaseEntity::delete);
+        opt.ifPresent(this::save);
+        return opt.isPresent();
     }
 
     @Override
     public boolean hardDeleteById(UUID id) {
-        Path path = resolvePath(id);
         try {
-            return Files.deleteIfExists(path);
+            return Files.deleteIfExists(resolvePath(id));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to hard delete file: " + path, e);
+            throw new RuntimeException("Failed to hard delete entity: " + id, e);
         }
-    }
-
-    @Override
-    public boolean deleteById(UUID id) {
-        Optional<T> opt = readObject(resolvePath(id));
-        if (opt.isPresent() && !opt.get().isDeleted()) {
-            T entity = opt.get();
-            entity.delete();
-            save(entity);
-            return true;
-        }
-        return false;
     }
 
     @Override
     public boolean restoreById(UUID id) {
         Optional<T> opt = readObject(resolvePath(id));
         if (opt.isPresent() && opt.get().isDeleted()) {
-            T entity = opt.get();
-            entity.restore();
-            save(entity);
+            opt.get().restore();
+            save(opt.get());
             return true;
         }
         return false;
@@ -152,10 +130,6 @@ public abstract class BaseFileService<T extends BaseEntity> implements BaseServi
 
     @Override
     public long count() {
-        try (Stream<Path> paths = Files.list(directory)) {
-            return paths.filter(path -> path.toString().endsWith(EXTENSION)).map(this::readObject).flatMap(Optional::stream).count();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load non-deleted entities from: " + directory, e);
-        }
+        return findAll().size();
     }
 }

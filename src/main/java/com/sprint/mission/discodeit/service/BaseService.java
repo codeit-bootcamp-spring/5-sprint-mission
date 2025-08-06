@@ -1,24 +1,24 @@
 package com.sprint.mission.discodeit.service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface BaseService<T> {
+    T save(T entity);
+
+    Optional<T> findById(UUID id);
+
     List<T> findAll();
 
     List<T> findAllIncludingDeleted();
 
-    Optional<T> findById(UUID id);
-
-    List<T> findAllByIds(Collection<UUID> ids);
-
-    boolean existsById(UUID id);
+    List<T> findAllByIds(Set<UUID> ids);
 
     T getOrThrow(UUID id);
 
-    T save(T entity);
+    boolean existsById(UUID id);
 
     boolean hardDeleteById(UUID id);
 
