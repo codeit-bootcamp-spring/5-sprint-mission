@@ -1,64 +1,53 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.util.*;
 
 public class JCFChannelService implements ChannelService {
-    private Map<UUID, Channel> data = new HashMap<>();
+    private final Map<UUID, Channel> data;
 
-    @Override
-    public Channel enter(UUID userId, UUID channelId) { // 미구현
-        return null;
+    public JCFChannelService() {
+        this.data = new HashMap<>();
     }
 
     @Override
-    public Channel leave(UUID userId, UUID channelId) { // 미구현
-        return null;
-    }
+    public Channel create(ChannelType type, String name, String description) {
+        Channel channel = new Channel(type, name, description);
+        this.data.put(channel.getId(), channel);
 
-    @Override
-    public Channel createChannel(String channelName, String channelIntroduction, int typeValue) {
-        Channel channel = new Channel(channelName, channelIntroduction, typeValue);
-        data.put(channel.getId(), channel);
         return channel;
     }
 
     @Override
-    public Channel find(UUID id) {
-        return data.get(id);
+    public Channel find(UUID channelId) {
+        Channel channelNullable = this.data.get(channelId);
+        return Optional.ofNullable(channelNullable)
+                        .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
     }
 
     @Override
     public List<Channel> findAll() {
-        return new ArrayList<>(data.values());
+        return this.data.values().stream().toList();
     }
 
     @Override
-    public Channel updateChannelName(UUID id, String newChannelName) {
-        Channel channel = data.get(id);
-        if (channel != null) {
-            channel.updateChannelName(newChannelName);
-            return channel;
-        } else {
-            return null;
+    public Channel update(UUID channelId, String newName, String newDescription) {
+        Channel channelNullable = this.data.get(channelId);
+        Channel channel = Optional.ofNullable(channelNullable)
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+        channel.update(newName, newDescription);
+
+        return channel;
+    }
+
+    @Override
+    public void delete(UUID channelId) {
+        if (!this.data.containsKey(channelId)) {
+            throw new NoSuchElementException("Channel with id " + channelId + " not found");
         }
-    }
-
-    @Override
-    public Channel updateChannelIntroduction(UUID id, String newChannelIntroduction) {
-        Channel channel = data.get(id);
-        if (channel != null) {
-            channel.updateChannelIntroduction(newChannelIntroduction);
-            return channel;
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public boolean delete(UUID id) {
-        return data.remove(id) != null;
+        this.data.remove(channelId);
     }
 }

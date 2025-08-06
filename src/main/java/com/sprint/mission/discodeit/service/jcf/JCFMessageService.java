@@ -6,53 +6,48 @@ import com.sprint.mission.discodeit.service.MessageService;
 import java.util.*;
 
 public class JCFMessageService implements MessageService {
-    private Map<UUID, Message> data = new HashMap<>();
+    private final Map<UUID, Message> data;
 
-    @Override
-    public Message sendMessage(String content) {
-        if (content.isBlank()) {
-            Message message = new Message();
-            message.updateContent(content);
-            data.put(message.getId(), message);
-            return message;
-        } else {
-            return null;
-        }
+    public JCFMessageService() {
+        this.data = new HashMap<>();
     }
 
     @Override
-    public Message find(UUID id) {
-        if (data.get(id) == null) {
-            return null;
-        } else {
-            return data.get(id);
-        }
+    public Message create(String content, UUID channelId, UUID authorId) {
+        Message message = new Message(content, channelId, authorId);
+        this.data.put(message.getId(), message);
+
+        return message;
+    }
+
+    @Override
+    public Message find(UUID messageId) {
+        Message messageNullable = this.data.get(messageId);
+
+        return Optional.ofNullable(messageNullable)
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
     }
 
     @Override
     public List<Message> findAll() {
-        List<Message> allMessages = new ArrayList<>();
-
-        for (Message message : data.values()) {
-            allMessages.add(message);
-        }
-        return allMessages;
+        return this.data.values().stream().toList();
     }
 
     @Override
-    public Message update(UUID id, String newContent) {
-        if (data.get(id) == null || newContent == null || newContent.isBlank()) {
-            return null;
-        } else {
-            Message message = data.get(id);
-            message.updateContent(newContent);
-            data.put(id, message);
-            return message;
-        }
+    public Message update(UUID messageId, String newContent) {
+        Message messageNullable = this.data.get(messageId);
+        Message message = Optional.ofNullable(messageNullable)
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+        message.update(newContent);
+
+        return message;
     }
 
     @Override
-    public boolean delete(UUID id) {
-        return data.remove(id) != null;
+    public void delete(UUID messageId) {
+        if (!this.data.containsKey(messageId)) {
+            throw new NoSuchElementException("Message with id " + messageId + " not found");
+        }
+        this.data.remove(messageId);
     }
 }
