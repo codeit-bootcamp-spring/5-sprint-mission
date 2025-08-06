@@ -74,7 +74,7 @@ public class FileChannelMessageService implements ChannelMessageService {
 		List<Message> result = new ArrayList<>();
 
 		for (Message message : channelMessages) {
-			if (authorUUID.equals(message.getAuthorUUID())) {
+			if (authorUUID.equals(message.getAuthorId())) {
 				result.add(message);
 			}
 		}
@@ -90,13 +90,13 @@ public class FileChannelMessageService implements ChannelMessageService {
 		}
 
 		Message message = messageOpt.get();
-		if (!message.getAuthorUUID().equals(authorUUID)) {
+		if (!message.getAuthorId().equals(authorUUID)) {
 			return; // 또는 예외 던지기
 		}
 
 		messageRepository.deleteById(messageUUID);
 
-		Optional<Channel> channelOpt = channelRepository.findById(message.getChannelUUID());
+		Optional<Channel> channelOpt = channelRepository.findById(message.getChannelId());
 		if (channelOpt.isPresent()) {
 			Channel channel = channelOpt.get();
 			channel.removeMessage(messageUUID);

@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import org.springframework.stereotype.Service;
 
 import com.sprint.mission.discodeit.dto.request.auth.LoginRequest;
-import com.sprint.mission.discodeit.dto.response.user.LoginResponse;
+import com.sprint.mission.discodeit.dto.response.auth.LoginResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.InvalidPasswordException;
 import com.sprint.mission.discodeit.exception.UserNotFoundException;

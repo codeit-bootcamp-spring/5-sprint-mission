@@ -1,0 +1,40 @@
+package com.sprint.mission.discodeit.dto.response.message;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+import com.sprint.mission.discodeit.entity.Message;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+@AllArgsConstructor
+@Data
+@Builder
+public class MessageResponse {
+	private UUID id;
+	private Instant createdAt;
+	private Instant updatedAt;
+	private UUID authorId;
+	private UUID channelId;
+	private String text;
+	private List<UUID> attachmentIds;
+	private boolean success;
+
+	private MessageResponse(Message message) {
+		this.id = message.getId();
+		this.createdAt = message.getCreatedAt();
+		this.updatedAt = message.getUpdatedAt();
+		this.authorId = message.getAuthorId();
+		this.channelId = message.getChannelId();
+		this.text = message.getText();
+		this.attachmentIds = message.getAttachmentIds();
+		this.success = true;
+	}
+
+	public static MessageResponse success(Message message) {
+		return new MessageResponse(message);
+	}
+}

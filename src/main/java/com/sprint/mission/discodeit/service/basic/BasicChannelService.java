@@ -29,6 +29,7 @@ import com.sprint.mission.discodeit.exception.AlreadyChannelMemberException;
 import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.DuplicateChannelNameException;
 import com.sprint.mission.discodeit.exception.NotChannelMemberException;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -197,12 +198,6 @@ public class BasicChannelService implements ChannelService {
 		channelRepository.deleteById(request.getChannelId());
 		return DeleteChannelResponse.success(channel);
 	}
-
-	// 메시지 연관 저장용 , 혹은 임의로 채널 정보 저장
-	public void saveChannel(Channel channel) {
-		channelRepository.save(channel);
-	}
-
 
 	private ChannelResponse createChannelByType(Channel channel) {
 		Instant lastMessageTime = getLastMessageTime(channel.getId());

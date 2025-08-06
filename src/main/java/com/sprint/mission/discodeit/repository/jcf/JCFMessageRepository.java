@@ -6,9 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Repository;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -55,7 +52,7 @@ public class JCFMessageRepository implements MessageRepository {
 
 		List<Message> messages = new ArrayList<>();
 		for (Message message : messageMap.values()) {
-			if (channelId.equals(message.getChannelUUID())) {
+			if (channelId.equals(message.getChannelId())) {
 				messages.add(message.copy());
 			}
 		}
@@ -74,6 +71,11 @@ public class JCFMessageRepository implements MessageRepository {
 	@Override
 	public void deleteByChannelId(UUID channelId) {
 		System.out.println("미구현");
+	}
+
+	@Override
+	public List<Message> findByAuthorIdAndChannelId(UUID authorId, UUID channelId) {
+		return List.of();
 	}
 
 	@Override

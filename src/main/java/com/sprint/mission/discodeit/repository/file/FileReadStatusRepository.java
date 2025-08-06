@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
@@ -149,7 +148,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 		if (readStatusIds != null) {
 			List<UUID> idsToDelete = new ArrayList<>(readStatusIds);
 
-			// 배치 삭제: 메모리에서만 처리
 			for (UUID id : idsToDelete) {
 				ReadStatus readStatus = readStatusMap.get(id);
 				if (readStatus != null) {
@@ -157,7 +155,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 				}
 			}
 
-			// 마지막에 한 번만 파일 저장
 			saveFile();
 		}
 	}
@@ -190,7 +187,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 		for (UUID readStatusId : channelReadStatusIds) {
 			ReadStatus rs = readStatusMap.get(readStatusId);
 			if (rs != null && rs.getUserId().equals(userId)) {
-				return true; // 찾으면 바로 리턴
+				return true;
 			}
 		}
 

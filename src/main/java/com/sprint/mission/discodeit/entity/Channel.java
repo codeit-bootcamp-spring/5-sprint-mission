@@ -28,7 +28,6 @@ public class Channel implements Serializable {
 	private Instant updatedAt;
 	private String channelName;
 	private final List<UUID> memberIds;
-	private final List<UUID> channelMessagesUUID;
 	// userUUID
 	private final Map<UUID, String> userNicknames;
 
@@ -36,7 +35,6 @@ public class Channel implements Serializable {
 	public Channel(String channelName) {
 		this.channelName = Objects.requireNonNull(channelName, "채널 이름은 필수 입력값입니다.");
 		memberIds = new ArrayList<>();
-		channelMessagesUUID = new ArrayList<>();
 		userNicknames = new ConcurrentHashMap<UUID, String>();
 
 		id = UUID.randomUUID();
@@ -46,7 +44,6 @@ public class Channel implements Serializable {
 
 	public Channel(List<UUID> userUUIDs) {
 		memberIds = new ArrayList<>();
-		channelMessagesUUID = new ArrayList<>();
 		userNicknames = new ConcurrentHashMap<UUID, String>();
 
 		id = UUID.randomUUID();
@@ -61,7 +58,6 @@ public class Channel implements Serializable {
 		this.id = original.id;
 		this.createdAt = original.createdAt;
 		this.memberIds = new ArrayList<>(original.memberIds);
-		this.channelMessagesUUID = new ArrayList<>(original.channelMessagesUUID);
 		this.userNicknames = new HashMap<>(original.userNicknames);
 		this.channelName = original.channelName;
 		this.updatedAt = original.updatedAt;
@@ -84,9 +80,6 @@ public class Channel implements Serializable {
 		this.memberIds.add(userUUID);
 	}
 
-	public void addMessage(UUID messageUUID) {
-		this.channelMessagesUUID.add(messageUUID);
-	}
 
 	public void addNickname(UUID userUUID, String nickname) {
 		this.userNicknames.put(userUUID, nickname);
@@ -96,9 +89,6 @@ public class Channel implements Serializable {
 		this.memberIds.remove(userUUID);
 	}
 
-	public void removeMessage(UUID messageUUID) {
-		this.channelMessagesUUID.remove(messageUUID);
-	}
 
 	public void removeNickname(UUID userUUID) {
 		this.userNicknames.remove(userUUID);

@@ -3,22 +3,37 @@ package com.sprint.mission.discodeit.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.dto.request.message.*;
+import com.sprint.mission.discodeit.dto.response.message.*;
 import com.sprint.mission.discodeit.entity.Message;
 
 public interface MessageService {
 	// 생성
-	boolean createMessage(UUID authorUUID, UUID channelUUID,String message);
+	MessageResponse createMessage(CreateMessageRequest request);
 
 	// 읽기
-	Message getMessage(UUID messageUUID);
-	List<Message> getAllMessages();
-	List<Message> getMessageByAuthor(String targetAuthor, UUID channelUUID);
-	List<Message> getMessageByChannel(UUID channelUUID);
+	MessageResponse getMessage(GetMessageRequest request);
+	List<MessageResponse> getAllByChannelId(GetMessagesByChannelIdRequest request);
+	List<MessageResponse> getMessageByAuthor(GetMessagesByAuthorRequest request);
 
 	// 수정
-	boolean updateMessage(UUID messageUUID, UUID authorUUID, String text);
+	MessageResponse updateMessage(UpdateMessageRequest request);
 
 	// 삭제
-	void deleteMessage(UUID messageUUID, UUID authorUUID);
+	DeleteMessageResponse deleteMessage(DeleteMessageRequest request);
 
+	@Deprecated
+	boolean createMessage(UUID authorUUID, UUID channelUUID,String message);
+	@Deprecated
+	Message getMessage(UUID messageUUID);
+	@Deprecated
+	List<Message> getAllMessages();
+	@Deprecated
+	List<Message> getMessageByAuthor(String targetAuthor, UUID channelUUID);
+	@Deprecated
+	List<Message> getMessageByChannel(UUID channelUUID);
+	@Deprecated
+	boolean updateMessage(UUID messageUUID, UUID authorUUID, String text);
+	@Deprecated
+	void deleteMessage(UUID messageUUID, UUID authorUUID);
 }

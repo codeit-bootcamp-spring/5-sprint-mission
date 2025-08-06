@@ -12,7 +12,7 @@ public interface MessageRepository {
 	List<Message> findAll();
 	List<Message> findByChannelId(UUID channelId);
 	// List<Message> findByAuthorId(UUID authorId);
-	// List<Message> findByChannelIdAndAuthorId(UUID channelId, UUID authorId);
+	List<Message> findByAuthorIdAndChannelId(UUID authorId, UUID channelId);
 	void deleteById(UUID messageId);
 	void deleteByChannelId(UUID channelId);
 

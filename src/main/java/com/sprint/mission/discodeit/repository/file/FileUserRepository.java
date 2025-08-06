@@ -55,7 +55,6 @@ public class FileUserRepository implements UserRepository {
 		emailToUUID.put(user.getEmail(), user.getId());
 
 		saveFile();
-
 	}
 
 	@Override

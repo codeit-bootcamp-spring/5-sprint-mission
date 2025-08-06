@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.dto.request.user;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.dto.request.binaryContent.CreateUserProfileImageRequest;
 import com.sprint.mission.discodeit.entity.User;
 
 import jakarta.annotation.Nullable;

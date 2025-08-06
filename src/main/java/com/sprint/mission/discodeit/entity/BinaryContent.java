@@ -31,4 +31,17 @@ public class BinaryContent implements Serializable {
 		this.size = size;
 		this.content = content;
 	}
+
+	private BinaryContent(BinaryContent original) {
+		this.id = original.id;
+		this.createdAt = original.createdAt;
+		this.filename = original.filename;
+		this.contentType = original.contentType;
+		this.size = original.size;
+		this.content = original.content.clone();
+	}
+
+	public BinaryContent copy(){
+		return new BinaryContent(this);
+	}
 }

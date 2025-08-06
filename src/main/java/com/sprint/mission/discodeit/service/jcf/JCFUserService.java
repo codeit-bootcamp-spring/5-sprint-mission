@@ -16,7 +16,7 @@ import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
 import com.sprint.mission.discodeit.dto.response.user.CreateUserResponse;
 import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
 import com.sprint.mission.discodeit.dto.response.user.GetUserResponse;
-import com.sprint.mission.discodeit.dto.response.user.LoginResponse;
+import com.sprint.mission.discodeit.dto.response.auth.LoginResponse;
 import com.sprint.mission.discodeit.dto.response.user.UpdateUserPasswordResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;

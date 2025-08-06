@@ -71,7 +71,23 @@ public class FileMessageRepository implements MessageRepository {
 
 		List<Message> messages = new ArrayList<>();
 		for (Message message : messageMap.values()) {
-			if (channelId.equals(message.getChannelUUID())) {
+			if (channelId.equals(message.getChannelId())) {
+				messages.add(message.copy());
+			}
+		}
+		return messages;
+	}
+
+	@Override
+	public List<Message> findByAuthorIdAndChannelId(UUID authorId, UUID channelId) {
+		if (authorId == null || channelId == null) {
+			return new ArrayList<>();
+		}
+
+		List<Message> messages = new ArrayList<>();
+		for (Message message : messageMap.values()) {
+			if (authorId.equals(message.getAuthorId()) &&
+				channelId.equals(message.getChannelId())) {
 				messages.add(message.copy());
 			}
 		}
@@ -97,7 +113,7 @@ public class FileMessageRepository implements MessageRepository {
 		}
 		List<UUID> deleteMessages = new ArrayList<>();
 		for (Message message : messageMap.values()) {
-			if (channelId.equals(message.getChannelUUID())) {
+			if (channelId.equals(message.getChannelId())) {
 				deleteMessages.add(message.getId());
 			}
 		}

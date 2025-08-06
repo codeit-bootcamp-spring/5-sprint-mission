@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.request.user;
+package com.sprint.mission.discodeit.dto.request.binaryContent;
 
 import java.time.Instant;
 import java.util.UUID;

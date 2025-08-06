@@ -74,8 +74,8 @@ public class JCFMessageService implements MessageService {
 
 		// UUID로 비교해서 메시지가 있으면 list에 추가
 		for (Message message : messageMap.values()) {
-			if (message.getChannelUUID().equals(channelUUID) &&
-				message.getAuthorUUID().equals(targetUserUUID)) {
+			if (message.getChannelId().equals(channelUUID) &&
+				message.getAuthorId().equals(targetUserUUID)) {
 				messageList.add(message);
 			}
 		}
@@ -88,7 +88,7 @@ public class JCFMessageService implements MessageService {
 		List <Message> messageList = new ArrayList<>();
 
 		for (Message message : messageMap.values()) {
-			if (message.getChannelUUID().equals(channelUUID)) {
+			if (message.getChannelId().equals(channelUUID)) {
 				messageList.add(message);
 			}
 		}
@@ -101,7 +101,7 @@ public class JCFMessageService implements MessageService {
 		if (messageUUID == null || authorUUID == null || text == null) return false;
 
 		Message message = messageMap.get(messageUUID);
-		if (!message.getAuthorUUID().equals(authorUUID)) return false;
+		if (!message.getAuthorId().equals(authorUUID)) return false;
 
 		message.updateText(text);
 		message.updateUpdatedAt();
@@ -114,11 +114,11 @@ public class JCFMessageService implements MessageService {
 		if (messageUUID == null || authorUUID == null) return;
 
 		Message message = messageMap.get(messageUUID);
-		if (message == null || !message.getAuthorUUID().equals(authorUUID)) return;
+		if (message == null || !message.getAuthorId().equals(authorUUID)) return;
 
 		messageMap.remove(messageUUID);
 
-		Channel channel = channelService.getChannelByUUID(message.getChannelUUID());
+		Channel channel = channelService.getChannelByUUID(message.getChannelId());
 		if (channel != null) {
 			channel.removeMessage(messageUUID);
 		}

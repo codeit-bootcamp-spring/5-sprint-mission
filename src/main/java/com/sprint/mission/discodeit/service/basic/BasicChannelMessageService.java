@@ -39,9 +39,6 @@ public class BasicChannelMessageService implements ChannelMessageService{
 		Message newMessage = new Message(authorUUID, channelUUID, text);
 		messageRepository.save(newMessage);
 
-		channel.addMessage(newMessage.getId());
-		channel.updateUpdatedAt();
-		channelService.saveChannel(channel);
 	}
 
 	@Override
@@ -64,7 +61,7 @@ public class BasicChannelMessageService implements ChannelMessageService{
 		List<Message> result = new ArrayList<>();
 
 		for (Message message : channelMessages) {
-			if (authorUUID.equals(message.getAuthorUUID())) {
+			if (authorUUID.equals(message.getAuthorId())) {
 				result.add(message);
 			}
 		}
@@ -77,14 +74,13 @@ public class BasicChannelMessageService implements ChannelMessageService{
 		Message message = messageRepository.findById(messageUUID)
 			.orElseThrow(() -> new MessageNotFoundException(messageUUID));
 
-		if (!message.getAuthorUUID().equals(authorUUID)) {
+		if (!message.getAuthorId().equals(authorUUID)) {
 			throw new UnauthorizedMessageAccessException();
 		}
 
 		messageRepository.deleteById(messageUUID);
 
-		Channel channel = channelService.getChannelByUUID(message.getChannelUUID());
-		channel.removeMessage(messageUUID);
+		Channel channel = channelService.getChannelByUUID(message.getChannelId());
 		channel.updateUpdatedAt();
 		channelService.saveChannel(channel);
 	}
