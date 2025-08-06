@@ -3,6 +3,11 @@ package com.sprint.mission;
 import com.sprint.mission.discodeit.service.ChannelService; // ChannelService 인터페이스 import
 import com.sprint.mission.discodeit.service.MessageService; // MessageService 인터페이스 import
 import com.sprint.mission.discodeit.service.UserService; // UserService 인터페이스 import
+
+import com.sprint.mission.discodeit.service.file.FileChannelService; // FileChannelService 구현체 import
+import com.sprint.mission.discodeit.service.file.FileMessageService; // FileMessageService 구현체 import
+import com.sprint.mission.discodeit.service.file.FileUserService; // FileUserService 구현체 import
+
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService; // JCFChannelService 구현체 import
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService; // JCFMessageService 구현체 import
 import com.sprint.mission.discodeit.service.jcf.JCFUserService; // JCFUserService 구현체 import
@@ -28,11 +33,16 @@ public class ServiceFactory {
     //이 생성자 내에서 각 서비스 구현체들을 초기화하고, 의존성을 주입합니다.
 
     private ServiceFactory() {
-        // JCF 기반 서비스 구현체 초기화
-        this.userService = new JCFUserService();
-        this.channelService = new JCFChannelService();
+        //JCF 기반 서비스 구현체 초기화
+        //this.userService = new JCFUserService();
+        //this.channelService = new JCFChannelService();
         // MessageService는 UserService와 ChannelService에 의존하므로, 생성자에서 주입합니다.
-        this.messageService = new JCFMessageService(userService, channelService);
+        //this.messageService = new JCFMessageService(userService, channelService);
+
+        //File 기반 서비스로 교체
+        this.userService = new FileUserService();
+        this.channelService = new FileChannelService();
+        this.messageService = new FileMessageService(userService, channelService);
     }
 
 

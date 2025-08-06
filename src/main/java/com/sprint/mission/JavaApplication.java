@@ -11,13 +11,36 @@ import java.util.List; // List 인터페이스 import
 import java.util.Optional; // Optional 클래스 import
 import java.util.UUID; // UUID 클래스 import
 
+import java.nio.file.*; //File 구현체 import
+import java.io.IOException; //File 구현체 import
+
 
  //애플리케이션의 메인 클래스.
  //각 도메인 서비스의 CRUD 기능을 테스트하고, 심화 요구사항인 의존성 주입 및 검증 로직을 시연한다.
 
 public class JavaApplication {
 
+    // 폴더 내 모든 .ser 파일 삭제
+    public static void clearDataFolder(String folderName) {
+        Path dir = Paths.get(System.getProperty("user.dir"), folderName);
+        if (Files.exists(dir)) {
+            try {
+                Files.list(dir)
+                        .filter(p -> p.getFileName().toString().endsWith(".ser"))
+                        .forEach(path -> {
+                            try { Files.delete(path); } catch (IOException e) { }
+                        });
+            } catch (IOException e) { /* 무시 가능 */ }
+        }
+    }
+
     public static void main(String[] args) {
+
+        // 1. 데이터 폴더 정리 (user, channel, message)
+        clearDataFolder("user_data");
+        clearDataFolder("channel_data");
+        clearDataFolder("message_data");
+
         // ServiceFactory를 통해 서비스 인스턴스들을 가져온다. (싱글톤 패턴 활용)
         ServiceFactory factory = ServiceFactory.getInstance();
         UserService userService = factory.getUserService();
@@ -115,8 +138,12 @@ public class JavaApplication {
 
         // 1. 메시지 등록 (Create) - 유효한 사용자 및 채널
         Message msg1 = new Message("Hello everyone!", user1.getUserId(), channel1.getChannelId());
+        Message msg2 = new Message("안녕하세요!", user1.getUserId(), channel1.getChannelId());
+        Message msg3 = new Message("누구세요", user1.getUserId(), channel1.getChannelId());
         messageService.create(msg1);
-        System.out.println("\n[등록] 유효한 메시지 등록 완료.");
+        messageService.create(msg2);
+        messageService.create(msg3);
+        System.out.println("\n[등록] 유효한 메시지 등록 완료. : " + msg1);
 
         // 1-1. 메시지 등록 (Create) - 존재하지 않는 사용자 ID로 시도 (검증 실패 예상)
         Message msgInvalidUser = new Message("This message should fail.", UUID.randomUUID(), channel1.getChannelId());
@@ -129,7 +156,6 @@ public class JavaApplication {
         System.out.println("\n[등록] 존재하지 않는 채널 ID로 메시지 등록 시도 (실패 예상):");
         Message createdInvalidChannelMsg = messageService.create(msgInvalidChannel);
         System.out.println("생성 결과: " + (createdInvalidChannelMsg != null ? "성공" : "실패 (예상대로)"));
-
 
         // 2. 메시지 조회 (단건)
         Optional<Message> foundMsg1 = messageService.findById(msg1.getMessageId());
