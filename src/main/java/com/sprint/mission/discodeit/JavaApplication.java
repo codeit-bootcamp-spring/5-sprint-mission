@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+// 스프링 쓰지 않은 테스트
 public class JavaApplication {
-
     public static AppConfig appConfig = new AppConfig();
     public static UserService userService = appConfig.userService();
     public static ChannelService channelService = appConfig.channelService();

@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.util.Objects;
 
+@Getter
 public class User extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -22,19 +25,11 @@ public class User extends BaseEntity implements Serializable {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
     public void updateUserName(String userName) {
         if(!this.userName.equals(userName)){
             this.userName = userName;
             super.updateUpdatedAt();
         }
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     public void updateEmail(String email) {
@@ -44,19 +39,11 @@ public class User extends BaseEntity implements Serializable {
         }
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public void updatePassword(String password) {
         if(!this.password.equals(password)){
             this.password = password;
             super.updateUpdatedAt();
         }
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
     }
 
     public void updatePhoneNumber(String phoneNumber) {
