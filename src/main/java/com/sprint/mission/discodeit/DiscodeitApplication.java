@@ -27,16 +27,16 @@ public class DiscodeitApplication {
     public static MessageService messageService;
 
     public static void main(String[] args) {
-        ApplicationContext appConfig = SpringApplication.run(DiscodeitApplication.class, args);
-
-        userService = appConfig.getBean(UserService.class);
-        channelService = appConfig.getBean(ChannelService.class);
-        messageService = appConfig.getBean(MessageService.class);
+        appConfig = SpringApplication.run(DiscodeitApplication.class, args);
         testAll();
 	}
 
     public static void testAll(){
         try{
+            userService = appConfig.getBean(UserService.class);
+            channelService = appConfig.getBean(ChannelService.class);
+            messageService = appConfig.getBean(MessageService.class);
+
             JavaApplication.UserServiceTest.testAll();
             JavaApplication.MessageServiceTest.testAll();
             JavaApplication.ChannelServiceTest.testAll();
