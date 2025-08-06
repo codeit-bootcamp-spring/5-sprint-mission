@@ -17,7 +17,6 @@ import java.util.UUID;
 [ ] User, Message 도메인 모델과의 의존 관계 방향성을 잘 고려하여 id 참조 필드를 추가하세요.*/
 
 @Getter
-@ToString
 public class BinaryContent implements Serializable {
     private final UUID id;
     private final Instant createdAt;
@@ -34,5 +33,16 @@ public class BinaryContent implements Serializable {
         this.contentType = contentType;
         this.size = size;
         this.bytes = bytes;
+    }
+
+    @Override
+    public String toString() {
+        return "BinaryContent{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", fileName='" + fileName + '\'' +
+                ", contentType='" + contentType + '\'' +
+                ", size=" + size +
+                '}';
     }
 }
