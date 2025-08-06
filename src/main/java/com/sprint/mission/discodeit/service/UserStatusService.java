@@ -63,7 +63,9 @@ public class UserStatusService {
     }
 
     public void delete(UUID id) {
-        userStatusRepository.deleteById(id);
+        UserStatus userStatus = userStatusRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("해당 UserStatus를 찾을 수 없습니다."));
+        userStatusRepository.deleteById(userStatus.getId());
     }
 
     public void deleteAll() {
