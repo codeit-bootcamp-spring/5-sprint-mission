@@ -1,94 +1,92 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
+@Getter
+@ToString
 public class User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+
     private final UUID id;
-    private final long createdAt;
-    private long updatedAt;
-    private String name;
-    private final List<UUID> channels;
+    private final Instant createdAt;
+    private Instant updatedAt;
+    //
+    private UUID profileId;
+    private String username;
+    private String email;
+    private String password;
 
-    public User() {
-        id = UUID.randomUUID();
-        createdAt = Instant.now().toEpochMilli();
-        updatedAt = createdAt;
-        channels = new ArrayList<>();
+    public User(String username, String email, String password) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+
+        this.username = username;
+        this.email = email;
+        this.password = password;
     }
 
-    public User(String name) {
-        id = UUID.randomUUID();
-        createdAt = Instant.now().toEpochMilli();
-        updatedAt = createdAt;
-        channels = new ArrayList<>();
-        this.name = name;
+    public User(String username, String email, String password, UUID profileId) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+
+        this.profileId = profileId;
+        this.username = username;
+        this.email = email;
+        this.password = password;
     }
 
-    public UUID getId() {
-        return id;
+    public void update(String newUsername, String newEmail, String newPassword) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 
-    public long getCreatedAt() {
-        return createdAt;
-    }
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+            this.profileId = newProfileId;
+            anyValueUpdated = true;
+        }
+        if (newProfileId == null) {
+            this.profileId = null;
+            anyValueUpdated = true;
+        }
 
-    public long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public List<UUID> getChannels() {
-        return channels;
-    }
-
-    public void updateName(String name) {
-        this.name = name;
-        updatedAt = Instant.now().toEpochMilli();
-    }
-
-    public void addChannel(Channel channel) {
-        this.channels.add(channel.getId());
-        channel.getUsers().add(this.id);
-        updatedAt = Instant.now().toEpochMilli();
-    }
-
-    public void deleteChannel(Channel channel) {
-        this.channels.remove(channel.getId());
-        channel.getUsers().remove(this.id);
-        updatedAt = Instant.now().toEpochMilli();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return createdAt == user.createdAt && updatedAt == user.updatedAt && Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(channels, user.channels);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, createdAt, updatedAt, name, channels);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", createdAt=" + Instant.ofEpochMilli(createdAt) +
-                ", updatedAt=" + Instant.ofEpochMilli(updatedAt) +
-                ", name='" + name + '\'' +
-                ", channels=" + channels +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }

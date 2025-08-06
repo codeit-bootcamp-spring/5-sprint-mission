@@ -2,61 +2,43 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 public class JCFMessageRepository implements MessageRepository {
-
-    private final Map<UUID, Message> data;
+    private final Map<UUID, Message> messageMap;
 
     public JCFMessageRepository() {
-        data = new HashMap<>();
+        this.messageMap = new HashMap<>();
     }
 
     @Override
     public Message save(Message message) {
-        return data.put(message.getId(), message);
+        this.messageMap.put(message.getId(), message);
+        return message;
     }
 
     @Override
-    public Optional<Message> delete(UUID id) {
-        return Optional.ofNullable(data.remove(id));
+    public Optional<Message> findById(UUID id) {
+        return Optional.ofNullable(this.messageMap.get(id));
     }
 
     @Override
-    public void deleteAll() {
-        data.clear();
+    public List<Message> findAll() {
+        return this.messageMap.values().stream().toList();
     }
 
     @Override
-    public Optional<Message> searchById(UUID id) {
-        return Optional.ofNullable(data.get(id));
+    public boolean existsById(UUID id) {
+        return this.messageMap.containsKey(id);
     }
 
     @Override
-    public List<Message> searchByContent(String content) {
-        List<Message> messages = new ArrayList<>();
-        for (Message message : data.values()) {
-            if (message.getContent().contains(content)) {
-                messages.add(message);
-            }
-        }
-        return messages;
-    }
-
-    @Override
-    public List<Message> searchBySenderId(UUID id) {
-        List<Message> messages = new ArrayList<>();
-        for (Message message : data.values()) {
-            if (message.getSenderId().equals(id)) {
-                messages.add(message);
-            }
-        }
-        return messages;
-    }
-
-    @Override
-    public List<Message> searchAll() {
-        return new ArrayList<>(data.values());
+    public void deleteById(UUID id) {
+        this.messageMap.remove(id);
     }
 }

@@ -1,26 +1,136 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.request.ChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.response.ChannelFindResponse;
+import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public interface ChannelService {
-    Channel create(Channel channel);
+@Service("channelService")
+@RequiredArgsConstructor
+public class ChannelService {
+    private final ChannelRepository channelRepository;
+    private final ReadStatusRepository readStatusRepository;
+    private final MessageRepository messageRepository;
 
-    Channel updateName(UUID id, String name);
+    public Channel createPublic(ChannelCreateRequest request) {
+        Channel channel = new Channel(ChannelType.PUBLIC, request.name(), request.description());
+        return channelRepository.save(channel);
+    }
 
-    Channel updateDescription(UUID id, String description);
+    public Channel createPrivate(ChannelCreateRequest request) {
+        Channel channel = new Channel(ChannelType.PRIVATE, null, null);
+        ReadStatus readStatus = new ReadStatus(request.user().getId(), channel.getId());
+        readStatusRepository.save(readStatus);
 
-    Channel updateChannelType(UUID id, Channel.ChannelType channelType);
+        return channelRepository.save(channel);
+    }
 
-    Channel delete(UUID id);
+    public ChannelFindResponse findById(UUID channelId) {
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
 
-    void deleteAll();
+        LinkedList<Message> messages = messageRepository.findAll().stream()
+                .filter(m -> m.getChannelId().equals(channelId))
+                .sorted(Comparator.comparingLong(m -> m.getCreatedAt().getEpochSecond()))
+                .collect(Collectors.toCollection(LinkedList::new));
+        Message message = null;
+        if (!messages.isEmpty()) {
+            message = messages.getLast();
+        }
 
-    List<Channel> searchByName(String name);
+        ChannelFindResponse response;
 
-    Channel searchById(UUID id);
+        if (channel.getType() == ChannelType.PRIVATE) {
+            List<UUID> userIds = new ArrayList<>();
+            readStatusRepository.findByChannelId(channelId).forEach(readStatus -> userIds.add(readStatus.getUserId()));
 
-    List<Channel> searchAll();
+            if (message == null) {
+                response = ChannelFindResponse.builder()
+                        .name(channel.getName())
+                        .description(channel.getDescription())
+                        .userIds(userIds)
+                        .build();
+            } else {
+                response = ChannelFindResponse.builder()
+                        .name(channel.getName())
+                        .description(channel.getDescription())
+                        .lastestMessageTime(message.getCreatedAt())
+                        .userIds(userIds)
+                        .build();
+            }
+
+        } else {
+            if (message == null) {
+                response = ChannelFindResponse.builder()
+                        .name(channel.getName())
+                        .description(channel.getDescription())
+                        .build();
+            } else {
+                response = ChannelFindResponse.builder()
+                        .name(channel.getName())
+                        .description(channel.getDescription())
+                        .lastestMessageTime(message.getCreatedAt())
+                        .build();
+            }
+        }
+        return response;
+    }
+
+    public List<ChannelFindResponse> findAllByUserId(UUID userId) {
+        List<ChannelFindResponse> channelFindResponses = new ArrayList<>();
+        channelRepository.findAll().stream()
+                .filter(channel -> channel.getType() == ChannelType.PUBLIC)
+                .forEach(channel -> channelFindResponses.add(findById(channel.getId())));
+
+        Set<Channel> privateChannels = new HashSet<>();
+        for (ReadStatus readStatus : readStatusRepository.findByUserId(userId)) {
+            Channel channel = channelRepository.findById(readStatus.getChannelId()).orElse(null);
+            if (channel != null && channel.getType() == ChannelType.PRIVATE) {
+                privateChannels.add(channel);
+            }
+        }
+
+        privateChannels.forEach(channel -> channelFindResponses.add(findById(channel.getId())));
+
+        return channelFindResponses;
+    }
+
+    public Channel update(ChannelUpdateRequest request) {
+        Channel channel = channelRepository.findById(request.id())
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + request.id() + " not found"));
+        if (channel.getType() == ChannelType.PRIVATE) {
+            throw new SecurityException("Private 채널은 업데이트 할 수 없습니다.");
+        }
+        channel.update(request.newName(), request.newDescription());
+        return channelRepository.save(channel);
+    }
+
+    public void delete(UUID channelId) {
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+
+
+        readStatusRepository.findByChannelId(channelId)
+                .forEach(readStatus -> readStatusRepository.deleteById(readStatus.getId()));
+        messageRepository.findAll().stream()
+                .filter(message -> message.getChannelId().equals(channelId))
+                .forEach(message -> messageRepository.deleteById(message.getId()));
+        channelRepository.deleteById(channelId);
+    }
+
+    public void deleteAll() {
+        channelRepository.findAll().forEach(channel -> delete(channel.getId()));
+    }
+
 }
