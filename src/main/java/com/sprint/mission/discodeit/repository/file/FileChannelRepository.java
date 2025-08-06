@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
 public class FileChannelRepository implements ChannelRepository {
 
     private final Path directoryPath = Path.of(FileUtil.getBasePath() +"/channels" );

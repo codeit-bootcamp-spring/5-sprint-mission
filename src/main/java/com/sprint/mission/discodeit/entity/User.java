@@ -56,7 +56,7 @@ public class User extends BaseEntity implements Serializable {
     }
 
     public void updateProfileId(UUID profileId) {
-        if(!this.profileId.equals(profileId)){
+        if(this.profileId == null || !this.profileId.equals(profileId)){
             this.profileId = profileId;
         }
     }

@@ -2,13 +2,35 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository
 public class JCFUserRepository implements UserRepository {
     Map<UUID, User> data = new HashMap<>();
 
     public JCFUserRepository() {}
+
+    @Override
+    public Optional<User> findByUserName(String username) {
+        for(User user : data.values()){
+            if(user.getUserName().equals(username)){
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        for(User user : data.values()){
+            if(user.getEmail().equals(email)){
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
+    }
 
     @Override
     public Optional<User> save(User user) {

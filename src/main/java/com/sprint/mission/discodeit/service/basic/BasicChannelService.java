@@ -17,7 +17,6 @@ public class BasicChannelService implements ChannelService {
 
    private final ChannelRepository channelRepository;
 
-
     @Override
     public Channel addChannel(String channelName, UUID ownerUserId) {
         Channel channel = new Channel(channelName, ownerUserId);
@@ -26,13 +25,10 @@ public class BasicChannelService implements ChannelService {
         return addedChannel.orElseThrow();
     }
 
-
-
     @Override
     public Channel getChannelById(UUID channelId) {
         Optional<Channel> foundedChannel = channelRepository.findById(channelId);
         return foundedChannel.orElseThrow();
-
     }
 
     @Override
@@ -58,19 +54,4 @@ public class BasicChannelService implements ChannelService {
         channelRepository.deleteAll();
     }
 
-    @Override
-    public void addUserToChannel(UUID channelId, UUID userId) {
-        Optional<Channel> optionalChannel = channelRepository.findById(channelId);
-        Channel channel = optionalChannel.orElseThrow();
-        channel.addUserId(userId);
-        channelRepository.save(channel);
-    }
-
-    @Override
-    public void deleteUserFromChannel(UUID channelId, UUID userId) {
-        Optional<Channel> optionalChannel = channelRepository.findById(channelId);
-        Channel channel = optionalChannel.orElseThrow();
-        channel.removeUserId(userId);
-        channelRepository.save(channel);
-    }
 }

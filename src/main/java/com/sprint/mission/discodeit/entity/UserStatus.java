@@ -17,7 +17,6 @@ public class UserStatus extends BaseEntity{
         lastOnlineTime= Instant.now();
     }
 
-
     public boolean isOnline() {
         if(lastOnlineTime.isAfter(Instant.now().minusSeconds(300))){
             return true;

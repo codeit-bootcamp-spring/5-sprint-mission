@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
 public class FileMessageRepository implements MessageRepository {
 
     private final Path directoryPath = Path.of(FileUtil.getBasePath() +"/messages");

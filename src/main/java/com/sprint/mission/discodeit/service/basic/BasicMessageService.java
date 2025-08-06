@@ -18,8 +18,8 @@ public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
 
     @Override
-    public Message addMessage(String messageContent, UUID userId) {
-        Message message = new Message(messageContent, userId);
+    public Message addMessage(String messageContent, UUID userId, UUID channelId) {
+        Message message = new Message(messageContent, userId, channelId);
         return messageRepository.save(message).orElseThrow();
     }
 
