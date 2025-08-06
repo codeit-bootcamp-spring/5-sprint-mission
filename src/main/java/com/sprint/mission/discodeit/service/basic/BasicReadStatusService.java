@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ReadStatusDto;
-import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.dto.readstatus.ChannelUnreadStatusDto;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.MessageRepository;
 import com.sprint.mission.discodeit.respository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -9,8 +11,11 @@ import com.sprint.mission.discodeit.service.ReadStatusService;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,7 +53,7 @@ public class BasicReadStatusService implements ReadStatusService {
      * @return List<ChannelUnreadDto> (채널 ID + hasUnread)
      */
     @Override
-    public List<ReadStatusDto.ChannelUnreadStatus> getUnreadChannels(UUID userId) {
+    public List<ChannelUnreadStatusDto> getUnreadChannels(UUID userId) {
         // 모든 채널에 대한 읽음 상태 조회
         List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(userId);
 
@@ -65,7 +70,7 @@ public class BasicReadStatusService implements ReadStatusService {
                             .orElse(false); // 없으면 읽음 처리
 
                     // 채널 Id와 읽음 상태를 반환
-                    return new ReadStatusDto.ChannelUnreadStatus(channelId, hasUnread);
+                    return new ChannelUnreadStatusDto(channelId, hasUnread);
                 })
                 .collect(Collectors.toList());
     }

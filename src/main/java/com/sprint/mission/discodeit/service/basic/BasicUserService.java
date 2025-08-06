@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserRegisterDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -44,9 +43,8 @@ public class BasicUserService implements UserService {
 
         // 프로필 이미지가 있을 경우
         if(dto.profileImage() != null){
-            BinaryContent image = BinaryContent.from(dto.profileImage());
-            binaryContentRepository.save(image);
-            user.updateProfileId(image.getId());
+            binaryContentRepository.save(dto.profileImage());
+            user.updateProfileId(dto.profileImage().getId());
         }
 
         return user;
@@ -65,9 +63,8 @@ public class BasicUserService implements UserService {
 
         // 프로필 이미지 수정
         if (dto.profileImage() != null) {
-            BinaryContent newImage = BinaryContent.from(dto.profileImage());
-            binaryContentRepository.save(newImage);
-            user.updateProfileId(newImage.getId());
+            binaryContentRepository.save(dto.profileImage());
+            user.updateProfileId(dto.profileImage().getId());
         }
 
         // 변경된 user 저장

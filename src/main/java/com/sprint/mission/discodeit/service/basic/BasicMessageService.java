@@ -1,9 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.MessageDto;
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.dto.message.MessageCreateDto;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -24,11 +23,12 @@ public class BasicMessageService implements MessageService {
     private final ChannelService channelService;
 
     @Override
-    public Message create(MessageDto.Create dto) {
+    public Message create(MessageCreateDto dto) {
         Message message = new Message(dto.userId(), dto.channelId(), dto.content());
-        if (dto.fileIds() != null) {
-            for (UUID fileId : dto.fileIds()) {
-                message.addFile(fileId);
+        // 첨부한 파일이 존재하면
+        if (dto.fileIds() != null && !dto.fileIds().isEmpty()) {
+            for (BinaryContent file : dto.fileIds()) {
+                message.addFile(file.getId());
             }
         }
         messageRepository.save(message);

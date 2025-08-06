@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageCreateDto;
 import com.sprint.mission.discodeit.entity.Message;
 
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface MessageService {
 
-    Message create(MessageDto.Create dto);
+    Message create(MessageCreateDto dto);
 
     List<Message> findAll();
 

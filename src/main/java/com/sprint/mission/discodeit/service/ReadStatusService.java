@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.readstatus.ChannelUnreadStatusDto;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 
 import java.time.Instant;
@@ -30,7 +30,7 @@ public interface ReadStatusService {
      * @param userId 사용자 ID
      * @return List<ChannelUnreadDto> (채널 ID + hasUnread)
      */
-    List<ReadStatusDto.ChannelUnreadStatus> getUnreadChannels(UUID userId);
+    List<ChannelUnreadStatusDto> getUnreadChannels(UUID userId);
 
 
     /**

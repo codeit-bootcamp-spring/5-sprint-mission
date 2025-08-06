@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.channel.ChannelCreateDto;
 import com.sprint.mission.discodeit.entity.Channel;
 
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface ChannelService {
 
-    Channel create(ChannelDto.Create dto);
+    Channel create(ChannelCreateDto dto);
 
     List<Channel> findAll();
 

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.channel.ChannelCreateDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.respository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -17,7 +17,7 @@ public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
 
     @Override
-    public Channel create(ChannelDto.Create dto) {
+    public Channel create(ChannelCreateDto dto) {
         if (dto.name() == null || dto.name().isBlank()) {
             throw new IllegalArgumentException("채널 이름은 필수입니다.");
         }

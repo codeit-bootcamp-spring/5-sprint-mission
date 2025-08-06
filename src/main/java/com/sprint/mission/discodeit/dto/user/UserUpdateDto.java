@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.dto.user;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import org.springframework.lang.Nullable;
 
 import java.util.UUID;
@@ -15,6 +15,6 @@ public record UserUpdateDto(
         UUID id,
         @Nullable String name,
         @Nullable String email,
-        @Nullable BinaryContentDto profileImage
+        @Nullable BinaryContent profileImage
 ) {
 }

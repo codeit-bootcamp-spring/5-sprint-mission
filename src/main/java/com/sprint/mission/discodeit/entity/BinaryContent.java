@@ -1,10 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.binarycontent.FileUploadDto;
 import lombok.Getter;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
@@ -44,16 +42,6 @@ public class BinaryContent implements Serializable {
         this.contentType = contentType;
         this.content = content;
         this.fileSize = fileSize;
-    }
-
-    // Dto 기반 생성
-    public static BinaryContent from(BinaryContentDto dto) {
-        return new BinaryContent(
-                dto.getFileName(),
-                dto.getContentType(),
-                dto.getContent(),
-                dto.getFileSize()
-        );
     }
 
     public String getCreatedAtFormatted() {
