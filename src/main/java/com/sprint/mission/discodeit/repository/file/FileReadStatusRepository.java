@@ -45,14 +45,14 @@ public class FileReadStatusRepository implements ReadStatusRepository {
     @Override
     public ReadStatus save(ReadStatus readStatus) {
         Path path = resolvePath(readStatus.getId());
-        if(Files.exists(path)) {
-            try (FileOutputStream fos = new FileOutputStream(path.toFile());
-                 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-                oos.writeObject(readStatus);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+
+        try (FileOutputStream fos = new FileOutputStream(path.toFile());
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            oos.writeObject(readStatus);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
         return readStatus;
     }
 
