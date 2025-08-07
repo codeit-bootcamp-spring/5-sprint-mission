@@ -91,6 +91,16 @@ public class DiscodeitApplication {
         return binaryContentService.create(request);
     }
 
+    static Channel createPrivateChannel(ChannelService channelService, List<User> users, String name, String description) {
+        ChannelCreateRequest channelCreateRequest = new ChannelCreateRequest(name, description, users);
+        return channelService.createPrivate(channelCreateRequest);
+    }
+
+    static Channel createPublicChannel(ChannelService channelService, String name, String description) {
+        ChannelCreateRequest channelCreateRequest = new ChannelCreateRequest(name, description, null);
+        return channelService.createPublic(channelCreateRequest);
+    }
+
     static Message createMessage(MessageService messageService, UUID channelId, UUID authorId, List<UUID> attachmentIds, String content) {
         MessageCreateRequest messageCreateRequest = new MessageCreateRequest(
                 content, channelId, authorId, attachmentIds);
@@ -132,16 +142,29 @@ public class DiscodeitApplication {
         BinaryContent profileImage = createBinaryContent(binaryContentService, "images.jpg", "jpg");
 
         // 생성
-        UserCreateRequest request1 = new UserCreateRequest(
-                "test1", "aaa@aaa.com", "1234", false, null);
-        UserCreateRequest requestUserNameDup = new UserCreateRequest(
-                "test1", "bbb@aaa.com", "1234", true, profileImage.getId());
-        UserCreateRequest requestEmailDup = new UserCreateRequest(
-                "test2", "aaa@aaa.com", "1234", true, profileImage.getId());
+        UserCreateRequest request1 = new UserCreateRequest("test1", "aaa@aaa.com", "1234", false, null);
+        UserCreateRequest requestUserNameDup = new UserCreateRequest("test1", "bbb@aaa.com", "1234", true, profileImage.getId());
+        UserCreateRequest requestEmailDup = new UserCreateRequest("test2", "aaa@aaa.com", "1234", true, profileImage.getId());
+        UserCreateRequest requestUsernameEmpty = new UserCreateRequest("", "test@test.com", "1234", false, null);
+        UserCreateRequest requestUsernameNull = new UserCreateRequest(null, "test@test.com", "1234", false, null);
+        UserCreateRequest requestEmailEmpty = new UserCreateRequest("test", "", "1234", false, null);
+        UserCreateRequest requestEmailNull = new UserCreateRequest("test", null, "1234", false, null);
+        UserCreateRequest requestEmailFormDiff = new UserCreateRequest("test", "test.com", "1234", false, null);
+        UserCreateRequest requestPasswordEmpty = new UserCreateRequest("test", "test@test.com", "", false, null);
+        UserCreateRequest requestPasswordNull = new UserCreateRequest("test", "test@test.com", null, false, null);
+
         Optional<User> userOpt = exeCheck("create : 정상", () -> userService.create(request1));
         User user = userOpt.orElseThrow(NoSuchElementException::new);
+
         exeCheck("create : username 중복", () -> userService.create(requestUserNameDup));
         exeCheck("create : email 중복", () -> userService.create(requestEmailDup));
+        exeCheck("create : username 공백", () -> userService.create(requestUsernameEmpty));
+        exeCheck("create : username null", () -> userService.create(requestUsernameNull));
+        exeCheck("create : email 공백", () -> userService.create(requestEmailEmpty));
+        exeCheck("create : email null", () -> userService.create(requestEmailNull));
+        exeCheck("create : email 잘못된 형식", () -> userService.create(requestEmailFormDiff));
+        exeCheck("create : password 공백", () -> userService.create(requestPasswordEmpty));
+        exeCheck("create : password null", () -> userService.create(requestPasswordNull));
 
         // 조회 - UserFindResponse 반환 확인 및 userStatus 생성 확인
         exeCheck("findById : 존재하는 유저", () -> userService.findById(user.getId()));
@@ -157,12 +180,24 @@ public class DiscodeitApplication {
         UserUpdateRequest updateUsernameDup = new UserUpdateRequest(
                 user.getId(), "updated", "updated2@aaa.com"
                 , "12345", true, profileImage.getId());
-        UserUpdateRequest updateEmailDup = new UserUpdateRequest(
-                user.getId(), "updated2", "updated@aaa.com"
-                , "12345", true, profileImage.getId());
+        UserUpdateRequest updateEmailDup = new UserUpdateRequest(user.getId(), "updated2", "updated@aaa.com", "12345", true, profileImage.getId());
+        UserUpdateRequest updateUsernameEmpty = new UserUpdateRequest(user.getId(), "", "updated@aaa.com", "12345", true, profileImage.getId());
+        UserUpdateRequest updateUsernameNull = new UserUpdateRequest(user.getId(), null, "updated@aaa.com", "12345", true, profileImage.getId());
+        UserUpdateRequest updateEmailEmpty = new UserUpdateRequest(user.getId(), "updated", "", "12345", true, profileImage.getId());
+        UserUpdateRequest updateEmailNull = new UserUpdateRequest(user.getId(), "updated", null, "12345", true, profileImage.getId());
+        UserUpdateRequest updateEmailFormDiff = new UserUpdateRequest(user.getId(), "updated", "updated.com", "12345", true, profileImage.getId());
+        UserUpdateRequest updatePasswordEmpty = new UserUpdateRequest(user.getId(), "updated", "updated@aaa.com", "", true, profileImage.getId());
+        UserUpdateRequest updatePasswordNull = new UserUpdateRequest(user.getId(), "updated", "updated@aaa.com", null, true, profileImage.getId());
         exeCheck("update : 정상", () -> userService.update(updateRequest));
         exeCheck("update : username 중복", () -> userService.update(updateUsernameDup));
         exeCheck("update : email 중복", () -> userService.update(updateEmailDup));
+        exeCheck("update : username 공백", () -> userService.update(updateUsernameEmpty));
+        exeCheck("update : username null", () -> userService.update(updateUsernameNull));
+        exeCheck("update : email 공백", () -> userService.update(updateEmailEmpty));
+        exeCheck("update : email null", () -> userService.update(updateEmailNull));
+        exeCheck("update : email 잘못된 형식", () -> userService.update(updateEmailFormDiff));
+        exeCheck("update : password 공백", () -> userService.update(updatePasswordEmpty));
+        exeCheck("update : password null", () -> userService.update(updatePasswordNull));
         exeCheck("수정 후 조회", () -> userService.findById(user.getId()));
 
         // 삭제
@@ -343,71 +378,55 @@ public class DiscodeitApplication {
         exeCheck("BinaryContent 삭제 확인", () -> binaryContentService.findAllByIdIn(attachmentIds));
     }
 
-    static void readStatusTest(ReadStatusService readStatusService, ChannelService channelService, List<User> users, Channel channel) {
-        System.out.println("-----------------------ReadStatus 테스트-----------------------");
-        System.out.println();
-        // 생성 - 직접 생성하는 객체가 아님
+    static void readStatusTest(ReadStatusService readStatusService, ChannelService channelService, User user) {
+        section("readStatus 테스트");
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        // 생성
         Channel channel1 = createPrivateChannel(channelService, users, "private1", "description");
-        Channel channel2 = createPrivateChannel(channelService, users, "private2", "description");
-        Channel channel3 = createPrivateChannel(channelService, users, "private3", "description");
-//        ReadStatus readStatus = createReadStatus(readStatusService, user.getId(), channel1.getId()); // 이미 존재하는 객체
-//        createReadStatus(readStatusService, testId, channel1.getId()); // 존재하지 않는 채널 또는 유저
-//        createReadStatus(readStatusService, user.getId(), testId);
-//        createReadStatus(readStatusService, testId, testId);
+        exeCheck("create : 이미 존재하는 UserStatus", () -> createReadStatus(readStatusService, user.getId(), channel1.getId()));
+        exeCheck("create : 존재하지 않는 유저", () -> createReadStatus(readStatusService, testId, channel1.getId()));
+        exeCheck("create : 존재하지 않는 채널", () -> createReadStatus(readStatusService, user.getId(), testId));
+        exeCheck("create : 둘 다 존재하지 않음", () -> createReadStatus(readStatusService, testId, testId));
 
         // 조회
         ReadStatus readStatus = readStatusService.findAllByUserId(users.get(0).getId()).get(0);
-        System.out.println("findById : ");
-        System.out.println(readStatusService.findById(readStatus.getId()));
-//        readStatusService.findById(testId); // 예외 발생
-        System.out.println("findAllByUserId : ");
-        readStatusService.findAllByUserId(users.get(0).getId()).forEach(System.out::println);
-        System.out.println(readStatusService.findAllByUserId(testId).isEmpty()); // 정상작동시 true 반환
+        exeCheck("findById : 정상", () -> readStatusService.findById(readStatus.getId()));
+        exeCheck("findById : 존재하지 않는 UserStatus", () -> readStatusService.findById(testId));
+        exeCheck("findAllByUserId : 정상", () -> readStatusService.findAllByUserId(user.getId()).forEach(System.out::println));
+        exeCheck("findAllByUserId : 존재하지 않는 유저, 정상 작동 시 empty", () -> readStatusService.findAllByUserId(testId));
 
         // 수정
-        ReadStatusUpdateRequest readStatusUpdateRequest = new ReadStatusUpdateRequest(readStatus.getId(), true);
-        ReadStatusUpdateRequest readStatusUpdateRequest2 = new ReadStatusUpdateRequest(testId, true);
-        System.out.println("수정 전 : ");
-        System.out.println(readStatusService.findById(readStatus.getId()));
-        readStatusService.update(readStatusUpdateRequest);
-//        readStatusService.update(readStatusUpdateRequest2); // 예외 발생
-        System.out.println("수정 후 : ");
-        System.out.println(readStatusService.findById(readStatus.getId()));
+        ReadStatusUpdateRequest updateRequest = new ReadStatusUpdateRequest(readStatus.getId(), true);
+        ReadStatusUpdateRequest updateNotFound = new ReadStatusUpdateRequest(testId, true);
+        exeCheck("수정 전 조회", () -> readStatusService.findById(readStatus.getId()));
+        exeCheck("update : 정상", () -> readStatusService.update(updateRequest));
+        exeCheck("update : 존재하지 않는 UserStatus", () -> readStatusService.update(updateNotFound));
+        exeCheck("수정 후 조회", () -> readStatusService.findById(readStatus.getId()));
 
         // 삭제
-        readStatusService.delete(readStatus.getId());
-//        readStatusService.delete(readStatus.getId()); // 예외 발생
+        exeCheck("delete : 정상", () -> readStatusService.delete(readStatus.getId()));
+        exeCheck("delete : 삭제된 UserStatus", () -> readStatusService.delete(readStatus.getId()));
+        exeCheck("delete : 존재하지 않는 UserStatus", () -> readStatusService.delete(testId));
     }
 
     static void authTest(AuthService authService, User user) {
-        System.out.println("-----------------------ReadStatus 테스트-----------------------");
-        System.out.println();
+        section("ReadStatus 테스트");
 
-        UserLoginRequest userLoginRequest1 = new UserLoginRequest(user.getUsername(), user.getPassword());
-        UserLoginRequest userLoginRequest2 = new UserLoginRequest(testString, user.getPassword());
-        UserLoginRequest userLoginRequest3 = new UserLoginRequest(user.getUsername(), testString);
-        UserLoginRequest userLoginRequest4 = new UserLoginRequest(testString, testString);
+        UserLoginRequest request = new UserLoginRequest(user.getUsername(), user.getPassword());
+        UserLoginRequest requestWrongUsername = new UserLoginRequest(testString, user.getPassword());
+        UserLoginRequest requestWrongPassword = new UserLoginRequest(user.getUsername(), testString);
+        UserLoginRequest requestWrongBoth = new UserLoginRequest(testString, testString);
 
-        System.out.println(authService.login(userLoginRequest1));
-//        System.out.println(authService.login(userLoginRequest2)); // 매치 오류
-//        System.out.println(authService.login(userLoginRequest3));
-//        System.out.println(authService.login(userLoginRequest4));
-
+        exeCheck("login : 정상", () -> System.out.println(authService.login(request)));
+        exeCheck("login : username 틀림", () -> System.out.println(authService.login(requestWrongUsername)));
+        exeCheck("login : password 틀림", () -> System.out.println(authService.login(requestWrongPassword)));
+        exeCheck("login : 둘 다 틀림", () -> System.out.println(authService.login(requestWrongBoth)));
     }
 
     static ReadStatus createReadStatus(ReadStatusService readStatusService, UUID userId, UUID channelId) {
         ReadStatusCreateRequest readStatusCreateRequest = new ReadStatusCreateRequest(userId, channelId);
         return readStatusService.create(readStatusCreateRequest);
-    }
-
-    static Channel createPrivateChannel(ChannelService channelService, List<User> users, String name, String description) {
-        ChannelCreateRequest channelCreateRequest = new ChannelCreateRequest(name, description, users);
-        return channelService.createPrivate(channelCreateRequest);
-    }
-
-    static Channel createPublicChannel(ChannelService channelService, String name, String description) {
-        ChannelCreateRequest channelCreateRequest = new ChannelCreateRequest(name, description, null);
-        return channelService.createPublic(channelCreateRequest);
     }
 
 
@@ -431,17 +450,15 @@ public class DiscodeitApplication {
 
         User user = createUser(userService, "User in the main", "1234", "inthemain@aaa.com");
         Channel channel = setupChannel(channelService);
-        BinaryContent binaryContent = createBinaryContent(binaryContentService, "images.jpg", "jpg");
-        BinaryContent profileImage = createBinaryContent(binaryContentService, "images.jpg", "jpg");
         Message message = createMessage(messageService, channel.getId(), user.getId(), new ArrayList<>(), "안녕하세요.");
 
-        binaryContentTest(binaryContentService, message);
+//        binaryContentTest(binaryContentService, message);
         userTest(userService, userStatusService, binaryContentService);
         userStatusTest(userStatusService, user);
         channelTest(channelService, messageService, readStatusService, userService);
         messageTest(messageService, userService, channelService, binaryContentService);
-//        readStatusTest(readStatusService, channelService, user, channel);
-//        authTest(authService, user);
+        readStatusTest(readStatusService, channelService, user);
+        authTest(authService, user);
 
         userService.deleteAll();
         channelService.deleteAll();
