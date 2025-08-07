@@ -12,6 +12,10 @@ public interface MessageService {
 
     List<Message> findAll();
 
+    Message findById(UUID id);
+
+    List<Message> findByUserId(UUID userId);
+
     List<Message> findByContent(String content);
 
     Message update(UUID messageId, String message);

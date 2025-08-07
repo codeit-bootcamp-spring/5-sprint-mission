@@ -41,6 +41,19 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
+    public Message findById(UUID id) {
+        return messageRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+    }
+
+    @Override
+    public List<Message> findByUserId(UUID userId) {
+        return messageRepository.findAll().stream()
+                .filter(m -> m.getUserId().equals(userId))
+                .toList();
+    }
+
+    @Override
     public List<Message> findByContent(String content) {
         List<Message> result = new ArrayList<>();
         for (Message message : messageRepository.findAll()) {

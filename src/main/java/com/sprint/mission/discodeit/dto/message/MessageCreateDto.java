@@ -11,6 +11,6 @@ public record MessageCreateDto(
         UUID channelId,
         String content,
         @Nullable
-        List<BinaryContent> fileIds
+        List<BinaryContent> files
 ) {
 }
