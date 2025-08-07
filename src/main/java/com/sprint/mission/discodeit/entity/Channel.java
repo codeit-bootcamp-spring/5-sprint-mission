@@ -13,32 +13,37 @@ import java.util.UUID;
 @ToString
 public class Channel implements Serializable {
     private static final long serialVersionUID = 1L;
-    private UUID id;
-    private Long createdAt;
-    private Long updatedAt;
-
-    private ChannelType type;
+    private final UUID id;
+    private final Instant createdAt;
+    private Instant updatedAt;
     private String name;
     private String description;
+    private final ChannelType type;
 
-    public Channel(ChannelType type, String name, String description) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().getEpochSecond();
-
-        this.type = type;
+    public Channel(UUID id, Instant createdAt, Instant updatedAt,
+                   String name, String description, ChannelType type) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
         this.name = name;
         this.description = description;
+        this.type = type;
+    }
+
+    public enum ChannelType {
+        PUBLIC,
+        PRIVATE
     }
 
     public UUID getId() {
         return id;
     }
 
-    public Long getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public Long getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
@@ -66,7 +71,7 @@ public class Channel implements Serializable {
         }
 
         if (anyValueUpdated) {
-            this.updatedAt = Instant.now().getEpochSecond();
+            this.updatedAt = Instant.ofEpochSecond(Instant.now().getEpochSecond());
         }
     }
 }
