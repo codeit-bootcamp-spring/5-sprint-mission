@@ -32,4 +32,9 @@ public class RepositoryConfig {
     public ReadStatusRepository readStatusRepository() {
         return new FileReadStatusRepository("YOUR_DIRECTORY_NAME");
     }
+    @Bean
+    public UserStatusRepository userStatusRepository() {
+        return new FileUserStatusRepository("user-status.dat");
+    }
+
 }

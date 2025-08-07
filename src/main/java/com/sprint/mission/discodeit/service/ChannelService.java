@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.channel.CreateChannelRequest;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelResponse;
-import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.channel.ChannelUpdateRequest;
 
 import java.util.List;
 import java.util.Optional;
