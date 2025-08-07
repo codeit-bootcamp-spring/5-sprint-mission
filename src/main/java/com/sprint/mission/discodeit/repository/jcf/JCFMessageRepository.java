@@ -1,13 +1,12 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.repository.MessageRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
 @Repository
-public class JCFMessageRepository implements MessageRepository {
+public class JCFMessageRepository implements com.sprint.mission.discodeit.repository.MessageRepository {
     private final Map<UUID, Message> data = new HashMap<>();
 
     public JCFMessageRepository() {}
@@ -56,5 +55,12 @@ public class JCFMessageRepository implements MessageRepository {
         }
 
         return resultList;
+    }
+
+    @Override
+    public void deleteByChannelId(UUID channelId) {
+        data.entrySet().removeIf(entry ->
+                entry.getValue().getChannelId().equals(channelId)
+        );
     }
 }

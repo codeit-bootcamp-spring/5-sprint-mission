@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements com.sprint.mission.discodeit.service.UserService {
+public class BasicUserService implements com.sprint.mission.discodeit.service.UserService {
 
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;

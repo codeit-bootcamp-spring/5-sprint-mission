@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import org.springframework.stereotype.Repository;
 
@@ -44,6 +45,19 @@ public class JCFChannelRepository implements ChannelRepository {
     public void deleteAll() {
         data.clear();
     }
+
+    @Override
+    public List<Channel> findPublicChannel(){
+        List<Channel> resultList = new ArrayList<>();
+
+        for(Channel channel : data.values()){
+            if(channel.getChannelType().equals(ChannelType.PUBLIC)){
+                resultList.add(channel);
+            }
+        }
+        return resultList;
+    }
+
 }
 
 

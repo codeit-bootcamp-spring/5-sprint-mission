@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ReadStatusService implements com.sprint.mission.discodeit.service.ReadStatusService {
+public class BasicReadStatusService implements ReadStatusService {
 
     private final ReadStatusRepository readStatusRepository;
 
@@ -14,4 +15,5 @@ public class ReadStatusService implements com.sprint.mission.discodeit.service.R
     public void deleteAllReadStatus() {
         readStatusRepository.deleteAll();
     }
+
 }

@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class MessageService implements com.sprint.mission.discodeit.service.MessageService {
+public class BasicMessageService implements com.sprint.mission.discodeit.service.MessageService {
 
     private final MessageRepository messageRepository;
 

@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ChannelRepository {
+
+    List<Channel> findPublicChannel();
     Optional<Channel> save(Channel channel);
     Optional<Channel> findById(UUID channelId);
     List<Channel> findAll();

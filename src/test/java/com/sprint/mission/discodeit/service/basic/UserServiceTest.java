@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest
-public class BasicUserServiceTest {
+public class UserServiceTest {
 
     @Autowired
     private UserService basicUserService;

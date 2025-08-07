@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,15 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class BasicAuthServiceTest {
+public class AuthServiceTest {
     AddUserDto addUserDto1;
     AddUserDto addUserDto2;
     byte[] bytes;
 
     @Autowired
-    private BasicAuthService basicAuthService;
+    private AuthService authService;
     @Autowired
-    private UserService userService;
+    private BasicUserService userService;
     @Autowired
     private BinaryContentService basicBinaryContentService;
 
@@ -50,8 +51,8 @@ public class BasicAuthServiceTest {
         addUserDto2 = new AddUserDto("testName2", "testMail2", "testPassword2", "testPhone2", binaryContent.getId());
         userService.addUser(addUserDto2);
 
-        LoginDto noBinaryLogin = basicAuthService.login("testName1", "testPassword1");
-        LoginDto hasBinaryLogin = basicAuthService.login("testName2", "testPassword2");
+        LoginDto noBinaryLogin = authService.login("testName1", "testPassword1");
+        LoginDto hasBinaryLogin = authService.login("testName2", "testPassword2");
 
         Assertions.assertThat(noBinaryLogin.email()).isEqualTo(addUserDto1.email());
         Assertions.assertThat(noBinaryLogin.profileImage()).isNull();
@@ -64,13 +65,13 @@ public class BasicAuthServiceTest {
     public void loginFailUserNameTest(){
         userService.addUser(addUserDto1);
 
-        Assertions.assertThatThrownBy(() -> basicAuthService.login("ohHateCoding", "testPassword2")).isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> authService.login("ohHateCoding", "testPassword2")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void loginFailPasswordTest(){
         userService.addUser(addUserDto1);
 
-        Assertions.assertThatThrownBy(() -> basicAuthService.login("testMail1", "wwww")).isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> authService.login("testMail1", "wwww")).isInstanceOf(IllegalArgumentException.class);
     }
 }

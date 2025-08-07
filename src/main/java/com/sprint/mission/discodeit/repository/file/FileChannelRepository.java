@@ -74,4 +74,9 @@ public class FileChannelRepository implements ChannelRepository {
             }
         }
     }
+
+    @Override
+    public List<Channel> findPublicChannel() {
+        return List.of();
+    }
 }

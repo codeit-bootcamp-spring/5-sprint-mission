@@ -37,4 +37,29 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
 
         return resultList;
     }
+
+    @Override
+    public List<UUID> findChannelsIdByUserId(UUID userId) {
+        List<UUID> resultList = new ArrayList<>();
+
+        data.forEach((k,v) -> {
+            if(v.getUserId().equals(userId)){
+                resultList.add(v.getChannelId());
+            }
+        });
+
+        return resultList;
+    }
+
+    @Override
+    public void deleteByChannelId(UUID channelId) {
+        data.entrySet().removeIf(
+                entry
+                        -> entry
+                        .getValue()
+                        .getChannelId()
+                        .equals(channelId)
+        );
+
+    }
 }
