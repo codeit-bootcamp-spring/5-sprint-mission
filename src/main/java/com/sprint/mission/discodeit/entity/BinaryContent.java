@@ -14,13 +14,14 @@ public class BinaryContent implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private UUID id;
-    private Instant createdAt;
+    private final UUID id;
+    private final Instant createdAt;
 
-    private String fileName;
-    private String contentType; // jpg, ... 확장자
-    private Long size;
-    private byte[] bytes;
+    private final String fileName;
+    private final String contentType; // jpg, ... 확장자
+    private final Long size;
+    private final byte[] bytes;
+    private UUID ownerId;
 
     public BinaryContent(String fileName, String contentType, Long size, byte[] bytes) {
         this.id = UUID.randomUUID();

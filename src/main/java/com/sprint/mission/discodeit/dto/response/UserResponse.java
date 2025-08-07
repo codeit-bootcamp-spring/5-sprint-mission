@@ -6,10 +6,10 @@ import java.util.UUID;
 
 @Getter
 public class UserResponse {
-    private UUID id;
-    private String username;
-    private String email;
-    private boolean online;
+    private final UUID id;
+    private final String username;
+    private final String email;
+    private final boolean online;
 
     public UserResponse(UUID id, String username, String email, boolean online) {
         this.id = id;

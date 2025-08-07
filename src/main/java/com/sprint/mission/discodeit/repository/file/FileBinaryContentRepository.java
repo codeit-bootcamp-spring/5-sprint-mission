@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository("FileBinaryContentRepository")
 public class FileBinaryContentRepository implements BinaryContentRepository {
+
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
 
@@ -94,6 +96,30 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         Path path = resolvePath(id);
         try {
             Files.delete(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // ✅ 추가: 특정 userId를 가진 BinaryContent 모두 삭제
+    @Override
+    public void deleteByUserId(UUID userId) {
+        try {
+            Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .forEach(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            BinaryContent content = (BinaryContent) ois.readObject();
+                            if (content.getOwnerId().equals(userId)) {
+                                Files.delete(path);
+                            }
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
