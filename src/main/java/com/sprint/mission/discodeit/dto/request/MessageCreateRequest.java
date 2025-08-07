@@ -11,6 +11,7 @@ public record MessageCreateRequest(
         String content,
         @NotNull UUID channelId,
         @NotNull UUID authorId,
+        boolean uploadAttachments,
         List<UUID> attachmentIds
 ) {
 }

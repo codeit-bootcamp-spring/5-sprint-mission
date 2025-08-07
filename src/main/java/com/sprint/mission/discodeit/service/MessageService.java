@@ -30,10 +30,12 @@ public class MessageService {
     public Message create(@Valid MessageCreateRequest request) {
         validateExist(request.authorId(), request.channelId());
 
-        Message message = new Message(request.content(), request.channelId(), request.authorId());
+        Message message;
 
-        if(request.attachmentIds() != null && !request.attachmentIds().isEmpty()) {
-            message.getAttachmentIds().addAll(request.attachmentIds());
+        if(request.uploadAttachments()) {
+            message = new Message(request.content(), request.channelId(), request.authorId(), request.attachmentIds());
+        } else {
+            message = new Message(request.content(), request.channelId(), request.authorId());
         }
 
         return messageRepository.save(message);

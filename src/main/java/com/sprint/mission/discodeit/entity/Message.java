@@ -29,7 +29,17 @@ public class Message implements Serializable {
     public Message(String content, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
-        this.attachmentIds = new ArrayList<>();
+        this.attachmentIds = List.of();
+        //
+        this.content = content;
+        this.channelId = channelId;
+        this.authorId = authorId;
+    }
+
+    public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        this.attachmentIds = List.copyOf(attachmentIds);
         //
         this.content = content;
         this.channelId = channelId;

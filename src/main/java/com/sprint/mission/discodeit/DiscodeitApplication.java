@@ -103,13 +103,13 @@ public class DiscodeitApplication {
 
     static Message createMessage(MessageService messageService, UUID channelId, UUID authorId, List<UUID> attachmentIds, String content) {
         MessageCreateRequest messageCreateRequest = new MessageCreateRequest(
-                content, channelId, authorId, attachmentIds);
+                content, channelId, authorId, true, attachmentIds);
         return messageService.create(messageCreateRequest);
     }
 
     static Message createMessage(MessageService messageService, UUID channelId, UUID authorId, String content) {
         MessageCreateRequest messageCreateRequest = new MessageCreateRequest(
-                content, channelId, authorId, null);
+                content, channelId, authorId, false, null);
         return messageService.create(messageCreateRequest);
     }
 
@@ -452,13 +452,13 @@ public class DiscodeitApplication {
         Channel channel = setupChannel(channelService);
         Message message = createMessage(messageService, channel.getId(), user.getId(), new ArrayList<>(), "안녕하세요.");
 
-//        binaryContentTest(binaryContentService, message);
-//        userTest(userService, userStatusService, binaryContentService);
-//        userStatusTest(userStatusService, user);
-//        channelTest(channelService, messageService, readStatusService, userService);
+        binaryContentTest(binaryContentService, message);
+        userTest(userService, userStatusService, binaryContentService);
+        userStatusTest(userStatusService, user);
+        channelTest(channelService, messageService, readStatusService, userService);
         messageTest(messageService, userService, channelService, binaryContentService);
-//        readStatusTest(readStatusService, channelService, user);
-//        authTest(authService, user);
+        readStatusTest(readStatusService, channelService, user);
+        authTest(authService, user);
 
         userService.deleteAll();
         channelService.deleteAll();
