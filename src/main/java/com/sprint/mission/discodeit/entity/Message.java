@@ -12,10 +12,10 @@ public class Message extends BaseEntity {
     private String message;
 
     public Message(User user, Channel channel, String message) {
-        this(UUID.randomUUID(), user, channel, message, Instant.now().getEpochSecond());
+        this(UUID.randomUUID(), user, channel, message, Instant.now());
     }
 
-    public Message(UUID id, User user, Channel channel, String message, Long createAt) {
+    public Message(UUID id, User user, Channel channel, String message, Instant createAt) {
         super(id, createAt);
         this.user = user;
         this.channel = channel;

@@ -12,19 +12,19 @@ public class BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     protected final UUID id;
-    protected final Long createAt;
-    protected Long updateAt;
+    protected final Instant createAt;
+    protected Instant updateAt;
 
     protected BaseEntity() {
-        this(UUID.randomUUID(), Instant.now().getEpochSecond());
+        this(UUID.randomUUID(), Instant.now());
     }
 
-    protected BaseEntity(UUID id, Long createAt) {
+    protected BaseEntity(UUID id, Instant createAt) {
         this.id = id;
         this.createAt = createAt;
     }
 
     public void updateTimeStamp() {
-        updateAt = Instant.now().getEpochSecond();
+        updateAt = Instant.now();
     }
 }

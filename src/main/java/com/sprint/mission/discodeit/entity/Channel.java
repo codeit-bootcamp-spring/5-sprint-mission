@@ -11,10 +11,10 @@ public class Channel extends BaseEntity {
     private String channelDescription;
 
     public Channel(String channelName, String channelDescription) {
-        this(UUID.randomUUID(), channelName, channelDescription, Instant.now().getEpochSecond());
+        this(UUID.randomUUID(), channelName, channelDescription, Instant.now());
     }
 
-    public Channel(UUID id, String channelName, String channelDescription, Long createAt) {
+    public Channel(UUID id, String channelName, String channelDescription, Instant createAt) {
         super(id, createAt);
         this.channelName = channelName;
         this.channelDescription = channelDescription;

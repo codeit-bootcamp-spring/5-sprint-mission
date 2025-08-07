@@ -14,10 +14,10 @@ public class User extends BaseEntity {
     private String phoneNumber;
 
     public User(String email, String userName, String nickname, String password, String phoneNumber) {
-        this(UUID.randomUUID(), Instant.now().getEpochSecond(), email, userName, nickname, password, phoneNumber);
+        this(UUID.randomUUID(), Instant.now(), email, userName, nickname, password, phoneNumber);
     }
 
-    public User(UUID id, Long createAt, String email, String userName, String nickname, String password, String phoneNumber) {
+    public User(UUID id, Instant createAt, String email, String userName, String nickname, String password, String phoneNumber) {
         super(id, createAt);
         this.email = email;
         this.userName = userName;

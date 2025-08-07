@@ -20,7 +20,7 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public Message createMessage(User user, Channel channel, String message) {
-        Message m = new Message(UUID.randomUUID(), user, channel, message, Instant.now().getEpochSecond());
+        Message m = new Message(UUID.randomUUID(), user, channel, message, Instant.now());
         messageRepository.save(m);
 
         return m;
