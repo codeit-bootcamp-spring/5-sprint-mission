@@ -11,8 +11,8 @@ import java.util.UUID;
 @Service
 public interface ReadStatusRepository {
     void save(ReadStatus readStatus);
-    Optional<ReadStatus> findById(UUID userId, UUID channelId);
-    void updateLastTime(UUID userId, UUID channelId, Instant updatedAt);
+    Optional<ReadStatus> findById(UUID userId);
+    List<ReadStatus> findAllByChannelId(UUID channelId);
     List<ReadStatus> findAll(UUID userId);
     void delete(UUID id);
 }
