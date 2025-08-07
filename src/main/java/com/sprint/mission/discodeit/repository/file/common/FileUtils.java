@@ -12,6 +12,9 @@ public class FileUtils {
     private static final Path BASE_PATH = Paths.get(System.getProperty("user.dir"), "data");
     private static final String EXTENSION = ".ser";
 
+    private FileUtils() {
+    }
+
     public static void init(Path subDir) {
         Path path = BASE_PATH.resolve(subDir);
         if (!Files.exists(path)) {
