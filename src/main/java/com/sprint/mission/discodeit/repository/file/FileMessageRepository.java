@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class FileMessageRepository implements MessageRepository {
     private final Path DIRECTORY;
@@ -90,12 +90,43 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public boolean deleteById(UUID id) {
         Path path = resolvePath(id);
         try {
             Files.delete(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return false;
+    }
+
+    @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return findAll().stream()
+                .filter(m -> m.getChannelId().equals(channelId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Long findRecentMessageTimeByChannelId(UUID channelId) {
+        return findAll().stream()
+                .filter(m -> m.getChannelId().equals(channelId))
+                .map(Message::getCreatedAt) //
+                .max(Long::compareTo)
+                .orElse(null);
+    }
+
+    @Override
+    public boolean deleteAllByChannelId(UUID channelId) {
+        List<Message> toDelete = findAll().stream()
+                .filter(m -> m.getChannelId().equals(channelId))
+                .toList();
+
+        boolean deletedAny = false;
+        for (Message message : toDelete) {
+            deletedAny |= deleteById(message.getId()); // 하나라도 삭제되면 true
+        }
+
+        return deletedAny;
     }
 }

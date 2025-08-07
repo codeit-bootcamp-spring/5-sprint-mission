@@ -4,37 +4,58 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class JCFMessageRepository implements MessageRepository {
-    private final Map<UUID, Message> data;
 
-    public JCFMessageRepository() {
-        this.data = new HashMap<>();
-    }
+    private final Map<UUID, Message> storage = new HashMap<>();
 
     @Override
     public Message save(Message message) {
-        this.data.put(message.getId(), message);
+        storage.put(message.getId(), message);
         return message;
     }
 
     @Override
     public Optional<Message> findById(UUID id) {
-        return Optional.ofNullable(this.data.get(id));
+        return Optional.ofNullable(storage.get(id));
     }
 
     @Override
     public List<Message> findAll() {
-        return this.data.values().stream().toList();
+        return new ArrayList<>(storage.values());
     }
 
     @Override
     public boolean existsById(UUID id) {
-        return this.data.containsKey(id);
+        return storage.containsKey(id);
     }
 
     @Override
-    public void deleteById(UUID id) {
-        this.data.remove(id);
+    public boolean deleteById(UUID id) {
+        return storage.remove(id) != null;
+    }
+
+    @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return storage.values().stream()
+                .filter(msg -> msg.getChannelId().equals(channelId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Long findRecentMessageTimeByChannelId(UUID channelId) {
+        return storage.values().stream()
+                .filter(msg -> msg.getChannelId().equals(channelId))
+                .map(Message::getCreatedAt)
+                .max(Comparator.naturalOrder())
+                .orElse(null); // 최근 메시지가 없다면 null 반환
+    }
+
+    @Override
+    public boolean deleteAllByChannelId(UUID channelId) {
+        int originalSize = storage.size();
+        storage.values().removeIf(msg -> msg.getChannelId().equals(channelId));
+        return storage.size() < originalSize;
     }
 }
