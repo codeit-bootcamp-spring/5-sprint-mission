@@ -12,12 +12,20 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
     Map<UUID, ReadStatus> data = new HashMap<>();
 
     @Override
-    public Optional<ReadStatus> save(ReadStatus channel) {
-        if(channel == null){
+    public Optional<ReadStatus> save(ReadStatus readStatus) {
+        if(readStatus == null){
             return Optional.empty();
         }
-        data.put(channel.getId(), channel);
-        return Optional.of(channel);
+        data.put(readStatus.getId(), readStatus);
+        return Optional.of(readStatus);
+    }
+
+    @Override
+    public Optional<ReadStatus> findById(UUID readStatusId) {
+        if(data.containsKey(readStatusId)){
+            return Optional.of(data.get(readStatusId));
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -60,6 +68,19 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
                         .getChannelId()
                         .equals(channelId)
         );
+    }
+
+    @Override
+    public List<ReadStatus> findAllByUserId(UUID userId) {
+        List<ReadStatus> resultList = new ArrayList<>();
+
+        data.forEach((k,v) -> {
+            if(v.getUserId().equals(userId)){
+                resultList.add(v);
+            }
+        });
+
+        return resultList;
 
     }
 }

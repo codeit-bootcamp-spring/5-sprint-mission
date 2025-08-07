@@ -28,6 +28,7 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
         data.clear();
     }
 
+
     @Override
     public Optional<BinaryContent> save(BinaryContent content) {
         if(content == null){

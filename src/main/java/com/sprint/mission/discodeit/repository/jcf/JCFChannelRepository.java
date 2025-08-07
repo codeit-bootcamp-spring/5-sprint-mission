@@ -28,7 +28,6 @@ public class JCFChannelRepository implements ChannelRepository {
             return Optional.of(data.get(channelId));
         }
         return Optional.empty();
-
     }
 
     @Override

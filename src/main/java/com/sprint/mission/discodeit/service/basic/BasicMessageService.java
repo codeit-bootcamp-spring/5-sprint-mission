@@ -3,7 +3,9 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.request.AddMessageDto;
 import com.sprint.mission.discodeit.dto.request.UpdateMessageDto;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.UUID;
 public class BasicMessageService implements MessageService {
 
     private final MessageRepository messageRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
     @Override
     public Message addMessage(AddMessageDto addMessageDto) {
@@ -49,7 +52,13 @@ public class BasicMessageService implements MessageService {
         Message message = messageRepository.findById(updateMessageDto.messageId()).orElseThrow();
         message.updateContent(updateMessageDto.messageContent());
 
-        message.getAttachmentIds().clear();
+        List<UUID> attachmentIds = message.getAttachmentIds();
+        message.removeAllAttachmentId();
+
+        for(UUID attachmentId : attachmentIds){
+            binaryContentRepository.deleteById(attachmentId);
+        }
+
         for(UUID attachmentId : updateMessageDto.attachmentIds()){
             message.addAttachmentId(attachmentId);
         }
@@ -58,11 +67,22 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public void deleteMessage(UUID messageId) {
+        Message message = messageRepository.findById(messageId).orElseThrow();
+        List<UUID> attachmentIds = message.getAttachmentIds();
+        for(UUID attachmentId:attachmentIds) {
+            binaryContentRepository.deleteById(attachmentId);
+        }
         messageRepository.delete(messageId);
     }
 
     @Override
     public void deleteAllMessage() {
+        for(Message message : messageRepository.findAll()){
+            List<UUID> attachmentIds = message.getAttachmentIds();
+            for(UUID attachmentId:attachmentIds) {
+                binaryContentRepository.deleteById(attachmentId);
+            }
+        }
         messageRepository.deleteAll();
     }
 }

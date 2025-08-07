@@ -37,6 +37,10 @@ public class Message extends BaseEntity implements Serializable {
         this.attachmentIds.remove(attachmentId);
     }
 
+    public void removeAllAttachmentId() {
+        this.attachmentIds.clear();
+    }
+
 
     public void updateContent(String content) {
         if(!this.content.equals(content)){
