@@ -30,14 +30,14 @@ public class Channel implements Serializable {
         this.description = description;
     }
 
-    public void update(String newName, String newDescription) {
+    public void update(String name, String description) {
         boolean anyValueUpdated = false;
-        if (newName != null && !newName.equals(this.name)) {
-            this.name = newName;
+        if (name != null && !name.equals(this.name)) {
+            this.name = name;
             anyValueUpdated = true;
         }
-        if (newDescription != null && !newDescription.equals(this.description)) {
-            this.description = newDescription;
+        if (description != null && !description.equals(this.description)) {
+            this.description = description;
             anyValueUpdated = true;
         }
 

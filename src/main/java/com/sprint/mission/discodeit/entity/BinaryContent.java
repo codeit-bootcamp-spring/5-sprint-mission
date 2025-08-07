@@ -33,6 +33,7 @@ public class BinaryContent implements Serializable {
     public BinaryContent(String fileName, String contentType, Long size, byte[] bytes) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
+
         this.fileName = fileName;
         this.contentType = contentType;
         this.size = size;

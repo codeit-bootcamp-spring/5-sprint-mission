@@ -22,9 +22,9 @@ public class ReadStatus implements Serializable {
     private boolean read;
 
     public ReadStatus(UUID userId, UUID channelId) {
-        id = UUID.randomUUID();
-        createdAt = Instant.now();
-        read = false;
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        this.read = false;
 
         this.userId = userId;
         this.channelId = channelId;

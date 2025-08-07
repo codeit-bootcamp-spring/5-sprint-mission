@@ -21,9 +21,9 @@ public class UserStatus implements Serializable {
     private boolean loginStatus;
 
     public UserStatus(UUID userId) {
-        id = UUID.randomUUID();
-        createdAt = Instant.now();
-        loginStatus = false;
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        this.loginStatus = false;
 
         this.userId = userId;
     }

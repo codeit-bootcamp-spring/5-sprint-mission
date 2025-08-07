@@ -41,7 +41,7 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    public Message find(UUID messageId) {
+    public Message findById(UUID messageId) {
         return messageRepository.findById(messageId)
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
     }

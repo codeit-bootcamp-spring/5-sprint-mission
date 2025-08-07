@@ -357,19 +357,19 @@ public class DiscodeitApplication {
         Message message = messageOpt.orElseThrow(NoSuchElementException::new);
 
         // 조회
-        exeCheck("findById : 정상", () -> messageService.find(message.getId()));
-        exeCheck("findById : 존재하지 않는 메세지", () -> messageService.find(testId));
+        exeCheck("findById : 정상", () -> messageService.findById(message.getId()));
+        exeCheck("findById : 존재하지 않는 메세지", () -> messageService.findById(testId));
         System.out.println("findAllByChannelId : ");
         exeCheck("findAllByChannelId : 정상", () -> messageService.findAllByChannelId(channel1.getId()).forEach(System.out::println));
         exeCheck("findAllByChannelId : 채널이 없을 시 empty 리스트", () -> System.out.println(messageService.findAllByChannelId(testId).isEmpty()));
 
         // 수정
-        exeCheck("수정 전 조회", () -> messageService.find(message.getId()));
+        exeCheck("수정 전 조회", () -> messageService.findById(message.getId()));
         MessageUpdateRequest updateRequest = new MessageUpdateRequest(message.getId(), "updatedContent");
         MessageUpdateRequest updateNotFound = new MessageUpdateRequest(testId, "updatedContent");
         exeCheck("update : 정상", () -> messageService.update(updateRequest));
         exeCheck("update : 존재하지 않는 메세지", () -> messageService.update(updateNotFound));
-        exeCheck("수정 후 조회", () -> messageService.find(message.getId()));
+        exeCheck("수정 후 조회", () -> messageService.findById(message.getId()));
 
         // 삭제
         exeCheck("delete : 정상", () -> messageService.delete(message.getId()));

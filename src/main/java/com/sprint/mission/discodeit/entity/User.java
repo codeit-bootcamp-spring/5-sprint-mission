@@ -42,18 +42,18 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public void update(String newUsername, String newEmail, String newPassword) {
+    public void update(String username, String email, String password) {
         boolean anyValueUpdated = false;
-        if (newUsername != null && !newUsername.equals(this.username)) {
-            this.username = newUsername;
+        if (username != null && !username.equals(this.username)) {
+            this.username = username;
             anyValueUpdated = true;
         }
-        if (newEmail != null && !newEmail.equals(this.email)) {
-            this.email = newEmail;
+        if (email != null && !email.equals(this.email)) {
+            this.email = email;
             anyValueUpdated = true;
         }
-        if (newPassword != null && !newPassword.equals(this.password)) {
-            this.password = newPassword;
+        if (password != null && !password.equals(this.password)) {
+            this.password = password;
             anyValueUpdated = true;
         }
 
@@ -62,25 +62,25 @@ public class User implements Serializable {
         }
     }
 
-    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+    public void update(String username, String email, String password, UUID profileId) {
         boolean anyValueUpdated = false;
-        if (newUsername != null && !newUsername.equals(this.username)) {
-            this.username = newUsername;
+        if (username != null && !username.equals(this.username)) {
+            this.username = username;
             anyValueUpdated = true;
         }
-        if (newEmail != null && !newEmail.equals(this.email)) {
-            this.email = newEmail;
+        if (email != null && !email.equals(this.email)) {
+            this.email = email;
             anyValueUpdated = true;
         }
-        if (newPassword != null && !newPassword.equals(this.password)) {
-            this.password = newPassword;
+        if (password != null && !password.equals(this.password)) {
+            this.password = password;
             anyValueUpdated = true;
         }
-        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
-            this.profileId = newProfileId;
+        if (profileId != null && !profileId.equals(this.profileId)) {
+            this.profileId = profileId;
             anyValueUpdated = true;
         }
-        if (newProfileId == null) {
+        if (profileId == null) {
             this.profileId = null;
             anyValueUpdated = true;
         }

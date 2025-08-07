@@ -46,10 +46,10 @@ public class Message implements Serializable {
         this.authorId = authorId;
     }
 
-    public void update(String newContent) {
+    public void update(String content) {
         boolean anyValueUpdated = false;
-        if (newContent != null && !newContent.equals(this.content)) {
-            this.content = newContent;
+        if (content != null && !content.equals(this.content)) {
+            this.content = content;
             anyValueUpdated = true;
         }
 
