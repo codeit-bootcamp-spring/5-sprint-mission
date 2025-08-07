@@ -12,26 +12,6 @@ public class UserUpdateRequest {
     private String newPassword;
     private byte[] newProfileImage;
 
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public String getNewUsername() {
-        return newUsername;
-    }
-
-    public String getNewEmail() {
-        return newEmail;
-    }
-
-    public String getNewPassword() {
-        return newPassword;
-    }
-
-    public byte[] getNewProfileImage() {
-        return newProfileImage;
-    }
-
     public boolean hasNewProfileImage() {
         return newProfileImage != null && newProfileImage.length > 0;
     }

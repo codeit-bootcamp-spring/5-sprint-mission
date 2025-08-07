@@ -60,15 +60,18 @@ public class BasicChannelService implements ChannelService {
         channelRepository.save(channel);
 
         for (UUID userId : request.getParticipantIds()) {
+            Instant now = Instant.now();
             ReadStatus readStatus = new ReadStatus(
                     UUID.randomUUID(),
                     channel.getId(),
                     userId,
-                    Instant.now(),
-                    Instant.now()
+                    now,
+                    now,
+                    now
             );
             readStatusRepository.save(readStatus);
         }
+
 
         return channel.getId();
     }

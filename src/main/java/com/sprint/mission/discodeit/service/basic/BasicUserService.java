@@ -27,7 +27,6 @@ public class BasicUserService implements UserService {
     private final UserStatusRepository userStatusRepository;
     private final BinaryContentRepository binaryContentRepository;
 
-    // CREATE
     @Override
     public UserResponse create(UserCreateRequest request) {
         for (User existing : userRepository.findAll()) {
