@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class Message extends BaseEntity {
     private final User user;
     private final Channel channel;
@@ -17,18 +20,6 @@ public class Message extends BaseEntity {
         this.user = user;
         this.channel = channel;
         this.message = message;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     public void updateMessage(String message) {

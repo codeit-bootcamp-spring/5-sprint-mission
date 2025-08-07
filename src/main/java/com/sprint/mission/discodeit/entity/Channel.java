@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class Channel extends BaseEntity {
     private String channelName;
     private String channelDescription;
@@ -15,20 +18,6 @@ public class Channel extends BaseEntity {
         super(id, createAt);
         this.channelName = channelName;
         this.channelDescription = channelDescription;
-    }
-
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public String getChannelDescription() {
-        return channelDescription;
-    }
-
-    public void updateChannel(String channelName, String channelDescription, Long updateAt) {
-        this.channelName = channelName;
-        this.channelDescription = channelDescription;
-        super.updateTimeStamp();
     }
 
     @Override
