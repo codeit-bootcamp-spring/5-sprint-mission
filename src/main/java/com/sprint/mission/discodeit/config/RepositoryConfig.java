@@ -28,4 +28,8 @@ public class RepositoryConfig {
     public BinaryContentRepository binaryContentRepository() {
         return new FileBinaryContentRepository("binary.dat");
     }
+    @Bean
+    public ReadStatusRepository readStatusRepository() {
+        return new FileReadStatusRepository("YOUR_DIRECTORY_NAME");
+    }
 }
