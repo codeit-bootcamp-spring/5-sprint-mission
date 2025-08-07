@@ -11,9 +11,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @ToString
 public class ReadStatus {
+
     private final UUID id;
-    private final UUID userId;
     private final UUID channelId;
+    private final UUID userId;
     private final Instant createdAt;
     private Instant updatedAt;
+
+    public ReadStatus(UUID id, UUID channelId, UUID userId, Instant createdAt, Instant updatedAt) {
+        this.id = id;
+        this.channelId = channelId;
+        this.userId = userId;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 }
