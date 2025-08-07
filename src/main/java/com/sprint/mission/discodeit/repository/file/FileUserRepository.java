@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.RepositoryProps;
+import com.sprint.mission.discodeit.configuration.RepositoryProps;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,7 +31,7 @@ public class FileUserRepository implements UserRepository {
             try {
                 Files.createDirectories(DIRECTORY);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new FileRepositoryException("디렉토리 생성 실패: " + DIRECTORY, e);
             }
         }
     }
@@ -50,7 +49,7 @@ public class FileUserRepository implements UserRepository {
         ) {
             oos.writeObject(user);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileRepositoryException("저장 실패 :  " + path, e);
         }
         return user;
     }
@@ -66,7 +65,7 @@ public class FileUserRepository implements UserRepository {
             ) {
                 userNullable = (User) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
+                throw new FileRepositoryException("불러오기 실패 : ", e);
             }
         }
         return Optional.ofNullable(userNullable);
@@ -93,12 +92,12 @@ public class FileUserRepository implements UserRepository {
                         ) {
                             return (User) ois.readObject();
                         } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
+                            throw new FileRepositoryException("불러오기 실패 : " + path, e);
                         }
                     })
                     .toList();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileRepositoryException("불러오기 실패 : " + DIRECTORY, e);
         }
     }
 
@@ -122,9 +121,9 @@ public class FileUserRepository implements UserRepository {
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
         try {
-            Files.delete(path);
+            Files.deleteIfExists(path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileRepositoryException("삭제 실패 : " + path, e);
         }
     }
 }
