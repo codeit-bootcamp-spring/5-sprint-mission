@@ -6,14 +6,13 @@ import java.util.UUID;
 
 @Getter
 public class ChannelUpdateRequest {
-    private final UUID id;
+    private final UUID channelId;
     private final String name;
     private final String description;
 
-    public ChannelUpdateRequest(UUID id, String name, String description) {
-        this.id = id;
+    public ChannelUpdateRequest(UUID channelId, String name, String description) {
+        this.channelId = channelId;
         this.name = name;
         this.description = description;
     }
-
 }
