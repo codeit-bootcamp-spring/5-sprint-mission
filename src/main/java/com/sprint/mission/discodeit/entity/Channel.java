@@ -19,9 +19,9 @@ public class Channel implements Serializable {
     private final Instant createdAt;
     private Instant updatedAt;
 
-    private ChannelType type;
-    private String name;
-    private String description;
+    private ChannelType type; // 채널 타입
+    private String name; // 채널명
+    private String description; // 채널 설명
 
     public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
