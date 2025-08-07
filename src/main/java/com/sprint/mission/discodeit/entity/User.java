@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+
 @Getter
 @ToString
 public class User implements Serializable {
@@ -32,7 +33,7 @@ public class User implements Serializable {
     }
 
 
-    public void update(String newUsername, String newEmail, String newPassword) {
+    public void update(String newUsername, String newEmail, String newPassword, BinaryContent binaryContent) {
         boolean anyValueUpdated = false;
         if (newUsername != null && !newUsername.equals(this.username)) {
             this.username = newUsername;
