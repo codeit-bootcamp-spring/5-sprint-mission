@@ -48,25 +48,25 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     @Override
     public Optional<BinaryContent> findById(UUID id) {
-        BinaryContent userNullable = null;
+        BinaryContent content = null;
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                userNullable = (BinaryContent) ois.readObject();
+                content = (BinaryContent) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
-        return Optional.ofNullable(userNullable);
+        return Optional.ofNullable(content);
     }
 
     @Override
     public List<BinaryContent> findAll() {
-        try {
-            return Files.list(DIRECTORY)
+        try (Stream<Path> paths = Files.list(DIRECTORY)) {
+            return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (
@@ -94,11 +94,10 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     public boolean deleteById(UUID id) {
         Path path = resolvePath(id);
         try {
-            Files.delete(path);
+            return Files.deleteIfExists(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return false;
     }
 
     @Override
@@ -112,18 +111,16 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
                 Files.deleteIfExists(path);
             }
 
-            return !targetFiles.isEmpty(); // true = 삭제된 파일 있음
+            return !targetFiles.isEmpty();
         } catch (IOException e) {
             throw new RuntimeException("Failed to delete files", e);
         }
     }
 
-    // ✅ 추가: 특정 userId를 가진 BinaryContent 모두 삭제
     @Override
     public void deleteByUserId(UUID userId) {
-        try {
-            Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+        try (Stream<Path> paths = Files.list(DIRECTORY)) {
+            paths.filter(path -> path.toString().endsWith(EXTENSION))
                     .forEach(path -> {
                         try (
                                 FileInputStream fis = new FileInputStream(path.toFile());
@@ -142,3 +139,4 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         }
     }
 }
+
