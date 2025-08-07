@@ -347,8 +347,8 @@ public class DiscodeitApplication {
         exeCheck("create : 존재하지 않는 채널", () -> createMessage(messageService, testId, user1.getId(), attachmentIds, "test1"));
         exeCheck("create : 존재하지 않는 유저", () -> createMessage(messageService, channel1.getId(), testId, attachmentIds, "test1"));
         exeCheck("create : 둘 다 없을 때", () -> createMessage(messageService, testId, testId, attachmentIds, "test1"));
-        exeCheck("create : channelId == null", () -> createMessage(messageService, null, user1.getId(), attachmentIds, "test1"));
-        exeCheck("create : authorId = null", () -> createMessage(messageService, channel1.getId(), null, attachmentIds, "test1"));
+        exeCheck("create : channelId null", () -> createMessage(messageService, null, user1.getId(), attachmentIds, "test1"));
+        exeCheck("create : authorId null", () -> createMessage(messageService, channel1.getId(), null, attachmentIds, "test1"));
         exeCheck("create : 둘 다 null", () -> createMessage(messageService, null, null, attachmentIds, "test1"));
         createMessage(messageService, channel1.getId(), user1.getId(), "test2");
         createMessage(messageService, channel1.getId(), user1.getId(), "test4");
@@ -455,8 +455,8 @@ public class DiscodeitApplication {
 //        binaryContentTest(binaryContentService, message);
 //        userTest(userService, userStatusService, binaryContentService);
 //        userStatusTest(userStatusService, user);
-        channelTest(channelService, messageService, readStatusService, userService);
-//        messageTest(messageService, userService, channelService, binaryContentService);
+//        channelTest(channelService, messageService, readStatusService, userService);
+        messageTest(messageService, userService, channelService, binaryContentService);
 //        readStatusTest(readStatusService, channelService, user);
 //        authTest(authService, user);
 

@@ -7,8 +7,10 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service("messageService")
 @RequiredArgsConstructor
+@Validated
 public class MessageService {
     private final MessageRepository messageRepository;
     //
@@ -24,8 +27,8 @@ public class MessageService {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
 
-    public Message create(MessageCreateRequest request) {
-        validate(request.authorId(), request.channelId());
+    public Message create(@Valid MessageCreateRequest request) {
+        validateExist(request.authorId(), request.channelId());
 
         Message message = new Message(request.content(), request.channelId(), request.authorId());
 
@@ -67,10 +70,7 @@ public class MessageService {
         messageRepository.findAll().forEach(m -> delete(m.getId()));
     }
 
-    private void validate(UUID authorId, UUID channelId) {
-        if(authorId ==  null || channelId == null) {
-            throw new IllegalArgumentException("authorId와 channelId는 null일 수 없습니다.");
-        }
+    private void validateExist(UUID authorId, UUID channelId) {
         if (!userRepository.existsById(authorId) || !channelRepository.existsById(channelId)) {
             throw new NoSuchElementException("해당 유저 또는 채널을 찾을 수 없습니다.");
         }
