@@ -4,6 +4,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.dto.request.message.CreateMessageRequest;
+import com.sprint.mission.discodeit.dto.request.message.DeleteMessageRequest;
+import com.sprint.mission.discodeit.dto.request.message.GetMessageRequest;
+import com.sprint.mission.discodeit.dto.request.message.GetMessagesByAuthorRequest;
+import com.sprint.mission.discodeit.dto.request.message.GetMessagesByChannelIdRequest;
+import com.sprint.mission.discodeit.dto.request.message.UpdateMessageRequest;
+import com.sprint.mission.discodeit.dto.response.message.DeleteMessageResponse;
+import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelMessageService;
@@ -63,10 +71,38 @@ public class FileMessageService implements MessageService {
 		return false;
 	}
 
-
-
 	@Override
 	public void deleteMessage(UUID messageUUID, UUID authorUUID) {
 		channelMessageService.deleteMessage(messageUUID, authorUUID);
+	}
+
+	@Override
+	public MessageResponse createMessage(CreateMessageRequest request) {
+		return null;
+	}
+
+	@Override
+	public MessageResponse getMessage(GetMessageRequest request) {
+		return null;
+	}
+
+	@Override
+	public List<MessageResponse> getAllByChannelId(GetMessagesByChannelIdRequest request) {
+		return List.of();
+	}
+
+	@Override
+	public List<MessageResponse> getMessageByAuthor(GetMessagesByAuthorRequest request) {
+		return List.of();
+	}
+
+	@Override
+	public MessageResponse updateMessage(UpdateMessageRequest request) {
+		return null;
+	}
+
+	@Override
+	public DeleteMessageResponse deleteMessage(DeleteMessageRequest request) {
+		return null;
 	}
 }

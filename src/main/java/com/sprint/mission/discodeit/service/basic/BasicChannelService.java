@@ -25,11 +25,10 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.AlreadyChannelMemberException;
+import com.sprint.mission.discodeit.exception.AlreadyExistsChannelMemberException;
 import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.DuplicateChannelNameException;
 import com.sprint.mission.discodeit.exception.NotChannelMemberException;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -76,7 +75,7 @@ public class BasicChannelService implements ChannelService {
 			.orElseThrow(ChannelNotFoundException::new);
 
 		if (channel.getMemberIds().contains(request.getUserId())) {
-			throw new AlreadyChannelMemberException();
+			throw new AlreadyExistsChannelMemberException();
 		}
 
 		channel.addUser(request.getUserId());

@@ -44,6 +44,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
 		}
 
 		userStatusMap.put(status.getId(), status);
+		userIdToStatusIdMap.put(status.getUserId(), status.getId());
 		saveFile();
 	}
 
@@ -62,7 +63,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
 	}
 
 	@Override
-	public List<UserStatus> findByUserIdList(List<UUID> userIdList) {
+	public List<UserStatus> findByUserIdIn(List<UUID> userIdList) {
 		List<UserStatus> status = new ArrayList<>();
 		for (UUID userId : userIdList) {
 			findByUserId(userId).ifPresent(status::add);

@@ -38,7 +38,7 @@ public class BinaryContent implements Serializable {
 		this.filename = original.filename;
 		this.contentType = original.contentType;
 		this.size = original.size;
-		this.content = original.content.clone();
+		this.content = original.content;
 	}
 
 	public BinaryContent copy(){

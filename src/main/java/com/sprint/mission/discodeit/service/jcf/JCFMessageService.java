@@ -6,6 +6,14 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sprint.mission.discodeit.dto.request.message.CreateMessageRequest;
+import com.sprint.mission.discodeit.dto.request.message.DeleteMessageRequest;
+import com.sprint.mission.discodeit.dto.request.message.GetMessageRequest;
+import com.sprint.mission.discodeit.dto.request.message.GetMessagesByAuthorRequest;
+import com.sprint.mission.discodeit.dto.request.message.GetMessagesByChannelIdRequest;
+import com.sprint.mission.discodeit.dto.request.message.UpdateMessageRequest;
+import com.sprint.mission.discodeit.dto.response.message.DeleteMessageResponse;
+import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -40,7 +48,6 @@ public class JCFMessageService implements MessageService {
 		Message message = new Message(authorUUID,channelUUID, text);
 
 		messageMap.put(message.getId(), message);
-		channel.addMessage(message.getId());
 
 		return true;
 	}
@@ -119,10 +126,35 @@ public class JCFMessageService implements MessageService {
 		messageMap.remove(messageUUID);
 
 		Channel channel = channelService.getChannelByUUID(message.getChannelId());
-		if (channel != null) {
-			channel.removeMessage(messageUUID);
-		}
-
 	}
 
+	@Override
+	public MessageResponse createMessage(CreateMessageRequest request) {
+		return null;
+	}
+
+	@Override
+	public MessageResponse getMessage(GetMessageRequest request) {
+		return null;
+	}
+
+	@Override
+	public List<MessageResponse> getAllByChannelId(GetMessagesByChannelIdRequest request) {
+		return List.of();
+	}
+
+	@Override
+	public List<MessageResponse> getMessageByAuthor(GetMessagesByAuthorRequest request) {
+		return List.of();
+	}
+
+	@Override
+	public MessageResponse updateMessage(UpdateMessageRequest request) {
+		return null;
+	}
+
+	@Override
+	public DeleteMessageResponse deleteMessage(DeleteMessageRequest request) {
+		return null;
+	}
 }

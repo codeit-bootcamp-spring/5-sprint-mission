@@ -1,10 +1,5 @@
 package com.sprint.mission.discodeit.dto.request.binaryContent;
 
-import java.time.Instant;
-import java.util.UUID;
-
-import com.sprint.mission.discodeit.entity.BinaryContent;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -15,7 +10,7 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 @Builder
-public class CreateUserProfileImageRequest {
+public class CreateBinaryContentRequest {
 	@NotBlank(message = "파일명은 필수")
 	private String filename;
 

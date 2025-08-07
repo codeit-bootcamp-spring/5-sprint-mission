@@ -45,7 +45,6 @@ public class FileChannelMessageService implements ChannelMessageService {
 		Message newMessage = new Message(authorUUID, channelUUID, text);
 		messageRepository.save(newMessage);
 
-		channel.addMessage(newMessage.getId());
 		channel.updateUpdatedAt();
 		channelRepository.save(channel);
 	}
@@ -99,7 +98,6 @@ public class FileChannelMessageService implements ChannelMessageService {
 		Optional<Channel> channelOpt = channelRepository.findById(message.getChannelId());
 		if (channelOpt.isPresent()) {
 			Channel channel = channelOpt.get();
-			channel.removeMessage(messageUUID);
 			channel.updateUpdatedAt();
 			channelRepository.save(channel);
 		}

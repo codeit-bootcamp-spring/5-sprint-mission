@@ -13,15 +13,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 
 @Repository
@@ -52,6 +51,19 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 	@Override
 	public Optional<BinaryContent> findById(UUID id) {
 		return Optional.ofNullable(binaryContentMap.get(id)).map(BinaryContent::copy);
+	}
+
+	@Override
+	public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
+		if (ids == null || ids.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		return ids.stream()
+			.map(binaryContentMap::get)
+			.filter(Objects::nonNull)
+			.map(BinaryContent::copy)
+			.toList();
 	}
 
 	@Override

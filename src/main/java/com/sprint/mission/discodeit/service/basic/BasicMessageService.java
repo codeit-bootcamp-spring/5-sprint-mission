@@ -7,14 +7,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.sprint.mission.discodeit.dto.request.binaryContent.CreateAttachmentRequest;
-import com.sprint.mission.discodeit.dto.request.message.CreateMessageRequest;
-import com.sprint.mission.discodeit.dto.request.message.DeleteMessageRequest;
-import com.sprint.mission.discodeit.dto.request.message.GetMessageRequest;
-import com.sprint.mission.discodeit.dto.request.message.GetMessagesByAuthorRequest;
-import com.sprint.mission.discodeit.dto.request.message.GetMessagesByChannelIdRequest;
-import com.sprint.mission.discodeit.dto.request.message.UpdateMessageRequest;
-import com.sprint.mission.discodeit.dto.response.message.DeleteMessageResponse;
-import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
+import com.sprint.mission.discodeit.dto.request.message.*;
+import com.sprint.mission.discodeit.dto.response.message.*;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -104,7 +98,7 @@ public class BasicMessageService implements MessageService {
 	@Override
 	public MessageResponse updateMessage(UpdateMessageRequest request) {
 		Message message = messageRepository.findById(request.getMessageId())
-			.orElseThrow(() -> new MessageNotFoundException(request.getMessageId()));
+			.orElseThrow(MessageNotFoundException::new);
 
 		if (!message.getAuthorId().equals(request.getAuthorId())) {
 			throw new UnauthorizedMessageAccessException();
@@ -129,7 +123,7 @@ public class BasicMessageService implements MessageService {
 	@Override
 	public DeleteMessageResponse deleteMessage(DeleteMessageRequest request) {
 		Message message = messageRepository.findById(request.getMessageId())
-			.orElseThrow(() -> new MessageNotFoundException(request.getMessageId()));
+			.orElseThrow(MessageNotFoundException::new);
 
 		if (!message.getAuthorId().equals(request.getAuthorId())) {
 			throw new UnauthorizedMessageAccessException();

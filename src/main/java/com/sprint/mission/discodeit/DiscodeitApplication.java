@@ -10,16 +10,29 @@ import org.springframework.context.ConfigurableApplicationContext;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.test.BinaryContentServiceTest;
+import com.sprint.mission.discodeit.test.ReadStatusServiceTest;
+import com.sprint.mission.discodeit.test.UserStatusServiceTest;
 
 @SpringBootApplication
 public class DiscodeitApplication {
+	static {
+		// GUI 환경 활성화
+		System.setProperty("java.awt.headless", "false");
+	}
+
 	public static void main(String[] args) {
 		cleanDirectory(new File("data/"));
 
 		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
 
-		UserService userService = context.getBean(UserService.class);
-		AuthService authService = context.getBean(AuthService.class);
+		System.out.println("🚀 서비스 테스트 시작 🚀\n");
+
+		BinaryContentServiceTest.testBinaryContentService(context);
+		UserStatusServiceTest.testUserStatusService(context);
+		ReadStatusServiceTest.testReadStatusService(context);
+
+		System.out.println("✅ 모든 서비스 테스트 완료 ✅");
 
 		cleanDirectory(new File("data/"));
 	}
