@@ -108,8 +108,8 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Channel updateChannel(UUID channelId, UpdateChannelDto updateChannelDto) {
-        Channel channel = channelRepository.findById(channelId).orElseThrow();
+    public Channel updateChannel(UpdateChannelDto updateChannelDto) {
+        Channel channel = channelRepository.findById(updateChannelDto.channelId()).orElseThrow();
         if(channel.getChannelType() == ChannelType.PRIVATE){
             throw new IllegalArgumentException("PRIVATE타입의 채널은 업데이트가 불가하다.");
         }
