@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.sprint.mission.discodeit.dto.request.binaryContent.CreateAttachmentRequest;
+import com.sprint.mission.discodeit.dto.request.binaryContent.CreateBinaryContentRequest;
 import com.sprint.mission.discodeit.dto.request.message.*;
 import com.sprint.mission.discodeit.dto.response.message.*;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -138,9 +138,9 @@ public class BasicMessageService implements MessageService {
 		return DeleteMessageResponse.success(message);
 	}
 
-	private void addAttachments(Message message, List<CreateAttachmentRequest> attachments) {
+	private void addAttachments(Message message, List<CreateBinaryContentRequest> attachments) {
 		if (!attachments.isEmpty()) {
-			for (CreateAttachmentRequest attachment : attachments) {
+			for (CreateBinaryContentRequest attachment : attachments) {
 				BinaryContent binaryContent = new BinaryContent(
 					attachment.getFilename(),
 					attachment.getContentType(),

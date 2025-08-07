@@ -1,17 +1,20 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
 import com.sprint.mission.discodeit.dto.request.user.*;
 import com.sprint.mission.discodeit.dto.response.user.*;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.DuplicateEmailException;
 import com.sprint.mission.discodeit.exception.DuplicateLoginIdException;
 import com.sprint.mission.discodeit.exception.InvalidPasswordException;
 import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -36,7 +39,19 @@ public class BasicUserService implements UserService {
 			throw new DuplicateEmailException();
 		}
 
-		User user = request.toUser();
+		User user;
+		UUID profileId = null;
+
+		if (request.getProfileImage() != null) {
+			BinaryContent profileImage = request.getProfileImage().toBinaryContent();
+			binaryContentRepository.save(profileImage);
+			profileId = profileImage.getId();
+
+			user = request.toUserWithProfile(profileId);
+		} else {
+			user = request.toUser();
+		}
+
 		userRepository.save(user);
 
 		UserStatus userStatus = new UserStatus(user.getId());
@@ -88,22 +103,34 @@ public class BasicUserService implements UserService {
 
 	@Override
 	public DeleteUserResponse deleteUser(DeleteUserByIdRequest request) {
-		if (!userRepository.existsById(request.getId())) {
-			throw new UserNotFoundException();
-		}
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
 
-		userRepository.deleteById(request.getId());
+		UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		if(user.getProfileId() != null) {
+			binaryContentRepository.deleteById(user.getProfileId());
+		}
+		userStatusRepository.deleteById(userStatus.getId());
+		userRepository.deleteById(user.getId());
 
 		return new DeleteUserResponse(true);
 	}
 
 	@Override
 	public DeleteUserResponse deleteUser(DeleteUserByLoingIdRequest request) {
-		if (!userRepository.existsByLoginId(request.getLoginId())) {
-			throw new UserNotFoundException();
-		}
+		User user = userRepository.findByLoginId(request.getLoginId())
+			.orElseThrow(UserNotFoundException::new);
 
-		userRepository.deleteByLoginId(request.getLoginId());
+		UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
+			.orElseThrow(UserStatusNotFoundException::new);
+
+		if(user.getProfileId() != null) {
+			binaryContentRepository.deleteById(user.getProfileId());
+		}
+		userStatusRepository.deleteById(userStatus.getId());
+		userRepository.deleteById(user.getId());
 
 		return new DeleteUserResponse(true);
 	}

@@ -25,10 +25,10 @@ public class CreateUserRequest {
 	private CreateUserProfileImageRequest profileImage;
 
 	public User toUser() {
-		return toUser(null);
+		return toUserWithProfile(null);
 	}
 
-	public User toUser(UUID profileId){
+	public User toUserWithProfile(UUID profileId){
 		Instant now = Instant.now();
 
 		return User.builder()

@@ -10,6 +10,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.test.BasicMessageServiceTest;
 import com.sprint.mission.discodeit.test.BinaryContentServiceTest;
 import com.sprint.mission.discodeit.test.ReadStatusServiceTest;
 import com.sprint.mission.discodeit.test.UserStatusServiceTest;
@@ -21,16 +22,19 @@ public class DiscodeitApplication {
 		System.setProperty("java.awt.headless", "false");
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		cleanDirectory(new File("data/"));
 
 		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
 
+		Thread.sleep(1000);
+
 		System.out.println("🚀 서비스 테스트 시작 🚀\n");
 
-		BinaryContentServiceTest.testBinaryContentService(context);
-		UserStatusServiceTest.testUserStatusService(context);
-		ReadStatusServiceTest.testReadStatusService(context);
+		// BinaryContentServiceTest.testBinaryContentService(context);
+		// UserStatusServiceTest.testUserStatusService(context);
+		// ReadStatusServiceTest.testReadStatusService(context);
+		BasicMessageServiceTest.testBasicMessageService(context);
 
 		System.out.println("✅ 모든 서비스 테스트 완료 ✅");
 

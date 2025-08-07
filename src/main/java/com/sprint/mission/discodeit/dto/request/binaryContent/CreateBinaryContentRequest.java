@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.dto.request.binaryContent;
 
+import com.sprint.mission.discodeit.entity.BinaryContent;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -23,4 +25,8 @@ public class CreateBinaryContentRequest {
 
 	@NotNull(message = "파일 내용은 필수")
 	private byte[] content;
+
+	public BinaryContent toBinaryContent() {
+		return new BinaryContent(filename, contentType, size, content);
+	}
 }

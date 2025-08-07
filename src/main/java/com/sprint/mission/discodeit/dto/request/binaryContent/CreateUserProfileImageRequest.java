@@ -22,10 +22,15 @@ public class CreateUserProfileImageRequest {
 	@NotBlank(message = "컨텐츠 타입은 필수")
 	private String contentType;
 
+	// 나중에 프로필 이미지는 크기 제한 걸수 도 있음!
 	@NotNull(message = "파일 크기는 필수")
 	@Positive(message = "파일 크기는 0보다 커야 합니다")
 	private Long size;
 
 	@NotNull(message = "파일 내용은 필수")
 	private byte[] content;
+
+	public BinaryContent toBinaryContent() {
+		return new BinaryContent(filename, contentType, size, content);
+	}
 }
