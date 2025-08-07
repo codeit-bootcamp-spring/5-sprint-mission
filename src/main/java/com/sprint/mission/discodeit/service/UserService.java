@@ -1,15 +1,17 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.response.UserFindResponse;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserFindResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +20,14 @@ import java.util.UUID;
 
 @Service("userService")
 @RequiredArgsConstructor
+@Validated
 public class UserService {
 
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final UserStatusRepository userStatusRepository;
 
-    public User create(UserCreateRequest request) {
+    public User create(@Valid UserCreateRequest request) {
         validateUnique(request.username(), request.email());
         User user;
 
@@ -65,7 +68,7 @@ public class UserService {
         return userFindResponses;
     }
 
-    public User update(UserUpdateRequest request) {
+    public User update(@Valid UserUpdateRequest request) {
         validateUnique(request.username(), request.email());
         User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new NoSuchElementException("User with id " + request.userId() + " not found"));

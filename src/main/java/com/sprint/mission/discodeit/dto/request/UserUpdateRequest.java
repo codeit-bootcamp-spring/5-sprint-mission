@@ -1,12 +1,15 @@
 package com.sprint.mission.discodeit.dto.request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.UUID;
 
 public record UserUpdateRequest(
         UUID userId,
-        String username,
-        String email,
-        String password,
+        @NotBlank String username,
+        @NotBlank @Email String email,
+        @NotBlank String password,
         boolean updateProfileImage,
         UUID profileId
 ) {
