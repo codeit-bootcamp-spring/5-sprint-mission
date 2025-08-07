@@ -20,13 +20,13 @@ public class UserStatusService {
 
     public UserStatus create(UserStatusCreateRequest request) {
         userRepository.findById(request.userId())
-                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("create : 유저를 찾을 수 없습니다."));
         UserStatus userStatus = userStatusRepository.findAll().stream()
                 .filter(s -> s.getUserId().equals(request.userId()))
                 .findFirst()
                 .orElse(null);
         if (userStatus != null) {
-            throw new IllegalArgumentException("해당 UserStatus가 이미 존재합니다.");
+            throw new IllegalArgumentException("create : UserStatus가 이미 존재합니다.");
         }
         userStatus = new UserStatus(request.userId());
         return userStatusRepository.save(userStatus);
@@ -34,12 +34,12 @@ public class UserStatusService {
 
     public UserStatus findById(UUID id) {
         return userStatusRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("해당 UserStatus를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("findById : UserStatus를 찾을 수 없습니다."));
     }
 
     public UserStatus findByUserId(UUID userid) {
         return userStatusRepository.findByUserId(userid)
-                .orElseThrow(() -> new NoSuchElementException("해당 UserStatus를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("findByUserId : UserStatus를 찾을 수 없습니다."));
     }
 
     public List<UserStatus> findAll() {
@@ -48,7 +48,7 @@ public class UserStatusService {
 
     public UserStatus update(UserStatusUpdateRequest userStatusUpdateRequest) {
         UserStatus userStatus = userStatusRepository.findById(userStatusUpdateRequest.id())
-                .orElseThrow(() -> new NoSuchElementException("해당 UserStatus를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("update : UserStatus를 찾을 수 없습니다."));
         userStatus.update(userStatusUpdateRequest.loginStatus());
 
         return userStatusRepository.save(userStatus);
@@ -56,7 +56,7 @@ public class UserStatusService {
 
     public UserStatus updateByUserId(UserStatusUpdateRequest request) {
         UserStatus userStatus = userStatusRepository.findByUserId(request.id())
-                .orElseThrow(() -> new NoSuchElementException("해당 UserStatus를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("updateByUserId : UserStatus를 찾을 수 없습니다."));
         userStatus.update(request.loginStatus());
 
         return userStatusRepository.save(userStatus);
@@ -64,7 +64,7 @@ public class UserStatusService {
 
     public void delete(UUID id) {
         UserStatus userStatus = userStatusRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("해당 UserStatus를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("delete : UserStatus를 찾을 수 없습니다."));
         userStatusRepository.deleteById(userStatus.getId());
     }
 

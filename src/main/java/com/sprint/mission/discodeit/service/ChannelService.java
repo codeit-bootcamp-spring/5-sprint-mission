@@ -41,7 +41,7 @@ public class ChannelService {
 
     public ChannelFindResponse findById(UUID channelId) {
         Channel channel = channelRepository.findById(channelId)
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("findById : 채널을 찾을 수 없습니다."));
 
         LinkedList<Message> messages = messageRepository.findAll().stream()
                 .filter(m -> m.getChannelId().equals(channelId))
@@ -111,9 +111,9 @@ public class ChannelService {
 
     public Channel update(@Valid ChannelUpdateRequest request) {
         Channel channel = channelRepository.findById(request.id())
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + request.id() + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("update : 채널을 찾을 수 없습니다."));
         if (channel.getType() == ChannelType.PRIVATE) {
-            throw new SecurityException("Private 채널은 업데이트 할 수 없습니다.");
+            throw new SecurityException("update : Private 채널은 업데이트 할 수 없습니다.");
         }
         channel.update(request.name(), request.description());
         return channelRepository.save(channel);
@@ -121,7 +121,7 @@ public class ChannelService {
 
     public void delete(UUID channelId) {
         Channel channel = channelRepository.findById(channelId)
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("delete : 채널을 찾을 수 없습니다."));
 
 
         readStatusRepository.findByChannelId(channelId)

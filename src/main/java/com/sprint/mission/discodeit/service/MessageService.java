@@ -43,7 +43,7 @@ public class MessageService {
 
     public Message findById(UUID messageId) {
         return messageRepository.findById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("findById : 메세지를 찾을 수 없습니다"));
     }
 
     public List<Message> findAllByChannelId(UUID channelId) {
@@ -54,7 +54,7 @@ public class MessageService {
 
     public Message update(MessageUpdateRequest request) {
         Message message = messageRepository.findById(request.messageId())
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + request.messageId() + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("update : 메세지를 찾을 수 없습니다"));
         message.update(request.content());
 
         return messageRepository.save(message);
@@ -62,7 +62,7 @@ public class MessageService {
 
     public void delete(UUID messageId) {
         Message message = messageRepository.findById(messageId)
-                        .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+                        .orElseThrow(() -> new NoSuchElementException("delete : 메세지를 찾을 수 없습니다"));
 
         message.getAttachmentIds().forEach(binaryContentRepository::deleteById);
         messageRepository.deleteById(message.getId());
@@ -74,7 +74,7 @@ public class MessageService {
 
     private void validateExist(UUID authorId, UUID channelId) {
         if (!userRepository.existsById(authorId) || !channelRepository.existsById(channelId)) {
-            throw new NoSuchElementException("해당 유저 또는 채널을 찾을 수 없습니다.");
+            throw new NoSuchElementException("validateExist : 해당 유저 또는 채널을 찾을 수 없습니다.");
         }
     }
 }

@@ -20,14 +20,14 @@ public class BinaryContentService {
                 .collect(Collectors.toCollection(LinkedList::new))
                 .getLast()
                 .equals(request.contentType())) {
-            throw new IllegalArgumentException("잘못된 확장자입니다.");
+            throw new IllegalArgumentException("create : 잘못된 확장자입니다.");
         }
         return binaryContentRepository.save(binaryContent);
     }
 
     public BinaryContent findById(UUID id) {
         return binaryContentRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("BinaryContent not found"));
+                .orElseThrow(() -> new NoSuchElementException("findById : BinaryContent를 찾을 수 없습니다."));
     }
 
     public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
@@ -38,7 +38,7 @@ public class BinaryContentService {
 
     public void delete(UUID id) {
         if (!binaryContentRepository.existsById(id)) {
-            throw new NoSuchElementException("BinaryContent not found");
+            throw new NoSuchElementException("delete : BinaryContent를 찾을 수 없습니다.");
         }
         binaryContentRepository.deleteById(id);
     }

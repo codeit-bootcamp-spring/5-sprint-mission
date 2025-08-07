@@ -15,9 +15,9 @@ public class AuthService {
 
     public User login(UserLoginRequest userLoginRequest) {
         User user = userRepository.findByUsername(userLoginRequest.username())
-                .orElseThrow(() -> new NoSuchElementException("아이디 또는 비밀번호가 잘못되었습니다"));
+                .orElseThrow(() -> new NoSuchElementException("login : 아이디 또는 비밀번호가 잘못되었습니다"));
         if (!user.getPassword().equals(userLoginRequest.password())) {
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 잘못되었습니다");
+            throw new IllegalArgumentException("login : 아이디 또는 비밀번호가 잘못되었습니다");
         }
         return user;
     }

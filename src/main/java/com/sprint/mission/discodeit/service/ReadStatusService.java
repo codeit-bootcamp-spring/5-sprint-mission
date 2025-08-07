@@ -23,11 +23,11 @@ public class ReadStatusService {
     public ReadStatus create(ReadStatusCreateRequest request) {
         if (userRepository.findById(request.userId()).isEmpty()
                 || channelRepository.findById(request.channelId()).isEmpty()) {
-            throw new NoSuchElementException("관련된 채널 또는 유저가 존재하지 않습니다.");
+            throw new NoSuchElementException("create : 관련된 채널 또는 유저가 존재하지 않습니다.");
         }
         if (readStatusRepository.findByUserId(request.userId()).stream()
                 .anyMatch(status -> status.getChannelId().equals(request.channelId()))) {
-            throw new IllegalArgumentException("이미 존재하는 객체입니다.");
+            throw new IllegalArgumentException("create : 이미 존재하는 ReadStatus 입니다.");
         }
 
         ReadStatus readStatus = new ReadStatus(request.userId(), request.channelId());
@@ -36,7 +36,7 @@ public class ReadStatusService {
 
     public ReadStatus findById(UUID id) {
         return readStatusRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("해당 객체를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("findById : ReadStatus를 찾을 수 없습니다."));
     }
 
     public List<ReadStatus> findAllByUserId(UUID userId) {
@@ -45,7 +45,7 @@ public class ReadStatusService {
 
     public ReadStatus update(ReadStatusUpdateRequest request) {
         ReadStatus readStatus = readStatusRepository.findById(request.userId())
-                .orElseThrow(() -> new NoSuchElementException("해당 객체를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("update : ReadStatus를 찾을 수 없습니다."));
         readStatus.update(request.read());
 
         return readStatusRepository.save(readStatus);
@@ -53,7 +53,7 @@ public class ReadStatusService {
 
     public void delete(UUID id) {
         if(!readStatusRepository.existsById(id)) {
-            throw new NoSuchElementException("해당 객체를 찾을 수 없습니다.");
+            throw new NoSuchElementException("delete : ReadStatus를 찾을 수 없습니다.");
         }
         readStatusRepository.deleteById(id);
     }

@@ -42,14 +42,14 @@ public class UserService {
 
     public UserFindResponse findById(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("findById : 유저를 찾을 수 없습니다."));
 
         return UserFindResponse.builder()
                 .profileId(user.getProfileId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .loginStatus(userStatusRepository.findByUserId(user.getId())
-                        .orElseThrow(() -> new NoSuchElementException("Not found")).isLogin())
+                        .orElseThrow(() -> new NoSuchElementException("findById : UserStatus를 찾을 수 없습니다.")).isLogin())
                 .build();
     }
 
@@ -57,7 +57,7 @@ public class UserService {
         List<UserFindResponse> userFindResponses = new ArrayList<>();
         for (User user : userRepository.findAll()) {
             UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-                    .orElseThrow(() -> new NoSuchElementException("UserStatus Not found"));
+                    .orElseThrow(() -> new NoSuchElementException("findAll : UserStatus를 찾을 수 없습니다."));
             userFindResponses.add(UserFindResponse.builder()
                     .profileId(user.getProfileId())
                     .username(user.getUsername())
@@ -71,7 +71,7 @@ public class UserService {
     public User update(@Valid UserUpdateRequest request) {
         validateUnique(request.username(), request.email());
         User user = userRepository.findById(request.userId())
-                .orElseThrow(() -> new NoSuchElementException("User with id " + request.userId() + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다."));
 
         if (request.updateProfileImage()) {
             user.update(request.username(), request.email(), request.password(), request.profileId());
@@ -83,7 +83,7 @@ public class UserService {
 
     public void delete(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("delete : 유저를 찾을 수 없습니다."));
 
         if (user.getProfileId() != null) {
             binaryContentRepository.deleteById(user.getProfileId());
@@ -100,10 +100,10 @@ public class UserService {
 
     private void validateUnique(String username, String email) {
         if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username " + username + " already exists");
+            throw new IllegalArgumentException("validateUnique : 이미 존재하는 username 입니다.");
         }
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email " + email + " already exists");
+            throw new IllegalArgumentException("validateUnique : 이미 존재하는 email 입니다.");
         }
     }
 }
