@@ -7,21 +7,23 @@ import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service("channelService")
 @RequiredArgsConstructor
+@Validated
 public class ChannelService {
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
 
-    public Channel createPublic(ChannelCreateRequest request) {
-        validateName(request.name());
+    public Channel createPublic(@Valid ChannelCreateRequest request) {
         Channel channel = new Channel(ChannelType.PUBLIC, request.name(), request.description());
         return channelRepository.save(channel);
     }
@@ -107,14 +109,13 @@ public class ChannelService {
         return channelFindResponses;
     }
 
-    public Channel update(ChannelUpdateRequest request) {
-        validateName(request.newName());
+    public Channel update(@Valid ChannelUpdateRequest request) {
         Channel channel = channelRepository.findById(request.id())
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + request.id() + " not found"));
         if (channel.getType() == ChannelType.PRIVATE) {
             throw new SecurityException("Private 채널은 업데이트 할 수 없습니다.");
         }
-        channel.update(request.newName(), request.newDescription());
+        channel.update(request.name(), request.description());
         return channelRepository.save(channel);
     }
 
@@ -133,11 +134,5 @@ public class ChannelService {
 
     public void deleteAll() {
         channelRepository.findAll().forEach(channel -> delete(channel.getId()));
-    }
-
-    private void validateName(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Public 채널 이름은 null 이거나 empty 일 수 없습니다.");
-        }
     }
 }

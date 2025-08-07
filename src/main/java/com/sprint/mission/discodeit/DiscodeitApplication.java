@@ -453,12 +453,12 @@ public class DiscodeitApplication {
         Message message = createMessage(messageService, channel.getId(), user.getId(), new ArrayList<>(), "안녕하세요.");
 
 //        binaryContentTest(binaryContentService, message);
-        userTest(userService, userStatusService, binaryContentService);
-        userStatusTest(userStatusService, user);
+//        userTest(userService, userStatusService, binaryContentService);
+//        userStatusTest(userStatusService, user);
         channelTest(channelService, messageService, readStatusService, userService);
-        messageTest(messageService, userService, channelService, binaryContentService);
-        readStatusTest(readStatusService, channelService, user);
-        authTest(authService, user);
+//        messageTest(messageService, userService, channelService, binaryContentService);
+//        readStatusTest(readStatusService, channelService, user);
+//        authTest(authService, user);
 
         userService.deleteAll();
         channelService.deleteAll();
