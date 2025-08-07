@@ -5,6 +5,7 @@ import lombok.ToString;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -15,8 +16,8 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final UUID id;
-    private final Long createdAt;
-    private Long updatedAt;
+    private final Instant createdAt;
+    private Instant updatedAt;
 
     private String content; // 내용
     private final UUID channelId; // 체널
@@ -24,14 +25,14 @@ public class Message implements Serializable {
 
     public Message(String content, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
+        this.createdAt = Instant.now();
         this.content = content;
         this.channelId = channelId;
         this.authorId = authorId;
     }
 
     public void update(String content) {
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = Instant.now();
         this.content = content;
     }
 }
