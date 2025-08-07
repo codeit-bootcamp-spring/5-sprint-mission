@@ -11,6 +11,7 @@ public interface MessageRepository {
     Message save(Message message);
     Optional<Message> findById(UUID id);
     List<Message> findAll();
+    List<Message> findAllByChannelId(UUID channelId); // ✅ 이 줄 추가
     boolean existsById(UUID id);
     void deleteById(UUID id);
     Instant findRecentMessageTimeByChannelId(UUID channelId);
