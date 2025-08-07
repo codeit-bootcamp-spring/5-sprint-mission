@@ -16,13 +16,32 @@ public class UserStatus {
     private final Instant updatedAt;
     private Instant lastAccessedAt;
 
-    public boolean isOnline() {
-        return Duration.between(lastAccessedAt, Instant.now()).toMinutes() <= 5;
-    }
     public UserStatus(UUID id, UUID userId, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.userId = userId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
+    // ✅ 추가된 생성자
+    public UserStatus(UUID userId, Instant lastAccessedAt) {
+        this.id = UUID.randomUUID();
+        this.userId = userId;
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
+        this.lastAccessedAt = lastAccessedAt;
+    }
+
+    public void update(Instant newAccessTime) {
+        this.lastAccessedAt = newAccessTime;
+    }
+
+    public void update() {
+        this.lastAccessedAt = Instant.now();
+    }
+
+    public boolean isOnline() {
+        return Duration.between(lastAccessedAt, Instant.now()).toMinutes() <= 5;
+    }
 }
+
