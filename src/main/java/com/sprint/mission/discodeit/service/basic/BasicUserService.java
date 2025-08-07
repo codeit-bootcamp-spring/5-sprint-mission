@@ -102,6 +102,45 @@ public class BasicUserService implements UserService {
 	}
 
 	@Override
+	public UpdateUserResponse updateUserProfile(UpdateUserProfileImageRequest request) {
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		UUID oldProfileId = user.getProfileId();
+
+		if (request.getUserProfileImage() != null) {
+			// 새로운 프로필 이미지 제공 - 업데이트 (기존과 같아도 새로 저장)
+			BinaryContent newProfileImage = request.getUserProfileImage().toBinaryContent();
+			binaryContentRepository.save(newProfileImage);
+
+			// 기존 프로필 이미지가 있으면 삭제
+			if (oldProfileId != null) {
+				binaryContentRepository.deleteById(oldProfileId);
+			}
+
+			user.updateProfileId(newProfileImage.getId());
+		} else {
+			// null 제공 - 기존 프로필 제거
+			if (oldProfileId != null) {
+				binaryContentRepository.deleteById(oldProfileId);
+				user.removeProfile();
+			}
+		}
+
+		userRepository.save(user);
+
+		return UpdateUserResponse.builder()
+			.id(user.getId())
+			.createdAt(user.getCreatedAt())
+			.updatedAt(user.getUpdatedAt())
+			.email(user.getEmail())
+			.defaultNickname(user.getDefaultNickname())
+			.profileId(user.getProfileId())
+			.success(true)
+			.build();
+	}
+
+	@Override
 	public DeleteUserResponse deleteUser(DeleteUserByIdRequest request) {
 		User user = userRepository.findById(request.getId())
 			.orElseThrow(UserNotFoundException::new);

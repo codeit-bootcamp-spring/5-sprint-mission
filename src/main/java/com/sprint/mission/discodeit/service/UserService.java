@@ -8,10 +8,12 @@ import com.sprint.mission.discodeit.dto.request.user.DeleteUserByLoingIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.GetUserByLoginIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.response.user.CreateUserResponse;
 import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
 import com.sprint.mission.discodeit.dto.response.user.UpdateUserPasswordResponse;
 import com.sprint.mission.discodeit.dto.response.user.GetUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UpdateUserResponse;
 
 public interface UserService {
 	// 생성
@@ -24,6 +26,7 @@ public interface UserService {
 	
 	// 수정
 	UpdateUserPasswordResponse updateUserPassword(UpdateUserPasswordRequest request);
+	UpdateUserResponse updateUserProfile(UpdateUserProfileImageRequest request);
 	
 	// 삭제
 	DeleteUserResponse deleteUser(DeleteUserByIdRequest request);

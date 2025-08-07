@@ -13,11 +13,13 @@ import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.GetUserByLoginIdRequest;
 import com.sprint.mission.discodeit.dto.request.auth.LoginRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.response.user.CreateUserResponse;
 import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
 import com.sprint.mission.discodeit.dto.response.user.GetUserResponse;
 import com.sprint.mission.discodeit.dto.response.auth.LoginResponse;
 import com.sprint.mission.discodeit.dto.response.user.UpdateUserPasswordResponse;
+import com.sprint.mission.discodeit.dto.response.user.UpdateUserResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 
@@ -92,6 +94,11 @@ public class JCFUserService implements UserService {
 	}
 
 	@Override
+	public UpdateUserResponse updateUserProfile(UpdateUserProfileImageRequest request) {
+		return null;
+	}
+
+	@Override
 	public DeleteUserResponse deleteUser(DeleteUserByIdRequest request) {
 		if (request.getId() == null || !UserMap.containsKey(request.getId())) {
 			return new DeleteUserResponse(false);
@@ -114,6 +121,8 @@ public class JCFUserService implements UserService {
 
 		return new DeleteUserResponse(true);
 	}
+
+
 
 	public boolean isExistLoginId(String loginId) {
 		return loginIdToUUID.containsKey(loginId);
