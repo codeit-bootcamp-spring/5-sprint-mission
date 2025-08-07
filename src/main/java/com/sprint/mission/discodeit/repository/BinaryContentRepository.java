@@ -14,4 +14,5 @@ public interface BinaryContentRepository {
     boolean deleteById(UUID id);
     void deleteByUserId(UUID userId);
     boolean deleteAllByMessageId(UUID messageId);
+    List<BinaryContent> findAllByIdIn(List<UUID> ids);
 }

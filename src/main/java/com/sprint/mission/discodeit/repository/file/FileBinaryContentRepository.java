@@ -7,6 +7,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -138,5 +139,14 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
             throw new RuntimeException(e);
         }
     }
+    @Override
+    public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
+        List<BinaryContent> result = new ArrayList<>();
+        for (UUID id : ids) {
+            findById(id).ifPresent(result::add);
+        }
+        return result;
+    }
+
 }
 

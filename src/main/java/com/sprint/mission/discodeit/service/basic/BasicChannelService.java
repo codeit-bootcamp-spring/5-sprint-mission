@@ -81,7 +81,7 @@ public class BasicChannelService implements ChannelService {
         Optional<Channel> optionalChannel = channelRepository.findById(channelId);
 
         return optionalChannel.map(channel -> {
-            Instant recentMessageTime = messageRepository.findRecentMessageTimeByChannelId(channelId);
+            Instant recentMessageTime = Instant.ofEpochSecond(messageRepository.findRecentMessageTimeByChannelId(channelId));
             List<UUID> participantIds = new ArrayList<>();
 
             if (channel.getType() == ChannelType.PRIVATE) {
@@ -112,7 +112,7 @@ public class BasicChannelService implements ChannelService {
                         readStatusRepository.findAllByUserId(userId).stream()
                                 .anyMatch(rs -> rs.getChannelId().equals(channel.getId())))
                 .map(channel -> {
-                    Instant recentMessageTime = messageRepository.findRecentMessageTimeByChannelId(channel.getId());
+                    Instant recentMessageTime = Instant.ofEpochSecond(messageRepository.findRecentMessageTimeByChannelId(channel.getId()));
                     List<UUID> participantIds = new ArrayList<>();
 
                     if (channel.getType() == ChannelType.PRIVATE) {
