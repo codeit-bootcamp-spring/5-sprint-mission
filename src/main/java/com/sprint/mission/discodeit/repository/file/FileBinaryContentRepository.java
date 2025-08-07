@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,8 +10,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
-@Repository("FileBinaryContentRepository")
 public class FileBinaryContentRepository implements BinaryContentRepository {
 
     private final Path DIRECTORY;
@@ -92,12 +91,30 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public boolean deleteById(UUID id) {
         Path path = resolvePath(id);
         try {
             Files.delete(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean deleteAllByMessageId(UUID messageId) {
+        try (Stream<Path> files = Files.list(DIRECTORY)) {
+            List<Path> targetFiles = files
+                    .filter(path -> path.getFileName().toString().startsWith(messageId.toString()))
+                    .toList();
+
+            for (Path path : targetFiles) {
+                Files.deleteIfExists(path);
+            }
+
+            return !targetFiles.isEmpty(); // true = 삭제된 파일 있음
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete files", e);
         }
     }
 
