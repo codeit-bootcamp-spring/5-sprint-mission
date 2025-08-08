@@ -6,11 +6,12 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.ReadStatusService;
+import com.sprint.mission.discodeit.service.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ import java.util.UUID;
 public class ChannelServiceTest {
 
     @Autowired
-    private BasicUserService userService;
+    private UserService userService;
     @Autowired
     private ChannelService channelService;
     @Autowired
@@ -34,7 +35,7 @@ public class ChannelServiceTest {
     private MessageService messageService;
 
     @Autowired
-    private JCFMessageRepository messageRepository;
+    private MessageRepository messageRepository;
     @Autowired
     private ReadStatusRepository readStatusRepository;
 

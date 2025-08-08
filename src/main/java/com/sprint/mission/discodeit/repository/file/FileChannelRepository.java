@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
 import org.springframework.stereotype.Repository;
@@ -78,6 +80,20 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public List<Channel> findPublicChannel() {
-        return List.of();
+        List<Channel> returnChannel = new ArrayList<>();
+
+        File directory = new File(directoryPath.toAbsolutePath() + "/");
+        File[] files = directory.listFiles();
+
+        if(files != null){
+            for(File file : files){
+                Path filePath = file.toPath();
+                Optional<Channel> channelOpt = FileUtil.loadEntity(filePath, Channel.class);
+                if (channelOpt.isPresent() && channelOpt.get().getChannelType().equals(ChannelType.PUBLIC)){
+                    returnChannel.add(channelOpt.get());
+                }
+            }
+        }
+        return returnChannel;
     }
 }

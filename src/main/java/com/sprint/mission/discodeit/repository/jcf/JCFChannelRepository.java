@@ -6,7 +6,8 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
-@Repository
+
+//@Repository
 public class JCFChannelRepository implements ChannelRepository {
     Map<UUID, Channel> data = new HashMap<>();
 
