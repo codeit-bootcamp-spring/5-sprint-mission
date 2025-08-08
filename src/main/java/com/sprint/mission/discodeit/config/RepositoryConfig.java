@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-// com.sprint.mission.discodeit.config.RepositoryConfig
 @Configuration
 public class RepositoryConfig {
 

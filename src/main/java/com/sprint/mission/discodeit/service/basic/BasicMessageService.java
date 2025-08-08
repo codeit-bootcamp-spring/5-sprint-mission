@@ -26,7 +26,6 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public UUID create(MessageCreateRequest req) {
-        // 존재 검증 등은 생략
         Message m = new Message(req.getUserId(), req.getChannelId(), req.getContent());
         messageRepository.save(m);
         return m.getId();

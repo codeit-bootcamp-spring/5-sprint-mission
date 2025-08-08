@@ -11,13 +11,11 @@ import java.util.UUID;
 @Getter
 @ToString
 public class User implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
     private UUID id;
     private Instant createdAt;
     private Instant updatedAt;
-
     private String username;
     private String email;
     private String password;

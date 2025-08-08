@@ -54,7 +54,6 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
 
     @Override
     public boolean deleteAllByMessageId(UUID messageId) {
-        // BinaryContent가 메시지와 직접 연결되어 있지 않다면, false만 리턴
         return false;
     }
 }

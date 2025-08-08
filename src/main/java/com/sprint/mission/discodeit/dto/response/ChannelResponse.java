@@ -30,5 +30,4 @@ public class ChannelResponse {
         this.latestMessageAt = latestMessageAt;
         this.participantIds = participantIds;
     }
-
 }

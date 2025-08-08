@@ -25,7 +25,6 @@ public class BasicReadStatusService implements ReadStatusService {
     private final UserRepository userRepository;
     private final ChannelRepository channelRepository;
 
-    // CREATE -> UUID
     @Override
     public UUID create(ReadStatusCreateRequest request) {
         UUID userId = request.getUserId();
@@ -56,14 +55,12 @@ public class BasicReadStatusService implements ReadStatusService {
         return rs.getId();
     }
 
-    // FIND -> Optional<ReadStatusResponse>
     @Override
     public Optional<ReadStatusResponse> find(UUID id) {
         return readStatusRepository.findById(id)
                 .map(ReadStatusResponse::new);
     }
 
-    // LIST BY USER -> List<ReadStatusResponse>
     @Override
     public List<ReadStatusResponse> findAllByUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId)
@@ -72,7 +69,6 @@ public class BasicReadStatusService implements ReadStatusService {
                 .toList();
     }
 
-    // LIST BY CHANNEL -> List<ReadStatusResponse>
     @Override
     public List<ReadStatusResponse> findAllByChannelId(UUID channelId) {
         return readStatusRepository.findAllByChannelId(channelId)
@@ -81,7 +77,6 @@ public class BasicReadStatusService implements ReadStatusService {
                 .toList();
     }
 
-    // UPDATE -> boolean
     @Override
     public boolean update(ReadStatusUpdateRequest request) {
         ReadStatus rs = readStatusRepository.findById(request.getId())
@@ -93,7 +88,6 @@ public class BasicReadStatusService implements ReadStatusService {
         return true;
     }
 
-    // DELETE -> boolean
     @Override
     public boolean delete(UUID id) {
         return readStatusRepository.deleteById(id);

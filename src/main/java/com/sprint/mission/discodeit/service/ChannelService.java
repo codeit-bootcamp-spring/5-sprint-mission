@@ -12,10 +12,8 @@ import java.util.UUID;
 public interface ChannelService {
     UUID createPublicChannel(CreateChannelRequest request);
     UUID createPrivateChannel(PrivateChannelRequest request);
-    Optional<ChannelResponse> findById(UUID channelId); // ✅ 대표 조회 메서드
-
+    Optional<ChannelResponse> findById(UUID channelId);
     Optional<ChannelResponse> find(UUID channelId);
-
     List<ChannelResponse> findAllByUserId(UUID userId);
     boolean update(ChannelUpdateRequest request);
     boolean delete(UUID channelId);

@@ -38,23 +38,18 @@ public class Channel implements Serializable {
     public UUID getId() {
         return id;
     }
-
     public Instant getCreatedAt() {
         return createdAt;
     }
-
     public Instant getUpdatedAt() {
         return updatedAt;
     }
-
     public ChannelType getType() {
         return type;
     }
-
     public String getName() {
         return name;
     }
-
     public String getDescription() {
         return description;
     }

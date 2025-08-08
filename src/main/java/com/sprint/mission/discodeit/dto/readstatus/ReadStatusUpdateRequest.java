@@ -16,5 +16,4 @@ public class ReadStatusUpdateRequest {
         this.id = id;
         this.lastReadAt = lastReadAt;
     }
-
 }
