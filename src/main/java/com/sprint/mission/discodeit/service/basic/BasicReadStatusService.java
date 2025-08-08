@@ -43,7 +43,7 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
-    public ReadStatus find(UUID id) {
+    public ReadStatus find(ReadStatus id) {
         return readStatusRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("ReadStatus not found with id: " + id));
     }
@@ -63,10 +63,11 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
-    public void delete(UUID id) {
+    public boolean delete(ReadStatus id) {
         if (!readStatusRepository.deleteById(id)) {
             throw new NoSuchElementException("ReadStatus not found or already deleted with id: " + id);
         }
+        return false;
     }
 }
 

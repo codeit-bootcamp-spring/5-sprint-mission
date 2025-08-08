@@ -10,5 +10,5 @@ import java.util.UUID;
 public class MessageCreateRequest {
     private final String content;
     private final UUID channelId;
-    private final UUID authorId;
+    private final UUID userId;
 }

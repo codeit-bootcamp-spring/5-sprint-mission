@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.time.Instant;
+import java.util.Comparator;
 
 public class FileMessageRepository implements MessageRepository {
     private final Path DIRECTORY;
@@ -108,14 +110,13 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Long findRecentMessageTimeByChannelId(UUID channelId) {
+    public Instant findRecentMessageTimeByChannelId(UUID channelId) {
         return findAll().stream()
                 .filter(m -> m.getChannelId().equals(channelId))
-                .map(Message::getCreatedAt) //
-                .max(Long::compareTo)
+                .map(Message::getCreatedAt)
+                .max(Comparator.naturalOrder())
                 .orElse(null);
     }
-
     @Override
     public boolean deleteAllByChannelId(UUID channelId) {
         List<Message> toDelete = findAll().stream()

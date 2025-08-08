@@ -2,15 +2,12 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 
 public class FileReadStatusRepository implements ReadStatusRepository {
 
@@ -30,6 +27,24 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         return directory.resolve(id + EXTENSION);
     }
 
+    // .ser 파일 스트림 유틸
+    private Stream<Path> serFiles() {
+        try {
+            return Files.list(directory).filter(p -> p.getFileName().toString().endsWith(EXTENSION));
+        } catch (IOException e) {
+            throw new RuntimeException("파일 목록 조회 실패", e);
+        }
+    }
+
+    private ReadStatus loadFromPath(Path path) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile()))) {
+            return (ReadStatus) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("ReadStatus 로드 실패: " + path, e);
+        }
+    }
+
+    // C/U
     @Override
     public ReadStatus save(ReadStatus readStatus) {
         Path path = resolvePath(readStatus.getId());
@@ -41,50 +56,49 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         return readStatus;
     }
 
+    // R
     @Override
     public Optional<ReadStatus> findById(UUID id) {
         Path path = resolvePath(id);
         if (!Files.exists(path)) return Optional.empty();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile()))) {
-            return Optional.of((ReadStatus) ois.readObject());
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("ID로 ReadStatus 조회 실패", e);
-        }
+        return Optional.of(loadFromPath(path));
     }
 
     @Override
     public List<ReadStatus> findAll() {
-        try (Stream<Path> files = Files.list(directory)) {
-            return files
-                    .filter(p -> p.getFileName().toString().endsWith(EXTENSION))
-                    .map(this::loadFromPath)
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new RuntimeException("전체 ReadStatus 조회 실패", e);
+        try (Stream<Path> s = serFiles()) {
+            return s.map(this::loadFromPath).collect(Collectors.toList());
         }
     }
 
     @Override
     public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
-        return findAll().stream()
-                .filter(rs -> rs.getUserId().equals(userId) && rs.getChannelId().equals(channelId))
-                .findFirst();
+        try (Stream<Path> s = serFiles()) {
+            return s.map(this::loadFromPath)
+                    .filter(rs -> rs.getUserId().equals(userId) && rs.getChannelId().equals(channelId))
+                    .findFirst();
+        }
     }
 
     @Override
     public List<ReadStatus> findAllByUserId(UUID userId) {
-        return findAll().stream()
-                .filter(rs -> rs.getUserId().equals(userId))
-                .collect(Collectors.toList());
+        try (Stream<Path> s = serFiles()) {
+            return s.map(this::loadFromPath)
+                    .filter(rs -> rs.getUserId().equals(userId))
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
     public List<ReadStatus> findAllByChannelId(UUID channelId) {
-        return findAll().stream()
-                .filter(rs -> rs.getChannelId().equals(channelId))
-                .collect(Collectors.toList());
+        try (Stream<Path> s = serFiles()) {
+            return s.map(this::loadFromPath)
+                    .filter(rs -> rs.getChannelId().equals(channelId))
+                    .collect(Collectors.toList());
+        }
     }
 
+    // 존재 여부
     @Override
     public boolean existsById(UUID id) {
         return Files.exists(resolvePath(id));
@@ -95,6 +109,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         return findByUserIdAndChannelId(userId, channelId).isPresent();
     }
 
+    // D
     @Override
     public boolean deleteById(UUID id) {
         try {
@@ -106,23 +121,27 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public void deleteAllByChannelId(UUID channelId) {
-        findAllByChannelId(channelId)
-                .forEach(rs -> deleteById(rs.getId()));
+        findAllByChannelId(channelId).forEach(rs -> deleteById(rs.getId()));
     }
 
-    // 누락된 메서드 추가
     @Override
     public void deleteAllByUserId(UUID userId) {
-        findAllByUserId(userId)
-                .forEach(rs -> deleteById(rs.getId()));
+        findAllByUserId(userId).forEach(rs -> deleteById(rs.getId()));
     }
 
-    private ReadStatus loadFromPath(Path path) {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile()))) {
-            return (ReadStatus) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("ReadStatus 로드 실패: " + path, e);
+    // ★ 인터페이스에 추가된 메서드 구현
+    @Override
+    public void deleteAll() {
+        try (Stream<Path> s = serFiles()) {
+            s.forEach(path -> {
+                try {
+                    Files.deleteIfExists(path);
+                } catch (IOException e) {
+                    throw new RuntimeException("전체 삭제 중 실패: " + path, e);
+                }
+            });
         }
     }
 }
+
 

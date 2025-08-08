@@ -3,9 +3,17 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.dto.channel.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.channel.CreateChannelRequest;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelRequest;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.dto.response.ReadStatusResponse;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -17,7 +25,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,13 +46,10 @@ public class DiscodeitApplication {
 		BinaryContentService binaryContentSvc = ctx.getBean(BinaryContentService.class);
 		AuthService authService = ctx.getBean(AuthService.class);
 
-		// 1. USER
 		userCrudTest(userService);
-
-		// 2~7 테스트는 필요 시 순서대로 호출
 		channelCrudTest(channelService, userService);
-		// messageCrudTest(messageService, channelService, userService);
-		// readStatusTest(readStatusService, userService, channelService);
+		messageCrudTest(messageService, channelService, userService);
+		readStatusTest(readStatusService, userService, channelService);
 		// userStatusTest(userStatusService, userService);
 		// binaryContentTest(binaryContentSvc);
 		// authLoginTest(authService, userService);
@@ -157,5 +164,121 @@ public class DiscodeitApplication {
 		System.out.println("[삭제] public=" + delPub + ", private=" + delPri
 				+ " / 조회 결과 = " + channelService.find(pubChId).orElse(null));
 	}
+
+	// ================== [3. MESSAGE CRUD 테스트] ==================
+	private static void messageCrudTest(
+			MessageService messageService,
+			ChannelService channelService,
+			UserService userService
+	) {
+		System.out.println("\n=== [MESSAGE CRUD 테스트] ===");
+
+		// 준비: 유저 + 채널 하나씩
+		UUID userId = userService.create(new UserCreateRequest("msgUser", "msg@example.com", "pw"));
+		UUID chId   = channelService.createPublicChannel(new CreateChannelRequest("공지", "전체 공지 채널", null));
+
+		// --- Create ---
+		UUID messageId = messageService.create(
+				new MessageCreateRequest("안녕하세요!", chId, userId)
+		);
+		System.out.println("[생성] messageId = " + messageId);
+
+		// --- Read (성공) ---
+		var readOk = messageService.find(messageId);
+		System.out.println("[조회 - 성공] " + readOk.orElse(null));
+
+		// --- Read (실패) ---
+		var readFail = messageService.find(UUID.randomUUID());
+		System.out.println("[조회 - 실패] " + readFail.orElse(null));
+
+		// --- Read All by Channel ---
+		var byChannel = messageService.findAllByChannelId(chId);
+		System.out.println("[채널별 전체 조회] size=" + byChannel.size());
+		byChannel.forEach(System.out::println);
+
+		// --- Update (성공) ---
+		boolean updateOk = messageService.update(
+				new MessageUpdateRequest(messageId, "수정된 메시지 내용입니다.")
+		);
+		System.out.println("[수정] 변경 " + updateOk + ", 결과 = " + messageService.find(messageId).orElse(null));
+
+		// --- Update (실패) ---
+		try {
+			boolean updateFail = messageService.update(
+					new MessageUpdateRequest(UUID.randomUUID(), "없는 메시지 수정")
+			);
+			System.out.println("[수정 - 실패] 변경 " + updateFail); // 보통 false 이거나 예외
+		} catch (Exception e) {
+			System.out.println("[수정 - 실패] 예외 OK: " + e.getMessage());
+		}
+
+		// --- Delete (성공) ---
+		boolean deleteOk = messageService.delete(messageId);
+		System.out.println("[삭제] 삭제 " + deleteOk + " / 조회 결과 = " + messageService.find(messageId).orElse(null));
+	}
+
+	// ================== [4. READ STATUS 테스트] ==================
+	private static void readStatusTest(
+			ReadStatusService readStatusService,
+			UserService userService,
+			ChannelService channelService
+	) {
+		System.out.println("\n=== [READ STATUS 테스트] ===");
+
+		// 준비: 전용 유저/채널 생성
+		UUID rsUser = userService.create(new UserCreateRequest("RS-User", "rs@example.com", "pass"));
+		UUID rsChannel = channelService.createPublicChannel(
+				new CreateChannelRequest("RS-Channel", "ReadStatus 전용 채널", null)
+		);
+
+		// --- Create ---
+		ReadStatus rsId = readStatusService.create(
+				// DTO 파라미터 순서가 (userId, channelId, lastReadAt) 이거나 (channelId, userId, lastReadAt)일 수 있습니다.
+				// 컴파일 오류 나면 userId/channelId 자리만 바꿔 주세요!
+				new ReadStatusCreateRequest(rsUser, rsChannel, Instant.now())
+		);
+		System.out.println("[생성] readStatusId = " + rsId);
+
+		// --- Read (성공) ---
+		java.util.Optional<ReadStatusResponse> readOk = readStatusService.find(rsId);
+		System.out.println("[조회 - 성공] " + readOk.orElse(null));
+
+		// --- Read (실패) ---
+		java.util.Optional<ReadStatusResponse> readFail = readStatusService.find(java.util.UUID.randomUUID());
+		System.out.println("[조회 - 실패] " + readFail.orElse(null));
+
+		// --- List by Channel ---
+		java.util.List<ReadStatusResponse> byChannel = readStatusService.findAllByChannelId(rsChannel);
+		System.out.println("[채널 기준 전체 조회] size=" + byChannel.size() + " -> " + byChannel);
+
+		// --- List by User ---
+		List<ReadStatus> byUser = readStatusService.findAllByUserId(rsUser);
+		System.out.println("[유저 기준 전체 조회] size=" + byUser.size() + " -> " + byUser);
+
+		// --- Update (성공) ---
+		ReadStatus updOk = readStatusService.update(
+				new ReadStatusUpdateRequest(rsId, Instant.now().plusSeconds(30))
+		);
+		System.out.println("[수정 - 성공] 변경 " + updOk + ", 결과 = " + readStatusService.find(rsId).orElse(null));
+
+		// --- Update (실패) ---
+		ReadStatus updFail = readStatusService.update(
+				new ReadStatusUpdateRequest(UUID.randomUUID(), Instant.now())
+		);
+		System.out.println("[수정 - 실패] 변경 " + updFail);
+
+		// --- Duplicate Create (선택) ---
+		try {
+			readStatusService.create(new ReadStatusCreateRequest(rsUser, rsChannel, java.time.Instant.now()));
+			System.out.println("[중복 생성] 허용됨(서비스 정책 확인 필요)");
+		} catch (IllegalArgumentException dup) {
+			System.out.println("[중복 생성] 예외 OK: " + dup.getMessage());
+		}
+
+		// --- Delete ---
+		boolean delOk = readStatusService.delete(rsId);
+		System.out.println("[삭제] 삭제 " + delOk + " / 조회 결과 = " + readStatusService.find(rsId).orElse(null));
+	}
+
 
 }

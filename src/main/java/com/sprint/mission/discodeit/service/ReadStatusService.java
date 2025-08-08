@@ -10,8 +10,8 @@ import java.util.UUID;
 
 public interface ReadStatusService {
     ReadStatus create(ReadStatusCreateRequest request);
-    ReadStatus find(UUID id);
+    ReadStatus find(ReadStatus id);
     List<ReadStatus> findAllByUserId(UUID userId);
     ReadStatus update(ReadStatusUpdateRequest request);
-    void delete(UUID id);
+    boolean delete(ReadStatus id);
 }

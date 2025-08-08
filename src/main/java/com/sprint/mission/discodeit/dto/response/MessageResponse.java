@@ -1,12 +1,16 @@
 package com.sprint.mission.discodeit.dto.response;
 
 import com.sprint.mission.discodeit.entity.Message;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
+@AllArgsConstructor
+@ToString // ← 추가
 public class MessageResponse {
     private final UUID id;
     private final UUID channelId;
@@ -16,11 +20,11 @@ public class MessageResponse {
     private final Instant updatedAt;
 
     public MessageResponse(Message message) {
-        this.id = message.getId();
+        this.id        = message.getId();
         this.channelId = message.getChannelId();
-        this.authorId = message.getAuthorId();
-        this.content = message.getContent();
-        this.createdAt = Instant.ofEpochSecond(message.getCreatedAt());
-        this.updatedAt = Instant.ofEpochSecond(message.getUpdatedAt());
+        this.authorId  = message.getUserId();
+        this.content   = message.getContent();
+        this.createdAt = message.getCreatedAt();
+        this.updatedAt = message.getUpdatedAt();
     }
 }

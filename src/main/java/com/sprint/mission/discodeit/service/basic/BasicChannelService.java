@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service("BasicChannelService")
 public class BasicChannelService implements ChannelService {
@@ -80,37 +79,29 @@ public class BasicChannelService implements ChannelService {
         return channel.getId();
     }
 
-    // 메시지의 최신 시각을 안전하게 계산 (밀리초 기준)
+    /** 최신 메시지 시간이 있으면 그 값을, 없으면 updatedAt -> createdAt 순으로 반환 */
     private Instant resolveLastMessageAt(Channel ch) {
-        Long lastMsgMillis = messageRepository.findRecentMessageTimeByChannelId(ch.getId());
-        if (lastMsgMillis != null) {
-            // 저장소가 millisecond를 반환한다고 가정. 만약 second라면 ofEpochSecond로 바꾸세요.
-            return Instant.ofEpochMilli(lastMsgMillis);
-        }
-        // 메시지가 없으면 채널의 updatedAt -> createdAt 순서로 대체
-        return ch.getUpdatedAt() != null ? ch.getUpdatedAt() : ch.getCreatedAt();
+        Instant recent = messageRepository.findRecentMessageTimeByChannelId(ch.getId()); // A안: Instant 그대로
+        if (recent != null) return recent;
+        return (ch.getUpdatedAt() != null) ? ch.getUpdatedAt() : ch.getCreatedAt();
     }
 
     @Override
     public Optional<ChannelResponse> find(UUID channelId) {
-        return channelRepository.findById(channelId).map(ch -> {
-            Instant recentMessageTime = resolveLastMessageAt(ch);
-
-            List<UUID> participantIds = Collections.emptyList();
-            if (ch.getType() == ChannelType.PRIVATE) {
-                participantIds = readStatusRepository.findAllByChannelId(ch.getId())
-                        .stream()
-                        .map(ReadStatus::getUserId)
-                        .collect(Collectors.toList());
-            }
+        return channelRepository.findById(channelId).map(channel -> {
+            Instant recentMessageTime = resolveLastMessageAt(channel);
+            List<UUID> participantIds = (channel.getType() == ChannelType.PRIVATE)
+                    ? readStatusRepository.findAllByChannelId(channel.getId())
+                    .stream().map(ReadStatus::getUserId).toList()
+                    : List.of();
 
             return new ChannelResponse(
-                    ch.getId(),
-                    ch.getCreatedAt(),
-                    ch.getUpdatedAt(),
-                    ch.getName(),
-                    ch.getDescription(),
-                    ch.getType().name(),
+                    channel.getId(),
+                    channel.getCreatedAt(),
+                    channel.getUpdatedAt(),
+                    channel.getName(),
+                    channel.getDescription(),
+                    channel.getType().name(),
                     recentMessageTime,
                     participantIds
             );
@@ -119,24 +110,16 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public List<ChannelResponse> findAllByUserId(UUID userId) {
-        // 사용자가 속한 PRIVATE 채널 id를 먼저 모아두기
-        Set<UUID> myPrivateChannelIds = readStatusRepository.findAllByUserId(userId)
-                .stream()
-                .map(ReadStatus::getChannelId)
-                .collect(Collectors.toSet());
-
         return channelRepository.findAll().stream()
-                .filter(ch -> ch.getType() == ChannelType.PUBLIC || myPrivateChannelIds.contains(ch.getId()))
+                .filter(ch -> ch.getType() == ChannelType.PUBLIC ||
+                        readStatusRepository.findAllByUserId(userId).stream()
+                                .anyMatch(rs -> rs.getChannelId().equals(ch.getId())))
                 .map(ch -> {
                     Instant recentMessageTime = resolveLastMessageAt(ch);
-
-                    List<UUID> participantIds = Collections.emptyList();
-                    if (ch.getType() == ChannelType.PRIVATE) {
-                        participantIds = readStatusRepository.findAllByChannelId(ch.getId())
-                                .stream()
-                                .map(ReadStatus::getUserId)
-                                .collect(Collectors.toList());
-                    }
+                    List<UUID> participantIds = (ch.getType() == ChannelType.PRIVATE)
+                            ? readStatusRepository.findAllByChannelId(ch.getId())
+                            .stream().map(ReadStatus::getUserId).toList()
+                            : List.of();
 
                     return new ChannelResponse(
                             ch.getId(),
@@ -149,7 +132,7 @@ public class BasicChannelService implements ChannelService {
                             participantIds
                     );
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -174,3 +157,4 @@ public class BasicChannelService implements ChannelService {
         return true;
     }
 }
+

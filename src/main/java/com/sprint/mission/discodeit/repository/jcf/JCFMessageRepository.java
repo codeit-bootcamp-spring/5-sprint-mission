@@ -2,9 +2,9 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,12 +47,12 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Long findRecentMessageTimeByChannelId(UUID channelId) {
-        return storage.values().stream()
-                .filter(msg -> msg.getChannelId().equals(channelId))
+    public Instant findRecentMessageTimeByChannelId(UUID channelId) {
+        return findAll().stream()
+                .filter(m -> m.getChannelId().equals(channelId))
                 .map(Message::getCreatedAt)
                 .max(Comparator.naturalOrder())
-                .orElse(null); // 최근 메시지가 없다면 null 반환
+                .orElse(null);
     }
 
     @Override
