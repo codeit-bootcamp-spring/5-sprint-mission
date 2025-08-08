@@ -10,14 +10,12 @@ import java.util.UUID;
 @Getter
 @ToString
 public class BinaryContent implements java.io.Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
 
     private final UUID id;
     private final Instant createdAt;
 
     private final String fileName;
-    private final String contentType; // jpg, ... 확장자
+    private final String contentType;
     private final Long size;
     private final byte[] bytes;
     private UUID ownerId;

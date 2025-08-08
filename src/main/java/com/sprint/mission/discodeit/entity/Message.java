@@ -17,8 +17,8 @@ public class Message implements Serializable {
     private final Instant createdAt;
     private Instant updatedAt;
 
-    private final UUID userId;     // 작성자
-    private final UUID channelId;  // 채널
+    private final UUID userId;
+    private final UUID channelId;
     private String content;
 
     public Message(UUID userId, UUID channelId, String content) {

@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Repository
 public class JCFUserRepository implements UserRepository {
 
-    // 메모리 저장소
     private final Map<UUID, User> store = new ConcurrentHashMap<>();
 
     public JCFUserRepository() { }

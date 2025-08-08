@@ -32,7 +32,7 @@ public class UserStatus implements Serializable {
         this.lastAccessedAt = this.updatedAt;
     }
 
-    // userId와 마지막 접속시각만으로 생성
+    // userId와 마지막 접속시각 생성
     public UserStatus(UUID userId, Instant lastOnlineAt) {
         this(UUID.randomUUID(), userId, Instant.now(), Instant.now());
         this.lastAccessedAt = (lastOnlineAt == null ? this.updatedAt : lastOnlineAt);
