@@ -12,6 +12,11 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
     Map<UUID, ReadStatus> data = new HashMap<>();
 
     @Override
+    public void deleteById(UUID id) {
+        data.remove(id);
+    }
+
+    @Override
     public Optional<ReadStatus> save(ReadStatus readStatus) {
         if(readStatus == null){
             return Optional.empty();

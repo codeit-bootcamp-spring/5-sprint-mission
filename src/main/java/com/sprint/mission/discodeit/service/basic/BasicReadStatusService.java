@@ -21,6 +21,11 @@ public class BasicReadStatusService implements ReadStatusService {
     private final UserRepository userRepository;
 
     @Override
+    public void deleteReadStatus(UUID id){
+        readStatusRepository.deleteById(id);
+    }
+
+    @Override
     public void deleteAllReadStatus() {
         readStatusRepository.deleteAll();
     }
@@ -37,9 +42,9 @@ public class BasicReadStatusService implements ReadStatusService {
         if(allByUserId.isEmpty()){
             throw new IllegalArgumentException("ReadStatus not found");
         }
+
         return allByUserId;
     }
-
 
     @Override
     public ReadStatus addReadStatus(AddReadStatusDto addReadStatusDto) {
@@ -53,9 +58,10 @@ public class BasicReadStatusService implements ReadStatusService {
                 .orElseThrow(() -> new RuntimeException("Failed to save ReadStatus"));
     }
 
-
-
-
-
-
+    @Override
+    public ReadStatus updateReadStatus(UUID readStatusId) {
+        ReadStatus readStatus = readStatusRepository.findById(readStatusId).orElseThrow(() -> new IllegalArgumentException("Update: ReadStatus not found"));
+        readStatus.updateLastReadTime();
+        return readStatusRepository.save(readStatus).orElseThrow(() -> new RuntimeException("Failed to update ReadStatus"));
+    }
 }

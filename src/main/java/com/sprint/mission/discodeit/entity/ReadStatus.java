@@ -7,7 +7,6 @@ import java.util.UUID;
 
 @Getter
 public class ReadStatus extends BaseEntity{
-
     private final UUID userId;
     private final UUID channelId;
     private Instant lastReadTime;
