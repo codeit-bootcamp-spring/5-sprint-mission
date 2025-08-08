@@ -1,11 +1,13 @@
 package com.sprint.mission.discodeit.dto.response;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@ToString
 @Getter
 public class ChannelResponse {
     private final UUID id;
