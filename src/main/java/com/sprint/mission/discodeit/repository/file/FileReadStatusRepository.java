@@ -3,11 +3,13 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +21,15 @@ import java.util.UUID;
         havingValue = "file"
 )
 public class FileReadStatusRepository implements ReadStatusRepository {
-    private final Path directoryPath = Path.of(FileUtil.getBasePath() +"/readStatuses" );
 
+    private final Path directoryPath;
+
+    public FileReadStatusRepository(
+            @Value("${discodeit.repository.file-directory:.discodeit}")
+            String rootDir
+    ) {
+        this.directoryPath = Paths.get(rootDir).toAbsolutePath().resolve("readStatus");
+    }
     @Override
     public List<ReadStatus> findAll() {
         File directory = new File(directoryPath.toAbsolutePath() + "/");

@@ -3,11 +3,13 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.util.FileUtil;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +22,14 @@ import java.util.UUID;
 )
 public class FileUserRepository implements UserRepository {
 
-    private static final Path directoryPath = Path.of(FileUtil.getBasePath() +"/users");
+    private final Path directoryPath;
+
+    public FileUserRepository(
+            @Value("${discodeit.repository.file-directory:.discodeit}")
+            String rootDir
+    ) {
+        this.directoryPath = Paths.get(rootDir).toAbsolutePath().resolve("users");
+    }
 
     @Override
     public Optional<User> save(User user){

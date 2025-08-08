@@ -4,11 +4,13 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +23,14 @@ import java.util.UUID;
 )
 public class FileChannelRepository implements ChannelRepository {
 
-    private final Path directoryPath = Path.of(FileUtil.getBasePath() +"/channels" );
+    private final Path directoryPath;
+
+    public FileChannelRepository(
+            @Value("${discodeit.repository.file-directory:.discodeit}")
+            String rootDir
+    ) {
+        this.directoryPath = Paths.get(rootDir).toAbsolutePath().resolve("channels");
+    }
 
     @Override
     public Optional<Channel> save(Channel channel) {
