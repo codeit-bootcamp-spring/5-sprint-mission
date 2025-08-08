@@ -20,6 +20,14 @@ public class JCFUserStatusRepository implements UserStatusRepository {
     }
 
     @Override
+    public Optional<UserStatus> findById(UUID userStatusId) {
+        if(data.containsKey(userStatusId)){
+            return Optional.of(data.get(userStatusId));
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<UserStatus> findByUserId(UUID userId) {
         for(UserStatus userStatus : data.values()){
             if(userStatus.getUserId().equals(userId)){
@@ -42,5 +50,10 @@ public class JCFUserStatusRepository implements UserStatusRepository {
     @Override
     public List<UserStatus> findAll() {
         return new ArrayList<>(data.values());
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        data.remove(id);
     }
 }
