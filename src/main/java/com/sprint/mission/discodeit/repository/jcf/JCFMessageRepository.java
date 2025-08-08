@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-@Repository
+//@Repository
 public class JCFMessageRepository implements com.sprint.mission.discodeit.repository.MessageRepository {
     private final Map<UUID, Message> data = new HashMap<>();
 

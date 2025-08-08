@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class FileMessageRepository implements MessageRepository {
 
     private final Path directoryPath = Path.of(FileUtil.getBasePath() +"/messages");
@@ -77,11 +78,36 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public List<Message> findAllByChannelId(UUID channelId) {
-        return List.of();
+        List<Message> returnMessages = new ArrayList<>();
+
+        File directory = new File(directoryPath.toAbsolutePath() + "/");
+        File[] files = directory.listFiles();
+
+        if(files != null){
+            for(File file : files){
+                Path filePath = file.toPath();
+                Optional<Message> msgOpt = FileUtil.loadEntity(filePath, Message.class);
+                if (msgOpt.isPresent() && channelId.equals(msgOpt.get().getChannelId())) {
+                    returnMessages.add(msgOpt.get());
+                }
+            }
+        }
+        return returnMessages;
     }
 
     @Override
     public void deleteByChannelId(UUID channelId) {
+        File directory = new File(directoryPath.toAbsolutePath() + "/");
+        File[] files = directory.listFiles();
 
+        if(files != null){
+            for(File file : files){
+                Path filePath = file.toPath();
+                Optional<Message> msgOpt = FileUtil.loadEntity(filePath, Message.class);
+                if (msgOpt.isPresent() && channelId.equals(msgOpt.get().getChannelId())) {
+                    file.delete();
+                }
+            }
+        }
     }
 }

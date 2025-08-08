@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class FileUserRepository implements UserRepository {
 
     private static final Path directoryPath = Path.of(FileUtil.getBasePath() +"/users");
@@ -75,11 +76,34 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByUserName(String username) {
+        File directory = new File(directoryPath.toAbsolutePath() + "/");
+        File[] files = directory.listFiles();
+
+        if(files != null){
+            for(File file :files) {
+                Path filePath = file.toPath();
+                Optional<User> userOptional = FileUtil.loadEntity(filePath, User.class);
+
+                if (userOptional.isPresent() && username.equals(userOptional.get().getUserName()))
+                    return userOptional;
+            }
+        }
         return Optional.empty();
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
+        File directory = new File(directoryPath.toAbsolutePath() + "/");
+        File[] files = directory.listFiles();
+
+        if(files != null){
+            for(File file :files){
+                Path filePath = file.toPath();
+                Optional<User> userOptional = FileUtil.loadEntity(filePath, User.class);
+                if(userOptional.isPresent() && email.equals(userOptional.get().getEmail()))
+                    return userOptional;
+            }
+        }
         return Optional.empty();
     }
 }

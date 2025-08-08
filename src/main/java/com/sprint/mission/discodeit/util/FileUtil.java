@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.util;
 
 import com.sprint.mission.discodeit.entity.BaseEntity;
+import lombok.Getter;
 
 import java.io.*;
 import java.nio.file.Files;

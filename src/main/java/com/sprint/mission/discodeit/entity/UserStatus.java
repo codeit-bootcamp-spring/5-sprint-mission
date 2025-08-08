@@ -2,11 +2,13 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
-public class UserStatus extends BaseEntity{
+public class UserStatus extends BaseEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private final UUID  userId;
     private Instant lastOnlineTime;
