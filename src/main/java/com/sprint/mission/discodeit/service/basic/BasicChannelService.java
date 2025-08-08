@@ -81,6 +81,7 @@ public class BasicChannelService implements ChannelService {
     public List<GetChannelByIdDto> getAllChannelByUserId(UUID userId) {
         List<Channel> targetChannel = channelRepository.findPublicChannel();
         List<UUID> channelsIdByUserId = readStatusRepository.findChannelsIdByUserId(userId);
+
         for(UUID channelId : channelsIdByUserId){
             channelRepository.findById(channelId).ifPresent(targetChannel::add);
         }
@@ -89,6 +90,7 @@ public class BasicChannelService implements ChannelService {
 
         for(Channel channel : targetChannel){
             List<UUID> usersIdByChannelId = null;
+
             if(channel.getChannelType() == ChannelType.PRIVATE){
                 usersIdByChannelId = readStatusRepository.findUsersIdByChannelId(channel.getId());
             }

@@ -30,6 +30,10 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public Optional<Message> findById(UUID messageId) {
+        if(messageId == null){
+            return Optional.empty();
+        }
+
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + messageId + FileUtil.getExtension());
         return FileUtil.loadEntity(filePath, Message.class);
     }
@@ -59,6 +63,10 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public void delete(UUID messageId) {
+        if(messageId == null){
+            return;
+        }
+
         Path path = Path.of(directoryPath.toAbsolutePath() + "/" + messageId + FileUtil.getExtension());
 
         path.toFile().delete();
@@ -78,6 +86,10 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public List<Message> findAllByChannelId(UUID channelId) {
+        if(channelId == null){
+            return List.of();
+        }
+
         List<Message> returnMessages = new ArrayList<>();
 
         File directory = new File(directoryPath.toAbsolutePath() + "/");
@@ -97,6 +109,10 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public void deleteByChannelId(UUID channelId) {
+        if(channelId == null){
+            return;
+        }
+
         File directory = new File(directoryPath.toAbsolutePath() + "/");
         File[] files = directory.listFiles();
 

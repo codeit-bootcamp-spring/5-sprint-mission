@@ -31,6 +31,10 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findById(UUID userId) {
+        if(userId == null){
+            return Optional.empty();
+        }
+
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + userId + FileUtil.getExtension());
         return FileUtil.loadEntity(filePath, User.class);
     }
@@ -57,6 +61,10 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public void delete(UUID userId) {
+        if(userId == null){
+            return;
+        }
+
         Path path = Path.of(directoryPath.toAbsolutePath() + "/" + userId + FileUtil.getExtension());
 
         path.toFile().delete();

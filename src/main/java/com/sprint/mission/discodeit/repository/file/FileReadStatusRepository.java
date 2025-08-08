@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
 import org.springframework.stereotype.Repository;
@@ -18,6 +19,27 @@ public class FileReadStatusRepository implements ReadStatusRepository {
     private final Path directoryPath = Path.of(FileUtil.getBasePath() +"/readStatuses" );
 
     @Override
+    public List<ReadStatus> findAll() {
+        File directory = new File(directoryPath.toAbsolutePath() + "/");
+
+        if(!directory.exists() || !directory.isDirectory()){
+            return List.of();
+        }
+        File[] files = directory.listFiles();
+        List<ReadStatus> readStatuses = new ArrayList<>();
+        if(files == null){
+            return readStatuses;
+        }
+        for(File file : files){
+            if(file.isFile() && file.getName().endsWith(FileUtil.getExtension())){
+                readStatuses.add(FileUtil.loadEntity(file.toPath(), ReadStatus.class).orElseThrow());
+            }
+        }
+        return readStatuses;
+
+    }
+
+    @Override
     public Optional<ReadStatus> save(ReadStatus readStatus) {
         if(readStatus == null){
             return Optional.empty();
@@ -31,12 +53,20 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public Optional<ReadStatus> findById(UUID readStatusId) {
+        if(readStatusId == null){
+            return Optional.empty();
+        }
+
         Path path = Path.of(directoryPath.toAbsolutePath() + "/" + readStatusId + FileUtil.getExtension());
         return FileUtil.loadEntity(path, ReadStatus.class);
     }
 
     @Override
     public List<UUID> findUsersIdByChannelId(UUID channelId) {
+        if(channelId == null){
+            return List.of();
+        }
+
         List<UUID> returnUserUUIDs = new ArrayList<>();
 
         File directory = new File(directoryPath.toAbsolutePath() + "/");
@@ -59,6 +89,10 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public List<UUID> findChannelsIdByUserId(UUID userId) {
+        if(userId == null){
+            return List.of();
+        }
+
         List<UUID> returnChannelsUUIDs = new ArrayList<>();
 
         File directory = new File(directoryPath.toAbsolutePath() + "/");
@@ -71,8 +105,8 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         for(File file : files){
             Path filePath = file.toPath();
             Optional<ReadStatus> readStatusOpt = FileUtil.loadEntity(filePath, ReadStatus.class);
-            if(readStatusOpt.isPresent() && userId.equals(readStatusOpt.get().getChannelId())){
-                returnChannelsUUIDs.add(readStatusOpt.get().getUserId());
+            if(readStatusOpt.isPresent() && userId.equals(readStatusOpt.get().getUserId())){
+                returnChannelsUUIDs.add(readStatusOpt.get().getChannelId());
             }
         }
 
@@ -81,6 +115,10 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public List<ReadStatus> findAllByUserId(UUID userId) {
+        if(userId == null){
+            return List.of();
+        }
+
         List<ReadStatus> returnReadStatuses = new ArrayList<>();
 
         File directory = new File(directoryPath.toAbsolutePath() + "/");
@@ -103,22 +141,31 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public void deleteById(UUID id) {
+        if(id == null){
+            return;
+        }
+
         Path path = Path.of(directoryPath.toAbsolutePath() + "/" + id + FileUtil.getExtension());
         path.toFile().delete();
     }
 
     @Override
     public void deleteByChannelId(UUID channelId) {
+        if(channelId == null){
+            return;
+        }
+
         File directory = new File(directoryPath.toAbsolutePath() + "/");
         File[] files = directory.listFiles();
 
-        if(files != null){
-            for(File file : files){
-                Path filePath = file.toPath();
-                Optional<Message> msgOpt = FileUtil.loadEntity(filePath, Message.class);
-                if (msgOpt.isPresent() && channelId.equals(msgOpt.get().getChannelId())) {
-                    file.delete();
-                }
+        if(files == null)
+            return;
+
+        for(File file : files){
+            Path filePath = file.toPath();
+            Optional<ReadStatus> statusOpt = FileUtil.loadEntity(filePath, ReadStatus.class);
+            if (statusOpt.isPresent() && channelId.equals(statusOpt.get().getChannelId())) {
+                file.delete();
             }
         }
     }

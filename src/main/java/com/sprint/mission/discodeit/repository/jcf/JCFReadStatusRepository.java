@@ -17,6 +17,11 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
     }
 
     @Override
+    public List<ReadStatus> findAll() {
+        return new ArrayList<>(data.values());
+    }
+
+    @Override
     public Optional<ReadStatus> save(ReadStatus readStatus) {
         if(readStatus == null){
             return Optional.empty();

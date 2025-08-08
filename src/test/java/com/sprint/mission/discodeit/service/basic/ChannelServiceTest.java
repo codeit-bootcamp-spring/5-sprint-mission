@@ -2,10 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.*;
 import com.sprint.mission.discodeit.dto.response.GetChannelByIdDto;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -101,7 +98,6 @@ public class ChannelServiceTest {
 
     @Test
     public void getAllChannelByUserIdTest(){
-
         // given
         Channel publicChannel = channelService.addPublicChannel(new AddPublicChannelDto("testPublic", "testDescription", user1.getId()));
         Channel privateChannel1 = channelService.addPrivateChannel(new AddPrivateChannelDto(user1.getId()));
@@ -144,10 +140,16 @@ public class ChannelServiceTest {
 
     @Test
     public void deleteChannelTest(){
+        List<ReadStatus> all = readStatusRepository.findAll();
+        Assertions.assertThat(all.size()).isEqualTo(0);
+
         Channel privateChannel = channelService.addPrivateChannel(new AddPrivateChannelDto(user1.getId()));
         messageService.addMessage(new AddMessageDto("privateMessage1", user1.getId(), privateChannel.getId()));
         messageService.addMessage(new AddMessageDto("privateMessage2", user1.getId(), privateChannel.getId()));
         messageService.addMessage(new AddMessageDto("privateMessage3", user1.getId(), privateChannel.getId()));
+
+        all = readStatusRepository.findAll();
+        Assertions.assertThat(all.size()).isEqualTo(1);
 
         List<Message> messagesBeforeDelete = messageService.getAllMessage();
         Assertions.assertThat(messagesBeforeDelete).hasSize(3);
@@ -155,9 +157,14 @@ public class ChannelServiceTest {
 
         channelService.deleteChannel(privateChannel.getId());
 
+        // 채널이 삭제되면 채널 내의 관련 메시지는 삭제되어야 한다.
         List<Message> messagesAfterDelete = messageService.getAllMessage();
         Assertions.assertThat(messagesAfterDelete).isEmpty();
         Assertions.assertThatThrownBy(() -> channelService.getChannelById(privateChannel.getId())).isInstanceOf(NoSuchElementException.class);
+
+        // 채널이 삭제되면 관련 ReadStatus도 삭제되어야한다.
+        all = readStatusRepository.findAll();
+        Assertions.assertThat(all.size()).isEqualTo(0);
         List<UUID> usersInChannel = readStatusRepository.findUsersIdByChannelId(privateChannel.getId());
         Assertions.assertThat(usersInChannel).isEmpty();
 

@@ -16,7 +16,6 @@ import java.util.UUID;
 public class FileBinaryContentRepository implements BinaryContentRepository {
     private final Path directoryPath = Path.of(FileUtil.getBasePath() +"/binary_contents" );
 
-
     @Override
     public Optional<BinaryContent> save(BinaryContent content) {
         if(content == null){
@@ -31,6 +30,10 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     @Override
     public Optional<BinaryContent> findById(UUID id) {
+        if(id == null){
+            return Optional.empty();
+        }
+
         Path path = Path.of(directoryPath.toAbsolutePath() + "/" + id + FileUtil.getExtension());
         return FileUtil.loadEntity(path, BinaryContent.class);
     }
@@ -60,6 +63,10 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     @Override
     public void deleteById(UUID id) {
+        if(id == null){
+            return;
+        }
+
         Path path = Path.of(directoryPath.toAbsolutePath() + "/" + id + FileUtil.getExtension());
         path.toFile().delete();
     }

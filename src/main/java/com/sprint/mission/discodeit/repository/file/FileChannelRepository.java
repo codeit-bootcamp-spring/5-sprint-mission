@@ -33,6 +33,10 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public Optional<Channel> findById(UUID channelId) {
+        if(channelId == null){
+            return Optional.empty();
+        }
+
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + channelId + FileUtil.getExtension());
         return FileUtil.loadEntity(filePath, Channel.class);
     }
@@ -61,6 +65,10 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public void delete(UUID channelId) {
+        if(channelId == null){
+            return;
+        }
+
         Path path = Path.of(directoryPath.toAbsolutePath() + "/" + channelId + FileUtil.getExtension());
 
         path.toFile().delete();

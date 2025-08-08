@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.service.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ public class AuthServiceTest {
     @Autowired
     private AuthService authService;
     @Autowired
-    private BasicUserService userService;
+    private UserService userService;
     @Autowired
     private BinaryContentService basicBinaryContentService;
 
