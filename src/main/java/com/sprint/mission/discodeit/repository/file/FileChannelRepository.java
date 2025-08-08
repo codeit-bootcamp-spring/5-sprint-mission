@@ -85,13 +85,15 @@ public class FileChannelRepository implements ChannelRepository {
         File directory = new File(directoryPath.toAbsolutePath() + "/");
         File[] files = directory.listFiles();
 
-        if(files != null){
-            for(File file : files){
-                Path filePath = file.toPath();
-                Optional<Channel> channelOpt = FileUtil.loadEntity(filePath, Channel.class);
-                if (channelOpt.isPresent() && channelOpt.get().getChannelType().equals(ChannelType.PUBLIC)){
-                    returnChannel.add(channelOpt.get());
-                }
+        if(files == null) {
+            return returnChannel;
+        }
+
+        for(File file : files){
+            Path filePath = file.toPath();
+            Optional<Channel> channelOpt = FileUtil.loadEntity(filePath, Channel.class);
+            if (channelOpt.isPresent() && channelOpt.get().getChannelType().equals(ChannelType.PUBLIC)){
+                returnChannel.add(channelOpt.get());
             }
         }
         return returnChannel;
