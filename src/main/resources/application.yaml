@@ -1,1 +1,3 @@
-spring.application.name=5-sprint-mission2
+discodeit:
+  storage:
+    user-status-dir: user-status

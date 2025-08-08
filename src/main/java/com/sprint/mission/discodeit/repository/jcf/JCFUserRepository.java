@@ -2,39 +2,50 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
+@Repository
 public class JCFUserRepository implements UserRepository {
-    private final Map<UUID, User> data;
 
-    public JCFUserRepository() {
-        this.data = new HashMap<>();
-    }
+    // 메모리 저장소
+    private final Map<UUID, User> store = new ConcurrentHashMap<>();
+
+    public JCFUserRepository() { }
 
     @Override
     public User save(User user) {
-        this.data.put(user.getId(), user);
+        store.put(user.getId(), user);
         return user;
     }
 
     @Override
     public Optional<User> findById(UUID id) {
-        return Optional.ofNullable(this.data.get(id));
+        return Optional.ofNullable(store.get(id));
     }
 
     @Override
     public List<User> findAll() {
-        return this.data.values().stream().toList();
+        return new ArrayList<>(store.values());
     }
 
     @Override
     public boolean existsById(UUID id) {
-        return this.data.containsKey(id);
+        return store.containsKey(id);
     }
 
     @Override
-    public void deleteById(UUID id) {
-        this.data.remove(id);
+    public boolean deleteById(UUID id) {
+        store.remove(id);
+        return false;
+    }
+
+    @Override
+    public void deleteAll() {
+        store.clear();
     }
 }
+

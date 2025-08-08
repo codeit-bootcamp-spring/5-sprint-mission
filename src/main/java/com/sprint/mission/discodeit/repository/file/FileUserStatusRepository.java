@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Repository
 public class FileUserStatusRepository implements UserStatusRepository {
 
     private final Path directory;

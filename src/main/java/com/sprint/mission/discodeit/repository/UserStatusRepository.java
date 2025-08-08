@@ -9,9 +9,7 @@ import java.util.UUID;
 public interface UserStatusRepository {
     UserStatus save(UserStatus userStatus);
     Optional<UserStatus> findById(UUID id);
-
     boolean deleteByUserId(UUID userId);
-
     List<UserStatus> findAll();
     Optional<UserStatus> findByUserId(UUID userId);
     boolean existsById(UUID id);

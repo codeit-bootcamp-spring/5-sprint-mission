@@ -1,18 +1,20 @@
+// com.sprint.mission.discodeit.service.UserService
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.UserResponse;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public interface UserService {
-
-    UserResponse create(UserCreateRequest request);
-    UserResponse find(UUID userId);
-    List<UserResponse> findAll();
+    UUID create(UserCreateRequest request);
+    Optional<UserResponse> read(UUID id);
+    List<UserResponse> readAll();
     boolean update(UserUpdateRequest request);
-    void delete(UUID userId);
-}
+    boolean delete(UUID id);
 
+    default UserResponse find(UUID id) {
+        return read(id).orElseThrow(() -> new NoSuchElementException("User not found: " + id));
+    }
+}

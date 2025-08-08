@@ -5,36 +5,48 @@ import com.sprint.mission.discodeit.repository.file.*;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
+// com.sprint.mission.discodeit.config.RepositoryConfig
 @Configuration
 public class RepositoryConfig {
 
     @Bean
-    public UserRepository userRepository() {
-        return new FileUserRepository("users.dat");
+    @Primary
+    public UserRepository fileUserRepository() {
+        return new FileUserRepository("users");
     }
 
     @Bean
-    public ChannelRepository channelRepository() {
-        return new FileChannelRepository("channels.dat");
+    @Primary
+    public ChannelRepository fileChannelRepository() {
+        return new FileChannelRepository("channels");
     }
 
     @Bean
-    public MessageRepository messageRepository() {
-        return new FileMessageRepository("messages.dat");
+    @Primary
+    public MessageRepository fileMessageRepository() {
+        return new FileMessageRepository("messages");
     }
 
     @Bean
-    public BinaryContentRepository binaryContentRepository() {
-        return new FileBinaryContentRepository("binary.dat");
-    }
-    @Bean
-    public ReadStatusRepository readStatusRepository() {
-        return new FileReadStatusRepository("YOUR_DIRECTORY_NAME");
-    }
-    @Bean
-    public UserStatusRepository userStatusRepository() {
-        return new FileUserStatusRepository("user-status.dat");
+    @Primary
+    public ReadStatusRepository fileReadStatusRepository() {
+        return new FileReadStatusRepository("read-status");
     }
 
+    @Bean
+    @Primary
+    public UserStatusRepository fileUserStatusRepository() {
+        return new FileUserStatusRepository("user-status");
+    }
+
+    @Bean
+    @Primary
+    public BinaryContentRepository fileBinaryContentRepository() {
+        return new FileBinaryContentRepository("binary");
+    }
 }
+
+
+
