@@ -38,7 +38,6 @@ public class BasicUserService implements UserService {
         User user = new User(request.getUsername(), request.getEmail(), request.getPassword());
         userRepository.save(user);
 
-        // 프로필 이미지가 오면 BinaryContent 저장(선택)
         if (request .hasProfileImage()) {
             byte[] bytes = request.getNewProfileImage();
             binaryContentRepository.save(new BinaryContent(
@@ -46,7 +45,6 @@ public class BasicUserService implements UserService {
             ));
         }
 
-        // 상태 생성
         userStatusRepository.save(new UserStatus(user.getId(), Instant.now()));
 
         boolean online = userStatusRepository.findByUserId(user.getId())

@@ -13,7 +13,6 @@ public class FileUserRepository implements UserRepository {
     private final Path DIRECTORY;
     private static final String EXTENSION = ".ser";
 
-    // ✅ 파라미터 없는 생성자 (스프링이 바로 만들 수 있음)
     public FileUserRepository(String users) {
         this.DIRECTORY = Paths.get(System.getProperty("user.dir"),
                 "file-data-map",

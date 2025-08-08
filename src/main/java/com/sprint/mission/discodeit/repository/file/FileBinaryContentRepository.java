@@ -147,6 +147,5 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         }
         return result;
     }
-
 }
 

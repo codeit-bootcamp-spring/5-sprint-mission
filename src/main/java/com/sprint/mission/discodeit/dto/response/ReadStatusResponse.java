@@ -2,10 +2,12 @@ package com.sprint.mission.discodeit.dto.response;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@ToString
 @Getter
 public class ReadStatusResponse {
     private UUID id;
@@ -23,5 +25,4 @@ public class ReadStatusResponse {
         this.createdAt = readStatus.getCreatedAt();
         this.updatedAt = readStatus.getUpdatedAt();
     }
-
 }

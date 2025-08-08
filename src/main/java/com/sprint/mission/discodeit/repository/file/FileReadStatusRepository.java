@@ -27,7 +27,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         return directory.resolve(id + EXTENSION);
     }
 
-    // .ser 파일 스트림 유틸
     private Stream<Path> serFiles() {
         try {
             return Files.list(directory).filter(p -> p.getFileName().toString().endsWith(EXTENSION));
@@ -44,7 +43,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         }
     }
 
-    // C/U
     @Override
     public ReadStatus save(ReadStatus readStatus) {
         Path path = resolvePath(readStatus.getId());
@@ -55,8 +53,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         }
         return readStatus;
     }
-
-    // R
     @Override
     public Optional<ReadStatus> findById(UUID id) {
         Path path = resolvePath(id);

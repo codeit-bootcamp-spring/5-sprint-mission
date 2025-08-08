@@ -62,7 +62,6 @@ public class BasicChannelService implements ChannelService {
         );
         channelRepository.save(channel);
 
-        // 참여자 없을 수도 있으니 NPE 방지
         for (UUID userId : Optional.ofNullable(request.getParticipantIds())
                 .orElseGet(Collections::emptyList)) {
             Instant now = Instant.now();
@@ -79,7 +78,6 @@ public class BasicChannelService implements ChannelService {
         return channel.getId();
     }
 
-    /** 최신 메시지 시간이 있으면 그 값을, 없으면 updatedAt -> createdAt 순으로 반환 */
     private Instant resolveLastMessageAt(Channel ch) {
         Instant recent = messageRepository.findRecentMessageTimeByChannelId(ch.getId()); // A안: Instant 그대로
         if (recent != null) return recent;

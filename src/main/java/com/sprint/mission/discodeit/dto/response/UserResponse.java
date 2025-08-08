@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
-@ToString // <= 이것만 붙여도 콘솔에 예쁘게 나옵니다
+@ToString
 public class UserResponse {
     private final UUID id;
     private final String username;

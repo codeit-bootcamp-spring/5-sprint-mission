@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.dto.channel;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.UUID;
 
+@ToString
 @Getter
 public class ChannelUpdateRequest {
     private final UUID channelId;
