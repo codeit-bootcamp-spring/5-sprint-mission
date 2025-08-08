@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 @SpringBootTest
 public class ReadStatusServiceTest {
 
@@ -88,30 +90,52 @@ public class ReadStatusServiceTest {
         User user1 = userService.addUser(addUserDto1);
         User user2 = userService.addUser(addUserDto2);
 
-        Assertions.assertThat(userRepository.findAll().size()).isEqualTo(2);
         AddPublicChannelDto addPublicChannelDto1 = new AddPublicChannelDto("testChannelName", "testChannelDesc", user1.getId());
         Channel channel = channelService.addPublicChannel(addPublicChannelDto1);
-        Assertions.assertThat(channelRepository.findAll().size()).isEqualTo(1);
 
         AddReadStatusDto addReadStatusDto1 = new AddReadStatusDto(channel.getId(), user1.getId());
         AddReadStatusDto addReadStatusDto2 = new AddReadStatusDto(channel.getId(), user2.getId());
-        ReadStatus readStatus1 = readStatusService.addReadStatus(addReadStatusDto1);
-        ReadStatus readStatus2 = readStatusService.addReadStatus(addReadStatusDto1);
-        ReadStatus readStatus3 = readStatusService.addReadStatus(addReadStatusDto2);
+        readStatusService.addReadStatus(addReadStatusDto1);
+        readStatusService.addReadStatus(addReadStatusDto1);
+        readStatusService.addReadStatus(addReadStatusDto2);
 
         int size = readStatusService.getAllReadStatusByUserId(user1.getId()).size();
+        Assertions.assertThat(userRepository.findAll().size()).isEqualTo(2);
+        Assertions.assertThat(channelRepository.findAll().size()).isEqualTo(1);
         Assertions.assertThat(size).isEqualTo(2);
-
     }
 
     @Test
-    public void getAllReadStatusTest() {}
+    public void updateReadStatusTest() {
+        AddUserDto addUserDto1 = new AddUserDto("testName", "testMail", "testPassword", "testPhone", null);
+        User user1 = userService.addUser(addUserDto1);
+        AddPublicChannelDto addPublicChannelDto1 = new AddPublicChannelDto("testChannelName", "testChannelDesc", user1.getId());
+        Channel channel = channelService.addPublicChannel(addPublicChannelDto1);
+        AddReadStatusDto addReadStatusDto1 = new AddReadStatusDto(channel.getId(), user1.getId());
+        ReadStatus readStatus = readStatusService.addReadStatus(addReadStatusDto1);
+        ReadStatus updatedReadStatus = readStatusService.updateReadStatus(readStatus.getId());
 
-    @Test
-    public void updateReadStatusTest() {}
+        System.out.println("변경 전: " + readStatus.getLastReadTime());
+        System.out.println("변경 후: " + updatedReadStatus.getLastReadTime());
+        Assertions.assertThat(updatedReadStatus.getLastReadTime()).isAfterOrEqualTo(readStatus.getLastReadTime());
+    }
 
-    @Test void deleteReadStatusTest() {}
+    @Test void deleteReadStatusTest() {
+        AddUserDto addUserDto1 = new AddUserDto("testName", "testMail", "testPassword", "testPhone", null);
+        User user1 = userService.addUser(addUserDto1);
+        AddPublicChannelDto addPublicChannelDto1 = new AddPublicChannelDto("testChannelName", "testChannelDesc", user1.getId());
+        Channel channel = channelService.addPublicChannel(addPublicChannelDto1);
+        AddReadStatusDto addReadStatusDto1 = new AddReadStatusDto(channel.getId(), user1.getId());
+        ReadStatus readStatus = readStatusService.addReadStatus(addReadStatusDto1);
 
-    @Test void deleteAllReadStatusTest() {}
+
+        List<ReadStatus> allByUserId = readStatusRepository.findAllByUserId(user1.getId());
+        Assertions.assertThat(allByUserId.size()).isEqualTo(1);
+
+        readStatusService.deleteReadStatus(readStatus.getId());
+
+        allByUserId = readStatusRepository.findAllByUserId(user1.getId());
+        Assertions.assertThat(allByUserId.size()).isEqualTo(0);
+    }
 
 }
