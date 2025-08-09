@@ -17,12 +17,13 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final UUID id;
-    private final Instant createdAt;
 
-    private Instant updatedAt;
     private String name;
     private String email;
     private String password;
+
+    private final Instant createdAt;
+    private Instant updatedAt;
 
     public User(String name, String email, String password) {
         this.id = UUID.randomUUID();

@@ -17,12 +17,14 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final UUID id;
+
     private final UUID authorId;
     private final UUID channelId;
-    private final Instant createdAt;
 
-    private Instant updatedAt;
     private String content;
+
+    private final Instant createdAt;
+    private Instant updatedAt;
 
     public Message(UUID authorId, UUID channelId, String content) {
         this.id = UUID.randomUUID();
