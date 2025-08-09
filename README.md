@@ -47,7 +47,7 @@
     MessageService messageService;
     
         // ...
-    
+        
     }
     ```
     - [ ]  JavaApplication의 main 메소드의 셋업, 테스트 부분의 코드를 DiscodeitApplication클래스로 복사하세요.

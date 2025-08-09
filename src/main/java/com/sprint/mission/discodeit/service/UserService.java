@@ -8,14 +8,14 @@ import java.util.UUID;
 
 public interface UserService {
 
-    void register(String email,
+    UUID register(String email,
                   String username,
                   String password,
                   LocalDate birthDate,
                   boolean subscribedToNewsletter,
                   String globalName);
 
-    void login(String email, String password);
+    UUID login(String email, String password);
 
     void logout(UUID userId);
 

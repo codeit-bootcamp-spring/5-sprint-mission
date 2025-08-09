@@ -44,7 +44,7 @@ public class DevUserService implements UserService {
     }
 
     @Override
-    public void register(String email,
+    public UUID register(String email,
                          String username,
                          String password,
                          LocalDate birthDate,
@@ -58,11 +58,11 @@ public class DevUserService implements UserService {
         if (userRepository.existsByEmail(e)) throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         if (userRepository.existsByUsername(u)) throw new IllegalArgumentException("이미 사용 중인 사용자명입니다.");
         DevUser user = new DevUser(e, u, p, birthDate, subscribedToNewsletter, globalName);
-        userRepository.save(user);
+        return userRepository.save(user).getId();
     }
 
     @Override
-    public void login(String email, String password) {
+    public UUID login(String email, String password) {
         String e = Validators.validateEmail(email);
         String p = Validators.validatePassword(password);
 
@@ -76,6 +76,7 @@ public class DevUserService implements UserService {
             u.activate();
             u.setStatus(Status.ONLINE);
         });
+        return user.getId();
     }
 
     @Override
@@ -184,7 +185,8 @@ public class DevUserService implements UserService {
 
     @Override
     public void updateBanned(UUID userId, boolean banned) {
-        update(userId, DevUser::ban);
+        if (banned) update(userId, DevUser::ban);
+        else update(userId, DevUser::unban);
     }
 
     @Override

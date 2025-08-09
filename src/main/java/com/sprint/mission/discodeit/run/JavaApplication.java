@@ -9,12 +9,14 @@
 // import com.sprint.mission.discodeit.domain.enums.channel.ChannelType;
 // import com.sprint.mission.discodeit.domain.enums.user.Status;
 // import com.sprint.mission.discodeit.exception.ValidationException;
-// import com.sprint.mission.discodeit.service.file.FileChannelService;
-// import com.sprint.mission.discodeit.service.file.FileChatRoomService;
-// import com.sprint.mission.discodeit.service.file.FileFriendRequestService;
-// import com.sprint.mission.discodeit.service.file.FileGuildService;
-// import com.sprint.mission.discodeit.service.file.FileMessageService;
-// import com.sprint.mission.discodeit.service.file.FileUserService;
+// import com.sprint.mission.discodeit.service.ChannelService;
+// import com.sprint.mission.discodeit.service.ChatRoomService;
+// import com.sprint.mission.discodeit.service.FriendRequestService;
+// import com.sprint.mission.discodeit.service.GuildService;
+// import com.sprint.mission.discodeit.service.MessageService;
+// import com.sprint.mission.discodeit.service.UserService;
+// import com.sprint.mission.discodeit.service.impl.dev.DevFriendRequestService;
+// import com.sprint.mission.discodeit.service.impl.dev.DevUserService;
 // import com.sprint.mission.discodeit.util.InputHandler;
 // import com.sprint.mission.discodeit.util.Validators;
 //
@@ -29,12 +31,12 @@
 // import java.util.stream.Collectors;
 //
 // public class JavaApplication {
-//     private final FileUserService userService = new FileUserService();
-//     private final FileFriendRequestService friendRequestService = new FileFriendRequestService(userService);
-//     private final FileMessageService messageService = new FileMessageService(userService);
-//     private final FileGuildService guildService = new FileGuildService(userService);
-//     private final FileChannelService channelService = new FileChannelService(guildService);
-//     private final FileChatRoomService chatRoomService = new FileChatRoomService(userService, guildService, channelService, messageService);
+//     private final UserService userService = new DevUserService();
+//     private final FriendRequestService friendRequestService = new DevFriendRequestService();
+//     private final MessageService messageService = new DevMessageServiece();
+//     private final GuildService guildService = new DevGuildService();
+//     private final ChannelService channelService = new DevChannelService();
+//     private final ChatRoomService chatRoomService = new DevChatRoomService();
 //     private User me;
 //     private UUID enteredGuildId;
 //

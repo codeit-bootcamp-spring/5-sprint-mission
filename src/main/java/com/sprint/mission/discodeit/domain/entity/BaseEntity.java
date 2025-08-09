@@ -43,14 +43,14 @@ public abstract class BaseEntity {
     }
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof BaseEntity that)) return false;
         return id != null && id.equals(that.id);
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         return getClass().hashCode();
     }
 }
