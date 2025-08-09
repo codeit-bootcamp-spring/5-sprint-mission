@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -16,21 +17,21 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final UUID id;
-    private final Long createdAt;
+    private final Instant createdAt;
 
-    private Long updatedAt;
+    private Instant updatedAt;
     private String name;
     private String email;
     private String password;
 
     public User(String name, String email, String password) {
         this.id = UUID.randomUUID();
-        this.createdAt = now().getEpochSecond();
+        this.createdAt = now();
 
         this.name = name;
         this.email = email;
         this.password = password;
-        this.updatedAt = now().getEpochSecond();
+        this.updatedAt = now();
     }
 
     public void update(String name, String email, String password) {
@@ -52,7 +53,7 @@ public class User implements Serializable {
         }
 
         if(anyValueUpdated) {
-            this.updatedAt = now().getEpochSecond();
+            this.updatedAt = now();
         }
     }
 
