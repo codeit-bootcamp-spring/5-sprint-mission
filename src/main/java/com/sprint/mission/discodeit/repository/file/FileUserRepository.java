@@ -12,13 +12,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository("fileUserRepository")
+
 public class FileUserRepository implements UserRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
 
     public FileUserRepository() {
         this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", User.class.getSimpleName());
+        // System.out.println("유저 디렉토리 생성 완료!!!!!");
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -40,6 +41,7 @@ public class FileUserRepository implements UserRepository {
                 ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(user);
+            // System.out.println("유저 파일 저장 성공입니다!!!!!!");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -89,6 +91,17 @@ public class FileUserRepository implements UserRepository {
         Path path = resolvePath(id);
         return Files.exists(path);
     }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return findAll().stream().anyMatch(user -> user.getUsername().equals(username));
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return findAll().stream().anyMatch(user -> user.getEmail().equals(email));
+    }
+
 
     @Override
     public void deleteById(UUID id) {

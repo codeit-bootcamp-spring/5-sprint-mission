@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-@Service("basicUserService")
+@Service("userService")
 @RequiredArgsConstructor
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
@@ -30,23 +30,22 @@ public class BasicUserService implements UserService {
     @Override
     public User create(UserCreateRequest request) {
 
-        User user = userRepository.findById(request.id()).orElseThrow(()->
-                new IllegalArgumentException("User id not found"));
-
         // username, email 중복 체크
-        if(user.getUsername().equals(request.username())){
-            throw new IllegalArgumentException("Username is already in use");
+        if(userRepository.existsByUsername(request.username())){
+            throw new RuntimeException("Username is already in use");
         }
-        if(user.getEmail().equals(request.email())){
-            throw new IllegalArgumentException("Email is already in use");
+        if(userRepository.existsByEmail(request.email())){
+            throw new RuntimeException("Email is already in use");
         }
 
         // 유저 생성
-        User newUser = new User(request.username(), request.email(), request.password());
-        userRepository.save(newUser);
+        // binaryContent가 Null일 경우도 체크 => 삼항 연산자 사용
+        User user = new User(request.username(), request.email(), request.password(),
+                request.binaryContent() != null ? request.binaryContent().getUserId() : null);
+        userRepository.save(user);
 
         // UserStatus 생성
-        UserStatus status = new UserStatus(newUser.getId());
+        UserStatus status = new UserStatus(user.getId());
         userStatusRepository.save(status);
 
         return user;
@@ -87,12 +86,14 @@ public class BasicUserService implements UserService {
 
     @Override
     public User update(UserUpdateRequest request) {
+
         User user = userRepository.findById(request.id()).orElseThrow(()->
                 new IllegalArgumentException("User with id "+ request.id() +" not found"));
+
         user.update(request.username(),
                 request.email(),
                 request.password(),
-                request.binaryContent());
+                request.binaryContent().getUserId());
         userRepository.save(user);
 
         // 프로필 이미지 업데이트 선택사항....
