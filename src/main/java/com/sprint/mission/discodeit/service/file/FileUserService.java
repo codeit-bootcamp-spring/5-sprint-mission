@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.file;
 
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.main.User;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.io.*;
@@ -110,11 +110,14 @@ public class FileUserService implements UserService {
 
     @Override
     public void delete(UUID id) {
-        try {
-            User user = findById(id);
-            Files.delete(getUserFilePath(user.getId()));
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read user: " + id, e);
-        }
+        System.out.println("id = " + id);
+        User user = findById(id);
+
+//        try {
+//            User user = findById(id);
+//            Files.delete(getUserFilePath(user.getId()));
+//        } catch (IOException e) {
+//            throw new RuntimeException("Failed to read user: " + id, e);
+//        }
     }
 }

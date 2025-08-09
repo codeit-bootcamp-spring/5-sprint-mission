@@ -1,5 +1,6 @@
-package com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.entity.main;
 
+import com.sprint.mission.discodeit.entity.enums.ChannelType;
 import lombok.Getter;
 
 import java.io.Serial;
@@ -11,7 +12,7 @@ import java.util.UUID;
 import static java.time.Instant.*;
 
 @Getter
-public class User implements Serializable {
+public class Channel implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -20,21 +21,21 @@ public class User implements Serializable {
     private final Instant createdAt;
 
     private Instant updatedAt;
+    private ChannelType type;
     private String name;
-    private String email;
-    private String password;
+    private String description;
 
-    public User(String name, String email, String password) {
+    public Channel(String name, String description, ChannelType type) {
         this.id = UUID.randomUUID();
         this.createdAt = now();
 
         this.name = name;
-        this.email = email;
-        this.password = password;
+        this.description = description;
+        this.type = type;
         this.updatedAt = now();
     }
 
-    public void update(String name, String email, String password) {
+    public void update(String name, String description, ChannelType type) {
         boolean anyValueUpdated = false;
 
         if(isNameChanged(name)) {
@@ -42,13 +43,13 @@ public class User implements Serializable {
             anyValueUpdated = true;
         }
 
-        if(isEmailChanged(email)) {
-            this.email = email;
+        if(isDescriptionChanged(description)) {
+            this.description = description;
             anyValueUpdated = true;
         }
 
-        if(isPasswordChanged(password)) {
-            this.password = password;
+        if(isTypeChanged(type)) {
+            this.type = type;
             anyValueUpdated = true;
         }
 
@@ -61,23 +62,23 @@ public class User implements Serializable {
         return name != null && !Objects.equals(this.name, name);
     }
 
-    public boolean isEmailChanged(String email) {
-        return email != null && !Objects.equals(this.email, email);
+    public boolean isDescriptionChanged(String description) {
+        return description != null && !Objects.equals(this.description, description);
     }
 
-    public boolean isPasswordChanged(String password) {
-        return password != null && !Objects.equals(this.password, password);
+    public boolean isTypeChanged(ChannelType type) {
+        return type != null && !Objects.equals(this.type, type);
     }
 
     @Override
     public String toString() {
-        return "User{" +
+        return "Channel{" +
                 "id=" + id +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", type=" + type +
                 ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
+                ", description='" + description + '\'' +
                 '}';
     }
 }
