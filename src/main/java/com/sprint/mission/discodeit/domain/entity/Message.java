@@ -35,7 +35,7 @@ public class Message extends BaseEntity {
     @ElementCollection
     @CollectionTable(name = "message_files", joinColumns = @JoinColumn(name = "message_id"))
     @Column(name = "file_url")
-    private Set<String> files = new LinkedHashSet<>();
+    private final Set<String> files = new LinkedHashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reply_to")
