@@ -5,6 +5,7 @@ import lombok.ToString;
 
 import java.io.Serial;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 // 이미지, 파일 등 바이너리 데이터를 표현하는 도메인 모델입니다.
@@ -26,18 +27,18 @@ public class BinaryContent implements java.io.Serializable {
     private byte[] bytes;
 
     // User, Message 도메인 의존성 추가
-    private UUID messageId; // 해당 파일이 연결된 메세지 아이디
+    private List<UUID> attachmentIds; // 해당 파일이 연결된 메세지 아이디
     private UUID userId; // 파일 업로드한 유저 아이디(User)
 
     public BinaryContent(String fileName, String contentType, Long size, byte[] bytes,
-                         UUID messageId, UUID userId) {
+                         List<UUID> attachmentIds, UUID userId) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.fileName = fileName;
         this.contentType = contentType;
         this.size = size;
         this.bytes = bytes;
-        this.messageId = messageId;
+        this.attachmentIds = attachmentIds;
         this.userId = userId;
     }
 }

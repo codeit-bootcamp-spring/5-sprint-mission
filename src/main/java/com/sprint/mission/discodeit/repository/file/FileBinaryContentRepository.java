@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository("fileBinaryContentRepository")
+
 public class FileBinaryContentRepository implements BinaryContentRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
@@ -102,5 +103,10 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void deleteByAttachmentId(List<UUID> attachmentIds) {
+      // 기능 추가해야함!!!
     }
 }

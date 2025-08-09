@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.repository;
 
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 
 import java.util.List;
@@ -12,4 +13,5 @@ public interface BinaryContentRepository {
     List<BinaryContent> findAllByIdIn(List<UUID> ids);
     boolean existsById(UUID id);
     void deleteById(UUID id);
+    void deleteByAttachmentId(List<UUID> attachmentIds);
 }
