@@ -61,21 +61,20 @@ public class DiscodeitApplication implements CommandLineRunner {
         testUser = userService.create(new UserRegisterDto("테스트유저", "test@example.com", "1234", null));
         testChannel = channelService.create(new ChannelCreateDto("테스트채널", ChannelType.TEXT, null, null));
 
-//        System.out.println("\n 🚀 유저 테스트 🚀 \n");
-//        testUser();
-//        System.out.println("\n ❌ 유저 테스트 - 예외처리 ❌ \n");
-//        testUserFail();
-//
-//        System.out.println("\n 🚀 채널 테스트 🚀 \n");
-//        testChannel();
-//        System.out.println("\n ❌ 채널 테스트 - 예외처리 ❌ \n");
-//        testChannelFail();
+        System.out.println("\n 🚀 유저 테스트 🚀 \n");
+        testUser();
+        System.out.println("\n ❌ 유저 테스트 - 예외처리 ❌ \n");
+        testUserFail();
 
-//        System.out.println("\n 🚀 메시지 테스트 🚀 \n");
-//        testMessage();
-//        System.out.println("\n ❌ 메시지 테스트 - 예외처리 ❌ \n");
-//        testMessageFail();
+        System.out.println("\n 🚀 채널 테스트 🚀 \n");
+        testChannel();
+        System.out.println("\n ❌ 채널 테스트 - 예외처리 ❌ \n");
+        testChannelFail();
 
+        System.out.println("\n 🚀 메시지 테스트 🚀 \n");
+        testMessage();
+        System.out.println("\n ❌ 메시지 테스트 - 예외처리 ❌ \n");
+        testMessageFail();
 
         System.out.println("\n 🚀 메시지상태 테스트 🚀 \n");
         testReadStatus();
