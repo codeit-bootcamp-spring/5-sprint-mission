@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Service
-@Profile("test")
+@Profile({"test", "dev"})
 public class BasicFriendRequestService implements DevFriendRequestService {
 
     private final DevUserRepository userRepository;

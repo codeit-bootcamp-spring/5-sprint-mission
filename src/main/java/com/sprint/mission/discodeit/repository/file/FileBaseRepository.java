@@ -6,11 +6,9 @@ import com.sprint.mission.discodeit.repository.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 
-import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
@@ -62,15 +60,10 @@ public abstract class FileBaseRepository<T extends DevBaseEntity> implements Bas
     }
 
     private Optional<T> readObject(Path path) {
-        try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(path.toFile())))) {
-            ObjectInputFilter filter = ObjectInputFilter.Config.createFilter(
-                    entityType.getName() + ";com.sprint.mission.discodeit.domain.deventity.*;!*"
-            );
-            ois.setObjectInputFilter(filter);
+        try (FileInputStream fis = new FileInputStream(path.toFile()); ObjectInputStream ois = new ObjectInputStream(fis)) {
             return Optional.of(entityType.cast(ois.readObject()));
-        } catch (IOException | ClassNotFoundException | ClassCastException e) {
-            log.warn("Failed to read {} from file: {}", entityType.getSimpleName(), path, e);
-            return Optional.empty();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Failed to read entity from storage", e);
         }
     }
 
