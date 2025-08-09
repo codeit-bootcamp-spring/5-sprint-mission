@@ -45,6 +45,7 @@ public class FileUserRepository implements UserRepository {
         return user;
     }
 
+/*
     @Override
     public Optional<User> findById(UUID id) {
         User user;
@@ -62,6 +63,28 @@ public class FileUserRepository implements UserRepository {
         }
 
         return Optional.ofNullable(user);
+    }
+*/
+
+    // 수정된 코드 -> 잘못된 점을 상기시키기 위해 기존 코드는 위에 주석 처리
+    @Override
+    public Optional<User> findById(UUID id) {
+        Path filePath = getUserFilePath(id);
+
+        // 파일 존재 여부 먼저 확인
+        if (!Files.exists(filePath)) {
+            return Optional.empty();
+        }
+
+        try (FileInputStream fis = new FileInputStream(filePath.toFile());
+             ObjectInputStream ois = new ObjectInputStream(fis)
+        ) {
+            User user = (User) ois.readObject();
+            return Optional.ofNullable(user);
+
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Failed to read user: " + id, e);
+        }
     }
 
     @Override
