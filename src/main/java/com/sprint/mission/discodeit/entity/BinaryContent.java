@@ -18,7 +18,6 @@ import java.util.UUID;
  * <p>{@link #fileName} - 파일명</p>
  * <p>{@link #contentType} - MIME 타입</p>
  * <p>{@link #content}</p>
- * <p>{@link #fileSize}</p>
  **/
 @Getter
 public class BinaryContent implements Serializable {
@@ -33,7 +32,6 @@ public class BinaryContent implements Serializable {
     private final String fileName;
     private final String contentType;
     private final byte[] content;
-    private final long fileSize;
 
     public BinaryContent(String fileName, String contentType, byte[] content, long fileSize) {
         this.id = UUID.randomUUID();
@@ -41,7 +39,6 @@ public class BinaryContent implements Serializable {
         this.fileName = fileName;
         this.contentType = contentType;
         this.content = content;
-        this.fileSize = fileSize;
     }
 
     public String getCreatedAtFormatted() {
