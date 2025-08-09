@@ -19,6 +19,7 @@ import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.List;
 
@@ -26,28 +27,21 @@ import static com.sprint.mission.discodeit.entity.enums.ChannelType.PRIVATE;
 import static com.sprint.mission.discodeit.entity.enums.ChannelType.PUBLIC;
 
 @SpringBootApplication
-public class DiscodeitApplication implements CommandLineRunner {
+public class DiscodeitApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DiscodeitApplication.class, args);
-    }
+        ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
 
-    @Override
-    public void run(String... args) throws Exception {
-        UserRepository userRepository = new FileUserRepository();
-        ChannelRepository channelRepository = new FileChannelRepository();
-        MessageRepository messageRepository = new FileMessageRepository();
-
-        UserService userService = new BasicUserService(userRepository);
-        ChannelService channelService = new BasicChannelService(channelRepository);
-        MessageService messageService = new BasicMessageService(messageRepository, userRepository, channelRepository);
+        UserService userService = context.getBean(UserService.class);
+        ChannelService channelService = context.getBean(ChannelService.class);
+        MessageService messageService = context.getBean(MessageService.class);
 
         userCRUDTest(userService);
         channelCRUDTest(channelService);
         messageCRUDTest(userService, channelService, messageService);
     }
 
-    private void userCRUDTest(UserService userService) throws InterruptedException {
+    private static void userCRUDTest(UserService userService) {
         // 생성
         User user1 = userService.create("jae", "jae@example.com", "jae1234");
         User user2 = userService.create("hyeok", "hyeok@example.com", "hyeok1234");
@@ -71,7 +65,7 @@ public class DiscodeitApplication implements CommandLineRunner {
         System.out.println("유저 삭제: " + foundUsersAfterDelete.size());
     }
 
-    private void channelCRUDTest(ChannelService channelService) {
+    private static void channelCRUDTest(ChannelService channelService) {
         // 생성
         Channel channel1 = channelService.create("공지 채널입니다.", "공지", PUBLIC);
         Channel channel2 = channelService.create("스터디 채널입니다.", "스터디", PUBLIC);
@@ -95,7 +89,7 @@ public class DiscodeitApplication implements CommandLineRunner {
         System.out.println("채널 삭제: " + foundChannelsAfterDelete.size());
     }
 
-    private void messageCRUDTest(UserService userService, ChannelService channelService, MessageService messageService) {
+    private static void messageCRUDTest(UserService userService, ChannelService channelService, MessageService messageService) {
         // 셋업
         User user = userService.create("woody", "woody@codeit.com", "woody1234");
         Channel channel = channelService.create("공지 채널입니다.", "공지", ChannelType.PUBLIC);
