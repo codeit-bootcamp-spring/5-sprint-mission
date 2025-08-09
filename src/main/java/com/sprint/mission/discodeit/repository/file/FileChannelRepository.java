@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 
-@Repository("fileChannelRepository")
+
 public class FileChannelRepository implements ChannelRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";

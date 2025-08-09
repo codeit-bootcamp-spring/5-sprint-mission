@@ -1,12 +1,10 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelFindResponse;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -15,11 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
-@Service("basicChannelService")
+@Service("channelService")
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
@@ -27,7 +23,7 @@ public class BasicChannelService implements ChannelService {
     private final MessageRepository messageRepository;
 
     @Override
-    public Channel createPublic(PublicChannelCreateRequest request) {
+    public Channel createPublicChannel(PublicChannelCreateRequest request) {
 
         Channel channel = new Channel(ChannelType.PUBLIC, request.name(), request.description());
         channelRepository.save(channel);
@@ -35,10 +31,10 @@ public class BasicChannelService implements ChannelService {
     }
 
     // PRIVATE 채널을 생성할 때:
-    // [ ] 채널에 참여하는 User의 정보를 받아 User 별 ReadStatus 정보를 생성합니다.
-    // [ ] name과 description 속성은 생략합니다.
+    // 채널에 참여하는 User의 정보를 받아 User 별 ReadStatus 정보를 생성합니다.
+    // name과 description 속성은 생략합니다.
     @Override
-    public Channel createPrivate(PrivateChannelCreateRequest request) {
+    public Channel createPrivateChannel(PrivateChannelCreateRequest request) {
 
         Channel channel = new Channel(ChannelType.PRIVATE, null,null);
         channelRepository.save(channel);
@@ -51,15 +47,18 @@ public class BasicChannelService implements ChannelService {
     }
 
     //해당 채널의 가장 최근 메시지의 시간 정보를 포함합니다.
-    //PRIVATE 채널인 경우 참여한 User의 id 정보를 포함합니다.
     @Override
     public ChannelFindResponse find(UUID channelId) {
 
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(()-> new NoSuchElementException("Channel with id " + channelId + " not found"));
 
-        Instant messageTime = messageRepository.
+        Optional<Message> latestMessage = messageRepository.findLatestByChannelId(channelId);
+        Instant latestMessageTime = latestMessage.map(Message::getUpdatedAt).orElse(null);
+
+       return null;
     }
+
 
     @Override
     public List<Channel> findAll() {
@@ -67,10 +66,13 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Channel update(UUID channelId, String newName, String newDescription) {
-        Channel channel = channelRepository.findById(channelId)
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
-        channel.update(newName, newDescription);
+    public Channel update(ChannelUpdateRequest request) {
+        Channel channel = channelRepository.findById(request.channelId()).orElseThrow(
+                () -> new NoSuchElementException("Channel with id " + request.channelId() + " not found"));
+        if(channel.getType() == ChannelType.PRIVATE){
+            throw new IllegalStateException("Private channels can't be updated");
+        }
+        channel.update(request.name(), request.description());
         return channelRepository.save(channel);
     }
 
@@ -80,5 +82,7 @@ public class BasicChannelService implements ChannelService {
             throw new NoSuchElementException("Channel with id " + channelId + " not found");
         }
         channelRepository.deleteById(channelId);
+        messageRepository.deleteByChannelId(channelId);
+        readStatusRepository.deleteByChannelId(channelId);
     }
 }

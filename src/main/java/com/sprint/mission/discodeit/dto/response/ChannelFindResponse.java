@@ -10,6 +10,7 @@ public record ChannelFindResponse(
         ChannelType type,
         String name,
         String description,
-        Instant updatedAt
+        Instant latestMessageTime,
+        List<UUID> participantIds // PRIVATE일 경우만 사용
 ) {
 }
