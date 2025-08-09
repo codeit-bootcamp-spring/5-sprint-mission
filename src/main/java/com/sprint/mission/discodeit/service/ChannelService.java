@@ -62,6 +62,9 @@ public class ChannelService {
                 response = ChannelFindResponse.builder()
                         .name(channel.getName())
                         .description(channel.getDescription())
+                        .type(channel.getType())
+                        .createdAt(channel.getCreatedAt())
+                        .updatedAt(channel.getUpdatedAt())
                         .userIds(userIds)
                         .build();
             } else {
@@ -69,6 +72,9 @@ public class ChannelService {
                         .name(channel.getName())
                         .description(channel.getDescription())
                         .lastestMessageTime(message.getCreatedAt())
+                        .type(channel.getType())
+                        .createdAt(channel.getCreatedAt())
+                        .updatedAt(channel.getUpdatedAt())
                         .userIds(userIds)
                         .build();
             }
@@ -78,12 +84,18 @@ public class ChannelService {
                 response = ChannelFindResponse.builder()
                         .name(channel.getName())
                         .description(channel.getDescription())
+                        .type(channel.getType())
+                        .createdAt(channel.getCreatedAt())
+                        .updatedAt(channel.getUpdatedAt())
                         .build();
             } else {
                 response = ChannelFindResponse.builder()
                         .name(channel.getName())
                         .description(channel.getDescription())
                         .lastestMessageTime(message.getCreatedAt())
+                        .type(channel.getType())
+                        .createdAt(channel.getCreatedAt())
+                        .updatedAt(channel.getUpdatedAt())
                         .build();
             }
         }

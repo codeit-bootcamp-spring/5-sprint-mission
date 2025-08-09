@@ -17,7 +17,7 @@ public class Channel implements Serializable {
     private final Instant createdAt;
     private Instant updatedAt;
     //
-    private ChannelType type;
+    private final ChannelType type;
     private String name;
     private String description;
 
