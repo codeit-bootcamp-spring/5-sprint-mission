@@ -77,16 +77,11 @@ public class DiscodeitApplication {
         return channelService.createPublic(channelCreateRequest);
     }
 
-    static BinaryContent createBinaryContent(BinaryContentService binaryContentService, String path, String contentType) {
-        byte[] bytes;
-        try {
-            Path imagePath = Path.of(System.getProperty("user.dir"), path);
-            bytes = Files.readAllBytes(imagePath);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        BinaryContentCreateRequest request = new BinaryContentCreateRequest(
-                path, contentType, (long) bytes.length, bytes);
+    static BinaryContent createBinaryContent(BinaryContentService binaryContentService, String filename, String contentType) {
+        Path path = null;
+        path = Path.of(System.getProperty("user.dir") + "/" + filename);
+
+        BinaryContentCreateRequest request = new BinaryContentCreateRequest(path, filename, contentType);
 
         return binaryContentService.create(request);
     }
@@ -118,7 +113,9 @@ public class DiscodeitApplication {
         Optional<BinaryContent> binaryContentOpt = exeCheck(
                 "create : 정상", () -> createBinaryContent(binaryContentService, "images.jpg", "jpg"));
         exeCheck("create : 존재하지 않는 파일", () -> createBinaryContent(binaryContentService, testString, "jpg"));
+        exeCheck("create : path null", () -> createBinaryContent(binaryContentService, null, "jpg"));
         exeCheck("create : 잘못된 확장자", () -> createBinaryContent(binaryContentService, "images.jpg", "png"));
+        exeCheck("create : 확장자 null", () -> createBinaryContent(binaryContentService, "images.jpg", null));
         BinaryContent savedContent = binaryContentOpt.orElseThrow(NoSuchElementException::new);
 
         // 조회
@@ -247,10 +244,10 @@ public class DiscodeitApplication {
         exeCheck("삭제 후 전체 조회", () -> userStatusService.findAll().forEach(System.out::println));
     }
 
-    static void channelTest(ChannelService channelService
-            , MessageService messageService
-            , ReadStatusService readStatusService
-            , UserService userService) {
+    static void channelTest(ChannelService channelService,
+                            MessageService messageService,
+                            ReadStatusService readStatusService,
+                            UserService userService) {
         section("Channel 테스트");
         // private 채널에 등록할 유저 리스트 생성
         List<User> users = new ArrayList<>();
@@ -323,10 +320,10 @@ public class DiscodeitApplication {
         exeCheck("readStatus 삭제 확인", () -> System.out.println(readStatusService.findAllByUserId(users.get(1).getId()).isEmpty()));
     }
 
-    static void messageTest(MessageService messageService
-            , UserService userService
-            , ChannelService channelService
-            , BinaryContentService binaryContentService) {
+    static void messageTest(MessageService messageService,
+                            UserService userService,
+                            ChannelService channelService,
+                            BinaryContentService binaryContentService) {
         section("Message 테스트");
         User user1 = createUser(userService, "messageUser1", "4321", "message1@aaa.com");
         User user2 = createUser(userService, "messageUser2", "4321", "message2@aaa.com");

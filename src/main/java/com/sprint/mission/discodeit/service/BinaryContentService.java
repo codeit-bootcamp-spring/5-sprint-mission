@@ -3,19 +3,34 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.exception.ThrowableIOException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
-    public BinaryContent create(BinaryContentCreateRequest request) {
-        BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(), request.size(), request.bytes());
+    public BinaryContent create(@Valid BinaryContentCreateRequest request) {
+        Path path = request.path();
+        byte[] bytes;
+        try {
+            bytes = Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new ThrowableIOException("BinaryContent를 읽어오지 못했습니다.", e);
+        }
+
+        BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(), bytes);
         if (!Arrays.stream(request.fileName().split("\\."))
                 .collect(Collectors.toCollection(LinkedList::new))
                 .getLast()

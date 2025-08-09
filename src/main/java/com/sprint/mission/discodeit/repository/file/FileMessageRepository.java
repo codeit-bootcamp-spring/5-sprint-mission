@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.configuration.RepositoryProps;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.exception.ThrowableIOException;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
@@ -30,7 +31,7 @@ public class FileMessageRepository implements MessageRepository {
             try {
                 Files.createDirectories(DIRECTORY);
             } catch (IOException e) {
-                throw new FileRepositoryException("디렉토리 생성 실패 : " + DIRECTORY, e);
+                throw new ThrowableIOException("디렉토리 생성 실패 : " + DIRECTORY, e);
             }
         }
     }
@@ -48,7 +49,7 @@ public class FileMessageRepository implements MessageRepository {
         ) {
             oos.writeObject(message);
         } catch (IOException e) {
-            throw new FileRepositoryException("저장 실패 : " + path, e);
+            throw new ThrowableIOException("저장 실패 : " + path, e);
         }
         return message;
     }
@@ -64,7 +65,7 @@ public class FileMessageRepository implements MessageRepository {
             ) {
                 messageNullable = (Message) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
-                throw new FileRepositoryException("불러오기 실패 : " + path, e);
+                throw new ThrowableIOException("불러오기 실패 : " + path, e);
             }
         }
         return Optional.ofNullable(messageNullable);
@@ -82,12 +83,12 @@ public class FileMessageRepository implements MessageRepository {
                         ) {
                             return (Message) ois.readObject();
                         } catch (IOException | ClassNotFoundException e) {
-                            throw new FileRepositoryException("불러오기 실패 : " + path, e);
+                            throw new ThrowableIOException("불러오기 실패 : " + path, e);
                         }
                     })
                     .toList();
         } catch (IOException e) {
-            throw new FileRepositoryException("불러오기 실패 : " + DIRECTORY, e);
+            throw new ThrowableIOException("불러오기 실패 : " + DIRECTORY, e);
         }
     }
 
@@ -103,7 +104,7 @@ public class FileMessageRepository implements MessageRepository {
         try {
             Files.deleteIfExists(path);
         } catch (IOException e) {
-            throw new FileRepositoryException("삭제 실패 : " + path, e);
+            throw new ThrowableIOException("삭제 실패 : " + path, e);
         }
     }
 }

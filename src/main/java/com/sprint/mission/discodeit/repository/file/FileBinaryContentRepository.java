@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.configuration.RepositoryProps;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.exception.ThrowableIOException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
@@ -30,7 +31,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
             try {
                 Files.createDirectories(DIRECTORY);
             } catch (IOException e) {
-                throw new FileRepositoryException("디렉토리 생성 실패 : " + DIRECTORY, e);
+                throw new ThrowableIOException("디렉토리 생성 실패 : " + DIRECTORY, e);
             }
         }
     }
@@ -48,7 +49,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         ) {
             oos.writeObject(binaryContent);
         } catch (IOException e) {
-            throw new FileRepositoryException("저장 실패 : " + path, e);
+            throw new ThrowableIOException("저장 실패 : " + path, e);
         }
         return binaryContent;
     }
@@ -64,7 +65,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
             ) {
                 binaryContent = (BinaryContent) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
-                throw new FileRepositoryException("불러오기 실패 : " + path, e);
+                throw new ThrowableIOException("불러오기 실패 : " + path, e);
             }
         }
         return Optional.ofNullable(binaryContent);
@@ -82,12 +83,12 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
                         ) {
                             return (BinaryContent) ois.readObject();
                         } catch (IOException | ClassNotFoundException e) {
-                            throw new FileRepositoryException("불러오기 실패 : " + path, e);
+                            throw new ThrowableIOException("불러오기 실패 : " + path, e);
                         }
                     })
                     .toList();
         } catch (IOException e) {
-            throw new FileRepositoryException("불러오기 실패 : " + DIRECTORY, e);
+            throw new ThrowableIOException("불러오기 실패 : " + DIRECTORY, e);
         }
     }
 
@@ -103,7 +104,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         try {
             Files.deleteIfExists(path);
         } catch (IOException e) {
-            throw new FileRepositoryException("삭제 실패 : " + path, e);
+            throw new ThrowableIOException("삭제 실패 : " + path, e);
         }
     }
 }
