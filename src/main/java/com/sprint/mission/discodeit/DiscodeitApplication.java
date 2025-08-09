@@ -83,7 +83,7 @@ public class DiscodeitApplication implements CommandLineRunner {
 
         System.out.println("\n 🚀 유저 상태 테스트 🚀 \n");
         testUserStatus();
-        System.out.println("\n ❌ 유저 상태 - 예외처리 ❌ \n");
+        System.out.println("\n ❌ 유저 상태 예외처리 테스트 ❌ \n");
         testUserStatusFail();
 
     }
@@ -428,7 +428,7 @@ public class DiscodeitApplication implements CommandLineRunner {
             userStatusService.isOnline(fakeUserId);
             System.err.println("❌ 존재하지 않는 유저인데 isOnline 성공?");
         } catch (IllegalArgumentException e) {
-            System.out.println("예외 발생 (isOnline 실패): " + e.getMessage());
+            System.out.println("테스트 성공 🙆🏻‍♀️ 예외 발생 (isOnline 실패): " + e.getMessage());
         }
 
         // 2) null 유저로 마지막 접속 시간 업데이트 시도
@@ -436,7 +436,7 @@ public class DiscodeitApplication implements CommandLineRunner {
             userStatusService.updateLastAccessedAt(null);
             System.err.println("❌ null 유저로 updateLastAccessedAt 성공?");
         } catch (NullPointerException | IllegalArgumentException e) {
-            System.out.println("예외 발생 (updateLastAccessedAt 실패): " + e.getMessage());
+            System.out.println("테스트 성공 🙆🏻‍♀️ 예외 발생 (updateLastAccessedAt 실패): " + e.getMessage());
         }
     }
 
@@ -455,7 +455,7 @@ public class DiscodeitApplication implements CommandLineRunner {
                                 file.getId(),
                                 file.getFileName(),
                                 file.getContentType(),
-                                file.getFileSize(),
+                                file.getContent().length,
                                 "/api/files/" + file.getId()
                         )).orElseThrow(() -> new IllegalArgumentException("파일이 존재하지 않음: " + id))
                 ).toList();
