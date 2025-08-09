@@ -236,4 +236,9 @@ public class BasicUserService implements DevUserService {
     public void leaveChatRoom(UUID userId, UUID chatRoomId) {
         update(userId, u -> u.leaveChatRoom(chatRoomId));
     }
+
+    @Override
+    public void hardDeleteAccount(UUID userId) {
+        userRepository.hardDeleteById(userId);
+    }
 }

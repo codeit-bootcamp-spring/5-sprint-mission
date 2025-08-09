@@ -11,11 +11,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @SpringBootApplication
+@EnableJpaAuditing
 @EnableConfigurationProperties(AppProperties.class)
 public class DiscodeitApplication {
 
@@ -84,7 +86,7 @@ public class DiscodeitApplication {
             userService.removeFriend(userId, userId2);
             System.out.println("친구 제거 후 수: " + userService.getFriends(userId).size());
 
-            UUID guildId = UUID.randomUUID();
+            UUID guildId = UUID.fromString("2cad452a-c0f2-4227-87a3-5b53d2340b20");
             userService.joinGuild(userId, guildId);
             System.out.println("길드 참가 후 수: " + userService.getGuilds(userId).size());
             userService.leaveGuild(userId, guildId);
@@ -102,6 +104,9 @@ public class DiscodeitApplication {
 
             userService.logout(userId);
             System.out.println("로그아웃 완료: " + userId);
+
+            userService.hardDeleteAccount(userId);
+            userService.hardDeleteAccount(userId2);
         };
     }
 
@@ -162,6 +167,10 @@ public class DiscodeitApplication {
             } catch (UnsupportedOperationException ignored) {
                 throw new Exception();
             }
+
+            userService.hardDeleteAccount(a);
+            userService.hardDeleteAccount(b);
+            userService.hardDeleteAccount(c);
         };
     }
 

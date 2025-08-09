@@ -13,3 +13,4 @@ public record AppProperties(
         AppMetadataProperties metadata,
         AppStorageProperties storage) {
 }
+

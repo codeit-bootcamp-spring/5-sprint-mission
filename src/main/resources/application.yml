@@ -1,5 +1,6 @@
 spring:
   profiles:
+    default: dev
     active: dev
   jpa:
     open-in-view: false

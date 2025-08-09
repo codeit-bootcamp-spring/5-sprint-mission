@@ -66,4 +66,6 @@ public interface DevUserService {
     void joinChatRoom(UUID userId, UUID chatRoomId);
 
     void leaveChatRoom(UUID userId, UUID chatRoomId);
+
+    void hardDeleteAccount(UUID userId);
 }
