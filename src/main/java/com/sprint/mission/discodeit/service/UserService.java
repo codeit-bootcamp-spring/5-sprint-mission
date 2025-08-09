@@ -1,20 +1,21 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.enums.user.Status;
+import com.sprint.mission.discodeit.domain.enums.user.Status;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public interface UserService extends BaseService<User> {
-    Optional<User> findByEmail(String email);
+public interface UserService {
 
-    Optional<User> findByUsername(String username);
+    void register(String email,
+                  String username,
+                  String password,
+                  LocalDate birthDate,
+                  boolean subscribedToNewsletter,
+                  String globalName);
 
-    User login(String email, String password);
+    void login(String email, String password);
 
     void logout(UUID userId);
 
@@ -23,8 +24,6 @@ public interface UserService extends BaseService<User> {
     void reactivateAccount(UUID userId);
 
     void deleteAccount(UUID userId);
-
-    List<User> searchUsers(String keyword);
 
     void updateEmail(UUID userId, String email);
 
@@ -50,7 +49,7 @@ public interface UserService extends BaseService<User> {
 
     void updateBanned(UUID userId, boolean banned);
 
-    Set<User> getFriends(UUID userId);
+    Set<UUID> getFriends(UUID userId);
 
     void addFriend(UUID userId, UUID friendId);
 
@@ -58,11 +57,11 @@ public interface UserService extends BaseService<User> {
 
     Set<UUID> getGuilds(UUID userId);
 
-    void addGuild(UUID userId, UUID guildId);
+    void joinGuild(UUID userId, UUID guildId);
 
-    void removeGuild(UUID userId, UUID guildId);
+    void leaveGuild(UUID userId, UUID guildId);
 
-    void addChatRoom(UUID userId, UUID chatRoomId);
+    void joinChatRoom(UUID userId, UUID chatRoomId);
 
-    void removeChatRoom(UUID userId, UUID chatRoomId);
+    void leaveChatRoom(UUID userId, UUID chatRoomId);
 }

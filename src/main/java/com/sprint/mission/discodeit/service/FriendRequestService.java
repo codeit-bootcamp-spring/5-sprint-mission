@@ -1,18 +1,14 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.entity.FriendRequest;
-
-import java.util.List;
 import java.util.UUID;
 
-public interface FriendRequestService extends BaseService<FriendRequest> {
-    void acceptFriendRequest(UUID requestId);
+public interface FriendRequestService {
 
-    void declineFriendRequest(UUID requestId);
+    void send(UUID senderId, UUID receiverId);
 
-    void clearFriendRequests(UUID userId);
+    void accept(UUID requestId);
 
-    List<FriendRequest> getSentRequests(UUID senderId);
+    void decline(UUID requestId);
 
-    List<FriendRequest> getReceivedRequests(UUID receiverId);
+    void clear(UUID userId);
 }

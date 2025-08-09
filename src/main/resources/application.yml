@@ -1,6 +1,11 @@
 spring:
   profiles:
-    active: prod
+    active: dev
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
 
 server:
   port: 8080
@@ -9,6 +14,8 @@ logging:
   level:
     org.springframework: INFO
     com.sprint.mission: DEBUG
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
 
 app:
   name: Discodeit
@@ -23,3 +30,6 @@ app:
   metadata:
     region: korea
     owner: admin-team
+  storage:
+    type: file
+    root-dir: file-data-map

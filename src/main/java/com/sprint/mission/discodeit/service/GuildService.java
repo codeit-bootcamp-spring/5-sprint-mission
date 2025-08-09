@@ -1,21 +1,15 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Guild;
-import com.sprint.mission.discodeit.enums.Permission;
+import com.sprint.mission.discodeit.domain.entity.Channel;
+import com.sprint.mission.discodeit.domain.entity.guild.Guild;
+import com.sprint.mission.discodeit.domain.enums.Permission;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public interface GuildService extends BaseService<Guild> {
-    List<Guild> findDiscoverableGuilds();
-
-    List<Guild> findGuildsOwnedByUser(UUID userId);
-
+public interface GuildService {
     List<Guild> findGuildsJoinedByUser(UUID userId);
-
-    List<Guild> searchGuilds(String keyword);
 
     void deleteGuild(UUID guildId, UUID ownerId);
 

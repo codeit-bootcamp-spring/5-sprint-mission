@@ -1,9 +1,15 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.config.AppStorageProperties;
+import com.sprint.mission.discodeit.domain.deventity.DevChannel;
+import com.sprint.mission.discodeit.repository.devrepository.DevChannelRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
-public class FileChannelRepository extends BaseFileRepository<Channel> {
-    public FileChannelRepository() {
-        super(Channel.class);
+@Repository
+@Profile("dev")
+public class FileChannelRepository extends FileBaseRepository<DevChannel> implements DevChannelRepository {
+    public FileChannelRepository(AppStorageProperties storageProperties) {
+        super(DevChannel.class, storageProperties);
     }
 }
