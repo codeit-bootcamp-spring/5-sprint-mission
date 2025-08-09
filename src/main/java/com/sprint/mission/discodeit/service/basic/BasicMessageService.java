@@ -26,8 +26,8 @@ public class BasicMessageService implements MessageService {
     public Message create(MessageCreateDto dto) {
         Message message = new Message(dto.userId(), dto.channelId(), dto.content());
         // 첨부한 파일이 존재하면
-        if (dto.fileIds() != null && !dto.fileIds().isEmpty()) {
-            for (BinaryContent file : dto.fileIds()) {
+        if (dto.files() != null && !dto.files().isEmpty()) {
+            for (BinaryContent file : dto.files()) {
                 message.addFile(file.getId());
             }
         }
