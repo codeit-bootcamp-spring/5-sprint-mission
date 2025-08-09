@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.domain.entitydev.DevBaseEntity;
 import com.sprint.mission.discodeit.repository.BaseRepository;
 import org.springframework.context.annotation.Profile;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +51,7 @@ public class JcfBaseRepository<T extends DevBaseEntity> implements BaseRepositor
 
     @Override
     public List<T> findAllIncludingDeleted() {
-        return new ArrayList<>(data.values());
+        return List.copyOf(data.values());
     }
 
     @Override
@@ -73,7 +72,7 @@ public class JcfBaseRepository<T extends DevBaseEntity> implements BaseRepositor
 
     @Override
     public boolean existsAllByIds(Set<UUID> ids) {
-        if (ids == null || ids.isEmpty()) return false;
+        if (ids == null) return false;
         return ids.stream().allMatch(this::existsById);
     }
 
