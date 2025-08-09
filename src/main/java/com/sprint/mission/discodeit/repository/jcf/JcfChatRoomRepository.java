@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.domain.deventity.DevChatRoom;
+import com.sprint.mission.discodeit.domain.entitydev.DevChatRoom;
 import com.sprint.mission.discodeit.repository.devrepository.DevChatRoomRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;

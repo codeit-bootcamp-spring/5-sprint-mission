@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.domain.deventity.DevBaseEntity;
+import com.sprint.mission.discodeit.domain.entitydev.DevBaseEntity;
 import com.sprint.mission.discodeit.repository.BaseRepository;
 import org.springframework.context.annotation.Profile;
 

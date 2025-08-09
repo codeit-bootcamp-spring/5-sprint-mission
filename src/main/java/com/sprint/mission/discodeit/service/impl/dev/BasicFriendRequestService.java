@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.impl.dev;
 
-import com.sprint.mission.discodeit.domain.deventity.DevFriendRequest;
-import com.sprint.mission.discodeit.domain.deventity.DevUser;
+import com.sprint.mission.discodeit.domain.entitydev.DevFriendRequest;
+import com.sprint.mission.discodeit.domain.entitydev.DevUser;
 import com.sprint.mission.discodeit.repository.devrepository.DevFriendRequestRepository;
 import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
 import com.sprint.mission.discodeit.service.dev.DevFriendRequestService;

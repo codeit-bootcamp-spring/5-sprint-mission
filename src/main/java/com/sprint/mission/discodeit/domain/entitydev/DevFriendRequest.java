@@ -1,8 +1,9 @@
-package com.sprint.mission.discodeit.domain.deventity;
+package com.sprint.mission.discodeit.domain.entitydev;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -13,15 +14,11 @@ public class DevFriendRequest extends DevBaseEntity {
     private final UUID receiver;
 
     public DevFriendRequest(UUID sender, UUID receiver) {
-        validateUsers(sender, receiver);
+        Objects.requireNonNull(sender, "Sender id must not be null.");
+        Objects.requireNonNull(receiver, "Receiver id must not be null.");
+        if (sender.equals(receiver)) throw new IllegalArgumentException("Cannot send friend request to self.");
         this.sender = sender;
         this.receiver = receiver;
-    }
-
-    public static void validateUsers(UUID sender, UUID receiver) {
-        if (sender == null || receiver == null)
-            throw new IllegalArgumentException("Sender id and receiver id must not be null.");
-        if (sender.equals(receiver)) throw new IllegalArgumentException("Cannot send friend request to self.");
     }
 
     @Override

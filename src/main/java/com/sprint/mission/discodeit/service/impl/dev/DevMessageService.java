@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.impl.dev;
 
-import com.sprint.mission.discodeit.domain.deventity.DevMessage;
-import com.sprint.mission.discodeit.domain.deventity.DevUser;
+import com.sprint.mission.discodeit.domain.entitydev.DevMessage;
+import com.sprint.mission.discodeit.domain.entitydev.DevUser;
 import com.sprint.mission.discodeit.repository.devrepository.DevMessageRepository;
 import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
 import com.sprint.mission.discodeit.service.MessageService;

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.domain.deventity.DevUser;
+import com.sprint.mission.discodeit.domain.entitydev.DevUser;
 import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;

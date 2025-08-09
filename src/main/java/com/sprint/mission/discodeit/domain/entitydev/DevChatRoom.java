@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.deventity;
+package com.sprint.mission.discodeit.domain.entitydev;
 
 import lombok.Getter;
 
@@ -19,6 +19,9 @@ public class DevChatRoom extends DevBaseEntity {
     private final Set<UUID> participants = new HashSet<>();
     private final Set<UUID> messages = new LinkedHashSet<>();
 
+    private static final int DM_MIN = 2;
+    private static final int DM_MAX = 10;
+
     public DevChatRoom(UUID channel, UUID guild) {
         this.channel = Objects.requireNonNull(channel, "Channel id must not be null.");
         this.guild = Objects.requireNonNull(guild, "Guild id must not be null.");
@@ -27,7 +30,7 @@ public class DevChatRoom extends DevBaseEntity {
 
     public DevChatRoom(Set<UUID> participants) {
         Objects.requireNonNull(participants, "Participant ids must not be null.");
-        if (participants.size() < 2 || participants.size() > 10)
+        if (participants.size() < DM_MIN || participants.size() > DM_MAX)
             throw new IllegalArgumentException("DM ChatRoom requires 2 to 10 participants.");
         if (participants.stream().anyMatch(Objects::isNull))
             throw new NullPointerException("Participant id must not be null.");
@@ -38,6 +41,9 @@ public class DevChatRoom extends DevBaseEntity {
     }
 
     public static int computeParticipantsHashcode(Set<UUID> participants) {
+        Objects.requireNonNull(participants, "participants must not be null");
+        if (participants.stream().anyMatch(Objects::isNull))
+            throw new NullPointerException("Participant id must not be null.");
         return participants.stream()
                 .map(UUID::toString)
                 .sorted()
@@ -54,13 +60,17 @@ public class DevChatRoom extends DevBaseEntity {
     }
 
     public void addMessage(UUID message) {
-        messages.add(Objects.requireNonNull(message, "Message id must not be null."));
-        touch();
+        Objects.requireNonNull(message, "Message id must not be null.");
+        if (messages.add(message)) {
+            touch();
+        }
     }
 
     public void removeMessage(UUID message) {
-        messages.remove(Objects.requireNonNull(message, "Message id must not be null."));
-        touch();
+        Objects.requireNonNull(message, "Message id must not be null.");
+        if (messages.remove(message)) {
+            touch();
+        }
     }
 
     public Set<UUID> getParticipants() {
@@ -71,7 +81,7 @@ public class DevChatRoom extends DevBaseEntity {
     public void addParticipant(UUID user) {
         assertDmOnly("addParticipant");
         Objects.requireNonNull(user, "User id must not be null.");
-        if (participants.size() >= 10 && !participants.contains(user))
+        if (participants.size() >= DM_MAX && !participants.contains(user))
             throw new IllegalStateException("DM ChatRoom allows up to 10 participants.");
         if (participants.add(user)) touch();
     }
@@ -80,7 +90,8 @@ public class DevChatRoom extends DevBaseEntity {
         assertDmOnly("removeParticipant");
         Objects.requireNonNull(user, "User id must not be null.");
         if (!participants.contains(user)) return;
-        if (participants.size() <= 2) throw new IllegalStateException("DM ChatRoom must have at least 2 participants.");
+        if (participants.size() <= DM_MIN)
+            throw new IllegalStateException("DM ChatRoom must have at least 2 participants.");
         participants.remove(user);
         touch();
     }

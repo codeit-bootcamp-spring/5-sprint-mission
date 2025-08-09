@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.config.AppStorageProperties;
-import com.sprint.mission.discodeit.domain.deventity.DevBaseEntity;
+import com.sprint.mission.discodeit.domain.entitydev.DevBaseEntity;
 import com.sprint.mission.discodeit.repository.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;

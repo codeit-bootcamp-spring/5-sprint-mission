@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.deventity;
+package com.sprint.mission.discodeit.domain.entitydev;
 
 
 import com.sprint.mission.discodeit.util.Validators;
@@ -24,6 +24,8 @@ public class DevMessage extends DevBaseEntity {
         this.sender = Objects.requireNonNull(senderId, "Sender id must not be null.");
         setContent(content);
         setFiles(files);
+        if (replyTo != null && replyTo.equals(getId()))
+            throw new IllegalArgumentException("Message cannot reply to itself.");
         this.replyTo = replyTo;
     }
 

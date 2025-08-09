@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.config.AppProperties;
-import com.sprint.mission.discodeit.domain.deventity.DevUser;
+import com.sprint.mission.discodeit.domain.entitydev.DevUser;
 import com.sprint.mission.discodeit.domain.enums.user.Status;
 import com.sprint.mission.discodeit.service.dev.DevFriendRequestService;
 import com.sprint.mission.discodeit.service.dev.DevUserService;
@@ -86,7 +86,7 @@ public class DiscodeitApplication {
             userService.removeFriend(userId, userId2);
             System.out.println("친구 제거 후 수: " + userService.getFriends(userId).size());
 
-            UUID guildId = UUID.fromString("2cad452a-c0f2-4227-87a3-5b53d2340b20");
+            UUID guildId = UUID.fromString("feadc6c7-2a95-43b8-b3f3-270c01bde4cb");
             userService.joinGuild(userId, guildId);
             System.out.println("길드 참가 후 수: " + userService.getGuilds(userId).size());
             userService.leaveGuild(userId, guildId);

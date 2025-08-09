@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.dev;
 
-import com.sprint.mission.discodeit.domain.deventity.DevUser;
-import com.sprint.mission.discodeit.domain.deventity.guild.DevGuild;
+import com.sprint.mission.discodeit.domain.entitydev.DevUser;
+import com.sprint.mission.discodeit.domain.entitydev.guild.DevGuild;
 import com.sprint.mission.discodeit.domain.enums.user.Status;
 
 import java.time.LocalDate;

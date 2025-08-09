@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.dev;
 
-import com.sprint.mission.discodeit.domain.deventity.DevFriendRequest;
+import com.sprint.mission.discodeit.domain.entitydev.DevFriendRequest;
 
 import java.util.List;
 import java.util.UUID;

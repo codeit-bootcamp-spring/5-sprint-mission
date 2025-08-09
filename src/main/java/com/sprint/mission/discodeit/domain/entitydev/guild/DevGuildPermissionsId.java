@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.deventity.guild;
+package com.sprint.mission.discodeit.domain.entitydev.guild;
 
 import java.io.Serial;
 import java.io.Serializable;

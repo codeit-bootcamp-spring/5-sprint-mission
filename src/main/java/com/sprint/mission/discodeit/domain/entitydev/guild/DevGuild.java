@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.domain.deventity.guild;
+package com.sprint.mission.discodeit.domain.entitydev.guild;
 
-import com.sprint.mission.discodeit.domain.deventity.DevBaseEntity;
+import com.sprint.mission.discodeit.domain.entitydev.DevBaseEntity;
 import com.sprint.mission.discodeit.domain.enums.Permission;
 import com.sprint.mission.discodeit.util.Validators;
 import lombok.Getter;
@@ -55,7 +55,9 @@ public class DevGuild extends DevBaseEntity {
 
     public void setOwner(UUID user) {
         Objects.requireNonNull(user, "Owner must not be null.");
+        if (isBanned(user)) throw new IllegalStateException("Banned user cannot be the owner.");
         if (isNotMember(user)) throw new IllegalArgumentException("User is not a member of this guild.");
+
         setPermissions(user, Set.of(Permission.ADMINISTRATOR));
         if (!user.equals(this.owner)) {
             this.owner = user;
@@ -64,7 +66,8 @@ public class DevGuild extends DevBaseEntity {
     }
 
     public boolean isOwner(UUID user) {
-        return owner.equals(user);
+        Objects.requireNonNull(user, "User id must not be null.");
+        return user.equals(owner);
     }
 
     public Set<UUID> getChannels() {
@@ -98,9 +101,10 @@ public class DevGuild extends DevBaseEntity {
 
     public void removeUser(UUID user) {
         Objects.requireNonNull(user, "User id must not be null.");
+        if (isOwner(user)) throw new IllegalStateException("Cannot remove the guild owner. Transfer ownership first.");
         boolean removed = users.remove(user);
-        this.permissions.removeIf(p -> p.getUser().equals(user));
-        if (removed) touch();
+        boolean permsRemoved = this.permissions.removeIf(p -> p.getUser().equals(user));
+        if (removed || permsRemoved) touch();
     }
 
     public Set<DevGuildPermissions> getPermissions() {
@@ -126,7 +130,11 @@ public class DevGuild extends DevBaseEntity {
 
     public void addBan(UUID user) {
         Objects.requireNonNull(user, "User id must not be null.");
-        if (bans.add(user)) touch();
+        if (isOwner(user)) throw new IllegalStateException("Cannot ban the guild owner.");
+        boolean changed = bans.add(user);
+        if (users.remove(user)) changed = true;
+        if (this.permissions.removeIf(p -> p.getUser().equals(user))) changed = true;
+        if (changed) touch();
     }
 
     public void removeBan(UUID user) {

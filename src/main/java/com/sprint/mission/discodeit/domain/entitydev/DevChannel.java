@@ -1,9 +1,10 @@
-package com.sprint.mission.discodeit.domain.deventity;
+package com.sprint.mission.discodeit.domain.entitydev;
 
 import com.sprint.mission.discodeit.domain.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.util.Validators;
 import lombok.Getter;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -26,18 +27,26 @@ public class DevChannel extends DevBaseEntity {
     }
 
     public void setName(String name) {
-        this.name = Validators.validateChannelName(name);
-        touch();
+        String v = Validators.validateChannelName(name);
+        if (!Objects.equals(this.name, v)) {
+            this.name = v;
+            touch();
+        }
     }
 
     public void setType(ChannelType type) {
-        this.type = Objects.requireNonNull(type, "Channel type must not be null");
-        touch();
+        Objects.requireNonNull(type, "Channel type must not be null");
+        if (this.type != type) { // enum 비교
+            this.type = type;
+            touch();
+        }
     }
 
     public void setPrivate(boolean isPrivate) {
-        this.isPrivate = isPrivate;
-        touch();
+        if (this.isPrivate != isPrivate) {
+            this.isPrivate = isPrivate;
+            touch();
+        }
     }
 
     public Set<UUID> getUsers() {
@@ -73,6 +82,17 @@ public class DevChannel extends DevBaseEntity {
         boolean removed = users.remove(Objects.requireNonNull(userId, "User id must not be null"));
         if (removed) touch();
         return removed;
+    }
+
+    public boolean removeUsers(Collection<UUID> userIds) {
+        Objects.requireNonNull(userIds, "User ids must not be null");
+        boolean changed = false;
+        for (UUID id : userIds) {
+            if (id == null) throw new NullPointerException("User id must not be null");
+            if (users.remove(id)) changed = true;
+        }
+        if (changed) touch();
+        return changed;
     }
 
     @Override

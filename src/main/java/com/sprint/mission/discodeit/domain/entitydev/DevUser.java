@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.deventity;
+package com.sprint.mission.discodeit.domain.entitydev;
 
 import com.sprint.mission.discodeit.domain.enums.user.Status;
 import com.sprint.mission.discodeit.util.Validators;
@@ -58,7 +58,7 @@ public class DevUser extends DevBaseEntity {
     }
 
     public boolean checkPassword(String password) {
-        return BCrypt.checkpw(password, this.password);
+        return password != null && BCrypt.checkpw(password, this.password);
     }
 
     public void setUsername(String username) {

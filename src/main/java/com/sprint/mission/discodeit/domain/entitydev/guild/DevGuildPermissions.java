@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.deventity.guild;
+package com.sprint.mission.discodeit.domain.entitydev.guild;
 
 import com.sprint.mission.discodeit.domain.enums.Permission;
 import lombok.EqualsAndHashCode;
@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
@@ -29,7 +30,14 @@ public class DevGuildPermissions implements Serializable {
         );
         if (permissions == null || permissions.isEmpty())
             throw new IllegalArgumentException("Permissions must not be null or empty.");
+        if (permissions.contains(null))
+            throw new NullPointerException("Permission must not be null.");
         this.permissions = EnumSet.copyOf(permissions);
+    }
+
+
+    public Set<Permission> getPermissions() {
+        return Collections.unmodifiableSet(permissions);
     }
 
     public UUID getGuild() {
@@ -43,6 +51,12 @@ public class DevGuildPermissions implements Serializable {
     public void setPermissions(Set<Permission> permissions) {
         if (permissions == null || permissions.isEmpty())
             throw new IllegalArgumentException("Permissions must not be null or empty.");
+        if (permissions.contains(null))
+            throw new NullPointerException("Permission must not be null.");
+
+        Set<Permission> copy = EnumSet.copyOf(permissions);
+        if (this.permissions.equals(copy)) return;
+
         this.permissions.clear();
         this.permissions.addAll(EnumSet.copyOf(permissions));
     }

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.deventity;
+package com.sprint.mission.discodeit.domain.entitydev;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -44,12 +44,16 @@ public abstract class DevBaseEntity implements Serializable {
     }
 
     public void delete() {
-        this.deleted = true;
-        touch();
+        if (!this.deleted) {
+            this.deleted = true;
+            touch();
+        }
     }
 
     public void restore() {
-        this.deleted = false;
-        touch();
+        if (this.deleted) {
+            this.deleted = false;
+            touch();
+        }
     }
 }
