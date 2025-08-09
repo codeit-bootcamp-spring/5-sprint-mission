@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.enums.user.Status;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.dev.DevFriendRequestService;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -100,4 +101,60 @@ public class DiscodeitApplication {
             System.out.println("로그아웃 완료: " + userId);
         };
     }
+
+    @Bean
+    @Profile({"test", "dev"})
+    ApplicationRunner friendRequestService(DevFriendRequestService friendRequestService,
+                                           UserService userService) {
+        return args -> {
+            String sfx = UUID.randomUUID().toString().substring(0, 6);
+
+            UUID a = userService.register(
+                    "alice+" + sfx + "@example.com", "alice_" + sfx, "Al1ceP@ss!",
+                    LocalDate.now().minusYears(21), true, "앨리스");
+            UUID b = userService.register(
+                    "bob+" + sfx + "@example.com", "bob_" + sfx, "B0bP@ss!",
+                    LocalDate.now().minusYears(22), false, "밥");
+
+            System.out.println("초기 보낸요청(A): " + friendRequestService.listSent(a).size());
+            System.out.println("초기 받은요청(B): " + friendRequestService.listReceived(b).size());
+
+            final UUID requestId = friendRequestService.send(a, b);
+            System.out.println("요청 보낸 후 보낸요청(A): " + friendRequestService.listSent(a).size());
+            System.out.println("요청 보낸 후 받은요청(B): " + friendRequestService.listReceived(b).size());
+
+            try {
+                friendRequestService.send(a, b);
+                System.out.println("중복 요청이 허용되면 안 됩니다.");
+            } catch (IllegalStateException | IllegalArgumentException e) {
+                System.out.println("중복 요청 차단 확인: " + e.getMessage());
+            }
+
+            friendRequestService.accept(requestId);
+            System.out.println("수락 후 보낸요청(A): " + friendRequestService.listSent(a).size());
+            System.out.println("수락 후 받은요청(B): " + friendRequestService.listReceived(b).size());
+            System.out.println("수락 후 친구수(A): " + userService.getFriends(a).size());
+            System.out.println("수락 후 친구수(B): " + userService.getFriends(b).size());
+
+            UUID c = userService.register(
+                    "charlie+" + sfx + "@example.com", "charlie_" + sfx, "Ch@rl1eP@ss!",
+                    LocalDate.now().minusYears(23), false, "찰리");
+
+            final UUID requestId2 = friendRequestService.send(b, c);
+            System.out.println("B→C 보낸요청(B): " + friendRequestService.listSent(b).size());
+            System.out.println("B→C 받은요청(C): " + friendRequestService.listReceived(c).size());
+
+            friendRequestService.reject(requestId2);
+            System.out.println("거절 후 보낸요청(B): " + friendRequestService.listSent(b).size());
+            System.out.println("거절 후 받은요청(C): " + friendRequestService.listReceived(c).size());
+
+            try {
+                friendRequestService.clear(a);
+                System.out.println("A의 대기 요청 정리 완료");
+            } catch (UnsupportedOperationException ignored) {
+                throw new Exception();
+            }
+        };
+    }
+
 }
