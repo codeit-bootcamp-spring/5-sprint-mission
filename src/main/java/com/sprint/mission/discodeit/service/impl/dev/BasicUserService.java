@@ -6,13 +6,14 @@ import com.sprint.mission.discodeit.domain.enums.user.Status;
 import com.sprint.mission.discodeit.repository.devrepository.DevFriendRequestRepository;
 import com.sprint.mission.discodeit.repository.devrepository.DevGuildRepository;
 import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
-import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.dev.DevUserService;
 import com.sprint.mission.discodeit.util.Validators;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
@@ -21,13 +22,13 @@ import java.util.function.Consumer;
 
 @Service
 @Profile({"test", "dev"})
-public class DevUserService implements UserService {
+public class BasicUserService implements DevUserService {
 
     private final DevUserRepository userRepository;
     private final DevFriendRequestRepository friendRequestRepository;
     private final DevGuildRepository guildRepository;
 
-    public DevUserService(
+    public BasicUserService(
             DevUserRepository userRepository,
             DevFriendRequestRepository friendRequestRepository,
             DevGuildRepository guildRepository
@@ -44,12 +45,12 @@ public class DevUserService implements UserService {
     }
 
     @Override
-    public UUID register(String email,
-                         String username,
-                         String password,
-                         LocalDate birthDate,
-                         boolean subscribedToNewsletter,
-                         String globalName) {
+    public DevUser register(String email,
+                            String username,
+                            String password,
+                            LocalDate birthDate,
+                            boolean subscribedToNewsletter,
+                            String globalName) {
 
         String e = Validators.validateEmail(email);
         String u = Validators.validateUsername(username);
@@ -58,11 +59,11 @@ public class DevUserService implements UserService {
         if (userRepository.existsByEmail(e)) throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         if (userRepository.existsByUsername(u)) throw new IllegalArgumentException("이미 사용 중인 사용자명입니다.");
         DevUser user = new DevUser(e, u, p, birthDate, subscribedToNewsletter, globalName);
-        return userRepository.save(user).getId();
+        return userRepository.save(user);
     }
 
     @Override
-    public UUID login(String email, String password) {
+    public void login(String email, String password) {
         String e = Validators.validateEmail(email);
         String p = Validators.validatePassword(password);
 
@@ -76,7 +77,6 @@ public class DevUserService implements UserService {
             u.activate();
             u.setStatus(Status.ONLINE);
         });
-        return user.getId();
     }
 
     @Override
@@ -99,18 +99,17 @@ public class DevUserService implements UserService {
         if (userId == null) throw new IllegalArgumentException("userId는 null일 수 없습니다.");
 
         Set<UUID> frIds = new HashSet<>();
-        friendRequestRepository.getReceivedRequests(userId).forEach(fr -> frIds.add(fr.getId()));
-        friendRequestRepository.getSentRequests(userId).forEach(fr -> frIds.add(fr.getId()));
-        friendRequestRepository.deleteAllByIds(frIds);
+        friendRequestRepository.clear(userId);
 
         DevUser user = userRepository.getOrThrow(userId);
         for (UUID friendId : new HashSet<>(user.getFriends())) {
             update(friendId, f -> f.removeFriend(userId));
             update(userId, u -> u.removeFriend(friendId));
         }
+
         for (UUID guildId : new HashSet<>(user.getGuilds())) {
             DevGuild guild = guildRepository.getOrThrow(guildId);
-            if (guild.isOwner(userId)) guildRepository.hardDeleteById(guildId);
+            if (guild.isOwner(userId)) guildRepository.deleteById(guildId);
             else {
                 guild.removeUser(userId);
                 guildRepository.save(guild);
@@ -190,8 +189,9 @@ public class DevUserService implements UserService {
     }
 
     @Override
-    public Set<UUID> getFriends(UUID userId) {
-        return userRepository.getOrThrow(userId).getFriends();
+    public List<DevUser> getFriends(UUID userId) {
+        Set<UUID> ids = userRepository.getOrThrow(userId).getFriends();
+        return userRepository.findAllByIds(ids);
     }
 
     @Override
@@ -212,8 +212,9 @@ public class DevUserService implements UserService {
     }
 
     @Override
-    public Set<UUID> getGuilds(UUID userId) {
-        return userRepository.getOrThrow(userId).getGuilds();
+    public List<DevGuild> getGuilds(UUID userId) {
+        Set<UUID> ids = userRepository.getOrThrow(userId).getGuilds();
+        return guildRepository.findAllByIds(ids);
     }
 
     @Override

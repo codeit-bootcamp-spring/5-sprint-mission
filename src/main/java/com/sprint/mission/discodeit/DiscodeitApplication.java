@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.config.AppProperties;
+import com.sprint.mission.discodeit.domain.deventity.DevUser;
 import com.sprint.mission.discodeit.domain.enums.user.Status;
-import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.dev.DevFriendRequestService;
+import com.sprint.mission.discodeit.service.dev.DevUserService;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,13 +25,13 @@ public class DiscodeitApplication {
 
     @Bean
     @Profile({"test", "dev"})
-    ApplicationRunner userServiceRunner(UserService userService) {
+    ApplicationRunner userServiceRunner(DevUserService userService) {
         return args -> {
             String suffix = UUID.randomUUID().toString().substring(0, 8);
             String email = "test+" + suffix + "@example.com";
             String username = "tester_" + suffix;
             String password = "StrongP@ssw0rd!";
-            UUID userId = userService.register(
+            DevUser u = userService.register(
                     email,
                     username,
                     password,
@@ -38,13 +39,14 @@ public class DiscodeitApplication {
                     true,
                     "테스터"
             );
-            System.out.println("회원가입 완료: " + userId);
+            System.out.println("회원가입 완료: " + u);
 
             userService.login(email, password);
-            System.out.println("로그인 완료: " + userId);
+            System.out.println("로그인 완료: " + u);
 
             String newEmail = "test+" + suffix + "-new@example.com";
             String newPassword = "An0therP@ss!" + suffix.substring(0, 2);
+            UUID userId = u.getId();
             userService.updateEmail(userId, newEmail);
             userService.updateGlobalName(userId, "글로벌_" + suffix);
             userService.updateUsername(userId, "tester2_" + suffix);
@@ -68,7 +70,7 @@ public class DiscodeitApplication {
             String email2 = "friend+" + suffix + "@example.com";
             String username2 = "friend_" + suffix;
             String password2 = "Fr1endP@ss!";
-            UUID userId2 = userService.register(
+            DevUser u2 = userService.register(
                     email2,
                     username2,
                     password2,
@@ -76,6 +78,7 @@ public class DiscodeitApplication {
                     false,
                     "친구"
             );
+            UUID userId2 = u2.getId();
             userService.addFriend(userId, userId2);
             System.out.println("친구 추가 후 수: " + userService.getFriends(userId).size());
             userService.removeFriend(userId, userId2);
@@ -105,21 +108,24 @@ public class DiscodeitApplication {
     @Bean
     @Profile({"test", "dev"})
     ApplicationRunner friendRequestService(DevFriendRequestService friendRequestService,
-                                           UserService userService) {
+                                           DevUserService userService) {
         return args -> {
             String sfx = UUID.randomUUID().toString().substring(0, 6);
 
-            UUID a = userService.register(
+            DevUser userA = userService.register(
                     "alice+" + sfx + "@example.com", "alice_" + sfx, "Al1ceP@ss!",
                     LocalDate.now().minusYears(21), true, "앨리스");
-            UUID b = userService.register(
+            DevUser userB = userService.register(
                     "bob+" + sfx + "@example.com", "bob_" + sfx, "B0bP@ss!",
                     LocalDate.now().minusYears(22), false, "밥");
+
+            UUID a = userA.getId();
+            UUID b = userB.getId();
 
             System.out.println("초기 보낸요청(A): " + friendRequestService.listSent(a).size());
             System.out.println("초기 받은요청(B): " + friendRequestService.listReceived(b).size());
 
-            final UUID requestId = friendRequestService.send(a, b);
+            final UUID requestId = friendRequestService.send(a, b).getId();
             System.out.println("요청 보낸 후 보낸요청(A): " + friendRequestService.listSent(a).size());
             System.out.println("요청 보낸 후 받은요청(B): " + friendRequestService.listReceived(b).size());
 
@@ -136,11 +142,13 @@ public class DiscodeitApplication {
             System.out.println("수락 후 친구수(A): " + userService.getFriends(a).size());
             System.out.println("수락 후 친구수(B): " + userService.getFriends(b).size());
 
-            UUID c = userService.register(
+            DevUser userC = userService.register(
                     "charlie+" + sfx + "@example.com", "charlie_" + sfx, "Ch@rl1eP@ss!",
                     LocalDate.now().minusYears(23), false, "찰리");
 
-            final UUID requestId2 = friendRequestService.send(b, c);
+            UUID c = userC.getId();
+
+            final UUID requestId2 = friendRequestService.send(b, c).getId();
             System.out.println("B→C 보낸요청(B): " + friendRequestService.listSent(b).size());
             System.out.println("B→C 받은요청(C): " + friendRequestService.listReceived(c).size());
 

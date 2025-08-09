@@ -13,7 +13,7 @@ public interface DevFriendRequestService {
 
     List<DevFriendRequest> listAllMine(UUID userId);
 
-    UUID send(UUID senderId, UUID receiverId);
+    DevFriendRequest send(UUID senderId, UUID receiverId);
 
     void accept(UUID requestId);
 

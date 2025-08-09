@@ -13,7 +13,7 @@ public interface FriendRequestService {
 
     List<FriendRequest> listAllMine(UUID userId);
 
-    UUID send(UUID senderId, UUID receiverId);
+    FriendRequest send(UUID senderId, UUID receiverId);
 
     void accept(UUID requestId);
 

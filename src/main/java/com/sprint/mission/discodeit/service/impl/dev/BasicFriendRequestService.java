@@ -61,11 +61,13 @@ public class BasicFriendRequestService implements DevFriendRequestService {
     }
 
     @Override
-    public UUID send(UUID sender, UUID receiver) {
+    public DevFriendRequest send(UUID sender, UUID receiver) {
+        userRepository.getOrThrow(sender);
+        userRepository.getOrThrow(receiver);
         DevFriendRequest friendRequest = new DevFriendRequest(sender, receiver);
         if (friendRequestRepository.existsBySenderIdAndReceiverId(sender, receiver))
             throw new IllegalArgumentException("친구 요청이 이미 존재합니다.");
-        return friendRequestRepository.save(friendRequest).getId();
+        return friendRequestRepository.save(friendRequest);
     }
 
     @Override

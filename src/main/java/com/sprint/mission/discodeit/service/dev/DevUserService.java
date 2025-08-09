@@ -1,21 +1,21 @@
-package com.sprint.mission.discodeit.service;
+package com.sprint.mission.discodeit.service.dev;
 
-import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.entity.guild.Guild;
+import com.sprint.mission.discodeit.domain.deventity.DevUser;
+import com.sprint.mission.discodeit.domain.deventity.guild.DevGuild;
 import com.sprint.mission.discodeit.domain.enums.user.Status;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-public interface UserService {
+public interface DevUserService {
 
-    User register(String email,
-                  String username,
-                  String password,
-                  LocalDate birthDate,
-                  boolean subscribedToNewsletter,
-                  String globalName);
+    DevUser register(String email,
+                     String username,
+                     String password,
+                     LocalDate birthDate,
+                     boolean subscribedToNewsletter,
+                     String globalName);
 
     void login(String email, String password);
 
@@ -51,13 +51,13 @@ public interface UserService {
 
     void updateBanned(UUID userId, boolean banned);
 
-    List<User> getFriends(UUID userId);
+    List<DevUser> getFriends(UUID userId);
 
     void addFriend(UUID userId, UUID friendId);
 
     void removeFriend(UUID userId, UUID friendId);
 
-    List<Guild> getGuilds(UUID userId);
+    List<DevGuild> getGuilds(UUID userId);
 
     void joinGuild(UUID userId, UUID guildId);
 
