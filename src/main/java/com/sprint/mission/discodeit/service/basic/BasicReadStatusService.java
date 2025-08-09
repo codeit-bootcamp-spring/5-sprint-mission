@@ -35,29 +35,31 @@ public class BasicReadStatusService implements ReadStatusService {
         }
 
         // 같은 Channel과 User와 관련된 객체가 이미 존재하면 예외를 발생시킵니다.
-        if(!readStatusRepository.findAll(request.userId()).isEmpty()){
+        if (readStatusRepository.findAll().isEmpty()) {
+            if (!channelRepository.findById(request.channelId()).isEmpty()) {
+                throw new IllegalArgumentException("channel already exists");
+            }
+
+            ReadStatus readStatues = new ReadStatus(request.userId(), request.channelId());
+            readStatusRepository.save(readStatues);
+
+            return readStatues;
+        } else {
             throw new IllegalArgumentException("read status already exists");
         }
-        if(!channelRepository.findById(request.channelId()).isEmpty()){
-            throw new IllegalArgumentException("channel already exists");
-        }
-
-        ReadStatus readStatues = new ReadStatus(request.userId(), request.channelId());
-        readStatusRepository.save(readStatues);
-
-        return readStatues;
     }
 
-    // id로 조회합니다
+    // userStatus id로 조회합니다
     @Override
     public Optional<ReadStatus> find(UUID userStatusId) {
         return readStatusRepository.findById(userStatusId);
     }
 
 
+    // 유저 Id로 조회
     @Override
     public List<ReadStatus> findAllByUserId(UUID userId) {
-        return readStatusRepository.findAll(userId);
+        return readStatusRepository.findAllByUserId(userId);
     }
 
     @Override
