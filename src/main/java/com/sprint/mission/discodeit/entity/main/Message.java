@@ -30,10 +30,9 @@ public class Message implements Serializable {
         this.id = UUID.randomUUID();
         this.authorId = authorId;
         this.channelId = channelId;
-        this.createdAt = now();
-
         this.content = content;
-        this.updatedAt = now();
+        this.createdAt = now();
+        this.updatedAt = this.createdAt;
     }
 
     public void update(String content) {

@@ -27,12 +27,11 @@ public class User implements Serializable {
 
     public User(String name, String email, String password) {
         this.id = UUID.randomUUID();
-        this.createdAt = now();
-
         this.name = name;
         this.email = email;
         this.password = password;
-        this.updatedAt = now();
+        this.createdAt = now();
+        this.updatedAt = this.createdAt;
     }
 
     public void update(String name, String email, String password) {
