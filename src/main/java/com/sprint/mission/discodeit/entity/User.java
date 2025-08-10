@@ -32,11 +32,10 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public void update(String name, String email, String password, UUID profileId) {
+    public void update(String name, String email, String password) {
         this.updatedAt = Instant.now();
         this.name = name;
         this.email = email;
         this.password = password;
-        this.profileId = profileId;
     }
 }

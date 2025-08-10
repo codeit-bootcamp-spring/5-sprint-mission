@@ -7,8 +7,7 @@ import java.util.UUID;
 
 public interface MessageService {
     Message create(String content, UUID channelId, UUID userId);
-
-    Message create(String content, UUID channelId, UUID userId, List<UUID> attachmentIds);
+//    Message create(String content, UUID channelId, UUID userId, List<UUID> attachmentIds);
 
     Message find(UUID messageId);
 

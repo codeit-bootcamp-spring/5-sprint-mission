@@ -21,12 +21,7 @@ public class BasicMessageService implements MessageService {
     private final UserRepository userRepository;
 
     @Override
-    public Message create(String content, UUID channelId, UUID userId) {
-        return null;
-    }
-
-    @Override
-    public Message create(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+    public Message create(String content, UUID channelId, UUID authorId) {
         if (!channelRepository.existsById(channelId)) {
             throw new NoSuchElementException("Channel not found with id " + channelId);
         }
@@ -39,7 +34,7 @@ public class BasicMessageService implements MessageService {
             throw new IllegalArgumentException("Message info is invalid");
         }
 
-        Message message = new Message(content, channelId, authorId, attachmentIds);
+        Message message = new Message(content, channelId, authorId);
         return messageRepository.save(message);
     }
 
