@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @Getter
 @ToString
 @EqualsAndHashCode(of = {"userId", "channelId"})
-public class ReadStatus {
+public class ReadStatus implements Serializable {
     @Serial private static final long serialVersionUID = 1L;
 
     private final UUID id;
@@ -26,7 +27,17 @@ public class ReadStatus {
 
     private Instant lastReadAt;
 
-    public ReadStatus(UUID userId, UUID channelId, Clock clock) {
+    public ReadStatus(UUID userId, UUID channelId) {
+        this.id = UUID.randomUUID();
+        this.userId = Objects.requireNonNull(userId, "userId");
+        this.channelId = Objects.requireNonNull(channelId, "channelId");
+
+        this.createdAt = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+        this.updatedAt = createdAt;
+        this.lastReadAt = createdAt;
+    }
+
+    public ReadStatus(UUID userId, UUID channelId, Clock clock) { // Clock 이용한 테스트용
         this.id = UUID.randomUUID();
         this.userId = Objects.requireNonNull(userId, "userId");
         this.channelId = Objects.requireNonNull(channelId, "channelId");
@@ -47,7 +58,7 @@ public class ReadStatus {
 
     public boolean markRead(Instant newLastReadAt) {
         Objects.requireNonNull(newLastReadAt, "newLastReadAt");
-        if (newLastReadAt.isAfter(this.lastReadAt)) {
+        if (this.lastReadAt == null || newLastReadAt.isAfter(this.lastReadAt)) {
             this.lastReadAt = newLastReadAt;
             this.updatedAt = Instant.now();
             return true;
@@ -55,11 +66,11 @@ public class ReadStatus {
         return false;
     }
 
-    public boolean markRead(Instant newLastReadAt, Clock clock) {
+    public boolean markRead(Instant newLastReadAt, Clock clock) { // Test용 메서드
         Objects.requireNonNull(clock, "clock");
-        if (newLastReadAt.isAfter(this.lastReadAt)) {
+        if (this.lastReadAt == null || newLastReadAt.isAfter(this.lastReadAt)) {
             this.lastReadAt = newLastReadAt;
-            this.updatedAt = Instant.now(clock).truncatedTo(ChronoUnit.SECONDS);
+            this.updatedAt = Instant.now(clock);
             return true;
         }
         return false;
