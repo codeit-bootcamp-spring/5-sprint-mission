@@ -8,7 +8,11 @@ import java.util.*;
 public class JCFUserRepository implements UserRepository {
     private final Map<UUID, User> data;
 
+<<<<<<< HEAD
     public  JCFUserRepository() {
+=======
+    public JCFUserRepository() {
+>>>>>>> 717adae (feat: 초기 커밋)
         this.data = new HashMap<>();
     }
 
@@ -19,8 +23,13 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
+<<<<<<< HEAD
     public Optional<User> find(UUID userId) {
         return Optional.ofNullable(this.data.get(userId));
+=======
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(this.data.get(id));
+>>>>>>> 717adae (feat: 초기 커밋)
     }
 
     @Override
@@ -29,6 +38,7 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
+<<<<<<< HEAD
     public boolean existById(UUID userId) {
         return data.containsKey(userId);
     }
@@ -39,5 +49,14 @@ public class JCFUserRepository implements UserRepository {
             throw new NoSuchElementException("User with id " + userId + " not found");
         }
         this.data.remove(userId);
+=======
+    public boolean existsById(UUID id) {
+        return this.data.containsKey(id);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        this.data.remove(id);
+>>>>>>> 717adae (feat: 초기 커밋)
     }
 }
