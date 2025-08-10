@@ -5,32 +5,31 @@ import lombok.*;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-@Builder
+@Getter
 @ToString
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private UUID id;
-    private Long createdAt;
-    private Long updatedAt;
+    private UUID profileImageId;
+    private Instant createdAt;
+    private Instant updatedAt;
     //
     private String username;
     private String email;
     private String password;
 
-    public User(String username, String email, String password) {
+    public User(String username, String email, String password, UUID profileImageId) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().getEpochSecond();
+        this.createdAt = Instant.now();
         //
         this.username = username;
         this.email = email;
         this.password = password;
+        this.profileImageId = profileImageId;
     }
 
-    public void update(String newUsername, String newEmail, String newPassword) {
+    public void update(String newUsername, String newEmail, String newPassword, UUID profileImageId) {
         boolean anyValueUpdated = false;
         if (newUsername != null && !newUsername.equals(this.username)) {
             this.username = newUsername;
@@ -44,9 +43,13 @@ public class User implements Serializable {
             this.password = newPassword;
             anyValueUpdated = true;
         }
+        if (anyValueUpdated) {
+            this.profileImageId = profileImageId;
+            anyValueUpdated = true;
+        }
 
         if (anyValueUpdated) {
-            this.updatedAt = Instant.now().getEpochSecond();
+            this.updatedAt = Instant.now();
         }
     }
 }

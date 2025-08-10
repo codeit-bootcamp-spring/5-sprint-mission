@@ -4,42 +4,37 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-@Builder
+@Getter
 @ToString
 public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private UUID id;
-    private Long createdAt;
-    private Long updatedAt;
-    //
+    private Instant createdAt;
+    private Instant updatedAt;
     private String content;
-    //
     private UUID channelId;
     private UUID authorId;
+    private List<UUID> attachmentIds;
 
-    public Message(String content, UUID channelId, UUID authorId) {
+    public Message(UUID authorId, UUID channelId, String content, List<UUID> attachmentIds) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().getEpochSecond();
-        //
-        this.content = content;
-        this.channelId = channelId;
+        this.createdAt = Instant.now();
         this.authorId = authorId;
+        this.channelId = channelId;
+        this.content = content;
+        this.attachmentIds = attachmentIds;
     }
 
     public void update(String newContent) {
-        boolean anyValueUpdated = false;
+//        boolean anyValueUpdated = false;
         if (newContent != null && !newContent.equals(this.content)) {
             this.content = newContent;
-            anyValueUpdated = true;
+            this.updatedAt = Instant.now();
+//            anyValueUpdated = true;
         }
 
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now().getEpochSecond();
-        }
     }
 }
