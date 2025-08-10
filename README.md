@@ -41,7 +41,7 @@
     public static void main(String[] args) {
     ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
     // 서비스 초기화
-    // TODO context에서 Bean을 조회하여 각 서비스 구현체 할당 코드 작성하세요.
+    // context에서 Bean을 조회하여 각 서비스 구현체 할당 코드 작성하세요.
     UserService userService;
     ChannelService channelService;
     MessageService messageService;
@@ -78,7 +78,7 @@
 
 ## 비즈니스 로직 고도화
 
-- [ ]  다음의 기능 요구 사항을 구현하세요.
+- [x]  다음의 기능 요구 사항을 구현하세요.
 
 # 추가 기능 요구사항
 
@@ -137,10 +137,10 @@
 # AuthService 구현
 
 - login
-    - [ ] username, password과 일치하는 유저가 있는지 확인합니다.
-        - [ ] 일치하는 유저가 있는 경우: 유저 정보 반환
-        - [ ] 일치하는 유저가 없는 경우: 예외 발생
-    - [ ] DTO를 활용해 파라미터를 그룹화합니다.
+    - [x] username, password과 일치하는 유저가 있는지 확인합니다.
+        - [x] 일치하는 유저가 있는 경우: 유저 정보 반환
+        - [x] 일치하는 유저가 없는 경우: 예외 발생
+    - [x] DTO를 활용해 파라미터를 그룹화합니다.
 - 의존성
     - 같은 레이어 간 의존성 주입은 순환 참조 방지를 위해 지양합니다. 다른 Service 대신 필요한 Repository 의존성을 주입해보세요.
       ![](readme3.png)
@@ -239,18 +239,18 @@
 ## BinaryContentService 구현
 
 - create
-    - [ ] DTO를 활용해 파라미터를 그룹화합니다.
+    - [x] DTO를 활용해 파라미터를 그룹화합니다.
 - find
-    - [ ] id로 조회합니다.
+    - [x] id로 조회합니다.
 - findAllByIdIn
-    - [ ] id 목록으로 조회합니다.
+    - [x] id 목록으로 조회합니다.
 - delete
-    - [ ] id로 삭제합니다.
+    - [x] id로 삭제합니다.
 - 의존성
     - 같은 레이어 간 의존성 주입은 순환 참조 방지를 위해 지양합니다. 다른 Service 대신 필요한 Repository 의존성을 주입해보세요.
       ![](readme8.png)
 
 ## 새로운 도메인 Repository 구현체 구현
 
-- [ ]  지금까지 인터페이스로 설계한 각각의 Repository를 JCF, File로 각각 구현하세요.
+- [x]  지금까지 인터페이스로 설계한 각각의 Repository를 JCF, File로 각각 구현하세요.
   ![](readme9.png)

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Profile("dev")
 public class FileChannelRepository extends FileBaseRepository<Channel> implements ChannelRepository {
+
     public FileChannelRepository(AppStorageProperties storageProperties) {
         super(Channel.class, storageProperties);
     }

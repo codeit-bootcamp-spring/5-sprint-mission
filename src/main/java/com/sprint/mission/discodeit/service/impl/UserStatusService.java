@@ -19,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Profile({"test", "dev"})
 public class UserStatusService {
+
     private final UserStatusRepository userStatusRepository;
 
     private static UserStatusResponse toResponse(UserStatus userStatus) {
