@@ -41,7 +41,6 @@ public class DiscodeitApplication {
 	}
 
 	@Bean
-	@Order(1)
 	CommandLineRunner demo(
 			UserService userService,
 			ChannelService channelService,
