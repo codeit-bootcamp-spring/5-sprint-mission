@@ -1,15 +1,17 @@
 package com.sprint.mission.discodeit;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.UUID;
 
 @SpringBootApplication
 public class DiscodeitApplication {
@@ -30,6 +32,18 @@ public class DiscodeitApplication {
         + "\nWrited on " + message.getCreatedAt());
     }
 
+    static boolean onlineWithin5Minutes_isTrue(User user) {
+        Clock base = Clock.fixed(Instant.parse("2025-08-10T08:00:00Z"), ZoneOffset.UTC);
+        UserStatus userStatus = new UserStatus(user.getId(), Instant.now(base).minusSeconds(299));
+        return userStatus.isOnline(Instant.now(base));
+    }
+
+    static boolean onlineWithin5Minutes_isFalse(User user) {
+        Clock base = Clock.fixed(Instant.parse("2025-08-10T08:00:00Z"), ZoneOffset.UTC);
+        UserStatus userStatus = new UserStatus(user.getId(), Instant.now(base).minusSeconds(301));
+        return !userStatus.isOnline(Instant.now(base));
+    }
+
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
 
@@ -40,9 +54,15 @@ public class DiscodeitApplication {
         // 셋업
         User user = setupUser(userService);
         Channel channel = setupChannel(channelService);
+
         // 테스트
-        messageCreateTest(messageService, channel, user);
+        messageCreateTest(messageService, channel, user); // 메시지 테스트
+        System.out.println(onlineWithin5Minutes_isTrue(user));
+        System.out.println(onlineWithin5Minutes_isFalse(user));
+
+
         System.out.println("http://localhost:8080/");
+
     }
 
 }
