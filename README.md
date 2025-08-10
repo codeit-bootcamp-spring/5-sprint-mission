@@ -18,11 +18,11 @@
 
 ## Bean 선언 및 테스트
 
-- [ ] File*Repository 구현체를 Repository 인터페이스의 Bean으로 등록하세요.
-- [ ] Basic*Service 구현체를 Service 인터페이스의 Bean으로 등록하세요.
-- [ ] JavaApplication에서 테스트했던 코드를 DiscodeitApplication에서 테스트해보세요.
-    - [ ] JavaApplication 의 main 메소드를 제외한 모든 메소드를 DiscodeitApplication클래스로 복사하세요.
-    - [ ] JavaApplication의 main 메소드에서 Service를 초기화하는 코드를 Spring Context를 활용하여 대체하세요.
+- [x] File*Repository 구현체를 Repository 인터페이스의 Bean으로 등록하세요.
+- [x] Basic*Service 구현체를 Service 인터페이스의 Bean으로 등록하세요.
+- [x] JavaApplication에서 테스트했던 코드를 DiscodeitApplication에서 테스트해보세요.
+    - [x] JavaApplication 의 main 메소드를 제외한 모든 메소드를 DiscodeitApplication클래스로 복사하세요.
+    - [x] JavaApplication의 main 메소드에서 Service를 초기화하는 코드를 Spring Context를 활용하여 대체하세요.
     ```java
     // JavaApplication
     public static void main(String[] args) {
@@ -50,7 +50,7 @@
         
     }
     ```
-    - [ ]  JavaApplication의 main 메소드의 셋업, 테스트 부분의 코드를 DiscodeitApplication클래스로 복사하세요.
+    - [x]  JavaApplication의 main 메소드의 셋업, 테스트 부분의 코드를 DiscodeitApplication클래스로 복사하세요.
     ```java
     public static void main(String[] args) {
     // ...
@@ -64,7 +64,7 @@
 
 ## Spring 핵심 개념 이해하기
 
-- [ ] JavaApplication과 DiscodeitApplication에서 Service를 초기화하는 방식의 차이에 대해 다음의 키워드를 중심으로 정리해보세요.
+- [x] JavaApplication과 DiscodeitApplication에서 Service를 초기화하는 방식의 차이에 대해 다음의 키워드를 중심으로 정리해보세요.
     - IoC Container
     - Dependency Injection
     - Bean
@@ -73,8 +73,8 @@
 
 ## Lombok 적용
 
-- [ ] 도메인 모델의 getter 메소드를 @Getter로 대체해보세요.
-- [ ] Basic*Service의 생성자를 @RequiredArgsConstructor로 대체해보세요.
+- [x] 도메인 모델의 getter 메소드를 @Getter로 대체해보세요.
+- [x] Basic*Service의 생성자를 @RequiredArgsConstructor로 대체해보세요.
 
 ## 비즈니스 로직 고도화
 

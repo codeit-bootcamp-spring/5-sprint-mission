@@ -3,7 +3,11 @@ package com.sprint.mission.discodeit.service.impl;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.guild.Guild;
 import com.sprint.mission.discodeit.domain.enums.user.Status;
+import com.sprint.mission.discodeit.repository.FriendRequestRepository;
+import com.sprint.mission.discodeit.repository.GuildRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,9 +17,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Profile("prod")
+@RequiredArgsConstructor
 @Transactional
+@Profile("prod")
 public class JpaUserService implements UserService {
+    private final UserRepository userRepository;
+    private final FriendRequestRepository friendRequestRepository;
+    private final GuildRepository guildRepository;
+
     @Override
     public User register(
             String email,

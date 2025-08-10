@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.repository.devrepository.DevChannelRepositor
 import com.sprint.mission.discodeit.repository.devrepository.DevGuildRepository;
 import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
 import com.sprint.mission.discodeit.service.dev.DevGuildService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -22,20 +23,13 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Profile({"test", "dev"})
 public class BasicGuildService implements DevGuildService {
 
     private final DevGuildRepository guildRepository;
     private final DevUserRepository userRepository;
     private final DevChannelRepository channelRepository;
-
-    public BasicGuildService(DevGuildRepository guildRepository,
-                             DevUserRepository userRepository,
-                             DevChannelRepository channelRepository) {
-        this.guildRepository = Objects.requireNonNull(guildRepository);
-        this.userRepository = Objects.requireNonNull(userRepository);
-        this.channelRepository = Objects.requireNonNull(channelRepository);
-    }
 
     private void update(UUID id, Consumer<DevGuild> updater) {
         DevGuild g = guildRepository.getOrThrow(id);

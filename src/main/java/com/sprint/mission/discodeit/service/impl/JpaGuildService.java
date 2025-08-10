@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.guild.Guild;
 import com.sprint.mission.discodeit.domain.enums.Permission;
 import com.sprint.mission.discodeit.service.GuildService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,8 +14,9 @@ import java.util.Set;
 import java.util.UUID;
 
 @Service
-@Profile("prod")
+@RequiredArgsConstructor
 @Transactional
+@Profile("prod")
 public class JpaGuildService implements GuildService {
     @Override
     public List<Guild> findGuildsJoinedByUser(UUID userId) {

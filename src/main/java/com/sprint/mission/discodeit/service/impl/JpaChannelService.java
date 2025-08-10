@@ -4,6 +4,7 @@ package com.sprint.mission.discodeit.service.impl;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,8 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Service
-@Profile("prod")
+@RequiredArgsConstructor
 @Transactional
+@Profile("prod")
 public class JpaChannelService implements ChannelService {
     @Override
     public Channel create(UUID guildId, String name, ChannelType type) {

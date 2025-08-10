@@ -1,12 +1,10 @@
 package com.sprint.mission.discodeit.service.impl.dev;
 
 import com.sprint.mission.discodeit.domain.entitydev.DevChatRoom;
-import com.sprint.mission.discodeit.repository.devrepository.DevChannelRepository;
 import com.sprint.mission.discodeit.repository.devrepository.DevChatRoomRepository;
-import com.sprint.mission.discodeit.repository.devrepository.DevGuildRepository;
-import com.sprint.mission.discodeit.repository.devrepository.DevMessageRepository;
 import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
 import com.sprint.mission.discodeit.service.dev.DevChatRoomService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -15,20 +13,12 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 @Service
+@RequiredArgsConstructor
 @Profile({"test", "dev"})
 public class BasicChatRoomService implements DevChatRoomService {
 
     private final DevChatRoomRepository chatRoomRepository;
     private final DevUserRepository userRepository;
-
-    public BasicChatRoomService(DevChatRoomRepository chatRoomRepository,
-                                DevUserRepository userRepository,
-                                DevGuildRepository guildRepository,
-                                DevChannelRepository channelRepository,
-                                DevMessageRepository messageRepository) {
-        this.chatRoomRepository = chatRoomRepository;
-        this.userRepository = userRepository;
-    }
 
     protected void update(UUID id, Consumer<DevChatRoom> updater) {
         DevChatRoom entity = chatRoomRepository.getOrThrow(id);

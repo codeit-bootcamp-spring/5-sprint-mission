@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.repository.devrepository.DevChannelRepositor
 import com.sprint.mission.discodeit.repository.devrepository.DevChatRoomRepository;
 import com.sprint.mission.discodeit.repository.devrepository.DevGuildRepository;
 import com.sprint.mission.discodeit.service.dev.DevChannelService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -15,20 +16,13 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 @Service
+@RequiredArgsConstructor
 @Profile({"test", "dev"})
 public class BasicChannelService implements DevChannelService {
 
     private final DevChannelRepository channelRepository;
     private final DevGuildRepository guildRepository;
     private final DevChatRoomRepository chatRoomRepository;
-
-    public BasicChannelService(DevChannelRepository channelRepository,
-                               DevGuildRepository guildRepository,
-                               DevChatRoomRepository chatRoomRepository) {
-        this.channelRepository = channelRepository;
-        this.guildRepository = guildRepository;
-        this.chatRoomRepository = chatRoomRepository;
-    }
 
     protected void update(UUID id, Consumer<DevChannel> updater) {
         DevChannel entity = channelRepository.getOrThrow(id);

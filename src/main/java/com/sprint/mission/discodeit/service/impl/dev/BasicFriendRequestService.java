@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.domain.entitydev.DevUser;
 import com.sprint.mission.discodeit.repository.devrepository.DevFriendRequestRepository;
 import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
 import com.sprint.mission.discodeit.service.dev.DevFriendRequestService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +18,12 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 @Profile({"test", "dev"})
 public class BasicFriendRequestService implements DevFriendRequestService {
 
     private final DevUserRepository userRepository;
     private final DevFriendRequestRepository friendRequestRepository;
-
-    public BasicFriendRequestService(DevUserRepository userRepository, DevFriendRequestRepository friendRequestRepository) {
-        this.userRepository = userRepository;
-        this.friendRequestRepository = friendRequestRepository;
-    }
 
     protected void update(UUID id, Consumer<DevFriendRequest> updater) {
         DevFriendRequest entity = friendRequestRepository.getOrThrow(id);

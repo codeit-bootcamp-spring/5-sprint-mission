@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.repository.devrepository.DevGuildRepository;
 import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
 import com.sprint.mission.discodeit.service.dev.DevUserService;
 import com.sprint.mission.discodeit.util.Validators;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -21,22 +22,13 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 @Service
+@RequiredArgsConstructor
 @Profile({"test", "dev"})
 public class BasicUserService implements DevUserService {
 
     private final DevUserRepository userRepository;
     private final DevFriendRequestRepository friendRequestRepository;
     private final DevGuildRepository guildRepository;
-
-    public BasicUserService(
-            DevUserRepository userRepository,
-            DevFriendRequestRepository friendRequestRepository,
-            DevGuildRepository guildRepository
-    ) {
-        this.userRepository = userRepository;
-        this.friendRequestRepository = friendRequestRepository;
-        this.guildRepository = guildRepository;
-    }
 
     protected void update(UUID id, Consumer<DevUser> updater) {
         DevUser entity = userRepository.getOrThrow(id);
