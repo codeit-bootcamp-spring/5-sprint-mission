@@ -1,91 +1,105 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import com.sprint.mission.discodeit.domain.entity.guild.Guild;
 import com.sprint.mission.discodeit.domain.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.util.Validators;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-@Table(name = "channels")
 public class Channel extends BaseEntity {
 
-    @Column(nullable = false)
     private String name;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private ChannelType type;
-
-    @Setter
-    @Column(nullable = false)
     private boolean isPrivate;
+    private final UUID guildId;
+    private final Set<UUID> userIds = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "guild_id", nullable = false)
-    private Guild guild;
-
-    @ManyToMany
-    @JoinTable(
-            name = "channel_joined_users",
-            joinColumns = @JoinColumn(name = "channel_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"),
-            uniqueConstraints = @UniqueConstraint(
-                    name = "uq_channel_joined_users_channel_user",
-                    columnNames = {"channel_id", "user_id"}
-            )
-    )
-    private Set<User> users = new HashSet<>();
-
-    public Channel(Guild guild, String name, ChannelType type) {
-        this.guild = Objects.requireNonNull(guild, "Guild must not be null");
+    public Channel(UUID guildId, String name, ChannelType type) {
+        this.guildId = Objects.requireNonNull(guildId, "Guild id must not be null");
         setName(name);
         setType(type);
     }
 
     public void setName(String name) {
-        this.name = Validators.validateChannelName(name);
+        String v = Validators.validateChannelName(name);
+        if (!Objects.equals(this.name, v)) {
+            this.name = v;
+            touch();
+        }
     }
 
     public void setType(ChannelType type) {
-        this.type = Objects.requireNonNull(type, "Channel type must not be null");
+        Objects.requireNonNull(type, "Channel type must not be null");
+        if (this.type != type) {
+            this.type = type;
+            touch();
+        }
     }
 
-    public Set<User> getUsers() {
-        return Collections.unmodifiableSet(users);
+    public void setPrivate(boolean isPrivate) {
+        if (this.isPrivate != isPrivate) {
+            this.isPrivate = isPrivate;
+            touch();
+        }
     }
 
-    public boolean addUser(User user) {
-        return users.add(Objects.requireNonNull(user, "User must not be null"));
+    public Set<UUID> getUserIds() {
+        return Collections.unmodifiableSet(userIds);
     }
 
-    public boolean removeUser(User user) {
-        return users.remove(Objects.requireNonNull(user, "User must not be null"));
+    public boolean hasUser(UUID userId) {
+        return userIds.contains(Objects.requireNonNull(userId, "User id must not be null"));
+    }
+
+    public int userCount() {
+        return userIds.size();
+    }
+
+    public boolean addUser(UUID userId) {
+        boolean added = userIds.add(Objects.requireNonNull(userId, "User id must not be null"));
+        if (added) touch();
+        return added;
+    }
+
+    public boolean addUsers(Collection<UUID> userIds) {
+        Objects.requireNonNull(userIds, "User ids must not be null");
+        boolean changed = false;
+        for (UUID id : userIds) {
+            if (id == null) throw new NullPointerException("User id must not be null");
+            if (this.userIds.add(id)) changed = true;
+        }
+        if (changed) touch();
+        return changed;
+    }
+
+    public boolean removeUser(UUID userId) {
+        boolean removed = userIds.remove(Objects.requireNonNull(userId, "User id must not be null"));
+        if (removed) touch();
+        return removed;
+    }
+
+    public boolean removeUsers(Collection<UUID> userIds) {
+        Objects.requireNonNull(userIds, "User ids must not be null");
+        boolean changed = false;
+        for (UUID id : userIds) {
+            if (id == null) throw new NullPointerException("User id must not be null");
+            if (this.userIds.remove(id)) changed = true;
+        }
+        if (changed) touch();
+        return changed;
     }
 
     @Override
     public String toString() {
-        return String.format("Channel[id=%s, name=%s, type=%s, isPrivate=%s, userCount=%d]",
-                getId(), name, type, isPrivate, users.size());
+        return String.format(
+                "Channel[id=%s, name=%s, type=%s, isPrivate=%s, userCount=%d]",
+                getId(), name, type, isPrivate, userIds.size()
+        );
     }
 }

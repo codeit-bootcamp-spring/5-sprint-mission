@@ -1,22 +1,8 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import com.sprint.mission.discodeit.domain.entity.guild.Guild;
-import com.sprint.mission.discodeit.domain.enums.user.Status;
 import com.sprint.mission.discodeit.util.Validators;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.time.LocalDate;
@@ -24,104 +10,42 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.sprint.mission.discodeit.util.StringUtil.normalizeString;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-@Table(
-        name = "users",
-        indexes = {
-                @Index(name = "idx_user_email", columnList = "email"),
-                @Index(name = "idx_user_username", columnList = "username"),
-                @Index(name = "idx_user_global_name", columnList = "globalName")
-        }
-)
 public class User extends BaseEntity {
 
-    @Column(nullable = false, unique = true)
     private String email;
 
     @Getter(AccessLevel.NONE)
-    @Column(nullable = false)
     private String password;
-
-    @Column(nullable = false, unique = true)
     private String username;
-
-    @Column(nullable = false)
     private String globalName;
-
-    @Column(nullable = false)
     private LocalDate birthDate;
-
-    @Setter
-    @Column(nullable = false)
     private boolean subscribedToNewsletter;
-
-    @Column
-    private String avatar;
-
-    @Column
     private String bio;
-
-    @Column
     private String phoneNumber;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status = Status.OFFLINE;
-
-    @Column(nullable = false)
     private boolean verified;
-
-    @Column(nullable = false)
     private boolean deactivated;
-
-    @Column(nullable = false)
     private boolean banned;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_friends",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "friend_id"),
-            uniqueConstraints = @UniqueConstraint(
-                    name = "uq_user_friends_user_friend",
-                    columnNames = {"user_id", "friend_id"}
-            )
-    )
-    private Set<User> friends = new HashSet<>();
+    private UUID profileId;
+    private final Set<UUID> friendIds = new HashSet<>();
+    private final Set<UUID> guildIds = new HashSet<>();
+    private final Set<UUID> chatRoomIds = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_guilds",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "guild_id"),
-            uniqueConstraints = @UniqueConstraint(
-                    name = "uq_user_guilds_user_guild",
-                    columnNames = {"user_id", "guild_id"}
-            )
-    )
-    private Set<Guild> guilds = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(
-            name = "user_chat_rooms",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "chat_room_id"),
-            uniqueConstraints = @UniqueConstraint(
-                    name = "uq_user_chat_rooms_user_chat_room",
-                    columnNames = {"user_id", "chat_room_id"}
-            )
-    )
-    private Set<ChatRoom> chatRooms = new HashSet<>();
-
-    public User(String email, String username, String password, LocalDate birthDate, boolean subscribedToNewsletter, String globalName) {
+    public User(
+            String email,
+            String username,
+            String password,
+            LocalDate birthDate,
+            boolean subscribedToNewsletter,
+            String globalName) {
         setEmail(email);
-        setUsername(username);
         setPassword(password);
+        setUsername(username);
         setBirthDate(birthDate);
         setSubscribedToNewsletter(subscribedToNewsletter);
         setGlobalName(globalName);
@@ -129,18 +53,21 @@ public class User extends BaseEntity {
 
     public void setEmail(String email) {
         this.email = Validators.validateEmail(email);
+        touch();
     }
 
     public void setPassword(String password) {
         this.password = BCrypt.hashpw(Validators.validatePassword(password), BCrypt.gensalt());
+        touch();
     }
 
     public boolean checkPassword(String password) {
-        return BCrypt.checkpw(password, this.password);
+        return password != null && BCrypt.checkpw(password, this.password);
     }
 
     public void setUsername(String username) {
         this.username = Validators.validateUsername(username);
+        touch();
     }
 
     public void setGlobalName(String globalName) {
@@ -148,118 +75,140 @@ public class User extends BaseEntity {
         this.globalName = normalized.isBlank()
                 ? this.username
                 : Validators.validateGlobalName(normalized);
+        touch();
+    }
+
+    public void setProfileId(UUID profileId) {
+        this.profileId = Objects.requireNonNull(profileId, "profileId must not be null");
     }
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = Objects.requireNonNull(birthDate, "birthDate must not be null");
-    }
-
-    public void setStatus(Status status) {
-        this.status = Objects.requireNonNullElse(status, Status.OFFLINE);
-    }
-
-    public void setAvatar(String avatar) {
-        String normalizedAvatar = normalizeString(avatar);
-        this.avatar = normalizedAvatar.isBlank() ? null : Validators.validateUri(normalizedAvatar);
+        touch();
     }
 
     public void setBio(String bio) {
         this.bio = Validators.validateBio(bio);
+        touch();
     }
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = Validators.validatePhoneNumber(phoneNumber);
+        touch();
+    }
+
+    public void setSubscribedToNewsletter(boolean subscribedToNewsletter) {
+        this.subscribedToNewsletter = subscribedToNewsletter;
+        touch();
     }
 
     public void verify() {
-        this.verified = true;
+        if (!this.verified) {
+            this.verified = true;
+            touch();
+        }
     }
 
     public void unverify() {
-        this.verified = false;
+        if (this.verified) {
+            this.verified = false;
+            touch();
+        }
     }
 
     public void deactivate() {
-        this.deactivated = true;
+        if (!this.deactivated) {
+            this.deactivated = true;
+            touch();
+        }
     }
 
     public void activate() {
-        this.deactivated = false;
+        if (this.deactivated) {
+            this.deactivated = false;
+            touch();
+        }
     }
 
     public void ban() {
-        this.banned = true;
+        if (!this.banned) {
+            this.banned = true;
+            touch();
+        }
     }
 
     public void unban() {
-        this.banned = false;
+        if (this.banned) {
+            this.banned = false;
+            touch();
+        }
     }
 
     public boolean isActive() {
         return !(deactivated || banned || isDeleted());
     }
 
-    public Set<User> getFriends() {
-        return Collections.unmodifiableSet(friends);
+    public Set<UUID> getFriendIds() {
+        return Collections.unmodifiableSet(friendIds);
     }
 
-    public void addFriend(User friend) {
-        Objects.requireNonNull(friend, "friend must not be null");
-        if (friend.equals(this)) throw new IllegalArgumentException("Cannot add self as friend");
-        friends.add(friend);
+    public void addFriend(UUID friend) {
+        Objects.requireNonNull(friend, "Friend id must not be null");
+        if (friend.equals(getId())) throw new IllegalArgumentException("Cannot add self as friend");
+        if (friendIds.add(friend)) touch();
     }
 
-    public void removeFriend(User friend) {
-        Objects.requireNonNull(friend, "friend must not be null");
-        friends.remove(friend);
+    public void removeFriend(UUID friend) {
+        Objects.requireNonNull(friend, "Friend id must not be null");
+        if (friendIds.remove(friend)) touch();
     }
 
-    public boolean isFriend(User friend) {
-        Objects.requireNonNull(friend, "friend must not be null");
-        return friends.contains(friend);
+    public boolean isFriend(UUID friend) {
+        Objects.requireNonNull(friend, "Friend id must not be null");
+        return friendIds.contains(friend);
     }
 
-    public Set<Guild> getGuilds() {
-        return Collections.unmodifiableSet(guilds);
+    public Set<UUID> getGuildIds() {
+        return Collections.unmodifiableSet(guildIds);
     }
 
-    public void joinGuild(Guild guild) {
-        Objects.requireNonNull(guild, "guild must not be null");
-        guilds.add(guild);
+    public void joinGuild(UUID guild) {
+        Objects.requireNonNull(guild, "Guild id must not be null");
+        if (guildIds.add(guild)) touch();
     }
 
-    public void leaveGuild(Guild guild) {
-        Objects.requireNonNull(guild, "guild must not be null");
-        guilds.remove(guild);
+    public void leaveGuild(UUID guild) {
+        Objects.requireNonNull(guild, "Guild id must not be null");
+        if (guildIds.remove(guild)) touch();
     }
 
-    public boolean isMemberOfGuild(Guild guild) {
-        Objects.requireNonNull(guild, "guild must not be null");
-        return guilds.contains(guild);
+    public boolean isMemberOfGuild(UUID guild) {
+        Objects.requireNonNull(guild, "Guild id must not be null");
+        return guildIds.contains(guild);
     }
 
-    public Set<ChatRoom> getChatRooms() {
-        return Collections.unmodifiableSet(chatRooms);
+    public Set<UUID> getChatRoomIds() {
+        return Collections.unmodifiableSet(chatRoomIds);
     }
 
-    public void joinChatRoom(ChatRoom chatRoom) {
-        Objects.requireNonNull(chatRoom, "chatRoom must not be null");
-        chatRooms.add(chatRoom);
+    public void joinChatRoom(UUID chatRoom) {
+        Objects.requireNonNull(chatRoom, "ChatRoom id must not be null");
+        if (chatRoomIds.add(chatRoom)) touch();
     }
 
-    public void leaveChatRoom(ChatRoom chatRoom) {
-        Objects.requireNonNull(chatRoom, "chatRoom must not be null");
-        chatRooms.remove(chatRoom);
+    public void leaveChatRoom(UUID chatRoom) {
+        Objects.requireNonNull(chatRoom, "ChatRoom id must not be null");
+        if (chatRoomIds.remove(chatRoom)) touch();
     }
 
-    public boolean isMemberOfChatRoom(ChatRoom chatRoom) {
-        Objects.requireNonNull(chatRoom, "chatRoom must not be null");
-        return chatRooms.contains(chatRoom);
+    public boolean isMemberOfChatRoom(UUID chatRoom) {
+        Objects.requireNonNull(chatRoom, "ChatRoom id must not be null");
+        return chatRoomIds.contains(chatRoom);
     }
 
     @Override
     public String toString() {
-        return String.format("User[id=%s, email=%s, username=%s, status=%s, isActive=%s]",
-                getId(), email, username, status, isActive());
+        return String.format("User[id=%s, email=%s, username=%s, isActive=%s]",
+                getId(), email, username, isActive());
     }
 }

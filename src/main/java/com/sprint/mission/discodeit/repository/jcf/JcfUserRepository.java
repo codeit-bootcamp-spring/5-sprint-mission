@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.domain.entitydev.DevUser;
-import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
+import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @Profile("test")
-public class JcfUserRepository extends JcfBaseRepository<DevUser> implements DevUserRepository {
+public class JcfUserRepository extends JcfBaseRepository<User> implements UserRepository {
 
     @Override
     protected String getEntityTypeName() {
@@ -19,7 +19,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
     }
 
     @Override
-    public Optional<DevUser> findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         if (email == null || email.isBlank()) return Optional.empty();
         return data.values().stream()
                 .filter(user -> !user.isDeleted())
@@ -28,7 +28,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
     }
 
     @Override
-    public Optional<DevUser> findByUsername(String username) {
+    public Optional<User> findByUsername(String username) {
         if (username == null || username.isBlank()) return Optional.empty();
         return data.values().stream()
                 .filter(user -> !user.isDeleted())
@@ -53,7 +53,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
     }
 
     @Override
-    public List<DevUser> searchByEmail(String email) {
+    public List<User> searchByEmail(String email) {
         if (email == null || email.isBlank()) return List.of();
         return data.values().stream()
                 .filter(user -> !user.isDeleted())
@@ -62,7 +62,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
     }
 
     @Override
-    public List<DevUser> searchByUsername(String username) {
+    public List<User> searchByUsername(String username) {
         if (username == null || username.isBlank()) return List.of();
         return data.values().stream()
                 .filter(user -> !user.isDeleted())
@@ -71,7 +71,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
     }
 
     @Override
-    public List<DevUser> searchByGlobalName(String globalName) {
+    public List<User> searchByGlobalName(String globalName) {
         if (globalName == null || globalName.isBlank()) return List.of();
         return data.values().stream()
                 .filter(user -> !user.isDeleted())

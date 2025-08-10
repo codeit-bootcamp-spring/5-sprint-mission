@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.domain.entityprod.ProdChannel;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.guild.Guild;
+import com.sprint.mission.discodeit.domain.entity.guild.GuildPermissions;
 import com.sprint.mission.discodeit.domain.enums.Permission;
 
 import java.util.List;
@@ -20,9 +22,9 @@ public interface GuildService {
 
     void updateOwnerId(UUID guildId, UUID oldOwnerId, UUID newOwnerId);
 
-    void addChannel(UUID guildId, Channel channel);
+    void addChannel(UUID guildId, ProdChannel jpaChannel);
 
-    void removeChannel(UUID guildId, Channel channel);
+    void removeChannel(UUID guildId, ProdChannel jpaChannel);
 
     List<Channel> getChannels(UUID guildId);
 
@@ -36,7 +38,7 @@ public interface GuildService {
 
     int getMemberCount(UUID guildId);
 
-    Set<Permission> getMemberPermissions(UUID guildId, UUID userId);
+    Set<GuildPermissions> getMemberPermissions(UUID guildId, UUID userId);
 
     void updateMemberPermissions(UUID guildId, UUID userId, Set<Permission> permissions);
 

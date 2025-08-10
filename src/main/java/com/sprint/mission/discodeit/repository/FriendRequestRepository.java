@@ -7,6 +7,10 @@ import java.util.UUID;
 
 public interface FriendRequestRepository extends BaseRepository<FriendRequest> {
 
+    void clear(UUID userId);
+
+    boolean existsBySenderIdAndReceiverId(UUID senderId, UUID receiverId);
+
     List<FriendRequest> getSentRequests(UUID senderId);
 
     List<FriendRequest> getReceivedRequests(UUID receiverId);

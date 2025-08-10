@@ -1,85 +1,76 @@
 package com.sprint.mission.discodeit.domain.entity.guild;
 
-import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.enums.Permission;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
+import com.sprint.mission.discodeit.domain.vo.guild.GuildPermissionsId;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @EqualsAndHashCode(of = "id")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-@Table(name = "guild_member_permissions")
-public class GuildPermissions {
+public class GuildPermissions implements Serializable {
 
-    @EmbeddedId
-    private GuildPermissionsId id;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("guildId")
-    @JoinColumn(name = "guild_id", nullable = false)
-    private Guild guild;
+    private final GuildPermissionsId id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("userId")
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private final Set<Permission> permissions;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(
-            name = "guild_permissions_entries",
-            joinColumns = {
-                    @JoinColumn(name = "guild_id"),
-                    @JoinColumn(name = "user_id")
-            }
-    )
-    @Column(name = "permission", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Set<Permission> permissions;
+    public GuildPermissions(UUID guildId, UUID userId, Set<Permission> permissions) {
+        this.id = new GuildPermissionsId(
+                Objects.requireNonNull(guildId),
+                Objects.requireNonNull(userId)
+        );
+        if (permissions == null || permissions.isEmpty())
+            throw new IllegalArgumentException("Permissions must not be null or empty.");
+        if (permissions.contains(null))
+            throw new NullPointerException("Permission must not be null.");
+        this.permissions = EnumSet.copyOf(permissions);
+    }
 
-    public GuildPermissions(Guild guild, User user, Set<Permission> permissions) {
-        this.guild = Objects.requireNonNull(guild, "guild must not be null");
-        this.user = Objects.requireNonNull(user, "user must not be null");
-        this.id = new GuildPermissionsId(guild.getId(), user.getId());
-        this.permissions = new HashSet<>(permissions);
+
+    public Set<Permission> getPermissions() {
+        return Collections.unmodifiableSet(permissions);
+    }
+
+    public UUID getGuild() {
+        return id.guildId();
+    }
+
+    public UUID getUser() {
+        return id.userId();
     }
 
     public void setPermissions(Set<Permission> permissions) {
         if (permissions == null || permissions.isEmpty())
             throw new IllegalArgumentException("Permissions must not be null or empty.");
+        if (permissions.contains(null))
+            throw new NullPointerException("Permission must not be null.");
+
+        Set<Permission> copy = EnumSet.copyOf(permissions);
+        if (this.permissions.equals(copy)) return;
+
         this.permissions.clear();
-        this.permissions.addAll(permissions);
+        this.permissions.addAll(EnumSet.copyOf(permissions));
     }
 
     public boolean hasPermission(Permission permission) {
+        Objects.requireNonNull(permission, "permission must not be null");
         return permissions.contains(permission);
     }
 
     @Override
     public String toString() {
-        return String.format(
-                "GuildPermissions[guildId=%s, userId=%s, permissions=%s]",
-                guild != null ? guild.getId() : "null",
-                user != null ? user.getId() : "null",
-                permissions
+        return String.format("GuildPermissions[guildId=%s, userId=%s, permissions=%s]",
+                getGuild(), getUser(), permissions
         );
     }
 }

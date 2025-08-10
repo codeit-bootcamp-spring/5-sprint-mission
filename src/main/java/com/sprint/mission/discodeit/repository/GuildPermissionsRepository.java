@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.domain.entity.guild.GuildPermissions;
+import com.sprint.mission.discodeit.domain.entity.guild.Guild;
 
-public interface GuildPermissionsRepository extends BaseRepository<GuildPermissions> {
+public interface GuildPermissionsRepository extends BaseRepository<Guild> {
 }

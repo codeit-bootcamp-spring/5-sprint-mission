@@ -1,56 +1,59 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-public abstract class BaseEntity {
+@EqualsAndHashCode(of = "id")
+public abstract class BaseEntity implements Serializable {
 
-    @Id
-    @GeneratedValue
-    @Column(length = 36, updatable = false, nullable = false)
-    private UUID id;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false)
+    private final UUID id;
+    private final Instant createdAt;
     private Instant updatedAt;
+    private boolean deleted;
 
-    @Column(nullable = false)
-    private boolean deleted = false;
+    protected BaseEntity(UUID id, Instant createdAt, Instant updatedAt) {
+        this.id = (id != null) ? id : UUID.randomUUID();
+        Instant now = Instant.now();
+        this.createdAt = (createdAt != null) ? createdAt : now;
+        this.updatedAt = (updatedAt != null) ? updatedAt : this.createdAt;
+    }
+
+    protected BaseEntity(UUID id, Instant createdAt) {
+        this(id, createdAt, null);
+    }
+
+    protected BaseEntity(UUID id) {
+        this(id, null, null);
+    }
+
+    protected BaseEntity() {
+        this(null, null, null);
+    }
+
+    public void touch() {
+        this.updatedAt = Instant.now();
+    }
 
     public void delete() {
-        this.deleted = true;
+        if (!this.deleted) {
+            this.deleted = true;
+            touch();
+        }
     }
 
     public void restore() {
-        this.deleted = false;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BaseEntity that)) return false;
-        return id != null && id.equals(that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
+        if (this.deleted) {
+            this.deleted = false;
+            touch();
+        }
     }
 }

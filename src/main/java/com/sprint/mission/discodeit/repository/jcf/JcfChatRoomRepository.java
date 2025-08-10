@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.domain.entitydev.DevChatRoom;
-import com.sprint.mission.discodeit.repository.devrepository.DevChatRoomRepository;
+import com.sprint.mission.discodeit.domain.entity.ChatRoom;
+import com.sprint.mission.discodeit.repository.ChatRoomRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Repository
 @Profile("test")
-public class JcfChatRoomRepository extends JcfBaseRepository<DevChatRoom> implements DevChatRoomRepository {
+public class JcfChatRoomRepository extends JcfBaseRepository<ChatRoom> implements ChatRoomRepository {
 
     @Override
     protected String getEntityTypeName() {
@@ -20,7 +20,7 @@ public class JcfChatRoomRepository extends JcfBaseRepository<DevChatRoom> implem
     @Override
     public boolean isParticipant(UUID chatRoomId, UUID userId) {
         if (chatRoomId == null || userId == null) return false;
-        DevChatRoom chatRoom = data.get(chatRoomId);
+        ChatRoom chatRoom = data.get(chatRoomId);
         if (chatRoom == null || chatRoom.isDeleted() || chatRoom.isChannelChatRoom()) return false;
         return chatRoom.isParticipant(userId);
     }
@@ -31,12 +31,12 @@ public class JcfChatRoomRepository extends JcfBaseRepository<DevChatRoom> implem
             return false;
 
         Set<UUID> target = Set.copyOf(participants);
-        int targetHash = DevChatRoom.computeParticipantsHashcode(target);
+        int targetHash = ChatRoom.computeParticipantsHashcode(target);
 
         return findAll().stream()
                 .filter(cr -> !cr.isChannelChatRoom())
-                .filter(cr -> cr.getParticipants().size() == target.size())
+                .filter(cr -> cr.getParticipantIds().size() == target.size())
                 .filter(cr -> cr.getParticipantsHashcode() == targetHash)
-                .anyMatch(cr -> cr.getParticipants().equals(target));
+                .anyMatch(cr -> cr.getParticipantIds().equals(target));
     }
 }

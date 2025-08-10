@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.config.AppProperties;
-import com.sprint.mission.discodeit.domain.entitydev.DevUser;
-import com.sprint.mission.discodeit.domain.enums.user.Status;
-import com.sprint.mission.discodeit.service.dev.DevFriendRequestService;
-import com.sprint.mission.discodeit.service.dev.DevUserService;
+import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.dto.request.AuthLoginCommand;
+import com.sprint.mission.discodeit.service.FriendRequestService;
+import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.impl.AuthService;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,13 +28,13 @@ public class DiscodeitApplication {
 
     @Bean
     @Profile({"test", "dev"})
-    ApplicationRunner userServiceRunner(DevUserService userService) {
+    ApplicationRunner userServiceRunner(UserService userService, AuthService authService) {
         return args -> {
             String suffix = UUID.randomUUID().toString().substring(0, 8);
             String email = "test+" + suffix + "@example.com";
             String username = "tester_" + suffix;
             String password = "StrongP@ssw0rd!";
-            DevUser u = userService.register(
+            User u = userService.register(
                     email,
                     username,
                     password,
@@ -43,7 +44,7 @@ public class DiscodeitApplication {
             );
             System.out.println("회원가입 완료: " + u);
 
-            userService.login(email, password);
+            authService.login(new AuthLoginCommand(email, password));
             System.out.println("로그인 완료: " + u);
 
             String newEmail = "test+" + suffix + "-new@example.com";
@@ -56,23 +57,21 @@ public class DiscodeitApplication {
             userService.updateBirthDate(userId, LocalDate.of(1990, 1, 1));
             userService.updateSubscribedToNewsletter(userId, false);
             userService.updatePhoneNumber(userId, "010-1234-5678");
-            userService.updateStatus(userId, Status.IDLE);
-            userService.updateAvatar(userId, "https://example.com/avatar.png");
             userService.updateBio(userId, "소개 " + suffix);
             userService.updateVerified(userId, true);
             userService.updateBanned(userId, false);
             System.out.println("프로필 업데이트 완료: " + userId);
 
-            userService.logout(userId);
+            authService.logout(userId);
             System.out.println("로그아웃 완료: " + userId);
 
-            userService.login(newEmail, newPassword);
+            authService.login(new AuthLoginCommand(newEmail, newPassword));
             System.out.println("재로그인 완료: " + userId);
 
             String email2 = "friend+" + suffix + "@example.com";
             String username2 = "friend_" + suffix;
             String password2 = "Fr1endP@ss!";
-            DevUser u2 = userService.register(
+            User u2 = userService.register(
                     email2,
                     username2,
                     password2,
@@ -86,7 +85,7 @@ public class DiscodeitApplication {
             userService.removeFriend(userId, userId2);
             System.out.println("친구 제거 후 수: " + userService.getFriends(userId).size());
 
-            UUID guildId = UUID.fromString("feadc6c7-2a95-43b8-b3f3-270c01bde4cb");
+            UUID guildId = UUID.fromString("93f4d9ec-fcab-4a7c-9b94-8b5c9f71a2d5");
             userService.joinGuild(userId, guildId);
             System.out.println("길드 참가 후 수: " + userService.getGuilds(userId).size());
             userService.leaveGuild(userId, guildId);
@@ -102,7 +101,7 @@ public class DiscodeitApplication {
             userService.deleteAccount(userId2);
             System.out.println("계정 삭제 완료: " + userId2);
 
-            userService.logout(userId);
+            authService.logout(userId);
             System.out.println("로그아웃 완료: " + userId);
 
             userService.hardDeleteAccount(userId);
@@ -112,15 +111,15 @@ public class DiscodeitApplication {
 
     @Bean
     @Profile({"test", "dev"})
-    ApplicationRunner friendRequestService(DevFriendRequestService friendRequestService,
-                                           DevUserService userService) {
+    ApplicationRunner friendRequestService(FriendRequestService friendRequestService,
+                                           UserService userService) {
         return args -> {
             String sfx = UUID.randomUUID().toString().substring(0, 6);
 
-            DevUser userA = userService.register(
+            User userA = userService.register(
                     "alice+" + sfx + "@example.com", "alice_" + sfx, "Al1ceP@ss!",
                     LocalDate.now().minusYears(21), true, "앨리스");
-            DevUser userB = userService.register(
+            User userB = userService.register(
                     "bob+" + sfx + "@example.com", "bob_" + sfx, "B0bP@ss!",
                     LocalDate.now().minusYears(22), false, "밥");
 
@@ -147,7 +146,7 @@ public class DiscodeitApplication {
             System.out.println("수락 후 친구수(A): " + userService.getFriends(a).size());
             System.out.println("수락 후 친구수(B): " + userService.getFriends(b).size());
 
-            DevUser userC = userService.register(
+            User userC = userService.register(
                     "charlie+" + sfx + "@example.com", "charlie_" + sfx, "Ch@rl1eP@ss!",
                     LocalDate.now().minusYears(23), false, "찰리");
 

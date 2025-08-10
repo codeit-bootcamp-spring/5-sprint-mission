@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.config.AppStorageProperties;
-import com.sprint.mission.discodeit.domain.entitydev.DevBaseEntity;
+import com.sprint.mission.discodeit.domain.entity.BaseEntity;
 import com.sprint.mission.discodeit.repository.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 @Slf4j
-public abstract class FileBaseRepository<T extends DevBaseEntity> implements BaseRepository<T> {
+public abstract class FileBaseRepository<T extends BaseEntity> implements BaseRepository<T> {
 
     private static final String EXTENSION = ".ser";
     private final Class<T> entityType;

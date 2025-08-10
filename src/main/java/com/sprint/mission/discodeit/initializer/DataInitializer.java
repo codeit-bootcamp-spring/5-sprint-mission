@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.initializer;
 
-import com.sprint.mission.discodeit.domain.entitydev.DevUser;
-import com.sprint.mission.discodeit.domain.entitydev.guild.DevGuild;
-import com.sprint.mission.discodeit.repository.devrepository.DevGuildRepository;
-import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
+import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.entity.guild.Guild;
+import com.sprint.mission.discodeit.repository.GuildRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -18,8 +18,8 @@ import java.util.UUID;
 @Profile({"test", "dev"})
 public class DataInitializer implements ApplicationRunner {
 
-    private final DevUserRepository userRepository;
-    private final DevGuildRepository guildRepository;
+    private final UserRepository userRepository;
+    private final GuildRepository guildRepository;
 
     private UUID u1;
 
@@ -32,11 +32,11 @@ public class DataInitializer implements ApplicationRunner {
     private void seedUsers() {
         if (userRepository.count() > 0) return;
 
-        u1 = userRepository.save(new DevUser("a@a.aa", "user1", "1111aaaa",
+        u1 = userRepository.save(new User("a@a.aa", "user1", "1111aaaa",
                 LocalDate.of(1995, 4, 10), true, "globalName1")).getId();
-        userRepository.save(new DevUser("b@b.bb", "user2", "2222bbbb",
+        userRepository.save(new User("b@b.bb", "user2", "2222bbbb",
                 LocalDate.of(1995, 4, 11), false, "globalName2"));
-        userRepository.save(new DevUser("c@c.cc", "user3", "3333cccc",
+        userRepository.save(new User("c@c.cc", "user3", "3333cccc",
                 LocalDate.of(1995, 3, 11), false, "globalName3"));
     }
 
@@ -49,7 +49,7 @@ public class DataInitializer implements ApplicationRunner {
                     .orElseThrow(() -> new IllegalStateException("No users available for guild owner."))
                     .getId();
         }
-        
-        guildRepository.save(new DevGuild("Test Guild", true, u1));
+
+        guildRepository.save(new Guild("Test Guild", true, u1));
     }
 }

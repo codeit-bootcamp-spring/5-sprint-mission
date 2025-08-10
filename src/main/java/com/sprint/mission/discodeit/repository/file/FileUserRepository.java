@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.config.AppStorageProperties;
-import com.sprint.mission.discodeit.domain.entitydev.DevUser;
-import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
+import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -13,9 +13,9 @@ import java.util.Optional;
 
 @Repository
 @Profile("dev")
-public class FileUserRepository extends FileBaseRepository<DevUser> implements DevUserRepository {
+public class FileUserRepository extends FileBaseRepository<User> implements UserRepository {
     public FileUserRepository(AppStorageProperties storageProperties) {
-        super(DevUser.class, storageProperties);
+        super(User.class, storageProperties);
     }
 
     private static String norm(String s) {
@@ -26,15 +26,15 @@ public class FileUserRepository extends FileBaseRepository<DevUser> implements D
         return s == null ? null : s.toLowerCase(Locale.ROOT);
     }
 
-    private static final Comparator<DevUser> BY_EMAIL =
-            Comparator.comparing(DevUser::getEmail, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
-    private static final Comparator<DevUser> BY_USERNAME =
-            Comparator.comparing(DevUser::getUsername, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
-    private static final Comparator<DevUser> BY_GLOBAL_NAME =
-            Comparator.comparing(DevUser::getGlobalName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+    private static final Comparator<User> BY_EMAIL =
+            Comparator.comparing(User::getEmail, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+    private static final Comparator<User> BY_USERNAME =
+            Comparator.comparing(User::getUsername, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+    private static final Comparator<User> BY_GLOBAL_NAME =
+            Comparator.comparing(User::getGlobalName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
     @Override
-    public Optional<DevUser> findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         String key = norm(email);
         if (key == null || key.isBlank()) return Optional.empty();
         return findAll().stream()
@@ -43,7 +43,7 @@ public class FileUserRepository extends FileBaseRepository<DevUser> implements D
     }
 
     @Override
-    public Optional<DevUser> findByUsername(String username) {
+    public Optional<User> findByUsername(String username) {
         String key = norm(username);
         if (key == null || key.isBlank()) return Optional.empty();
         return findAll().stream()
@@ -66,7 +66,7 @@ public class FileUserRepository extends FileBaseRepository<DevUser> implements D
     }
 
     @Override
-    public List<DevUser> searchByEmail(String email) {
+    public List<User> searchByEmail(String email) {
         String prefix = lower(norm(email));
         if (prefix == null || prefix.isBlank()) return List.of();
         return findAll().stream()
@@ -76,7 +76,7 @@ public class FileUserRepository extends FileBaseRepository<DevUser> implements D
     }
 
     @Override
-    public List<DevUser> searchByUsername(String username) {
+    public List<User> searchByUsername(String username) {
         String prefix = lower(norm(username));
         if (prefix == null || prefix.isBlank()) return List.of();
         return findAll().stream()
@@ -86,7 +86,7 @@ public class FileUserRepository extends FileBaseRepository<DevUser> implements D
     }
 
     @Override
-    public List<DevUser> searchByGlobalName(String globalName) {
+    public List<User> searchByGlobalName(String globalName) {
         String prefix = lower(norm(globalName));
         if (prefix == null || prefix.isBlank()) return List.of();
         return findAll().stream()

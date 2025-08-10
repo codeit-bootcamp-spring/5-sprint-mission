@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.domain.entitydev.DevFriendRequest;
-import com.sprint.mission.discodeit.repository.devrepository.DevFriendRequestRepository;
+import com.sprint.mission.discodeit.domain.entity.FriendRequest;
+import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @Profile("test")
-public class JcfFriendRequestRepository extends JcfBaseRepository<DevFriendRequest> implements DevFriendRequestRepository {
+public class JcfFriendRequestRepository extends JcfBaseRepository<FriendRequest> implements FriendRequestRepository {
 
     @Override
     protected String getEntityTypeName() {
@@ -25,32 +25,32 @@ public class JcfFriendRequestRepository extends JcfBaseRepository<DevFriendReque
         if (senderId == null || receiverId == null || senderId == receiverId) return false;
         return data.values().stream()
                 .filter(fr -> !fr.isDeleted())
-                .anyMatch(fr -> senderId.equals(fr.getSender()) && receiverId.equals(fr.getReceiver()));
+                .anyMatch(fr -> senderId.equals(fr.getSenderId()) && receiverId.equals(fr.getReceiverId()));
     }
 
     @Override
     public void clear(UUID userId) {
         if (userId == null) return;
         Set<UUID> ids = findAll().stream()
-                .filter(fr -> userId.equals(fr.getSender()) || userId.equals(fr.getReceiver()))
-                .map(DevFriendRequest::getId)
+                .filter(fr -> userId.equals(fr.getSenderId()) || userId.equals(fr.getReceiverId()))
+                .map(FriendRequest::getId)
                 .collect(Collectors.toSet());
         deleteAllByIds(ids);
     }
 
     @Override
-    public List<DevFriendRequest> getSentRequests(UUID sender) {
+    public List<FriendRequest> getSentRequests(UUID sender) {
         if (sender == null) return List.of();
         return findAll().stream()
-                .filter(fr -> sender.equals(fr.getSender()))
-                .sorted(Comparator.comparing(DevFriendRequest::getCreatedAt).reversed())
+                .filter(fr -> sender.equals(fr.getSenderId()))
+                .sorted(Comparator.comparing(FriendRequest::getCreatedAt).reversed())
                 .toList();
     }
 
     @Override
-    public List<DevFriendRequest> getReceivedRequests(UUID receiver) {
+    public List<FriendRequest> getReceivedRequests(UUID receiver) {
         return data.values().stream()
-                .filter(fr -> fr.getReceiver().equals(receiver))
+                .filter(fr -> fr.getReceiverId().equals(receiver))
                 .collect(Collectors.toList());
     }
 }

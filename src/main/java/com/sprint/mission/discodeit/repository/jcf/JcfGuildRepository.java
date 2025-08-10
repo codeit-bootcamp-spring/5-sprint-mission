@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.domain.entitydev.guild.DevGuild;
-import com.sprint.mission.discodeit.repository.devrepository.DevGuildRepository;
+import com.sprint.mission.discodeit.domain.entity.guild.Guild;
+import com.sprint.mission.discodeit.repository.GuildRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -12,10 +12,10 @@ import java.util.UUID;
 
 @Repository
 @Profile("test")
-public class JcfGuildRepository extends JcfBaseRepository<DevGuild> implements DevGuildRepository {
+public class JcfGuildRepository extends JcfBaseRepository<Guild> implements GuildRepository {
 
-    private static final Comparator<DevGuild> BY_NAME =
-            Comparator.comparing(DevGuild::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+    private static final Comparator<Guild> BY_NAME =
+            Comparator.comparing(Guild::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
     @Override
     protected String getEntityTypeName() {
@@ -23,15 +23,15 @@ public class JcfGuildRepository extends JcfBaseRepository<DevGuild> implements D
     }
 
     @Override
-    public List<DevGuild> findDiscoverableGuilds() {
+    public List<Guild> findDiscoverableGuilds() {
         return findAll().stream()
-                .filter(DevGuild::isDiscoverable)
+                .filter(Guild::isDiscoverable)
                 .sorted(BY_NAME)
                 .toList();
     }
 
     @Override
-    public List<DevGuild> findGuildsOwnedByUser(UUID userId) {
+    public List<Guild> findGuildsOwnedByUser(UUID userId) {
         if (userId == null) return List.of();
         return findAll().stream()
                 .filter(g -> g.isOwner(userId))
@@ -40,7 +40,7 @@ public class JcfGuildRepository extends JcfBaseRepository<DevGuild> implements D
     }
 
     @Override
-    public List<DevGuild> searchGuilds(String keyword) {
+    public List<Guild> searchGuilds(String keyword) {
         if (keyword == null || keyword.isBlank()) return List.of();
         String q = keyword.trim().toLowerCase(Locale.ROOT);
         return findAll().stream()

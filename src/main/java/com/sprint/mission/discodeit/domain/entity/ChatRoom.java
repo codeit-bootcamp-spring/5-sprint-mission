@@ -1,19 +1,6 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import com.sprint.mission.discodeit.domain.entity.guild.Guild;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -24,58 +11,42 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-@Table(
-        name = "chat_rooms",
-        indexes = {
-                @Index(name = "idx_chatroom_participants_hash", columnList = "participants_hashcode")
-        }
-)
 public class ChatRoom extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "channel_id")
-    private Channel channel;
+    private final UUID channelId;
+    private final UUID guildId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "guild_id")
-    private Guild guild;
+    private final Set<UUID> messageIds = new LinkedHashSet<>();
+    private final Set<UUID> participantIds = new HashSet<>();
 
-    @ManyToMany(mappedBy = "chatRooms")
-    private Set<User> participants = new HashSet<>();
-
-    @Column(name = "participants_hashcode")
     private int participantsHashcode;
-
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Message> messages = new LinkedHashSet<>();
 
     private static final int DM_MIN = 2;
     private static final int DM_MAX = 10;
 
-    public ChatRoom(Channel channel, Guild guild) {
-        this.channel = Objects.requireNonNull(channel, "Channel must not be null.");
-        this.guild = Objects.requireNonNull(guild, "Guild must not be null.");
+    public ChatRoom(UUID channelId, UUID guildId) {
+        this.channelId = Objects.requireNonNull(channelId, "Channel id must not be null.");
+        this.guildId = Objects.requireNonNull(guildId, "Guild id must not be null.");
+        touch();
     }
 
-    public ChatRoom(Set<User> participants) {
-        Objects.requireNonNull(participants, "Participants must not be null.");
-        if (participants.size() < 2 || participants.size() > 10)
+    public ChatRoom(Set<UUID> participantIds) {
+        Objects.requireNonNull(participantIds, "Participant ids must not be null.");
+        if (participantIds.size() < DM_MIN || participantIds.size() > DM_MAX)
             throw new IllegalArgumentException("DM ChatRoom requires 2 to 10 participants.");
-        this.participants.addAll(participants);
-        this.participantsHashcode = computeParticipantsHashcode(participants);
+        if (participantIds.stream().anyMatch(Objects::isNull))
+            throw new NullPointerException("Participant id must not be null.");
+        this.participantIds.addAll(participantIds);
+        this.channelId = null;
+        this.guildId = null;
+        this.participantsHashcode = computeParticipantsHashcode(participantIds);
+        touch();
     }
 
-    public static int computeParticipantsHashcode(Set<User> participants) {
-        return participants.stream()
-                .map(p -> p.getId().toString())
-                .sorted()
-                .collect(Collectors.joining("|"))
-                .hashCode();
-    }
-
-    public static int computeParticipantsHashcodeById(Set<UUID> participants) {
+    public static int computeParticipantsHashcode(Set<UUID> participants) {
+        Objects.requireNonNull(participants, "participants must not be null");
+        if (participants.stream().anyMatch(Objects::isNull))
+            throw new NullPointerException("Participant id must not be null.");
         return participants.stream()
                 .map(UUID::toString)
                 .sorted()
@@ -90,52 +61,63 @@ public class ChatRoom extends BaseEntity {
     }
 
     public boolean isChannelChatRoom() {
-        return channel != null;
+        return channelId != null;
     }
 
-    public Set<Message> getMessages() {
-        return Collections.unmodifiableSet(messages);
+    public Set<UUID> getMessageIds() {
+        return Collections.unmodifiableSet(messageIds);
     }
 
-    public void addMessage(Message message) {
-        messages.add(Objects.requireNonNull(message, "Message must not be null."));
+    public void addMessage(UUID message) {
+        Objects.requireNonNull(message, "Message id must not be null.");
+        if (messageIds.add(message)) {
+            touch();
+        }
     }
 
-    public void removeMessage(Message message) {
-        messages.remove(Objects.requireNonNull(message, "Message must not be null."));
+    public void removeMessage(UUID message) {
+        Objects.requireNonNull(message, "Message id must not be null.");
+        if (messageIds.remove(message)) {
+            touch();
+        }
     }
 
-    public Set<User> getParticipants() {
-        if (isChannelChatRoom())
-            throw new UnsupportedOperationException("채널 기반 ChatRoom은 GuildService로 멤버를 조회하세요.");
-        return Collections.unmodifiableSet(participants);
+    public Set<UUID> getParticipantIds() {
+        assertDmOnly("getParticipants");
+        return Collections.unmodifiableSet(participantIds);
     }
 
-    public void addParticipant(User user) {
+    public void addParticipant(UUID user) {
         assertDmOnly("addParticipant");
         Objects.requireNonNull(user, "User id must not be null.");
-        if (participants.size() >= DM_MAX && !participants.contains(user))
+        if (participantIds.size() >= DM_MAX && !participantIds.contains(user))
             throw new IllegalStateException("DM ChatRoom allows up to 10 participants.");
-        if (participants.add(user)) participantsHashcode = computeParticipantsHashcode(participants);
+        if (participantIds.add(user)) {
+            participantsHashcode = computeParticipantsHashcode(participantIds);
+            touch();
+        }
     }
 
-    public void removeParticipant(User user) {
+    public void removeParticipant(UUID user) {
         assertDmOnly("removeParticipant");
         Objects.requireNonNull(user, "User id must not be null.");
-        if (!participants.contains(user)) return;
-        if (participants.size() <= DM_MIN)
+        if (!participantIds.contains(user)) return;
+        if (participantIds.size() <= DM_MIN)
             throw new IllegalStateException("DM ChatRoom must have at least 2 participants.");
-        if (participants.remove(user)) participantsHashcode = computeParticipantsHashcode(participants);
+        if (participantIds.remove(user)) {
+            participantsHashcode = computeParticipantsHashcode(participantIds);
+            touch();
+        }
     }
 
-    public boolean isParticipant(User user) {
+    public boolean isParticipant(UUID user) {
         assertDmOnly("isParticipant");
-        return participants.contains(Objects.requireNonNull(user));
+        return participantIds.contains(Objects.requireNonNull(user, "User id must not be null."));
     }
 
     @Override
     public String toString() {
         return String.format("ChatRoom[id=%s, isChannel=%s, participants=%d, messages=%d]",
-                getId(), isChannelChatRoom(), participants.size(), messages.size());
+                getId(), isChannelChatRoom(), participantIds.size(), messageIds.size());
     }
 }

@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.guild.Guild;
-import com.sprint.mission.discodeit.domain.enums.user.Status;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -10,16 +9,19 @@ import java.util.UUID;
 
 public interface UserService {
 
+    // UserResponse register(UserRegisterCommand);
+    //
+    // UserResponse findById(UUID userId);
+    //
+    // List<UserResponse> findAll();
+    //
+    // UserResponse update(UserUpdateCommand cmd);
     User register(String email,
                   String username,
                   String password,
                   LocalDate birthDate,
                   boolean subscribedToNewsletter,
                   String globalName);
-
-    void login(String email, String password);
-
-    void logout(UUID userId);
 
     void deactivateAccount(UUID userId);
 
@@ -40,10 +42,6 @@ public interface UserService {
     void updateSubscribedToNewsletter(UUID userId, boolean isSubscribedToNewsletter);
 
     void updatePhoneNumber(UUID userId, String phoneNumber);
-
-    void updateStatus(UUID userId, Status status);
-
-    void updateAvatar(UUID userId, String avatar);
 
     void updateBio(UUID userId, String bio);
 

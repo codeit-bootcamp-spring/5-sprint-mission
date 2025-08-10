@@ -8,11 +8,11 @@ import java.util.UUID;
 
 public interface MessageService {
 
-    Message send(UUID chatRoom, UUID senderId, String content, Set<String> files, UUID replyTo);
+    Message send(UUID chatRoom, UUID senderId, String content, Set<UUID> attachmentIds, UUID replyTo);
 
     void updateContent(UUID messageId, String content);
 
-    void updateFiles(UUID messageId, List<String> files);
+    void updateAttachmentIds(UUID messageId, List<UUID> attachmentIds);
 
     void printSenderAndContent(UUID messageId);
 }

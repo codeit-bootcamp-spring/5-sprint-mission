@@ -13,7 +13,7 @@ public interface ChannelService {
 
     void updateType(UUID channelId, ChannelType type);
 
-    void updatePublic(UUID channelId, boolean isPublic);
+    void updatePrivate(UUID channelId, boolean isPublic);
 
     void addJoinedUser(UUID channelId, UUID userId);
 

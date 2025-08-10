@@ -1,15 +1,15 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.config.AppStorageProperties;
-import com.sprint.mission.discodeit.domain.entitydev.DevMessage;
-import com.sprint.mission.discodeit.repository.devrepository.DevMessageRepository;
+import com.sprint.mission.discodeit.domain.entity.Message;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Profile("dev")
-public class FileMessageRepository extends FileBaseRepository<DevMessage> implements DevMessageRepository {
+public class FileMessageRepository extends FileBaseRepository<Message> implements MessageRepository {
     public FileMessageRepository(AppStorageProperties storageProperties) {
-        super(DevMessage.class, storageProperties);
+        super(Message.class, storageProperties);
     }
 }

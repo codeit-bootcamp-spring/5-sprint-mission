@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.domain.entitydev.DevBaseEntity;
+import com.sprint.mission.discodeit.domain.entity.BaseEntity;
 import com.sprint.mission.discodeit.repository.BaseRepository;
 
 import java.util.Collection;
@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public class JcfBaseRepository<T extends DevBaseEntity> implements BaseRepository<T> {
+public class JcfBaseRepository<T extends BaseEntity> implements BaseRepository<T> {
 
     protected final Map<UUID, T> data = new HashMap<>();
 

@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.config.AppStorageProperties;
-import com.sprint.mission.discodeit.domain.entitydev.guild.DevGuild;
-import com.sprint.mission.discodeit.repository.devrepository.DevGuildRepository;
+import com.sprint.mission.discodeit.domain.entity.guild.Guild;
+import com.sprint.mission.discodeit.repository.GuildRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -13,28 +13,28 @@ import java.util.UUID;
 
 @Repository
 @Profile("dev")
-public class FileGuildRepository extends FileBaseRepository<DevGuild> implements DevGuildRepository {
+public class FileGuildRepository extends FileBaseRepository<Guild> implements GuildRepository {
     public FileGuildRepository(AppStorageProperties storageProperties) {
-        super(DevGuild.class, storageProperties);
+        super(Guild.class, storageProperties);
     }
 
     private static String lower(String s) {
         return s == null ? null : s.toLowerCase(Locale.ROOT);
     }
 
-    private static final Comparator<DevGuild> BY_NAME =
-            Comparator.comparing(DevGuild::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+    private static final Comparator<Guild> BY_NAME =
+            Comparator.comparing(Guild::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
     @Override
-    public List<DevGuild> findDiscoverableGuilds() {
+    public List<Guild> findDiscoverableGuilds() {
         return findAll().stream()
-                .filter(DevGuild::isDiscoverable)
+                .filter(Guild::isDiscoverable)
                 .sorted(BY_NAME)
                 .toList();
     }
 
     @Override
-    public List<DevGuild> findGuildsOwnedByUser(UUID userId) {
+    public List<Guild> findGuildsOwnedByUser(UUID userId) {
         if (userId == null) return List.of();
         return findAll().stream()
                 .filter(g -> userId.equals(g.getOwner()))
@@ -43,7 +43,7 @@ public class FileGuildRepository extends FileBaseRepository<DevGuild> implements
     }
 
     @Override
-    public List<DevGuild> searchGuilds(String keyword) {
+    public List<Guild> searchGuilds(String keyword) {
         String key = lower(keyword == null ? null : keyword.trim());
         if (key == null || key.isBlank()) return List.of();
         return findAll().stream()
