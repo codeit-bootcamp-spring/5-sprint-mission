@@ -1,16 +1,18 @@
-package com.sprint.mission.discodeit.service;
+package com.sprint.mission.discodeit.service.dev;
 
 import com.sprint.mission.discodeit.domain.entity.Channel;
-import com.sprint.mission.discodeit.domain.entity.guild.Guild;
+import com.sprint.mission.discodeit.domain.entitydev.DevChannel;
+import com.sprint.mission.discodeit.domain.entitydev.guild.DevGuild;
+import com.sprint.mission.discodeit.domain.entitydev.guild.DevGuildPermissions;
 import com.sprint.mission.discodeit.domain.enums.Permission;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public interface GuildService {
+public interface DevGuildService {
 
-    List<Guild> findGuildsJoinedByUser(UUID userId);
+    List<DevGuild> findGuildsJoinedByUser(UUID userId);
 
     void deleteGuild(UUID guildId, UUID ownerId);
 
@@ -24,7 +26,7 @@ public interface GuildService {
 
     void removeChannel(UUID guildId, Channel channel);
 
-    List<Channel> getChannels(UUID guildId);
+    List<DevChannel> getChannels(UUID guildId);
 
     void addMember(UUID guildId, UUID userId);
 
@@ -36,7 +38,7 @@ public interface GuildService {
 
     int getMemberCount(UUID guildId);
 
-    Set<Permission> getMemberPermissions(UUID guildId, UUID userId);
+    Set<DevGuildPermissions> getMemberPermissions(UUID guildId, UUID userId);
 
     void updateMemberPermissions(UUID guildId, UUID userId, Set<Permission> permissions);
 

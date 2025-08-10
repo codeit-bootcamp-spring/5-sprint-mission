@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface MessageService {
+
     Message send(UUID chatRoom, UUID senderId, String content, Set<String> files, UUID replyTo);
 
     void updateContent(UUID messageId, String content);

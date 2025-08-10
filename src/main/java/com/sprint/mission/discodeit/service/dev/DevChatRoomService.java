@@ -1,9 +1,9 @@
-package com.sprint.mission.discodeit.service;
+package com.sprint.mission.discodeit.service.dev;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface ChatRoomService {
+public interface DevChatRoomService {
 
     void addMessage(UUID roomId, UUID messageId);
 

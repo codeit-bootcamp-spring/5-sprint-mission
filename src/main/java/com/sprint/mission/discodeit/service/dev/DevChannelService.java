@@ -1,10 +1,10 @@
-package com.sprint.mission.discodeit.service;
+package com.sprint.mission.discodeit.service.dev;
 
 import com.sprint.mission.discodeit.domain.enums.channel.ChannelType;
 
 import java.util.UUID;
 
-public interface ChannelService {
+public interface DevChannelService {
 
     void updateName(UUID channelId, String name);
 
