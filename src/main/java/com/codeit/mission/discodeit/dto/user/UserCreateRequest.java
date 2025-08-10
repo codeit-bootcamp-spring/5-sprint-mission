@@ -3,30 +3,23 @@ package com.codeit.mission.discodeit.dto.user;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.UUID;
-
 @Getter
 @ToString
-public class UserUpdateRequest {
-
-    private final UUID id;
+public class UserCreateRequest {
 
     private final String username;
     private final String email;
     private final String password;
-
     private final ProfileImageRequest profileImage;
 
-    public UserUpdateRequest(UUID id, String username, String email, String password, ProfileImageRequest profileImage) {
-        this.id = id;
+    public UserCreateRequest(String username, String email, String password, ProfileImageRequest profileImage) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.profileImage = profileImage;
     }
 
-    public UserUpdateRequest(UUID userId, String username, String email, String password) {
-        this(userId, username, email, password, null);
+    public UserCreateRequest(String username, String email, String password) {
+        this(username, email, password, null);
     }
 }
-
