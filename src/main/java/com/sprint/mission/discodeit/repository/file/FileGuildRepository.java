@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.config.AppStorageProperties;
-import com.sprint.mission.discodeit.domain.entity.guild.Guild;
+import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -37,7 +37,7 @@ public class FileGuildRepository extends FileBaseRepository<Guild> implements Gu
     public List<Guild> findGuildsOwnedByUser(UUID userId) {
         if (userId == null) return List.of();
         return findAll().stream()
-                .filter(g -> userId.equals(g.getOwner()))
+                .filter(g -> userId.equals(g.getOwnerId()))
                 .sorted(BY_NAME)
                 .toList();
     }

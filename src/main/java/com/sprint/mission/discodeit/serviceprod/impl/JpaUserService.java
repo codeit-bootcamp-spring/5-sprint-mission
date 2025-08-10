@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.serviceprod.impl;
 
+import com.sprint.mission.discodeit.domain.entityprod.ProdGuild;
 import com.sprint.mission.discodeit.domain.entityprod.ProdUser;
-import com.sprint.mission.discodeit.domain.entityprod.guild.ProdGuild;
 import com.sprint.mission.discodeit.domain.enums.user.Status;
 import com.sprint.mission.discodeit.repositoryprod.ProdFriendRequestRepository;
 import com.sprint.mission.discodeit.repositoryprod.ProdGuildRepository;

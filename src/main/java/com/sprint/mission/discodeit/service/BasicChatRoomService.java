@@ -38,13 +38,13 @@ public class BasicChatRoomService {
         ChatRoom chatRoom = chatRoomRepository.getOrThrow(chatRoomId);
         if (chatRoom.isChannelChatRoom())
             throw new UnsupportedOperationException("채널 기반 ChatRoom은 GuildService에서 멤버를 수정해야 합니다.");
-        update(chatRoomId, room -> room.addParticipant(userId));
+        update(chatRoomId, room -> room.addParticipantId(userId));
     }
 
     public void removeParticipant(UUID chatRoomId, UUID userId) {
         ChatRoom chatRoom = chatRoomRepository.getOrThrow(chatRoomId);
         if (chatRoom.isChannelChatRoom())
             throw new UnsupportedOperationException("채널 기반 ChatRoom은 GuildService에서 멤버를 수정해야 합니다.");
-        update(chatRoomId, room -> room.removeParticipant(userId));
+        update(chatRoomId, room -> room.removeParticipantId(userId));
     }
 }

@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.ChatRoom;
-import com.sprint.mission.discodeit.domain.entity.guild.Guild;
+import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.enums.channel.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ChatRoomRepository;
@@ -51,10 +51,10 @@ public class BasicChannelService {
     }
 
     public void addJoinedUser(UUID channelId, UUID userId) {
-        update(channelId, c -> c.addUser(userId));
+        update(channelId, c -> c.addUserId(userId));
     }
 
     public void removeJoinedUser(UUID channelId, UUID userId) {
-        update(channelId, c -> c.removeUser(userId));
+        update(channelId, c -> c.removeUserId(userId));
     }
 }

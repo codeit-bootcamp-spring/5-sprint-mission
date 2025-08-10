@@ -68,51 +68,49 @@ public class ChatRoom extends BaseEntity {
         return Collections.unmodifiableSet(messageIds);
     }
 
-    public void addMessage(UUID message) {
-        Objects.requireNonNull(message, "Message id must not be null.");
-        if (messageIds.add(message)) {
+    public void addMessageId(UUID messageId) {
+        Objects.requireNonNull(messageId, "Message id must not be null.");
+        if (messageIds.add(messageId)) {
             touch();
         }
     }
 
-    public void removeMessage(UUID message) {
-        Objects.requireNonNull(message, "Message id must not be null.");
-        if (messageIds.remove(message)) {
-            touch();
-        }
+    public void removeMessageId(UUID messageId) {
+        Objects.requireNonNull(messageId, "Message id must not be null.");
+        if (messageIds.remove(messageId)) touch();
     }
 
     public Set<UUID> getParticipantIds() {
-        assertDmOnly("getParticipants");
+        assertDmOnly("getParticipantIds");
         return Collections.unmodifiableSet(participantIds);
     }
 
-    public void addParticipant(UUID user) {
-        assertDmOnly("addParticipant");
-        Objects.requireNonNull(user, "User id must not be null.");
-        if (participantIds.size() >= DM_MAX && !participantIds.contains(user))
+    public void addParticipantId(UUID userId) {
+        assertDmOnly("addParticipantId");
+        Objects.requireNonNull(userId, "User id must not be null.");
+        if (participantIds.size() >= DM_MAX && !participantIds.contains(userId))
             throw new IllegalStateException("DM ChatRoom allows up to 10 participants.");
-        if (participantIds.add(user)) {
+        if (participantIds.add(userId)) {
             participantsHashcode = computeParticipantsHashcode(participantIds);
             touch();
         }
     }
 
-    public void removeParticipant(UUID user) {
-        assertDmOnly("removeParticipant");
-        Objects.requireNonNull(user, "User id must not be null.");
-        if (!participantIds.contains(user)) return;
+    public void removeParticipantId(UUID userId) {
+        assertDmOnly("removeParticipantId");
+        Objects.requireNonNull(userId, "User id must not be null.");
+        if (!participantIds.contains(userId)) return;
         if (participantIds.size() <= DM_MIN)
             throw new IllegalStateException("DM ChatRoom must have at least 2 participants.");
-        if (participantIds.remove(user)) {
+        if (participantIds.remove(userId)) {
             participantsHashcode = computeParticipantsHashcode(participantIds);
             touch();
         }
     }
 
-    public boolean isParticipant(UUID user) {
+    public boolean isParticipant(UUID userId) {
         assertDmOnly("isParticipant");
-        return participantIds.contains(Objects.requireNonNull(user, "User id must not be null."));
+        return participantIds.contains(Objects.requireNonNull(userId, "User id must not be null."));
     }
 
     @Override

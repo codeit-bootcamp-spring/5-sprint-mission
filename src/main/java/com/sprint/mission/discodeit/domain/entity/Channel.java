@@ -53,7 +53,7 @@ public class Channel extends BaseEntity {
         return Collections.unmodifiableSet(userIds);
     }
 
-    public boolean hasUser(UUID userId) {
+    public boolean hasUserId(UUID userId) {
         return userIds.contains(Objects.requireNonNull(userId, "User id must not be null"));
     }
 
@@ -61,13 +61,13 @@ public class Channel extends BaseEntity {
         return userIds.size();
     }
 
-    public boolean addUser(UUID userId) {
+    public boolean addUserId(UUID userId) {
         boolean added = userIds.add(Objects.requireNonNull(userId, "User id must not be null"));
         if (added) touch();
         return added;
     }
 
-    public boolean addUsers(Collection<UUID> userIds) {
+    public boolean addUserIds(Collection<UUID> userIds) {
         Objects.requireNonNull(userIds, "User ids must not be null");
         boolean changed = false;
         for (UUID id : userIds) {
@@ -78,13 +78,13 @@ public class Channel extends BaseEntity {
         return changed;
     }
 
-    public boolean removeUser(UUID userId) {
+    public boolean removeUserId(UUID userId) {
         boolean removed = userIds.remove(Objects.requireNonNull(userId, "User id must not be null"));
         if (removed) touch();
         return removed;
     }
 
-    public boolean removeUsers(Collection<UUID> userIds) {
+    public boolean removeUserIds(Collection<UUID> userIds) {
         Objects.requireNonNull(userIds, "User ids must not be null");
         boolean changed = false;
         for (UUID id : userIds) {

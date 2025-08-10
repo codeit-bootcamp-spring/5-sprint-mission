@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repositoryprod.impl;
 
-import com.sprint.mission.discodeit.domain.entityprod.guild.ProdGuild;
+import com.sprint.mission.discodeit.domain.entityprod.ProdGuild;
 import com.sprint.mission.discodeit.repositoryprod.ProdGuildRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;

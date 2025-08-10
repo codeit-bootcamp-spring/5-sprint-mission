@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repositoryprod;
 
-import com.sprint.mission.discodeit.domain.entityprod.guild.ProdGuild;
+import com.sprint.mission.discodeit.domain.entityprod.ProdGuild;
 
 import java.util.List;
 import java.util.UUID;

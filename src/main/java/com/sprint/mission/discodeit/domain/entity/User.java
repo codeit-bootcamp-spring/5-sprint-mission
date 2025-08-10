@@ -52,8 +52,11 @@ public class User extends BaseEntity {
     }
 
     public void setEmail(String email) {
-        this.email = Validators.validateEmail(email);
-        touch();
+        String v = Validators.validateEmail(email);
+        if (!Objects.equals(this.email, v)) {
+            this.email = v;
+            touch();
+        }
     }
 
     public void setPassword(String password) {
@@ -66,40 +69,66 @@ public class User extends BaseEntity {
     }
 
     public void setUsername(String username) {
-        this.username = Validators.validateUsername(username);
-        touch();
+        String v = Validators.validateUsername(username);
+        if (!Objects.equals(this.username, v)) {
+            this.username = v;
+            touch();
+        }
     }
 
     public void setGlobalName(String globalName) {
         String normalized = normalizeString(globalName);
-        this.globalName = normalized.isBlank()
-                ? this.username
-                : Validators.validateGlobalName(normalized);
-        touch();
-    }
-
-    public void setProfileId(UUID profileId) {
-        this.profileId = Objects.requireNonNull(profileId, "profileId must not be null");
+        String v = normalized.isBlank() ? this.username : Validators.validateGlobalName(normalized);
+        if (!Objects.equals(this.globalName, v)) {
+            this.globalName = v;
+            touch();
+        }
     }
 
     public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = Objects.requireNonNull(birthDate, "birthDate must not be null");
-        touch();
+        Objects.requireNonNull(birthDate, "birthDate must not be null");
+        if (!Objects.equals(this.birthDate, birthDate)) {
+            this.birthDate = birthDate;
+            touch();
+        }
     }
 
     public void setBio(String bio) {
-        this.bio = Validators.validateBio(bio);
-        touch();
+        String v = Validators.validateBio(bio);
+        if (!Objects.equals(this.bio, v)) {
+            this.bio = v;
+            touch();
+        }
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = Validators.validatePhoneNumber(phoneNumber);
-        touch();
+        String v = Validators.validatePhoneNumber(phoneNumber);
+        if (!Objects.equals(this.phoneNumber, v)) {
+            this.phoneNumber = v;
+            touch();
+        }
     }
 
     public void setSubscribedToNewsletter(boolean subscribedToNewsletter) {
-        this.subscribedToNewsletter = subscribedToNewsletter;
-        touch();
+        if (this.subscribedToNewsletter != subscribedToNewsletter) {
+            this.subscribedToNewsletter = subscribedToNewsletter;
+            touch();
+        }
+    }
+
+    public void setProfileId(UUID profileId) {
+        Objects.requireNonNull(profileId, "profileId must not be null");
+        if (!Objects.equals(this.profileId, profileId)) {
+            this.profileId = profileId;
+            touch();
+        }
+    }
+
+    public void clearProfile() {
+        if (this.profileId != null) {
+            this.profileId = null;
+            touch();
+        }
     }
 
     public void verify() {

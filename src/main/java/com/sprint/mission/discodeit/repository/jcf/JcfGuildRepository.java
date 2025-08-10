@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.domain.entity.guild.Guild;
+import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;

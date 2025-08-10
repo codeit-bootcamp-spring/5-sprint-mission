@@ -40,9 +40,9 @@ public class UserStatus extends BaseEntity {
 
     public void login() {
         this.login = true;
-        heartBeat();
         this.statusFixed = false;
         this.status = Status.ONLINE;
+        heartBeat();
     }
 
     public void logout() {

@@ -16,8 +16,8 @@ public class Message extends BaseEntity {
     private final UUID authorId;
     private String content;
     private final Set<UUID> attachmentIds = new LinkedHashSet<>();
-    private final UUID replyTo;
     private final UUID chatRoomId;
+    private final UUID replyTo;
 
 
     public Message(UUID chatRoomId, UUID authorId, String content, Set<UUID> attachmentIds, UUID replyTo) {
@@ -48,18 +48,34 @@ public class Message extends BaseEntity {
     }
 
     public void setAttachmentIds(Set<UUID> attachmentIds) {
-        boolean changed = false;
+        Set<UUID> target = (attachmentIds == null) ? Set.of() : attachmentIds;
+
+        if (target.contains(null)) throw new NullPointerException("Attachment id must not be null");
+
+        if (this.attachmentIds.equals(target)) return;
+
         this.attachmentIds.clear();
-        if (attachmentIds != null && !attachmentIds.isEmpty()) {
-            this.attachmentIds.addAll(attachmentIds);
-            changed = true;
-        }
-        if (changed) touch();
+        this.attachmentIds.addAll(target);
+        touch();
+    }
+
+    public boolean addAttachment(UUID id) {
+        Objects.requireNonNull(id, "Attachment id must not be null");
+        boolean added = this.attachmentIds.add(id);
+        if (added) touch();
+        return added;
+    }
+
+    public boolean removeAttachment(UUID id) {
+        Objects.requireNonNull(id, "Attachment id must not be null");
+        boolean removed = this.attachmentIds.remove(id);
+        if (removed) touch();
+        return removed;
     }
 
     @Override
     public String toString() {
-        return String.format("Message[chatRoom=%s, sender=%s, content='%s', files=%d]",
+        return String.format("Message[chatRoom=%s, author=%s, content='%s', attachments=%d]",
                 chatRoomId, authorId, content, attachmentIds.size());
     }
 }

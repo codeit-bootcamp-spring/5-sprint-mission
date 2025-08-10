@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.domain.entityprod;
 
-import com.sprint.mission.discodeit.domain.entityprod.guild.ProdGuild;
 import com.sprint.mission.discodeit.util.Validators;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

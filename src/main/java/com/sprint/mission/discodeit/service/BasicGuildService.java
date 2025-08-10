@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.Channel;
+import com.sprint.mission.discodeit.domain.entity.Guild;
+import com.sprint.mission.discodeit.domain.entity.GuildPermissions;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.entity.guild.Guild;
-import com.sprint.mission.discodeit.domain.entity.guild.GuildPermissions;
 import com.sprint.mission.discodeit.domain.entityprod.ProdChannel;
 import com.sprint.mission.discodeit.domain.enums.Permission;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -46,7 +46,7 @@ public class BasicGuildService {
         if (!guild.isOwner(ownerId)) {
             throw new IllegalArgumentException("삭제할 권한이 없습니다.");
         }
-        for (UUID uid : new HashSet<>(guild.getUsers())) {
+        for (UUID uid : new HashSet<>(guild.getUserIds())) {
             User user = userRepository.getOrThrow(uid);
             user.leaveGuild(guildId);
             userRepository.save(user);
@@ -72,7 +72,7 @@ public class BasicGuildService {
         if (guild.isNotMember(newOwnerId)) {
             throw new IllegalArgumentException("해당 유저는 이 서버의 멤버가 아닙니다.");
         }
-        guild.setOwner(newOwnerId);
+        guild.setOwnerId(newOwnerId);
         guildRepository.save(guild);
     }
 
@@ -88,7 +88,7 @@ public class BasicGuildService {
     }
 
     public List<Channel> getChannels(UUID guildId) {
-        Set<UUID> ids = guildRepository.getOrThrow(guildId).getChannels();
+        Set<UUID> ids = guildRepository.getOrThrow(guildId).getChannelIds();
         return channelRepository.findAllByIds(ids);
     }
 
@@ -121,17 +121,17 @@ public class BasicGuildService {
     }
 
     public List<UUID> getMemberIds(UUID guildId) {
-        return List.copyOf(guildRepository.getOrThrow(guildId).getUsers());
+        return List.copyOf(guildRepository.getOrThrow(guildId).getUserIds());
     }
 
     public int getMemberCount(UUID guildId) {
-        return guildRepository.getOrThrow(guildId).getUsers().size();
+        return guildRepository.getOrThrow(guildId).getUserIds().size();
     }
 
     public Set<GuildPermissions> getMemberPermissions(UUID guildId, UUID userId) {
         // 인터페이스가 Set을 반환하므로 해당 유저의 권한 엔티티(0 또는 1개)를 Set으로 반환
         return guildRepository.getOrThrow(guildId).getPermissions().stream()
-                .filter(p -> p.getUser().equals(userId))
+                .filter(p -> p.getUserId().equals(userId))
                 .collect(Collectors.toSet());
     }
 
@@ -168,10 +168,10 @@ public class BasicGuildService {
     }
 
     public Set<UUID> getBannedUsers(UUID guildId) {
-        return guildRepository.getOrThrow(guildId).getBans();
+        return guildRepository.getOrThrow(guildId).getBannedUserIds();
     }
 
     public int getBanCount(UUID guildId) {
-        return guildRepository.getOrThrow(guildId).getBans().size();
+        return guildRepository.getOrThrow(guildId).getBannedUserIds().size();
     }
 }

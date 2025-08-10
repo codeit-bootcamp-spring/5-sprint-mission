@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.entity.guild;
+package com.sprint.mission.discodeit.domain.entity;
 
 import com.sprint.mission.discodeit.domain.enums.Permission;
 import com.sprint.mission.discodeit.domain.vo.guild.GuildPermissionsId;
@@ -41,11 +41,11 @@ public class GuildPermissions implements Serializable {
         return Collections.unmodifiableSet(permissions);
     }
 
-    public UUID getGuild() {
+    public UUID getGuildId() {
         return id.guildId();
     }
 
-    public UUID getUser() {
+    public UUID getUserId() {
         return id.userId();
     }
 
@@ -59,7 +59,7 @@ public class GuildPermissions implements Serializable {
         if (this.permissions.equals(copy)) return;
 
         this.permissions.clear();
-        this.permissions.addAll(EnumSet.copyOf(permissions));
+        this.permissions.addAll(copy);
     }
 
     public boolean hasPermission(Permission permission) {
@@ -70,7 +70,7 @@ public class GuildPermissions implements Serializable {
     @Override
     public String toString() {
         return String.format("GuildPermissions[guildId=%s, userId=%s, permissions=%s]",
-                getGuild(), getUser(), permissions
+                getGuildId(), getUserId(), permissions
         );
     }
 }

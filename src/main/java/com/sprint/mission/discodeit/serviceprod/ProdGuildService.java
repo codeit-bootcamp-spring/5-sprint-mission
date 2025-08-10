@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.serviceprod;
 
 import com.sprint.mission.discodeit.domain.entityprod.ProdChannel;
-import com.sprint.mission.discodeit.domain.entityprod.guild.ProdGuild;
+import com.sprint.mission.discodeit.domain.entityprod.ProdGuild;
 import com.sprint.mission.discodeit.domain.enums.Permission;
 
 import java.util.List;

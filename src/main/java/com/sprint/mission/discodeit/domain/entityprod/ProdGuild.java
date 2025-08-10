@@ -1,8 +1,5 @@
-package com.sprint.mission.discodeit.domain.entityprod.guild;
+package com.sprint.mission.discodeit.domain.entityprod;
 
-import com.sprint.mission.discodeit.domain.entityprod.ProdBaseEntity;
-import com.sprint.mission.discodeit.domain.entityprod.ProdChannel;
-import com.sprint.mission.discodeit.domain.entityprod.ProdUser;
 import com.sprint.mission.discodeit.domain.enums.Permission;
 import com.sprint.mission.discodeit.util.Validators;
 import jakarta.persistence.CascadeType;

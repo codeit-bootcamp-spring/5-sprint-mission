@@ -15,6 +15,11 @@ public class BinaryContent extends BaseEntity {
         set(filename, contentType, data);
     }
 
+    private static String requireNonBlank(String s, String msg) {
+        if (s == null || s.isBlank()) throw new IllegalArgumentException(msg);
+        return s;
+    }
+
     public void set(String filename, String contentType, byte[] data) {
         this.filename = requireNonBlank(filename, "filename must not be blank");
         this.contentType = requireNonBlank(contentType, "contentType must not be blank");
@@ -24,8 +29,13 @@ public class BinaryContent extends BaseEntity {
         touch();
     }
 
-    private static String requireNonBlank(String s, String msg) {
-        if (s == null || s.isBlank()) throw new IllegalArgumentException(msg);
-        return s;
+    public byte[] getData() {
+        return data == null ? null : data.clone();
+    }
+
+    @Override
+    public String toString() {
+        return "BinaryContent[id=%s, filename=%s, contentType=%s, size=%d]"
+                .formatted(getId(), filename, contentType, size);
     }
 }

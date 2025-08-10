@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
-import com.sprint.mission.discodeit.domain.entity.guild.Guild;
 import com.sprint.mission.discodeit.dto.request.UserRegisterCommand;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
