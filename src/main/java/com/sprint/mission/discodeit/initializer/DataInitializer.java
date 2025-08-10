@@ -48,6 +48,8 @@ public class DataInitializer implements ApplicationRunner {
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("No users available for guild owner."))
                     .getId();
+            guildRepository.save(new Guild("Test Guild", true, ownerId));
+            return;
         }
 
         guildRepository.save(new Guild("Test Guild", true, u1));

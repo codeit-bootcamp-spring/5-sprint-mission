@@ -35,7 +35,6 @@ public class BasicUserService {
     private UserResponse toResponse(User u) {
         return new UserResponse(
                 u.getId(),
-                u.getEmail(),
                 u.getUsername(),
                 u.getGlobalName()
         );
@@ -62,7 +61,6 @@ public class BasicUserService {
                 e, u, p, cmd.birthDate(), cmd.subscribedToNewsletter(), cmd.globalName()
         ));
 
-        // UserStatus 동시 생성
         userStatusRepository.save(new UserStatus(saved.getId()));
 
         return toResponse(saved);

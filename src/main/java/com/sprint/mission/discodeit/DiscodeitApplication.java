@@ -2,10 +2,12 @@ package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.dto.request.AuthLoginCommand;
+import com.sprint.mission.discodeit.dto.request.GuildCreateCommand;
 import com.sprint.mission.discodeit.dto.request.UserRegisterCommand;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.BasicFriendRequestService;
+import com.sprint.mission.discodeit.service.BasicGuildService;
 import com.sprint.mission.discodeit.service.BasicUserService;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -29,7 +31,10 @@ public class DiscodeitApplication {
 
     @Bean
     @Profile({"test", "dev"})
-    ApplicationRunner userServiceRunner(BasicUserService userService, AuthService authService) {
+    ApplicationRunner userServiceRunner(
+            BasicUserService userService,
+            AuthService authService,
+            BasicGuildService guildService) {
         return args -> {
             String suffix = UUID.randomUUID().toString().substring(0, 8);
             String email = "test+" + suffix + "@example.com";
@@ -86,7 +91,7 @@ public class DiscodeitApplication {
             userService.removeFriend(userId, userId2);
             System.out.println("친구 제거 후 수: " + userService.getFriends(userId).size());
 
-            UUID guildId = UUID.fromString("93f4d9ec-fcab-4a7c-9b94-8b5c9f71a2d5");
+            UUID guildId = guildService.create(new GuildCreateCommand("Guild Test", true, u2.id())).id();
             userService.joinGuild(userId, guildId);
             System.out.println("길드 참가 후 수: " + userService.getGuilds(userId).size());
             userService.leaveGuild(userId, guildId);
@@ -174,5 +179,4 @@ public class DiscodeitApplication {
             userService.hardDeleteAccount(c);
         };
     }
-
 }

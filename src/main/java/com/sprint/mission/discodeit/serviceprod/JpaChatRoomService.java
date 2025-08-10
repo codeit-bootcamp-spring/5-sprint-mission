@@ -1,7 +1,6 @@
-package com.sprint.mission.discodeit.serviceprod.impl;
+package com.sprint.mission.discodeit.serviceprod;
 
 import com.sprint.mission.discodeit.domain.entityprod.ProdChatRoom;
-import com.sprint.mission.discodeit.serviceprod.ProdChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -14,23 +13,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 @Profile("prod")
-public class JpaChatRoomService implements ProdChatRoomService {
-    @Override
+public class JpaChatRoomService {
     public ProdChatRoom create(Set<UUID> participants) {
         return null;
     }
 
-    @Override
     public Set<UUID> getMessages(UUID roomId) {
         return Set.of();
     }
 
-    @Override
     public void addParticipant(UUID roomId, UUID userId) {
 
     }
 
-    @Override
     public void removeParticipant(UUID roomId, UUID userId) {
 
     }

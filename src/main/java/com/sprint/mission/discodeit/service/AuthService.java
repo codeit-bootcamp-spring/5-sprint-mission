@@ -27,7 +27,6 @@ public class AuthService {
     private static UserResponse toResponse(User user, UserStatus status) {
         return new UserResponse(
                 user.getId(),
-                user.getEmail(),
                 user.getUsername(),
                 user.getGlobalName()
         );

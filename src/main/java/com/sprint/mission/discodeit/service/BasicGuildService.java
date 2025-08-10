@@ -6,9 +6,12 @@ import com.sprint.mission.discodeit.domain.entity.GuildPermissions;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entityprod.ProdChannel;
 import com.sprint.mission.discodeit.domain.enums.Permission;
+import com.sprint.mission.discodeit.dto.request.GuildCreateCommand;
+import com.sprint.mission.discodeit.dto.response.GuildResponse;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.util.Validators;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -30,10 +33,35 @@ public class BasicGuildService {
     private final UserRepository userRepository;
     private final ChannelRepository channelRepository;
 
+    private GuildResponse toResponse(Guild g) {
+        return new GuildResponse(
+                g.getId(),
+                g.getName(),
+                g.isDiscoverable(),
+                g.getOwnerId(),
+                g.getUserIds(),
+                g.getPermissions(),
+                g.getChannelIds(),
+                g.getBannedUserIds()
+        );
+    }
+
     private void update(UUID id, Consumer<Guild> updater) {
         Guild g = guildRepository.getOrThrow(id);
         updater.accept(g);
         guildRepository.save(g);
+    }
+
+    public GuildResponse create(GuildCreateCommand cmd) {
+        Objects.requireNonNull(cmd, "cmd must not be null");
+        Objects.requireNonNull(cmd.ownerId(), "ownerId must not be null");
+        String n = Validators.validateGuildName(cmd.name());
+
+        Guild saved = guildRepository.save(new Guild(
+                n, cmd.discoverable(), cmd.ownerId()
+        ));
+
+        return toResponse(saved);
     }
 
     public List<Guild> findGuildsJoinedByUser(UUID userId) {

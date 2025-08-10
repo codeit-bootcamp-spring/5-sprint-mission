@@ -1,7 +1,6 @@
-package com.sprint.mission.discodeit.serviceprod.impl;
+package com.sprint.mission.discodeit.serviceprod;
 
 import com.sprint.mission.discodeit.domain.entityprod.ProdFriendRequest;
-import com.sprint.mission.discodeit.serviceprod.ProdFriendRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -14,38 +13,31 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 @Profile("prod")
-public class JpaFriendRequestService implements ProdFriendRequestService {
-    @Override
+public class JpaFriendRequestService {
     public List<ProdFriendRequest> listSent(UUID senderId) {
         return List.of();
     }
 
-    @Override
     public List<ProdFriendRequest> listReceived(UUID receiverId) {
         return List.of();
     }
 
-    @Override
     public List<ProdFriendRequest> listAllMine(UUID userId) {
         return List.of();
     }
 
-    @Override
     public ProdFriendRequest send(UUID senderId, UUID receiverId) {
         return null;
     }
 
-    @Override
     public void accept(UUID requestId) {
 
     }
 
-    @Override
     public void reject(UUID requestId) {
 
     }
 
-    @Override
     public void clear(UUID userId) {
 
     }
