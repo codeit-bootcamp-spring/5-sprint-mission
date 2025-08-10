@@ -17,8 +17,13 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
+
 ### IntelliJ IDEA ###
 .idea
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
 *.iws
 *.iml
 *.ipr
@@ -26,6 +31,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+### Eclipse ###
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -35,3 +41,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Mac OS ###
+.DS_Store
+# Ignore Gradle build output directory
+build
