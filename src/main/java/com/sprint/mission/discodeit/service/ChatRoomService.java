@@ -1,19 +1,17 @@
 package com.sprint.mission.discodeit.service;
 
-import java.util.List;
+import com.sprint.mission.discodeit.domain.entity.ChatRoom;
+
+import java.util.Set;
 import java.util.UUID;
 
 public interface ChatRoomService {
 
-    void addMessage(UUID roomId, UUID messageId);
+    ChatRoom create(Set<UUID> participants);
 
-    List<UUID> getMessages(UUID roomId);
+    Set<UUID> getMessages(UUID roomId);
 
     void addParticipant(UUID roomId, UUID userId);
 
     void removeParticipant(UUID roomId, UUID userId);
-
-    void printMessages(UUID roomId);
-
-    List<String> getParticipantNames(UUID roomId);
 }
