@@ -15,7 +15,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class DiscodeitApplication {
 
     static User setupUser(UserService userService) {
-        User user = userService.create("woody", "woody@codeit.com", "woody1234");
+        User user = userService.create("Hong", "hong1357@gmail.com", "hong1234");
         return user;
     }
 
@@ -25,8 +25,9 @@ public class DiscodeitApplication {
     }
 
     static void messageCreateTest(MessageService messageService, Channel channel, User author) {
-        Message message = messageService.create("안녕하세요.", channel.getId(), author.getId());
-        System.out.println("메시지 생성: " + message.getId());
+        Message message = messageService.create("안녕하십니까?", channel.getId(), author.getId());
+        System.out.println("메시지 ID : " + message.getId() + "\n" + message.getContent() + " by " + author.getUsername()
+        + "\nWrited on " + message.getCreatedAt());
     }
 
     public static void main(String[] args) {
