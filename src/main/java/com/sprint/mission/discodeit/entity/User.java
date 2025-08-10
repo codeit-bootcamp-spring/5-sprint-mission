@@ -1,19 +1,74 @@
 package com.sprint.mission.discodeit.entity;
 
-public class User extends BaseEntity {
-    private String name;
+import lombok.Getter;
 
-    public User(String name) {
-        super();
-        this.name = name;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.UUID;
+
+@Getter
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
+    private String username;
+    private String email;
+    private String password;
+
+    public User (String username, String email, String password) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.username = username;
+        this.email = email;
+        this.password = password;
     }
 
-    public String getName() {
-        return name;
-    }
+//    public UUID getId() {
+//        return id;
+//    }
+//
+//    public Long getCreatedAt() {
+//        return createdAt;
+//    }
+//
+//    public Long getUpdatedAt() {
+//        return updatedAt;
+//    }
+//
+//    public String getUsername() {
+//        return username;
+//    }
+//
+//    public String getEmail() {
+//        return email;
+//    }
+//
+//    public String getPassword() {
+//        return password;
+//    }
 
-    public void updateName(String name) {
-        this.name = name;
-        updateTimestamp();
+    public void update(String newUsername, String newEmail, String newPassword){
+        boolean anyValueUpdated = false;
+
+        if(newUsername != null && newUsername.equals(this.username)){
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if(newEmail != null && newEmail.equals(this.email)){
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if(newPassword != null && newPassword.equals(this.password)){
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
+
     }
 }

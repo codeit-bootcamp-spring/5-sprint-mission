@@ -1,33 +1,64 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
+import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
-public class Message extends BaseEntity {
+@Getter
+public class Message implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
     private String content;
-    private UUID userId;
+    //
     private UUID channelId;
+    private UUID authorId;
 
-    public Message(String content, UUID userId, UUID channelId) {
-        super();
+    public Message (String content, UUID channelId, UUID authorId){
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
         this.content = content;
-        this.userId = userId;
         this.channelId = channelId;
+        this. authorId = authorId;
     }
 
-    public String getContent() {
-        return content;
-    }
+//    public UUID getId() {
+//        return id;
+//    }
+//
+//    public Long getCreatedAt() {
+//        return createdAt;
+//    }
+//
+//    public Long getUpdatedAt() {
+//        return updatedAt;
+//    }
+//
+//    public String getContent() {
+//        return content;
+//    }
+//
+//    public UUID getChannelId() {
+//        return channelId;
+//    }
+//
+//    public UUID getAuthorId() {
+//        return authorId;
+//    }
 
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public void updateContent(String content) {
-        this.content = content;
-        updateTimestamp();
+    public void update (String newContent){
+        boolean anyValueUpdated = false;
+        if (newContent != null && newContent.equals(this.content)) {
+            this.content = newContent;
+        }
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
