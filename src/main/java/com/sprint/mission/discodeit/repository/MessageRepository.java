@@ -2,15 +2,18 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Message;
 
-import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageRepository {
-    void save(Message message) throws IOException;
-    Message findById(UUID id) throws IOException, ClassNotFoundException;
-    Message findByContent(String content) throws IOException, ClassNotFoundException;
-    List<Message> findAll() throws IOException, ClassNotFoundException;
-    void update(Message message) throws IOException;
-    void delete(UUID id) throws IOException;
+    Message save(Message message);
+    Optional<Message> findById(UUID id);
+    List<Message> findAll();
+    List<Message> findAllByChannelId(UUID channelId);
+    boolean existsById(UUID id);
+    void deleteById(UUID id);
+    void deleteByChannelId(UUID channelId);
+    Optional<Instant> findMostRecentMessageTime(UUID channelId);
 }
