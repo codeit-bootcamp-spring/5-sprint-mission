@@ -1,89 +1,116 @@
 package com.sprint.mission.discodeit.service.jcf;
 
+import com.sprint.mission.discodeit.dto.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.MessageResponse;
+import com.sprint.mission.discodeit.dto.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
-import java.util.HashMap;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.service.MessageService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
 
-
+@Service
+@RequiredArgsConstructor
 public class JCFMessageService implements MessageService {
-      private static JCFMessageService instance;
-      private final Map<UUID, Message> data = new HashMap<>();
-      private final UserService userService;
-      private final ChannelService channelService;
 
-      private JCFMessageService(UserService userService, ChannelService channelService) {
-          this.userService = userService;
-          this.channelService = channelService;
-      }
+    private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
+    private final ChannelRepository channelRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
-      public static synchronized JCFMessageService getInstance() {
-          if (instance == null) {
-              UserService userServiceInstance = JCFUserService.getInstance();
-              ChannelService channelServiceInstance = JCFChannelService.getInstance();
-              instance = new JCFMessageService(userServiceInstance, channelServiceInstance);
-          }
-          return instance;
-      }
+    @Override
+    public MessageResponse create(MessageCreateRequest request) {
+        if (request.getContent() == null || request.getContent().isBlank()) {
+            throw new IllegalArgumentException("Message content cannot be null or blank.");
+        }
+        if (!userRepository.existsById(request.getAuthorId())) {
+            throw new IllegalArgumentException("User not found with id: " + request.getAuthorId());
+        }
+        if (!channelRepository.existsById(request.getChannelId())) {
+            throw new IllegalArgumentException("Channel not found with id: " + request.getChannelId());
+        }
 
+        Message message = Message.builder()
+                .channelId(request.getChannelId())
+                .authorId(request.getAuthorId())
+                .content(request.getContent())
+                .attachmentIds(request.getAttachmentIds())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build();
+        Message savedMessage = messageRepository.save(message);
+        return toMessageResponse(savedMessage);
+    }
 
-      @Override
-      public Message create(String content, UUID channelId, UUID authorId) {
-          if (content == null || content.isBlank()) {
-              throw new IllegalArgumentException("Message content cannot be null or blank.");
-          }
-          try {
-              userService.find(authorId);
-          } catch (NoSuchElementException e) {
-              throw new IllegalArgumentException("User not found: " + authorId, e);
-          }
-          try {
-              channelService.find(channelId);
-          } catch (NoSuchElementException e) {
-              throw new IllegalArgumentException("Channel not found: " + channelId, e);
-          }
-          Message message = new Message(channelId, authorId, content);
-          data.put(message.getId(), message);
-          return message;
-      }
+    @Override
+    public MessageResponse find(UUID messageId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("Message not found with id: " + messageId));
+        return toMessageResponse(message);
+    }
 
-      @Override
-      public Message find(UUID messageId) {
-          Message message = data.get(messageId);
-          if (message == null) {
-              throw new NoSuchElementException("Message not found: " + messageId);
-          }
-          return message;
-      }
+    @Override
+    public List<MessageResponse> findAll() {
+        return messageRepository.findAll().stream()
+                .map(this::toMessageResponse)
+                .collect(Collectors.toList());
+    }
 
-      @Override
-      public List<Message> findAll() {
-          return data.values().stream().collect(Collectors.toList());
-      }
+    @Override
+    public List<MessageResponse> findAllByChannelId(UUID channelId) {
+        return messageRepository.findAll().stream()
+                .filter(message -> message.getChannelId().equals(channelId))
+                .map(this::toMessageResponse)
+                .collect(Collectors.toList());
+    }
 
-      @Override
-      public Message update(UUID messageId, String content) {
-          Message message = find(messageId);
-          message.update(content);
-          return message;
-      }
+    @Override
+    public MessageResponse update(MessageUpdateRequest request) {
+        Message message = messageRepository.findById(request.getId())
+                .orElseThrow(() -> new NoSuchElementException("Message not found with id: " + request.getId()));
 
-      @Override
-      public void delete(UUID messageId) {
-          if (!data.containsKey(messageId)) {
-              throw new NoSuchElementException("Message not found: " + messageId);
-          }
-          data.remove(messageId);
-      }
+        if (request.getContent() != null && !request.getContent().isBlank()) {
+            message.setContent(request.getContent());
+        }
+        message.setUpdatedAt(Instant.now());
+        Message updatedMessage = messageRepository.save(message);
+        return toMessageResponse(updatedMessage);
+    }
 
-      @Override
-      public void clear() {
-          data.clear();
-      }
+    @Override
+    public void delete(UUID messageId) {
+        if (!messageRepository.existsById(messageId)) {
+            throw new NoSuchElementException("Message not found with id: " + messageId);
+        }
+        messageRepository.findById(messageId).ifPresent(message -> {
+            message.getAttachmentIds().forEach(binaryContentRepository::deleteById);
+        });
+        messageRepository.deleteById(messageId);
+    }
+
+    @Override
+    public void clear() {
+        messageRepository.clear();
+    }
+
+    private MessageResponse toMessageResponse(Message message) {
+        return new MessageResponse(
+                message.getId(),
+                message.getContent(),
+                message.getChannelId(),
+                message.getAuthorId(),
+                message.getCreatedAt(),
+                message.getUpdatedAt(),
+                message.getAttachmentIds()
+        );
+    }
 }

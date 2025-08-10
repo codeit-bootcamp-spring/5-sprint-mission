@@ -1,7 +1,10 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import org.springframework.stereotype.Repository;
+
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.exception.FileInitializationException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class FileChannelRepository implements ChannelRepository {
 
     private final Path DIRECTORY;
@@ -40,7 +44,7 @@ public class FileChannelRepository implements ChannelRepository {
         ) {
             oos.writeObject(channel);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to save channel: " + channel.getId(), e);
         }
         return channel;
     }
@@ -67,19 +71,21 @@ public class FileChannelRepository implements ChannelRepository {
         try {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
-                    .map(path -> {
-                        try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (Channel) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(this::readChannelFromFile)
                     .toList();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to list all channels", e);
+        }
+    }
+
+    private Channel readChannelFromFile(Path path) {
+        try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+        ) {
+            return (Channel) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new FileInitializationException("Failed to read channel file: " + path, e);
         }
     }
 
@@ -87,9 +93,11 @@ public class FileChannelRepository implements ChannelRepository {
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
         try {
-            Files.delete(path);
+            if (Files.exists(path)) {
+                Files.delete(path);
+            }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to delete channel by id: " + id, e);
         }
     }
 
@@ -109,11 +117,11 @@ public class FileChannelRepository implements ChannelRepository {
                         try {
                             Files.delete(path);
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new FileInitializationException("Failed to delete channel file: " + path, e);
                         }
                     });
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to clear channels", e);
         }
     }
 

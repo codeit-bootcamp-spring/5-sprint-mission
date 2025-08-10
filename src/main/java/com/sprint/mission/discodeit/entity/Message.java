@@ -1,19 +1,32 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class Message extends BaseEntity {
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+@SuperBuilder
+@Getter
+@Setter
+public class Message extends BaseEntity implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
     private String content;
     private UUID channelId;
     private UUID authorId;
+    private List<UUID> attachmentIds = new ArrayList<>();
 
-    public Message(UUID channelId, UUID authorId, String content) {
-        super(UUID.randomUUID(), Instant.now().getEpochSecond(), Instant.now().getEpochSecond());
-        this.channelId = channelId;
-        this.authorId = authorId;
-        this.content = content;
+    private Object readResolve() {
+        if (attachmentIds == null) {
+            attachmentIds = new ArrayList<>();
+        }
+        return this;
     }
+
+    
 
     public void update(String content) {
         boolean anyValueUpdated = false;
@@ -23,28 +36,8 @@ public class Message extends BaseEntity {
         }
 
         if (anyValueUpdated) {
-            this.updatedAt = Instant.now().getEpochSecond();
+            setUpdatedAt(Instant.now());
         }
-    }
-
-    public UUID getMessageId() {
-        return this.id;
-    }
-
-    public Long getCreatedAt() {
-        return this.createdAt;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public UUID getAuthorId() {
-        return authorId;
     }
 
     @Override

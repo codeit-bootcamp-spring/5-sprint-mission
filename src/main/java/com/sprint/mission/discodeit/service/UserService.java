@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.UserResponse;
+import com.sprint.mission.discodeit.dto.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 
 import java.util.List;
@@ -8,17 +11,17 @@ import java.util.UUID;
 
 
 public interface UserService {
-    User create(String username, String password);
+    UserResponse create(UserCreateRequest request);
 
-    User find(UUID userId);
+    UserResponse find(UUID userId);
 
-    List<User> findAll();
+    List<UserResponse> findAll();
 
-    User update(UUID id, String username, String password);
+    UserResponse update(UserUpdateRequest request);
 
     void delete(UUID id);
 
-    Optional<User> findByUsername(String username);
+    Optional<UserResponse> findByUsername(String username);
 
     /**
      * 모든 사용자 데이터를 초기화합니다.

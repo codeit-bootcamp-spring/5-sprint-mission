@@ -1,7 +1,10 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import org.springframework.stereotype.Repository;
+
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.exception.FileInitializationException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class FileUserRepository implements UserRepository {
 
     private final Path DIRECTORY;
@@ -33,6 +37,9 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public User save(User user) {
+        if (user.getId() == null) {
+            user.setId(UUID.randomUUID());
+        }
         Path path = resolvePath(user.getId());
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
@@ -40,7 +47,7 @@ public class FileUserRepository implements UserRepository {
         ) {
             oos.writeObject(user);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to save user: " + user.getId(), e);
         }
         return user;
     }
@@ -67,19 +74,21 @@ public class FileUserRepository implements UserRepository {
         try {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
-                    .map(path -> {
-                        try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (User) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(this::readUserFromFile)
                     .toList();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to list all users", e);
+        }
+    }
+
+    private User readUserFromFile(Path path) {
+        try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+        ) {
+            return (User) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new FileInitializationException("Failed to read user file: " + path, e);
         }
     }
 
@@ -87,9 +96,11 @@ public class FileUserRepository implements UserRepository {
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
         try {
-            Files.delete(path);
+            if (Files.exists(path)) {
+                Files.delete(path);
+            }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to delete user by id: " + id, e);
         }
     }
 
@@ -109,11 +120,11 @@ public class FileUserRepository implements UserRepository {
                         try {
                             Files.delete(path);
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new FileInitializationException("Failed to delete user file: " + path, e);
                         }
                     });
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to clear users", e);
         }
     }
 

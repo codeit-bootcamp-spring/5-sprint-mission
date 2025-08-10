@@ -1,7 +1,10 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import org.springframework.stereotype.Repository;
+
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.exception.FileInitializationException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class FileMessageRepository implements MessageRepository {
 
     private final Path DIRECTORY;
@@ -40,7 +44,7 @@ public class FileMessageRepository implements MessageRepository {
         ) {
             oos.writeObject(message);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to save message: " + message.getId(), e);
         }
         return message;
     }
@@ -67,19 +71,21 @@ public class FileMessageRepository implements MessageRepository {
         try {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
-                    .map(path -> {
-                        try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (Message) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(this::readMessageFromFile)
                     .toList();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to list all messages", e);
+        }
+    }
+
+    private Message readMessageFromFile(Path path) {
+        try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+        ) {
+            return (Message) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new FileInitializationException("Failed to read message file: " + path, e);
         }
     }
 
@@ -87,9 +93,11 @@ public class FileMessageRepository implements MessageRepository {
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
         try {
-            Files.delete(path);
+            if (Files.exists(path)) {
+                Files.delete(path);
+            }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to delete message by id: " + id, e);
         }
     }
 
@@ -102,11 +110,11 @@ public class FileMessageRepository implements MessageRepository {
                         try {
                             Files.delete(path);
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new FileInitializationException("Failed to delete message file: " + path, e);
                         }
                     });
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileInitializationException("Failed to clear messages", e);
         }
     }
 
