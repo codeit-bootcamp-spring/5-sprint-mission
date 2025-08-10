@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
-@ToString // ← 추가
+@ToString
 public class MessageResponse {
     private final UUID id;
     private final UUID channelId;

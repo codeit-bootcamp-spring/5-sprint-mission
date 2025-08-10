@@ -24,7 +24,4 @@ public class CreateChannelRequest {
         this(name, description, Collections.emptyList());
     }
 
-    public String getName() { return name; }
-    public String getDescription() { return description; }
-    public List<UUID> getParticipantIds() { return participantIds; }
 }

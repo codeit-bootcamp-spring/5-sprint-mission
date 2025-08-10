@@ -125,7 +125,7 @@ public class FileMessageRepository implements MessageRepository {
 
         boolean deletedAny = false;
         for (Message message : toDelete) {
-            deletedAny |= deleteById(message.getId()); // 하나라도 삭제되면 true
+            deletedAny |= deleteById(message.getId());
         }
 
         return deletedAny;

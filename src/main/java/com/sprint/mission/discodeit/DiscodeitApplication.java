@@ -7,23 +7,25 @@ import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.dto.response.ReadStatusResponse;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import com.sprint.mission.discodeit.service.UserStatusService;
-import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
+
 
 import java.time.Instant;
 import java.util.List;
@@ -35,22 +37,26 @@ import java.util.UUID;
 public class DiscodeitApplication {
 
 	public static void main(String[] args) {
-		ConfigurableApplicationContext ctx = SpringApplication.run(DiscodeitApplication.class, args);
+		SpringApplication.run(DiscodeitApplication.class, args);
+	}
 
-		// 테스트에 필요한 빈 주입 (나머지는 필요 시 사용)
-		UserService userService = ctx.getBean(UserService.class);
-		ChannelService channelService = ctx.getBean(ChannelService.class);
-		MessageService messageService = ctx.getBean(MessageService.class);
-		ReadStatusService readStatusService = ctx.getBean(ReadStatusService.class);
-		UserStatusService userStatusService = ctx.getBean(UserStatusService.class);
-		BinaryContentService binaryContentSvc = ctx.getBean(BinaryContentService.class);
-
-		userCrudTest(userService);
-		channelCrudTest(channelService, userService);
-		messageCrudTest(messageService, channelService, userService);
-		readStatusTest(readStatusService, userService, channelService);
-		// userStatusTest(userStatusService, userService); // 아직 구현 안 함
-		// binaryContentTest(binaryContentSvc);           // 아직 구현 안 함
+	@Bean
+	@Order(1)
+	CommandLineRunner demo(
+			UserService userService,
+			ChannelService channelService,
+			MessageService messageService,
+			ReadStatusService readStatusService,
+			UserStatusService userStatusService,
+			BinaryContentService binaryContentService
+	) {
+		return args -> {
+			userCrudTest(userService);
+			channelCrudTest(channelService, userService);
+			messageCrudTest(messageService, channelService, userService);
+			readStatusTest(readStatusService, userService, channelService);
+			// binaryContentTest(binaryContentService); //아직 구현을 못함
+		};
 	}
 
 	// ================== [1. 사용자(User) CRUD 테스트] ==================

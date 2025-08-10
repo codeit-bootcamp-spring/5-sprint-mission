@@ -11,6 +11,9 @@ import java.util.UUID;
 @ToString
 public class BinaryContent implements java.io.Serializable {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
     private final Instant createdAt;
 

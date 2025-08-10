@@ -10,12 +10,12 @@ import java.util.UUID;
 @ToString
 @Getter
 public class ReadStatusResponse {
-    private UUID id;
-    private UUID userId;
-    private UUID channelId;
-    private Instant lastReadAt;
-    private Instant createdAt;
-    private Instant updatedAt;
+    private final UUID id;
+    private final UUID userId;
+    private final UUID channelId;
+    private final Instant lastReadAt;
+    private final Instant createdAt;
+    private final Instant updatedAt;
 
     public ReadStatusResponse(ReadStatus readStatus) {
         this.id = readStatus.getId();

@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.config;
 import com.sprint.mission.discodeit.repository.*;
 import com.sprint.mission.discodeit.repository.file.*;
 
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -45,6 +46,7 @@ public class RepositoryConfig {
     public BinaryContentRepository fileBinaryContentRepository() {
         return new FileBinaryContentRepository("binary");
     }
+
 }
 
 

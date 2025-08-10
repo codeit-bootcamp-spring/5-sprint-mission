@@ -9,9 +9,9 @@ import java.util.UUID;
 @Getter
 @ToString
 public class ReadStatusCreateRequest {
-    private UUID userId;
-    private UUID channelId;
-    private Instant lastReadAt;
+    private final UUID userId;
+    private final UUID channelId;
+    private final Instant lastReadAt;
 
     public ReadStatusCreateRequest(UUID userId, UUID channelId, Instant lastReadAt) {
         this.userId = userId;

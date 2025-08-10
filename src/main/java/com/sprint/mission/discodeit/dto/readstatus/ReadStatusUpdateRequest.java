@@ -9,8 +9,8 @@ import java.util.UUID;
 @Getter
 @ToString
 public class ReadStatusUpdateRequest {
-    private UUID id;
-    private Instant lastReadAt;
+    private final UUID id;
+    private final Instant lastReadAt;
 
     public ReadStatusUpdateRequest(UUID id, Instant lastReadAt) {
         this.id = id;

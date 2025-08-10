@@ -15,8 +15,4 @@ public class UserResponse {
     private final String username;
     private final String email;
     private final boolean online;
-
-    public UserResponse(User u, boolean online) {
-        this(u.getId(), u.getUsername(), u.getEmail(), online);
-    }
 }

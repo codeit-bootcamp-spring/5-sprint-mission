@@ -114,7 +114,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
             return !targetFiles.isEmpty();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to delete files", e);
+            throw new RuntimeException("파일을 삭제하지 못했습니다", e);
         }
     }
 

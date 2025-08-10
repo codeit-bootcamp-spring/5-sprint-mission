@@ -125,7 +125,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         findAllByUserId(userId).forEach(rs -> deleteById(rs.getId()));
     }
 
-    // ★ 인터페이스에 추가된 메서드 구현
     @Override
     public void deleteAll() {
         try (Stream<Path> s = serFiles()) {

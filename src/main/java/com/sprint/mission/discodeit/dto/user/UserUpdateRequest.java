@@ -12,5 +12,5 @@ public class UserUpdateRequest {
     private final String newUsername;
     private final String newEmail;
     private final String newPassword;
-    private final UUID newProfileId; // 사용 안 하면 유지만
+    private final UUID newProfileId;
 }

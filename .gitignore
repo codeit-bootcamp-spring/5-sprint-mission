@@ -5,6 +5,10 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+# === 로컬 파일 저장소 / 직렬화 파일 ===
+file-data-map/
+*.ser
+
 ### STS ###
 .apt_generated
 .classpath
@@ -19,7 +23,6 @@ bin/
 
 ### IntelliJ IDEA ###
 .idea
-*.ser
 *.iws
 *.iml
 *.ipr
