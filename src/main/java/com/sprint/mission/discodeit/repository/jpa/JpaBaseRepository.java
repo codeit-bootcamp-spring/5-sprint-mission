@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.domain.entity.BaseEntity;
 import com.sprint.mission.discodeit.repository.BaseRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -16,7 +15,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-@Profile("prod")
 public abstract class JpaBaseRepository<T extends BaseEntity> implements BaseRepository<T> {
 
     @PersistenceContext

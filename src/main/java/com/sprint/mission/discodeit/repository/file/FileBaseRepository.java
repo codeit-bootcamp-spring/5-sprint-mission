@@ -4,9 +4,7 @@ import com.sprint.mission.discodeit.config.AppStorageProperties;
 import com.sprint.mission.discodeit.domain.entitydev.DevBaseEntity;
 import com.sprint.mission.discodeit.repository.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -24,7 +23,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 @Slf4j
-@Profile("dev")
 public abstract class FileBaseRepository<T extends DevBaseEntity> implements BaseRepository<T> {
 
     private static final String EXTENSION = ".ser";
@@ -60,10 +58,13 @@ public abstract class FileBaseRepository<T extends DevBaseEntity> implements Bas
     }
 
     private Optional<T> readObject(Path path) {
-        try (FileInputStream fis = new FileInputStream(path.toFile()); ObjectInputStream ois = new ObjectInputStream(fis)) {
-            return Optional.of(entityType.cast(ois.readObject()));
+        try {
+            if (path == null || !Files.exists(path)) return Optional.empty();
+            try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
+                return Optional.of(entityType.cast(ois.readObject()));
+            }
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Failed to read entity from storage", e);
+            throw new RuntimeException("Failed to read entity from storage: " + path, e);
         }
     }
 
@@ -81,6 +82,7 @@ public abstract class FileBaseRepository<T extends DevBaseEntity> implements Bas
 
     @Override
     public List<T> saveAll(Collection<T> entities) {
+        if (entities == null) return List.of();
         return entities.stream().map(this::save).toList();
     }
 
@@ -123,7 +125,7 @@ public abstract class FileBaseRepository<T extends DevBaseEntity> implements Bas
 
     @Override
     public boolean existsById(UUID id) {
-        return readObject(resolvePath(id)).map(e -> !e.isDeleted()).orElse(false);
+        return findById(id).isPresent();
     }
 
     @Override
@@ -221,6 +223,7 @@ public abstract class FileBaseRepository<T extends DevBaseEntity> implements Bas
 
     @Override
     public long count(Predicate<T> condition) {
+        Objects.requireNonNull(condition, "condition must not be null");
         return listSerializedFiles().stream()
                 .map(this::readObject).flatMap(Optional::stream)
                 .filter(e -> !e.isDeleted())

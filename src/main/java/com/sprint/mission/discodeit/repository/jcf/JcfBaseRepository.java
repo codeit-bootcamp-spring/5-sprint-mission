@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.domain.entitydev.DevBaseEntity;
 import com.sprint.mission.discodeit.repository.BaseRepository;
-import org.springframework.context.annotation.Profile;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-@Profile("test")
 public class JcfBaseRepository<T extends DevBaseEntity> implements BaseRepository<T> {
 
     protected final Map<UUID, T> data = new HashMap<>();
@@ -141,6 +139,7 @@ public class JcfBaseRepository<T extends DevBaseEntity> implements BaseRepositor
 
     @Override
     public long count(Predicate<T> condition) {
+        Objects.requireNonNull(condition, "condition must not be null");
         return data.values().stream()
                 .filter(e -> !e.isDeleted())
                 .filter(condition)

@@ -12,7 +12,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -65,7 +64,10 @@ public class BasicFriendRequestService implements DevFriendRequestService {
         userRepository.getOrThrow(sender);
         userRepository.getOrThrow(receiver);
         DevFriendRequest friendRequest = new DevFriendRequest(sender, receiver);
-        if (friendRequestRepository.existsBySenderIdAndReceiverId(sender, receiver))
+        if (userRepository.getOrThrow(sender).isFriend(receiver))
+            throw new IllegalArgumentException("이미 친구입니다.");
+        if (friendRequestRepository.existsBySenderIdAndReceiverId(sender, receiver)
+                || friendRequestRepository.existsBySenderIdAndReceiverId(receiver, sender))
             throw new IllegalArgumentException("친구 요청이 이미 존재합니다.");
         return friendRequestRepository.save(friendRequest);
     }
@@ -82,6 +84,10 @@ public class BasicFriendRequestService implements DevFriendRequestService {
         userRepository.save(sender);
         userRepository.save(receiver);
         friendRequestRepository.hardDeleteById(requestId);
+        friendRequestRepository.getSentRequests(receiverId).stream()
+                .filter(x -> x.getReceiver().equals(senderId))
+                .map(DevFriendRequest::getId)
+                .forEach(friendRequestRepository::hardDeleteById);
     }
 
     @Override
@@ -92,9 +98,7 @@ public class BasicFriendRequestService implements DevFriendRequestService {
 
     @Override
     public void clear(UUID userId) {
-        Set<UUID> frIds = new HashSet<>();
-        friendRequestRepository.getReceivedRequests(userId).forEach(fr -> frIds.add(fr.getId()));
-        friendRequestRepository.getSentRequests(userId).forEach(fr -> frIds.add(fr.getId()));
-        friendRequestRepository.deleteAllByIds(frIds);
+        if (userId == null) return;
+        friendRequestRepository.clear(userId);
     }
 }

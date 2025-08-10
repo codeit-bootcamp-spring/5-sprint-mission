@@ -21,6 +21,13 @@ public class FileFriendRequestRepository extends FileBaseRepository<DevFriendReq
     }
 
     @Override
+    public boolean existsBySenderIdAndReceiverId(UUID senderId, UUID receiverId) {
+        if (senderId == null || receiverId == null || senderId == receiverId) return false;
+        return findAll().stream()
+                .anyMatch(fr -> senderId.equals(fr.getSender()) && receiverId.equals(fr.getReceiver()));
+    }
+
+    @Override
     public void clear(UUID userId) {
         if (userId == null) return;
         Set<UUID> ids = new HashSet<>();
@@ -30,17 +37,9 @@ public class FileFriendRequestRepository extends FileBaseRepository<DevFriendReq
     }
 
     @Override
-    public boolean existsBySenderIdAndReceiverId(UUID senderId, UUID receiverId) {
-        if (senderId == null || receiverId == null || senderId == receiverId) return false;
-        DevFriendRequest probe = new DevFriendRequest(senderId, receiverId);
-        return findAll().stream().anyMatch(probe::equals);
-    }
-
-    @Override
     public List<DevFriendRequest> getSentRequests(UUID sender) {
         if (sender == null) return List.of();
         return findAll().stream()
-                .filter(fr -> fr.getSender() != null)
                 .filter(fr -> sender.equals(fr.getSender()))
                 .sorted(Comparator.comparing(DevFriendRequest::getCreatedAt).reversed())
                 .toList();
@@ -50,7 +49,6 @@ public class FileFriendRequestRepository extends FileBaseRepository<DevFriendReq
     public List<DevFriendRequest> getReceivedRequests(UUID receiver) {
         if (receiver == null) return List.of();
         return findAll().stream()
-                .filter(fr -> fr.getReceiver() != null)
                 .filter(fr -> receiver.equals(fr.getReceiver()))
                 .sorted(Comparator.comparing(DevFriendRequest::getCreatedAt).reversed())
                 .toList();

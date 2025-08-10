@@ -51,6 +51,9 @@ public class ChatRoom extends BaseEntity {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Message> messages = new LinkedHashSet<>();
 
+    private static final int DM_MIN = 2;
+    private static final int DM_MAX = 10;
+
     public ChatRoom(Channel channel, Guild guild) {
         this.channel = Objects.requireNonNull(channel, "Channel must not be null.");
         this.guild = Objects.requireNonNull(guild, "Guild must not be null.");
@@ -80,6 +83,12 @@ public class ChatRoom extends BaseEntity {
                 .hashCode();
     }
 
+    private void assertDmOnly(String method) {
+        if (isChannelChatRoom())
+            throw new UnsupportedOperationException(
+                    method + " is available only for DM ChatRoom. Use GuildService for channel-based ChatRoom.");
+    }
+
     public boolean isChannelChatRoom() {
         return channel != null;
     }
@@ -103,23 +112,25 @@ public class ChatRoom extends BaseEntity {
     }
 
     public void addParticipant(User user) {
-        if (participants.add(Objects.requireNonNull(user)))
-            this.participantsHashcode = computeParticipantsHashcode(participants);
+        assertDmOnly("addParticipant");
+        Objects.requireNonNull(user, "User id must not be null.");
+        if (participants.size() >= DM_MAX && !participants.contains(user))
+            throw new IllegalStateException("DM ChatRoom allows up to 10 participants.");
+        if (participants.add(user)) participantsHashcode = computeParticipantsHashcode(participants);
     }
 
     public void removeParticipant(User user) {
-        if (participants.remove(Objects.requireNonNull(user)))
-            this.participantsHashcode = computeParticipantsHashcode(participants);
+        assertDmOnly("removeParticipant");
+        Objects.requireNonNull(user, "User id must not be null.");
+        if (!participants.contains(user)) return;
+        if (participants.size() <= DM_MIN)
+            throw new IllegalStateException("DM ChatRoom must have at least 2 participants.");
+        if (participants.remove(user)) participantsHashcode = computeParticipantsHashcode(participants);
     }
 
     public boolean isParticipant(User user) {
-        if (isChannelChatRoom())
-            throw new UnsupportedOperationException("Use GuildService to check participants in channel-based ChatRoom.");
+        assertDmOnly("isParticipant");
         return participants.contains(Objects.requireNonNull(user));
-    }
-
-    public int participantsHashcode() {
-        return computeParticipantsHashcode(participants);
     }
 
     @Override

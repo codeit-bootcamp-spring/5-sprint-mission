@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.repository.devrepository.DevFriendRequestRep
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -20,10 +21,17 @@ public class JcfFriendRequestRepository extends JcfBaseRepository<DevFriendReque
     }
 
     @Override
+    public boolean existsBySenderIdAndReceiverId(UUID senderId, UUID receiverId) {
+        if (senderId == null || receiverId == null || senderId == receiverId) return false;
+        return data.values().stream()
+                .filter(fr -> !fr.isDeleted())
+                .anyMatch(fr -> senderId.equals(fr.getSender()) && receiverId.equals(fr.getReceiver()));
+    }
+
+    @Override
     public void clear(UUID userId) {
         if (userId == null) return;
-        Set<UUID> ids = data.values().stream()
-                .filter(fr -> !fr.isDeleted())
+        Set<UUID> ids = findAll().stream()
                 .filter(fr -> userId.equals(fr.getSender()) || userId.equals(fr.getReceiver()))
                 .map(DevFriendRequest::getId)
                 .collect(Collectors.toSet());
@@ -31,19 +39,12 @@ public class JcfFriendRequestRepository extends JcfBaseRepository<DevFriendReque
     }
 
     @Override
-    public boolean existsBySenderIdAndReceiverId(UUID senderId, UUID receiverId) {
-        if (senderId == null || receiverId == null || senderId == receiverId) return false;
-        DevFriendRequest probe = new DevFriendRequest(senderId, receiverId);
-        return data.values().stream()
-                .filter(fr -> !fr.isDeleted())
-                .anyMatch(probe::equals);
-    }
-
-    @Override
     public List<DevFriendRequest> getSentRequests(UUID sender) {
-        return data.values().stream()
-                .filter(fr -> fr.getSender().equals(sender))
-                .collect(Collectors.toList());
+        if (sender == null) return List.of();
+        return findAll().stream()
+                .filter(fr -> sender.equals(fr.getSender()))
+                .sorted(Comparator.comparing(DevFriendRequest::getCreatedAt).reversed())
+                .toList();
     }
 
     @Override

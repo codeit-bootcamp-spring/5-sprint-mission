@@ -4,25 +4,26 @@ import com.sprint.mission.discodeit.domain.entitydev.DevMessage;
 import com.sprint.mission.discodeit.domain.entitydev.DevUser;
 import com.sprint.mission.discodeit.repository.devrepository.DevMessageRepository;
 import com.sprint.mission.discodeit.repository.devrepository.DevUserRepository;
-import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.dev.DevMessageService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 @Service
 @Profile({"test", "dev"})
-public class DevMessageService implements MessageService {
+public class BasicMessageService implements DevMessageService {
 
     private final DevMessageRepository messageRepository;
     private final DevUserRepository userRepository;
 
-    public DevMessageService(DevMessageRepository messageRepository,
-                             DevUserRepository userRepository) {
+    public BasicMessageService(DevMessageRepository messageRepository,
+                               DevUserRepository userRepository) {
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
     }
@@ -34,8 +35,18 @@ public class DevMessageService implements MessageService {
     }
 
     @Override
-    public UUID send(UUID senderId, UUID receiverId, String content, Set<String> files, UUID replyTo) {
-        return messageRepository.save(new DevMessage(senderId, receiverId, content, files, replyTo)).getId();
+    public DevMessage send(UUID chatRoomId, UUID senderId, String content, Set<String> files, UUID replyTo) {
+        Objects.requireNonNull(chatRoomId, "chatRoomId must not be null");
+        Objects.requireNonNull(senderId, "senderId must not be null");
+        userRepository.getOrThrow(senderId);
+
+        if (replyTo != null) {
+            DevMessage parent = messageRepository.getOrThrow(replyTo);
+            if (!chatRoomId.equals(parent.getChatRoom()))
+                throw new IllegalArgumentException("replyTo 메시지는 동일한 채팅방에 속해야 합니다.");
+        }
+
+        return messageRepository.save(new DevMessage(chatRoomId, senderId, content, files, replyTo));
     }
 
     @Override

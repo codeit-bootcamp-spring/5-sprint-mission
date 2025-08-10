@@ -16,8 +16,10 @@ public class DevChatRoom extends DevBaseEntity {
     private final UUID channel;
     private final UUID guild;
 
-    private final Set<UUID> participants = new HashSet<>();
     private final Set<UUID> messages = new LinkedHashSet<>();
+    private final Set<UUID> participants = new HashSet<>();
+
+    private int participantsHashcode;
 
     private static final int DM_MIN = 2;
     private static final int DM_MAX = 10;
@@ -37,6 +39,7 @@ public class DevChatRoom extends DevBaseEntity {
         this.participants.addAll(participants);
         this.channel = null;
         this.guild = null;
+        this.participantsHashcode = computeParticipantsHashcode(participants);
         touch();
     }
 
@@ -49,6 +52,12 @@ public class DevChatRoom extends DevBaseEntity {
                 .sorted()
                 .collect(Collectors.joining("|"))
                 .hashCode();
+    }
+
+    private void assertDmOnly(String method) {
+        if (isChannelChatRoom())
+            throw new UnsupportedOperationException(
+                    method + " is available only for DM ChatRoom. Use GuildService for channel-based ChatRoom.");
     }
 
     public boolean isChannelChatRoom() {
@@ -83,7 +92,10 @@ public class DevChatRoom extends DevBaseEntity {
         Objects.requireNonNull(user, "User id must not be null.");
         if (participants.size() >= DM_MAX && !participants.contains(user))
             throw new IllegalStateException("DM ChatRoom allows up to 10 participants.");
-        if (participants.add(user)) touch();
+        if (participants.add(user)) {
+            participantsHashcode = computeParticipantsHashcode(participants);
+            touch();
+        }
     }
 
     public void removeParticipant(UUID user) {
@@ -92,24 +104,15 @@ public class DevChatRoom extends DevBaseEntity {
         if (!participants.contains(user)) return;
         if (participants.size() <= DM_MIN)
             throw new IllegalStateException("DM ChatRoom must have at least 2 participants.");
-        participants.remove(user);
-        touch();
+        if (participants.remove(user)) {
+            participantsHashcode = computeParticipantsHashcode(participants);
+            touch();
+        }
     }
 
     public boolean isParticipant(UUID user) {
         assertDmOnly("isParticipant");
         return participants.contains(Objects.requireNonNull(user, "User id must not be null."));
-    }
-
-    public int participantsHashcode() {
-        assertDmOnly("participantsHashcode");
-        return computeParticipantsHashcode(participants);
-    }
-
-    private void assertDmOnly(String method) {
-        if (isChannelChatRoom())
-            throw new UnsupportedOperationException(
-                    method + " is available only for DM ChatRoom. Use GuildService for channel-based ChatRoom.");
     }
 
     @Override

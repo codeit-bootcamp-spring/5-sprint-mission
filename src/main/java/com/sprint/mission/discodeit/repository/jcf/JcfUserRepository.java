@@ -20,6 +20,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
 
     @Override
     public Optional<DevUser> findByEmail(String email) {
+        if (email == null || email.isBlank()) return Optional.empty();
         return data.values().stream()
                 .filter(user -> !user.isDeleted())
                 .filter(user -> user.getEmail().equalsIgnoreCase(email))
@@ -28,6 +29,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
 
     @Override
     public Optional<DevUser> findByUsername(String username) {
+        if (username == null || username.isBlank()) return Optional.empty();
         return data.values().stream()
                 .filter(user -> !user.isDeleted())
                 .filter(user -> user.getUsername().equalsIgnoreCase(username))
@@ -36,6 +38,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
 
     @Override
     public boolean existsByEmail(String email) {
+        if (email == null || email.isBlank()) return false;
         return data.values().stream()
                 .filter(user -> !user.isDeleted())
                 .anyMatch(user -> user.getEmail().equalsIgnoreCase(email));
@@ -43,6 +46,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
 
     @Override
     public boolean existsByUsername(String username) {
+        if (username == null || username.isBlank()) return false;
         return data.values().stream()
                 .filter(user -> !user.isDeleted())
                 .anyMatch(user -> user.getUsername().equalsIgnoreCase(username));
@@ -50,6 +54,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
 
     @Override
     public List<DevUser> searchByEmail(String email) {
+        if (email == null || email.isBlank()) return List.of();
         return data.values().stream()
                 .filter(user -> !user.isDeleted())
                 .filter(user -> user.getEmail().toLowerCase().startsWith(email.toLowerCase()))
@@ -58,6 +63,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
 
     @Override
     public List<DevUser> searchByUsername(String username) {
+        if (username == null || username.isBlank()) return List.of();
         return data.values().stream()
                 .filter(user -> !user.isDeleted())
                 .filter(user -> user.getUsername().toLowerCase().startsWith(username.toLowerCase()))
@@ -66,6 +72,7 @@ public class JcfUserRepository extends JcfBaseRepository<DevUser> implements Dev
 
     @Override
     public List<DevUser> searchByGlobalName(String globalName) {
+        if (globalName == null || globalName.isBlank()) return List.of();
         return data.values().stream()
                 .filter(user -> !user.isDeleted())
                 .filter(user -> user.getUsername().toLowerCase().startsWith(globalName.toLowerCase()))

@@ -29,11 +29,14 @@ public class JcfChatRoomRepository extends JcfBaseRepository<DevChatRoom> implem
     public boolean existsByParticipants(Set<UUID> participants) {
         if (participants == null || participants.size() < 2 || participants.size() > 10 || participants.contains(null))
             return false;
-        int participantsHashcode = DevChatRoom.computeParticipantsHashcode(participants);
-        return data.values().stream()
-                .filter(cr -> !cr.isDeleted())
+
+        Set<UUID> target = Set.copyOf(participants);
+        int targetHash = DevChatRoom.computeParticipantsHashcode(target);
+
+        return findAll().stream()
                 .filter(cr -> !cr.isChannelChatRoom())
-                .filter(cr -> cr.participantsHashcode() == participantsHashcode)
-                .anyMatch(cr -> cr.getParticipants().equals(participants));
+                .filter(cr -> cr.getParticipants().size() == target.size())
+                .filter(cr -> cr.getParticipantsHashcode() == targetHash)
+                .anyMatch(cr -> cr.getParticipants().equals(target));
     }
 }

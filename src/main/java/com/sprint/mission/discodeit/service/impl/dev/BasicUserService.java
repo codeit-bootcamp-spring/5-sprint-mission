@@ -98,7 +98,6 @@ public class BasicUserService implements DevUserService {
     public void deleteAccount(UUID userId) {
         if (userId == null) throw new IllegalArgumentException("userId는 null일 수 없습니다.");
 
-        Set<UUID> frIds = new HashSet<>();
         friendRequestRepository.clear(userId);
 
         DevUser user = userRepository.getOrThrow(userId);
@@ -179,7 +178,8 @@ public class BasicUserService implements DevUserService {
 
     @Override
     public void updateVerified(UUID userId, boolean verified) {
-        update(userId, DevUser::verify);
+        if (verified) update(userId, DevUser::verify);
+        else update(userId, DevUser::unverify);
     }
 
     @Override
@@ -219,12 +219,20 @@ public class BasicUserService implements DevUserService {
 
     @Override
     public void joinGuild(UUID userId, UUID guildId) {
+        DevGuild guild = guildRepository.getOrThrow(guildId);
         update(userId, u -> u.joinGuild(guildId));
+        guild.addUser(userId);
+        guildRepository.save(guild);
     }
 
     @Override
     public void leaveGuild(UUID userId, UUID guildId) {
+        DevGuild guild = guildRepository.getOrThrow(guildId);
+        if (guild.isOwner(userId))
+            throw new IllegalArgumentException("Cannot leave the guild. Transfer ownership first.");
         update(userId, u -> u.leaveGuild(guildId));
+        guild.removeUser(userId);
+        guildRepository.save(guild);
     }
 
     @Override
