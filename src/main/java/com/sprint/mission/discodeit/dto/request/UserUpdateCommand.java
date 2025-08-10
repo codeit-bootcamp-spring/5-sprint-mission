@@ -12,7 +12,11 @@ public record UserUpdateCommand(
         Optional<LocalDate> birthDate,
         Optional<Boolean> subscribedToNewsletter,
         Optional<String> globalName,
-        Optional<ProfileImageCommand> newProfileImage, // 선택: 교체
-        Optional<Boolean> removeProfileImage           // 선택: 제거 플래그
+        Optional<String> phoneNumber,
+        Optional<String> bio,
+        Optional<String> avatar,
+        Optional<Boolean> verified,
+        Optional<Boolean> banned,
+        Optional<Boolean> deactivated
 ) {
 }

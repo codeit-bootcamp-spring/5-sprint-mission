@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service.impl;
+package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.user.Status;

@@ -1,10 +1,9 @@
-package com.sprint.mission.discodeit.service.impl;
+package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.FriendRequest;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.FriendRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 @Profile({"test", "dev"})
-public class BasicFriendRequestService implements FriendRequestService {
+public class BasicFriendRequestService {
 
     private final UserRepository userRepository;
     private final FriendRequestRepository friendRequestRepository;
@@ -56,7 +55,6 @@ public class BasicFriendRequestService implements FriendRequestService {
                 .toList();
     }
 
-    @Override
     public FriendRequest send(UUID sender, UUID receiver) {
         userRepository.getOrThrow(sender);
         userRepository.getOrThrow(receiver);
@@ -69,7 +67,6 @@ public class BasicFriendRequestService implements FriendRequestService {
         return friendRequestRepository.save(friendRequest);
     }
 
-    @Override
     public void accept(UUID requestId) {
         FriendRequest fr = friendRequestRepository.getOrThrow(requestId);
         UUID senderId = fr.getSenderId();
@@ -87,13 +84,11 @@ public class BasicFriendRequestService implements FriendRequestService {
                 .forEach(friendRequestRepository::hardDeleteById);
     }
 
-    @Override
     public void reject(UUID requestId) {
         if (friendRequestRepository.findById(requestId).isEmpty()) throw new NoSuchElementException("이미 처리된 요청입니다.");
         friendRequestRepository.hardDeleteById(requestId);
     }
 
-    @Override
     public void clear(UUID userId) {
         if (userId == null) return;
         friendRequestRepository.clear(userId);

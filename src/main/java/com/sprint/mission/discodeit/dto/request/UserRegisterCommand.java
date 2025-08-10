@@ -8,7 +8,6 @@ public record UserRegisterCommand(
         String password,
         LocalDate birthDate,
         boolean subscribedToNewsletter,
-        String globalName,
-        ProfileImageCommand profile
+        String globalName
 ) {
 }

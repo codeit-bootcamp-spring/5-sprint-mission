@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service.impl;
+package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;

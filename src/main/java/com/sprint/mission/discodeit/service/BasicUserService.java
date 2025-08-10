@@ -1,13 +1,14 @@
-package com.sprint.mission.discodeit.service.impl;
+package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.entity.guild.Guild;
+import com.sprint.mission.discodeit.dto.request.UserRegisterCommand;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.util.Validators;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -24,12 +25,21 @@ import java.util.function.Consumer;
 @Service
 @RequiredArgsConstructor
 @Profile({"test", "dev"})
-public class BasicUserService implements UserService {
+public class BasicUserService {
 
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final GuildRepository guildRepository;
+
+    private UserResponse toResponse(User u) {
+        return new UserResponse(
+                u.getId(),
+                u.getEmail(),
+                u.getUsername(),
+                u.getGlobalName()
+        );
+    }
 
     protected void update(UUID id, Consumer<User> updater) {
         User entity = userRepository.getOrThrow(id);
@@ -37,57 +47,45 @@ public class BasicUserService implements UserService {
         userRepository.save(entity);
     }
 
-    @Override
-    public User register(String email,
-                         String username,
-                         String password,
-                         LocalDate birthDate,
-                         boolean subscribedToNewsletter,
-                         String globalName) {
+    public UserResponse register(UserRegisterCommand cmd) {
+        Objects.requireNonNull(cmd, "cmd must not be null");
+        Objects.requireNonNull(cmd.birthDate(), "birthDate must not be null");
 
-        String e = Validators.validateEmail(email);
-        String u = Validators.validateUsername(username);
-        Objects.requireNonNull(birthDate, "birthDate must not be null");
-        String p = Validators.validatePassword(password);
+        String e = Validators.validateEmail(cmd.email());
+        String u = Validators.validateUsername(cmd.username());
+        String p = Validators.validatePassword(cmd.password());
+
         if (userRepository.existsByEmail(e)) throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         if (userRepository.existsByUsername(u)) throw new IllegalArgumentException("이미 사용 중인 사용자명입니다.");
 
-        User user = userRepository.save(new User(e, u, p, birthDate, subscribedToNewsletter, globalName));
-        userStatusRepository.save(new UserStatus(user.getId()));
-        return user;
+        User saved = userRepository.save(new User(
+                e, u, p, cmd.birthDate(), cmd.subscribedToNewsletter(), cmd.globalName()
+        ));
+
+        // UserStatus 동시 생성
+        userStatusRepository.save(new UserStatus(saved.getId()));
+
+        return toResponse(saved);
     }
 
-    // @Override
-    // public UserResponse register() {
-    //     return null;
-    // }
-    //
-    // @Override
-    // public UserResponse findById(UUID userId) {
-    //     return null;
-    // }
-    //
-    // @Override
-    // public List<UserResponse> findAll() {
-    //     return List.of();
-    // }
-    //
-    // @Override
-    // public UserResponse update(UserUpdateCommand cmd) {
-    //     return null;
-    // }
+    public UserResponse findById(UUID userId) {
+        return toResponse(userRepository.getOrThrow(userId));
+    }
 
-    @Override
+    public List<UserResponse> findAll() {
+        return userRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public void deactivateAccount(UUID userId) {
         update(userId, User::deactivate);
     }
 
-    @Override
     public void reactivateAccount(UUID userId) {
         update(userId, User::activate);
     }
 
-    @Override
     public void deleteAccount(UUID userId) {
         if (userId == null) throw new IllegalArgumentException("userId는 null일 수 없습니다.");
 
@@ -111,7 +109,6 @@ public class BasicUserService implements UserService {
         userRepository.deleteById(userId);
     }
 
-    @Override
     public void updateEmail(UUID userId, String email) {
         User user = userRepository.getOrThrow(userId);
         if (user.getEmail().equals(email)) throw new IllegalArgumentException("기존과 동일한 이메일입니다.");
@@ -119,64 +116,53 @@ public class BasicUserService implements UserService {
         update(userId, u -> u.setEmail(email));
     }
 
-    @Override
     public void updateGlobalName(UUID userId, String globalName) {
         update(userId, u -> u.setGlobalName(globalName));
     }
 
-    @Override
     public void updateUsername(UUID userId, String username) {
         if (userRepository.findByEmail(username).isPresent()) throw new IllegalArgumentException("중복된 사용자명이 존재합니다.");
         update(userId, u -> u.setUsername(username));
     }
 
-    @Override
     public void updatePassword(UUID userId, String password) {
         if (userRepository.getOrThrow(userId).checkPassword(password))
             throw new IllegalArgumentException("동일한 비밀번호입니다.");
         update(userId, u -> u.setPassword(password));
     }
 
-    @Override
     public void updateBirthDate(UUID userId, LocalDate birthDate) {
         if (birthDate == null) throw new IllegalArgumentException("생년월일은 필수입니다.");
         update(userId, u -> u.setBirthDate(birthDate));
     }
 
-    @Override
     public void updateSubscribedToNewsletter(UUID userId, boolean isSubscribedToNewsletter) {
         update(userId, u -> u.setSubscribedToNewsletter(isSubscribedToNewsletter));
     }
 
-    @Override
     public void updatePhoneNumber(UUID userId, String phoneNumber) {
         update(userId, u -> u.setPhoneNumber(phoneNumber));
     }
 
-    @Override
     public void updateBio(UUID userId, String bio) {
         update(userId, u -> u.setBio(bio));
     }
 
-    @Override
     public void updateVerified(UUID userId, boolean verified) {
         if (verified) update(userId, User::verify);
         else update(userId, User::unverify);
     }
 
-    @Override
     public void updateBanned(UUID userId, boolean banned) {
         if (banned) update(userId, User::ban);
         else update(userId, User::unban);
     }
 
-    @Override
     public List<User> getFriends(UUID userId) {
         Set<UUID> ids = userRepository.getOrThrow(userId).getFriendIds();
         return userRepository.findAllByIds(ids);
     }
 
-    @Override
     public void addFriend(UUID userId, UUID friendId) {
         if (userId.equals(friendId)) throw new IllegalArgumentException("자기 자신에게는 친구 요청을 보낼 수 없습니다.");
         userRepository.getOrThrow(userId);
@@ -185,7 +171,6 @@ public class BasicUserService implements UserService {
         update(friendId, u -> u.addFriend(userId));
     }
 
-    @Override
     public void removeFriend(UUID userId, UUID friendId) {
         userRepository.getOrThrow(userId);
         userRepository.getOrThrow(friendId);
@@ -193,13 +178,11 @@ public class BasicUserService implements UserService {
         update(friendId, u -> u.removeFriend(userId));
     }
 
-    @Override
     public List<Guild> getGuilds(UUID userId) {
         Set<UUID> ids = userRepository.getOrThrow(userId).getGuildIds();
         return guildRepository.findAllByIds(ids);
     }
 
-    @Override
     public void joinGuild(UUID userId, UUID guildId) {
         Guild guild = guildRepository.getOrThrow(guildId);
         update(userId, u -> u.joinGuild(guildId));
@@ -207,7 +190,6 @@ public class BasicUserService implements UserService {
         guildRepository.save(guild);
     }
 
-    @Override
     public void leaveGuild(UUID userId, UUID guildId) {
         Guild guild = guildRepository.getOrThrow(guildId);
         if (guild.isOwner(userId))
@@ -217,17 +199,14 @@ public class BasicUserService implements UserService {
         guildRepository.save(guild);
     }
 
-    @Override
     public void joinChatRoom(UUID userId, UUID chatRoomId) {
         update(userId, u -> u.joinChatRoom(chatRoomId));
     }
 
-    @Override
     public void leaveChatRoom(UUID userId, UUID chatRoomId) {
         update(userId, u -> u.leaveChatRoom(chatRoomId));
     }
 
-    @Override
     public void hardDeleteAccount(UUID userId) {
         userRepository.hardDeleteById(userId);
     }

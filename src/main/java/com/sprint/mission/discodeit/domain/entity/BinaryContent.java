@@ -1,14 +1,10 @@
 package com.sprint.mission.discodeit.domain.entity;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
 
 @Getter
-@NoArgsConstructor
-@RequiredArgsConstructor
 public class BinaryContent extends BaseEntity {
     private String filename;
     private String contentType;

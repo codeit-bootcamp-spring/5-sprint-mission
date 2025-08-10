@@ -1,10 +1,9 @@
-package com.sprint.mission.discodeit.service.impl;
+package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,7 @@ import java.util.function.Consumer;
 @Service
 @RequiredArgsConstructor
 @Profile({"test", "dev"})
-public class BasicMessageService implements MessageService {
+public class BasicMessageService {
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
@@ -30,7 +29,6 @@ public class BasicMessageService implements MessageService {
         messageRepository.save(entity);
     }
 
-    @Override
     public Message send(UUID chatRoomId, UUID senderId, String content, Set<UUID> attachmentIds, UUID replyTo) {
         Objects.requireNonNull(chatRoomId, "chatRoomId must not be null");
         Objects.requireNonNull(senderId, "senderId must not be null");
@@ -45,18 +43,15 @@ public class BasicMessageService implements MessageService {
         return messageRepository.save(new Message(chatRoomId, senderId, content, attachmentIds, replyTo));
     }
 
-    @Override
     public void updateContent(UUID messageId, String content) {
         update(messageId, m -> m.setContent(content));
     }
 
-    @Override
     public void updateAttachmentIds(UUID messageId, List<UUID> attachmentIds) {
         Set<UUID> attachmentSet = (attachmentIds == null) ? Set.of() : new LinkedHashSet<>(attachmentIds);
         update(messageId, m -> m.setAttachmentIds(attachmentSet));
     }
 
-    @Override
     public void printSenderAndContent(UUID messageId) {
         Message m = messageRepository.getOrThrow(messageId);
         User sender = userRepository.getOrThrow(m.getAuthorId());
