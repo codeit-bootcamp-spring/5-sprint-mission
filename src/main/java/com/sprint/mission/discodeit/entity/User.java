@@ -6,16 +6,6 @@ import java.util.UUID;
 
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
-<<<<<<< HEAD
-
-    private transient UUID id;
-    private Long createdAt;
-    private Long updatedAt;
-
-    private String username;
-    private String email;
-    private transient String password;
-=======
 
     private UUID id;
     private Long createdAt;
@@ -24,16 +14,11 @@ public class User implements Serializable {
     private String username;
     private String email;
     private String password;
->>>>>>> 717adae (feat: 초기 커밋)
 
     public User(String username, String email, String password) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now().getEpochSecond();
-<<<<<<< HEAD
-
-=======
         //
->>>>>>> 717adae (feat: 초기 커밋)
         this.username = username;
         this.email = email;
         this.password = password;

@@ -7,23 +7,14 @@ import java.util.UUID;
 public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
-<<<<<<< HEAD
-    private transient UUID id;
-=======
     private UUID id;
->>>>>>> 717adae (feat: 초기 커밋)
     private Long createdAt;
     private Long updatedAt;
     //
     private String content;
     //
-<<<<<<< HEAD
-    private transient UUID channelId;
-    private transient UUID authorId;
-=======
     private UUID channelId;
     private UUID authorId;
->>>>>>> 717adae (feat: 초기 커밋)
 
     public Message(String content, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
