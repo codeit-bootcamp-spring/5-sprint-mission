@@ -59,7 +59,7 @@ public class DiscodeitApplication implements CommandLineRunner {
     public void run(String... args) {
 
         testUser = userService.create(new UserRegisterDto("테스트유저", "test@example.com", "1234", null));
-        testChannel = channelService.create(new ChannelCreateDto("테스트채널", ChannelType.TEXT, null, null));
+        testChannel = channelService.create(new ChannelCreateDto("테스트채널", ChannelType.PUBLIC, null, null));
 
         System.out.println("\n 🚀 유저 테스트 🚀 \n");
         testUser();
@@ -158,7 +158,7 @@ public class DiscodeitApplication implements CommandLineRunner {
 
     private void testChannel() {
 
-        var dto = new ChannelCreateDto("공부채널", ChannelType.TEXT, null, null);
+        var dto = new ChannelCreateDto("공부채널", ChannelType.PUBLIC, null, null);
         Channel testChannel = channelService.create(dto);
         System.out.println("1) 채널 생성됨: " + testChannel);
 
@@ -189,7 +189,7 @@ public class DiscodeitApplication implements CommandLineRunner {
     private void testChannelFail() {
 
         // 채널 이름 없음
-        var dto = new ChannelCreateDto(null, ChannelType.TEXT, null, null);
+        var dto = new ChannelCreateDto(null, ChannelType.PRIVATE, null, null);
         try{
             channelService.create(dto);
             System.err.println("❌ 이름이 null인데 예외가 발생하지 않음!!");
@@ -335,7 +335,7 @@ public class DiscodeitApplication implements CommandLineRunner {
     private void testReadStatus() {
         // GIVEN: 테스트용 사용자와 채널, 메시지 생성
         User user = userService.create(new UserRegisterDto("테스터", "test@email.com", "1234", null));
-        Channel channel = channelService.create(new ChannelCreateDto("리드채널", ChannelType.TEXT, null, null));
+        Channel channel = channelService.create(new ChannelCreateDto("리드채널", ChannelType.PUBLIC, null, null));
 
         // 메시지 2개 생성
         Message message1 = messageService.create(new MessageCreateDto(user.getId(), channel.getId(), "첫번째 메시지", null));
