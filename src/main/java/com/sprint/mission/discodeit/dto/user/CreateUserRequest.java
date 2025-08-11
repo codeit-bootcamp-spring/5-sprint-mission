@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.dto.user;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.lang.Nullable;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 사용자 생성 요청 DTO
@@ -22,6 +23,6 @@ public record CreateUserRequest(
         String password,
 
         @Nullable
-        BinaryContent profileImage
+        MultipartFile profileImage
 ) {
 }
