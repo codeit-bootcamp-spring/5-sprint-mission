@@ -1,31 +1,69 @@
 package com.sprint.mission.discodeit;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
-import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
-import com.sprint.mission.discodeit.repository.file.FileUserRepository;
+import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.basic.BasicChannelService;
-import com.sprint.mission.discodeit.service.basic.BasicMessageService;
-import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
+
 @SpringBootApplication
 public class DiscodeitApplication {
 
-	public static void main(String[] args) {
+	static User setupUser(UserService userService) {
+		User user = userService.create(new UserDto.CreateUser("woody", "woody@codeit.com", "woody1234"));
+		System.out.println("유저 생성 :" + user.getUsername());
+		return user;
+	}
 
-		ConfigurableApplicationContext context =  SpringApplication.run(DiscodeitApplication.class, args);
+	static Channel setupChannel(ChannelService channelService) {
+		Channel publicChannel = channelService.create(ChannelType.PUBLIC, "공지방", "공지 채널입니다.");
+		Channel privateChannel = channelService.create(ChannelType.PRIVATE, "비공개방", "비공개 채널입니다.");
+		System.out.println("채널 생성 완료: " + publicChannel.getName() + ", 채널 설명 : " +publicChannel.getDescription());
+		System.out.println("채널 생성 완료: " + privateChannel.getName() + ", 채널 설명 : " +privateChannel.getDescription());
+		return publicChannel;
+	}
+
+	static void messageCreateTest(MessageService messageService, Channel channel, User author) {
+		Message message = messageService.create("안녕하세요.", channel.getId(), author.getId());
+		System.out.println("메시지 생성: " + message.getContent());
+	}
+
+	static void repositoryTest(BinaryContentRepository repository) {
+		byte[] bytes;
+		try {
+			Path imagePath = Path.of(System.getProperty("user.dir"), "image.jpeg");
+			System.out.println(imagePath.toAbsolutePath());
+			bytes = Files.readAllBytes(imagePath);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		// String fileName, String contentType, Long size, byte[] bytes
+		BinaryContent content = new BinaryContent("image.jpeg","jpeg",(long)bytes.length, bytes);
+
+		BinaryContent savedContent = repository.save(content);
+
+		System.out.println(savedContent.getId() + " : " + savedContent.getContentType() + " : " + savedContent.getSize());
+		Optional<BinaryContent> savedContent2 =  repository.findById(savedContent.getId());
+		System.out.println(savedContent2.isPresent()); // true?
+	}
+
+	public static void main(String[] args) {
+		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
+
+		// 리포지토리 테스트
+		BinaryContentRepository repository = context.getBean(BinaryContentRepository.class);
+		repositoryTest(repository);
+
+
 		// 서비스 초기화
 		UserService userService = context.getBean(UserService.class);
 		ChannelService channelService = context.getBean(ChannelService.class);
@@ -36,20 +74,5 @@ public class DiscodeitApplication {
 		Channel channel = setupChannel(channelService);
 		// 테스트
 		messageCreateTest(messageService, channel, user);
-	}
-
-	static User setupUser(UserService userService) {
-		User user = userService.create("woody", "woody@codeit.com", "woody1234");
-		return user;
-	}
-
-	static Channel setupChannel(ChannelService channelService) {
-		Channel channel = channelService.create(ChannelType.PUBLIC, "공지", "공지 채널입니다.");
-		return channel;
-	}
-
-	static void messageCreateTest(MessageService messageService, Channel channel, User author) {
-		Message message = messageService.create("안녕하세요.", channel.getId(), author.getId());
-		System.out.println("메시지 생성: " + message.getId());
 	}
 }

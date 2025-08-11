@@ -13,9 +13,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
-@RequiredArgsConstructor
 
+@Service("basicMessageService")
+@RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
     //
@@ -38,7 +38,7 @@ public class BasicMessageService implements MessageService {
     @Override
     public Message find(UUID messageId) {
         return messageRepository.findById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("메세지를 찾을 수 없습니다"));
     }
 
     @Override
@@ -49,7 +49,7 @@ public class BasicMessageService implements MessageService {
     @Override
     public Message update(UUID messageId, String newContent) {
         Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("메세지를 찾을 수 없습니다"));
         message.update(newContent);
         return messageRepository.save(message);
     }
@@ -57,7 +57,7 @@ public class BasicMessageService implements MessageService {
     @Override
     public void delete(UUID messageId) {
         if (!messageRepository.existsById(messageId)) {
-            throw new NoSuchElementException("Message with id " + messageId + " not found");
+            throw new NoSuchElementException("메세지를 찾을 수 없습니다");
         }
         messageRepository.deleteById(messageId);
     }

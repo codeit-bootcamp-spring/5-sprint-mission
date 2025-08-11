@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-@Service
+@Service("basicChannelService")
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
@@ -25,7 +26,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     public Channel find(UUID channelId) {
         return channelRepository.findById(channelId)
-                        .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+                        .orElseThrow(() -> new NoSuchElementException("해당 채널을 찾을 수 없습니다"));
     }
 
     @Override
@@ -36,7 +37,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     public Channel update(UUID channelId, String newName, String newDescription) {
         Channel channel = channelRepository.findById(channelId)
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("해당 채널을 찾을 수 없습니다"));
         channel.update(newName, newDescription);
         return channelRepository.save(channel);
     }
@@ -44,7 +45,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     public void delete(UUID channelId) {
         if (!channelRepository.existsById(channelId)) {
-            throw new NoSuchElementException("Channel with id " + channelId + " not found");
+            throw new NoSuchElementException("해당 채널을 찾을 수 없습니다");
         }
         channelRepository.deleteById(channelId);
     }
