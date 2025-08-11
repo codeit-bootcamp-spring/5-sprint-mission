@@ -1,36 +1,17 @@
 package com.sprint.mission.discodeit.run;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
-import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
-import com.sprint.mission.discodeit.repository.file.FileUserRepository;
-import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.file.FileChannelService;
-import com.sprint.mission.discodeit.service.file.FileMessageService;
-import com.sprint.mission.discodeit.service.file.FileUserService;
-
-import java.util.List;
-
 public class JavaApplication {
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
 
-        /*
-         * Map을 이용한 JCF(java collection framework)의 서비스 구현체
-         * Channel, Message, User 객체 세 가지를
-         * 생성 -> 조회 -> 수정 -> 삭제 테스트하는 파일
-         * */
+     *//*
+     * Map을 이용한 JCF(java collection framework)의 서비스 구현체
+     * Channel, Message, User 객체 세 가지를
+     * 생성 -> 조회 -> 수정 -> 삭제 테스트하는 파일
+     * *//*
 
-        /* given - when - then 테스트
-         * ~인 상황에서, ~를 했을때, ~의 결과가 나와야 한다.
-         */
+     *//* given - when - then 테스트
+     * ~인 상황에서, ~를 했을때, ~의 결과가 나와야 한다.
+     *//*
 
 
         //User Test
@@ -165,5 +146,5 @@ public class JavaApplication {
 
     }
 
-
+*/
 }
