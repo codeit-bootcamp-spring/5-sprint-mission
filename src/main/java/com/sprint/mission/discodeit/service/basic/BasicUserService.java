@@ -4,32 +4,36 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service("basicUserService")
+@RequiredArgsConstructor
 public class BasicUserService  implements UserService {
-    private final UserRepository ur;
+    @Qualifier("fileUserRepository")
+    private final UserRepository userRepository;
 
-    public BasicUserService(UserRepository userRepository) {
-        this.ur = userRepository;
-    }
     @Override
     public void createUser(String username, String password) {
         User user=new User(username, password);
-        User userResult = ur.save(user);
+        User userResult = userRepository.save(user);
         System.out.println(userResult.toString());
     }
 
     @Override
     public User readByIdUser(UUID name) {
-        return ur.findById(name).orElse(null);
+        return userRepository.findById(name).orElse(null);
     }
 
     @Override
     public void readAllUser() {
-        List<User> userList =ur.findAll();
-        long num = ur.count();
+        List<User> userList =userRepository.findAll();
+        long num = userRepository.count();
         if(num>0){
             System.out.println("현재 등록된 유저는 "+num+"명 입니다.");
             for(User user : userList){
@@ -43,8 +47,8 @@ public class BasicUserService  implements UserService {
 
     @Override
     public void updateUser(UUID userUUID, String username, String password) {
-        if(ur.existsById(userUUID)){
-            if(ur.update(userUUID,username,password)){
+        if(userRepository.existsById(userUUID)){
+            if(userRepository.update(userUUID,username,password)){
                 System.out.println("수정 성공하였습니다.");
             }else{
                 System.out.println("수정 실패하였습니다.");
@@ -56,8 +60,8 @@ public class BasicUserService  implements UserService {
 
     @Override
     public void deleteByIdUser(UUID user) {
-        if(ur.existsById(user)) {
-            if (ur.delete(user)) {
+        if(userRepository.existsById(user)) {
+            if (userRepository.delete(user)) {
                 System.out.println("삭제 성공하였습니다.");
             } else {
                 System.out.println("삭제 실패하였습니다.");

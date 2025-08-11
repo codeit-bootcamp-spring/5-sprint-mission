@@ -48,7 +48,6 @@ public class JCFChannelRepository implements ChannelRepository {
             System.out.println("수정 전과 일치합니다.");
             return false;
         }
-
         channel.update(channelname, description);
         return true;
     }
