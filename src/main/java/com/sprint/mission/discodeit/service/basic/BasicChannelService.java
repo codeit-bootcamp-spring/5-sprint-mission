@@ -1,8 +1,14 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.channel.ChannelCreateDto;
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateDto;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.respository.ChannelRepository;
+import com.sprint.mission.discodeit.respository.ReadStatusRepository;
+import com.sprint.mission.discodeit.respository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +21,8 @@ import java.util.UUID;
 public class BasicChannelService implements ChannelService {
 
     private final ChannelRepository channelRepository;
+    private final ReadStatusRepository readStatusRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Channel create(ChannelCreateDto dto) {
@@ -26,6 +34,32 @@ public class BasicChannelService implements ChannelService {
         }
         Channel channel = new Channel(dto.name(), dto.type());
         return channelRepository.save(channel);
+    }
+
+    @Override
+    public Channel createPrivate(PrivateChannelCreateDto dto) {
+
+        if (dto.memberIds() == null || dto.memberIds().isEmpty())
+            throw new IllegalArgumentException("PRIVATE 채널은 최소 1명 이상의 참여자가 필요합니다.");
+
+        // 존재하는 사용자만 허용
+        List<User> members = dto.memberIds().stream()
+                .map(id -> userRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다.")))
+                .toList();
+
+
+        // 채널 생성(이름/설명은 선택)
+        Channel channel = new Channel(ChannelType.PRIVATE);
+        Channel saved = channelRepository.save(channel);
+
+        // 참여자 전원에 대해 ReadStatus 생성(lastReadAt = null)
+        List<ReadStatus> statuses = members.stream()
+                .map(u -> new ReadStatus(u,channel)).toList();
+
+        readStatusRepository.saveAll(statuses);
+
+        return saved;
     }
 
     @Override

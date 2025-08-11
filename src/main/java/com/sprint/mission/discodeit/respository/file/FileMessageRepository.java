@@ -27,14 +27,15 @@ public class FileMessageRepository extends FileStore<Message> implements Message
     }
 
     @Override
+    public List<Message> findAll() {
+        return List.copyOf(data.values());
+    }
+
+    @Override
     public Optional<Message> findById(UUID id) {
         return Optional.ofNullable(data.get(id));
     }
 
-    @Override
-    public List<Message> findAll() {
-        return List.copyOf(data.values());
-    }
 
     @Override
     public List<Message> findByContent(String str) {

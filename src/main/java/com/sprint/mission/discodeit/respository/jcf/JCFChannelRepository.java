@@ -22,13 +22,10 @@ public class JCFChannelRepository implements ChannelRepository {
 
     @Override
     public List<Channel> findByName(String name) {
-        List<Channel> result = new ArrayList<>();
-        for (Channel channel : data.values()) {
-            if (channel.getName().equals(name)) {
-                result.add(channel);
-            }
-        }
-        return result;
+        return data.values().stream()
+                .filter(c -> c.getName() != null)
+                .filter(c -> c.getName().equals(name))
+                .toList();
     }
 
     @Override

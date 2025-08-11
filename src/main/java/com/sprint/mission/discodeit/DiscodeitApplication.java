@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.auth.LoginResponseDto;
 import com.sprint.mission.discodeit.dto.binarycontent.FileResponseDto;
 import com.sprint.mission.discodeit.dto.binarycontent.FileUploadDto;
 import com.sprint.mission.discodeit.dto.channel.ChannelCreateDto;
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateDto;
 import com.sprint.mission.discodeit.dto.message.MessageCreateDto;
 import com.sprint.mission.discodeit.dto.message.MessageViewDto;
 import com.sprint.mission.discodeit.dto.readstatus.ChannelUnreadStatusDto;
@@ -15,6 +16,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -161,6 +163,13 @@ public class DiscodeitApplication implements CommandLineRunner {
         var dto = new ChannelCreateDto("공부채널", ChannelType.PUBLIC, null, null);
         Channel testChannel = channelService.create(dto);
         System.out.println("1) 채널 생성됨: " + testChannel);
+
+        List<UUID> members = new ArrayList<>();
+        members.add(testUser.getId());
+
+        var dto2 = new PrivateChannelCreateDto(members);
+        Channel privateChannel = channelService.createPrivate(dto2);
+        System.out.println("1) 비공개채널 생성됨:" + privateChannel);
 
         List<Channel> channelList = channelService.findAll();
         System.out.println("2) 모든 채널 목록: \n" + channelList);

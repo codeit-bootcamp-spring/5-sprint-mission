@@ -11,6 +11,7 @@ public interface ReadStatusRepository {
      */
     void save(ReadStatus readStatus);
 
+    void saveAll(List<ReadStatus> readStatuses);
 
     /**
      * 특정 사용자-채널 조합의 읽음 상태 조회

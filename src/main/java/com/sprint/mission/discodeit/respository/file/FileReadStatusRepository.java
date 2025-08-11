@@ -23,6 +23,15 @@ public class FileReadStatusRepository extends FileStore<ReadStatus> implements R
         saveToFile(data);
     }
 
+    @Override
+    public void saveAll(List<ReadStatus> readStatuses) {
+        if (readStatuses == null || readStatuses.isEmpty()) return;
+
+        readStatuses.forEach(rs -> data.put(rs.getId(), rs));
+
+        saveToFile(data);
+    }
+
     // 특정 채널에 속한 모든 유저의 읽음 상태 조회
     @Override
     public List<ReadStatus> findAllByChannelId(UUID channelId) {

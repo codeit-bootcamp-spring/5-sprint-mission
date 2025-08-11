@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.respository.ChannelRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class FileChannelRepository extends FileStore<Channel> implements ChannelRepository {
@@ -35,13 +36,10 @@ public class FileChannelRepository extends FileStore<Channel> implements Channel
 
     @Override
     public List<Channel> findByName(String name) {
-        List<Channel> result = new ArrayList<>();
-        for (Channel channel : channelMap.values()) {
-            if (channel.getName().equals(name)) {
-                result.add(channel);
-            }
-        }
-        return result;
+        return channelMap.values().stream()
+                .filter(c -> c.getName() != null)
+                .filter(c -> c.getName().equals(name))
+                .toList();
     }
 
     @Override
