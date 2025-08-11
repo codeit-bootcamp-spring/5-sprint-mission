@@ -57,6 +57,7 @@ public class BinaryContentService {
                 bc.getId(),
                 bc.getFilename(),
                 bc.getContentType(),
+                bc.getSize(),
                 bc.getData()
         );
     }
