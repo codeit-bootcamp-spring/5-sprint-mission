@@ -13,5 +13,7 @@ public interface MessageRepository {
 
     List<Message> findAll();
 
+    boolean existsById(UUID messageId);
+
     boolean delete(UUID messageId);
 }

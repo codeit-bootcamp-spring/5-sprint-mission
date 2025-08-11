@@ -4,21 +4,22 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+@Service("basicChannelService")
+@RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
-    private final ChannelRepository channelRepository;
 
-    public BasicChannelService(ChannelRepository channelRepository) {
-        this.channelRepository = channelRepository;
-    }
+    private final ChannelRepository channelRepository;
 
     @Override
     public Channel create(ChannelType type, String name, String description) {
-        if (type ==null || name == null || name.isBlank() || description == null || description.isBlank()) {
+        if (type == null || name == null || name.isBlank() || description == null || description.isBlank()) {
             throw new IllegalArgumentException("Channel info is invalid");
         }
         Channel channel = new Channel(type, name, description);
@@ -44,6 +45,9 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public boolean delete(UUID channelId) {
+        if (!channelRepository.existsById(channelId)) {
+            throw new NoSuchElementException("Channel with id " + channelId + " not found");
+        }
         return channelRepository.delete(channelId);
     }
 }
