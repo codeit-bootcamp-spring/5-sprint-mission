@@ -2,17 +2,22 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
+@Repository
 public class FileMessageRepository extends FileStore<Message> implements MessageRepository {
 
     private final Map<UUID, Message> data = new HashMap<>();
 
-    public FileMessageRepository(String rootDir) {
+    public FileMessageRepository(@Value("${discodeit.repository.file-directory:.discodeit}") String rootDir) {
         super(rootDir + "message.ser");
         Map<UUID, Message> loaded = loadFromFile();
         data.putAll(loaded);

@@ -2,14 +2,19 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
+@Repository
 public class FileUserStatusRepository extends FileStore<UserStatus> implements UserStatusRepository {
 
     private final Map<UUID, UserStatus> data = new HashMap<>();
 
-    public FileUserStatusRepository(String rootDir) {
+    public FileUserStatusRepository(@Value("${discodeit.repository.file-directory:.discodeit}") String rootDir) {
         super(rootDir + "userStatus.ser");
         Map<UUID, UserStatus> loaded = loadFromFile();
         if (loaded != null) {

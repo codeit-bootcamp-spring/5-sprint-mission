@@ -2,19 +2,23 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
+import java.nio.file.Paths;
 import java.util.*;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
+@Repository
 public class FileBinaryContentRepository extends FileStore<BinaryContent> implements BinaryContentRepository {
 
     private final Map<UUID, BinaryContent> data = new HashMap<>();
 
-    public FileBinaryContentRepository(String rootDir) {
-        super(rootDir + "binaryContent.ser");
+    public FileBinaryContentRepository(@Value("${discodeit.repository.file-directory:.discodeit}") String rootDir) {
+        super(Paths.get(rootDir, "binaryContent.ser").toString());
         Map<UUID, BinaryContent> loaded = loadFromFile();
-        if (loaded != null) {
-            data.putAll(loaded);
-        }
+        if (loaded != null) data.putAll(loaded);
     }
 
     // 저장

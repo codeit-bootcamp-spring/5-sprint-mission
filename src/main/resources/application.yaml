@@ -1,5 +1,5 @@
-# application.yaml
 discodeit:
   repository:
-    type: file   # jcf | file
-    file-directory: .discodeit/data/
+    type: jcf           # jcf | file
+    file-directory: .discodeit
+
