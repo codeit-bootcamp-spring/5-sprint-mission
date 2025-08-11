@@ -1,9 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.user.CreateUserRequest;
-import com.sprint.mission.discodeit.dto.user.PasswordRequest;
-import com.sprint.mission.discodeit.dto.user.UserListResponse;
-import com.sprint.mission.discodeit.dto.user.UserUpdateDto;
+import com.sprint.mission.discodeit.dto.user.*;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -14,6 +12,7 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,7 +26,7 @@ public class BasicUserService implements UserService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public User create(CreateUserRequest dto) {
+    public CreateUserResponse create(CreateUserRequest dto) {
 
         // email 중복검사
         if (userRepository.findByEmail(dto.email()).isPresent()) {
@@ -43,16 +42,39 @@ public class BasicUserService implements UserService {
         userStatusRepository.save(userStatus);
 
         // 프로필 이미지가 있을 경우
-        if(dto.profileImage() != null){
-            binaryContentRepository.save(dto.profileImage());
-            user.updateProfileId(dto.profileImage().getId());
+        if (dto.profileImage() != null && !dto.profileImage().isEmpty()) {
+            try {
+                BinaryContent binaryContent = new BinaryContent(
+                        dto.profileImage().getOriginalFilename(),
+                        dto.profileImage().getContentType(),
+                        dto.profileImage().getBytes(),
+                        dto.profileImage().getSize()
+                );
+
+                binaryContentRepository.save(binaryContent);
+                user.updateProfileId(binaryContent.getId());
+
+            } catch (IOException e) {
+                throw new RuntimeException("프로필 이미지 처리 중 오류 발생", e);
+            }
         }
 
-        return user;
+        String profileImageId = (user.getProfileId() != null)
+                ? user.getProfileId().toString()
+                : null;
+
+        return new CreateUserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCreatedAtFormatted(),
+                user.getUpdatedAtFormatted(),
+                profileImageId
+        );
     }
 
     @Override
-    public User update(UserUpdateDto dto) {
+    public User update(UpdateUserRequest dto) {
         // 사용자 조회
         User user = userRepository.findById(dto.id())
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
@@ -62,10 +84,22 @@ public class BasicUserService implements UserService {
             user.updateName(dto.name());
         }
 
-        // 프로필 이미지 수정
-        if (dto.profileImage() != null) {
-            binaryContentRepository.save(dto.profileImage());
-            user.updateProfileId(dto.profileImage().getId());
+        // 프로필 이미지가 있을 경우
+        if (dto.profileImage() != null && !dto.profileImage().isEmpty()) {
+            try {
+                BinaryContent binaryContent = new BinaryContent(
+                        dto.profileImage().getOriginalFilename(),
+                        dto.profileImage().getContentType(),
+                        dto.profileImage().getBytes(),
+                        dto.profileImage().getSize()
+                );
+
+                binaryContentRepository.save(binaryContent);
+                user.updateProfileId(binaryContent.getId());
+
+            } catch (IOException e) {
+                throw new RuntimeException("프로필 이미지 처리 중 오류 발생", e);
+            }
         }
 
         // 변경된 user 저장

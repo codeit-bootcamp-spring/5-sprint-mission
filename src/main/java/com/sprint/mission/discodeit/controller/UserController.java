@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.user.*;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,20 +19,12 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final BinaryContentService binaryContentService;
 
     // 회원 등록: POST /user
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<CreateUserResponse> create(@Valid @RequestBody CreateUserRequest req) {
-        User user = userService.create(req);
-        return ResponseEntity.ok(
-                new CreateUserResponse(
-                        user.getId(),
-                        user.getName(),
-                        user.getEmail(),
-                        user.getCreatedAtFormatted(),
-                        user.getUpdatedAtFormatted()
-                )
-        );
+    @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = "multipart/form-data")
+    public ResponseEntity<CreateUserResponse> create(@Valid @ModelAttribute CreateUserRequest req) {
+        return ResponseEntity.ok(userService.create(req));
     }
 
     // 모든 회원 조회: GET /user
@@ -47,13 +41,29 @@ public class UserController {
 
     // ID로 회원 조회: GET /user/{id}
     @RequestMapping(value = "findById/{id}", method = RequestMethod.GET)
-    public ResponseEntity<User> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(userService.findById(id));
+    public ResponseEntity<UserResponse> findById(@PathVariable UUID id) {
+
+        User user = userService.findById(id);
+
+        UUID imageId = user.getProfileId();
+        BinaryContent image = binaryContentService.findById(imageId).orElse(null);
+        String imageUrl = (imageId != null) ? "/binary/" + imageId : null;
+
+        return ResponseEntity.ok(new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                imageId,
+                imageUrl,
+                (image != null ? image.getContent().length : null),
+                (image != null ? image.getContentType() : null)
+
+        ));
     }
 
     // 회원 정보 수정 // 이름, 이메일
     @RequestMapping(value = "update", method = RequestMethod.PUT)
-    public ResponseEntity<User> update(@Valid @RequestBody UserUpdateDto dto) {
+    public ResponseEntity<User> update(@Valid @RequestBody UpdateUserRequest dto) {
         return ResponseEntity.ok(userService.update(dto));
     }
 
