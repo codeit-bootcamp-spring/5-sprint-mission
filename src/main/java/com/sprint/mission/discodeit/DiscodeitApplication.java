@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.auth.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.main.Channel;
 import com.sprint.mission.discodeit.entity.main.Message;
 import com.sprint.mission.discodeit.entity.main.User;
@@ -10,9 +11,11 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.repository.file.FileUserRepository;
+import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.basic.BasicAuthService;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
@@ -21,8 +24,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
-import static com.sprint.mission.discodeit.entity.enums.ChannelType.PRIVATE;
 import static com.sprint.mission.discodeit.entity.enums.ChannelType.PUBLIC;
 
 @SpringBootApplication
@@ -42,12 +45,14 @@ public class DiscodeitApplication {
         MessageRepository messageRepository = new FileMessageRepository();
 
         UserService userService = new BasicUserService(userRepository);
+        AuthService authService = new BasicAuthService(userRepository);
         ChannelService channelService = new BasicChannelService(channelRepository);
         MessageService messageService = new BasicMessageService(messageRepository, channelRepository, userRepository);
 
         userCRUDTest(userService);
-        channelCRUDTest(channelService);
-        messageCRUDTest(userService, channelService, messageService);
+        authTest(authService, userService);
+//        channelCRUDTest(channelService);
+//        messageCRUDTest(userService, channelService, messageService);
     }
 
     private static void userCRUDTest(UserService userService) {
@@ -64,7 +69,7 @@ public class DiscodeitApplication {
 
         // 수정
         User updatedUser = userService.update(user1.getId(), null, null, "jae4321");
-        System.out.println("유저 수정: " + String.join("/", updatedUser.getName(), updatedUser.getEmail(), updatedUser.getPassword()));
+        System.out.println("유저 수정: " + String.join("/", updatedUser.getUsername(), updatedUser.getEmail(), updatedUser.getPassword()));
         System.out.println("유저 조회(단건): " + userService.find(user1.getId()));
 
         // 삭제
@@ -72,6 +77,32 @@ public class DiscodeitApplication {
         userService.delete(user1.getId());
         userService.delete(user2.getId());
         System.out.println("유저 삭제: " + foundUsersAfterDelete.size());
+    }
+
+    private static void authTest(AuthService authService, UserService userService) {
+        User user = userService.create("jae", "jae@example.com", "jae1234");
+        String username = user.getUsername();
+        String password = user.getPassword();
+
+        // 로그인 케이스 테스트
+        testLogin(authService, new LoginRequest(username, password), "정상 로그인");
+        testLogin(authService, new LoginRequest(username, "wrong"), "비밀번호 오류");
+        testLogin(authService, new LoginRequest("unknown", password), "아이디 없음");
+
+        // 테스트 끝나면 유저 삭제
+        userService.delete(user.getId());
+        System.out.println("현재 유저 수: " + userService.findAll().size());
+    }
+
+    private static void testLogin(AuthService authService, LoginRequest request, String caseName) {
+        try {
+            authService.login(request);
+            System.out.println(caseName + " → 성공");
+        } catch (NoSuchElementException e) {
+            System.out.println(caseName + " → 존재하지 않는 유저");
+        } catch (IllegalArgumentException e) {
+            System.out.println(caseName + " → 아이디 또는 비밀번호 오류");
+        }
     }
 
     private static void channelCRUDTest(ChannelService channelService) {
