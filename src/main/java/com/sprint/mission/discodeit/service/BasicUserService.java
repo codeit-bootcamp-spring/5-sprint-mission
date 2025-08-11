@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.dto.request.UserRegisterRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
@@ -53,19 +54,19 @@ public class BasicUserService {
         userRepository.save(entity);
     }
 
-    public UserResponse register(UserRegisterRequest cmd) {
-        Objects.requireNonNull(cmd, "cmd must not be null");
-        Objects.requireNonNull(cmd.birthDate(), "birthDate must not be null");
+    public UserResponse register(UserRegisterRequest req) {
+        Objects.requireNonNull(req, "req must not be null");
+        Objects.requireNonNull(req.birthDate(), "birthDate must not be null");
 
-        String e = Validators.validateEmail(cmd.email());
-        String u = Validators.validateUsername(cmd.username());
-        String p = Validators.validatePassword(cmd.password());
+        String e = Validators.validateEmail(req.email());
+        String u = Validators.validateUsername(req.username());
+        String p = Validators.validatePassword(req.password());
 
         if (userRepository.existsByEmail(e)) throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         if (userRepository.existsByUsername(u)) throw new IllegalArgumentException("이미 사용 중인 사용자명입니다.");
 
         User saved = userRepository.save(new User(
-                e, u, p, cmd.birthDate(), cmd.subscribedToNewsletter(), cmd.globalName()
+                e, u, p, req.birthDate(), req.subscribedToNewsletter(), req.globalName()
         ));
 
         userStatusRepository.save(new UserStatus(saved.getId()));
@@ -113,6 +114,12 @@ public class BasicUserService {
             u.setGlobalName(req.globalName().orElse(null));
             u.setBio(req.bio().orElse(null));
         });
+    }
+
+    public void updateProfileImage(UUID userId, UserUpdateProfileImageRequest req) {
+        Objects.requireNonNull(userId, "userId must not be null.");
+        Objects.requireNonNull(req, "req must not be null.");
+
     }
 
     public void updateEmail(UUID userId, String email) {

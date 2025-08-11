@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateCommand;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.response.BinaryContentResponse;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +20,16 @@ public class BinaryContentService {
 
     private final BinaryContentRepository binaryContentRepository;
 
-    public BinaryContentResponse create(BinaryContentCreateCommand cmd) {
-        Objects.requireNonNull(cmd, "cmd must not be null");
-        Objects.requireNonNull(cmd.filename(), "filename must not be null");
-        Objects.requireNonNull(cmd.contentType(), "contentType must not be null");
-        Objects.requireNonNull(cmd.data(), "data must not be null");
+    public BinaryContentResponse create(BinaryContentCreateRequest req) {
+        Objects.requireNonNull(req, "req must not be null");
+        Objects.requireNonNull(req.filename(), "filename must not be null");
+        Objects.requireNonNull(req.contentType(), "contentType must not be null");
+        Objects.requireNonNull(req.data(), "data must not be null");
 
         BinaryContent saved = binaryContentRepository.save(new BinaryContent(
-                cmd.filename(),
-                cmd.contentType(),
-                cmd.data()
+                req.filename(),
+                req.contentType(),
+                req.data()
         ));
         return toResponse(saved);
     }
@@ -56,8 +56,7 @@ public class BinaryContentService {
         return new BinaryContentResponse(
                 bc.getId(),
                 bc.getFilename(),
-                bc.getContentType(),
-                bc.getSize()
+                bc.getContentType()
         );
     }
 }

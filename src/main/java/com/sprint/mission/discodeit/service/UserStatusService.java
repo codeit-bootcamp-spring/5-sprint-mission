@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.user.Status;
-import com.sprint.mission.discodeit.dto.request.UserStatusCreateCommand;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserStatusResponse;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -38,13 +37,12 @@ public class UserStatusService {
         if (Boolean.TRUE.equals(unfix)) us.unfixStatus();
     }
 
-    public UserStatusResponse create(UserStatusCreateCommand cmd) {
-        Objects.requireNonNull(cmd, "cmd must not be null.");
-        Objects.requireNonNull(cmd.userId(), "userId must not be null.");
-
-        return userStatusRepository.findByUserId(cmd.userId())
-                .map(UserStatusService::toResponse)
-                .orElseGet(() -> toResponse(userStatusRepository.save(new UserStatus(cmd.userId()))));
+    public UserStatusResponse create(UUID userId) {
+        Objects.requireNonNull(userId, "userId must not be null.");
+        userStatusRepository.findByUserId(userId).ifPresent(us -> {
+            throw new IllegalArgumentException("User already has a status.");
+        });
+        return toResponse(userStatusRepository.save(new UserStatus(userId)));
     }
 
 

@@ -1,9 +1,6 @@
 package com.sprint.mission.discodeit.dto.request;
 
-import java.util.UUID;
-
-public record ProfileImageCommand(
-        UUID userId,
+public record BinaryContentCreateRequest(
         String filename,
         String contentType,
         byte[] data

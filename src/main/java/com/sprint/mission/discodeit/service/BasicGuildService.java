@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.domain.entity.GuildPermissions;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entityprod.ProdChannel;
 import com.sprint.mission.discodeit.domain.enums.Permission;
-import com.sprint.mission.discodeit.dto.request.GuildCreateCommand;
+import com.sprint.mission.discodeit.dto.request.GuildCreateRequest;
 import com.sprint.mission.discodeit.dto.response.GuildResponse;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
@@ -52,13 +52,13 @@ public class BasicGuildService {
         guildRepository.save(g);
     }
 
-    public GuildResponse create(GuildCreateCommand cmd) {
-        Objects.requireNonNull(cmd, "cmd must not be null");
-        Objects.requireNonNull(cmd.ownerId(), "ownerId must not be null");
-        String n = Validators.validateGuildName(cmd.name());
+    public GuildResponse create(GuildCreateRequest req) {
+        Objects.requireNonNull(req, "req must not be null");
+        Objects.requireNonNull(req.ownerId(), "ownerId must not be null");
+        String n = Validators.validateGuildName(req.name());
 
         Guild saved = guildRepository.save(new Guild(
-                n, cmd.discoverable(), cmd.ownerId()
+                n, req.discoverable(), req.ownerId()
         ));
 
         return toResponse(saved);

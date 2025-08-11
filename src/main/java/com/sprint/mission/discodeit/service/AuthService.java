@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
-import com.sprint.mission.discodeit.dto.request.AuthLoginCommand;
+import com.sprint.mission.discodeit.dto.request.AuthLoginRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -44,10 +44,10 @@ public class AuthService {
         userRepository.save(entity);
     }
 
-    public UserResponse login(AuthLoginCommand cmd) {
-        Objects.requireNonNull(cmd, "cmd must not be null");
-        String e = Validators.validateEmail(cmd.email());
-        String p = Validators.validatePassword(cmd.password());
+    public UserResponse login(AuthLoginRequest req) {
+        Objects.requireNonNull(req, "req must not be null");
+        String e = Validators.validateEmail(req.email());
+        String p = Validators.validatePassword(req.password());
 
         User user = userRepository.findByEmail(e)
                 .filter(u -> u.checkPassword(p))
