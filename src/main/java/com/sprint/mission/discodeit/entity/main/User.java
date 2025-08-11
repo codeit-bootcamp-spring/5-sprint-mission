@@ -17,39 +17,39 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final UUID id;
+    private UUID profileId;
 
-    private String name;
+    private String username;
     private String email;
     private String password;
 
     private final Instant createdAt;
     private Instant updatedAt;
 
-    public User(String name, String email, String password) {
+    public User(String username, String email, String password) {
         this.id = UUID.randomUUID();
         this.createdAt = now();
-        this.updatedAt = this.createdAt;
 
-        this.name = name;
+        this.username = username;
         this.email = email;
         this.password = password;
     }
 
-    public void update(String name, String email, String password) {
+    public void update(String newUsername, String newEmail, String newPassword) {
         boolean anyValueUpdated = false;
 
-        if(isNameChanged(name)) {
-            this.name = name;
+        if(isNameChanged(newUsername)) {
+            this.username = newUsername;
             anyValueUpdated = true;
         }
 
-        if(isEmailChanged(email)) {
-            this.email = email;
+        if(isEmailChanged(newEmail)) {
+            this.email = newEmail;
             anyValueUpdated = true;
         }
 
-        if(isPasswordChanged(password)) {
-            this.password = password;
+        if(isPasswordChanged(newPassword)) {
+            this.password = newPassword;
             anyValueUpdated = true;
         }
 
@@ -59,7 +59,7 @@ public class User implements Serializable {
     }
 
     public boolean isNameChanged(String name) {
-        return name != null && !Objects.equals(this.name, name);
+        return name != null && !Objects.equals(this.username, name);
     }
 
     public boolean isEmailChanged(String email) {
@@ -76,7 +76,7 @@ public class User implements Serializable {
                 "id=" + id +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", name='" + name + '\'' +
+                ", name='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 '}';
