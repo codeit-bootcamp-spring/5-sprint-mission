@@ -22,16 +22,15 @@ public class ReadStatus extends BaseEntity implements Serializable {
         this.channelId = channelId;
         this.lastReadAt = lastReadAt;
     }
-    public void markRead(Instant at){
-        if(lastReadAt==null || at.isAfter(lastReadAt)){
-            lastReadAt = at;
+    public void update(Instant newLastReadAt){
+        boolean anyValueUpdated = false;
+        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+            this.lastReadAt = newLastReadAt;
+            anyValueUpdated = true;
+        }
 
+        if (anyValueUpdated) {
+            super.updateTimestamp();
         }
     }
-
-    public boolean isUnreadSince(Instant messageCreatedAt){
-        return lastReadAt == null || messageCreatedAt.isAfter(lastReadAt);
-    }
-
-
 }

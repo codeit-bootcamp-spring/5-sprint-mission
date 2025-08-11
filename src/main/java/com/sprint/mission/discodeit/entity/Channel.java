@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,28 +12,31 @@ import java.util.List;
 public class Channel extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private String channelName; //채널명
+
+    private ChannelType type;
+    private String name; //채널명
     private String description; //채널 이름
 
-    public Channel(String channelName, String description){
+    public Channel(ChannelType type, String name, String description){
         super();
-        this.channelName=channelName;
+        this.type=type;
+        this.name=name;
         this.description=description;
     }
 
-    public void update(String channelName, String description){
-        super.updateTimestamp();
-        this.description=description;
-        this.channelName=channelName;
-    }
+    public void update(String newName, String newDescription){
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("Channel{");
-        sb.append(super.getId());
-        sb.append(" channelName='").append(channelName).append('\'');
-        sb.append(", description='").append(description);
-        sb.append("'}");
-        return sb.toString();
+        if (anyValueUpdated) {
+            super.updateTimestamp();
+        }
     }
 }

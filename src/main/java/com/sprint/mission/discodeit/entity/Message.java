@@ -4,6 +4,8 @@ import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -14,27 +16,25 @@ public class Message extends BaseEntity implements Serializable {
     private UUID authorId;
     private UUID channelId;
     private String content;
+    private List<UUID> attachmentIds;
 
-    public Message(UUID userId,UUID channelId,String content){
+    public Message(UUID userId,UUID channelId,String content,List<UUID> attachmentIds) {
         super();
         this.authorId=userId;
         this.channelId=channelId;
         this.content=content;
+        this.attachmentIds=attachmentIds;
     }
 
-    public void update(String content){
-        super.updateTimestamp();
-        this.content=content;
-    }
+    public void update(String newContent){
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("Message{");
-        sb.append(super.getId());
-        sb.append(" userId=").append(authorId);
-        sb.append(", channelId=").append(channelId);
-        sb.append(", content='").append(content).append('\'');
-        sb.append("'}");
-        return sb.toString();
+        if (anyValueUpdated) {
+            super.updateTimestamp();
+        }
     }
 }
