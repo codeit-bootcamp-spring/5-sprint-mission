@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.util.FileUtils;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -36,14 +37,7 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public Message save(Message message) {
         Path path = resolvePath(message.getId());
-        try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
-        ) {
-            oos.writeObject(message);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        FileUtils.writeObjectToFile(message, path);
         return message;
     }
 

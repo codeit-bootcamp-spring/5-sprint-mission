@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.util.FileUtils;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -34,14 +35,7 @@ public class FileUserRepository implements UserRepository {
     @Override
     public User save(User user) {
         Path path = resolvePath(user.getId());
-        try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
-        ) {
-            oos.writeObject(user);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        FileUtils.writeObjectToFile(user, path);
         return user;
     }
 

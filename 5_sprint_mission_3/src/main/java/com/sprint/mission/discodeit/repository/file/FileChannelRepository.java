@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.util.FileUtils;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -35,14 +36,7 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public Channel save(Channel channel) {
         Path path = resolvePath(channel.getId());
-        try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
-        ) {
-            oos.writeObject(channel);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        FileUtils.writeObjectToFile(channel, path);
         return channel;
     }
 

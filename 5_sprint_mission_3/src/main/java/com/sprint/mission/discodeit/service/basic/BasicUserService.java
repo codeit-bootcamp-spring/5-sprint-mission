@@ -53,10 +53,9 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
-        UserStatus userStatus = userStatusRepository.findByUserId(userId)
-                .orElse(null);
-
-        boolean online = (userStatus != null) && userStatus.isOnline();
+        boolean online = userStatusRepository.findByUserId(userId)
+                .map(UserStatus::isOnline)
+                .orElse(false);
 
         return new UserResponseDto(
                 user.getId(),
@@ -69,25 +68,22 @@ public class BasicUserService implements UserService {
 
     @Override
     public List<UserResponseDto> findAll() {
-        List<User> users = userRepository.findAll();
+        return userRepository.findAll().stream()
+                .map(user -> {
+                    boolean online = userStatusRepository.findByUserId(user.getId())
+                                    .map(UserStatus::isOnline)
+                                            .orElse(false);
 
-        List<UserResponseDto> result = new ArrayList<>();
-        for (User user : users) {
-            UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-                    .orElse(null);
-
-            boolean online = (userStatus != null) && userStatus.isOnline();
-
-            result.add(new UserResponseDto(
+            return new UserResponseDto(
                     user.getId(),
                     user.getUsername(),
                     user.getEmail(),
                     user.getProfileImageId(),
                     online
-            ));
-        }
+            );
+        })
+                .toList();
 
-        return result;
     }
 
 

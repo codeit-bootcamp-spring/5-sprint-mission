@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.util.FileUtils;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -36,15 +37,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     @Override
     public BinaryContent save(BinaryContent binaryContent) {
         Path path = resolvePath(binaryContent.getId());
-        try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
-        ) {
-            oos.writeObject(binaryContent);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        FileUtils.writeObjectToFile(binaryContent, path);
         return binaryContent;
     }
 
