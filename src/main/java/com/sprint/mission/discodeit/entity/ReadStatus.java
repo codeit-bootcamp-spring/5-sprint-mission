@@ -25,7 +25,7 @@ public class ReadStatus extends BaseEntity implements Serializable {
     public void markRead(Instant at){
         if(lastReadAt==null || at.isAfter(lastReadAt)){
             lastReadAt = at;
-            touch();
+
         }
     }
 
