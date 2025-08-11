@@ -7,5 +7,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface BinaryContentRepository extends BaseRepository<BinaryContent> {
+
     List<BinaryContent> findAllByIdIn(Set<UUID> ids);
 }
