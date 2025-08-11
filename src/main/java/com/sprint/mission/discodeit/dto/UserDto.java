@@ -43,7 +43,7 @@ public class UserDto {
         private String name;
         private String email;
         private UUID profileId;
-        private boolean isOnline;
+        private Boolean isOnline;
         private Instant createdAt;
         private Instant updatedAt;
     }

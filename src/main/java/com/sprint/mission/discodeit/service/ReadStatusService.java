@@ -11,6 +11,8 @@ public interface ReadStatusService {
 
     ReadStatusDto.DetailResponse find(UUID id);
 
+    ReadStatusDto.DetailResponse update(UUID id);
+
     List<ReadStatusDto.DetailResponse> findAllByUserId(UUID userId);
 
     void delete(UUID id);
