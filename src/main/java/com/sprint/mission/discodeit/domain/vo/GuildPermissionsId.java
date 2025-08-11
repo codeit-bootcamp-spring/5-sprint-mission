@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.vo.guild;
+package com.sprint.mission.discodeit.domain.vo;
 
 import java.io.Serial;
 import java.io.Serializable;

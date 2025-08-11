@@ -63,6 +63,11 @@ public class BinaryContentController {
         return ResponseEntity.ok(binaryContentService.find(id));
     }
 
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<BinaryContentResponse>> findAll() {
+        return ResponseEntity.ok(binaryContentService.findAll());
+    }
+
     @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
         binaryContentService.delete(id);

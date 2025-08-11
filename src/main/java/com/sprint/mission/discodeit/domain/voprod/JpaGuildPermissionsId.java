@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.vo.guildprod;
+package com.sprint.mission.discodeit.domain.voprod;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

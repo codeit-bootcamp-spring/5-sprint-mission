@@ -1,3 +1,357 @@
+//     private void changeGlobalName() {
+//         printGuidePrevious();
+//         String globalName;
+//         while (true) {
+//             System.out.println("현재 별명 : " + userService.findById(me.getId()).orElseThrow().getGlobalName());
+//             try {
+//                 globalName = InputHandler.getInputOrBack("변경할 별명 : ");
+//                 if (globalName == null) {
+//                     return;
+//                 }
+//                 userService.updateGlobalName(me.getId(), Validators.validateGlobalName(globalName));
+//                 break;
+//             } catch (Exception e) {
+//                 System.out.println(e.getMessage());
+//             }
+//         }
+//     }
+//
+//     private void changeUsername() {
+//         printGuidePrevious();
+//
+//         String oldUsername = userService.findById(me.getId()).orElseThrow().getUsername();
+//         String newUsername;
+//         while (true) {
+//             System.out.println("현재 사용자명 : " + oldUsername);
+//             try {
+//                 newUsername = InputHandler.getInputOrBack("변경할 사용자명 : ");
+//                 if (newUsername == null) {
+//                     return;
+//                 }
+//
+//                 userService.updateUsername(me.getId(), Validators.validateUsername(newUsername));
+//                 break;
+//             } catch (Exception e) {
+//                 System.out.println(e.getMessage());
+//             }
+//         }
+//     }
+//
+//     private void changePassword() {
+//         while (true) {
+//             printGuidePrevious();
+//             try {
+//                 String password = InputHandler.getValidPassword("변경할 비밀번호 : ");
+//                 if (password == null) {
+//                     return;
+//                 }
+//
+//                 if (me.checkPassword(password)) {
+//                     System.out.println("동일한 비밀번호입니다.");
+//                     continue;
+//                 }
+//
+//                 userService.updatePassword(me.getId(), Validators.validatePassword(password));
+//                 break;
+//             } catch (Exception e) {
+//                 System.out.println(e.getMessage());
+//             }
+//         }
+//     }
+//
+//     private void changeBirthDate() {
+//         printGuidePrevious();
+//         while (true) {
+//             try {
+//                 System.out.println("현재 생년월일 : " + userService.findById(me.getId()).orElseThrow().getBirthDate());
+//                 LocalDate birthDate;
+//
+//                 birthDate = InputHandler.getValidDate("변경할 생년월일");
+//                 if (birthDate == null) {
+//                     return;
+//                 }
+//
+//                 userService.updateBirthDate(me.getId(), birthDate);
+//                 break;
+//             } catch (Exception e) {
+//                 System.out.println(e.getMessage());
+//             }
+//         }
+//     }
+//
+//     private void changeIsSubscribedToNewsletter() {
+//         printGuidePrevious();
+//         while (true) {
+//             try {
+//                 System.out.println("현재 이메일 소식 수신 여부 : " + (userService.findById(me.getId()).orElseThrow().isSubscribedToNewsletter() ? "yes" : "no"));
+//
+//                 Boolean isSubscribedToNewsletter = InputHandler.getYesOrNo("이메일로 소식 받기");
+//                 if (isSubscribedToNewsletter == null) {
+//                     return;
+//                 }
+//
+//                 userService.updateSubscribedToNewsletter(me.getId(), isSubscribedToNewsletter);
+//                 break;
+//             } catch (Exception e) {
+//                 System.out.println(e.getMessage());
+//             }
+//         }
+//     }
+//
+//     private void changePhoneNumber() {
+//         printGuidePrevious();
+//         while (true) {
+//             try {
+//                 String oldPhoneNumber = userService.findById(me.getId()).orElseThrow().getPhoneNumber();
+//                 String newPhoneNumber;
+//                 System.out.println("현재 휴대폰 번호 : " + oldPhoneNumber);
+//                 newPhoneNumber = InputHandler.getInputOrBack("변경할 휴대폰 번호 : ");
+//                 if (newPhoneNumber == null) {
+//                     return;
+//                 }
+//
+//                 if (newPhoneNumber.equals(oldPhoneNumber)) {
+//                     System.out.println("동일한 휴대폰 번호입니다.");
+//                     continue;
+//                 }
+//
+//                 newPhoneNumber = Validators.validatePhoneNumber(newPhoneNumber);
+//                 userService.updatePhoneNumber(me.getId(), newPhoneNumber);
+//             } catch (Exception e) {
+//                 System.out.println(e.getMessage());
+//             }
+//         }
+//     }
+//
+//     private void changeStatus() {
+//         while (true) {
+//             try {
+//                 Status oldStatus = userService.findById(me.getId()).orElseThrow().getStatus();
+//                 printGuidePrevious();
+//                 System.out.println("현재 상태 : " + oldStatus);
+//                 for (int i = 0; i < Status.values().length; i++) {
+//                     System.out.println((i + 1) + ". " + Status.values()[i]);
+//                 }
+//
+//                 String idxStr = InputHandler.getInputOrBack("선택 : ");
+//                 if (idxStr == null) {
+//                     return;
+//                 }
+//
+//                 Status status = Status.values()[Integer.parseInt(idxStr) - 1];
+//
+//                 if (status.equals(oldStatus)) {
+//                     continue;
+//                 }
+//
+//                 userService.updateStatus(me.getId(), status);
+//             } catch (NumberFormatException e) {
+//                 System.out.println("숫자를 입력해주세요.");
+//             } catch (Exception e) {
+//                 System.out.println(e.getMessage());
+//             }
+//         }
+//     }
+//
+//     private void deleteAccount() {
+//         printGuidePrevious();
+//         while (true) {
+//             System.out.println("1. 계정 비활성화");
+//             System.out.println("2. 계정 삭제");
+//
+//             String idxStr = InputHandler.getInputOrBack("선택 : ");
+//             if (idxStr == null) {
+//                 return;
+//             }
+//
+//             switch (idxStr) {
+//                 case "1":
+//                     try {
+//                         userService.deactivateAccount(me.getId());
+//                         logout();
+//                         System.out.println("계정이 비활성화되었습니다. 로그인 시 계정이 활성화됩니다.");
+//                         return;
+//                     } catch (Exception e) {
+//                         System.out.println(e.getMessage());
+//                         continue;
+//                     }
+//                 case "2":
+//                     try {
+//                         Set<UUID> guildIds = userService.getGuilds(me.getId());
+//                         for (UUID guildId : guildIds) {
+//                             guildService.deleteById(guildId);
+//                         }
+//                         userService.deleteAccount(me.getId());
+//                     } catch (Exception e) {
+//                         System.out.println(e.getMessage());
+//                         continue;
+//                     }
+//                     me = null;
+//                     System.out.println("계정이 삭제되었습니다.");
+//                     return;
+//                 default:
+//                     System.out.println("1 또는 2를 입력해주세요.");
+//             }
+//         }
+//     }
+//
+//     private void showFriends() {
+//         if (me == null) {
+//             System.out.println("로그인이 필요합니다.");
+//             return;
+//         }
+//
+//         List<User> friends = userService.getFriends(me.getId()).stream().toList();
+//         if (friends.isEmpty()) {
+//             System.out.println("친구 : 없음");
+//             return;
+//         }
+//
+//         System.out.println("\n친구 목록:");
+//         friends.forEach(f -> System.out.printf("- 별명: %s | 사용자명: %s | 이메일: %s%n", f.getGlobalName(), f.getUsername(), f.getEmail()));
+//     }
+//
+//     private void sendFriendRequest() {
+//         printGuidePrevious();
+//         while (true) {
+//             String email = InputHandler.getValidEmail("친구 요청할 이메일 : ");
+//             if (email == null) {
+//                 return;
+//             }
+//
+//             User receiver = userService.findByEmail(email).orElse(null);
+//             if (receiver == null) {
+//                 System.out.println("⚠ 해당 이메일로 등록된 사용자가 없습니다.");
+//                 continue;
+//             }
+//
+//             if (me.equals(receiver)) {
+//                 System.out.println("⚠ 자기 자신에게는 친구 요청을 보낼 수 없습니다.");
+//                 continue;
+//             }
+//
+//             if (userService.findById(me.getId()).orElseThrow().getFriends().contains(receiver.getId())) {
+//                 System.out.println("⚠ 이미 친구입니다.");
+//                 continue;
+//             }
+//
+//             try {
+//                 friendRequestService.save(new FriendRequest(me.getId(), receiver.getId()));
+//                 System.out.println("✅ 친구 요청을 보냈습니다.");
+//             } catch (IllegalArgumentException | IllegalStateException e) {
+//                 System.out.println(e.getMessage());
+//             } catch (NoSuchElementException e) {
+//                 System.out.println("⚠ 유저를 찾을 수 없습니다.");
+//             } catch (Exception e) {
+//                 System.out.println("알 수 없는 오류: " + e.getMessage());
+//             }
+//         }
+//     }
+//
+//     private void viewReceivedFriendRequests() {
+//         while (true) {
+//             List<FriendRequest> friendRequests = friendRequestService.getReceivedRequests(me.getId());
+//
+//             if (friendRequests.isEmpty()) {
+//                 System.out.println("\n받은 친구 요청이 없습니다.");
+//                 return;
+//             }
+//
+//             System.out.println("\n받은 친구 요청 목록:");
+//             for (int i = 0; i < friendRequests.size(); i++) {
+//                 FriendRequest fr = friendRequests.get(i);
+//                 Optional<User> sender = userService.findById(fr.getSenderId());
+//                 String senderInfo = sender.map(u -> String.format("%s (%s)", u.getGlobalName(), u.getEmail())).orElse("알 수 없음");
+//                 System.out.println((i + 1) + ". " + senderInfo);
+//             }
+//
+//             printGuidePrevious();
+//             while (true) {
+//                 String idxStr = InputHandler.getInputOrBack("선택 : ");
+//                 if (idxStr == null) {
+//                     return;
+//                 }
+//
+//                 try {
+//                     int idx = Integer.parseInt(idxStr);
+//                     if (idx < 1 || idx > friendRequests.size()) {
+//                         System.out.println("유효한 번호를 입력해주세요.");
+//                         continue;
+//                     }
+//
+//                     FriendRequest selected = friendRequests.get(idx - 1);
+//
+//                     Boolean accepted = InputHandler.getYesOrNo("친구 요청 수락");
+//                     if (accepted == null) {
+//                         return;
+//                     }
+//
+//                     if (accepted) {
+//                         friendRequestService.acceptFriendRequest(selected.getId());
+//                         System.out.println("친구 요청을 수락했습니다.");
+//                     } else {
+//                         friendRequestService.declineFriendRequest(selected.getId());
+//                         System.out.println("친구 요청을 거절했습니다.");
+//                     }
+//                     break;
+//                 } catch (NumberFormatException e) {
+//                     System.out.println("숫자를 입력해주세요.");
+//                 } catch (Exception e) {
+//                     System.out.println(e.getMessage());
+//                 }
+//             }
+//         }
+//     }
+//
+//     private void viewSentFriendRequests() {
+//         while (true) {
+//             List<FriendRequest> friendRequests = friendRequestService.getSentRequests(me.getId());
+//
+//             if (friendRequests.isEmpty()) {
+//                 System.out.println("\n보낸 친구 요청이 없습니다.");
+//                 return;
+//             }
+//
+//             for (int i = 0; i < friendRequests.size(); i++) {
+//                 FriendRequest fr = friendRequests.get(i);
+//                 Optional<User> receiver = userService.findById(fr.getReceiverId());
+//                 String receiverInfo = receiver.map(u -> String.format("%s (%s)", u.getGlobalName(), u.getEmail())).orElse("알 수 없음");
+//                 System.out.println((i + 1) + ". " + receiverInfo);
+//             }
+//
+//             printGuidePrevious();
+//             String idxStr = InputHandler.getInputOrBack("취소할 요청 선택 : ");
+//             if (idxStr == null) {
+//                 return;
+//             }
+//
+//             try {
+//                 int idx = Integer.parseInt(idxStr);
+//                 if (idx < 1 || idx > friendRequests.size()) {
+//                     System.out.println("유효한 번호를 입력해주세요.");
+//                     continue;
+//                 }
+//
+//                 FriendRequest selected = friendRequests.get(idx - 1);
+//
+//                 Boolean confirm = InputHandler.getYesOrNo("이 친구 요청을 취소하시겠습니까?");
+//                 if (confirm == null) {
+//                     return;
+//                 }
+//
+//                 if (!confirm) {
+//                     continue;
+//                 }
+//                 friendRequestService.declineFriendRequest(selected.getId());
+//                 System.out.println("친구 요청을 취소했습니다.");
+//             } catch (NumberFormatException e) {
+//                 System.out.println("숫자를 입력해주세요.");
+//             } catch (Exception e) {
+//                 System.out.println(e.getMessage());
+//             }
+//         }
+//     }
+//
 //     private void deleteFriend() {
 //         while (true) {
 //             List<User> friends = userService.getFriends(me.getId()).stream().toList();

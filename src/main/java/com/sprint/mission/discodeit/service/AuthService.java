@@ -65,10 +65,9 @@ public class AuthService {
         return toResponse(user);
     }
 
-    public boolean logout(UUID userId) {
+    public void logout(UUID userId) {
         UserStatus userStatus = userStatusRepository.getOrThrowByUserId(userId);
         userStatus.logout();
         userStatusRepository.save(userStatus);
-        return true;
     }
 }

@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.dto.request.UserRegisterRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateEmailRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
@@ -124,7 +125,8 @@ public class BasicUserService {
         update(userId, u -> u.setProfileId(req.profileId()));
     }
 
-    public void updateEmail(UUID userId, String email) {
+    public void updateEmail(UUID userId, UserUpdateEmailRequest req) {
+        String email = req.email().orElseThrow(() -> new IllegalArgumentException("이메일을 입력해주세요."));
         User user = userRepository.getOrThrow(userId);
         if (user.getEmail().equals(email)) throw new IllegalArgumentException("기존과 동일한 이메일입니다.");
         if (userRepository.findByEmail(email).isPresent()) throw new IllegalArgumentException("중복된 이메일이 존재합니다.");

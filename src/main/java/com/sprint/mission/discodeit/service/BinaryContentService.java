@@ -40,6 +40,13 @@ public class BinaryContentService {
                 .orElseThrow(() -> new java.util.NoSuchElementException("BinaryContent를 찾을 수 없습니다: " + id));
     }
 
+    public List<BinaryContentResponse> findAll() {
+        return binaryContentRepository.findAll().stream()
+                .map(BinaryContentService::toResponse)
+                .toList();
+    }
+
+
     public List<BinaryContentResponse> findAllByIdIn(Set<UUID> ids) {
         if (ids == null || ids.isEmpty()) return List.of();
         return binaryContentRepository.findAllByIdIn(ids).stream()

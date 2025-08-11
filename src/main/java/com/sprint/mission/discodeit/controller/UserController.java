@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.request.UserRegisterRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateEmailRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
@@ -50,17 +51,24 @@ public class UserController {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    @RequestMapping(path = "/{id}/profile-settings", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/{id}/profile-settings", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateProfileSettings(@PathVariable("id") UUID id,
                                                       @RequestBody UserUpdateProfileSettingsRequest body) {
         userService.updateProfileSettings(id, body);
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(path = "/{id}/profile-image", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/{id}/profile-image", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateProfileImage(@PathVariable("id") UUID id,
                                                    @RequestBody UserUpdateProfileImageRequest body) {
         userService.updateProfileImage(id, body);
+        return ResponseEntity.noContent().build();
+    }
+
+    @RequestMapping(path = "/{id}/email", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> updateEmail(@PathVariable("id") UUID id,
+                                            @RequestBody UserUpdateEmailRequest body) {
+        userService.updateEmail(id, body);
         return ResponseEntity.noContent().build();
     }
 

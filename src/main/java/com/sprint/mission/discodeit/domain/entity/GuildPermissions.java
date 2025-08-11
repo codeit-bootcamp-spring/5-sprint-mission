@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.entity;
 
 import com.sprint.mission.discodeit.domain.enums.Permission;
-import com.sprint.mission.discodeit.domain.vo.guild.GuildPermissionsId;
+import com.sprint.mission.discodeit.domain.vo.GuildPermissionsId;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 

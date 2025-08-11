@@ -21,7 +21,7 @@
 
 ### 권한 관리
 
-- [ ] 사용자는 로그인할 수 있다.
+- [x] 사용자는 로그인할 수 있다.
 
 ### 채널 관리
 
@@ -46,11 +46,11 @@
 
 ### 바이너리 파일 다운로드
 
-- [ ] 바이너리 파일을 1개 또는 여러 개 조회할 수 있다.
+- [x] 바이너리 파일을 1개 또는 여러 개 조회할 수 있다.
 
 ## API 테스트
 
-- [ ] Postman을 활용해 컨트롤러를 테스트 하세요.
+- [x] Postman을 활용해 컨트롤러를 테스트 하세요.
     - Postman API 테스트 결과를 다음과 같이 export하여 PR에 첨부해주세요.
     - ![](readme1.png)
 
@@ -58,9 +58,9 @@
 
 ## 정적 리소스 서빙
 
-- [ ]  사용자 목록 조회, BinaryContent 파일 조회 API를 다음의 조건을 만족하도록 수정하세요.
-    - [ ]  사용자 목록 조회
-        - url: `/api/user/findAll`
+- [x]  사용자 목록 조회, BinaryContent 파일 조회 API를 다음의 조건을 만족하도록 수정하세요.
+    - [x]  사용자 목록 조회
+        - url: `/api/user/findAll` (저는 `/api/users` 로 했습니다.)
         - 요청
             - 파라미터, 바디 없음
         - 응답
@@ -76,7 +76,7 @@
               Boolean online
               ) {
               }
-    - [ ]  BinaryContent 파일 조회
+    - [x]  BinaryContent 파일 조회
         - url: `/api/binaryContent/find`
         - 요청
             - 파라미터: `binaryContentId`

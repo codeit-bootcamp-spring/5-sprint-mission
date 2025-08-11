@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.entityprod;
 
 import com.sprint.mission.discodeit.domain.enums.Permission;
-import com.sprint.mission.discodeit.domain.vo.guildprod.JpaGuildPermissionsId;
+import com.sprint.mission.discodeit.domain.voprod.JpaGuildPermissionsId;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
