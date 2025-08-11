@@ -1,11 +1,16 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
-public abstract class BaseEntity {
-    private UUID id;
-    private long createdAt;
-    private long updatedAt;
+public abstract class BaseEntity implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+    protected UUID id;
+    protected long createdAt;
+    protected long updatedAt;
 
     //기본생성자
     public BaseEntity() {
@@ -26,7 +31,7 @@ public abstract class BaseEntity {
     public long getUpdatedAt() {
         return updatedAt;
     }
-    public void update(){ //파라미터 추가 필요
+    public void updateTimestamp(){
         this.updatedAt=System.currentTimeMillis();
     }
 
@@ -38,5 +43,17 @@ public abstract class BaseEntity {
         sb.append(", updatedAt=").append(updatedAt);
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseEntity that = (BaseEntity) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

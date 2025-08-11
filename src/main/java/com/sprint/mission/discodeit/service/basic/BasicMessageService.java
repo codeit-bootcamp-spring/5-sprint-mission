@@ -1,37 +1,34 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
-public class JCFMessageService implements MessageService {
-    private final JCFMessageRepository jmr;
+public class BasicMessageService implements MessageService {
+    private final MessageRepository mr;
 
-    public JCFMessageService() {
-        this.jmr = new JCFMessageRepository();
+    public BasicMessageService(MessageRepository messageRepository) {
+        this.mr = messageRepository;
     }
-
     @Override
     public Message createMessage(UUID userId, UUID channelId, String content) {
-        //main에서 userId, channelId 일치 확인하고 시작
         Message message = new Message(userId, channelId,content);
-        return jmr.save(message);
+        return mr.save(message);
     }
 
     @Override
     public Message readByIdMessage(UUID message) {
-        return  jmr.findById(message).orElse(null);
+        return  mr.findById(message).orElse(null);
     }
 
     @Override
     public void readAllMessage() {
-        List<Message> messageList = jmr.findAll();
-        long num = jmr.count();
+        List<Message> messageList = mr.findAll();
+        long num = mr.count();
         if(num>0){
             System.out.println("현재 등록된 메시지는 "+num+"개 입니다.");
             for(Message message : messageList){
@@ -44,8 +41,8 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public void updateMessage(UUID messageUUID, String content) {
-        if(jmr.existsById(messageUUID)){
-            if(jmr.update(messageUUID,content)){
+        if(mr.existsById(messageUUID)){
+            if(mr.update(messageUUID,content)){
                 System.out.println("수정 성공하였습니다.");
             }else{
                 System.out.println("수정 실패하였습니다.");
@@ -57,8 +54,8 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public void deleteByIdMessage(UUID message) {
-        if(jmr.existsById(message)) {
-            if (jmr.delete(message)) {
+        if(mr.existsById(message)) {
+            if (mr.delete(message)) {
                 System.out.println("삭제 성공하였습니다.");
             } else {
                 System.out.println("삭제 실패하였습니다.");
@@ -68,3 +65,4 @@ public class JCFMessageService implements MessageService {
         }
     }
 }
+

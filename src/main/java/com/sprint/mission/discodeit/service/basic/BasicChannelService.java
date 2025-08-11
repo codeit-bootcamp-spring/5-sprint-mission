@@ -1,39 +1,35 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
+import java.util.List;
+import java.util.UUID;
 
-import java.util.*;
+public class BasicChannelService implements ChannelService {
+    private final ChannelRepository cr;
 
-public class JCFChannelService implements ChannelService {
-    private final JCFChannelRepository jcr;
-
-    public JCFChannelService() {
-        this.jcr = new JCFChannelRepository();
+    public BasicChannelService(ChannelRepository channelRepository) {
+        this.cr = channelRepository;
     }
-
 
     @Override
     public void createChannel(String channelname, String description) {
         Channel channel = new Channel(channelname, description);
-        Channel channelresult = jcr.save(channel);
+        Channel channelresult = cr.save(channel);
         System.out.println(channelresult.toString());
     }
 
     @Override
     public Channel readByIdChannel(UUID name) {
-        return jcr.findById(name).orElse(null);
+        return cr.findById(name).orElse(null);
     }
 
     @Override
     public void readAllChannel() {
-        List<Channel> channelList = jcr.findAll();
-        long num = jcr.count();
+        List<Channel> channelList = cr.findAll();
+        long num = cr.count();
         if(num>0){
             System.out.println("현재 등록된 채널은 "+num+"명 입니다.");
             for(Channel channel : channelList){
@@ -46,8 +42,8 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public void updateChannel(UUID channelUUID, String channelname, String description) {
-        if(jcr.existsById(channelUUID)){
-            if(jcr.update(channelUUID,channelname,description)){
+        if(cr.existsById(channelUUID)){
+            if(cr.update(channelUUID,channelname,description)){
                 System.out.println("수정 성공하였습니다.");
             }else{
                 System.out.println("수정 실패하였습니다.");
@@ -59,8 +55,8 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public void deleteByIdChannel(UUID channelUUID) {
-        if(jcr.existsById(channelUUID)) {
-            if (jcr.delete(channelUUID)) {
+        if(cr.existsById(channelUUID)) {
+            if (cr.delete(channelUUID)) {
                 System.out.println("삭제 성공하였습니다.");
             } else {
                 System.out.println("삭제 실패하였습니다.");
