@@ -5,21 +5,22 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+
+@Service
+@Primary // 같은 타입 서비스가 여러 개면 우선 적용
+@RequiredArgsConstructor // final 필드 기반 생성자 자동 생성 (this 생략 가능)
 
 public class FileMessageService implements MessageService {
 
 
     private final MessageRepository repository;
     private final UserService userService; //userService.findById쓰기 위해 주입
-
-
-    public FileMessageService(MessageRepository repository, UserService userService) {
-        this.repository = repository;
-        this.userService = userService;
-    }
 
     @Override
     public void create(Message message) {

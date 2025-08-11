@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.HashMap;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+
+@Repository // ChannelRepository의 빈으로 FileChannelRepository를 등록해줌
 public class FileChannelRepository implements ChannelRepository {
 
     private static final String FILE_PATH = "channel.dat";

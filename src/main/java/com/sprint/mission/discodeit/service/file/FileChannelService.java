@@ -3,18 +3,19 @@ package com.sprint.mission.discodeit.service.file;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
+@Primary // 같은 타입 서비스가 여러 개면 우선 적용
+@RequiredArgsConstructor // final 필드 기반 생성자 자동 생성 (this 안써도 됨)
 public class FileChannelService implements ChannelService {
 
-    private final ChannelRepository repository;
-
-    //생성자 주입
-    public FileChannelService(ChannelRepository repository) {
-        this.repository = repository;
-    }
+    private final ChannelRepository repository; // 레포에서 등록한 생성자 주입
 
     @Override
 
