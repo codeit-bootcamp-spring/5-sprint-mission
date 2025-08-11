@@ -26,13 +26,14 @@ public class Message implements Serializable {
     private final Instant createdAt;
     private Instant updatedAt;
 
-    public Message(UUID authorId, UUID channelId, String content) {
+    public Message(String content, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
-        this.authorId = authorId;
-        this.channelId = channelId;
-        this.content = content;
         this.createdAt = now();
         this.updatedAt = this.createdAt;
+
+        this.content = content;
+        this.channelId = channelId;
+        this.authorId = authorId;
     }
 
     public void update(String content) {

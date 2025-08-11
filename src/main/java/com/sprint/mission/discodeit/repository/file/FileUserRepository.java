@@ -15,106 +15,89 @@ import java.util.stream.Stream;
 
 @Repository
 public class FileUserRepository implements UserRepository {
-
-    private final Path DIRECTORY_PATH = Paths.get("./data/users");
+    private final Path DIRECTORY;
+    private final String EXTENSION = ".ser";
 
     public FileUserRepository() {
-        if (Files.notExists(DIRECTORY_PATH)) {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", User.class.getSimpleName());
+        if (Files.notExists(DIRECTORY)) {
             try {
-                Files.createDirectories(DIRECTORY_PATH);
+                Files.createDirectories(DIRECTORY);
             } catch (IOException e) {
-                throw new RuntimeException("Failed to create directory: " + DIRECTORY_PATH, e);
+                throw new RuntimeException(e);
             }
         }
     }
 
-    private Path getUserFilePath(UUID id) {
-        return DIRECTORY_PATH.resolve(id + ".ser");
+    private Path resolvePath(UUID id) {
+        return DIRECTORY.resolve(id + EXTENSION);
     }
 
     @Override
     public User save(User user) {
-        try(FileOutputStream fos = new FileOutputStream(getUserFilePath(user.getId()).toFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos)
+        Path path = resolvePath(user.getId());
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(user);
-
         } catch (IOException e) {
-            throw new RuntimeException("Failed to create user: " + user, e);
+            throw new RuntimeException(e);
         }
-
         return user;
     }
 
-/*
     @Override
     public Optional<User> findById(UUID id) {
-        User user;
-
-        try (FileInputStream fis = new FileInputStream(getUserFilePath(id).toFile());
-             ObjectInputStream ois = new ObjectInputStream(fis)
-        ) {
-
-            user = (User) ois.readObject();
-
-        } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("User with id " + id + " not found");
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Failed to read user: " + id, e);
+        User userNullable = null;
+        Path path = resolvePath(id);
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                userNullable = (User) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
-
-        return Optional.ofNullable(user);
-    }
-*/
-
-    // 수정된 코드 -> 잘못된 점을 상기시키기 위해 기존 코드는 위에 주석 처리
-    @Override
-    public Optional<User> findById(UUID id) {
-        Path filePath = getUserFilePath(id);
-
-        // 파일 존재 여부 먼저 확인
-        if (!Files.exists(filePath)) {
-            return Optional.empty();
-        }
-
-        try (FileInputStream fis = new FileInputStream(filePath.toFile());
-             ObjectInputStream ois = new ObjectInputStream(fis)
-        ) {
-            User user = (User) ois.readObject();
-            return Optional.ofNullable(user);
-
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Failed to read user: " + id, e);
-        }
+        return Optional.ofNullable(userNullable);
     }
 
     @Override
     public List<User> findAll() {
-        try (Stream<Path> pathStream = Files.list(DIRECTORY_PATH)) {
-            return pathStream
+        try {
+            return Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
-                        try (FileInputStream fis = new FileInputStream(path.toFile());
-                             ObjectInputStream ois = new ObjectInputStream(fis)
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
                         ) {
-                            Object data = ois.readObject();
-                            return (User) data;
+                            return (User) ois.readObject();
                         } catch (IOException | ClassNotFoundException e) {
                             throw new RuntimeException(e);
                         }
                     })
                     .toList();
-
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read users", e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
+    public boolean existsById(UUID id) {
+        Path path = resolvePath(id);
+        return Files.exists(path);
+    }
+
+    @Override
     public void deleteById(UUID id) {
+        Path path = resolvePath(id);
         try {
-            Files.delete(getUserFilePath(id));
+            Files.delete(path);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read user: " + id, e);
+            throw new RuntimeException(e);
         }
     }
 }

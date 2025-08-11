@@ -31,14 +31,14 @@ public class JavaApplication {
         System.out.println("유저 생성: " + user2);
 
         // 조회
-        System.out.println("유저 조회(단건): " + userService.findById(user1.getId()));
+        System.out.println("유저 조회(단건): " + userService.find(user1.getId()));
         System.out.println("유저 조회(다건): " + userService.findAll().size());
         System.out.println("유저 조회(다건): " + userService.findAll());
 
         // 수정
         User updatedUser = userService.update(user1.getId(), null, null, "jae4321");
         System.out.println("유저 수정: " + String.join("/", updatedUser.getName(), updatedUser.getEmail(), updatedUser.getPassword()));
-        System.out.println("유저 조회(단건): " + userService.findById(user1.getId()));
+        System.out.println("유저 조회(단건): " + userService.find(user1.getId()));
 
         // 삭제
         List<User> foundUsersAfterDelete = userService.findAll();
@@ -49,20 +49,20 @@ public class JavaApplication {
 
     static void channelCRUDTest(ChannelService channelService) {
         // 생성
-        Channel channel1 = channelService.create("공지 채널입니다.", "공지", PUBLIC);
-        Channel channel2 = channelService.create("스터디 채널입니다.", "스터디", PUBLIC);
+        Channel channel1 = channelService.create(PUBLIC, "공지 채널입니다.", "공지");
+        Channel channel2 = channelService.create(PUBLIC, "스터디 채널입니다.", "스터디");
         System.out.println("채널 생성: " + channel1.getId());
         System.out.println("채널 생성: " + channel2.getId());
 
         // 조회
-        System.out.println("채널 조회(단건): " + channelService.findById(channel1.getId()));
+        System.out.println("채널 조회(단건): " + channelService.find(channel1.getId()));
         System.out.println("채널 조회(다건): " + channelService.findAll().size());
         System.out.println("채널 조회(다건): " + channelService.findAll());
 
         // 수정
-        Channel updatedChannel = channelService.update(channel1.getId(), "공지사항", null, PRIVATE);
+        Channel updatedChannel = channelService.update(channel1.getId(), "공지사항", null);
         System.out.println("채널 수정: " + String.join("/", updatedChannel.getName(), updatedChannel.getDescription()));
-        System.out.println("채널 조회(단건): " + channelService.findById(channel1.getId()));
+        System.out.println("채널 조회(단건): " + channelService.find(channel1.getId()));
 
         // 삭제
         List<Channel> foundChannelsAfterDelete = channelService.findAll();
@@ -74,23 +74,23 @@ public class JavaApplication {
     static void messageCRUDTest(UserService userService, ChannelService channelService, MessageService messageService) {
         // 셋업
         User user = userService.create("woody", "woody@codeit.com", "woody1234");
-        Channel channel = channelService.create("공지 채널입니다.", "공지", ChannelType.PUBLIC);
+        Channel channel = channelService.create(ChannelType.PUBLIC, "공지 채널입니다.", "공지");
 
         // 생성
-        Message message1 = messageService.create(user.getId(), channel.getId(), "안녕하세요.");
-        Message message2 = messageService.create(user.getId(), channel.getId(), "안녕하세요.");
+        Message message1 = messageService.create("안녕하세요.", channel.getId(), user.getId());
+        Message message2 = messageService.create("안녕하세요.", channel.getId(), user.getId());
         System.out.println("메시지 생성: " + message1.getId());
         System.out.println("메시지 생성: " + message2.getId());
 
         // 조회
-        System.out.println("메시지 조회(단건): " + messageService.findById(message1.getId()));
+        System.out.println("메시지 조회(단건): " + messageService.find(message1.getId()));
         System.out.println("메시지 조회(다건): " + messageService.findAll().size());
         System.out.println("메시지 조회(다건): " + messageService.findAll());
 
         // 수정
         Message updatedMessage = messageService.update(message1.getId(), "반갑습니다.");
         System.out.println("메시지 수정: " + updatedMessage.getContent());
-        System.out.println("메시지 조회(단건): " + messageService.findById(message1.getId()));
+        System.out.println("메시지 조회(단건): " + messageService.find(message1.getId()));
 
         // 메시지 삭제
         List<Message> foundMessagesAfterDelete = messageService.findAll();
@@ -121,7 +121,7 @@ public class JavaApplication {
 
         UserService userService = new BasicUserService(userRepository);
         ChannelService channelService = new BasicChannelService(channelRepository);
-        MessageService messageService = new BasicMessageService(messageRepository, userRepository, channelRepository);
+        MessageService messageService = new BasicMessageService(messageRepository, channelRepository, userRepository);
 
         userCRUDTest(userService);
         channelCRUDTest(channelService);

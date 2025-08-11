@@ -15,23 +15,18 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
-
     private final ChannelRepository channelRepository;
 
     @Override
-    public Channel create(String name, String description, ChannelType type) {
-        Channel channel = new Channel(name,
-                description,
-                type
-        );
-
+    public Channel create(ChannelType type, String name, String description) {
+        Channel channel = new Channel(type, name, description);
         return channelRepository.save(channel);
     }
 
     @Override
-    public Channel findById(UUID id) {
-        Optional<Channel> channel = channelRepository.findById(id);
-        return channel.orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
+    public Channel find(UUID channelId) {
+        return channelRepository.findById(channelId)
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
     }
 
     @Override
@@ -40,17 +35,18 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Channel update(UUID id, String name, String description, ChannelType type) {
-        Channel channel = channelRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
-        channel.update(name, description, type);
+    public Channel update(UUID channelId, String newName, String newDescription) {
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+        channel.update(newName, newDescription);
         return channelRepository.save(channel);
     }
 
     @Override
-    public void delete(UUID id) {
-        Channel channel = channelRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
-        channelRepository.deleteById(channel.getId());
+    public void delete(UUID channelId) {
+        if (!channelRepository.existsById(channelId)) {
+            throw new NoSuchElementException("Channel with id " + channelId + " not found");
+        }
+        channelRepository.deleteById(channelId);
     }
 }
