@@ -10,5 +10,5 @@ import lombok.Data;
 @Builder
 public class DeleteUserByLoingIdRequest {
 	@NotNull
-	private String loginId;
+	private String username;
 }

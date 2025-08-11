@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sprint.mission.discodeit.dto.request.userStatus.CreateUserStatusRequest;
-import com.sprint.mission.discodeit.dto.request.userStatus.UpdateUserStatusByUserIdRequest;
 import com.sprint.mission.discodeit.dto.request.userStatus.UpdateUserStatusRequest;
 import com.sprint.mission.discodeit.dto.response.userStatus.UserStatusResponse;
 
@@ -13,6 +12,7 @@ public interface UserStatusService {
 	UserStatusResponse getById(UUID id);
 	List<UserStatusResponse> getAll();
 	UserStatusResponse update(UpdateUserStatusRequest request);
-	UserStatusResponse updateByUserId(UpdateUserStatusByUserIdRequest request);
+	UserStatusResponse updateByUserId(UUID request);
 	UserStatusResponse delete(UUID id);
+	boolean isOnline(UUID userId);
 }

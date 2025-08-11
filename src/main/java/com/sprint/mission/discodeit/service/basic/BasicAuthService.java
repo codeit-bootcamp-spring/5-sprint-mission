@@ -20,7 +20,7 @@ public class BasicAuthService implements AuthService {
 	@Override
 	public LoginResponse login(LoginRequest request) {
 
-		User user = userRepository.findByLoginId(request.getLoginId())
+		User user = userRepository.findByLoginId(request.getUsername())
 			.orElseThrow(UserNotFoundException::new);
 
 		if (!user.getPassword().equals(request.getPassword())) {

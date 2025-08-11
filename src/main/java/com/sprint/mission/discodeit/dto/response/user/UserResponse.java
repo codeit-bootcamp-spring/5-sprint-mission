@@ -9,32 +9,32 @@ import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @Data
 @Builder
-public class UpdateUserResponse {
+public class UserResponse {
 	private UUID id;
+	private String username; // loginId 임
+	private String nickname; // defaultNickname 임
+	private String email;
 	private Instant createdAt;
 	private Instant updatedAt;
-	private String email;
-	private String defaultNickname;
 	@Nullable
 	private UUID profileId;
-	private boolean success;
+	boolean online;
 
-	private UpdateUserResponse(User user){
+	private UserResponse(User user) {
 		this.id = user.getId();
+		this.nickname = user.getDefaultNickname();
+		this.email = user.getEmail();
 		this.createdAt = user.getCreatedAt();
 		this.updatedAt = user.getUpdatedAt();
-		this.email = user.getEmail();
-		this.defaultNickname = user.getDefaultNickname();
 		this.profileId = user.getProfileId();
-		this.success = true;
+		this.username = user.getLoginId(); // loginId는 username으로
 	}
 
-	public static UpdateUserResponse success(User user) {
-		return new UpdateUserResponse(user);
+	public static UserResponse success(User user) {
+		return new UserResponse(user);
 	}
 }

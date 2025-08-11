@@ -8,19 +8,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.sprint.mission.discodeit.test.MessageTest;
-import com.sprint.mission.discodeit.test.PrivateChannelTest;
 
 @SpringBootApplication
 public class DiscodeitApplication {
-	static {
-		// GUI 환경 활성화
-		System.setProperty("java.awt.headless", "false");
+	public static void main(String[] args) throws InterruptedException, IOException {
+		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
+
 	}
 
-	public static void main(String[] args) throws InterruptedException, IOException {
+	private static void testing(ConfigurableApplicationContext context) throws InterruptedException {
 		cleanDirectory(new File("data/"));
-
-		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
 
 		Thread.sleep(1000);
 

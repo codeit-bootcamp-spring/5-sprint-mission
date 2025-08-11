@@ -1,12 +1,21 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.sprint.mission.discodeit.dto.request.user.*;
-import com.sprint.mission.discodeit.dto.response.user.*;
+import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
+import com.sprint.mission.discodeit.dto.request.user.DeleteUserByIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.DeleteUserByLoingIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefalutNicknameRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserProfileImageRequest;
+import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UpdateUserPasswordResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -30,8 +39,8 @@ public class BasicUserService implements UserService {
 	private final BinaryContentRepository binaryContentRepository;
 
 	@Override
-	public CreateUserResponse createUser(CreateUserRequest request) {
-		if (userRepository.existsByLoginId(request.getLoginId())) {
+	public UserResponse createUser(CreateUserRequest request) {
+		if (userRepository.existsByLoginId(request.getUsername())) {
 			throw new DuplicateLoginIdException();
 		}
 
@@ -57,31 +66,37 @@ public class BasicUserService implements UserService {
 		UserStatus userStatus = new UserStatus(user.getId());
 		userStatusRepository.save(userStatus);
 
-		return CreateUserResponse.success(user);
+		return UserResponse.success(user);
 	}
 
 	@Override
-	public GetUserResponse getUserById(GetUserByIdRequest request) {
+	public UserResponse getUserById(GetUserByIdRequest request) {
 		User user = userRepository.findById(request.getId())
 			.orElseThrow(UserNotFoundException::new);
 
-		return GetUserResponse.success(user);
+		return UserResponse.success(user);
 	}
 
 	@Override
-	public GetUserResponse getUserByLoginId(GetUserByLoginIdRequest request) {
-		User user = userRepository.findByLoginId(request.getLoginId())
+	public UserResponse getUserByLoginId(String loginId) {
+		User user = userRepository.findByLoginId(loginId)
 			.orElseThrow(UserNotFoundException::new);
 
-		return GetUserResponse.success(user);
+		return UserResponse.success(user);
 	}
 
 
 	@Override
-	public List<GetUserResponse> getAllUsers() {
-		return userRepository.findAll().stream()
-			.map(GetUserResponse::success)
-			.toList();
+	public List<UserResponse> getAllUsers() {
+		List<User> users = userRepository.findAll();
+		List<UserResponse> userResponseList = new ArrayList<>();
+
+		for (User user : users) {
+
+			userResponseList.add(UserResponse.success(user));
+		}
+
+		return userResponseList;
 	}
 
 	@Override
@@ -102,7 +117,19 @@ public class BasicUserService implements UserService {
 	}
 
 	@Override
-	public UpdateUserResponse updateUserProfile(UpdateUserProfileImageRequest request) {
+	public UserResponse updateUserDefalutNickname(UpdateUserDefalutNicknameRequest request) {
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		user.updateDefaultNickname(request.getNickname());
+
+		userRepository.save(user);
+
+		return UserResponse.success(user);
+	}
+
+	@Override
+	public UserResponse updateUserProfile(UpdateUserProfileImageRequest request) {
 		User user = userRepository.findById(request.getId())
 			.orElseThrow(UserNotFoundException::new);
 
@@ -129,20 +156,12 @@ public class BasicUserService implements UserService {
 
 		userRepository.save(user);
 
-		return UpdateUserResponse.builder()
-			.id(user.getId())
-			.createdAt(user.getCreatedAt())
-			.updatedAt(user.getUpdatedAt())
-			.email(user.getEmail())
-			.defaultNickname(user.getDefaultNickname())
-			.profileId(user.getProfileId())
-			.success(true)
-			.build();
+		return UserResponse.success(user);
 	}
 
 	@Override
-	public DeleteUserResponse deleteUser(DeleteUserByIdRequest request) {
-		User user = userRepository.findById(request.getId())
+	public DeleteUserResponse delete(UUID id) {
+		User user = userRepository.findById(id)
 			.orElseThrow(UserNotFoundException::new);
 
 		UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
@@ -154,12 +173,13 @@ public class BasicUserService implements UserService {
 		userStatusRepository.deleteById(userStatus.getId());
 		userRepository.deleteById(user.getId());
 
-		return new DeleteUserResponse(true);
+
+		return DeleteUserResponse.success(user);
 	}
 
 	@Override
-	public DeleteUserResponse deleteUser(DeleteUserByLoingIdRequest request) {
-		User user = userRepository.findByLoginId(request.getLoginId())
+	public DeleteUserResponse delete(String loginId) {
+		User user = userRepository.findByLoginId(loginId)
 			.orElseThrow(UserNotFoundException::new);
 
 		UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
@@ -171,6 +191,6 @@ public class BasicUserService implements UserService {
 		userStatusRepository.deleteById(userStatus.getId());
 		userRepository.deleteById(user.getId());
 
-		return new DeleteUserResponse(true);
+		return DeleteUserResponse.success(user);
 	}
 }

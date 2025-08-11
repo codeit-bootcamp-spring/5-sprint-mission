@@ -10,5 +10,5 @@ import lombok.Data;
 @Builder
 public class GetUserByLoginIdRequest {
 	@NotNull
-	private String loginId;
+	private String username;
 }

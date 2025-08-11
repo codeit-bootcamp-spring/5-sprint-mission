@@ -15,7 +15,7 @@ import com.sprint.mission.discodeit.dto.response.auth.LoginResponse;
 import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.JoinChannelResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
-import com.sprint.mission.discodeit.dto.response.user.CreateUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -37,13 +37,13 @@ public class BasicChatTest {
 			System.out.println("1. 회원가입 - 홍길동");
 
 			CreateUserRequest hongRequest = CreateUserRequest.builder()
-				.loginId("hong")
+				.username("hong")
 				.password("1234")
 				.defaultNickname("홍길동")
 				.email("hong@hh.com")
 				.build();
 
-			CreateUserResponse hongResponse = userService.createUser(hongRequest);
+			UserResponse hongResponse = userService.createUser(hongRequest);
 
 			System.out.println("홍길동 회원가입: " + (hongResponse != null ? "성공" : "실패"));
 			System.out.println("users.ser 파일: " + (new File("data/users.ser").exists() ? "생성됨" : "없음"));
@@ -52,20 +52,20 @@ public class BasicChatTest {
 			System.out.println("2. 회원가입 - 정영진");
 
 			CreateUserRequest jeongRequest = CreateUserRequest.builder()
-				.loginId("jeong")
+				.username("jeong")
 				.password("1234")
 				.defaultNickname("정영진")
 				.email("jeong@jj.com")
 				.build();
 
-			CreateUserResponse jeongResponse = userService.createUser(jeongRequest);
+			UserResponse jeongResponse = userService.createUser(jeongRequest);
 
 			System.out.println("정영진 회원가입: " + (jeongResponse != null ? "성공" : "실패"));
 			System.out.println("---------------------------------");
 
 			System.out.println("3. 로그인");
 			LoginRequest loginRequest = LoginRequest.builder()
-				.loginId("hong")
+				.username("hong")
 				.password("1234")
 				.build();
 

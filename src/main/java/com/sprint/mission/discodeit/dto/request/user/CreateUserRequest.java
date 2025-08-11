@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class CreateUserRequest {
-	private String loginId;
+	private String username;
 	private String password;
 	private String defaultNickname;
 	private String email;
@@ -36,7 +36,7 @@ public class CreateUserRequest {
 				.createdAt(now)
 				.updatedAt(now)
 				.profileId(profileId)
-				.loginId(loginId)
+				.loginId(username)
 				.password(password)
 				.defaultNickname(defaultNickname)
 				.email(email)

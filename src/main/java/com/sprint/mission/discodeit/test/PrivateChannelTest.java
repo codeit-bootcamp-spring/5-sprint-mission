@@ -14,7 +14,7 @@ import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
-import com.sprint.mission.discodeit.dto.response.user.CreateUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -33,37 +33,37 @@ public class PrivateChannelTest {
 		try {
 			System.out.println("1. 회원가입 - 김영태");
 			CreateUserRequest kimytRequest = CreateUserRequest.builder()
-				.loginId("kimyt")
+				.username("kimyt")
 				.password("1234")
 				.defaultNickname("김영태")
 				.email("kimyt@kim.com")
 				.build();
 
-			CreateUserResponse kimytResponse = userService.createUser(kimytRequest);
+			UserResponse kimytResponse = userService.createUser(kimytRequest);
 			System.out.println("김영태 회원가입: " + (kimytResponse != null ? "성공" : "실패"));
 			System.out.println("---------------------------------");
 
 			System.out.println("2. 회원가입 - 김민철");
 			CreateUserRequest kimmcRequest = CreateUserRequest.builder()
-				.loginId("kimmc")
+				.username("kimmc")
 				.password("1234")
 				.defaultNickname("김민철")
 				.email("kimmc@kim.com")
 				.build();
 
-			CreateUserResponse kimmcResponse = userService.createUser(kimmcRequest);
+			UserResponse kimmcResponse = userService.createUser(kimmcRequest);
 			System.out.println("김민철 회원가입: " + (kimmcResponse != null ? "성공" : "실패"));
 			System.out.println("---------------------------------");
 
 			System.out.println("3. 회원가입 - 이동재");
 			CreateUserRequest leedjRequest = CreateUserRequest.builder()
-				.loginId("leedj")
+				.username("leedj")
 				.password("1234")
 				.defaultNickname("이동재")
 				.email("leedj@lee.com")
 				.build();
 
-			CreateUserResponse leedjResponse = userService.createUser(leedjRequest);
+			UserResponse leedjResponse = userService.createUser(leedjRequest);
 			System.out.println("이동재 회원가입: " + (leedjResponse != null ? "성공" : "실패"));
 			System.out.println("---------------------------------");
 

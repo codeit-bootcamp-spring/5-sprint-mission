@@ -18,13 +18,11 @@ import com.sprint.mission.discodeit.service.UserService;
 
 public class FileChannelMessageService implements ChannelMessageService {
 	private final MessageRepository messageRepository;
-	private final UserService userService;
 	private final ChannelRepository channelRepository; // Repository 직접 사용
 
 	public FileChannelMessageService(@Qualifier("fileMessageRepository") MessageRepository messageRepository, UserService userService,
 									 @Qualifier("fileChannelRepository") ChannelRepository channelRepository) {
 		this.messageRepository = messageRepository;
-		this.userService = userService;
 		this.channelRepository = channelRepository;
 	}
 

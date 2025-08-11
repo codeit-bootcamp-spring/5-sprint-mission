@@ -20,7 +20,7 @@ import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.JoinChannelResponse;
 import com.sprint.mission.discodeit.dto.response.message.DeleteMessageResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
-import com.sprint.mission.discodeit.dto.response.user.CreateUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -40,13 +40,13 @@ public class MessageTest {
 		try {
 			System.out.println("1. 회원가입 - 이동재");
 			CreateUserRequest leedjRequest = CreateUserRequest.builder()
-				.loginId("leedj")
+				.username("leedj")
 				.password("1234")
 				.defaultNickname("이동재")
 				.email("leedj@lee.com")
 				.build();
 
-			CreateUserResponse leedjResponse = userService.createUser(leedjRequest);
+			UserResponse leedjResponse = userService.createUser(leedjRequest);
 			System.out.println("이동재 회원가입: " + (leedjResponse != null ? "성공" : "실패"));
 			System.out.println("---------------------------------");
 

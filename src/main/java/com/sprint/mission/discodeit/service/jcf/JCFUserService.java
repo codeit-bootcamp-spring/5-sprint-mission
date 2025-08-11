@@ -6,26 +6,26 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sprint.mission.discodeit.dto.request.auth.LoginRequest;
 import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
 import com.sprint.mission.discodeit.dto.request.user.DeleteUserByIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.DeleteUserByLoingIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.GetUserByLoginIdRequest;
-import com.sprint.mission.discodeit.dto.request.auth.LoginRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefalutNicknameRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserProfileImageRequest;
-import com.sprint.mission.discodeit.dto.response.user.CreateUserResponse;
-import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
-import com.sprint.mission.discodeit.dto.response.user.GetUserResponse;
 import com.sprint.mission.discodeit.dto.response.auth.LoginResponse;
+import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
 import com.sprint.mission.discodeit.dto.response.user.UpdateUserPasswordResponse;
-import com.sprint.mission.discodeit.dto.response.user.UpdateUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 public class JCFUserService implements UserService {
 	private final Map<UUID, User> UserMap;
 	private final Map<String, UUID> loginIdToUUID;
+	private UserStatusRepository userStatusRepository;
 
 	public JCFUserService() {
 		UserMap = new ConcurrentHashMap<>();
@@ -33,26 +33,26 @@ public class JCFUserService implements UserService {
 	}
 
 	@Override
-	public CreateUserResponse createUser(CreateUserRequest request) {
+	public UserResponse createUser(CreateUserRequest request) {
 
-		if (request.getLoginId() == null)
+		if (request.getUsername() == null)
 			return null;
-		if (isExistLoginId(request.getLoginId()))
+		if (isExistLoginId(request.getUsername()))
 			return null;
 
 		User user = new User(request.toUser());
 		UserMap.put(user.getId(), user);
 		loginIdToUUID.put(user.getLoginId(), user.getId());
 
-		return CreateUserResponse.success(user);
+		return UserResponse.success(user);
 	}
 
 
 	public LoginResponse login(LoginRequest request) {
-		if (request.getLoginId() == null || request.getPassword() == null)
+		if (request.getUsername() == null || request.getPassword() == null)
 			return null;
-		if (loginIdToUUID.containsKey(request.getLoginId())) {
-			User user = UserMap.get(loginIdToUUID.get(request.getLoginId()));
+		if (loginIdToUUID.containsKey(request.getUsername())) {
+			User user = UserMap.get(loginIdToUUID.get(request.getUsername()));
 			if (user.getPassword().equals(request.getPassword())) {
 				return LoginResponse.success(user);
 			} else {
@@ -63,25 +63,28 @@ public class JCFUserService implements UserService {
 	}
 
 	@Override
-	public GetUserResponse getUserById(GetUserByIdRequest request) {
+	public UserResponse getUserById(GetUserByIdRequest request) {
 		User user = UserMap.get(request.getId());
-		return GetUserResponse.success(user);
+		return UserResponse.success(user);
 	}
 
 	@Override
-	public GetUserResponse getUserByLoginId(GetUserByLoginIdRequest request) {
-		User user = UserMap.get(loginIdToUUID.get(request.getLoginId()));
-		return GetUserResponse.success(user);
+	public UserResponse getUserByLoginId(String loginId) {
+		User user = UserMap.get(loginIdToUUID.get(loginId));
+		return UserResponse.success(user);
 	}
 
 	@Override
-	public List<GetUserResponse> getAllUsers() {
+	public List<UserResponse> getAllUsers() {
 		List<User> userList = new ArrayList<>(UserMap.values());
 		userList.sort((u1, u2) -> u1.getDefaultNickname().compareTo(u2.getDefaultNickname()));
+		List<UserResponse> userResponseList = new ArrayList<>();
 
-		return userList.stream()
-			.map(GetUserResponse::success)
-			.toList();
+		for (User user : userList) {
+			userResponseList.add(UserResponse.success(user));
+		}
+
+		return userResponseList;
 	}
 
 	@Override
@@ -94,32 +97,41 @@ public class JCFUserService implements UserService {
 	}
 
 	@Override
-	public UpdateUserResponse updateUserProfile(UpdateUserProfileImageRequest request) {
+	public UserResponse updateUserDefalutNickname(UpdateUserDefalutNicknameRequest request) {
 		return null;
 	}
 
 	@Override
-	public DeleteUserResponse deleteUser(DeleteUserByIdRequest request) {
-		if (request.getId() == null || !UserMap.containsKey(request.getId())) {
-			return new DeleteUserResponse(false);
-		}
-
-		loginIdToUUID.remove(UserMap.get(request.getId()).getLoginId());
-		UserMap.remove(request.getId());
-
-		return new DeleteUserResponse(true);
+	public UserResponse updateUserProfile(UpdateUserProfileImageRequest request) {
+		return null;
 	}
 
 	@Override
-	public DeleteUserResponse deleteUser(DeleteUserByLoingIdRequest request) {
-		if (request.getLoginId() == null || !loginIdToUUID.containsKey(request.getLoginId())) {
-			return new DeleteUserResponse(false);
+	public DeleteUserResponse delete(UUID id) {
+		if (id == null || !UserMap.containsKey(id)) {
+			return null;
 		}
 
-		UserMap.remove(loginIdToUUID.get(request.getLoginId()));
-		loginIdToUUID.remove(request.getLoginId());
+		User user = UserMap.get(id);
 
-		return new DeleteUserResponse(true);
+		loginIdToUUID.remove(UserMap.get(id).getLoginId());
+		UserMap.remove(id);
+
+		return DeleteUserResponse.success(user);
+	}
+
+	@Override
+	public DeleteUserResponse delete(String loginId) {
+		if (loginId == null || !loginIdToUUID.containsKey(loginId)) {
+			return null;
+		}
+
+		User user = UserMap.get(loginIdToUUID.get(loginId));
+
+		UserMap.remove(loginIdToUUID.get(loginId));
+		loginIdToUUID.remove(loginId);
+
+		return DeleteUserResponse.success(user);
 	}
 
 

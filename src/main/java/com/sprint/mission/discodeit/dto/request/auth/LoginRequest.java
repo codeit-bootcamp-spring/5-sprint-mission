@@ -10,7 +10,7 @@ import lombok.Data;
 @Builder
 public class LoginRequest {
 	@NotNull
-	private String loginId;
+	private String username;
 	@NotNull
 	private String password;
 }

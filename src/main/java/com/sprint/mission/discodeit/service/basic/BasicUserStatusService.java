@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.sprint.mission.discodeit.dto.request.userStatus.CreateUserStatusRequest;
 import com.sprint.mission.discodeit.dto.request.userStatus.UpdateUserStatusRequest;
-import com.sprint.mission.discodeit.dto.request.userStatus.UpdateUserStatusByUserIdRequest;
 import com.sprint.mission.discodeit.dto.response.userStatus.UserStatusResponse;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.AlreadyExistsUserStatusException;
@@ -58,6 +58,7 @@ public class BasicUserStatusService implements UserStatusService {
 			.toList();
 	}
 
+
 	@Override
 	public UserStatusResponse update(UpdateUserStatusRequest request) {
 		UserStatus userStatus = userStatusRepository.findById(request.getId())
@@ -70,8 +71,8 @@ public class BasicUserStatusService implements UserStatusService {
 	}
 
 	@Override
-	public UserStatusResponse updateByUserId(UpdateUserStatusByUserIdRequest request) {
-		UserStatus userStatus = userStatusRepository.findByUserId(request.getUserId())
+	public UserStatusResponse updateByUserId(UUID userId) {
+		UserStatus userStatus = userStatusRepository.findByUserId(userId)
 			.orElseThrow(UserStatusNotFoundException::new);
 
 		userStatus.updateUpdatedAt();
@@ -88,5 +89,13 @@ public class BasicUserStatusService implements UserStatusService {
 		userStatusRepository.deleteById(id);
 
 		return UserStatusResponse.success(userStatus);
+	}
+
+	@Override
+	public boolean isOnline(UUID userId) {
+		UserStatus userStatus = userStatusRepository.findByUserId(userId)
+			.orElseThrow(UserStatusNotFoundException::new);
+
+		return userStatus.getUpdatedAt().isAfter(Instant.now().minusSeconds(300));
 	}
 }
