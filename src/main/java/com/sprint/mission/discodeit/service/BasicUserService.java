@@ -5,8 +5,10 @@ import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.dto.request.UserRegisterRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateEmailRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdatePasswordRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileSettingsRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateUsernameRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
@@ -17,13 +19,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+
+import static com.sprint.mission.discodeit.mapper.UserMapper.toUserResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -36,18 +39,13 @@ public class BasicUserService {
     private final GuildRepository guildRepository;
     private final BinaryContentService binaryContentService;
 
-    private UserResponse toResponse(User user) {
+    public UserResponse toResponse(User user, UserStatus userStatus) {
+        return toUserResponse(user, userStatus.getStatus());
+    }
+
+    public UserResponse toResponse(User user) {
         UserStatus userStatus = userStatusRepository.getOrThrowByUserId(user.getId());
-        return new UserResponse(
-                user.getId(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getEmail(),
-                user.getUsername(),
-                user.getGlobalName(),
-                user.getProfileId(),
-                userStatus.getStatus()
-        );
+        return toUserResponse(user, userStatus.getStatus());
     }
 
     protected void update(UUID id, Consumer<User> updater) {
@@ -67,13 +65,12 @@ public class BasicUserService {
         if (userRepository.existsByEmail(e)) throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         if (userRepository.existsByUsername(u)) throw new IllegalArgumentException("이미 사용 중인 사용자명입니다.");
 
-        User saved = userRepository.save(new User(
+        User user = userRepository.save(new User(
                 e, u, p, req.birthDate(), req.subscribedToNewsletter(), req.globalName()
         ));
 
-        userStatusRepository.save(new UserStatus(saved.getId()));
-
-        return toResponse(saved);
+        UserStatus userStatus = userStatusRepository.save(new UserStatus(user.getId()));
+        return toResponse(user, userStatus);
     }
 
     public UserResponse findById(UUID userId) {
@@ -87,11 +84,9 @@ public class BasicUserService {
     }
 
     public void deactivateAccount(UUID userId) {
+        Objects.requireNonNull(userId, "유저를 찾을 수 없습니다.");
+        userRepository.getOrThrow(userId);
         update(userId, User::deactivate);
-    }
-
-    public void reactivateAccount(UUID userId) {
-        update(userId, User::activate);
     }
 
     public void deleteAccount(UUID userId) {
@@ -126,6 +121,8 @@ public class BasicUserService {
     }
 
     public void updateEmail(UUID userId, UserUpdateEmailRequest req) {
+        Objects.requireNonNull(userId, "userId must not be null.");
+        Objects.requireNonNull(req, "req must not be null.");
         String email = req.email().orElseThrow(() -> new IllegalArgumentException("이메일을 입력해주세요."));
         User user = userRepository.getOrThrow(userId);
         if (user.getEmail().equals(email)) throw new IllegalArgumentException("기존과 동일한 이메일입니다.");
@@ -133,51 +130,26 @@ public class BasicUserService {
         update(userId, u -> u.setEmail(email));
     }
 
-    public void updateGlobalName(UUID userId, String globalName) {
-        update(userId, u -> u.setGlobalName(globalName));
-    }
-
-    public void updateUsername(UUID userId, String username) {
-        if (userRepository.findByEmail(username).isPresent()) throw new IllegalArgumentException("중복된 사용자명이 존재합니다.");
+    public void updateUsername(UUID userId, UserUpdateUsernameRequest req) {
+        String username = req.username().orElseThrow(() -> new IllegalArgumentException("사용자명을 입력해주세요."));
+        User user = userRepository.getOrThrow(userId);
+        if (user.getUsername().equals(username)) throw new IllegalArgumentException("기존과 동일한 사용자명입니다.");
+        if (userRepository.findByUsername(username).isPresent()) throw new IllegalArgumentException("중복된 사용자명이 존재합니다.");
         update(userId, u -> u.setUsername(username));
     }
 
-    public void updatePassword(UUID userId, String password) {
+    public void updatePassword(UUID userId, UserUpdatePasswordRequest req) {
+        String password = req.password().orElseThrow(() -> new IllegalArgumentException("비밀번호를 입력해주세요."));
         if (userRepository.getOrThrow(userId).checkPassword(password))
             throw new IllegalArgumentException("동일한 비밀번호입니다.");
         update(userId, u -> u.setPassword(password));
     }
 
-    public void updateBirthDate(UUID userId, LocalDate birthDate) {
-        if (birthDate == null) throw new IllegalArgumentException("생년월일은 필수입니다.");
-        update(userId, u -> u.setBirthDate(birthDate));
-    }
-
-    public void updateSubscribedToNewsletter(UUID userId, boolean isSubscribedToNewsletter) {
-        update(userId, u -> u.setSubscribedToNewsletter(isSubscribedToNewsletter));
-    }
-
-    public void updatePhoneNumber(UUID userId, String phoneNumber) {
-        update(userId, u -> u.setPhoneNumber(phoneNumber));
-    }
-
-    public void updateBio(UUID userId, String bio) {
-        update(userId, u -> u.setBio(bio));
-    }
-
-    public void updateVerified(UUID userId, boolean verified) {
-        if (verified) update(userId, User::verify);
-        else update(userId, User::unverify);
-    }
-
-    public void updateBanned(UUID userId, boolean banned) {
-        if (banned) update(userId, User::ban);
-        else update(userId, User::unban);
-    }
-
-    public List<User> getFriends(UUID userId) {
+    public List<UserResponse> getFriends(UUID userId) {
         Set<UUID> ids = userRepository.getOrThrow(userId).getFriendIds();
-        return userRepository.findAllByIds(ids);
+        return userRepository.findAllByIds(ids).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public void addFriend(UUID userId, UUID friendId) {

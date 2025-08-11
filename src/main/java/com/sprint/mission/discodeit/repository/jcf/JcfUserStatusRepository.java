@@ -5,10 +5,13 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Repository
@@ -26,6 +29,16 @@ public class JcfUserStatusRepository extends JcfBaseRepository<UserStatus> imple
         return findAll().stream()
                 .filter(us -> us.getUserId().equals(userId))
                 .findFirst();
+    }
+
+    @Override
+    public List<UserStatus> findAllByUserIds(Set<UUID> userIds) {
+        if (userIds == null || userIds.isEmpty()) return List.of();
+        Set<UUID> ids = userIds.stream().filter(Objects::nonNull).collect(Collectors.toUnmodifiableSet());
+        if (ids.isEmpty()) return List.of();
+        return findAll().stream()
+                .filter(us -> ids.contains(us.getUserId()))
+                .toList();
     }
 
     @Override

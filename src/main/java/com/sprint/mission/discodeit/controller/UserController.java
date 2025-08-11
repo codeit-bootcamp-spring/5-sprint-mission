@@ -3,8 +3,10 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.request.UserRegisterRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateEmailRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdatePasswordRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileSettingsRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateUsernameRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.service.BasicUserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -72,6 +74,22 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+
+    @RequestMapping(path = "/{id}/username", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> updateUsername(@PathVariable("id") UUID id,
+                                               @RequestBody UserUpdateUsernameRequest body) {
+        userService.updateUsername(id, body);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @RequestMapping(path = "/{id}/password", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> updatePassword(@PathVariable("id") UUID id,
+                                               @RequestBody UserUpdatePasswordRequest body) {
+        userService.updatePassword(id, body);
+        return ResponseEntity.noContent().build();
+    }
+
     @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
         userService.deleteAccount(id);
@@ -82,6 +100,12 @@ public class UserController {
     public ResponseEntity<Void> updateStatus(@PathVariable("id") UUID id,
                                              @RequestBody UserStatusUpdateRequest body) {
         userStatusService.updateByUserId(id, body);
+        return ResponseEntity.noContent().build();
+    }
+
+    @RequestMapping(path = "/{id}/deactivate", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> deactivateAccount(@PathVariable("id") UUID id) {
+        userService.deactivateAccount(id);
         return ResponseEntity.noContent().build();
     }
 }

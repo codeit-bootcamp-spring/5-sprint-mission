@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
-import com.sprint.mission.discodeit.domain.enums.user.Status;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserStatusResponse;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -11,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -24,18 +25,12 @@ public class UserStatusService {
         return new UserStatusResponse(userStatus.getUserId(), userStatus.getStatus());
     }
 
-    private static void apply(UserStatus us,
-                              Status status,
-                              Boolean login,
-                              Boolean logout,
-                              Boolean heartbeat,
-                              Boolean unfix) {
-        if (Boolean.TRUE.equals(logout)) us.logout();
-        if (Boolean.TRUE.equals(login)) us.login();
-        if (status != null) us.setStatus(status);
-        if (Boolean.TRUE.equals(heartbeat)) us.heartBeat();
-        if (Boolean.TRUE.equals(unfix)) us.unfixStatus();
+    protected void update(UUID id, Consumer<UserStatus> updater) {
+        UserStatus entity = userStatusRepository.getOrThrow(id);
+        updater.accept(entity);
+        userStatusRepository.save(entity);
     }
+
 
     public UserStatusResponse create(UUID userId) {
         Objects.requireNonNull(userId, "userId must not be null.");
@@ -57,13 +52,18 @@ public class UserStatusService {
                 .toList();
     }
 
-    public UserStatusResponse update(UUID userStatusId, UserStatusUpdateRequest req) {
+    public List<UserStatusResponse> findAllByUserIds(Set<UUID> userIds) {
+        if (userIds == null || userIds.isEmpty()) return List.of();
+        return userStatusRepository.findAllByUserIds(userIds).stream()
+                .map(UserStatusService::toResponse)
+                .toList();
+    }
+
+    public void updateStatus(UUID userStatusId, UserStatusUpdateRequest req) {
         Objects.requireNonNull(req, "req must not be null");
         Objects.requireNonNull(userStatusId, "userStatusId must not be null");
 
-        UserStatus us = userStatusRepository.getOrThrow(userStatusId);
-        apply(us, req.status(), req.login(), req.logout(), req.heartbeat(), req.unfix());
-        return toResponse(userStatusRepository.save(us));
+        update(userStatusId, u -> u.setStatus(req.status()));
     }
 
     public void updateByUserId(UUID userId, UserStatusUpdateRequest req) {
@@ -71,8 +71,7 @@ public class UserStatusService {
         Objects.requireNonNull(userId, "userId must not be null");
 
         UserStatus us = userStatusRepository.getOrThrowByUserId(userId);
-        apply(us, req.status(), req.login(), req.logout(), req.heartbeat(), req.unfix());
-        userStatusRepository.save(us);
+        update(us.getId(), u -> u.setStatus(req.status()));
     }
 
     public boolean delete(UUID id) {
