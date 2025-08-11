@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 @Builder
 public class UpdateChannelnameRequest {
-	@NotBlank(message = "채널 ID는 필수")
+	@NotNull(message = "채널 ID는 필수")
 	private UUID channelId;
 	@NotBlank(message = "채널 명은 필수")
 	private String channelNewName;

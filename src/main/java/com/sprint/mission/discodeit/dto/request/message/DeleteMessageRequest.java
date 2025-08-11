@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class DeleteMessageRequest {
-	@NotBlank(message = "메시지 ID는 필수")
+	@NotNull(message = "메시지 ID는 필수")
 	private UUID messageId;
 
-	@NotBlank(message = "작성자 ID는 필수")
+	@NotNull(message = "작성자 ID는 필수")
 	private UUID authorId;
 }

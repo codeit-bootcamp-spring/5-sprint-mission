@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.sprint.mission.discodeit.dto.request.binaryContent.CreateUserProfileImageRequest;
 
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class UpdateUserProfileImageRequest {
+	@NotNull
 	private UUID id;
 	@Nullable
 	private CreateUserProfileImageRequest userProfileImage;
