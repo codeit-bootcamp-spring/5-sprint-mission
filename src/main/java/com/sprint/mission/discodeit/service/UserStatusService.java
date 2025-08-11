@@ -3,8 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.user.Status;
 import com.sprint.mission.discodeit.dto.request.UserStatusCreateCommand;
-import com.sprint.mission.discodeit.dto.request.UserStatusUpdateByUserIdCommand;
-import com.sprint.mission.discodeit.dto.request.UserStatusUpdateCommand;
+import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserStatusResponse;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +34,8 @@ public class UserStatusService {
         if (Boolean.TRUE.equals(logout)) us.logout();
         if (Boolean.TRUE.equals(login)) us.login();
         if (status != null) us.setStatus(status);
-        if (Boolean.TRUE.equals(unfix)) us.unfixStatus();
         if (Boolean.TRUE.equals(heartbeat)) us.heartBeat();
+        if (Boolean.TRUE.equals(unfix)) us.unfixStatus();
     }
 
     public UserStatusResponse create(UserStatusCreateCommand cmd) {
@@ -60,22 +59,22 @@ public class UserStatusService {
                 .toList();
     }
 
-    public UserStatusResponse update(UserStatusUpdateCommand cmd) {
-        Objects.requireNonNull(cmd, "cmd must not be null");
-        Objects.requireNonNull(cmd.id(), "id must not be null");
+    public UserStatusResponse update(UUID userStatusId, UserStatusUpdateRequest req) {
+        Objects.requireNonNull(req, "req must not be null");
+        Objects.requireNonNull(userStatusId, "userStatusId must not be null");
 
-        UserStatus us = userStatusRepository.getOrThrow(cmd.id());
-        apply(us, cmd.status(), cmd.login(), cmd.logout(), cmd.heartbeat(), cmd.unfix());
+        UserStatus us = userStatusRepository.getOrThrow(userStatusId);
+        apply(us, req.status(), req.login(), req.logout(), req.heartbeat(), req.unfix());
         return toResponse(userStatusRepository.save(us));
     }
 
-    public UserStatusResponse updateByUserId(UserStatusUpdateByUserIdCommand cmd) {
-        Objects.requireNonNull(cmd, "cmd must not be null");
-        Objects.requireNonNull(cmd.userId(), "userId must not be null");
+    public void updateByUserId(UUID userId, UserStatusUpdateRequest req) {
+        Objects.requireNonNull(req, "req must not be null");
+        Objects.requireNonNull(userId, "userId must not be null");
 
-        UserStatus us = userStatusRepository.getOrThrowByUserId(cmd.userId());
-        apply(us, cmd.status(), cmd.login(), cmd.logout(), cmd.heartbeat(), cmd.unfix());
-        return toResponse(userStatusRepository.save(us));
+        UserStatus us = userStatusRepository.getOrThrowByUserId(userId);
+        apply(us, req.status(), req.login(), req.logout(), req.heartbeat(), req.unfix());
+        userStatusRepository.save(us);
     }
 
     public boolean delete(UUID id) {

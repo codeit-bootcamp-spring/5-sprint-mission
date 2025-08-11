@@ -24,11 +24,17 @@ public class AuthService {
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
 
-    private static UserResponse toResponse(User user, UserStatus status) {
+    private UserResponse toResponse(User user) {
+        UserStatus userStatus = userStatusRepository.getOrThrowByUserId(user.getId());
         return new UserResponse(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getEmail(),
                 user.getUsername(),
-                user.getGlobalName()
+                user.getGlobalName(),
+                user.getProfileId(),
+                userStatus.getStatus()
         );
     }
 
@@ -56,7 +62,7 @@ public class AuthService {
         status.login();
         userStatusRepository.save(status);
 
-        return toResponse(user, status);
+        return toResponse(user);
     }
 
     public boolean logout(UUID userId) {

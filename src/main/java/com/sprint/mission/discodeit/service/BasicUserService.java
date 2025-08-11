@@ -3,7 +3,8 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
-import com.sprint.mission.discodeit.dto.request.UserRegisterCommand;
+import com.sprint.mission.discodeit.dto.request.UserRegisterRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
@@ -32,11 +33,17 @@ public class BasicUserService {
     private final FriendRequestRepository friendRequestRepository;
     private final GuildRepository guildRepository;
 
-    private UserResponse toResponse(User u) {
+    private UserResponse toResponse(User user) {
+        UserStatus userStatus = userStatusRepository.getOrThrowByUserId(user.getId());
         return new UserResponse(
-                u.getId(),
-                u.getUsername(),
-                u.getGlobalName()
+                user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getGlobalName(),
+                user.getProfileId(),
+                userStatus.getStatus()
         );
     }
 
@@ -46,7 +53,7 @@ public class BasicUserService {
         userRepository.save(entity);
     }
 
-    public UserResponse register(UserRegisterCommand cmd) {
+    public UserResponse register(UserRegisterRequest cmd) {
         Objects.requireNonNull(cmd, "cmd must not be null");
         Objects.requireNonNull(cmd.birthDate(), "birthDate must not be null");
 
@@ -90,21 +97,22 @@ public class BasicUserService {
         friendRequestRepository.clear(userId);
 
         User user = userRepository.getOrThrow(userId);
-        for (UUID friendId : new HashSet<>(user.getFriendIds())) {
-            update(friendId, f -> f.removeFriend(userId));
-            update(userId, u -> u.removeFriend(friendId));
-        }
 
         for (UUID guildId : new HashSet<>(user.getGuildIds())) {
             Guild guild = guildRepository.getOrThrow(guildId);
             if (guild.isOwner(userId)) guildRepository.deleteById(guildId);
-            else {
-                guild.removeUser(userId);
-                guildRepository.save(guild);
-            }
         }
 
         userRepository.deleteById(userId);
+    }
+
+    public void updateProfileSettings(UUID userId, UserUpdateProfileSettingsRequest req) {
+        Objects.requireNonNull(userId, "userId must not be null");
+        Objects.requireNonNull(req, "req must not be null");
+        update(userId, u -> {
+            u.setGlobalName(req.globalName().orElse(null));
+            u.setBio(req.bio().orElse(null));
+        });
     }
 
     public void updateEmail(UUID userId, String email) {

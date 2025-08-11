@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.dto.request;
 
 import java.time.LocalDate;
 
-public record UserRegisterCommand(
+public record UserRegisterRequest(
         String email,
         String username,
         String password,
