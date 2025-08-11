@@ -1,13 +1,16 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
+
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import org.springframework.stereotype.Repository;
+
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,6 +45,7 @@ public class FileChannelRepository implements ChannelRepository {
         ) {
             oos.writeObject(channel);
         } catch (IOException e) {
+
             throw new RuntimeException(e);
         }
         return channel;
@@ -49,6 +53,7 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public Optional<Channel> findById(UUID id) {
+
         Channel channelNullable = null;
         Path path = resolvePath(id);
         if (Files.exists(path)) {
@@ -66,6 +71,7 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public List<Channel> findAll() {
+
         try {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
@@ -94,10 +100,12 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
+
         try {
             Files.delete(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 }

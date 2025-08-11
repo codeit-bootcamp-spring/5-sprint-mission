@@ -1,18 +1,20 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.file;
+
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
 
+public class FileChannelService implements ChannelService {
 
-public class JCFChannelService implements ChannelService {
+    private final FileChannelRepository repo;
 
-    private final ChannelRepository repo;
-
-    public JCFChannelService(ChannelRepository repo) {
+    public FileChannelService(FileChannelRepository repo) {
         this.repo = repo;
     }
 
@@ -20,17 +22,16 @@ public class JCFChannelService implements ChannelService {
     @Override
     public Channel create(ChannelType type, String name, String description) {
         Channel channel = new Channel(type, name, description);
-        repo.save(channel);
-        return channel;
+        return repo.save(channel);
     }
 
     @Override
     public Optional<Channel> find(UUID id) {
         Optional<Channel> channel = repo.findById(id);
         if (channel.isEmpty()) {
-            throw new NoSuchElementException("Channel with id " + id + " not found");
+            throw new NoSuchElementException("Channel with id " + id + " does not exist");
         }
-        return channel;
+        return repo.findById(id);
     }
 
     @Override

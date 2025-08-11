@@ -21,15 +21,20 @@ public class Message implements Serializable {
     //
     private String content;
     //
+
     private UUID channelId;
     private UUID authorId;
     private List<UUID> attachmentIds;
+
 
     public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.updatedAt = createdAt;
+        this.channelId = channelId;
+        this.authorId = authorId;
         this.content = content;
+
         this.channelId = channelId;
         this.authorId = authorId;
         this.attachmentIds = attachmentIds;

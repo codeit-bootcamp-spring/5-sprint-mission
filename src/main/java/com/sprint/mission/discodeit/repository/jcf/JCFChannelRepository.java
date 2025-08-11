@@ -17,6 +17,7 @@ public class JCFChannelRepository implements ChannelRepository {
     @Override
     public Channel save(Channel channel) {
         this.data.put(channel.getId(), channel);
+
         return channel;
     }
 
@@ -38,5 +39,6 @@ public class JCFChannelRepository implements ChannelRepository {
     @Override
     public void deleteById(UUID id) {
         this.data.remove(id);
+
     }
 }

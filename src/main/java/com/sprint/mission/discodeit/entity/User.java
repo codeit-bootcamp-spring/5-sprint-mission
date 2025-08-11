@@ -19,6 +19,7 @@ public class User implements Serializable {
     private Instant createdAt;
     private Instant updatedAt;
     //
+
     private String username;
     private String email;
     private String password;

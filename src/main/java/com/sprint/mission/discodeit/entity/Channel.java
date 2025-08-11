@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
