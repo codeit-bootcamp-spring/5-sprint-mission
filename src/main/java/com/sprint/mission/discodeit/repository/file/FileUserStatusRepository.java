@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.respository.file;
+package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.respository.UserStatusRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 
 import java.util.*;
 

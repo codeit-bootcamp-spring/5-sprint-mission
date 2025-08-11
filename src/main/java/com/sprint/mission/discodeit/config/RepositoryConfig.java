@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.config;
 
-import com.sprint.mission.discodeit.respository.*;
-import com.sprint.mission.discodeit.respository.file.*;
-import com.sprint.mission.discodeit.respository.jcf.*;
+import com.sprint.mission.discodeit.repository.*;
+import com.sprint.mission.discodeit.repository.file.*;
+import com.sprint.mission.discodeit.repository.jcf.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

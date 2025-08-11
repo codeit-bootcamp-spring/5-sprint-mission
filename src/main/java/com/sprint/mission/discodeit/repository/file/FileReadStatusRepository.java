@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.respository.file;
+package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.respository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import java.util.*;
 
 public class FileReadStatusRepository extends FileStore<ReadStatus> implements ReadStatusRepository {

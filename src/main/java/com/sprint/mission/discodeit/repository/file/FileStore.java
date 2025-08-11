@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.respository.file;
+package com.sprint.mission.discodeit.repository.file;
 
 import java.io.*;
 import java.util.*;

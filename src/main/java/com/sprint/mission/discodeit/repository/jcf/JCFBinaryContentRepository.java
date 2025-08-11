@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.respository.jcf;
+package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.respository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 
 import java.util.*;
 

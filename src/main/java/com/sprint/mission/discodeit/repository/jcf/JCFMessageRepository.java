@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.respository.jcf;
+package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.respository.MessageRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 
 import java.time.Instant;
 import java.util.*;

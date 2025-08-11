@@ -1,8 +1,9 @@
 
 ## 기본 요구사항
-
-- [x] Spring 프로젝트 초기화
-- [x] Bean 선언 및 테스트
+컨트롤러 레이어 구현
+- [ ] DiscodeitApplication의 테스트 로직은 삭제하세요.
+- [ ] 지금까지 구현한 서비스 로직을 활용해 웹 API를 구현하세요. 이때 @RequestMapping만 사용해 구현해보세요.
+- [ ]  웹 API의 예외를 전역으로 처리하세요.
 
 #### [Spring 핵심 개념 이해하기]
 기존에는 `new` 연산자를 사용해 수동으로 객체를 생성했지만, `DiscodeitApplication`에서는 Spring의 

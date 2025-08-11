@@ -1,10 +1,9 @@
-package com.sprint.mission.discodeit.respository.file;
+package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.respository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 public class FileChannelRepository extends FileStore<Channel> implements ChannelRepository {
