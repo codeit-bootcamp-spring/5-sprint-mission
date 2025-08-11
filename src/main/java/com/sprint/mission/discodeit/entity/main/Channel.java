@@ -20,6 +20,7 @@ public class Channel implements Serializable {
     private final UUID id;
 
     private ChannelType type;
+
     private String name;
     private String description;
 
@@ -29,23 +30,22 @@ public class Channel implements Serializable {
     public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
         this.createdAt = now();
-        this.updatedAt = this.createdAt;
 
         this.type = type;
         this.name = name;
         this.description = description;
     }
 
-    public void update(String name, String description) {
+    public void update(String newName, String newDescription) {
         boolean anyValueUpdated = false;
 
-        if(isNameChanged(name)) {
-            this.name = name;
+        if(isNameChanged(newName)) {
+            this.name = newName;
             anyValueUpdated = true;
         }
 
-        if(isDescriptionChanged(description)) {
-            this.description = description;
+        if(isDescriptionChanged(newDescription)) {
+            this.description = newDescription;
             anyValueUpdated = true;
         }
 
