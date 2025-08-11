@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface UserService {
 
-    CreateUserResponse create(CreateUserRequest dto);
+    UserResponse create(CreateUserRequest dto);
 
     List<UserListResponse> findAll();
 

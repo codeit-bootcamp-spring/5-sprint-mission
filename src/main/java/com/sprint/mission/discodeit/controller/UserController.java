@@ -23,7 +23,7 @@ public class UserController {
 
     // 회원 등록: POST /user
     @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<CreateUserResponse> create(@Valid @ModelAttribute CreateUserRequest req) {
+    public ResponseEntity<UserResponse> create(@Valid @ModelAttribute CreateUserRequest req) {
         return ResponseEntity.ok(userService.create(req));
     }
 

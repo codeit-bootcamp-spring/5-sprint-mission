@@ -26,7 +26,7 @@ public class BasicUserService implements UserService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public CreateUserResponse create(CreateUserRequest dto) {
+    public UserResponse create(CreateUserRequest dto) {
 
         // email 중복검사
         if (userRepository.findByEmail(dto.email()).isPresent()) {
@@ -59,17 +59,18 @@ public class BasicUserService implements UserService {
             }
         }
 
-        String profileImageId = (user.getProfileId() != null)
-                ? user.getProfileId().toString()
-                : null;
+        UUID imageId = user.getProfileId();
+        BinaryContent image = binaryContentRepository.findById(imageId).orElse(null);
+        String imageUrl = (imageId != null) ? "/binary/" + imageId : null;
 
-        return new CreateUserResponse(
+        return new UserResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getCreatedAtFormatted(),
-                user.getUpdatedAtFormatted(),
-                profileImageId
+                imageId,
+                imageUrl,
+                (image != null ? image.getContent().length : null),
+                (image != null ? image.getContentType() : null)
         );
     }
 
