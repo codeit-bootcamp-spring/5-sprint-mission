@@ -35,6 +35,8 @@ public class UserStatus extends BaseEntity implements Serializable {
         }
     }
     public Boolean isOnline() {
+        //lastActiveAt 값이 5분 이내면 온라인 유저로 간주
+        //true면 "더 최신", false면 "더 옛날"
         Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
         return lastActiveAt.isAfter(instantFiveMinutesAgo);
     }

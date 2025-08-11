@@ -14,7 +14,7 @@ public class ReadStatus extends BaseEntity implements Serializable {
 
     private UUID userId;
     private UUID channelId;
-    private Instant lastReadAt;
+    private Instant lastReadAt; // 마지막으로 읽은 시간
 
     public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
         super();
