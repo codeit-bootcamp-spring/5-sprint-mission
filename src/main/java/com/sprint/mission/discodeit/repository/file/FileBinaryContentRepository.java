@@ -8,7 +8,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 @Repository
 public class FileBinaryContentRepository implements BinaryContentRepository {
@@ -75,8 +78,8 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
-        try {
-            return Files.list(DIRECTORY)
+        try (Stream<Path> paths = Files.list(DIRECTORY)) {
+            return paths
                 .filter(path -> path.toString().endsWith(EXTENSION))
                 .map(path -> {
                     try (
@@ -107,8 +110,8 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     @Override
     public void deleteAll() {
-        try {
-            Files.list(DIRECTORY)
+        try (Stream<Path> paths = Files.list(DIRECTORY)) {
+            paths
                 .filter(path -> path.toString().endsWith(EXTENSION))
                 .forEach(path -> {
                     try {
