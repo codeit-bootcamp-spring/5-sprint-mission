@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.request.UserRegisterRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.service.BasicUserService;
@@ -32,8 +33,8 @@ public class UserController {
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResponse> register(@RequestBody UserRegisterRequest req) {
-        UserResponse created = userService.register(req);
+    public ResponseEntity<UserResponse> register(@RequestBody UserRegisterRequest body) {
+        UserResponse created = userService.register(body);
         return ResponseEntity
                 .created(URI.create("/api/users/" + created.id()))
                 .body(created);
@@ -56,6 +57,13 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @RequestMapping(path = "/{id}/profile-image", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> updateProfileImage(@PathVariable("id") UUID id,
+                                                   @RequestBody UserUpdateProfileImageRequest body) {
+        userService.updateProfileImage(id, body);
+        return ResponseEntity.noContent().build();
+    }
+
     @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
         userService.deleteAccount(id);
@@ -64,8 +72,8 @@ public class UserController {
 
     @RequestMapping(path = "/{id}/status", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateStatus(@PathVariable("id") UUID id,
-                                             @RequestBody UserStatusUpdateRequest req) {
-        userStatusService.updateByUserId(id, req);
+                                             @RequestBody UserStatusUpdateRequest body) {
+        userStatusService.updateByUserId(id, body);
         return ResponseEntity.noContent().build();
     }
 }

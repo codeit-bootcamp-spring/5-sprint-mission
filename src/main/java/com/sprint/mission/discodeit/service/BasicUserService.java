@@ -33,6 +33,7 @@ public class BasicUserService {
     private final UserStatusRepository userStatusRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final GuildRepository guildRepository;
+    private final BinaryContentService binaryContentService;
 
     private UserResponse toResponse(User user) {
         UserStatus userStatus = userStatusRepository.getOrThrowByUserId(user.getId());
@@ -119,7 +120,8 @@ public class BasicUserService {
     public void updateProfileImage(UUID userId, UserUpdateProfileImageRequest req) {
         Objects.requireNonNull(userId, "userId must not be null.");
         Objects.requireNonNull(req, "req must not be null.");
-
+        binaryContentService.find(req.profileId());
+        update(userId, u -> u.setProfileId(req.profileId()));
     }
 
     public void updateEmail(UUID userId, String email) {
