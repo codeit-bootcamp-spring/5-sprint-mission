@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto.user;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.lang.Nullable;
 
 /**
@@ -10,10 +11,17 @@ import org.springframework.lang.Nullable;
  * <p>{@link #password} - 비밀번호</p>
  * <p>{@link #profileImage} - 프로필 이미지(선택사항 null 허용)</p>
  */
-public record UserRegisterDto(
+public record CreateUserRequest(
+        @NotBlank(message = "이름을 입력해주세요")
         String name,
+
+        @NotBlank(message = "이메일을 입력해주세요")
         String email,
+
+        @NotBlank(message = "비밀번호를 입력해주세요")
         String password,
-        @Nullable BinaryContent profileImage
+
+        @Nullable
+        BinaryContent profileImage
 ) {
 }

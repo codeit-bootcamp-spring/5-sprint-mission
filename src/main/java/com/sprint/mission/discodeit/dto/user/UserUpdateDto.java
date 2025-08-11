@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto.user;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.lang.Nullable;
 
 import java.util.UUID;
@@ -12,6 +13,7 @@ import java.util.UUID;
  * <p>{@link #profileImage} - 프로필 이미지(선택사항 null 허용)</p>
  */
 public record UserUpdateDto(
+        @NotNull(message = "아이디를 입력해주세요")
         UUID id,
         @Nullable String name,
         @Nullable String email,

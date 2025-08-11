@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.user.UserRegisterDto;
+import com.sprint.mission.discodeit.dto.user.CreateUserRequest;
+import com.sprint.mission.discodeit.dto.user.PasswordRequest;
+import com.sprint.mission.discodeit.dto.user.UserListResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -25,7 +27,7 @@ public class BasicUserService implements UserService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public User create(UserRegisterDto dto) {
+    public User create(CreateUserRequest dto) {
 
         // email 중복검사
         if (userRepository.findByEmail(dto.email()).isPresent()) {
@@ -72,8 +74,14 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<UserListResponse> findAll() {
+
+        return userRepository.findAll().stream()
+                .map(u -> new UserListResponse(
+                        u.getId().toString(),
+                        u.getName(),
+                        u.getEmail()
+                )).toList();
     }
 
     @Override
@@ -89,24 +97,19 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User updatePassword(UUID userId, String currentPassword, String newPassword) {
+    public User updatePassword(PasswordRequest req) {
 
         // 사용자 조회
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(req.userId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자가 존재하지 않습니다."));
 
         // 현재 비밀번호 검증
-        if(!user.getPassword().equals(currentPassword)){
+        if(!user.getPassword().equals(req.password())){
             throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
         }
 
-        // 새 비밀번호 유효성 검사
-        if (newPassword == null || newPassword.isBlank()) {
-            throw new IllegalArgumentException("새 비밀번호는 비어 있을 수 없습니다.");
-        }
-
         // 비밀번호 변경 및 저장
-        user.updatePassword(newPassword);
+        user.updatePassword(req.newPassword());
         return userRepository.save(user);
     }
 
