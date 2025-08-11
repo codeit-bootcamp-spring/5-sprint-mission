@@ -1,28 +1,80 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public interface MessageService {
-    Message create(Message message);
+@Service("messageService")
+@RequiredArgsConstructor
+@Validated
+public class MessageService {
+    private final MessageRepository messageRepository;
+    //
+    private final ChannelRepository channelRepository;
+    private final UserRepository userRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
-    Message updateContent(UUID id, String content);
+    public Message create(@Valid MessageCreateRequest request) {
+        validateExist(request.authorId(), request.channelId());
 
-    Message updateSenderId(UUID id, UUID senderId);
+        Message message;
 
-    Message updateChannelId(UUID id, UUID channelId);
+        if(request.uploadAttachments()) {
+            message = new Message(request.content(), request.channelId(), request.authorId(), request.attachmentIds());
+        } else {
+            message = new Message(request.content(), request.channelId(), request.authorId());
+        }
 
-    Message delete(UUID id);
+        return messageRepository.save(message);
+    }
 
-    void deleteAll();
+    public Message findById(UUID messageId) {
+        return messageRepository.findById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("findById : 메세지를 찾을 수 없습니다"));
+    }
 
-    Message searchById(UUID id);
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return messageRepository.findAll().stream()
+                .filter(m -> m.getChannelId().equals(channelId))
+                .collect(Collectors.toList());
+    }
 
-    List<Message> searchByContent(String content);
+    public Message update(MessageUpdateRequest request) {
+        Message message = messageRepository.findById(request.messageId())
+                .orElseThrow(() -> new NoSuchElementException("update : 메세지를 찾을 수 없습니다"));
+        message.update(request.content());
 
-    List<Message> searchBySenderId(UUID id);
+        return messageRepository.save(message);
+    }
 
-    List<Message> searchAll();
+    public void delete(UUID messageId) {
+        Message message = messageRepository.findById(messageId)
+                        .orElseThrow(() -> new NoSuchElementException("delete : 메세지를 찾을 수 없습니다"));
+
+        message.getAttachmentIds().forEach(binaryContentRepository::deleteById);
+        messageRepository.deleteById(message.getId());
+    }
+
+    public void deleteAll() {
+        messageRepository.findAll().forEach(m -> delete(m.getId()));
+    }
+
+    private void validateExist(UUID authorId, UUID channelId) {
+        if (!userRepository.existsById(authorId) || !channelRepository.existsById(channelId)) {
+            throw new NoSuchElementException("validateExist : 해당 유저 또는 채널을 찾을 수 없습니다.");
+        }
+    }
 }

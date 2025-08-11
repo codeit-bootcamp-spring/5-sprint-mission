@@ -2,49 +2,43 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 public class JCFChannelRepository implements ChannelRepository {
-    private final Map<UUID, Channel> data;
+    private final Map<UUID, Channel> channelMap;
 
     public JCFChannelRepository() {
-        this.data = new HashMap<>();
+        this.channelMap = new HashMap<>();
     }
 
     @Override
     public Channel save(Channel channel) {
-        return data.put(channel.getId(), channel);
+        this.channelMap.put(channel.getId(), channel);
+        return channel;
     }
 
     @Override
-    public Optional<Channel> delete(UUID id) {
-        return Optional.ofNullable(data.remove(id));
+    public Optional<Channel> findById(UUID id) {
+        return Optional.ofNullable(this.channelMap.get(id));
     }
 
     @Override
-    public void deleteAll() {
-        data.clear();
+    public List<Channel> findAll() {
+        return this.channelMap.values().stream().toList();
     }
 
     @Override
-    public List<Channel> searchByName(String name) {
-        List<Channel> channels = new ArrayList<>();
-        for (Channel channel : data.values()) {
-            if (channel.getName().contains(name)) {
-                channels.add(channel);
-            }
-        }
-        return channels;
+    public boolean existsById(UUID id) {
+        return this.channelMap.containsKey(id);
     }
 
     @Override
-    public Optional<Channel> searchById(UUID id) {
-        return Optional.ofNullable(data.get(id));
-    }
-
-    @Override
-    public List<Channel> searchAll() {
-        return new ArrayList<>(data.values());
+    public void deleteById(UUID id) {
+        this.channelMap.remove(id);
     }
 }
