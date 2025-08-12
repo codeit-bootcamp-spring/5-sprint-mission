@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -12,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.List;
+import java.util.UUID;
 
 @SpringBootApplication
 public class DiscodeitApplication {
@@ -29,34 +32,53 @@ public class DiscodeitApplication {
 
         /*User Test*/
 
-        //1. Given: 유저 준비
-        User user = new User("유저 테스트", "1234");
+        // 1. Given: 유저 준비
+        UserCreateRequest request = new UserCreateRequest("유저 테스트", "test@email.com", "1234");
 
-        //2. When: 등록/조회/수정
-        userService.create(user);
-        User foundUser = userService.findById(user.getId()); // 단건 조회
-        List<User> foundAll = userService.findAll(); // 전체 조회
-        foundUser.updateTime(); // 메모리 안에서만 수정시간 갱신
-        userService.update(foundUser); // 저장소 map까지 수정
+        // 2. When: 등록/조회/수정
+        userService.create(request);
 
-        //3. Then: 등록/조회/수정 검증
-        System.out.println("✅유저 등록: " + foundUser.getId());
-        System.out.println("✅유저 아이디 조회: " + foundUser.getUserId());
-        System.out.println("✅유저 비밀번호 조회: " + foundUser.getPassword());
-        System.out.println("✅유저 단건 조회: " + userService.findById(user.getId()));
-        System.out.println("✅유저 전체 조회: " + userService.findAll());
-        System.out.println("✅유저 수정 후 조회: " + userService.findById(user.getId()));
+        // 등록된 유저 단건 조회
+        UserResponse foundUser = userService.findAll().stream()
+                .filter(u -> u.getUserId().equals("유저 테스트"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
-        //4. When: 삭제
-        userService.delete(user.getId());
+        // 전체 유저 리스트 조회
+        List<UserResponse> foundAll = userService.findAll();
 
-        //5.Then: 삭제 검증
+        // 메모리 상에서 수정시간만 갱신
+        foundUser.updateTime();
+
+        //수정 요청 객체로 변환해서 저장소에 반영
+        UserUpdateRequest updateRequest = new UserUpdateRequest(
+                foundUser.getId(),
+                foundUser.getUserId(),
+                foundUser.getEmail(),
+                "updated-password", // 테스트용 새 비밀번호
+                null // 프로필 이미지 없음
+        );
+
+        userService.update(updateRequest); // 저장소 map까지 수정
+
+        // 3. Then: 등록/조회/수정 검증
+        System.out.println("✅ 유저 등록: " + foundUser.getId());
+        System.out.println("✅ 유저 아이디 조회: " + foundUser.getUserId());
+        System.out.println("✅ 유저 단건 조회: " + userService.findById(foundUser.getId()));
+        System.out.println("✅ 유저 전체 조회: " + userService.findAll());
+        System.out.println("✅ 유저 수정 후 조회: " + userService.findById(foundUser.getId()));
+
+        // 4. When: 삭제
+        userService.delete(foundUser.getId());
+
+        // 5. Then: 삭제 검증
         try {
-            User afterDelete = userService.findById(user.getId());
-            System.out.println("✅삭제 후 유저 조회: afterDelete");
+            UserResponse afterDelete = userService.findById(foundUser.getId());
+            System.out.println("✅ 삭제 후 유저 조회: " + afterDelete);
         } catch (IllegalArgumentException e) {
-            System.out.println("❌ 삭제 된 유저는 더 이상 조회할 수 없습니다.");
+            System.out.println("❌ 삭제된 유저는 더 이상 조회할 수 없습니다.");
         }
+
         System.out.println("----------------------------------------");
         System.out.println("----------------------------------------");
 
@@ -98,43 +120,27 @@ public class DiscodeitApplication {
 
         /*Message Test*/
 
-        //1. Given: 메세지 Test를 위한 데이터 준비
-        User sender = new User("senderUser", "1234");
-        userService.create(sender);
-        Channel messageChannel = new Channel("메세지 테스트 채널", "채팅용", ChannelType.VOICE);
+        // 1. Given: 메시지 Test를 위한 데이터 준비
+        UserCreateRequest senderRequest = new UserCreateRequest("senderUser", "sender@email.com", "1234");
+        userService.create(senderRequest);
+
+        // sender ID 꺼내오기
+        UUID senderId = userService.findAll().stream()
+                .filter(u -> u.getUserId().equals("senderUser"))
+                .map(UserResponse::getId)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+
+        Channel messageChannel = new Channel("메시지 테스트 채널", "채널 설명", ChannelType.VOICE);
         channelService.create(messageChannel);
 
-        //And Given: 메세지 준비
-        Message message = new Message("테스트 내용", sender.getId(), messageChannel.getId());
+        // And Given: 메시지 준비
+        Message message = new Message("테스트 내용", senderId, messageChannel.getId());
 
-        //2. When: 생성/조회/수정
+        // 2. When: 생성/조회/수정
         messageService.create(message);
         Message foundMessage = messageService.findById(message.getId());
         List<Message> foundAllMessage = messageService.findAll();
-        foundMessage.updateTime();
-        messageService.update(foundMessage);
 
-        //3. Then: 생성/조회/수정 검증
-        System.out.println("✅메세지 등록: " + foundMessage.getId());
-        System.out.println("✅메세지 내용 조회: " + foundMessage.getContent());
-        System.out.println("✅메세지 보낸 사람 조회:" + foundMessage.getSender());
-        System.out.println("✅메세지 채널ID 조회: " + foundMessage.getChannelId());
-        System.out.println("✅메세지 단건 조회: " + messageService.findById(foundMessage.getId()));
-        System.out.println("✅메세지 전체 조회: " + messageService.findAll());
-        System.out.println("✅수정 메세지 조회: " + messageService.findById(foundMessage.getId()));
-
-        //4. When: 메세지 삭제
-        messageService.delete(foundMessage);
-
-        //5. Then: 삭제 검증
-        try {
-            messageService.findById(foundMessage.getId());
-            System.out.println("❌ 삭제 된 메세지가 조회됩니다. 오류!");
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("❌ 삭제 된 메세지는 더이상 조회할 수 없습니다.");
-            System.out.println("----------------------------------------");
-            System.out.println("----------------------------------------");
-        }
     }
 }

@@ -5,10 +5,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Repository // FileUserRepository를 UsserRepository 빈으로 등록
 public class FileUserRepository implements UserRepository {
@@ -53,6 +50,18 @@ public class FileUserRepository implements UserRepository {
         return data.values().stream()
                 .anyMatch(user -> user.getUserId().equals(userId));
     }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return data.values().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public Optional<User> findOptionalById(UUID id) {
+        return Optional.ofNullable(findById(id));
+    }
+
 
     //객체 -> 파일 직렬화
     private void saveToFile() {

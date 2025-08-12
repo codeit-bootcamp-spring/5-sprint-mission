@@ -14,13 +14,16 @@ public class User implements Serializable {
     //직렬화된 객체의 버전을 명시적으로 지정
     @Serial
     private static final long serialVersionUID = 1L;
+
     //필드
     private final UUID id; // 고유 id (DB용 내부 식별자)
-    private final Instant createdAt; // 생성 시간
-    private Instant updatedAt; // 수정 시간
-    private String userId; //사용자 id (로그인용 외부식별자)
-    private String password;// 사용자 PW (로그인용 외부식별자)
+    private final Instant createdAt;
+    private Instant updatedAt;
+
+    private String userId; // 사용자 id (로그인용 외부식별자)
     private String email;
+    private String password;// 사용자 PW (로그인용 외부식별자)
+    private UUID profileId; // User가 가진 프로필 이미지ID
 
     //기본 생성자
     //매개변수X
@@ -30,6 +33,15 @@ public class User implements Serializable {
         this.updatedAt = createdAt;
     }
 
+
+    public User(String userId, String password) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        this.updatedAt = createdAt;
+        this.userId = userId;
+        this.password = password;
+        this.email = null; // 이메일은 null 처리
+    }
 
     //일반 생성자
     public User(String userId, String password, String email) {
@@ -50,6 +62,11 @@ public class User implements Serializable {
         this.userId = other.userId;
         this.password = other.password;
         this.email = other.email;
+    }
+
+    public User(String senderUser, String number, UUID id, Instant createdAt) {
+        this.id = id;
+        this.createdAt = createdAt;
     }
 
     //마지막 수정 시간을 현재시간으로 바꿔주는 메서드
