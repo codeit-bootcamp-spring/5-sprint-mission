@@ -35,8 +35,7 @@ async function renderUserList(users) {
         userElement.className = 'user-item';
 
         // Get profile image URL
-        // const profileUrl = user.profileId ? await fetchUserProfile(user.profileId) : '/img/avatar/default-avatar.png';
-        const profileUrl = '/img/avatar/default-avatar.png';
+        const profileUrl = user.profileId ? await fetchUserProfile(user.profileId) : '/img/avatar/default-avatar.png';
 
         userElement.innerHTML = `
             <img src="${profileUrl}" alt="${user.username}" class="user-avatar">
@@ -56,15 +55,36 @@ async function renderUserList(users) {
 // Fetch user profile image
 async function fetchUserProfile(profileId) {
     try {
-        const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}?binaryContentId=${profileId}`);
+        const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}/${profileId}`);
         if (!response.ok) 
             throw new Error('Failed to fetch profile');
         const profile = await response.json();
 
         // Convert base64 encoded bytes to data URL
-        return `data:${profile.contentType};base64,${profile.content}`;
+        return toDataUrl(profile);
     } catch (error) {
         console.error('Error fetching profile:', error);
         return '/default-avatar.png'; // Fallback to default avatar
     }
+}
+
+function toDataUrl(profile) {
+    if (!profile || !profile.contentType || !profile.content) {
+        return 'img/avatar/default-avatar.png'
+    }
+
+    // contentType은 BinaryContentType의 type 값과 매칭
+    const mimeTypeMap = {
+        PNG: "image/png",
+        JPG: "image/jpg",
+        JPEG: "image/jpeg",
+        GIF: "image/gif",
+        WEBP: "image/webp",
+        BMP: "image/bmp",
+        SVG: "image/svg+xml", // SVG는 xml 형식
+        TIFF: "image/tiff"
+    };
+    const cleanBase64 = profile.content.replace(/\s/g, '');
+    const mimeType = mimeTypeMap[profile.contentType];
+    return `data:${mimeType};base64,${cleanBase64}`;
 }
