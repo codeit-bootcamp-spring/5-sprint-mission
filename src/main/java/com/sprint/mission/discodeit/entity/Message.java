@@ -1,27 +1,48 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Message {
+public class Message implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
+    private final UUID senderId;
+    private final UUID channelId;
+    private final String content;
     private final long createdAt;
-    private long updatedAt;
+    private final long updatedAt;
 
-    private String content;
-    private UUID userId;
-    private UUID channelId;
+    public Message(UUID senderId, UUID channelId, String content, long createdAt) {
+        this(UUID.randomUUID(), senderId, channelId, content, createdAt, createdAt);
+    }
 
-    public Message(String content, UUID userId, UUID channelId) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = this.createdAt;
-        this.content = content;
-        this.userId = userId;
+    public Message(UUID id, UUID senderId, UUID channelId, String content, long createdAt, long updatedAt) {
+        this.id = id;
+        this.senderId = senderId;
         this.channelId = channelId;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public UUID getId() {
         return id;
+    }
+
+    public UUID getSenderId() {
+        return senderId;
+    }
+
+    public UUID getChannelId() {
+        return channelId;
+    }
+
+    public String getContent() {
+        return content;
     }
 
     public long getCreatedAt() {
@@ -32,32 +53,21 @@ public class Message {
         return updatedAt;
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public void updateContent(String content) {
-        this.content = content;
-        this.updatedAt = System.currentTimeMillis();
+    public Message withContent(String newContent) {
+        return new Message(id, senderId, channelId, newContent, createdAt, System.currentTimeMillis());
     }
 
     @Override
     public String toString() {
         return "Message{" +
                 "id=" + id +
+                ", senderId=" + senderId +
+                ", channelId=" + channelId +
+                ", content='" + content + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", content='" + content + '\'' +
-                ", userId=" + userId +
-                ", channelId=" + channelId +
                 '}';
     }
 }
+
+

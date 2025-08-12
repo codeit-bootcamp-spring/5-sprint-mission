@@ -62,4 +62,3 @@ public class BasicMessageService implements MessageService {
         return true;
     }
 }
-

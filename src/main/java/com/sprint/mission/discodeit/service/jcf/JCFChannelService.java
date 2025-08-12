@@ -16,20 +16,27 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel findById(UUID id) {
-        return data.get(id);
+        Channel original = data.get(id);
+        if (original == null) return null;
+        return new Channel(original); // 복사본 반환
     }
 
     @Override
     public List<Channel> findAll() {
-        return new ArrayList<>(data.values());
+        List<Channel> result = new ArrayList<>();
+        for (Channel c : data.values()) {
+            result.add(new Channel(c)); // 복사본 생성
+        }
+        return result;
     }
 
     @Override
-    public void update(UUID id, Channel updatedChannel) {
-        Channel original = data.get(id);
-        if (original != null) {
-            original.updateName(updatedChannel.getName());
+    public boolean update(UUID id, Channel updatedChannel) {
+        if (!data.containsKey(id)) {
+            return false;
         }
+        data.put(id, updatedChannel);
+        return true;
     }
 
     @Override
@@ -37,3 +44,5 @@ public class JCFChannelService implements ChannelService {
         data.remove(id);
     }
 }
+
+

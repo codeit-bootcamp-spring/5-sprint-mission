@@ -1,12 +1,19 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.util.*;
 
 public class JCFMessageService implements MessageService {
+
     private final Map<UUID, Message> data = new HashMap<>();
+    private final UserRepository userRepository;
+
+    public JCFMessageService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public Message create(Message message) {
@@ -15,25 +22,26 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public Message findById(UUID id) {
+    public Message read(UUID id) {
         return data.get(id);
     }
 
     @Override
-    public List<Message> findAll() {
-        return new ArrayList<>(data.values());
-    }
-
-    @Override
-    public void update(UUID id, Message updatedMessage) {
-        Message original = data.get(id);
-        if (original != null) {
-            original.updateContent(updatedMessage.getContent());
-        }
+    public boolean update(UUID id, String newContent) {
+        Message old = data.get(id);
+        if (old == null) return false;
+        data.put(id, old.withContent(newContent));
+        return true;
     }
 
     @Override
     public void delete(UUID id) {
         data.remove(id);
     }
+
+    @Override
+    public List<Message> readAll() {
+        return new ArrayList<>(data.values());
+    }
 }
+
