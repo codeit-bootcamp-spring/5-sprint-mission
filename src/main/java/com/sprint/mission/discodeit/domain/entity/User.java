@@ -79,15 +79,11 @@ public class User extends BaseEntity {
     }
 
     public void setGlobalName(String globalName) {
-        String v = Objects.requireNonNullElse(
-                normalizeString(
-                        Validators.validateGlobalName(globalName)
-                ),
-                this.username);
-        if (!Objects.equals(this.globalName, v)) {
-            this.globalName = v;
-            touch();
-        }
+        String n = normalizeString(globalName);
+        String v = n.isBlank() ? this.username : Validators.validateGlobalName(n);
+        if (Objects.equals(this.globalName, v)) return;
+        this.globalName = v;
+        touch();
     }
 
     public void setBirthDate(LocalDate birthDate) {
