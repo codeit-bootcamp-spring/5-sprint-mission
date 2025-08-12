@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -16,10 +19,20 @@ import java.util.UUID;
 public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
 
+
     @Override
-    public Channel create(ChannelType type, String name, String description) {
-        Channel channel = new Channel(type, name, description);
+    public Channel create(PublicChannelCreateRequest publicChannelCreateRequest) {
+        String name = publicChannelCreateRequest.name();
+        String description = publicChannelCreateRequest.description();
+
+        Channel channel = new Channel(ChannelType.PUBLIC, name, description);
         return channelRepository.save(channel);
+    }
+
+    @Override
+    public Channel create(PrivateChannelCreateRequest privateChannelCreateRequest) {
+
+        return null;
     }
 
     @Override
@@ -34,7 +47,10 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Channel update(UUID channelId, String newName, String newDescription) {
+    public Channel update(UUID channelId, PublicChannelUpdateRequest publicChannelUpdateRequest) {
+        String newName = publicChannelUpdateRequest.newName();
+        String newDescription = publicChannelUpdateRequest.newDescription();
+
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
         channel.update(newName, newDescription);

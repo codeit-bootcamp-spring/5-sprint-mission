@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -12,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository("fileUserRepository")
 public class FileUserRepository implements UserRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
@@ -61,6 +61,13 @@ public class FileUserRepository implements UserRepository {
             }
         }
         return Optional.ofNullable(userNullable);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return this.findAll().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
     }
 
     @Override

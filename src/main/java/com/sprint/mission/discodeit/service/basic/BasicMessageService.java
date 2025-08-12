@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -23,7 +25,10 @@ public class BasicMessageService implements MessageService {
     private final UserRepository userRepository;
 
     @Override
-    public Message create(String content, UUID channelId, UUID authorId) {
+    public Message create(MessageCreateRequest messageCreateRequest) {
+        String content = messageCreateRequest.content();
+        UUID channelId = messageCreateRequest.channelId();
+        UUID authorId = messageCreateRequest.authorId();
         if (!channelRepository.existsById(channelId)) {
             throw new NoSuchElementException("Channel not found with id " + channelId);
         }
@@ -47,7 +52,8 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public Message update(UUID messageId, String newContent) {
+    public Message update(UUID messageId, MessageUpdateRequest messageUpdateRequest) {
+        String newContent = messageUpdateRequest.newContent();
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
         message.update(newContent);

@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -25,17 +28,20 @@ import java.util.Optional;
 @SpringBootApplication
 public class DiscodeitApplication {
     static User setupUser(UserService userService) {
-        User user = userService.create("woody", "woody@codeit.com", "woody1234");
+        UserCreateRequest request = new UserCreateRequest("woody", "woody@codeit.com", "woody1234");
+        User user = userService.create(request,Optional.empty());
         return user;
     }
 
     static Channel setupChannel(ChannelService channelService) {
-        Channel channel = channelService.create(ChannelType.PUBLIC, "공지", "공지 채널입니다.");
+        PublicChannelCreateRequest request = new PublicChannelCreateRequest("공지", "공지 채널입니다.");
+        Channel channel = channelService.create(request);
         return channel;
     }
 
     static void messageCreateTest(MessageService messageService, Channel channel, User author) {
-        Message message = messageService.create("안녕하세요.", channel.getId(), author.getId());
+        MessageCreateRequest request = new MessageCreateRequest("안녕하세요.", channel.getId(), author.getId());
+        Message message = messageService.create(request);
         System.out.println("메시지 생성: " + message.getId());
     }
 
