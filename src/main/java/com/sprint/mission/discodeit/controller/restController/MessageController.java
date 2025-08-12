@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.controller.restController;
 
 import com.sprint.mission.discodeit.dto.request.AddMessageRequest;
 import com.sprint.mission.discodeit.dto.request.UpdateMessageRequest;

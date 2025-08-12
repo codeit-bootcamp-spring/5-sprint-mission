@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.request.AddBinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.AddUserRequest;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.dto.response.LoginResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentType;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -33,7 +35,7 @@ public class AuthServiceTest {
     @Autowired
     private UserStatusRepository userStatusRepository;
 
-
+    AddBinaryContentDto addBinaryContentDto;
     @BeforeEach
     public void setUp(){
         userRepository.deleteAll();
@@ -41,11 +43,13 @@ public class AuthServiceTest {
         userStatusRepository.deleteAll();
         addUserRequest1 = new AddUserRequest("testName1", "testMail1", "testPassword1", "testPhone1", null);
         bytes = new byte[]{0x01, 0x02, 0x03, 0x04};
+        addBinaryContentDto = new AddBinaryContentDto(bytes, BinaryContentType.JPEG);
     }
 
     @Test
     public void loginTest(){
-        BinaryContent binaryContent = basicBinaryContentService.addBinaryContent(bytes);
+
+        BinaryContent binaryContent = basicBinaryContentService.addBinaryContent(addBinaryContentDto);
         userService.addUser(addUserRequest1);
         addUserRequest2 = new AddUserRequest("testName2", "testMail2", "testPassword2", "testPhone2", binaryContent.getId());
         userService.addUser(addUserRequest2);

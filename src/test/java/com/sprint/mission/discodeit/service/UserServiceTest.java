@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.request.AddBinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.AddUserRequest;
 import com.sprint.mission.discodeit.dto.response.GetUserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentType;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -87,7 +89,7 @@ public class UserServiceTest {
         Assertions.assertThat(userById.username()).isEqualTo(user.getUserName());
         Assertions.assertThat(userById.email()).isEqualTo(user.getEmail());
         Assertions.assertThat(userById.profileId()).isEqualTo(user.getProfileId());
-        Assertions.assertThat(userById.isOnline()).isEqualTo(true);
+        Assertions.assertThat(userById.online()).isEqualTo(true);
     }
 
     @Test
@@ -116,9 +118,10 @@ public class UserServiceTest {
     public void deleteUserTest(){
         // User를 삭제하면 UserStatus, BinaryContent도 삭제되어야 한다.
         byte[] bytes = {0x01, 0x02, 0x03, 0x04};
-        BinaryContent addedBinaryContent1 = binaryContentService.addBinaryContent(bytes);
-        BinaryContent addedBinaryContent2 = binaryContentService.addBinaryContent(bytes);
-        BinaryContent addedBinaryContent3 = binaryContentService.addBinaryContent(bytes);
+        AddBinaryContentDto addBinaryContentDto = new AddBinaryContentDto(bytes, BinaryContentType.JPEG);
+        BinaryContent addedBinaryContent1 = binaryContentService.addBinaryContent(addBinaryContentDto);
+        BinaryContent addedBinaryContent2 = binaryContentService.addBinaryContent(addBinaryContentDto);
+        BinaryContent addedBinaryContent3 = binaryContentService.addBinaryContent(addBinaryContentDto);
 
         addUserDao1 = new AddUserRequest("testName1", "testMail1", "testPassword1", "testPhone1", addedBinaryContent1.getId());
         addUserDao2 = new AddUserRequest("testName2", "testMail2", "testPassword2", "testPhone2", addedBinaryContent2.getId());

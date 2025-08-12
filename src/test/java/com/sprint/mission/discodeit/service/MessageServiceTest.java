@@ -4,10 +4,7 @@ import com.sprint.mission.discodeit.dto.request.AddMessageRequest;
 import com.sprint.mission.discodeit.dto.request.AddPublicChannelRequest;
 import com.sprint.mission.discodeit.dto.request.AddUserRequest;
 import com.sprint.mission.discodeit.dto.request.UpdateMessageRequest;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,12 +32,12 @@ public class MessageServiceTest {
         Channel channel = channelService.addPublicChannel(addPublicChannelRequest);
         byte[] image1 = {0x01, 0x02, 0x03, 0x04};
         byte[] image2 = {0x01, 0x02, 0x03, 0x04};
-        BinaryContent binaryContent1 = new BinaryContent(image1);
-        BinaryContent binaryContent2 = new BinaryContent(image2);
+        BinaryContent binaryContent1 = new BinaryContent(image1, BinaryContentType.JPEG);
+        BinaryContent binaryContent2 = new BinaryContent(image2, BinaryContentType.JPEG);
         AddMessageRequest messageContent = new AddMessageRequest("messageContent", user.getId(), channel.getId(), binaryContent1.getId(), binaryContent2.getId());
         Message message = messageService.addMessage(messageContent);
         byte[] image3 = {0x01, 0x02, 0x03, 0x04};
-        BinaryContent binaryContent3 = new BinaryContent(image3);
+        BinaryContent binaryContent3 = new BinaryContent(image3, BinaryContentType.JPEG);
 
         UpdateMessageRequest updatedMessageContent = new UpdateMessageRequest( "updatedMessageContent", binaryContent3.getId());
         messageService.updateMessage(message.getId(), updatedMessageContent);

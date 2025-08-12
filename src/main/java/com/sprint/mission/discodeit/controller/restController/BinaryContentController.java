@@ -1,5 +1,6 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.controller.restController;
 
+import com.sprint.mission.discodeit.dto.request.AddBinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
@@ -16,19 +17,18 @@ public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;
 
-
     @RequestMapping(method = RequestMethod.POST)
     public BinaryContent addBinaryContent(
-            @RequestBody byte[] binaryContent
-    ) {
+            @RequestBody AddBinaryContentDto binaryContent
+            ) {
          return binaryContentService.addBinaryContent(binaryContent);
     }
 
-    @RequestMapping(path="find/{contentId}" ,method = RequestMethod.GET)
+    @RequestMapping(path= "find/{binaryContentId}",method = RequestMethod.GET)
     public ResponseEntity<BinaryContent> getBinaryContentById(
-            @PathVariable UUID contentId
+            @PathVariable UUID binaryContentId
     ){
-        return ResponseEntity.ok(binaryContentService.getBinaryContentById(contentId));
+        return ResponseEntity.ok(binaryContentService.getBinaryContentById(binaryContentId));
     }
 
     @RequestMapping(method = RequestMethod.GET)
