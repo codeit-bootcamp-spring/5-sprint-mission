@@ -25,6 +25,10 @@ public class BasicMessageService implements MessageService {
     @Override
     public Message create(MessageCreateDto dto) {
         Message message = new Message(dto.userId(), dto.channelId(), dto.content());
+
+        userService.findById(dto.userId()); // 존재하는 사용자인지
+        channelService.findById(dto.channelId()); // 존재하는 채널인지
+
         // 첨부한 파일이 존재하면
         if (dto.files() != null && !dto.files().isEmpty()) {
             for (BinaryContent file : dto.files()) {

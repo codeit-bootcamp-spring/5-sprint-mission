@@ -57,7 +57,7 @@ public class BasicChannelService implements ChannelService {
 
         // 참여자 전원에 대해 ReadStatus 생성(lastReadAt = null)
         List<ReadStatus> statuses = members.stream()
-                .map(u -> new ReadStatus(u,channel)).toList();
+                .map(user -> new ReadStatus(user.getId(),channel.getId())).toList();
 
         readStatusRepository.saveAll(statuses);
 
