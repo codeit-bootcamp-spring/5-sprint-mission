@@ -1,45 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serializable;
+import lombok.Getter;
 
-public class Message extends Base implements Serializable {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-    private final User sender; //발신자는 변경할 수 없음
-    private final Channel channel; //채널은 변경할 수 없음
+@Getter
+public class Message extends Base{
+
+    private final UUID userId;
+    private final UUID channelId;
     private String content;
+    private final List<UUID> files;
 
-    public Message(User sender, Channel channel, String content) {
-        this.sender = sender;
-        this.channel = channel;
+    public Message(UUID userId, UUID channelId, String content) {
+        this.userId = userId;
+        this.channelId = channelId;
         this.content = content;
-    }
-
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public User getSender() {
-        return sender;
-    }
-
-    public String getContent() {
-        return content;
+        this.files = new ArrayList<>();
     }
 
     public void updateContent(String newContent) {
-        if (newContent == null || newContent.isBlank()) {
-            throw new IllegalArgumentException("메시지 내용은 비어 있을 수 없습니다.");
-        }
         this.content = newContent;
         updateTimestamp();
     }
 
+    public void addFile(UUID fileId) {
+        if (fileId != null && !files.contains(fileId)) {
+            files.add(fileId);
+            updateTimestamp();
+        }
+    }
 
-    @Override
-    public String toString() {
-        return String.format(
-                "\n작성자: %-10s  채널: %-10s  내용: %-10s  보낸시간: %-10s",
-                sender.getName(), channel.getName(), getContent(), getCreatedAtFormatted()
-        );
+    public void removeFile(UUID fileId) {
+        if (files.remove(fileId)) {
+            updateTimestamp();
+        }
     }
 }

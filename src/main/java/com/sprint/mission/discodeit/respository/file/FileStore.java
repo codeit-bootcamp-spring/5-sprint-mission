@@ -28,10 +28,8 @@ public abstract class FileStore<T> {
     protected Map<UUID, T> loadFromFile() {
         File file = new File(filePath);
 
-        if (!file.exists()) {
-            // 파일이 없으면 data 디렉토리도 만들고 빈 맵 반환
-            file.getParentFile().mkdirs(); // "data" 디렉토리가 없을 경우 생성
-            return new HashMap<>();
+        if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+            throw new IllegalStateException("디렉토리 생성 실패: " + file.getParentFile().getAbsolutePath());
         }
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
@@ -39,10 +37,11 @@ public abstract class FileStore<T> {
             if (obj instanceof Map) {
                 return (Map<UUID, T>) obj;
             }
+        } catch (InvalidClassException e) {
+            System.err.println("[직렬화 실패] 클래스 버전 불일치: " + e.getMessage());
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.err.println("[파일 로딩 오류] (" + file.getPath() + ") " + e.getClass().getSimpleName() + ": " + e.getMessage());
         }
-
         return Collections.emptyMap();
     }
 

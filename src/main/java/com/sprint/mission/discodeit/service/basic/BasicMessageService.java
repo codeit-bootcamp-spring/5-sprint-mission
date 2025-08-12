@@ -1,23 +1,38 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.dto.message.MessageCreateDto;
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.respository.MessageRepository;
+import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
-import java.util.*;
+import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
 
     private final MessageRepository messageRepository;
-
-    // 저장 방식(JCF 또는 File)에 따라 적절한 구현체를 주입받아 사용
-    public BasicMessageService(MessageRepository messageRepository){
-        this.messageRepository = messageRepository;
-    }
+    private final UserService userService;
+    private final ChannelService channelService;
 
     @Override
-    public Message create(User user, Channel channel, String content) {
-        Message message = new Message(user, channel, content);
-        return messageRepository.save(message);
+    public Message create(MessageCreateDto dto) {
+        Message message = new Message(dto.userId(), dto.channelId(), dto.content());
+        // 첨부한 파일이 존재하면
+        if (dto.files() != null && !dto.files().isEmpty()) {
+            for (BinaryContent file : dto.files()) {
+                message.addFile(file.getId());
+            }
+        }
+        messageRepository.save(message);
+        return message;
     }
 
     @Override
@@ -26,10 +41,23 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public List<Message> findByStr(String str) {
+    public Message findById(UUID id) {
+        return messageRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+    }
+
+    @Override
+    public List<Message> findByUserId(UUID userId) {
+        return messageRepository.findAll().stream()
+                .filter(m -> m.getUserId().equals(userId))
+                .toList();
+    }
+
+    @Override
+    public List<Message> findByContent(String content) {
         List<Message> result = new ArrayList<>();
         for (Message message : messageRepository.findAll()) {
-            if (message.getContent().contains(str)) {
+            if (message.getContent().contains(content)) {
                 result.add(message);
             }
         }
@@ -38,17 +66,34 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public Message update(UUID id, String newMessage) {
-        Message message = messageRepository.findById(id);
-        if (message == null) {
-            throw new NoSuchElementException("해당 ID의 메시지가 존재하지 않습니다.");
-        }
+        Message message = messageRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+
         message.updateContent(newMessage);
         messageRepository.save(message);
         return message;
     }
 
     @Override
-    public boolean deleteById(UUID id) {
+    public void attachFile(UUID messageId, UUID fileId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+
+        message.addFile(fileId); // 도메인 객체 내 로직 호출
+        messageRepository.save(message); // 변경사항 저장
+    }
+
+    @Override
+    public void detachFile(UUID messageId, UUID fileId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+
+        message.removeFile(fileId);
+        messageRepository.save(message);
+    }
+
+    @Override
+    public boolean delete(UUID id) {
         return messageRepository.deleteById(id);
     }
 }
