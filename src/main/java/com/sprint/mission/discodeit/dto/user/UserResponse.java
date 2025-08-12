@@ -9,8 +9,6 @@ public record UserResponse(
         String name,
         String email,
         @Nullable UUID imageId,
-        @Nullable String imageUrl,
-        @Nullable Integer imageSize,
-        @Nullable String imageContentType
+        @Nullable String imageUrl
 ) {
 }

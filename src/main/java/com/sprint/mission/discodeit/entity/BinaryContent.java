@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.dto.binarycontent.FileUploadDto;
 import lombok.Getter;
 
 import java.io.Serial;

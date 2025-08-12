@@ -7,5 +7,5 @@ public record LoginResponseDto(
         String email,
         String name,
         boolean isOnline,
-        UUID profileImage
+        String imageUrl
 ) {}

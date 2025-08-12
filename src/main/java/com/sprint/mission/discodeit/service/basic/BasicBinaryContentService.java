@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.binarycontent.FileUploadDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
@@ -9,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,10 +19,21 @@ public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public BinaryContent save(FileUploadDto dto) {
-        BinaryContent file = new BinaryContent(dto.fileName(), dto.contentType(), dto.content(), dto.fileSize());
-        binaryContentRepository.save(file);
-        return file;
+    public UUID save(MultipartFile file) {
+        if (file == null || file.isEmpty()) return null;
+
+        try {
+            BinaryContent bc = new BinaryContent(
+                    file.getOriginalFilename(),
+                    file.getContentType(),
+                    file.getBytes(),
+                    file.getSize()
+            );
+            binaryContentRepository.save(bc);
+            return bc.getId();
+        } catch (IOException e) {
+            throw new RuntimeException("파일 저장 중 오류", e);
+        }
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicUserService implements UserService {
 
-    private final UserStatusService userStatusService;
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
-    private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentService binaryContentService;
 
     @Override
     public UserResponse create(CreateUserRequest dto) {
@@ -43,24 +43,11 @@ public class BasicUserService implements UserService {
 
         // 프로필 이미지가 있을 경우
         if (dto.profileImage() != null && !dto.profileImage().isEmpty()) {
-            try {
-                BinaryContent binaryContent = new BinaryContent(
-                        dto.profileImage().getOriginalFilename(),
-                        dto.profileImage().getContentType(),
-                        dto.profileImage().getBytes(),
-                        dto.profileImage().getSize()
-                );
-
-                binaryContentRepository.save(binaryContent);
-                user.updateProfileId(binaryContent.getId());
-
-            } catch (IOException e) {
-                throw new RuntimeException("프로필 이미지 처리 중 오류 발생", e);
-            }
+                UUID profileImageId =  binaryContentService.save(dto.profileImage());
+                user.updateProfileId(profileImageId);
         }
 
         UUID imageId = user.getProfileId();
-        BinaryContent image = binaryContentRepository.findById(imageId).orElse(null);
         String imageUrl = (imageId != null) ? "/binary/" + imageId : null;
 
         return new UserResponse(
@@ -68,9 +55,7 @@ public class BasicUserService implements UserService {
                 user.getName(),
                 user.getEmail(),
                 imageId,
-                imageUrl,
-                (image != null ? image.getContent().length : null),
-                (image != null ? image.getContentType() : null)
+                imageUrl
         );
     }
 
@@ -87,20 +72,8 @@ public class BasicUserService implements UserService {
 
         // 프로필 이미지가 있을 경우
         if (dto.profileImage() != null && !dto.profileImage().isEmpty()) {
-            try {
-                BinaryContent binaryContent = new BinaryContent(
-                        dto.profileImage().getOriginalFilename(),
-                        dto.profileImage().getContentType(),
-                        dto.profileImage().getBytes(),
-                        dto.profileImage().getSize()
-                );
-
-                binaryContentRepository.save(binaryContent);
-                user.updateProfileId(binaryContent.getId());
-
-            } catch (IOException e) {
-                throw new RuntimeException("프로필 이미지 처리 중 오류 발생", e);
-            }
+                UUID profileImageId =  binaryContentService.save(dto.profileImage());
+                user.updateProfileId(profileImageId);
         }
 
         // 변경된 user 저장
