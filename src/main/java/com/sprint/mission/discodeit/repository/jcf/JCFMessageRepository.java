@@ -8,7 +8,7 @@ import java.util.*;
 public class JCFMessageRepository implements MessageRepository {
     private final Map<UUID, Message> data;
 
-    public  JCFMessageRepository() {
+    public JCFMessageRepository() {
         this.data = new HashMap<>();
     }
 
@@ -19,8 +19,8 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Optional<Message> find(UUID messageId) {
-        return Optional.ofNullable(this.data.get(messageId));
+    public Optional<Message> findById(UUID id) {
+        return Optional.ofNullable(this.data.get(id));
     }
 
     @Override
@@ -29,15 +29,12 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public boolean existById(UUID messageId) {
-        return data.containsKey(messageId);
+    public boolean existsById(UUID id) {
+        return this.data.containsKey(id);
     }
 
     @Override
-    public void delete(UUID messageId) {
-        if (!this.data.containsKey(messageId)) {
-            throw new NoSuchElementException("Message with id " + messageId + " not found");
-        }
-        this.data.remove(messageId);
+    public void deleteById(UUID id) {
+        this.data.remove(id);
     }
 }
