@@ -3,3 +3,24 @@ discodeit:
     type: jcf           # jcf | file
     file-directory: .discodeit
 
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB     # 파일 하나의 최대 크기
+      max-request-size: 20MB  # 요청 전체의 최대 크기 (파일 여러 개 포함)
+
+# http://localhost:8080/swagger-ui/index.html
+springdoc:
+  swagger-ui:
+    display-operation-id: true
+    display-request-duration: true
+    syntax-highlight:
+      activated: true
+    supported-submit-methods: get,post,put,delete,patch
+    disable-swagger-default-url: true
+    show-extensions: true
+    show-common-extensions: true
+    doc-expansion: none
+    persist-authorization: true
+    try-it-out-enabled: true
+    enable-springdoc-openapi-ui: true

@@ -1,9 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.channel.ChannelCreateDto;
-import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateDto;
-import com.sprint.mission.discodeit.dto.channel.request.ChannelUpdateRequest;
-import com.sprint.mission.discodeit.dto.channel.response.ChannelResponse;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -27,7 +24,7 @@ public class BasicChannelService implements ChannelService {
     private final UserRepository userRepository;
 
     @Override
-    public Channel create(ChannelCreateDto dto) {
+    public ChannelDto.response create(ChannelDto.create dto) {
         if (dto.name() == null || dto.name().isBlank()) {
             throw new IllegalArgumentException("채널 이름은 필수입니다.");
         }
@@ -35,11 +32,21 @@ public class BasicChannelService implements ChannelService {
             throw new IllegalArgumentException("채널 이름은 필수입니다.");
         }
         Channel channel = new Channel(dto.name(), dto.type());
-        return channelRepository.save(channel);
+        channelRepository.save(channel);
+
+        return ChannelDto.response.builder()
+                .id(channel.getId())
+                .type(channel.getType())
+                .name(channel.getName())
+                .topic(channel.getTopic())
+                .description(channel.getDescription())
+                .createdAt(channel.getCreatedAtFormatted())
+                .updatedAt(channel.getUpdatedAtFormatted())
+                .build();
     }
 
     @Override
-    public Channel createPrivate(PrivateChannelCreateDto dto) {
+    public Channel createPrivate(ChannelDto.createPrivate dto) {
 
         if (dto.memberIds() == null || dto.memberIds().isEmpty())
             throw new IllegalArgumentException("PRIVATE 채널은 최소 1명 이상의 참여자가 필요합니다.");
@@ -65,6 +72,31 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
+    public ChannelDto.response update(ChannelDto.update dto) {
+
+        // ID에 해당하는 채널 조회
+        Channel channel = channelRepository.findById(dto.id())
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
+
+        channel.updateName(dto.name() != null ? dto.name() : channel.getName());
+        channel.updateType(dto.channelType() != null ? dto.channelType() : channel.getType());
+        channel.updateTopic(dto.topic() != null ? dto.topic() : channel.getTopic());
+        channel.updateDescription(dto.description() != null ? dto.description() : channel.getDescription());
+
+        channelRepository.save(channel);
+
+        return ChannelDto.response.builder()
+                .id(channel.getId())
+                .type(channel.getType())
+                .name(channel.getName())
+                .topic(channel.getTopic())
+                .description(channel.getDescription())
+                .createdAt(channel.getCreatedAtFormatted())
+                .updatedAt(channel.getUpdatedAtFormatted())
+                .build();
+    }
+
+    @Override
     public List<Channel> findAll() {
         return channelRepository.findAll();
     }
@@ -78,29 +110,6 @@ public class BasicChannelService implements ChannelService {
     @Override
     public List<Channel> findByName(String name) {
         return channelRepository.findByName(name);
-    }
-
-    public ChannelResponse update(ChannelUpdateRequest dto) {
-
-        // ID에 해당하는 채널 조회
-        Channel channel = channelRepository.findById(dto.id())
-                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
-
-        channel.updateName(dto.name() != null ? dto.name() : channel.getName());
-        channel.updateType(dto.channelType() != null ? dto.channelType() : channel.getType());
-        channel.updateTopic(dto.topic() != null ? dto.topic() : channel.getTopic());
-        channel.updateDescription(dto.description() != null ? dto.description() : channel.getDescription());
-
-        channelRepository.save(channel);
-        return new ChannelResponse(
-                channel.getId(),
-                channel.getType(),
-                channel.getName(),
-                channel.getTopic(),
-                channel.getDescription(),
-                channel.getCreatedAtFormatted(),
-                channel.getUpdatedAtFormatted()
-        );
     }
 
     @Override

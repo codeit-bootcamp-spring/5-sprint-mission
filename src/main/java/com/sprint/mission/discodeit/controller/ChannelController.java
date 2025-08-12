@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.channel.ChannelCreateDto;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.channel.request.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.channel.response.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
@@ -22,23 +23,13 @@ public class ChannelController {
     private final ChannelService channelService;
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<ChannelResponse> createChannel(@Valid @ModelAttribute ChannelCreateDto dto) {
-        Channel channel = channelService.create(dto);
-        return ResponseEntity.ok(new ChannelResponse(
-                channel.getId(),
-                channel.getType(),
-                channel.getName(),
-                channel.getTopic(),
-                channel.getDescription(),
-                channel.getCreatedAtFormatted(),
-                channel.getUpdatedAtFormatted()
-        ));
+    public ResponseEntity<ChannelDto.response> createChannel(@Valid @ModelAttribute ChannelDto.create dto) {
+        return ResponseEntity.ok(channelService.create(dto));
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<ChannelResponse> updateChannel(@Valid @ModelAttribute ChannelUpdateRequest req) {
-        ChannelResponse channel = channelService.update(req);
-        return ResponseEntity.ok(channel);
+    public ResponseEntity<ChannelDto.response> updateChannel(@Valid @ModelAttribute ChannelDto.update req) {
+        return ResponseEntity.ok(channelService.update(req));
     }
 
     @RequestMapping(value = "delete/{id}", method = RequestMethod.DELETE)
