@@ -15,6 +15,7 @@ import java.util.UUID;
 @RequestMapping("/api")
 public class MessageController {
 
+    // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
     private final MessageService messageService;
 
     @RequestMapping(value = "/message", method = RequestMethod.POST,
@@ -25,13 +26,11 @@ public class MessageController {
 
     @RequestMapping(value = "/message", method = RequestMethod.PUT)
     public ResponseEntity<MessageDto.DetailResponse> updateMessage(@RequestBody MessageDto.UpdateRequest request) {
-        // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
         return ResponseEntity.ok(messageService.update(request));
     }
 
     @RequestMapping(value = "/message/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteMessage(@PathVariable UUID id) {
-        // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
         messageService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -40,6 +39,4 @@ public class MessageController {
     public ResponseEntity<List<MessageDto.DetailResponse>> getMessagesByChannel(@PathVariable UUID channelId) {
         return ResponseEntity.ok(messageService.findAllByChannelId(channelId));
     }
-
-    // TODO 메시지 수신 정보 관리는 ReadStatus를 내려달라는건가?
 }

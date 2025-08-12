@@ -35,14 +35,18 @@ public class BasicMessageService implements MessageService {
             return null;
         }
 
-        Message message = messageRepository.save(new Message(request.getText(), request.getChannelId(), request.getAuthorId()));
-
         List<BinaryContent> contents = new ArrayList<>();
         if( request.getAdditionalFiles() != null && !request.getAdditionalFiles().isEmpty()){
             contents.addAll(request.getAdditionalFiles().stream()
                 .map(file -> binaryContentRepository.save(BinaryContent.of(file)))
                 .toList());
         }
+
+        Message message = messageRepository.save(new Message(request.getText(), request.getChannelId(), request.getAuthorId(),
+            contents.stream().map(BinaryContent::getId).toList()));
+
+        channel.addMessage(message.getId());
+        channelRepository.save(channel);
 
         return MessageDto.DetailResponse.builder()
             .id(message.getId())

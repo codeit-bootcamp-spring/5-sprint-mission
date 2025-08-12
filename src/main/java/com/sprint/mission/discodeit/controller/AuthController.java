@@ -18,6 +18,7 @@ public class AuthController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<UserDto.DetailResponse> login(@RequestParam String username, @RequestParam String password) {
+        // TODO 나중에 로그인 세션 처리
         return ResponseEntity.ok(authService.login(username, password));
     }
 }

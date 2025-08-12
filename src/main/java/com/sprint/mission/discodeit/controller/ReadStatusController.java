@@ -14,7 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class ReadStatusController {
-
+    // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
     private final ChannelService channelService;
     private final ReadStatusService readStatusService;
 
@@ -25,7 +25,6 @@ public class ReadStatusController {
 
     @RequestMapping(value = "/readStatus/channel/{channelId}", method = RequestMethod.PUT)
     public ResponseEntity<Void> updateReadStatus(@PathVariable UUID channelId) {
-        // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
 
         channelService.findById(channelId)
             .getUserIds()

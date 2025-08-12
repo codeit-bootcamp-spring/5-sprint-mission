@@ -13,12 +13,12 @@ import java.util.UUID;
 @ToString
 public class BinaryContent implements Serializable {
     private static final long serialVersionUID = 1L;
-    private UUID id;
-    private String fileName;
-    private Long fileSize;
-    private byte[] content;
-    private String contentType;
-    private Instant createdAt;
+    private final UUID id;
+    private final String fileName;
+    private final Long fileSize;
+    private final byte[] content;
+    private final String contentType;
+    private final Instant createdAt;
 
     public BinaryContent(byte[] content, String contentType, String fileName, Long fileSize) {
         this.id = UUID.randomUUID();
