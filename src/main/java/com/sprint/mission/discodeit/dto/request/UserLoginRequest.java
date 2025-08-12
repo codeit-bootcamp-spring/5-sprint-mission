@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 @Builder
 public record UserLoginRequest(
-        String username,
-        String password
+        @NotBlank String username,
+        @NotBlank String password
 ) {
 }

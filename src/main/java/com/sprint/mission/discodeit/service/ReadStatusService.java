@@ -6,8 +6,10 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -15,12 +17,13 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
+@Validated
 public class ReadStatusService {
     private final UserRepository userRepository;
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
 
-    public ReadStatus create(ReadStatusCreateRequest request) {
+    public ReadStatus create(@Valid ReadStatusCreateRequest request) {
         if (userRepository.findById(request.userId()).isEmpty()
                 || channelRepository.findById(request.channelId()).isEmpty()) {
             throw new NoSuchElementException("create : 관련된 채널 또는 유저가 존재하지 않습니다.");
@@ -44,7 +47,7 @@ public class ReadStatusService {
     }
 
     public ReadStatus update(ReadStatusUpdateRequest request) {
-        ReadStatus readStatus = readStatusRepository.findById(request.userId())
+        ReadStatus readStatus = readStatusRepository.findById(request.id())
                 .orElseThrow(() -> new NoSuchElementException("update : ReadStatus를 찾을 수 없습니다."));
         readStatus.update(request.read());
 
