@@ -23,7 +23,10 @@ public class FileChannelService implements ChannelService {
             throw new IllegalArgumentException("채널 정보가 없습니다");
         }
         if (channel.getTitle() == null || channel.getTitle().isEmpty()) {
-            throw new IllegalArgumentException("채널 이름을 입력해주세요.");
+            throw new IllegalArgumentException("채널 이름이 빈칸입니다.");
+        }
+        if (channel.getDescription() == null || channel.getDescription().isEmpty()) {
+            throw new IllegalArgumentException("채널 설명이 빈칸입니다.");
         }
         repository.save(channel);
     }
@@ -51,7 +54,10 @@ public class FileChannelService implements ChannelService {
             throw new IllegalArgumentException("채널이 null값입니다.");
         }
         if (channel.getTitle() == null || channel.getTitle().isEmpty()) {
-            throw new IllegalArgumentException("채널 이름을 적어주세요.");
+            throw new IllegalArgumentException("채널 이름이 빈칸입니다.");
+        }
+        if (channel.getDescription() == null || channel.getDescription().isEmpty()) {
+            throw new IllegalArgumentException("채널 설명이 빈칸입니다.");
         }
         repository.update(channel);
     }
