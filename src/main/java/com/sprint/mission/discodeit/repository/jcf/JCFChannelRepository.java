@@ -1,47 +1,61 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 
-import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class JCFChannelRepository implements ChannelRepository {
-    private final Map<UUID, Channel> data = new HashMap<>();
+    private final Map<UUID, Channel> data;
 
-    @Override
-    public void save(Channel channel) {
-        data.put(channel.getId(), channel);
+    public JCFChannelRepository() {
+        this.data = new HashMap<>();
     }
 
     @Override
-    public Channel findById(UUID id) {
-        return data.get(id);
+    public Channel save(Channel channel) {
+        this.data.put(channel.getId(), channel);
+        return channel;
     }
 
     @Override
-    public Channel findByName(String name) {
-        if (name == null || name.isBlank()) return null;
-        for (Channel channel : data.values()) {
-            if (channel.getName().equals(name)) return channel;
-        }
-        return null;
+    public Optional<Channel> findById(UUID id) {
+        return Optional.ofNullable(this.data.get(id));
     }
 
     @Override
     public List<Channel> findAll() {
-        return new ArrayList<>(data.values());
+        return new ArrayList<>(this.data.values());
     }
 
     @Override
-    public void update(Channel channel) {
-        if (data.containsKey(channel.getId())) {
-            data.put(channel.getId(), channel);
-        }
+    public boolean existsById(UUID id) {
+        return this.data.containsKey(id);
     }
 
     @Override
-    public void delete(UUID id) {
-        data.remove(id);
+    public boolean existsByName(String name) {
+        return this.data.values().stream()
+                .anyMatch(channel -> channel.getName().equalsIgnoreCase(name));
     }
+
+    @Override
+    public void deleteById(UUID id) {
+        this.data.remove(id);
+    }
+
+    @Override
+    public List<Channel> findByUserId(UUID userId) {
+        return List.of();
+    }
+
+    @Override
+    public List<Channel> findAllPublicChannels() {
+        return data.values().stream()
+                .filter(channel -> channel.getType() == ChannelType.PUBLIC)
+                .toList();
+    }
+
 }

@@ -6,39 +6,51 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.*;
 
 public class JCFUserRepository implements UserRepository {
-    private final Map<UUID, User> data = new HashMap<>();
+    private final Map<UUID, User> data;
 
-    @Override
-    public void save(User user) {
-        data.put(user.getId(), user);
+    public JCFUserRepository() {
+        this.data = new HashMap<>();
     }
 
     @Override
-    public User findById(UUID id) {
-        return data.get(id);
+    public User save(User user) {
+        this.data.put(user.getId(), user);
+        return user;
     }
 
     @Override
-    public User findByName(String name) {
-        if (name == null || name.isBlank()) return null;
-        for (User user : data.values()) {
-            if (user.getName().equals(name)) return user;
-        }
-        return null;
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(this.data.get(id));
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return Optional.empty();
     }
 
     @Override
     public List<User> findAll() {
-        return new ArrayList<>(data.values());
+        return this.data.values().stream().toList();
     }
 
     @Override
-    public void update(User user) {
-        save(user); // update는 save로 처리 가능
+    public boolean existsById(UUID id) {
+        return this.data.containsKey(id);
     }
 
     @Override
-    public void delete(UUID id) {
-        data.remove(id);
+    public boolean existsByName(String name) { return findAll().stream()
+            .anyMatch(user -> user.getUsername().equals(name));
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return findAll().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        this.data.remove(id);
     }
 }

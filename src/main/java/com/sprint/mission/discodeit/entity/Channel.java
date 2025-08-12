@@ -1,68 +1,43 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import lombok.Getter;
+import lombok.ToString;
+
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import java.util.UUID;
 
+@Getter
+@ToString
 public class Channel implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
-    private final UUID id;
-    private final Long createdAt;
-    private final UUID creatorUserId;  // 생성자 userId 추가
+    private UUID id;
+    private Long createdAt;
     private Long updatedAt;
+    private ChannelType type;
     private String name;
+    private String description;
 
-    public Channel(String name, UUID creatorUserId) {
+    public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
+        this.createdAt = Instant.now().getEpochSecond();
+        this.type = type;
         this.name = name;
-        this.creatorUserId = creatorUserId;
+        this.description = description;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public UUID getCreatorUserId() {
-        return creatorUserId;
-    }
-
-    public void update(String name) {
-        this.name = name;
-        this.updatedAt = System.currentTimeMillis();
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "[UUID: %s]\n[채널명: %s]\n[생성일: %s]\n[수정일: %s]\n[생성자 UUID: %s]",
-                id,
-                name,
-                new Date(createdAt),
-                updatedAt == null ? "없음" : new Date(updatedAt),
-                creatorUserId
-        );
+    public void update(ChannelType type, String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
+        }
     }
 }

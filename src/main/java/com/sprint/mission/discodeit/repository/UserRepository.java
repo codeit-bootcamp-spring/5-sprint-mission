@@ -1,15 +1,18 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.User;
-import java.io.IOException;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository {
-    void save(User user) throws IOException;
-    User findById(UUID id) throws IOException, ClassNotFoundException;
-    User findByName(String name) throws IOException, ClassNotFoundException;
-    List<User> findAll() throws IOException, ClassNotFoundException;
-    void update(User user) throws IOException;
-    void delete(UUID id) throws IOException;
+    User save(User user);
+    Optional<User> findById(UUID id);
+    Optional<User> findByUsername(String username);
+    List<User> findAll();
+    boolean existsById(UUID id);
+    boolean existsByName(String name);
+    boolean existsByEmail(String email);
+    void deleteById(UUID id);
 }

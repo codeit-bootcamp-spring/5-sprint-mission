@@ -1,67 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import lombok.Getter;
+import lombok.ToString;
+
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
+@Getter
+@ToString
 public class Message implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
-    private final UUID id;
-    private final Long createdAt;
-    private final UUID userId;
-    private final UUID channelId;
-    private Long updatedAt;
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
     private String content;
+    private UUID channelId;
+    private UUID authorId;
+    private List<UUID> attachmentIds;
 
-    public Message(UUID userId, UUID channelId, String content) {
+    public Message(String content, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.userId = userId;
+        this.createdAt = Instant.now();
+        this.content = content;
         this.channelId = channelId;
-        this.content = content;
+        this.authorId = authorId;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void update(String content) {
-        this.content = content;
-        this.updatedAt = System.currentTimeMillis();
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "[메시지 UUID: %s]\n[유저 UUID: %s]\n[채널 UUID: %s]\n[내용: %s]\n[생성일: %s]\n[수정일: %s]",
-                id,
-                userId,
-                channelId,
-                content,
-                new Date(createdAt),
-                updatedAt == null ? "없음" : new Date(updatedAt)
-        );
+    public void update(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
