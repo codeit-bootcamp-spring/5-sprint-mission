@@ -29,7 +29,7 @@ public class FileUserService implements UserService {
     @Override
     public User findById(UUID id) {
         if (id == null) {
-            throw new IllegalArgumentException("조회할 유저 ID가 null입니다.");
+            throw new IllegalArgumentException("user의 값이 null입니다.");
         }
         User original = repository.findById(id);
         if (original == null) {
@@ -59,9 +59,8 @@ public class FileUserService implements UserService {
 
     @Override
     public void delete(UUID id) {
-        // 🔒 ID가 null이면 예외
         if (id == null) {
-            throw new IllegalArgumentException("삭제할 유저 ID가 null입니다.");
+            throw new IllegalArgumentException("삭제 유저가 null입니다.");
         }
         if (repository.findById(id) == null) {
             throw new IllegalStateException("삭제할 유저가 존재하지 않습니다: " + id);
