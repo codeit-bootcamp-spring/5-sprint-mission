@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusResponse;
+import com.sprint.mission.discodeit.dto.UserStatusDto;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @RestController
@@ -34,14 +33,14 @@ public class UserStatusController {
      * 현재 온라인 상태 조회
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<UserStatusResponse> getStatus(@PathVariable("id") UUID userId) {
+    public ResponseEntity<UserStatusDto.response> getStatus(@PathVariable("id") UUID userId) {
 
         // 사용자 아이디로 상태 가져오기
         UserStatus userStatus = userStatusService.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자의 온라인 상태를 찾을 수 없습니다."));
 
 
-        return ResponseEntity.ok(new UserStatusResponse(
+        return ResponseEntity.ok(new UserStatusDto.response(
                 userStatus.getUserId(),
                 userStatus.isOnline(),
                 userStatus.getLastAccessedAt()

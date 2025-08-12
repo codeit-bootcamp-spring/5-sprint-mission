@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.readstatus.ChannelUnreadStatusDto;
-import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusDto;
-import com.sprint.mission.discodeit.dto.readstatus.response.ReadStatusResponse;
+import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +25,8 @@ public class ReadStatusController {
      * -기존 데이터가 있으면 수정, 없으면 생성
      * */
     @RequestMapping(method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<ReadStatusResponse> saveOrUpdate(@Valid @ModelAttribute ReadStatusDto dto) {
-        ReadStatusResponse response = readStatusService.updateLastReadAt(dto.userId(), dto.channelId(), dto.messageId());
+    public ResponseEntity<ReadStatusDto.response> saveOrUpdate(@Valid @ModelAttribute ReadStatusDto.create dto) {
+        ReadStatusDto.response response = readStatusService.updateLastReadAt(dto);
         return ResponseEntity.ok(response);
     }
 
@@ -37,8 +35,8 @@ public class ReadStatusController {
      * - 해당 사용자가 속한 모든 채널의 읽음/안읽음 상태 반환
      * */
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<List<ChannelUnreadStatusDto>> getReadStatusByUser(@PathVariable UUID userId) {
-        List<ChannelUnreadStatusDto> unreadList = readStatusService.getUnreadChannels(userId);
+    public ResponseEntity<List<ReadStatusDto.unread>> getReadStatusByUser(@PathVariable UUID userId) {
+        List<ReadStatusDto.unread> unreadList = readStatusService.getUnreadChannels(userId);
         return ResponseEntity.ok(unreadList);
     }
 

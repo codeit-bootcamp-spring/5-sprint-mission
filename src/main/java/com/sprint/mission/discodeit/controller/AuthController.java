@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.auth.LoginDto;
+import com.sprint.mission.discodeit.dto.LoginDto;
 import com.sprint.mission.discodeit.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

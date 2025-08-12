@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.readstatus.ChannelUnreadStatusDto;
-import com.sprint.mission.discodeit.dto.readstatus.response.ReadStatusResponse;
+import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 
 import java.util.List;
@@ -12,7 +11,7 @@ public interface ReadStatusService {
      * 사용자가 채널에서 마지막으로 읽은 시각을 갱신
      * - 새로운 메시지를 읽었거나 채널을 열었을 때 호출
      */
-    ReadStatusResponse updateLastReadAt(UUID userId, UUID channelId, UUID messageId);
+    ReadStatusDto.response updateLastReadAt(ReadStatusDto.create dto);
 
 
     /**
@@ -30,7 +29,7 @@ public interface ReadStatusService {
      * @param userId 사용자 ID
      * @return List<ChannelUnreadDto> (채널 ID + hasUnread)
      */
-    List<ChannelUnreadStatusDto> getUnreadChannels(UUID userId);
+    List<ReadStatusDto.unread> getUnreadChannels(UUID userId);
 
 
     /**

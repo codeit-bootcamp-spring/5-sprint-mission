@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.channel;
+package com.sprint.mission.discodeit.dto;
 
 import com.sprint.mission.discodeit.entity.ChannelType;
 import io.swagger.v3.oas.annotations.media.Schema;

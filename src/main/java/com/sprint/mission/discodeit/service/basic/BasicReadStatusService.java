@@ -1,11 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.readstatus.ChannelUnreadStatusDto;
-import com.sprint.mission.discodeit.dto.readstatus.response.ReadStatusResponse;
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -32,19 +29,19 @@ public class BasicReadStatusService implements ReadStatusService {
     private final ChannelService channelService;
 
     @Override
-    public ReadStatusResponse updateLastReadAt(UUID userId, UUID channelId, UUID messageId) {
+    public ReadStatusDto.response updateLastReadAt(ReadStatusDto.create dto) {
 
         // 메시지 아이디로 메시지 조회
-        Message message = messageService.findById(messageId);
+        Message message = messageService.findById(dto.messageId());
 
         // 채널 일치 검증
-        if(!message.getChannelId().equals(channelId)){
+        if(!message.getChannelId().equals(dto.channelId())){
             throw new IllegalArgumentException("지정한 채널에 속하지 않는 메시지입니다.");
         }
 
         // 읽음 상태가 존재하면 없데이트, 없다면 새로 생성
-        ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(userId, channelId)
-                .orElseGet(() -> new ReadStatus(userId, channelId));
+        ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(dto.userId(), dto.channelId())
+                .orElseGet(() -> new ReadStatus(dto.userId(), dto.channelId()));
 
         Instant lastReadAt = message.getCreatedAt(); // 마지막으로 읽은 시간
 
@@ -55,8 +52,11 @@ public class BasicReadStatusService implements ReadStatusService {
             readStatus.updateLastReadAt(lastReadAt);
             readStatusRepository.save(readStatus);
         }
-
-        return new ReadStatusResponse(userId, channelId, lastReadAt);
+        return ReadStatusDto.response.builder()
+                .userId(dto.userId())
+                .channelId(dto.channelId())
+                .readAt(lastReadAt)
+                .build();
     }
 
     @Override
@@ -74,7 +74,7 @@ public class BasicReadStatusService implements ReadStatusService {
      * @return List<ChannelUnreadDto> (채널 ID + hasUnread)
      */
     @Override
-    public List<ChannelUnreadStatusDto> getUnreadChannels(UUID userId) {
+    public List<ReadStatusDto.unread> getUnreadChannels(UUID userId) {
         // 모든 채널에 대한 읽음 상태 조회
         List<ReadStatus> readStatusList = readStatusRepository.findAllByUserId(userId);
 
@@ -91,7 +91,7 @@ public class BasicReadStatusService implements ReadStatusService {
                             .orElse(false); // 없으면 읽음 처리
 
                     // 채널 Id와 읽음 상태를 반환
-                    return new ChannelUnreadStatusDto(channelId, hasUnread);
+                    return new ReadStatusDto.unread(channelId, hasUnread);
                 })
                 .collect(Collectors.toList());
     }
