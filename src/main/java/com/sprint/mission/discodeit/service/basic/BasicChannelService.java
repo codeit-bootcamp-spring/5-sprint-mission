@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.channel.ChannelCreateDto;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateDto;
+import com.sprint.mission.discodeit.dto.channel.request.ChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.channel.response.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -78,31 +80,27 @@ public class BasicChannelService implements ChannelService {
         return channelRepository.findByName(name);
     }
 
-    @Override
-    public Channel updateName(UUID id, String name) {
-        Channel channel = channelRepository.findById(id)
+    public ChannelResponse update(ChannelUpdateRequest dto) {
+
+        // ID에 해당하는 채널 조회
+        Channel channel = channelRepository.findById(dto.id())
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
 
-        channel.updateName(name);
-        return channelRepository.save(channel);
-    }
+        channel.updateName(dto.name() != null ? dto.name() : channel.getName());
+        channel.updateType(dto.channelType() != null ? dto.channelType() : channel.getType());
+        channel.updateTopic(dto.topic() != null ? dto.topic() : channel.getTopic());
+        channel.updateDescription(dto.description() != null ? dto.description() : channel.getDescription());
 
-    @Override
-    public Channel updateTopic(UUID id, String topic) {
-        Channel channel = channelRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
-
-        channel.updateTopic(topic);
-        return channelRepository.save(channel);
-    }
-
-    @Override
-    public Channel updateDescription(UUID id, String description) {
-        Channel channel = channelRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
-
-        channel.updateDescription(description);
-        return channelRepository.save(channel);
+        channelRepository.save(channel);
+        return new ChannelResponse(
+                channel.getId(),
+                channel.getType(),
+                channel.getName(),
+                channel.getTopic(),
+                channel.getDescription(),
+                channel.getCreatedAtFormatted(),
+                channel.getUpdatedAtFormatted()
+        );
     }
 
     @Override
