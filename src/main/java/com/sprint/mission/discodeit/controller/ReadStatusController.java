@@ -20,7 +20,7 @@ public class ReadStatusController {
 
     @ResponseBody
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public String createReadStatus(@RequestBody ReadStatusCreateRequest request) {
+    public String create(@RequestBody ReadStatusCreateRequest request) {
         ReadStatus readStatus = readStatusService.create(request);
         return "생성 성공\n" + readStatus.toString();
     }
