@@ -7,13 +7,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.test.MessageTest;
 
 @SpringBootApplication
 public class DiscodeitApplication {
 	public static void main(String[] args) throws InterruptedException, IOException {
 		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
-
+		UserRepository userRepository = context.getBean(UserRepository.class);
 	}
 
 	private static void testing(ConfigurableApplicationContext context) throws InterruptedException {

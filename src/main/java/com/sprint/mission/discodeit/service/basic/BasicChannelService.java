@@ -148,6 +148,10 @@ public class BasicChannelService implements ChannelService {
 			throw new DuplicateChannelNameException();
 		}
 
+		if (channel.getType().equals("PRIVATE")) {
+			return false;
+		}
+
 		channel.updateChannelName(channelNewName);
 		channel.updateUpdatedAt();
 		channelRepository.save(channel);
@@ -162,6 +166,10 @@ public class BasicChannelService implements ChannelService {
 
 		if (!channel.getMemberIds().contains(request.getUserId())) {
 			throw new NotChannelMemberException();
+		}
+
+		if (channel.getType().equals("PRIVATE")) {
+			return false;
 		}
 
 		channel.addNickname(request.getUserId(), request.getNewNickname());

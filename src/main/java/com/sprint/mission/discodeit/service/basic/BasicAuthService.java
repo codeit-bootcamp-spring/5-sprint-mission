@@ -23,7 +23,7 @@ public class BasicAuthService implements AuthService {
 		User user = userRepository.findByLoginId(request.getUsername())
 			.orElseThrow(UserNotFoundException::new);
 
-		if (!user.getPassword().equals(request.getPassword())) {
+		if (user.getPassword() == null || !user.getPassword().equals(request.getPassword())) {
 			throw new InvalidPasswordException();
 		}
 

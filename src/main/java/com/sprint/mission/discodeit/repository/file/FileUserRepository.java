@@ -50,6 +50,12 @@ public class FileUserRepository implements UserRepository {
 			return;
 		}
 
+		User existingUser = userMap.get(user.getId());
+		if (existingUser != null) {
+			loginIdToUUID.remove(existingUser.getLoginId());
+			emailToUUID.remove(existingUser.getEmail());
+		}
+
 		userMap.put(user.getId(), user);
 		loginIdToUUID.put(user.getLoginId(), user.getId());
 		emailToUUID.put(user.getEmail(), user.getId());
@@ -108,6 +114,7 @@ public class FileUserRepository implements UserRepository {
 		if (user != null) {
 			loginIdToUUID.remove(user.getLoginId());
 			userMap.remove(id);
+			emailToUUID.remove(user.getEmail());
 
 			saveFile();
 		}
@@ -123,6 +130,8 @@ public class FileUserRepository implements UserRepository {
 		if (userId != null) {
 			userMap.remove(userId);
 			loginIdToUUID.remove(loginId);
+			User user = userMap.get(userId);
+			emailToUUID.remove(user.getEmail());
 
 			saveFile();
 		}

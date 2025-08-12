@@ -49,6 +49,11 @@ public class FileChannelRepository implements ChannelRepository {
 			return;
 		}
 
+		Channel existingChannel = channelMap.get(channel.getId());
+		if (existingChannel != null) {
+			channelNameToUUID.remove(existingChannel.getChannelName());
+		}
+
 		channelMap.put(channel.getId(), channel);
 		channelNameToUUID.put(channel.getChannelName(), channel.getId());
 
