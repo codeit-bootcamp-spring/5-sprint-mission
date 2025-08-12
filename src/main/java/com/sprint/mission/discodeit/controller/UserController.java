@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@RestControllerAdvice
 @RestController
-@RequestMapping("/users")
+@RestControllerAdvice
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
