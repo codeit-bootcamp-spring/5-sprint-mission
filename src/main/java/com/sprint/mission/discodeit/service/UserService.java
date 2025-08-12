@@ -32,6 +32,7 @@ import static com.sprint.mission.discodeit.mapper.UserMapper.toUserResponse;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Profile({"test", "dev"})
 public class UserService {
 

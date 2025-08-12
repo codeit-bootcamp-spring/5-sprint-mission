@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +20,7 @@ import static com.sprint.mission.discodeit.mapper.UserStatusMapper.toUserStatusR
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Profile({"test", "dev"})
 public class UserStatusService {
 
@@ -30,6 +32,7 @@ public class UserStatusService {
         userStatusRepository.save(entity);
     }
 
+    @Transactional
     public UserStatusResponse create(UUID userId) {
         Objects.requireNonNull(userId, "userId must not be null.");
         userStatusRepository.findByUserId(userId).ifPresent(us -> {
@@ -57,15 +60,18 @@ public class UserStatusService {
                 .toList();
     }
 
+    @Transactional
     public void updateStatus(UUID userStatusId, UserStatusUpdateRequest req) {
         update(userStatusId, u -> u.setType(req.userStatusType()));
     }
 
+    @Transactional
     public void updateStatusByUserId(UUID userId, UserStatusUpdateRequest req) {
         UserStatus us = userStatusRepository.findByUserId(userId).orElseGet(() -> new UserStatus(userId));
         update(us.getId(), u -> u.setType(req.userStatusType()));
     }
 
+    @Transactional
     public boolean delete(UUID id) {
         Objects.requireNonNull(id, "id must not be null");
         return userStatusRepository.softDeleteById(id);

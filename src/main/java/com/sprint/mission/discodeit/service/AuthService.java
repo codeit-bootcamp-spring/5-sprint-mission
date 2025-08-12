@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -19,6 +20,7 @@ import static com.sprint.mission.discodeit.mapper.UserMapper.toUserResponse;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Profile({"test", "dev"})
 public class AuthService {
 
@@ -31,6 +33,7 @@ public class AuthService {
         userRepository.save(entity);
     }
 
+    @Transactional
     public UserResponse login(AuthLoginRequest req) {
         User user = userRepository.findByEmail(req.email())
                 .filter(u -> u.checkPassword(req.password()))
@@ -49,6 +52,7 @@ public class AuthService {
         return toUserResponse(user, UserStatusType.ONLINE);
     }
 
+    @Transactional
     public void logout(UUID userId) {
         UserStatus userStatus = userStatusRepository.findByUserId(userId).orElseGet(() -> new UserStatus(userId));
         userStatus.logout();

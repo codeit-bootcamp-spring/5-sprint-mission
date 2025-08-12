@@ -33,7 +33,6 @@ public class UserController {
 
     private final UserService userService;
     private final UserStatusService userStatusService;
-    // private final FriendRequestService friendRequestService;
 
     @PostMapping
     public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRegisterRequest body) {
@@ -46,7 +45,7 @@ public class UserController {
         return ResponseEntity.ok(userService.findById(id));
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<UserResponse>> findAll() {
         return ResponseEntity.ok(userService.findAll());
     }
