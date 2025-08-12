@@ -1,13 +1,11 @@
 package com.sprint.mission.discodeit.dto.request;
 
-import lombok.Builder;
+import jakarta.validation.constraints.NotNull;
 
-import java.time.Instant;
 import java.util.UUID;
 
-@Builder
 public record ReadStatusUpdateRequest(
-        UUID id,
+        @NotNull UUID id,
         boolean read
 ) {
 }

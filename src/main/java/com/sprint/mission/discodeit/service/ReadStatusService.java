@@ -46,7 +46,7 @@ public class ReadStatusService {
         return readStatusRepository.findByUserId(userId);
     }
 
-    public ReadStatus update(ReadStatusUpdateRequest request) {
+    public ReadStatus update(@Valid ReadStatusUpdateRequest request) {
         ReadStatus readStatus = readStatusRepository.findById(request.id())
                 .orElseThrow(() -> new NoSuchElementException("update : ReadStatus를 찾을 수 없습니다."));
         readStatus.update(request.read());
