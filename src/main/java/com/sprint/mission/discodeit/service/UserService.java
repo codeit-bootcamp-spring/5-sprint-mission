@@ -8,21 +8,28 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
-
     //약속
     //다중 구현 가능
-    void create(UserCreateRequest request); //저장
+    void create(UserCreateRequest request);
 
     UserResponse findById(UUID id); //조회
 
     List<UserResponse> findAll(); //리스트에 넣기
 
-    void update(UserUpdateRequest request); //수정
+    void update(UserUpdateRequest request);
 
     void delete(UUID id); //삭제
+
+    boolean existsByUsername(String userId); // username 중복 확인
+
+    boolean existsByEmail(String email);       // email 중복 확인
+
+    Optional<User> findEntityById(UUID id);
 }

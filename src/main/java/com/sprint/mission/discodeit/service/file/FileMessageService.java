@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,8 +26,8 @@ public class FileMessageService implements MessageService {
     @Override
     public void create(Message message) {
         //보낸 유저가 존재하는지 확인
-        User sender = userService.findById(message.getSender());
-        if (sender == null) {
+        Optional<User> sender = userService.findEntityById(message.getSender());
+        if (sender.isEmpty()) {
             throw new IllegalArgumentException("보낸 유저가 존재하지 않습니다.");
         }
         repository.save(message);

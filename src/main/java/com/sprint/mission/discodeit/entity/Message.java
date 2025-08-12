@@ -5,6 +5,7 @@ import lombok.Getter;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 //엔티티
@@ -16,11 +17,12 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
     //필드
     private final UUID id; // 메시지 고유 id (내부 식별자)
-    private final Instant createdAt; // 생성시간
-    private Instant updatedAt; // 수정시간
-    private String content; // 내용
-    private UUID channelId; // 채널 id
+    private final Instant createdAt;
+    private Instant updatedAt;
+    private String content;
+    private UUID channelId;
     private UUID sender; // 채널 기준으로 누가 보냈는지
+    private List<UUID> attachmentIds; // Message가 가진 첨부파일 ID 리스트
 
 
     //기본생성자

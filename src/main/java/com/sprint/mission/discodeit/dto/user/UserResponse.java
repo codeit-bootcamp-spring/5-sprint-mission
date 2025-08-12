@@ -29,4 +29,7 @@ public class UserResponse {
         this.isOnline = isOnline;
         this.lastOnline = lastOnline;
     }
+
+    public void updateTime() {
+    }
 }
