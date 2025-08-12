@@ -15,10 +15,11 @@ import java.util.UUID;
 @RestController
 @RestControllerAdvice
 @RequiredArgsConstructor
+@RequestMapping("/api/binary")
 public class BinaryContentController {
     private final BinaryContentService binaryContentService;
 
-    @RequestMapping(path = "/binary/find")
+    @RequestMapping(path = "/find")
     public ResponseEntity<BinaryContent> find(@RequestParam("binaryContentId") UUID binaryContentId) {
         BinaryContent binaryContent = binaryContentService.findById(binaryContentId);
         return ResponseEntity.status(HttpStatus.OK).body(binaryContent);
