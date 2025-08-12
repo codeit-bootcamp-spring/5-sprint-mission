@@ -16,19 +16,19 @@ public class AbstractJCFRepository<T extends BaseEntity> {
         return entity;
     }
 
-    public T findById(UUID id) {
-        return data.get(id);
+    public Optional<T> findById(UUID id) {
+        return Optional.of(data.get(id));
     }
 
     public List<T> findAll() {
         return new ArrayList<>(data.values());
     }
 
-    public void deleteById(UUID id) {
-        data.remove(id);
-    }
-
     public void deleteAll() {
         data.clear();
+    }
+
+    public void delete(UUID id) {
+        data.remove(id);
     }
 }

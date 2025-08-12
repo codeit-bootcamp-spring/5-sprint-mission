@@ -1,0 +1,42 @@
+package com.sprint.mission.discodeit.dto;
+
+import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+public class MessageDto {
+
+    @Getter
+    @Builder
+    public static class CreateRequest {
+        UUID channelId;
+        UUID authorId;
+        String text;
+        List<MultipartFile> additionalFiles;
+    }
+
+    @Getter
+    @Builder
+    public static class UpdateRequest {
+        UUID id;
+        String text;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class DetailResponse {
+        UUID channelId;
+        UUID authorId;
+        UUID id;
+        String authorName;
+        String channelName;
+        String text;
+        List<UUID> additionalFileIds;
+        Instant createdAt;
+        Instant updatedAt;
+    }
+}

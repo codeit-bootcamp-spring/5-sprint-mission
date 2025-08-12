@@ -6,12 +6,11 @@ import java.io.*;
 import java.util.*;
 
 public abstract class AbstractFileRepository<T extends BaseEntity> {
-    private static final String DATA_DIR = "data.dir";
     private final String filename;
     protected final Map<UUID, T> data;
 
-    protected AbstractFileRepository(String entityName) {
-        this.filename = DATA_DIR + "/" + entityName + ".ser";
+    protected AbstractFileRepository(String basePath, String entityName) {
+        this.filename = basePath + "/" + entityName + ".ser";
         this.data = readFromFile();
     }
 
@@ -21,21 +20,21 @@ public abstract class AbstractFileRepository<T extends BaseEntity> {
         return entity;
     }
 
-    public T findById(UUID id) {
-        return data.get(id);
+    public Optional<T> findById(UUID id) {
+        return Optional.of(data.get(id));
     }
 
     public List<T> findAll() {
         return new ArrayList<>(data.values());
     }
 
-    public void deleteById(UUID id) {
-        data.remove(id);
+    public void deleteAll() {
+        data.clear();
         writeToFile();
     }
 
-    public void deleteAll() {
-        data.clear();
+    public void delete(UUID id) {
+        data.remove(id);
         writeToFile();
     }
 

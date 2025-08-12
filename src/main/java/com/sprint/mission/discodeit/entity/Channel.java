@@ -1,9 +1,14 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Getter
+@ToString
 public class Channel extends BaseEntity {
 
     private ChannelType type;
@@ -23,11 +28,19 @@ public class Channel extends BaseEntity {
         this.messageIds = new ArrayList<>();
     }
 
+    public Channel(ChannelType type, String name, String description, UUID adminUserId, List<UUID> userIds) {
+        super();
+        this.type = type == null ? ChannelType.PUBLIC : type;
+        this.name = name;
+        this.description = description;
+        this.adminUserId = adminUserId;
+        this.userIds = userIds == null ? new ArrayList<>(List.of(adminUserId)) : userIds;
+        this.messageIds = new ArrayList<>(List.of());
+    }
 
     public Channel(ChannelType type, String name, String description, UUID adminUserId, List<UUID> userIds, List<UUID> messageIds) {
         super();
         this.type = type == null ? ChannelType.PUBLIC : type;
-        this.type = ChannelType.PUBLIC;
         this.name = name;
         this.description = description;
         this.adminUserId = adminUserId;
@@ -35,30 +48,21 @@ public class Channel extends BaseEntity {
         this.messageIds = messageIds == null ? new ArrayList<>(List.of()) : messageIds;
     }
 
-    public String getName() {
-        return name;
-    }
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
 
-    public String getDescription() {
-        return description;
-    }
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
 
-    public void update(String name, String description) {
-        this.name = name;
-        this.description = description;
-        setUpdatedAt(System.currentTimeMillis());
-    }
-
-    public List<UUID> getUserIds() {
-        return userIds;
-    }
-
-    public UUID getAdminUserId() {
-        return adminUserId;
-    }
-
-    public List<UUID> getMessageIds() {
-        return messageIds;
+        if (anyValueUpdated) {
+            updateTimestamp();
+        }
     }
 
     public void addUser(UUID userId) {
@@ -83,20 +87,5 @@ public class Channel extends BaseEntity {
         if (messageId != null) {
             this.messageIds.remove(messageId);
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Channel{" +
-            "type=" + type +
-            ", name='" + name + '\'' +
-            ", description='" + description + '\'' +
-            ", adminUserId=" + adminUserId +
-            ", userIds=" + userIds +
-            ", messageIds=" + messageIds +
-            ", id=" + id +
-            ", createdAt=" + createdAt +
-            ", updatedAt=" + updatedAt +
-            '}';
     }
 }

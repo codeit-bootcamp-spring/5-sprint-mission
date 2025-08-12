@@ -1,45 +1,46 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+@Getter
+@ToString
 public class Message extends BaseEntity {
     private String text;
     private UUID channelId;
-    private UUID userId;
+    private final UUID authorId;
+    private final List<UUID> attachmentIds;
 
-    public Message(String text, UUID channelId, UUID userId) {
+    public Message(String text, UUID channelId, UUID authorId) {
         super();
         this.text = text;
         this.channelId = channelId;
-        this.userId = userId;
+        this.authorId = authorId;
+        this.attachmentIds = new ArrayList<>();
     }
 
-    public String getText() {
-        return text;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public void update(String text) {
+    public Message(String text, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+        super();
         this.text = text;
-        setUpdatedAt(System.currentTimeMillis());
+        this.channelId = channelId;
+        this.authorId = authorId;
+        this.attachmentIds = attachmentIds != null ? attachmentIds : new ArrayList<>();
     }
 
-    @Override
-    public String toString() {
-        return "Message{" +
-            "id=" + id +
-            ", text='" + text + '\'' +
-            ", channelId=" + channelId +
-            ", userId=" + userId +
-            ", createdAt=" + createdAt +
-            ", updatedAt=" + updatedAt +
-            '}';
+    public void update(String newText) {
+        boolean anyValueUpdated = false;
+
+        if (newText != null && !newText.equals(this.text)) {
+            this.text = newText;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            updateTimestamp();
+        }
     }
 }
