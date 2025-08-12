@@ -5,6 +5,7 @@ import lombok.Getter;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 //엔티티
@@ -20,6 +21,9 @@ public class Channel implements Serializable {
     private String title; // 채널 이름
     private String description; // 채널 설명
     private ChannelType channelType; // 음성채널 or 일반채널
+    private String ownerId;
+    private List<String> membersId;
+
 
     //기본 생성자
     //매개변수X
@@ -38,6 +42,17 @@ public class Channel implements Serializable {
         this.description = description;
         this.channelType = channelType;
     }
+
+    public Channel(UUID id, String name, String ownerId, ChannelType channelType, List<String> membersId) {
+        this.id = id;
+        this.title = name;
+        this.ownerId = ownerId;
+        this.channelType = channelType;
+        this.createdAt = Instant.now();
+        this.updatedAt = createdAt;
+        this.membersId = membersId;
+    }
+
 
     //복사본 생성자
     public Channel(Channel other) {
