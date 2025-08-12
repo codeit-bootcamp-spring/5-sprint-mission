@@ -7,7 +7,9 @@ import com.sprint.mission.discodeit.util.FileNames;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,11 +33,10 @@ public class BinaryContentController {
             MediaType.IMAGE_JPEG_VALUE
     );
 
-    @RequestMapping(method = RequestMethod.POST,
-            consumes = {MediaType.APPLICATION_OCTET_STREAM_VALUE,
-                    MediaType.IMAGE_PNG_VALUE,
-                    MediaType.IMAGE_JPEG_VALUE},
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = {
+            MediaType.APPLICATION_OCTET_STREAM_VALUE,
+            MediaType.IMAGE_PNG_VALUE,
+            MediaType.IMAGE_JPEG_VALUE})
     public ResponseEntity<BinaryContentResponse> uploadBinaryContent(
             @RequestHeader(value = "Content-Type", required = false) String contentType,
             @RequestHeader(value = "Content-Disposition", required = false) String contentDisposition,
@@ -47,7 +48,6 @@ public class BinaryContentController {
         String original = parseFilename(contentDisposition);
         String fileName = FileNames.randomWithExtension(original, ct);
 
-
         BinaryContentResponse created = binaryContentService.create(
                 new BinaryContentCreateRequest(fileName, ct, body)
         );
@@ -56,7 +56,7 @@ public class BinaryContentController {
                 .body(created);
     }
 
-    @RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}")
     public ResponseEntity<BinaryContentResponse> find(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(binaryContentService.findById(id));
     }
