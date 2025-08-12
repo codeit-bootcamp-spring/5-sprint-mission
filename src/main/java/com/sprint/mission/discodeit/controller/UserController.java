@@ -12,15 +12,14 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
@@ -59,64 +58,63 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(path = "/{id}/profile-image", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}/profile-image")
     public ResponseEntity<Void> updateProfileImage(@PathVariable("id") UUID id,
-                                                   @RequestBody UserUpdateProfileImageRequest body) {
+                                                   @Valid @RequestBody UserUpdateProfileImageRequest body) {
         userService.updateProfileImage(id, body);
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(path = "/{id}/email", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}/email")
     public ResponseEntity<Void> updateEmail(@PathVariable("id") UUID id,
-                                            @RequestBody UserUpdateEmailRequest body) {
+                                            @Valid @RequestBody UserUpdateEmailRequest body) {
         userService.updateEmail(id, body);
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(path = "/{id}/username", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}/username")
     public ResponseEntity<Void> updateUsername(@PathVariable("id") UUID id,
-                                               @RequestBody UserUpdateUsernameRequest body) {
+                                               @Valid @RequestBody UserUpdateUsernameRequest body) {
         userService.updateUsername(id, body);
         return ResponseEntity.noContent().build();
     }
 
 
-    @RequestMapping(path = "/{id}/password", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}/password")
     public ResponseEntity<Void> updatePassword(@PathVariable("id") UUID id,
-                                               @RequestBody UserUpdatePasswordRequest body) {
+                                               @Valid @RequestBody UserUpdatePasswordRequest body) {
         userService.updatePassword(id, body);
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
+    @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
         userService.deleteAccount(id);
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(path = "/{id}/status", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}/status")
     public ResponseEntity<Void> updateStatus(@PathVariable("id") UUID id,
-                                             @RequestBody UserStatusUpdateRequest body) {
-        userStatusService.updateByUserId(id, body);
+                                             @Valid @RequestBody UserStatusUpdateRequest body) {
+        userStatusService.updateStatusByUserId(id, body);
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(path = "/{id}/deactivate", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/{id}/deactivate")
     public ResponseEntity<Void> deactivateAccount(@PathVariable("id") UUID id) {
         userService.deactivateAccount(id);
         return ResponseEntity.noContent().build();
     }
 
-    // @RequestMapping(path = "/{id}/friend-requests", method = RequestMethod.GET,
-    //         produces = MediaType.APPLICATION_JSON_VALUE)
-    // public ResponseEntity<List<FriendRequestResponse>> getFriendRequests(@PathVariable("id") UUID id) {
-    //     return ResponseEntity.ok(friendRequestService.getFriendRequests(id));
-    // }
-    //
-    // @RequestMapping(path = "/{id}/friends/{friendId}", method = RequestMethod.DELETE)
-    // public ResponseEntity<Void> removeFriend(@PathVariable("id") UUID id,
-    //                                          @PathVariable("friendId") UUID friendId) {
-    //     userService.removeFriend(id, friendId);
-    //     return ResponseEntity.noContent().build();
-    // }
+    @GetMapping(path = "/{id}/friends")
+    public ResponseEntity<List<UserResponse>> getFriends(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(userService.getFriends(id));
+    }
+
+    @DeleteMapping(path = "/{id}/friends/{friendId}")
+    public ResponseEntity<Void> removeFriend(@PathVariable("id") UUID id,
+                                             @PathVariable("friendId") UUID friendId) {
+        userService.removeFriend(id, friendId);
+        return ResponseEntity.noContent().build();
+    }
 }

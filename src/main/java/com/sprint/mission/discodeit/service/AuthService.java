@@ -2,19 +2,20 @@ package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 import com.sprint.mission.discodeit.dto.request.AuthLoginRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import com.sprint.mission.discodeit.util.Validators;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
+
+import static com.sprint.mission.discodeit.mapper.UserMapper.toUserResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -24,20 +25,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
 
-    private UserResponse toResponse(User user) {
-        UserStatus userStatus = userStatusRepository.getOrThrowByUserId(user.getId());
-        return new UserResponse(
-                user.getId(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getEmail(),
-                user.getUsername(),
-                user.getGlobalName(),
-                user.getProfileId(),
-                userStatus.getType()
-        );
-    }
-
     protected void update(UUID id, Consumer<User> updater) {
         User entity = userRepository.getOrThrow(id);
         updater.accept(entity);
@@ -45,28 +32,25 @@ public class AuthService {
     }
 
     public UserResponse login(AuthLoginRequest req) {
-        Objects.requireNonNull(req, "req must not be null");
-        String e = Validators.validateEmail(req.email());
-        String p = Validators.validatePassword(req.password());
+        User user = userRepository.findByEmail(req.email())
+                .filter(u -> u.checkPassword(req.password()))
+                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다."));
 
-        User user = userRepository.findByEmail(e)
-                .filter(u -> u.checkPassword(p))
-                .orElseThrow(() -> new NoSuchElementException("이메일 또는 비밀번호가 일치하지 않습니다."));
-
-        if (user.isBanned()) throw new IllegalArgumentException("정지된 계정입니다.");
+        if (user.isBanned()) throw new AccessDeniedException("정지된 계정입니다.");
 
         update(user.getId(), User::activate);
 
-        UserStatus status = userStatusRepository.findByUserId(user.getId())
+        UserStatus userStatus = userStatusRepository
+                .findByUserId(user.getId())
                 .orElseGet(() -> userStatusRepository.save(new UserStatus(user.getId())));
-        status.login();
-        userStatusRepository.save(status);
+        userStatus.login();
+        userStatusRepository.save(userStatus);
 
-        return toResponse(user);
+        return toUserResponse(user, UserStatusType.ONLINE);
     }
 
     public void logout(UUID userId) {
-        UserStatus userStatus = userStatusRepository.getOrThrowByUserId(userId);
+        UserStatus userStatus = userStatusRepository.findByUserId(userId).orElseGet(() -> new UserStatus(userId));
         userStatus.logout();
         userStatusRepository.save(userStatus);
     }

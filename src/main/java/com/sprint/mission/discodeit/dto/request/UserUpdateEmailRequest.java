@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.dto.request;
 
-import java.util.Optional;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 public record UserUpdateEmailRequest(
-        Optional<String> email
+        @NotBlank @Email String email
 ) {
 }

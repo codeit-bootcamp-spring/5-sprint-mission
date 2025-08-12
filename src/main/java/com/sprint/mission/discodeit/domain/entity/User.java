@@ -79,8 +79,11 @@ public class User extends BaseEntity {
     }
 
     public void setGlobalName(String globalName) {
-        String normalized = normalizeString(globalName);
-        String v = normalized.isBlank() ? this.username : Validators.validateGlobalName(normalized);
+        String v = Objects.requireNonNullElse(
+                normalizeString(
+                        Validators.validateGlobalName(globalName)
+                ),
+                this.username);
         if (!Objects.equals(this.globalName, v)) {
             this.globalName = v;
             touch();

@@ -14,11 +14,4 @@ public enum UserStatusType {
     UserStatusType(String displayName) {
         this.displayName = displayName;
     }
-
-    public static UserStatusType fromCodeIgnoreCase(String name) {
-        for (UserStatusType t : values()) {
-            if (t.name().equalsIgnoreCase(name)) return t;
-        }
-        throw new IllegalArgumentException("Unknown UserStatusType: " + name);
-    }
 }

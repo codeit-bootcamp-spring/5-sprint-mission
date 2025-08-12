@@ -26,6 +26,9 @@ public final class Validators {
     private static final int MIN_USERNAME_LENGTH = 2;
     private static final int MAX_USERNAME_LENGTH = 20;
 
+    private static final int MIN_GLOBAL_NAME_LENGTH = 2;
+    private static final int MAX_GLOBAL_NAME_LENGTH = 20;
+
     private static final int MIN_PASSWORD_LENGTH = 8;
 
     private static final int MIN_PHONE_DIGITS = 10;
@@ -67,7 +70,11 @@ public final class Validators {
     public static String validateGlobalName(String globalName) {
         String normalized = normalizeSafe(globalName);
         if (normalized.isBlank()) return null;
-        requireLengthBetween(normalized, 1, 20, "별명은 1~20자 이내여야 합니다.");
+        requireLengthBetween(
+                normalized,
+                MIN_GLOBAL_NAME_LENGTH,
+                MAX_GLOBAL_NAME_LENGTH,
+                "별명은 " + MIN_GLOBAL_NAME_LENGTH + "~" + MAX_GLOBAL_NAME_LENGTH + "자 이내여야 합니다.");
         return normalized;
     }
 

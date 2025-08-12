@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateUsernameRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -39,7 +39,7 @@ public class UserService {
     private final UserStatusRepository userStatusRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final GuildRepository guildRepository;
-    private final BinaryContentService binaryContentService;
+    private final BinaryContentRepository binaryContentRepository;
 
     public UserResponse toResponse(User user) {
         UserStatus userStatus = userStatusRepository.getOrThrowByUserId(user.getId());
@@ -85,8 +85,9 @@ public class UserService {
                 .toList();
     }
 
+    @Transactional
     public void deactivateAccount(UUID userId) {
-        userRepository.getOrThrow(userId);
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다: " + userId));
         update(userId, User::deactivate);
     }
 
@@ -101,65 +102,58 @@ public class UserService {
         userRepository.softDeleteById(userId);
     }
 
+    @Transactional
     public void updateProfileSettings(UUID userId, UserUpdateProfileSettingsRequest req) {
-        Objects.requireNonNull(userId, "userId must not be null");
-        Objects.requireNonNull(req, "req must not be null");
         update(userId, u -> {
-            u.setGlobalName(req.globalName().orElse(null));
-            u.setBio(req.bio().orElse(null));
+            u.setGlobalName(req.globalName());
+            u.setBio(req.bio());
         });
     }
 
+    @Transactional
     public void updateProfileImage(UUID userId, UserUpdateProfileImageRequest req) {
-        Objects.requireNonNull(userId, "userId must not be null.");
-        Objects.requireNonNull(req, "req must not be null.");
-        binaryContentService.find(req.profileId());
+        binaryContentRepository.findById(req.profileId()).orElseThrow(() -> new NotFoundException("프로필 이미지를 찾을 수 없습니다."));
         update(userId, u -> u.setProfileId(req.profileId()));
     }
 
+    @Transactional
     public void updateEmail(UUID userId, UserUpdateEmailRequest req) {
-        Objects.requireNonNull(userId, "userId must not be null.");
-        Objects.requireNonNull(req, "req must not be null.");
-        String email = req.email().orElseThrow(() -> new IllegalArgumentException("이메일을 입력해주세요."));
-        User user = userRepository.getOrThrow(userId);
-        if (user.getEmail().equals(email)) throw new IllegalArgumentException("기존과 동일한 이메일입니다.");
-        if (userRepository.findByEmail(email).isPresent()) throw new IllegalArgumentException("중복된 이메일이 존재합니다.");
-        update(userId, u -> u.setEmail(email));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
+        if (user.getEmail().equals(req.email())) throw new IllegalArgumentException("기존과 동일한 이메일입니다.");
+        if (userRepository.findByEmail(req.email()).isPresent())
+            throw new DuplicateResourceException("중복된 이메일이 존재합니다.");
+        update(userId, u -> u.setEmail(req.email()));
     }
 
+    @Transactional
     public void updateUsername(UUID userId, UserUpdateUsernameRequest req) {
-        String username = req.username().orElseThrow(() -> new IllegalArgumentException("사용자명을 입력해주세요."));
-        User user = userRepository.getOrThrow(userId);
-        if (user.getUsername().equals(username)) throw new IllegalArgumentException("기존과 동일한 사용자명입니다.");
-        if (userRepository.findByUsername(username).isPresent()) throw new IllegalArgumentException("중복된 사용자명이 존재합니다.");
-        update(userId, u -> u.setUsername(username));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
+        if (user.getUsername().equals(req.username())) throw new IllegalArgumentException("기존과 동일한 사용자명입니다.");
+        if (userRepository.findByUsername(req.username()).isPresent())
+            throw new DuplicateResourceException("중복된 사용자명이 존재합니다.");
+        update(userId, u -> u.setUsername(req.username()));
     }
 
+    @Transactional
     public void updatePassword(UUID userId, UserUpdatePasswordRequest req) {
-        String password = req.password().orElseThrow(() -> new IllegalArgumentException("비밀번호를 입력해주세요."));
-        if (userRepository.getOrThrow(userId).checkPassword(password))
-            throw new IllegalArgumentException("동일한 비밀번호입니다.");
-        update(userId, u -> u.setPassword(password));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
+        if (user.checkPassword(req.password())) throw new DuplicateResourceException("동일한 비밀번호입니다.");
+        update(userId, u -> u.setPassword(req.password()));
     }
 
     public List<UserResponse> getFriends(UUID userId) {
-        Set<UUID> ids = userRepository.getOrThrow(userId).getFriendIds();
+        Set<UUID> ids = userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("유저를 찾을 수 없습니다.")
+        ).getFriendIds();
         return userRepository.findAllByIds(ids).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public void addFriend(UUID userId, UUID friendId) {
-        if (userId.equals(friendId)) throw new IllegalArgumentException("자기 자신에게는 친구 요청을 보낼 수 없습니다.");
-        userRepository.getOrThrow(userId);
-        userRepository.getOrThrow(friendId);
-        update(userId, u -> u.addFriend(friendId));
-        update(friendId, u -> u.addFriend(userId));
-    }
-
+    @Transactional
     public void removeFriend(UUID userId, UUID friendId) {
-        userRepository.getOrThrow(userId);
-        userRepository.getOrThrow(friendId);
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
+        userRepository.findById(friendId).orElseThrow(() -> new NotFoundException("상대 유저를 찾을 수 없습니다."));
         update(userId, u -> u.removeFriend(friendId));
         update(friendId, u -> u.removeFriend(userId));
     }
@@ -169,6 +163,7 @@ public class UserService {
         return guildRepository.findAllByIds(ids);
     }
 
+    @Transactional
     public void joinGuild(UUID userId, UUID guildId) {
         Guild guild = guildRepository.getOrThrow(guildId);
         update(userId, u -> u.joinGuild(guildId));
@@ -176,6 +171,7 @@ public class UserService {
         guildRepository.save(guild);
     }
 
+    @Transactional
     public void leaveGuild(UUID userId, UUID guildId) {
         Guild guild = guildRepository.getOrThrow(guildId);
         if (guild.isOwner(userId))
@@ -185,15 +181,13 @@ public class UserService {
         guildRepository.save(guild);
     }
 
-    public void joinChatRoom(UUID userId, UUID channelId) {
+    @Transactional
+    public void joinChannel(UUID userId, UUID channelId) {
         update(userId, u -> u.joinChannel(channelId));
     }
 
-    public void leaveChatRoom(UUID userId, UUID channelId) {
+    @Transactional
+    public void leaveChannel(UUID userId, UUID channelId) {
         update(userId, u -> u.leaveChannel(channelId));
-    }
-
-    public void hardDeleteAccount(UUID userId) {
-        userRepository.hardDeleteById(userId);
     }
 }

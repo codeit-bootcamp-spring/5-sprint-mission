@@ -58,7 +58,7 @@ public class BinaryContentController {
 
     @RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BinaryContentResponse> find(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok(binaryContentService.find(id));
+        return ResponseEntity.ok(binaryContentService.findById(id));
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
