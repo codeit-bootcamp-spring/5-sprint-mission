@@ -49,4 +49,10 @@ public class JCFUserRepository implements UserRepository {
         }
         data.remove(id);
     }
+
+    @Override
+    public boolean existsByUserId(String userId) {
+        return data.values().stream()
+                .anyMatch(user -> user.getUserId().equals(userId));
+    }
 }

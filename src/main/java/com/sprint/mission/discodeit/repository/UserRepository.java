@@ -16,4 +16,6 @@ public interface UserRepository {
     void update(User user); // 수정
 
     void delete(UUID id); // 삭제
+
+    boolean existsByUserId(String userId);
 }

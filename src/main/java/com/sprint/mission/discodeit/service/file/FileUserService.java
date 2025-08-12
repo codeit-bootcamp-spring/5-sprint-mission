@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.service.file;
 
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
@@ -18,18 +21,30 @@ public class FileUserService implements UserService {
     private final UserRepository repository; // 생성자 주입
 
     @Override
-    public void create(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("유저가 null입니다.");
+    public void create(UserCreateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("UserCreateRequest가 null입니다.");
         }
-        if (repository.findById(user.getId()) != null) {
-            throw new IllegalArgumentException("이미 존재하는 유저입니다.");
+        if (repository.existsByUserId(request.getUserId())) {
+            throw new IllegalArgumentException("이미 존재하는 username입니다.");
         }
+
+        //User 엔티티로 변환
+        User user = new User(request.getUserId(), request.getPassword(), request.getEmail());
+
+        //1. Optional 프로필 이미지 처리(BinaryContent 연동시 추가)
+        if (request.getProfileImage() != null) {
+            //BinaryContent 저장
+        }
+
+        //2. UserStatus도 필요
+
         repository.save(user);
     }
 
     @Override
-    public User findById(UUID id) {
+    public UserResponse findById(UUID id) {
+        User user = repository.findById(id);
         if (id == null) {
             throw new IllegalArgumentException("조회할 유저 ID가 null입니다.");
         }
@@ -37,25 +52,54 @@ public class FileUserService implements UserService {
         if (original == null) {
             throw new IllegalArgumentException("존재하지 않는 ID입니다.");
         }
-        return new User(original); // 복사본 반환
+
+        // User → UserResponse 변환
+        return new UserResponse(
+                user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getUserId(),
+                user.getEmail(),
+                false, // isOnline 추후 UserStatus 기반으로 계산
+                null   // lastOnline도 UserStatus 기반 처리 예정
+        );
     }
 
     @Override
-    public List<User> findAll() {
-        return repository.findAll();
+    public List<UserResponse> findAll() {
+        List<User> users = repository.findAll(); // 엔티티 전부 가져오기
+
+        // User 엔티티에서 UserResponse로 변환
+        return users.stream()
+                .map(user -> new UserResponse(
+                        user.getId(),
+                        user.getCreatedAt(),
+                        user.getUpdatedAt(),
+                        user.getUserId(),
+                        user.getEmail(),
+                        false,
+                        null
+                ))
+                .toList(); // 변환된 List<UserResponse> 반환
     }
 
     @Override
-    public void update(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("수정할 user가 null입니다.");
+    public void update(UserUpdateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("UserUpdateRequest가 null입니다.");
         }
-        if (user.getId() == null) {
-            throw new IllegalArgumentException("수정할 user의 ID가 null입니다.");
-        }
-        if (repository.findById(user.getId()) == null) {
+        if (repository.findById(request.getId()) == null) {
             throw new IllegalArgumentException("해당 ID를 가진 유저가 존재하지 않습니다.");
         }
+
+        //1. 기존 유저 조회
+        User user = repository.findById(request.getId());
+
+        //변경값 적용
+        user.setUserId(request.getUserId());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+
         repository.update(user);
     }
 
