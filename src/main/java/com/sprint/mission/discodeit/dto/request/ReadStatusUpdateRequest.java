@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Builder
 public record ReadStatusUpdateRequest(
-        UUID userId,
+        UUID id,
         boolean read
 ) {
 }

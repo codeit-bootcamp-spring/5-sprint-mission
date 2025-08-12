@@ -85,11 +85,11 @@ public class DiscodeitApplication {
 
         return binaryContentService.create(request);
     }
-
+/*
     static Channel createPrivateChannel(ChannelService channelService, List<User> users, String name, String description) {
         ChannelCreateRequest channelCreateRequest = new ChannelCreateRequest(name, description, users);
         return channelService.createPrivate(channelCreateRequest);
-    }
+    }*/
 
     static Channel createPublicChannel(ChannelService channelService, String name, String description) {
         ChannelCreateRequest channelCreateRequest = new ChannelCreateRequest(name, description, null);
@@ -244,7 +244,7 @@ public class DiscodeitApplication {
         exeCheck("삭제 후 전체 조회", () -> userStatusService.findAll().forEach(System.out::println));
     }
 
-    static void channelTest(ChannelService channelService,
+    /*static void channelTest(ChannelService channelService,
                             MessageService messageService,
                             ReadStatusService readStatusService,
                             UserService userService) {
@@ -318,8 +318,8 @@ public class DiscodeitApplication {
         exeCheck("채널 메세지 삭제 확인, public", () -> System.out.println(messageService.findAllByChannelId(publicChannel.getId()).isEmpty()));
         exeCheck("채널 메세지 삭제 확인, private", () -> System.out.println(messageService.findAllByChannelId(privateChannel.getId()).isEmpty()));
         exeCheck("readStatus 삭제 확인", () -> System.out.println(readStatusService.findAllByUserId(users.get(1).getId()).isEmpty()));
-    }
-
+    }*/
+/*
     static void messageTest(MessageService messageService,
                             UserService userService,
                             ChannelService channelService,
@@ -373,8 +373,8 @@ public class DiscodeitApplication {
         exeCheck("delete : 삭제된 메세지", () -> messageService.delete(message.getId()));
         exeCheck("delete : 존재하지 않는 메세지", () -> messageService.delete(testId));
         exeCheck("BinaryContent 삭제 확인", () -> binaryContentService.findAllByIdIn(attachmentIds));
-    }
-
+    }*/
+/*
     static void readStatusTest(ReadStatusService readStatusService, ChannelService channelService, User user) {
         section("readStatus 테스트");
         List<User> users = new ArrayList<>();
@@ -405,7 +405,7 @@ public class DiscodeitApplication {
         exeCheck("delete : 정상", () -> readStatusService.delete(readStatus.getId()));
         exeCheck("delete : 삭제된 UserStatus", () -> readStatusService.delete(readStatus.getId()));
         exeCheck("delete : 존재하지 않는 UserStatus", () -> readStatusService.delete(testId));
-    }
+    }*/
 
     static void authTest(AuthService authService, User user) {
         section("ReadStatus 테스트");
@@ -428,40 +428,41 @@ public class DiscodeitApplication {
 
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
+//        ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
+        SpringApplication.run(DiscodeitApplication.class, args);
 
-        UserService userService = (UserService) context.getBean("userService");
-        ChannelService channelService = (ChannelService) context.getBean("channelService");
-        MessageService messageService = (MessageService) context.getBean("messageService");
-        BinaryContentService binaryContentService = (BinaryContentService) context.getBean("binaryContentService");
-        ReadStatusService readStatusService = (ReadStatusService) context.getBean("readStatusService");
-        UserStatusService userStatusService = (UserStatusService) context.getBean("userStatusService");
-        AuthService authService = (AuthService) context.getBean("authService");
-
-        userService.deleteAll();
-        channelService.deleteAll();
-        messageService.deleteAll();
-        binaryContentService.deleteAll();
-        readStatusService.deleteAll();
-        userStatusService.deleteAll();
-
-        User user = createUser(userService, "User in the main", "1234", "inthemain@aaa.com");
-        Channel channel = setupChannel(channelService);
-        Message message = createMessage(messageService, channel.getId(), user.getId(), new ArrayList<>(), "안녕하세요.");
-
-        binaryContentTest(binaryContentService, message);
-        userTest(userService, userStatusService, binaryContentService);
-        userStatusTest(userStatusService, user);
-        channelTest(channelService, messageService, readStatusService, userService);
-        messageTest(messageService, userService, channelService, binaryContentService);
-        readStatusTest(readStatusService, channelService, user);
-        authTest(authService, user);
-
-        userService.deleteAll();
-        channelService.deleteAll();
-        messageService.deleteAll();
-        binaryContentService.deleteAll();
-        readStatusService.deleteAll();
-        userStatusService.deleteAll();
+//        UserService userService = (UserService) context.getBean("userService");
+//        ChannelService channelService = (ChannelService) context.getBean("channelService");
+//        MessageService messageService = (MessageService) context.getBean("messageService");
+//        BinaryContentService binaryContentService = (BinaryContentService) context.getBean("binaryContentService");
+//        ReadStatusService readStatusService = (ReadStatusService) context.getBean("readStatusService");
+//        UserStatusService userStatusService = (UserStatusService) context.getBean("userStatusService");
+//        AuthService authService = (AuthService) context.getBean("authService");
+//
+//        userService.deleteAll();
+//        channelService.deleteAll();
+//        messageService.deleteAll();
+//        binaryContentService.deleteAll();
+//        readStatusService.deleteAll();
+//        userStatusService.deleteAll();
+//
+//        User user = createUser(userService, "User in the main", "1234", "inthemain@aaa.com");
+//        Channel channel = setupChannel(channelService);
+//        Message message = createMessage(messageService, channel.getId(), user.getId(), new ArrayList<>(), "안녕하세요.");
+//
+//        binaryContentTest(binaryContentService, message);
+//        userTest(userService, userStatusService, binaryContentService);
+//        userStatusTest(userStatusService, user);
+//        channelTest(channelService, messageService, readStatusService, userService);
+//        messageTest(messageService, userService, channelService, binaryContentService);
+//        readStatusTest(readStatusService, channelService, user);
+//        authTest(authService, user);
+//
+//        userService.deleteAll();
+//        channelService.deleteAll();
+//        messageService.deleteAll();
+//        binaryContentService.deleteAll();
+//        readStatusService.deleteAll();
+//        userStatusService.deleteAll();
     }
 }

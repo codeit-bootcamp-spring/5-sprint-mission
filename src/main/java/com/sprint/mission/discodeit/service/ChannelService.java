@@ -30,9 +30,9 @@ public class ChannelService {
 
     public Channel createPrivate(ChannelCreateRequest request) {
         Channel channel = new Channel(ChannelType.PRIVATE, null, null);
-        if (!request.users().isEmpty()) {
-            for (User user : request.users()) {
-                readStatusRepository.save(new ReadStatus(user.getId(), channel.getId()));
+        if (!request.userIds().isEmpty()) {
+            for (UUID userId : request.userIds()) {
+                readStatusRepository.save(new ReadStatus(userId, channel.getId()));
             }
         }
 

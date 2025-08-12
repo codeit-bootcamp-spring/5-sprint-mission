@@ -52,7 +52,7 @@ public class MessageService {
                 .collect(Collectors.toList());
     }
 
-    public Message update(MessageUpdateRequest request) {
+    public Message update(@Valid MessageUpdateRequest request) {
         Message message = messageRepository.findById(request.messageId())
                 .orElseThrow(() -> new NoSuchElementException("update : 메세지를 찾을 수 없습니다"));
         message.update(request.content());
