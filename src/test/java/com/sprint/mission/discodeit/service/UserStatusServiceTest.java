@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.request.AddUserDto;
+import com.sprint.mission.discodeit.dto.request.AddUserRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -27,16 +27,16 @@ public class UserStatusServiceTest {
 
     @Test
     public void addUserStatusTest(){
-        AddUserDto addUserDto = new AddUserDto("testName", "testMail", "testPassword", "testPhone", null);
-        User user = userService.addUser(addUserDto); // 여기서 UserStatus 객체가 같이 생성됨(User Service 요구사항)
+        AddUserRequest addUserRequest = new AddUserRequest("testName", "testMail", "testPassword", "testPhone", null);
+        User user = userService.addUser(addUserRequest); // 여기서 UserStatus 객체가 같이 생성됨(User Service 요구사항)
 
         Assertions.assertThatThrownBy(() -> userStatusService.addUserStatus(user.getId())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void getUserStatusByIdTest(){
-        AddUserDto addUserDto = new AddUserDto("testName", "testMail", "testPassword", "testPhone", null);
-        User user = userService.addUser(addUserDto);
+        AddUserRequest addUserRequest = new AddUserRequest("testName", "testMail", "testPassword", "testPhone", null);
+        User user = userService.addUser(addUserRequest);
 
         UserStatus userStatusByUserId = userStatusRepository.findByUserId(user.getId()).orElseThrow(() -> new IllegalArgumentException("UserStatus not found"));
         UserStatus userStatusById = userStatusService.getUserStatusById(userStatusByUserId.getId());
@@ -46,8 +46,8 @@ public class UserStatusServiceTest {
 
     @Test
     public void updateUserStatusTest(){
-        AddUserDto addUserDto = new AddUserDto("testName", "testMail", "testPassword", "testPhone", null);
-        User user = userService.addUser(addUserDto);
+        AddUserRequest addUserRequest = new AddUserRequest("testName", "testMail", "testPassword", "testPhone", null);
+        User user = userService.addUser(addUserRequest);
 
         UserStatus userStatus = userStatusRepository.findByUserId(user.getId()).orElseThrow(() -> new IllegalArgumentException("UserStatus not found"));
         System.out.println(userStatus.getLastOnlineTime());
@@ -61,8 +61,8 @@ public class UserStatusServiceTest {
 
     @Test
     public void deleteUserStatusTest(){
-        AddUserDto addUserDto = new AddUserDto("testName", "testMail", "testPassword", "testPhone", null);
-        User user = userService.addUser(addUserDto);
+        AddUserRequest addUserRequest = new AddUserRequest("testName", "testMail", "testPassword", "testPhone", null);
+        User user = userService.addUser(addUserRequest);
         UserStatus userStatus = userStatusRepository.findByUserId(user.getId()).orElseThrow(() -> new IllegalArgumentException("UserStatus not found"));
 
         List<UserStatus> all = userStatusRepository.findAll();

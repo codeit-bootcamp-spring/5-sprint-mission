@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.request.AddPublicChannelDto;
-import com.sprint.mission.discodeit.dto.request.AddReadStatusDto;
-import com.sprint.mission.discodeit.dto.request.AddUserDto;
+import com.sprint.mission.discodeit.dto.request.AddPublicChannelRequest;
+import com.sprint.mission.discodeit.dto.request.AddReadStatusRequest;
+import com.sprint.mission.discodeit.dto.request.AddUserRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
@@ -44,34 +44,34 @@ public class ReadStatusServiceTest {
 
     @Test
     public void addReadStatusTest() {
-        AddUserDto addUserDto = new AddUserDto("testName", "testMail", "testPassword", "testPhone", null);
-        User user = userService.addUser(addUserDto);
+        AddUserRequest addUserRequest = new AddUserRequest("testName", "testMail", "testPassword", "testPhone", null);
+        User user = userService.addUser(addUserRequest);
 
         Assertions.assertThat(userRepository.findAll().size()).isEqualTo(1);
-        AddPublicChannelDto addPublicChannelDto1 = new AddPublicChannelDto("testChannelName", "testChannelDesc", user.getId());
-        Channel channel = channelService.addPublicChannel(addPublicChannelDto1);
+        AddPublicChannelRequest addPublicChannelRequest1 = new AddPublicChannelRequest("testChannelName", "testChannelDesc", user.getId());
+        Channel channel = channelService.addPublicChannel(addPublicChannelRequest1);
         Assertions.assertThat(channelRepository.findAll().size()).isEqualTo(1);
 
-        AddReadStatusDto addReadStatusDto = new AddReadStatusDto(channel.getId(), user.getId());
-        ReadStatus readStatus = readStatusService.addReadStatus(addReadStatusDto);
+        AddReadStatusRequest addReadStatusRequest = new AddReadStatusRequest(channel.getId(), user.getId());
+        ReadStatus readStatus = readStatusService.addReadStatus(addReadStatusRequest);
 
         Assertions.assertThat(readStatus).isNotNull();
-        Assertions.assertThat(readStatus.getUserId()).isEqualTo(addReadStatusDto.userId());
-        Assertions.assertThat(readStatus.getChannelId()).isEqualTo(addReadStatusDto.channelId());
+        Assertions.assertThat(readStatus.getUserId()).isEqualTo(addReadStatusRequest.userId());
+        Assertions.assertThat(readStatus.getChannelId()).isEqualTo(addReadStatusRequest.channelId());
     }
 
     @Test
     public void getReadStatusTest() {
-        AddUserDto addUserDto = new AddUserDto("testName", "testMail", "testPassword", "testPhone", null);
-        User user = userService.addUser(addUserDto);
+        AddUserRequest addUserRequest = new AddUserRequest("testName", "testMail", "testPassword", "testPhone", null);
+        User user = userService.addUser(addUserRequest);
 
         Assertions.assertThat(userRepository.findAll().size()).isEqualTo(1);
-        AddPublicChannelDto addPublicChannelDto1 = new AddPublicChannelDto("testChannelName", "testChannelDesc", user.getId());
-        Channel channel = channelService.addPublicChannel(addPublicChannelDto1);
+        AddPublicChannelRequest addPublicChannelRequest1 = new AddPublicChannelRequest("testChannelName", "testChannelDesc", user.getId());
+        Channel channel = channelService.addPublicChannel(addPublicChannelRequest1);
         Assertions.assertThat(channelRepository.findAll().size()).isEqualTo(1);
 
-        AddReadStatusDto addReadStatusDto = new AddReadStatusDto(channel.getId(), user.getId());
-        ReadStatus readStatus = readStatusService.addReadStatus(addReadStatusDto);
+        AddReadStatusRequest addReadStatusRequest = new AddReadStatusRequest(channel.getId(), user.getId());
+        ReadStatus readStatus = readStatusService.addReadStatus(addReadStatusRequest);
 
         ReadStatus finded = readStatusService.getReadStatus(readStatus.getId());
         Assertions.assertThat(finded).isNotNull();
@@ -81,19 +81,19 @@ public class ReadStatusServiceTest {
 
     @Test
     public void getAllReadStatusByUserIdTest() {
-        AddUserDto addUserDto1 = new AddUserDto("testName", "testMail", "testPassword", "testPhone", null);
-        AddUserDto addUserDto2 = new AddUserDto("testName1", "testMail1", "testPassword", "testPhone", null);
-        User user1 = userService.addUser(addUserDto1);
-        User user2 = userService.addUser(addUserDto2);
+        AddUserRequest addUserRequest1 = new AddUserRequest("testName", "testMail", "testPassword", "testPhone", null);
+        AddUserRequest addUserRequest2 = new AddUserRequest("testName1", "testMail1", "testPassword", "testPhone", null);
+        User user1 = userService.addUser(addUserRequest1);
+        User user2 = userService.addUser(addUserRequest2);
 
-        AddPublicChannelDto addPublicChannelDto1 = new AddPublicChannelDto("testChannelName", "testChannelDesc", user1.getId());
-        Channel channel = channelService.addPublicChannel(addPublicChannelDto1);
+        AddPublicChannelRequest addPublicChannelRequest1 = new AddPublicChannelRequest("testChannelName", "testChannelDesc", user1.getId());
+        Channel channel = channelService.addPublicChannel(addPublicChannelRequest1);
 
-        AddReadStatusDto addReadStatusDto1 = new AddReadStatusDto(channel.getId(), user1.getId());
-        AddReadStatusDto addReadStatusDto2 = new AddReadStatusDto(channel.getId(), user2.getId());
-        readStatusService.addReadStatus(addReadStatusDto1);
-        readStatusService.addReadStatus(addReadStatusDto1);
-        readStatusService.addReadStatus(addReadStatusDto2);
+        AddReadStatusRequest addReadStatusRequest1 = new AddReadStatusRequest(channel.getId(), user1.getId());
+        AddReadStatusRequest addReadStatusRequest2 = new AddReadStatusRequest(channel.getId(), user2.getId());
+        readStatusService.addReadStatus(addReadStatusRequest1);
+        readStatusService.addReadStatus(addReadStatusRequest1);
+        readStatusService.addReadStatus(addReadStatusRequest2);
 
         int size = readStatusService.getAllReadStatusByUserId(user1.getId()).size();
         Assertions.assertThat(userRepository.findAll().size()).isEqualTo(2);
@@ -103,12 +103,12 @@ public class ReadStatusServiceTest {
 
     @Test
     public void updateReadStatusTest() {
-        AddUserDto addUserDto1 = new AddUserDto("testName", "testMail", "testPassword", "testPhone", null);
-        User user1 = userService.addUser(addUserDto1);
-        AddPublicChannelDto addPublicChannelDto1 = new AddPublicChannelDto("testChannelName", "testChannelDesc", user1.getId());
-        Channel channel = channelService.addPublicChannel(addPublicChannelDto1);
-        AddReadStatusDto addReadStatusDto1 = new AddReadStatusDto(channel.getId(), user1.getId());
-        ReadStatus readStatus = readStatusService.addReadStatus(addReadStatusDto1);
+        AddUserRequest addUserRequest1 = new AddUserRequest("testName", "testMail", "testPassword", "testPhone", null);
+        User user1 = userService.addUser(addUserRequest1);
+        AddPublicChannelRequest addPublicChannelRequest1 = new AddPublicChannelRequest("testChannelName", "testChannelDesc", user1.getId());
+        Channel channel = channelService.addPublicChannel(addPublicChannelRequest1);
+        AddReadStatusRequest addReadStatusRequest1 = new AddReadStatusRequest(channel.getId(), user1.getId());
+        ReadStatus readStatus = readStatusService.addReadStatus(addReadStatusRequest1);
         ReadStatus updatedReadStatus = readStatusService.updateReadStatus(readStatus.getId());
 
         System.out.println("변경 전: " + readStatus.getLastReadTime());
@@ -117,12 +117,12 @@ public class ReadStatusServiceTest {
     }
 
     @Test void deleteReadStatusTest() {
-        AddUserDto addUserDto1 = new AddUserDto("testName", "testMail", "testPassword", "testPhone", null);
-        User user1 = userService.addUser(addUserDto1);
-        AddPublicChannelDto addPublicChannelDto1 = new AddPublicChannelDto("testChannelName", "testChannelDesc", user1.getId());
-        Channel channel = channelService.addPublicChannel(addPublicChannelDto1);
-        AddReadStatusDto addReadStatusDto1 = new AddReadStatusDto(channel.getId(), user1.getId());
-        ReadStatus readStatus = readStatusService.addReadStatus(addReadStatusDto1);
+        AddUserRequest addUserRequest1 = new AddUserRequest("testName", "testMail", "testPassword", "testPhone", null);
+        User user1 = userService.addUser(addUserRequest1);
+        AddPublicChannelRequest addPublicChannelRequest1 = new AddPublicChannelRequest("testChannelName", "testChannelDesc", user1.getId());
+        Channel channel = channelService.addPublicChannel(addPublicChannelRequest1);
+        AddReadStatusRequest addReadStatusRequest1 = new AddReadStatusRequest(channel.getId(), user1.getId());
+        ReadStatus readStatus = readStatusService.addReadStatus(addReadStatusRequest1);
 
 
         List<ReadStatus> allByUserId = readStatusRepository.findAllByUserId(user1.getId());

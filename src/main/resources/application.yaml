@@ -4,5 +4,9 @@ spring:
 
 discodeit:
   repository:
-    type: jcf # jcf | file
+    type: file # jcf | file
     file-directory: .fileData
+
+logging:
+  level:
+    root: DEBUG

@@ -17,6 +17,9 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     @Override
     public BinaryContent addBinaryContent(byte[] binaryContent) {
+        if(binaryContent == null){
+            throw new IllegalArgumentException("BinaryContent cannot be null");
+        }
         BinaryContent newContent = new BinaryContent(binaryContent);
         return binaryContentRepository.save(newContent).orElseThrow();
     }

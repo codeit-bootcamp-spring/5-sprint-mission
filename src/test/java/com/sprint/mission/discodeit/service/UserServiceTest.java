@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.request.AddUserDto;
-import com.sprint.mission.discodeit.dto.response.GetUserDto;
+import com.sprint.mission.discodeit.dto.request.AddUserRequest;
+import com.sprint.mission.discodeit.dto.response.GetUserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -34,8 +34,8 @@ public class UserServiceTest {
     @Autowired
     private UserStatusRepository userStatusRepository;
 
-    AddUserDto addUserDao1;
-    AddUserDto addUserDao2;
+    AddUserRequest addUserDao1;
+    AddUserRequest addUserDao2;
     @Autowired
     private UserService userService;
 
@@ -45,14 +45,14 @@ public class UserServiceTest {
         userRepository.deleteAll();
         binaryContentRepository.deleteAll();
         userStatusRepository.deleteAll();
-        addUserDao1 = new AddUserDto("testName1", "testMail1", "testPassword1", "testPhone1", null);
-        addUserDao2 = new AddUserDto("testName2", "testMail2", "testPassword2", "testPhone2", null);
+        addUserDao1 = new AddUserRequest("testName1", "testMail1", "testPassword1", "testPhone1", null);
+        addUserDao2 = new AddUserRequest("testName2", "testMail2", "testPassword2", "testPhone2", null);
     }
 
     @Test
     public void testAddUser() {
         User user = basicUserService.addUser(addUserDao1);
-        GetUserDto userById = basicUserService.getUserById(user.getId());
+        GetUserResponse userById = basicUserService.getUserById(user.getId());
 
         Assertions.assertThat(user.getId()).isEqualTo(userById.userId());
         Assertions.assertThat(user.getUserName()).isEqualTo(userById.username());
@@ -66,7 +66,7 @@ public class UserServiceTest {
 
     @Test
     public void testAddUserDuplicatedUserName() {
-        AddUserDto duplicateUserName = new AddUserDto("testName1", "testMail999", "testPassword999", "testPhone999", null);
+        AddUserRequest duplicateUserName = new AddUserRequest("testName1", "testMail999", "testPassword999", "testPhone999", null);
         basicUserService.addUser(addUserDao1);
         Assertions.assertThatThrownBy(() -> basicUserService.addUser(duplicateUserName)).isInstanceOf(IllegalArgumentException.class);
     }
@@ -74,7 +74,7 @@ public class UserServiceTest {
 
     @Test
     public void testAddUserDuplicatedEmail() {
-        AddUserDto duplicateUserName = new AddUserDto("testName999", "testMail1", "testPassword999", "testPhone999", null);
+        AddUserRequest duplicateUserName = new AddUserRequest("testName999", "testMail1", "testPassword999", "testPhone999", null);
         basicUserService.addUser(addUserDao1);
         Assertions.assertThatThrownBy(() -> basicUserService.addUser(duplicateUserName)).isInstanceOf(IllegalArgumentException.class);
     }
@@ -82,7 +82,7 @@ public class UserServiceTest {
     @Test
     public void getUserByIdTest(){
         User user = basicUserService.addUser(addUserDao1);
-        GetUserDto userById = basicUserService.getUserById(user.getId());
+        GetUserResponse userById = basicUserService.getUserById(user.getId());
 
         Assertions.assertThat(userById.userId()).isEqualTo(user.getId());
         Assertions.assertThat(userById.username()).isEqualTo(user.getUserName());
@@ -96,14 +96,14 @@ public class UserServiceTest {
     public void getAllUserTest(){
         basicUserService.addUser(addUserDao1);
         basicUserService.addUser(addUserDao2);
-        List<GetUserDto> allUser = basicUserService.getAllUser();
+        List<GetUserResponse> allUser = basicUserService.getAllUser();
         Assertions.assertThat(allUser.size()).isEqualTo(2);
     }
 
     @Test
     public void updateUserTest(){
         User target = basicUserService.addUser(addUserDao1);
-        AddUserDto updateInfo = new AddUserDto("testName3", "testMail3", "testPassword3", "testPhone3", UUID.randomUUID());
+        AddUserRequest updateInfo = new AddUserRequest("testName3", "testMail3", "testPassword3", "testPhone3", UUID.randomUUID());
 
         User result = basicUserService.updateUser(target.getId(), updateInfo);
 
@@ -122,15 +122,15 @@ public class UserServiceTest {
         BinaryContent addedBinaryContent2 = binaryContentService.addBinaryContent(bytes);
         BinaryContent addedBinaryContent3 = binaryContentService.addBinaryContent(bytes);
 
-        addUserDao1 = new AddUserDto("testName1", "testMail1", "testPassword1", "testPhone1", addedBinaryContent1.getId());
-        addUserDao2 = new AddUserDto("testName2", "testMail2", "testPassword2", "testPhone2", addedBinaryContent2.getId());
-        AddUserDto addUserDao3 = new AddUserDto("testName3", "testMail3", "testPassword3", "testPhone3", addedBinaryContent3.getId());
+        addUserDao1 = new AddUserRequest("testName1", "testMail1", "testPassword1", "testPhone1", addedBinaryContent1.getId());
+        addUserDao2 = new AddUserRequest("testName2", "testMail2", "testPassword2", "testPhone2", addedBinaryContent2.getId());
+        AddUserRequest addUserDao3 = new AddUserRequest("testName3", "testMail3", "testPassword3", "testPhone3", addedBinaryContent3.getId());
 
         User addedUser1 = basicUserService.addUser(addUserDao1);
         basicUserService.addUser(addUserDao2);
         basicUserService.addUser(addUserDao3);
 
-        List<GetUserDto> allUser = basicUserService.getAllUser();
+        List<GetUserResponse> allUser = basicUserService.getAllUser();
         List<BinaryContent> allBinaryContent = binaryContentService.getAllBinaryContent();
         List<UserStatus> allUserStatus = userStatusService.getAllUserStatus();
 

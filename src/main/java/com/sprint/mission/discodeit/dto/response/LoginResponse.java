@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.dto.response;
 
-public record LoginDto(
+public record LoginResponse(
         String userName,
         String email,
         String phoneNumber,

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.AddReadStatusDto;
+import com.sprint.mission.discodeit.dto.request.AddReadStatusRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -47,13 +47,13 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
-    public ReadStatus addReadStatus(AddReadStatusDto addReadStatusDto) {
-        channelRepository.findById(addReadStatusDto.channelId())
+    public ReadStatus addReadStatus(AddReadStatusRequest addReadStatusRequest) {
+        channelRepository.findById(addReadStatusRequest.channelId())
                 .orElseThrow(() -> new IllegalArgumentException("Channel not found"));
-        userRepository.findById(addReadStatusDto.userId())
+        userRepository.findById(addReadStatusRequest.userId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        ReadStatus readStatus = new ReadStatus(addReadStatusDto.userId(), addReadStatusDto.channelId());
+        ReadStatus readStatus = new ReadStatus(addReadStatusRequest.userId(), addReadStatusRequest.channelId());
         return readStatusRepository.save(readStatus)
                 .orElseThrow(() -> new RuntimeException("Failed to save ReadStatus"));
     }

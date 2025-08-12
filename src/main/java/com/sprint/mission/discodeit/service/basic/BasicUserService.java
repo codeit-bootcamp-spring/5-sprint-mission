@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.AddUserDto;
-import com.sprint.mission.discodeit.dto.response.GetUserDto;
+import com.sprint.mission.discodeit.dto.request.AddUserRequest;
+import com.sprint.mission.discodeit.dto.response.GetUserResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -24,14 +24,14 @@ public class BasicUserService implements com.sprint.mission.discodeit.service.Us
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public User addUser(AddUserDto addUserDto) {
-        Optional<User> byUserName = userRepository.findByUserName(addUserDto.userName());
-        Optional<User> byEmail = userRepository.findByEmail(addUserDto.email());
+    public User addUser(AddUserRequest addUserRequest) {
+        Optional<User> byUserName = userRepository.findByUserName(addUserRequest.userName());
+        Optional<User> byEmail = userRepository.findByEmail(addUserRequest.email());
         if(byEmail.isPresent() || byUserName.isPresent()){
             throw new IllegalArgumentException("중복된 User Name 혹은 User Email");
         }
 
-        User user = new User(addUserDto.userName(), addUserDto.email(), addUserDto.password(), addUserDto.phoneNumber(), addUserDto.profileId());
+        User user = new User(addUserRequest.userName(), addUserRequest.email(), addUserRequest.password(), addUserRequest.phoneNumber(), addUserRequest.profileId());
         UserStatus userStatus = new UserStatus(user.getId());
         Optional<User> addedUser = userRepository.save(user);
         userStatusRepository.save(userStatus).orElseThrow();
@@ -39,40 +39,40 @@ public class BasicUserService implements com.sprint.mission.discodeit.service.Us
     }
 
     @Override
-    public GetUserDto getUserById(UUID userId) {
+    public GetUserResponse getUserById(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow();
         UserStatus userStatus = userStatusRepository.findByUserId(userId).orElseThrow();
 
-        return new GetUserDto(user.getId() ,user.getUserName(), user.getEmail(), user.getPhoneNumber(), user.getProfileId(), userStatus.isOnline());
+        return new GetUserResponse(user.getId() ,user.getUserName(), user.getEmail(), user.getPhoneNumber(), user.getProfileId(), userStatus.isOnline());
     }
 
     @Override
-    public List<GetUserDto> getAllUser() {
+    public List<GetUserResponse> getAllUser() {
         List<User> users = userRepository.findAll();
-        List<GetUserDto> returnList = new ArrayList<>();
+        List<GetUserResponse> returnList = new ArrayList<>();
         for(User user: users){
             UserStatus userStatus = userStatusRepository.findByUserId(user.getId()).orElseThrow();
-            GetUserDto getUserDto = new GetUserDto(
+            GetUserResponse getUserResponse = new GetUserResponse(
                     user.getId(),
                     user.getUserName(),
                     user.getEmail(),
                     user.getPhoneNumber(),
                     user.getProfileId(),
                     userStatus.isOnline());
-            returnList.add(getUserDto);
+            returnList.add(getUserResponse);
         }
         return returnList;
     }
 
     @Override
-    public User updateUser(UUID userId, AddUserDto addUserDto) {
+    public User updateUser(UUID userId, AddUserRequest addUserRequest) {
         User user = userRepository.findById(userId).orElseThrow();
 
-        user.updateUserName(addUserDto.userName());
-        user.updateEmail(addUserDto.email());
-        user.updatePassword(addUserDto.password());
-        user.updatePhoneNumber(addUserDto.phoneNumber());
-        user.updateProfileId(addUserDto.profileId());
+        user.updateUserName(addUserRequest.userName());
+        user.updateEmail(addUserRequest.email());
+        user.updatePassword(addUserRequest.password());
+        user.updatePhoneNumber(addUserRequest.phoneNumber());
+        user.updateProfileId(addUserRequest.profileId());
 
         return userRepository.save(user).orElseThrow();
     }
