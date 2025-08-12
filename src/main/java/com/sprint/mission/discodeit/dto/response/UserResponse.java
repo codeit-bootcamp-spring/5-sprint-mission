@@ -12,6 +12,7 @@ public record UserResponse(
         String email,
         String username,
         String globalName,
+        String bio,
         UUID profileId,
         UserStatusType userStatusType
 ) {

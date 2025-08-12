@@ -20,6 +20,7 @@ public final class UserMapper {
                 user.getEmail(),
                 user.getUsername(),
                 user.getGlobalName(),
+                user.getBio(),
                 user.getProfileId(),
                 status
         );
