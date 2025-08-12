@@ -20,14 +20,12 @@ public class UserController {
     private final UserService userService;
     private final UserStatusService userStatusService;
 
-    @RequestMapping(value = "/user", method = RequestMethod.POST,
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/user", method = RequestMethod.POST)
     public ResponseEntity<UserDto.DetailResponse> createUser(@ModelAttribute UserDto.CreateRequest request) {
         return ResponseEntity.ok(userService.create(request));
     }
 
-    @RequestMapping(value = "/user", method = RequestMethod.PUT,
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/user", method = RequestMethod.PUT)
     public ResponseEntity<UserDto.DetailResponse> updateUser(@ModelAttribute UserDto.UpdateRequest request) {
         return ResponseEntity.ok(userService.update(request));
     }

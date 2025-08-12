@@ -18,8 +18,7 @@ public class MessageController {
     // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
     private final MessageService messageService;
 
-    @RequestMapping(value = "/message", method = RequestMethod.POST,
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/message", method = RequestMethod.POST)
     public ResponseEntity<MessageDto.DetailResponse> createMessage(@ModelAttribute MessageDto.CreateRequest request) {
         return ResponseEntity.ok(messageService.create(request));
     }
