@@ -1,78 +1,55 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+import lombok.ToString;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+@Getter
+@ToString
 public class User implements Serializable {
-    private final UUID id;
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private UUID id;
+    private UUID profileId;
+    private final Instant createdAt;
+    private Instant updatedAt;
+    //
     private String username;
-    private String password;
-    private int age;
     private String email;
+    private String password;
 
-    private Long createdAt;
-    private Long updatedAt;
-
-    public User(String username, String password, int age, String email) {
+    public User(UUID profileId, String username, String email, String password) {
         this.id = UUID.randomUUID();
+        this.profileId = profileId;
+        this.createdAt = Instant.now();
+        //
         this.username = username;
-        this.password = password;
-        this.age = age;
         this.email = email;
-        this.createdAt = Instant.now().getEpochSecond();
-        this.updatedAt = createdAt;
-    }
-
-    public long update() {
-        return this.updatedAt = Instant.now().getEpochSecond();
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
         this.password = password;
     }
 
-    public int getAge() {
-        return age;
-    }
+    public void update(String newUsername, String newEmail, String newPassword) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
 
-    public void setAge(int age) {}
-
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", age=" + age +
-                ", email='" + email + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }

@@ -4,50 +4,47 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class JCFUserRepository implements UserRepository {
+    private final Map<UUID, User> data;
 
-    private Map<UUID, User> users = new HashMap<>();
+    public JCFUserRepository() {
+        this.data = new HashMap<>();
+    }
 
     @Override
     public User save(User user) {
-        users.put(user.getId(), user);
+        this.data.put(user.getId(), user);
         return user;
     }
 
     @Override
     public Optional<User> findById(UUID id) {
-        if (users.containsKey(id)) {
-            return Optional.of(users.get(id));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(this.data.get(id));
     }
 
     @Override
     public List<User> findAll() {
-        return users.values().stream().collect(Collectors.toList());
-    }
-
-    @Override
-    public User update(UUID id, User user) {
-        if (!users.containsKey(id)) {
-            throw new NoSuchElementException();
-        }
-        users.put(id, user);
-        return user;
+        return this.data.values().stream().toList();
     }
 
     @Override
     public boolean existsById(UUID id) {
-        if (users.containsKey(id)) {
-            return true;
-        }
+        return this.data.containsKey(id);
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return false;
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
         return false;
     }
 
     @Override
     public void deleteById(UUID id) {
-        users.remove(id);
+        this.data.remove(id);
     }
 }

@@ -10,7 +10,6 @@ public interface MessageRepository {
     Message save(Message message);
     Optional<Message> findById(UUID id);
     List<Message> findAll();
-    Message update(UUID id, Message message);
     boolean existsById(UUID id);
     void deleteById(UUID id);
 }

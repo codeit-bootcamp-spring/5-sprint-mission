@@ -1,75 +1,49 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+import lombok.ToString;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
+@Getter
+@ToString
 public class Message implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
-    private final UUID senderId;
-    private final UUID channelId;
-
-    private String name;
-    private String title;
+    private final Instant createdAt;
+    private Instant updatedAt;
+    //
     private String content;
+    //
+    private final UUID channelId;
+    private final UUID authorId;
+    private final List<UUID> attachmentIds;
 
-    private long createdAt;
-    private long updatedAt;
-
-    public Message(UUID senderId, UUID channelId, String name, String title, String content) {
+    public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
         this.id = UUID.randomUUID();
-        this.senderId = senderId;
+        this.createdAt = Instant.now();
+        //
+        this.content = content;
         this.channelId = channelId;
-        this.name = name;
-        this.title = title;
-        this.content = content;
-        this.createdAt = Instant.now().getEpochSecond();
-        this.updatedAt = createdAt;
+        this.authorId = authorId;
+        this.attachmentIds = attachmentIds;
     }
 
-    public long update() {
-        return this.updatedAt = Instant.now().getEpochSecond();
-    }
+    public void update(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    @Override
-    public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", senderId=" + senderId +
-                ", channelId=" + channelId +
-                ", name='" + name + '\'' +
-                ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }

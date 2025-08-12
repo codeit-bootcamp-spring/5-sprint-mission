@@ -1,67 +1,49 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+import lombok.ToString;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+@Getter
+@ToString
 public class Channel implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
+    private final Instant createdAt;
+    private Instant updatedAt;
+    //
+    private final ChannelType type;
     private String name;
     private String description;
-    private ChannelType channelType;
 
-    private long createdAt;
-    private long updatedAt;
-
-    public Channel(String name, String description, ChannelType channelType) {
+    public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.type = type;
         this.name = name;
         this.description = description;
-        this.channelType = channelType;
-        this.createdAt = Instant.now().getEpochSecond();
-        this.updatedAt = createdAt;
     }
 
-    public long update() {
-        return this.updatedAt = Instant.now().getEpochSecond();
-    }
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public ChannelType getChannelType() {
-        return channelType;
-    }
-
-    public void setChannelType(ChannelType channelType) {
-        this.channelType = channelType;
-    }
-
-    @Override
-    public String toString() {
-        return "Channel{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }

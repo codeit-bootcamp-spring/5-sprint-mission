@@ -4,51 +4,37 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class JCFMessageRepository implements MessageRepository {
+    private final Map<UUID, Message> data;
 
-    private Map<UUID, Message> messages = new HashMap<>();
+    public JCFMessageRepository() {
+        this.data = new HashMap<>();
+    }
 
     @Override
     public Message save(Message message) {
-        messages.put(message.getId(), message);
+        this.data.put(message.getId(), message);
         return message;
     }
 
     @Override
     public Optional<Message> findById(UUID id) {
-        if (messages.containsKey(id)) {
-            return Optional.of(messages.get(id));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(this.data.get(id));
     }
 
     @Override
     public List<Message> findAll() {
-        return messages.values().stream().collect(Collectors.toList());
-    }
-
-    @Override
-    public Message update(UUID id, Message message) {
-        if (!messages.containsKey(id)) {
-            throw new NoSuchElementException();
-        }
-        messages.put(id, message);
-        return message;
+        return this.data.values().stream().toList();
     }
 
     @Override
     public boolean existsById(UUID id) {
-        if (messages.containsKey(id)) {
-            return true;
-        }
-        return false;
+        return this.data.containsKey(id);
     }
 
     @Override
     public void deleteById(UUID id) {
-        messages.remove(id);
+        this.data.remove(id);
     }
-
 }
