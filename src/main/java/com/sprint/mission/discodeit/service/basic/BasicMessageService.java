@@ -1,35 +1,38 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
+
+@Service("basicMessageService")
+@RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
+    //
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
 
-    public BasicMessageService(MessageRepository messageRepository, ChannelRepository channelRepository, UserRepository userRepository) {
-        this.messageRepository = messageRepository;
-        this.channelRepository = channelRepository;
-        this.userRepository = userRepository;
-    }
-
-
     @Override
-    public Message createMsg(String content, String channelId, String authorId) {
-        // 채널과 사용자 ID는 문자열이므로 그대로 사용
-        if (!channelRepository.existsById(UUID.fromString(channelId))) {
+    public Message create(MessageCreateRequest messageCreateRequest) {
+        String content = messageCreateRequest.content();
+        UUID channelId = messageCreateRequest.channelId();
+        UUID authorId = messageCreateRequest.authorId();
+        if (!channelRepository.existsById(channelId)) {
             throw new NoSuchElementException("Channel not found with id " + channelId);
         }
-
-        if (!userRepository.existsById(UUID.fromString(authorId))) {
+        if (!userRepository.existsById(authorId)) {
             throw new NoSuchElementException("Author not found with id " + authorId);
         }
 
@@ -39,7 +42,8 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public Message find(UUID messageId) {
-        return messageRepository.findById(messageId).orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+        return messageRepository.findById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
     }
 
     @Override
@@ -48,17 +52,19 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public Message update(UUID messageId, String content, String channelId, String authorId) {
-        Message message = messageRepository.findById(messageId).orElseThrow(() ->
-                new NoSuchElementException("Message with id " + messageId + " not found"));
-        message.update(content,channelId,authorId);
+    public Message update(UUID messageId, MessageUpdateRequest messageUpdateRequest) {
+        String newContent = messageUpdateRequest.newContent();
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+        message.update(newContent);
         return messageRepository.save(message);
     }
 
     @Override
-    public Message delete(UUID messageId) {
-        Message message = messageRepository.findById(messageId).orElseThrow(() ->
-                new NoSuchElementException("Message with id " + messageId + " not found"));
-        return messageRepository.delete(messageId);
+    public void delete(UUID messageId) {
+        if (!messageRepository.existsById(messageId)) {
+            throw new NoSuchElementException("Message with id " + messageId + " not found");
+        }
+        messageRepository.deleteById(messageId);
     }
 }

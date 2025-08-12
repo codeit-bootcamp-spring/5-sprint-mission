@@ -1,29 +1,37 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.ToString;
+
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
+
+@ToString
 public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
-    private String channelId;
-    private String authorId;
 
     private UUID id;
     private Long createdAt;
     private Long updatedAt;
-
-    //내가 디스코드에서 필요한 필드를 추가적으로 설계하는 자리
+    //
     private String content;
+    //
+    private UUID channelId;
+    private UUID authorId;
+    //
+    private List<UUID> attachmentIds;
 
 
-    public Message(String content, String channelId, String authorId) {
-        id = UUID.randomUUID();
+    public Message(String content, UUID channelId, UUID authorId) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now().getEpochSecond();
+        //
         this.content = content;
         this.channelId = channelId;
         this.authorId = authorId;
-        createdAt = System.currentTimeMillis();
     }
-
 
     public UUID getId() {
         return id;
@@ -41,30 +49,23 @@ public class Message implements Serializable {
         return content;
     }
 
-    public String getChannelId() {
+    public UUID getChannelId() {
         return channelId;
     }
 
-    public String getAuthorId() {
+    public UUID getAuthorId() {
         return authorId;
     }
 
-    public void update(String content, String channelId, String authorId){
-        this.content = content;
-        this.channelId = channelId;
-        this.authorId = authorId;
-        updatedAt = System.currentTimeMillis();
-    }
+    public void update(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
 
-    @Override
-    public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", content='" + content + '\'' +
-                ", channelId=" + channelId +
-                ", authorId=" + authorId +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now().getEpochSecond();
+        }
     }
 }

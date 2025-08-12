@@ -7,20 +7,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository {
-
     User save(User user);
-
     Optional<User> findById(UUID id);
-
+    Optional<User> findByUsername(String username);
     List<User> findAll();
-
-    long count();
-
-    User delete(UUID id);
-
     boolean existsById(UUID id);
-
-    // 더필요한 내용은 아래 query 메서드 이름 형식을 참고하여 더 작성할것
-    // https://docs.spring.io/spring-data/jpa/reference/repositories/query-methods-details.html
-
+    void deleteById(UUID id);
 }
