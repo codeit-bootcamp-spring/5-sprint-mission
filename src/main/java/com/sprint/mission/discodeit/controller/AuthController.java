@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@ControllerAdvice
+@RestControllerAdvice
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;

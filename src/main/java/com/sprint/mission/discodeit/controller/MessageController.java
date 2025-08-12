@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@ControllerAdvice
+@RestControllerAdvice
 @RequiredArgsConstructor
 @RequestMapping("/messages")
 public class MessageController {
