@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.ProfileImageParam;
+import com.sprint.mission.discodeit.dto.UserCreateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -11,6 +14,9 @@ import com.sprint.mission.discodeit.service.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import java.util.Random;
+import java.util.UUID;
 
 
 @SpringBootApplication
@@ -26,17 +32,13 @@ public class DiscodeitApplication {
         User user = setupUser(userService);
         Channel channel = setupChannel(channelService);
         messageCreateTest(messageService, channel, user);
-
-        // 파일 테스트
-        User fileUser = new User("김길동", "bbb@bb", "5678");
-        FileUserRepository fileUserRepository = context.getBean(FileUserRepository.class);
-        fileUserRepository.save(fileUser);
-        System.out.println(fileUserRepository.findById(fileUser.getId()));
-
     }
 
     static User setupUser(UserService userService) {
-        User user = userService.create("홍길동", "aaa@aa", "1234");
+        User user = userService.create(
+                new UserCreateRequest("홍길동", "aaa@aa", "1234"),
+                new BinaryContentCreateRequest(null, null, null)
+        );
         return user;
     }
 

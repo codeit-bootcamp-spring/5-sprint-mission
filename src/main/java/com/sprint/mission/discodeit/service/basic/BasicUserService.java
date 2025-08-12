@@ -1,7 +1,14 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.ProfileImageParam;
+import com.sprint.mission.discodeit.dto.UserCreateRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,11 +21,39 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
+    private final UserStatusRepository userStatusRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public User create(String username, String email, String password) {
-        User user = new User(username, email, password);
-        return userRepository.save(user);
+    public User create(UserCreateRequest userCreateRequest, BinaryContentCreateRequest binaryContentCreateRequest) {
+        if (userRepository.existsByUsername(userCreateRequest.username())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        if (userRepository.existsByEmail(userCreateRequest.email())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+        UUID profileId = null;
+        if(binaryContentCreateRequest != null) {
+            BinaryContent binaryContent = new BinaryContent(
+                    binaryContentCreateRequest.fileName(),
+                    binaryContentCreateRequest.contentType(),
+                    binaryContentCreateRequest.bytes()
+            );
+            profileId = binaryContentRepository.save(binaryContent).getId();
+        }
+
+        User user = userRepository.save(new User(
+                profileId,
+                userCreateRequest.username(),
+                userCreateRequest.email(),
+                userCreateRequest.password()
+        ));
+
+        userStatusRepository.save(new UserStatus(user.getId()));
+
+        return user;
+
     }
 
     @Override

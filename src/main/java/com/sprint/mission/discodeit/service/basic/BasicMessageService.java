@@ -20,6 +20,8 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
 
+    List<UUID> attachmentsId = List.of();
+
     @Override
     public Message create(String content, UUID channelId, UUID authorId) {
         if (!channelRepository.existsById(channelId)) {
@@ -29,7 +31,7 @@ public class BasicMessageService implements MessageService {
             throw new NoSuchElementException("Author not found with id " + authorId);
         }
 
-        Message message = new Message(content, channelId, authorId);
+        Message message = new Message(content, channelId, authorId, attachmentsId);
         return messageRepository.save(message);
     }
 
