@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateProfileSettingsRequest
 import com.sprint.mission.discodeit.dto.request.UserUpdateUsernameRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -21,7 +22,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -74,7 +74,9 @@ public class UserService {
     }
 
     public UserResponse findById(UUID userId) {
-        return toResponse(userRepository.getOrThrow(userId));
+        return userRepository.findById(userId)
+                .map(this::toResponse)
+                .orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다: " + userId));
     }
 
     public List<UserResponse> findAll() {
@@ -84,22 +86,17 @@ public class UserService {
     }
 
     public void deactivateAccount(UUID userId) {
-        Objects.requireNonNull(userId, "유저를 찾을 수 없습니다.");
         userRepository.getOrThrow(userId);
         update(userId, User::deactivate);
     }
 
+    @Transactional
     public void deleteAccount(UUID userId) {
-        Objects.requireNonNull(userId, "userId must not be null");
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다: " + userId));
+
+        guildRepository.findGuildsOwnedByUser(userId).forEach(g -> guildRepository.softDeleteById(g.getId()));
 
         friendRequestRepository.softDeleteAllByUserId(userId);
-
-        User user = userRepository.getOrThrow(userId);
-
-        for (UUID guildId : new HashSet<>(user.getGuildIds())) {
-            Guild guild = guildRepository.getOrThrow(guildId);
-            if (guild.isOwner(userId)) guildRepository.softDeleteById(guildId);
-        }
 
         userRepository.softDeleteById(userId);
     }

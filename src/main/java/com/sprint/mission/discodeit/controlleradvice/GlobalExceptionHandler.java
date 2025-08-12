@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.controlleradvice;
 
 import com.sprint.mission.discodeit.dto.error.ApiError;
+import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.exception.ValidatorsValidationException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -48,6 +50,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler({NotFoundException.class})
+    public ResponseEntity<ApiError> handleNotFound(Exception e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiError("NOT_FOUND", e.getMessage(), List.of()));
+    }
+
+    @ExceptionHandler({AccessDeniedException.class})
+    public ResponseEntity<ApiError> handleForbidden(Exception e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiError("FORBIDDEN", e.getMessage(), List.of()));
+    }
+
     @ExceptionHandler({
             DuplicateResourceException.class,
             DataIntegrityViolationException.class,
@@ -56,5 +68,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleConflict(Exception e) {
         ApiError body = new ApiError("CONFLICT", e.getMessage() != null ? e.getMessage() : "리소스 충돌이 발생했습니다.", List.of());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleUnexpected(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiError("INTERNAL_ERROR", "서버 오류가 발생했습니다.", List.of()));
     }
 }
