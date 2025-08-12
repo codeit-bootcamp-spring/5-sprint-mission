@@ -22,21 +22,7 @@ public class BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
     public BinaryContent create(@Valid BinaryContentCreateRequest request) {
-        Path path = request.path();
-        byte[] bytes;
-        try {
-            bytes = Files.readAllBytes(path);
-        } catch (IOException e) {
-            throw new ThrowableIOException("BinaryContent를 읽어오지 못했습니다.", e);
-        }
-
-        BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(), bytes);
-        if (!Arrays.stream(request.fileName().split("\\."))
-                .collect(Collectors.toCollection(LinkedList::new))
-                .getLast()
-                .equals(request.contentType())) {
-            throw new IllegalArgumentException("create : 잘못된 확장자입니다.");
-        }
+        BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(), request.bytes());
         return binaryContentRepository.save(binaryContent);
     }
 

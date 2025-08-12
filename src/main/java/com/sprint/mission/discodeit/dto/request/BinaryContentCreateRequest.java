@@ -6,8 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import java.nio.file.Path;
 
 public record BinaryContentCreateRequest(
-        @NotNull Path path,
         @NotBlank String fileName,
-        @NotNull String contentType
+        @NotNull String contentType,
+        @NotNull byte[] bytes
 ) {
 }

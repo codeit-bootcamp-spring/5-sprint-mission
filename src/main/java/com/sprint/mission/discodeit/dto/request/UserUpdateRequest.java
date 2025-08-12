@@ -10,8 +10,6 @@ public record UserUpdateRequest(
         @NotNull UUID userId,
         @NotBlank String username,
         @NotBlank @Email String email,
-        @NotBlank String password,
-        boolean updateProfileImage,
-        UUID profileId
+        @NotBlank String password
 ) {
 }

@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserFindResponse;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -13,10 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 @Service("userService")
 @RequiredArgsConstructor
@@ -27,15 +26,22 @@ public class UserService {
     private final BinaryContentRepository binaryContentRepository;
     private final UserStatusRepository userStatusRepository;
 
-    public User create(@Valid UserCreateRequest request) {
-        validateUnique(request.username(), request.email());
-        User user;
+    public User create(@Valid UserCreateRequest userRequest,
+                       @Valid Optional<BinaryContentCreateRequest> binaryRequest) {
+        String username = userRequest.username();
+        String password = userRequest.password();
+        String email = userRequest.email();
+        validateUnique(username, email);
 
-        if (request.uploadProfileImage()) {
-            user = new User(request.username(), request.email(), request.password(), request.profileId());
-        } else {
-            user = new User(request.username(), request.email(), request.password());
-        }
+        UUID profileId = binaryRequest
+                .map(request -> {
+                    BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(), request.bytes());
+                    return binaryContentRepository.save(binaryContent).getId();
+                })
+                .orElse(null);
+
+        User user = new User(username, email, password, profileId);
+
         userStatusRepository.save(new UserStatus(user.getId()));
         return userRepository.save(user);
     }
@@ -68,16 +74,25 @@ public class UserService {
         return userFindResponses;
     }
 
-    public User update(@Valid UserUpdateRequest request) {
-        validateUnique(request.username(), request.email());
-        User user = userRepository.findById(request.userId())
+    public User update(@Valid UserUpdateRequest userRequest,
+                       @Valid Optional<BinaryContentCreateRequest> binaryRequest) {
+        String username = userRequest.username();
+        String password = userRequest.password();
+        String email = userRequest.email();
+        validateUnique(username, email);
+
+        User user = userRepository.findById(userRequest.userId())
                 .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다."));
 
-        if (request.updateProfileImage()) {
-            user.update(request.username(), request.email(), request.password(), request.profileId());
-        } else {
-            user.update(request.username(), request.email(), request.password());
-        }
+        UUID profileId = binaryRequest
+                .map(request -> {
+                    BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(), request.bytes());
+                    return binaryContentRepository.save(binaryContent).getId();
+                })
+                .orElse(null);
+
+        user.update(username, email, password, profileId);
+
         return userRepository.save(user);
     }
 
