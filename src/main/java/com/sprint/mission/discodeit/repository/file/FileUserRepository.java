@@ -45,6 +45,13 @@ public class FileUserRepository implements UserRepository {
     public void delete(UUID id) {
         data.remove(id);
         saveToFile();
+
+    }
+
+    @Override
+    public boolean existsByUserId(String userId) {
+        return data.values().stream()
+                .anyMatch(user -> user.getUserId().equals(userId));
     }
 
     //객체 -> 파일 직렬화
