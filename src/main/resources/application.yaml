@@ -9,4 +9,4 @@ discodeit:
 
 logging:
   level:
-    root: DEBUG
+    root: INFO
