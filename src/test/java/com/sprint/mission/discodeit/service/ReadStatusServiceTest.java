@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.request.AddPrivateChannelRequest;
 import com.sprint.mission.discodeit.dto.request.AddPublicChannelRequest;
 import com.sprint.mission.discodeit.dto.request.AddReadStatusRequest;
 import com.sprint.mission.discodeit.dto.request.AddUserRequest;
@@ -87,17 +88,18 @@ public class ReadStatusServiceTest {
         User user2 = userService.addUser(addUserRequest2);
 
         AddPublicChannelRequest addPublicChannelRequest1 = new AddPublicChannelRequest("testChannelName", "testChannelDesc", user1.getId());
-        Channel channel = channelService.addPublicChannel(addPublicChannelRequest1);
+        Channel publicChannel = channelService.addPublicChannel(addPublicChannelRequest1);
+        AddPrivateChannelRequest addPrivateChannelRequest = new AddPrivateChannelRequest(user2.getId());
+        Channel privateChannel = channelService.addPrivateChannel(addPrivateChannelRequest);
 
-        AddReadStatusRequest addReadStatusRequest1 = new AddReadStatusRequest(channel.getId(), user1.getId());
-        AddReadStatusRequest addReadStatusRequest2 = new AddReadStatusRequest(channel.getId(), user2.getId());
+        // user1이 privateChannel에 가입한 상황
+        AddReadStatusRequest addReadStatusRequest1 = new AddReadStatusRequest(privateChannel.getId(), user1.getId());
         readStatusService.addReadStatus(addReadStatusRequest1);
-        readStatusService.addReadStatus(addReadStatusRequest1);
-        readStatusService.addReadStatus(addReadStatusRequest2);
 
-        int size = readStatusService.getAllReadStatusByUserId(user1.getId()).size();
+        int size = readStatusService.getAllReadStatusByUserId(user1.getId()).size(); // user1은 public, private 둘 다 참가
+
         Assertions.assertThat(userRepository.findAll().size()).isEqualTo(2);
-        Assertions.assertThat(channelRepository.findAll().size()).isEqualTo(1);
+        Assertions.assertThat(channelRepository.findAll().size()).isEqualTo(2);
         Assertions.assertThat(size).isEqualTo(2);
     }
 
@@ -119,16 +121,15 @@ public class ReadStatusServiceTest {
     @Test void deleteReadStatusTest() {
         AddUserRequest addUserRequest1 = new AddUserRequest("testName", "testMail", "testPassword", "testPhone", null);
         User user1 = userService.addUser(addUserRequest1);
+
         AddPublicChannelRequest addPublicChannelRequest1 = new AddPublicChannelRequest("testChannelName", "testChannelDesc", user1.getId());
         Channel channel = channelService.addPublicChannel(addPublicChannelRequest1);
-        AddReadStatusRequest addReadStatusRequest1 = new AddReadStatusRequest(channel.getId(), user1.getId());
-        ReadStatus readStatus = readStatusService.addReadStatus(addReadStatusRequest1);
-
 
         List<ReadStatus> allByUserId = readStatusRepository.findAllByUserId(user1.getId());
         Assertions.assertThat(allByUserId.size()).isEqualTo(1);
 
-        readStatusService.deleteReadStatus(readStatus.getId());
+
+        readStatusService.deleteReadStatus(allByUserId.getFirst().getId());
 
         allByUserId = readStatusRepository.findAllByUserId(user1.getId());
         Assertions.assertThat(allByUserId.size()).isEqualTo(0);

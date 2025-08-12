@@ -57,7 +57,6 @@ public class UserServiceTest {
         Assertions.assertThat(user.getId()).isEqualTo(userById.userId());
         Assertions.assertThat(user.getUserName()).isEqualTo(userById.username());
         Assertions.assertThat(user.getEmail()).isEqualTo(userById.email());
-        Assertions.assertThat(user.getPhoneNumber()).isEqualTo(userById.phoneNumber());
         Assertions.assertThat(user.getProfileId()).isEqualTo(userById.profileId());
 
         int size = userRepository.findAll().size();
@@ -87,7 +86,6 @@ public class UserServiceTest {
         Assertions.assertThat(userById.userId()).isEqualTo(user.getId());
         Assertions.assertThat(userById.username()).isEqualTo(user.getUserName());
         Assertions.assertThat(userById.email()).isEqualTo(user.getEmail());
-        Assertions.assertThat(userById.phoneNumber()).isEqualTo(user.getPhoneNumber());
         Assertions.assertThat(userById.profileId()).isEqualTo(user.getProfileId());
         Assertions.assertThat(userById.isOnline()).isEqualTo(true);
     }

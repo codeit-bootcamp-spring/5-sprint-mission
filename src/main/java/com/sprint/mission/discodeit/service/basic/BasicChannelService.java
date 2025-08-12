@@ -52,7 +52,6 @@ public class BasicChannelService implements ChannelService {
 
         Optional<Channel> addedChannel = channelRepository.save(channel);
         return addedChannel.orElseThrow();
-
     }
 
     @Override
@@ -79,7 +78,7 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public List<GetChannelByIdResponse> getAllChannelByUserId(UUID userId) {
-        List<Channel> targetChannel = channelRepository.findPublicChannel();
+        List<Channel> targetChannel = new ArrayList<>();
         List<UUID> channelsIdByUserId = readStatusRepository.findChannelsIdByUserId(userId);
 
         for(UUID channelId : channelsIdByUserId){

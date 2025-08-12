@@ -43,7 +43,14 @@ public class BasicUserService implements com.sprint.mission.discodeit.service.Us
         User user = userRepository.findById(userId).orElseThrow();
         UserStatus userStatus = userStatusRepository.findByUserId(userId).orElseThrow();
 
-        return new GetUserResponse(user.getId() ,user.getUserName(), user.getEmail(), user.getPhoneNumber(), user.getProfileId(), userStatus.isOnline());
+        return new GetUserResponse(
+                user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getUserName(),
+                user.getEmail(),
+                user.getProfileId(),
+                userStatus.isOnline());
     }
 
     @Override
@@ -54,9 +61,10 @@ public class BasicUserService implements com.sprint.mission.discodeit.service.Us
             UserStatus userStatus = userStatusRepository.findByUserId(user.getId()).orElseThrow();
             GetUserResponse getUserResponse = new GetUserResponse(
                     user.getId(),
+                    user.getCreatedAt(),
+                    user.getUpdatedAt(),
                     user.getUserName(),
                     user.getEmail(),
-                    user.getPhoneNumber(),
                     user.getProfileId(),
                     userStatus.isOnline());
             returnList.add(getUserResponse);

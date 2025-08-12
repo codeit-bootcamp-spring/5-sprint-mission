@@ -94,6 +94,8 @@ public class ChannelServiceTest {
 
     @Test
     public void getAllChannelByUserIdTest(){
+
+
         // given
         Channel publicChannel = channelService.addPublicChannel(new AddPublicChannelRequest("testPublic", "testDescription", user1.getId()));
         Channel privateChannel1 = channelService.addPrivateChannel(new AddPrivateChannelRequest(user1.getId()));
