@@ -25,12 +25,12 @@ async function fetchAndRenderUsers() {
 // Fetch user profile image
 async function fetchUserProfile(profileId) {
     try {
-        const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}?binaryContentId=${profileId}`);
+        const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}/${profileId}`);
         if (!response.ok) throw new Error('Failed to fetch profile');
         const profile = await response.json();
 
         // Convert base64 encoded bytes to data URL
-        return `data:${profile.contentType};base64,${profile.bytes}`;
+        return `data:${profile.contentType};base64,${profile.content}`;
     } catch (error) {
         console.error('Error fetching profile:', error);
         return '/default-avatar.png'; // Fallback to default avatar
@@ -57,8 +57,8 @@ async function renderUserList(users) {
                 <div class="user-name">${user.name}</div>
                 <div class="user-email">${user.email}</div>
             </div>
-            <div class="status-badge ${user.online ? 'online' : 'offline'}">
-                ${user.online ? '온라인' : '오프라인'}
+            <div class="status-badge ${user.isOnline ? 'online' : 'offline'}">
+                ${user.isOnline ? '온라인' : '오프라인'}
             </div>
         `;
 

@@ -25,8 +25,17 @@ public class ReadStatusController {
 
     @RequestMapping(value = "/readStatus/channel/{channelId}", method = RequestMethod.PUT)
     public ResponseEntity<Void> updateReadStatus(@PathVariable UUID channelId) {
-        channelService.findById(channelId).getUserIds()
-            .forEach(readStatusService::update);
+        // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
+
+        channelService.findById(channelId)
+            .getUserIds()
+            .forEach(userId -> {
+                readStatusService.findAllByUserId(userId)
+                    .forEach(readStatus ->
+                    {
+                        readStatusService.update(readStatus.getId());
+                    });
+            });
         return ResponseEntity.ok().build();
     }
 

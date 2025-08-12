@@ -7,6 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class DiscodeitApplication{
 
     public static void main(String[] args) {
-        SpringApplication.run(DiscodeitApplication.class, new String[0]);
+        SpringApplication.run(DiscodeitApplication.class);
     }
 }

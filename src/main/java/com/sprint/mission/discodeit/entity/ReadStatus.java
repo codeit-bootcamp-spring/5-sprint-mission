@@ -15,7 +15,7 @@ public class ReadStatus extends BaseEntity {
         super();
         this.userId = userId;
         this.channelId = channelId;
-        this.lastReadAt = null;
+        this.lastReadAt = Instant.now();
     }
 
     public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {

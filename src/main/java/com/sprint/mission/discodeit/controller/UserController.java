@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,13 +20,15 @@ public class UserController {
     private final UserService userService;
     private final UserStatusService userStatusService;
 
-    @RequestMapping(value = "/user", method = RequestMethod.POST)
-    public ResponseEntity<UserDto.DetailResponse> createUser(@RequestBody UserDto.CreateRequest request) {
+    @RequestMapping(value = "/user", method = RequestMethod.POST,
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserDto.DetailResponse> createUser(@ModelAttribute UserDto.CreateRequest request) {
         return ResponseEntity.ok(userService.create(request));
     }
 
-    @RequestMapping(value = "/user", method = RequestMethod.PUT)
-    public ResponseEntity<UserDto.DetailResponse> updateUser(@RequestBody UserDto.UpdateRequest request) {
+    @RequestMapping(value = "/user", method = RequestMethod.PUT,
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserDto.DetailResponse> updateUser(@ModelAttribute UserDto.UpdateRequest request) {
         return ResponseEntity.ok(userService.update(request));
     }
 
@@ -42,7 +45,7 @@ public class UserController {
 
     @RequestMapping(value = "/user/{id}/status", method = RequestMethod.PATCH)
     public ResponseEntity<Void> updateUserStatus(@PathVariable UUID id) {
-        userStatusService.update(id);
+        userStatusService.updateByUserId(id);
         return ResponseEntity.ok().build();
     }
 }
