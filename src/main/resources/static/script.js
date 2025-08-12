@@ -1,8 +1,8 @@
 // API endpoints
 const API_BASE_URL = '/api';
 const ENDPOINTS = {
-    USERS: `${API_BASE_URL}/user/findAll`,
-    BINARY_CONTENT: `${API_BASE_URL}/binaryContent/find`
+    USERS: `${API_BASE_URL}/users`,
+    BINARY_CONTENT: `${API_BASE_URL}/binaryContent`
 };
 
 // Initialize the application
@@ -27,7 +27,7 @@ async function fetchAndRenderUsers() {
 // Fetch user profile image
 async function fetchUserProfile(profileId) {
     try {
-        const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}?binaryContentId=${profileId}`);
+        const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}/${profileId}`);
         if (!response.ok) console.error('Failed to fetch profile');
         const profile = await response.json();
 
