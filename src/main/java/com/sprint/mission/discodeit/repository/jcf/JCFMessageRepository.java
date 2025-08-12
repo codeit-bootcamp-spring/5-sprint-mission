@@ -2,47 +2,57 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.*;
-
 
 public class JCFMessageRepository implements MessageRepository {
     private final Map<UUID, Message> data;
 
     public JCFMessageRepository() {
-        data = new HashMap<>();
+        this.data = new HashMap<>();
     }
 
     @Override
     public Message save(Message message) {
-        data.put(message.getId(), message);
+        this.data.put(message.getId(), message);
         return message;
     }
 
     @Override
     public Optional<Message> findById(UUID id) {
-        if(data.containsKey(id)) {
-            return Optional.of(data.get(id));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(this.data.get(id));
+    }
+
+    @Override
+    public Optional<Message> findByUserId(UUID userId) {
+        return Optional.ofNullable(this.data.get(userId));
     }
 
     @Override
     public List<Message> findAll() {
-        return new ArrayList<>(data.values());
-    }
-
-
-    @Override
-    public Message delete(UUID id) {
-        if(!data.containsKey(id)){
-            throw new NoSuchElementException("Message with id "  + id + "not found");
-        }
-        return data.remove(id);
+        return this.data.values().stream().toList();
     }
 
     @Override
-    public boolean existById(UUID id) {
-        return data.containsKey(id);
+    public Optional<Message> findLatestByChannelId(UUID channelId) {
+        return this.data.values().stream().filter(m -> m.getChannelId().equals(channelId)).findFirst();
     }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return this.data.containsKey(id);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        this.data.remove(id);
+    }
+
+    @Override
+    public void deleteByChannelId(UUID channelId) {
+        this.data.entrySet().removeIf(entry -> entry.getValue().getChannelId().equals(channelId));
+    }
+
 }

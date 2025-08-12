@@ -1,19 +1,24 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.StringJoiner;
 import java.util.UUID;
 
+
+@Getter
+@ToString
 public class User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     private UUID id;
-    private Long createdAt;
-    private Long updatedAt;
-
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
 
     private String username;
     private String email;
@@ -21,67 +26,31 @@ public class User implements Serializable {
 
     public User(String username, String email, String password) {
         this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
         this.username = username;
         this.email = email;
         this.password = password;
-        this.createdAt = Instant.now().getEpochSecond();
-        this.updatedAt = createdAt;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getUsername() {
-        return username;
     }
 
 
-    public String getEmail() {
-        return email;
-    }
+    public void update(String newUsername, String newEmail, String newPassword, BinaryContent binaryContent) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void update(String username, String email, String password) {
-      boolean flag = false;
-      if(username != null && !username.equals(this.username)) {
-          this.username = username;
-          flag = true;
-      }
-      if(email != null && !email.equals(this.username)) {
-          this.email = email;
-          flag = true;
-      }
-      if(password != null && !password.equals(this.password)) {
-          this.password = password;
-          flag = true;
-      }
-      if(flag) {
-          this.updatedAt = Instant.now().toEpochMilli();
-      }
-
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }

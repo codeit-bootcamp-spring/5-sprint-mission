@@ -1,47 +1,114 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserFindRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserFindResponse;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
+@Service("userService")
+@RequiredArgsConstructor
 public class BasicUserService implements UserService {
-    private final UserRepository repo;
+    private final UserRepository userRepository;
+    private final UserStatusRepository userStatusRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
-    public BasicUserService(UserRepository repo) {
-        this.repo = repo;
-    }
-
-    @Override
-    public User createUser(String username, String email, String password) {
-        User user = new User(username, email, password);
-       return repo.save(user);
-    }
 
     @Override
-    public Optional<User> getUser(UUID userId) {
-        Optional<User> user = repo.findById(userId);
+    public User create(UserCreateRequest request) {
+
+        // username, email 중복 체크
+        if(userRepository.existsByUsername(request.username())){
+            throw new RuntimeException("Username is already in use");
+        }
+        if(userRepository.existsByEmail(request.email())){
+            throw new RuntimeException("Email is already in use");
+        }
+
+        // 유저 생성
+        // binaryContent가 Null일 경우도 체크 => 삼항 연산자 사용
+        User user = new User(request.username(), request.email(), request.password(),
+                request.binaryContent() != null ? request.binaryContent().getUserId() : null);
+        userRepository.save(user);
+
+        // UserStatus 생성
+        UserStatus status = new UserStatus(user.getId());
+        userStatusRepository.save(status);
+
         return user;
     }
 
+    // DTO를 활용하여:
+    // 사용자의 온라인 상태 정보를 같이 포함하세요.
+    // 패스워드 정보는 제외하세요.
     @Override
-    public List<User> getAllUsers() {
-        return repo.findAll();
+    public UserFindResponse find(UserFindRequest request) {
+
+        User user = userRepository.findById(request.id()).orElseThrow(()->
+                new IllegalArgumentException("User id not found"));
+
+        UserStatus status = userStatusRepository.findById(request.id()).orElseThrow(()->
+                new IllegalArgumentException("User status not found"));
+
+        UserFindResponse response = new UserFindResponse(user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                status.isOnline());
+        return response;
+    }
+
+
+    @Override
+    public List<UserFindResponse> findAll() {
+        List<User> users = userRepository.findAll();
+        List<UserFindResponse> responses = new ArrayList<>();
+
+        for (User user : users) {
+            UserStatus status = userStatusRepository.findById(user.getId()).orElseThrow(()->
+                    new IllegalArgumentException("User status not found"));
+            responses.add(new UserFindResponse(user.getId(), user.getUsername(), user.getEmail(), status.isOnline()));
+        }
+        return responses;
     }
 
     @Override
-    public User updateUser(UUID userId, User user) {
-       return repo.update(userId,user);
+    public User update(UserUpdateRequest request) {
+
+        User user = userRepository.findById(request.id()).orElseThrow(()->
+                new IllegalArgumentException("User with id "+ request.id() +" not found"));
+
+        user.update(request.username(),
+                request.email(),
+                request.password(),
+                request.binaryContent().getUserId());
+        userRepository.save(user);
+
+        // 프로필 이미지 업데이트 선택사항....
+        if(request.binaryContent() != null){
+            BinaryContent binaryContent = request.binaryContent();
+            binaryContentRepository.save(binaryContent);
+        }
+        return user;
     }
 
+    // 관련 도메인 모두 삭제 - BinaryContent(프로필), UserStatus
     @Override
-    public void deleteUser(UUID userId) {
-        repo.delete(userId);
-    }
-
-    @Override
-    public boolean existsById(UUID id) {
-        return repo.existsById(id);
+    public void delete(UUID userId) {
+        userRepository.deleteById(userId);
+        userStatusRepository.delete(userId);
+        binaryContentRepository.deleteById(userId);
     }
 }

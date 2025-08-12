@@ -2,38 +2,46 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.*;
 import java.io.*;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-public class FileMessageRepository implements MessageRepository{
 
-    private final String DIRECTORY;
-    private final String EXTENSION;
+public class FileMessageRepository implements MessageRepository {
+    private final Path DIRECTORY;
+    private final String EXTENSION = ".ser";
 
     public FileMessageRepository() {
-        this.DIRECTORY = "MESSAGE";
-        this.EXTENSION = ".ser";
-
-        Path path = Paths.get(DIRECTORY);
-        if(!path.toFile().exists()) {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", Message.class.getSimpleName());
+        if (Files.notExists(DIRECTORY)) {
             try {
-                Files.createDirectories(path);
+                Files.createDirectories(DIRECTORY);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
     }
 
+    private Path resolvePath(UUID id) {
+        return DIRECTORY.resolve(id + EXTENSION);
+    }
+
     @Override
     public Message save(Message message) {
-        Path path =  Paths.get(DIRECTORY, message.getId() + EXTENSION);
-
-        try (FileOutputStream fos = new FileOutputStream(path.toFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+        Path path = resolvePath(message.getId());
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
             oos.writeObject(message);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return message;
@@ -41,74 +49,107 @@ public class FileMessageRepository implements MessageRepository{
 
     @Override
     public Optional<Message> findById(UUID id) {
-        Message message = null;
-        Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
-        try(FileInputStream fis = new FileInputStream(path.toFile());
-            ObjectInputStream ois = new ObjectInputStream(fis)){
-            message = (Message) ois.readObject();
-        }catch (IOException | ClassNotFoundException e){
+        Message messageNullable = null;
+        Path path = resolvePath(id);
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                messageNullable = (Message) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Optional.ofNullable(messageNullable);
+    }
+
+    @Override
+    public Optional<Message> findByUserId(UUID userId) {
+        try {
+            return Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (Message) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .filter(message -> message.getAuthorId().equals(userId)) // userId(authorId) 매칭
+                    .findFirst(); // 첫 번째 매칭 메시지만 Optional로 반환
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return Optional.ofNullable(message);
     }
+
 
     @Override
     public List<Message> findAll() {
-        Path directory = Paths.get(DIRECTORY);
-
-        if(Files.exists(directory)) {
-            try {
-                List<Message> messages = Files.list(directory)
-                        .map(path -> {
-                            try(
+        try {
+            return Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
                                 FileInputStream fis = new FileInputStream(path.toFile());
                                 ObjectInputStream ois = new ObjectInputStream(fis)
-                            ){
-                                Object data = ois.readObject();
-                                return (Message) data;
-                            }catch (IOException | ClassNotFoundException e){
-                                throw new RuntimeException(e);
-                            }
-                        }).toList();
-                return messages;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }else{
-            return new ArrayList<>();
+                        ) {
+                            return (Message) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Message delete(UUID id) {
-        Message message;
-        Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
+    public Optional<Message> findLatestByChannelId(UUID channelId) {
+        return Optional.empty();
+    }
 
-        if(!Files.exists(path)) {
-            throw new NoSuchElementException("Message with id" +  id + " does not exist");
-        }
-        // 메세지 읽어오기
-        try (FileInputStream fis = new FileInputStream(path.toFile());
-            ObjectInputStream ois = new ObjectInputStream(fis)) {
-            message = (Message)ois.readObject();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
-        // 메세지 삭제
+    @Override
+    public boolean existsById(UUID id) {
+        Path path = resolvePath(id);
+        return Files.exists(path);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        Path path = resolvePath(id);
         try {
             Files.delete(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return message;
     }
 
-
     @Override
-    public boolean existById(UUID id) {
-        Path path = Paths.get(DIRECTORY, id.toString() + EXTENSION);
-        return Files.exists(path);
+    public void deleteByChannelId(UUID channelId) {
+        try {
+            Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .forEach(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            Message message = (Message) ois.readObject();
+                            if (message.getChannelId().equals(channelId)) {
+                                Files.delete(path); // 조건에 맞으면 파일 삭제
+                            }
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
