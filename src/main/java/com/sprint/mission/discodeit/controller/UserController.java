@@ -7,8 +7,8 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserFindResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
+import com.sprint.mission.discodeit.service.basic.BasicUserService;
+import com.sprint.mission.discodeit.service.basic.BasicUserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,8 +27,8 @@ import java.util.UUID;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private final UserService userService;
-    private final UserStatusService userStatusService;
+    private final BasicUserService userService;
+    private final BasicUserStatusService userStatusService;
 
     @RequestMapping(path = "/create",
             method = RequestMethod.POST,

@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.service.basic.BasicBinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/binary")
 public class BinaryContentController {
-    private final BinaryContentService binaryContentService;
+    private final BasicBinaryContentService binaryContentService;
 
     @RequestMapping(path = "/find")
     public ResponseEntity<BinaryContent> find(@RequestParam("binaryContentId") UUID binaryContentId) {

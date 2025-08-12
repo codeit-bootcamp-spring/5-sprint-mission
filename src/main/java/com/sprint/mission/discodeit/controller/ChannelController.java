@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.dto.request.ChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelFindResponse;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/channel")
 public class ChannelController {
-    private final ChannelService channelService;
+    private final BasicChannelService channelService;
 
     @RequestMapping(value = {"/createPublic", "/create"}, method = RequestMethod.POST)
     public ResponseEntity<Channel> createPublicChannel(@RequestPart ChannelCreateRequest request) {

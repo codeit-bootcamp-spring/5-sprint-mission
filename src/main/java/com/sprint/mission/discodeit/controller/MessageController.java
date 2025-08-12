@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.exception.ThrowableIOException;
-import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,7 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/message")
 public class MessageController {
-    private final MessageService messageService;
+    private final BasicMessageService messageService;
 
     @RequestMapping(value = "/send",
             method = RequestMethod.POST,

@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.service.ReadStatusService;
+import com.sprint.mission.discodeit.service.basic.BasicReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/readStatus")
 public class ReadStatusController {
-    private final ReadStatusService readStatusService;
+    private final BasicReadStatusService readStatusService;
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public ResponseEntity<ReadStatus> create(@RequestPart ReadStatusCreateRequest request) {
