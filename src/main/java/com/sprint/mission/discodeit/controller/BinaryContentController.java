@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/binaryContents")
+@RequestMapping(path = "/api/binary-contents")
 public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;

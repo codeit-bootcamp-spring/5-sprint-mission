@@ -9,10 +9,10 @@ public class BinaryContent extends BaseEntity {
     private String filename;
     private String contentType;
     private long size;
-    private byte[] data;
+    private byte[] bytes;
 
-    public BinaryContent(String filename, String contentType, byte[] data) {
-        set(filename, contentType, data);
+    public BinaryContent(String filename, String contentType, byte[] bytes) {
+        set(filename, contentType, bytes);
     }
 
     private static String requireNonBlank(String s, String msg) {
@@ -25,12 +25,12 @@ public class BinaryContent extends BaseEntity {
         this.contentType = requireNonBlank(contentType, "contentType must not be blank");
         Objects.requireNonNull(data, "data must not be null");
         this.size = data.length;
-        this.data = data.clone();
+        this.bytes = data.clone();
         touch();
     }
 
-    public byte[] getData() {
-        return data == null ? null : data.clone();
+    public byte[] getBytes() {
+        return bytes == null ? null : bytes.clone();
     }
 
     @Override

@@ -16,12 +16,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
-server:
-  port: 8081
 
 logging:
   level:
     org.springframework: INFO
-    com.sprint.mission: INFO
+    com.sprint.mission: DEBUG
     org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql.BasicBinder: OFF

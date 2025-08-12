@@ -4,12 +4,10 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
-
   h2:
     console:
       enabled: true
       path: /h2-console
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,5 +18,7 @@ spring:
 
 logging:
   level:
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    org.springframework: INFO
+    com.sprint.mission: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: OFF

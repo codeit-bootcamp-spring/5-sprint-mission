@@ -12,7 +12,7 @@ public class AppConfig {
     }
 
     @Bean
-    AppMetadataProperties appMetadataProperties(AppProperties appProperties) {
+    public AppMetadataProperties appMetadataProperties(AppProperties appProperties) {
         return appProperties.metadata();
     }
 

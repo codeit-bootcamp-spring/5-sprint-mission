@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.util;
 
-import com.sprint.mission.discodeit.exception.ValidationException;
+import com.sprint.mission.discodeit.exception.ValidatorsValidationException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -61,7 +61,7 @@ public class InputHandler {
 
             try {
                 return Validators.validateEmail(email);
-            } catch (ValidationException e) {
+            } catch (ValidatorsValidationException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -76,7 +76,7 @@ public class InputHandler {
 
             try {
                 return Validators.validatePassword(password);
-            } catch (ValidationException e) {
+            } catch (ValidatorsValidationException e) {
                 System.out.println(e.getMessage());
             }
         }
