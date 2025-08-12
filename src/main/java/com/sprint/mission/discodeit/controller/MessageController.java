@@ -55,18 +55,18 @@ public class MessageController {
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ResponseEntity<Message> update(@RequestPart MessageUpdateRequest messageUpdateRequest) {
         Message message = messageService.update(messageUpdateRequest);
-        return ResponseEntity.ok(message);
+        return ResponseEntity.status(HttpStatus.OK).body(message);
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Message> delete(@PathVariable UUID id) {
         messageService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @RequestMapping(value = {"/channelMessages/{id}"}, method = RequestMethod.GET)
     public ResponseEntity<List<Message>> findAllByChannelId(@PathVariable UUID id) {
         List<Message> messages = messageService.findAllByChannelId(id);
-        return ResponseEntity.ok(messages);
+        return ResponseEntity.status(HttpStatus.OK).body(messages);
     }
 }

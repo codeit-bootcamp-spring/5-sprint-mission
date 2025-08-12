@@ -65,24 +65,24 @@ public class UserController {
             ));
         }
         User updatedUser = userService.update(userUpdateRequest, binaryRequest);
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
     }
 
     @RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<User> delete(@PathVariable UUID id) {
         userService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @RequestMapping(path = "/list", method = RequestMethod.GET)
     public ResponseEntity<List<UserFindResponse>> list() {
         List<UserFindResponse> users = userService.findAll();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
     @RequestMapping(path = "/updateUserStatus", method = RequestMethod.POST)
     public ResponseEntity<UserStatus> updateUserStatus(@RequestPart UserStatusUpdateRequest userStatusUpdateRequest) {
         UserStatus updatedStatus = userStatusService.updateByUserId(userStatusUpdateRequest);
-        return ResponseEntity.ok(updatedStatus);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedStatus);
     }
 }

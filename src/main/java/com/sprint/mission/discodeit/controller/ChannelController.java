@@ -6,54 +6,48 @@ import com.sprint.mission.discodeit.dto.response.ChannelFindResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
-@Controller
+@RestController
 @ControllerAdvice
 @RequiredArgsConstructor
 @RequestMapping("/channels")
 public class ChannelController {
     private final ChannelService channelService;
 
-    @ResponseBody
     @RequestMapping(value = {"/createPublic", "/create"}, method = RequestMethod.POST)
-    public String createPublicChannel(@RequestBody ChannelCreateRequest request) {
+    public ResponseEntity<Channel> createPublicChannel(@RequestPart ChannelCreateRequest request) {
         Channel publicChannel = channelService.createPublic(request);
-        return "public 채널 생성 성공\n" + publicChannel.toString();
+        return ResponseEntity.status(HttpStatus.CREATED).body(publicChannel);
     }
 
-    @ResponseBody
     @RequestMapping(value = "/createPrivate", method = RequestMethod.POST)
-    public String createPrivateChannel(@RequestBody ChannelCreateRequest request) {
+    public ResponseEntity<Channel> createPrivateChannel(@RequestPart ChannelCreateRequest request) {
         Channel privateChannel = channelService.createPrivate(request);
-        return "private 채널 생성 성공\n" + privateChannel.toString();
+        return ResponseEntity.status(HttpStatus.CREATED).body(privateChannel);
     }
 
-
-    @ResponseBody
     @RequestMapping(value = {"/updatePublic", "/update"}, method = RequestMethod.POST)
-    public String updatePublicChannel(@RequestBody ChannelUpdateRequest request) {
+    public ResponseEntity<Channel> updatePublicChannel(@RequestPart ChannelUpdateRequest request) {
         Channel updatedChannel = channelService.update(request);
-        return "업데이트 성공\n" + updatedChannel.toString();
+        return ResponseEntity.status(HttpStatus.OK).body(updatedChannel);
     }
 
-    @ResponseBody
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public String deleteChannel(@PathVariable UUID id) {
-        ChannelFindResponse channelFindResponse = channelService.findById(id);
+    public ResponseEntity<Channel> deleteChannel(@PathVariable UUID id) {
         channelService.delete(id);
-        return "삭제 성공\n" + channelFindResponse.toString();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @ResponseBody
     @RequestMapping(value = {"/listForUser/{id}", "/listForUser", "/listPublic"}, method = RequestMethod.GET)
-    public String findAllByUserId(@PathVariable(value = "id", required = false) UUID id) {
+    public ResponseEntity<List<ChannelFindResponse>> findAllByUserId(@PathVariable(value = "id", required = false) UUID id) {
         List<ChannelFindResponse> channelFindResponseList = channelService.findAllByUserId(id);
-        return channelFindResponseList.toString().replace("], ", "]\n");
+        return ResponseEntity.status(HttpStatus.OK).body(channelFindResponseList);
     }
 
 

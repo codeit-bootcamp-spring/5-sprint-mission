@@ -5,37 +5,35 @@ import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
 @ControllerAdvice
-@Controller
+@RestController
 @RequestMapping("/readStatus")
 @RequiredArgsConstructor
 public class ReadStatusController {
     private final ReadStatusService readStatusService;
 
-    @ResponseBody
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public String create(@RequestBody ReadStatusCreateRequest request) {
+    public ResponseEntity<ReadStatus> create(@RequestPart ReadStatusCreateRequest request) {
         ReadStatus readStatus = readStatusService.create(request);
-        return "생성 성공\n" + readStatus.toString();
+        return ResponseEntity.status(HttpStatus.CREATED).body(readStatus);
     }
 
-    @ResponseBody
     @RequestMapping(value = {"/update"}, method = RequestMethod.POST)
-    public String update(@RequestBody ReadStatusUpdateRequest request) {
+    public ResponseEntity<ReadStatus> update(@RequestPart ReadStatusUpdateRequest request) {
         ReadStatus readStatus = readStatusService.update(request);
-        return "업데이트 성공\n" + readStatus.toString();
+        return ResponseEntity.status(HttpStatus.OK).body(readStatus);
     }
 
-    @ResponseBody
     @RequestMapping(value = {"/find/{userId}", "findAllByUserId/{userId}"}, method = RequestMethod.GET)
-    public String findByUser(@PathVariable UUID userId) {
+    public ResponseEntity<List<ReadStatus>> findByUser(@PathVariable UUID userId) {
         List<ReadStatus> readStatuses = readStatusService.findAllByUserId(userId);
-        return readStatuses.toString().replace("), ", ")\n");
+        return ResponseEntity.status(HttpStatus.OK).body(readStatuses);
     }
 }
