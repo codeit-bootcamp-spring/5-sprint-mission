@@ -1,11 +1,14 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -121,8 +124,12 @@ public class DiscodeitApplication {
         /*Message Test*/
 
         // 1. Given: 메시지 Test를 위한 데이터 준비
-        UserCreateRequest senderRequest = new UserCreateRequest("senderUser", "sender@email.com", "1234");
-        userService.create(senderRequest);
+        try {
+            UserCreateRequest senderRequest = new UserCreateRequest("senderUser", "sender@email.com", "1234");
+            userService.create(senderRequest);
+        } catch (IllegalArgumentException e) {
+            System.out.println("⚠️ senderUser는 이미 등록된 유저입니다. 건너뜀");
+        }
 
         // sender ID 꺼내오기
         UUID senderId = userService.findAll().stream()
@@ -142,5 +149,51 @@ public class DiscodeitApplication {
         Message foundMessage = messageService.findById(message.getId());
         List<Message> foundAllMessage = messageService.findAll();
 
+        // ✅ PRIVATE 채널 + ReadStatus 테스트 시작
+        System.out.println("\n----------------------------------------");
+        System.out.println("✅ PRIVATE 채널 생성 + ReadStatus 테스트 시작");
+        System.out.println("----------------------------------------");
+
+        // ✅ 참여 유저 만들기 (중복 생성 방지 위해 UUID 사용)
+        String testUserId1 = UUID.randomUUID().toString();
+        String testUserId2 = UUID.randomUUID().toString();
+
+        try {
+            userService.create(new UserCreateRequest(testUserId1, testUserId1 + "@test.com", "1234"));
+            userService.create(new UserCreateRequest(testUserId2, testUserId2 + "@test.com", "1234"));
+        } catch (IllegalArgumentException e) {
+            System.out.println("⚠️ 이미 등록된 유저입니다. 건너뜀");
+        }
+
+        // ✅ 참여자 ID 리스트
+        List<String> memberIds = List.of(testUserId1, testUserId2);
+
+        // ✅ 요청 객체 생성
+        PrivateChannelCreateRequest privateRequest = new PrivateChannelCreateRequest();
+        privateRequest.setOwnerId(testUserId1); // 첫 번째 유저를 방장으로
+        privateRequest.setMembersId(memberIds);
+
+        // ✅ 채널 생성
+        channelService.createPrivateChannel(privateRequest);
+
+        // ✅ 채널 확인
+        List<Channel> allChannels = channelService.findAll();
+        Channel created = allChannels.get(allChannels.size() - 1); // 마지막 요소
+
+        System.out.println("✅ 채널 ID: " + created.getId());
+        System.out.println("✅ 채널 타입: " + created.getChannelType());
+        System.out.println("✅ 채널 title: '" + created.getTitle() + "'"); // 비어 있어야 함
+        System.out.println("✅ 채널 owner: " + created.getOwnerId());
+
+        // ✅ ReadStatus 확인
+        ReadStatusRepository readStatusRepository = context.getBean(ReadStatusRepository.class);
+        List<ReadStatus> readStatuses = readStatusRepository.findByChannelId(created.getId());
+
+        System.out.println("✅ ReadStatus 저장 개수: " + readStatuses.size());
+        for (ReadStatus rs : readStatuses) {
+            System.out.println("   📌 ReadStatus - userId: " + rs.getUserId() + ", 채널: " + rs.getChannelId());
+        }
+
+        System.out.println("🎉 PRIVATE 채널 + ReadStatus 생성 테스트 완료!");
     }
 }
