@@ -1,49 +1,72 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.exception.ThrowableIOException;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Controller
+@RestController
 @ControllerAdvice
 @RequiredArgsConstructor
 @RequestMapping("/messages")
 public class MessageController {
     private final MessageService messageService;
 
-    @ResponseBody
-    @RequestMapping(value = "/send", method = RequestMethod.POST)
-    public String send(@RequestBody MessageCreateRequest messageCreateRequest) {
-        Message message = messageService.create(messageCreateRequest);
-        return "발송 성공\n" + message.toString();
+    @RequestMapping(value = "/send",
+            method = RequestMethod.POST,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Message> send(
+            @RequestPart MessageCreateRequest messageCreateRequest,
+            @RequestPart(required = false) List<MultipartFile> multipartFiles
+    ) {
+        List<BinaryContentCreateRequest> binaryContentCreateRequests = new ArrayList<>();
+        if (multipartFiles != null && !multipartFiles.isEmpty()) {
+            binaryContentCreateRequests = multipartFiles.stream()
+                    .map(file -> {
+                        try {
+                            return new BinaryContentCreateRequest(
+                                    file.getName(),
+                                    file.getContentType(),
+                                    file.getBytes()
+                            );
+                        } catch (IOException e) {
+                            throw new ThrowableIOException("메세지 생성 중 파일 불러오기 실패", e);
+                        }
+                    })
+                    .toList();
+        }
+        Message message = messageService.create(messageCreateRequest, List.copyOf(binaryContentCreateRequests));
+        return ResponseEntity.status(HttpStatus.CREATED).body(message);
     }
 
-    @ResponseBody
     @RequestMapping(value = "/update", method = RequestMethod.POST)
-    public String update(@RequestBody MessageUpdateRequest messageUpdateRequest) {
+    public ResponseEntity<Message> update(@RequestPart MessageUpdateRequest messageUpdateRequest) {
         Message message = messageService.update(messageUpdateRequest);
-        return "수정 성공\n" + message.toString();
+        return ResponseEntity.ok(message);
     }
 
-    @ResponseBody
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public String delete(@PathVariable UUID id) {
-        Message message = messageService.findById(id);
+    public ResponseEntity<Message> delete(@PathVariable UUID id) {
         messageService.delete(id);
-        return "삭제 성공\n" + message.toString();
+        return ResponseEntity.noContent().build();
     }
 
-    @ResponseBody
     @RequestMapping(value = {"/channelMessages/{id}"}, method = RequestMethod.GET)
-    public String findAllByChannelId(@PathVariable UUID id) {
+    public ResponseEntity<List<Message>> findAllByChannelId(@PathVariable UUID id) {
         List<Message> messages = messageService.findAllByChannelId(id);
-        return messages.toString().replace("), ", ")\n\n");
+        return ResponseEntity.ok(messages);
     }
 }
