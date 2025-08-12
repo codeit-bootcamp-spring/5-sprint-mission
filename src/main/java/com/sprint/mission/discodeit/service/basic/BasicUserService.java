@@ -1,19 +1,16 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.user.*;
-import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.dto.UserRequest;
+import com.sprint.mission.discodeit.dto.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +23,7 @@ public class BasicUserService implements UserService {
     private final BinaryContentService binaryContentService;
 
     @Override
-    public UserResponse create(CreateUserRequest dto) {
+    public UserResponse.detail create(UserRequest.create dto) {
 
         // email 중복검사
         if (userRepository.findByEmail(dto.email()).isPresent()) {
@@ -50,17 +47,20 @@ public class BasicUserService implements UserService {
         UUID imageId = user.getProfileId();
         String imageUrl = (imageId != null) ? "/binary/" + imageId : null;
 
-        return UserResponse.builder()
+        return UserResponse.detail.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .imageId(imageId)
                 .imageUrl(imageUrl)
+                .createdAt(user.getCreatedAtFormatted())
+                .updatedAt(user.getUpdatedAtFormatted())
+                .online(userStatus.isOnline())
                 .build();
     }
 
     @Override
-    public User update(UpdateUserRequest dto) {
+    public User update(UserRequest.update dto) {
         // 사용자 조회
         User user = userRepository.findById(dto.id())
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
@@ -82,14 +82,15 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public List<UserListResponse> findAll() {
+    public List<UserResponse.summary> findAll() {
 
         return userRepository.findAll().stream()
-                .map(u -> new UserListResponse(
-                        u.getId().toString(),
-                        u.getName(),
-                        u.getEmail()
-                )).toList();
+                .map(u -> UserResponse.summary.builder()
+                        .id(u.getId())
+                        .name(u.getName())
+                        .email(u.getEmail())
+                        .build()
+                ).toList();
     }
 
     @Override
@@ -105,7 +106,7 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User updatePassword(PasswordRequest req) {
+    public User updatePassword(UserRequest.passwordReset req) {
 
         // 사용자 조회
         User user = userRepository.findById(req.userId())
