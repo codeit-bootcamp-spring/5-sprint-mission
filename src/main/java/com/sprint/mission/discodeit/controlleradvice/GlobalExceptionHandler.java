@@ -1,57 +1,60 @@
 package com.sprint.mission.discodeit.controlleradvice;
 
+import com.sprint.mission.discodeit.dto.error.ApiError;
+import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.exception.ValidatorsValidationException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ValidationException;
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.Instant;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ApiError> handleNotFound(NoSuchElementException ex, HttpServletRequest req) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiError.of(HttpStatus.NOT_FOUND, ex.getMessage(), req.getRequestURI()));
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiError> handleBadRequest(IllegalArgumentException ex, HttpServletRequest req) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiError.of(HttpStatus.BAD_REQUEST, ex.getMessage(), req.getRequestURI()));
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiError> handleBadRequest(ValidatorsValidationException ex, HttpServletRequest req) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiError.of(HttpStatus.BAD_REQUEST, ex.getMessage(), req.getRequestURI()));
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
-        String message = ex.getBindingResult().getFieldErrors().stream()
-                .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
-                .collect(Collectors.joining(", "));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiError.of(HttpStatus.BAD_REQUEST, message, req.getRequestURI()));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleEtc(Exception ex, HttpServletRequest req) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiError.of(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), req.getRequestURI()));
-    }
-
-    public record ApiError(Instant timestamp, int status, String error, String message, String path) {
-        public static ApiError of(HttpStatus http, String message, String path) {
-            return new ApiError(Instant.now(), http.value(), http.getReasonPhrase(), message, path);
+    @ExceptionHandler({
+            MethodArgumentNotValidException.class,
+            BindException.class,
+            ConstraintViolationException.class,
+            HttpMessageNotReadableException.class,
+            ValidatorsValidationException.class,
+            IllegalArgumentException.class})
+    public ResponseEntity<ApiError> handleBadRequest(Exception e) {
+        List<String> errors = new ArrayList<>();
+        if (e instanceof MethodArgumentNotValidException manve) {
+            manve.getBindingResult().getAllErrors().forEach(err -> {
+                if (err instanceof FieldError fe) errors.add(fe.getField() + ": " + fe.getDefaultMessage());
+                else errors.add(err.getDefaultMessage());
+            });
+        } else if (e instanceof BindException be) {
+            be.getBindingResult().getAllErrors().forEach(err -> {
+                if (err instanceof FieldError fe) errors.add(fe.getField() + ": " + fe.getDefaultMessage());
+                else errors.add(err.getDefaultMessage());
+            });
+        } else if (e instanceof ConstraintViolationException cve) {
+            cve.getConstraintViolations().forEach(v -> errors.add(v.getPropertyPath() + ": " + v.getMessage()));
+        } else {
+            errors.add(e.getMessage());
         }
+        ApiError body = new ApiError("BAD_REQUEST", "요청이 올바르지 않습니다.", errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler({
+            DuplicateResourceException.class,
+            DataIntegrityViolationException.class,
+            DataIntegrityViolationException.class,
+            IllegalStateException.class})
+    public ResponseEntity<ApiError> handleConflict(Exception e) {
+        ApiError body = new ApiError("CONFLICT", e.getMessage() != null ? e.getMessage() : "리소스 충돌이 발생했습니다.", List.of());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 }

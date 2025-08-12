@@ -22,7 +22,7 @@ public class UserStatusService {
     private final UserStatusRepository userStatusRepository;
 
     private static UserStatusResponse toResponse(UserStatus userStatus) {
-        return new UserStatusResponse(userStatus.getUserId(), userStatus.getStatus());
+        return new UserStatusResponse(userStatus.getUserId(), userStatus.getType());
     }
 
     protected void update(UUID id, Consumer<UserStatus> updater) {
@@ -63,7 +63,7 @@ public class UserStatusService {
         Objects.requireNonNull(req, "req must not be null");
         Objects.requireNonNull(userStatusId, "userStatusId must not be null");
 
-        update(userStatusId, u -> u.setStatus(req.status()));
+        update(userStatusId, u -> u.setType(req.userStatusType()));
     }
 
     public void updateByUserId(UUID userId, UserStatusUpdateRequest req) {
@@ -71,11 +71,11 @@ public class UserStatusService {
         Objects.requireNonNull(userId, "userId must not be null");
 
         UserStatus us = userStatusRepository.getOrThrowByUserId(userId);
-        update(us.getId(), u -> u.setStatus(req.status()));
+        update(us.getId(), u -> u.setType(req.userStatusType()));
     }
 
     public boolean delete(UUID id) {
         Objects.requireNonNull(id, "id must not be null");
-        return userStatusRepository.deleteById(id);
+        return userStatusRepository.softDeleteById(id);
     }
 }

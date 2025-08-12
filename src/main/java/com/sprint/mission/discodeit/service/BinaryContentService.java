@@ -49,14 +49,14 @@ public class BinaryContentService {
 
     public List<BinaryContentResponse> findAllByIdIn(Set<UUID> ids) {
         if (ids == null || ids.isEmpty()) return List.of();
-        return binaryContentRepository.findAllByIdIn(ids).stream()
+        return binaryContentRepository.findAllByIds(ids).stream()
                 .map(BinaryContentService::toResponse)
                 .toList();
     }
 
     public boolean delete(UUID id) {
         if (id == null) return false;
-        return binaryContentRepository.deleteById(id);
+        return binaryContentRepository.softDeleteById(id);
     }
 
     private static BinaryContentResponse toResponse(BinaryContent bc) {

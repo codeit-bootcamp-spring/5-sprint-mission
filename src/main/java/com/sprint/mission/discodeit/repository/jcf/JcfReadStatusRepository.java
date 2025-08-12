@@ -1,6 +1,5 @@
-package com.sprint.mission.discodeit.repository.file;
+package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.config.AppStorageProperties;
 import com.sprint.mission.discodeit.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import org.springframework.context.annotation.Profile;
@@ -14,11 +13,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Repository
-@Profile("dev")
-public class FileReadStatusRepository extends FileBaseRepository<ReadStatus> implements ReadStatusRepository {
+@Profile("test")
+public class JcfReadStatusRepository extends JcfBaseRepository<ReadStatus> implements ReadStatusRepository {
 
-    public FileReadStatusRepository(AppStorageProperties storageProperties) {
-        super(ReadStatus.class, storageProperties);
+    @Override
+    protected String getEntityTypeName() {
+        return "ReadStatus";
     }
 
     @Override

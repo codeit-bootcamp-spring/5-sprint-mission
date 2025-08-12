@@ -11,5 +11,7 @@ public interface GuildRepository extends BaseRepository<Guild> {
 
     List<Guild> findGuildsOwnedByUser(UUID userId);
 
+    List<Guild> findGuildsByMember(UUID userId);
+
     List<Guild> searchGuilds(String keyword);
 }

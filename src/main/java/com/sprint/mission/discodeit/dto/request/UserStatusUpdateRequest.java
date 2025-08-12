@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.dto.request;
 
-import com.sprint.mission.discodeit.domain.enums.user.Status;
+import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 
 public record UserStatusUpdateRequest(
-        Status status
+        UserStatusType userStatusType
 ) {
 }

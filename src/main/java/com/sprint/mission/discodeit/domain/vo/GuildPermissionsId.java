@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.domain.vo;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 public record GuildPermissionsId(UUID guildId, UUID userId) implements Serializable {
@@ -10,7 +11,7 @@ public record GuildPermissionsId(UUID guildId, UUID userId) implements Serializa
     private static final long serialVersionUID = 1L;
 
     public GuildPermissionsId {
-        if (guildId == null || userId == null)
-            throw new IllegalArgumentException("Guild id and User id must not be null");
+        Objects.requireNonNull(guildId, "guildId must not be null");
+        Objects.requireNonNull(userId, "userId must not be null");
     }
 }

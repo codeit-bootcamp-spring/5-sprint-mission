@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository.jcf;
 import com.sprint.mission.discodeit.domain.entity.BaseEntity;
 import com.sprint.mission.discodeit.repository.BaseRepository;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -10,9 +11,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public class JcfBaseRepository<T extends BaseEntity> implements BaseRepository<T> {
 
@@ -20,20 +19,26 @@ public class JcfBaseRepository<T extends BaseEntity> implements BaseRepository<T
 
     @Override
     public T save(T entity) {
-        if (entity == null) throw new IllegalArgumentException("Entity must not be null");
+        Objects.requireNonNull(entity, "entity must not be null");
         data.put(entity.getId(), entity);
         return entity;
     }
 
     @Override
     public List<T> saveAll(Collection<T> entities) {
-        if (entities == null) return List.of();
+        if (entities == null || entities.isEmpty()) return List.of();
         return entities.stream().map(this::save).toList();
     }
 
     @Override
     public Optional<T> findById(UUID id) {
-        return Optional.ofNullable(data.get(id)).filter(c -> !c.isDeleted());
+        T e = data.get(id);
+        return (e != null && !e.isDeleted()) ? Optional.of(e) : Optional.empty();
+    }
+
+    @Override
+    public Optional<T> findByIdIncludingDeleted(UUID id) {
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
@@ -44,7 +49,7 @@ public class JcfBaseRepository<T extends BaseEntity> implements BaseRepository<T
 
     @Override
     public List<T> findAll() {
-        return data.values().stream().filter(c -> !c.isDeleted()).toList();
+        return data.values().stream().filter(e -> !e.isDeleted()).toList();
     }
 
     @Override
@@ -53,9 +58,13 @@ public class JcfBaseRepository<T extends BaseEntity> implements BaseRepository<T
     }
 
     @Override
-    public List<T> findAllByIds(Set<UUID> ids) {
-        if (ids == null || ids.isEmpty()) return List.of();
+    public List<T> findAllDeleted() {
+        return data.values().stream().filter(BaseEntity::isDeleted).toList();
+    }
 
+    @Override
+    public List<T> findAllByIds(Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
         return ids.stream()
                 .map(data::get)
                 .filter(Objects::nonNull)
@@ -69,13 +78,13 @@ public class JcfBaseRepository<T extends BaseEntity> implements BaseRepository<T
     }
 
     @Override
-    public boolean existsAllByIds(Set<UUID> ids) {
-        if (ids == null) return false;
+    public boolean existsAllByIds(Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) return false;
         return ids.stream().allMatch(this::existsById);
     }
 
     @Override
-    public boolean deleteById(UUID id) {
+    public boolean softDeleteById(UUID id) {
         T entity = data.get(id);
         if (entity != null && !entity.isDeleted()) {
             entity.delete();
@@ -85,12 +94,11 @@ public class JcfBaseRepository<T extends BaseEntity> implements BaseRepository<T
     }
 
     @Override
-    public int deleteAllByIds(Set<UUID> ids) {
+    public int softDeleteAllByIds(Collection<UUID> ids) {
         if (ids == null || ids.isEmpty()) return 0;
-
         int count = 0;
         for (UUID id : ids) {
-            if (deleteById(id)) count++;
+            if (softDeleteById(id)) count++;
         }
         return count;
     }
@@ -106,9 +114,8 @@ public class JcfBaseRepository<T extends BaseEntity> implements BaseRepository<T
     }
 
     @Override
-    public int restoreAllByIds(Set<UUID> ids) {
+    public int restoreAllByIds(Collection<UUID> ids) {
         if (ids == null || ids.isEmpty()) return 0;
-
         int count = 0;
         for (UUID id : ids) {
             if (restoreById(id)) count++;
@@ -122,9 +129,8 @@ public class JcfBaseRepository<T extends BaseEntity> implements BaseRepository<T
     }
 
     @Override
-    public int hardDeleteAllByIds(Set<UUID> ids) {
+    public int hardDeleteAllByIds(Collection<UUID> ids) {
         if (ids == null || ids.isEmpty()) return 0;
-
         int count = 0;
         for (UUID id : ids) {
             if (hardDeleteById(id)) count++;
@@ -133,17 +139,25 @@ public class JcfBaseRepository<T extends BaseEntity> implements BaseRepository<T
     }
 
     @Override
+    public int hardDeleteAllExpired(Instant now) {
+        Instant ref = (now != null) ? now : Instant.now();
+        List<UUID> toRemove = data.values().stream()
+                .filter(BaseEntity::isDeleted)
+                .filter(e -> e.shouldPurge(ref))
+                .map(BaseEntity::getId)
+                .toList();
+        toRemove.forEach(data::remove);
+        return toRemove.size();
+    }
+
+    @Override
     public long count() {
         return data.values().stream().filter(e -> !e.isDeleted()).count();
     }
 
     @Override
-    public long count(Predicate<T> condition) {
-        Objects.requireNonNull(condition, "condition must not be null");
-        return data.values().stream()
-                .filter(e -> !e.isDeleted())
-                .filter(condition)
-                .count();
+    public long countIncludingDeleted() {
+        return data.size();
     }
 
     protected String getEntityTypeName() {

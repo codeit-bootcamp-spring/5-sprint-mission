@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Profile({"test", "dev"})
-public class BasicGuildService {
+public class GuildService {
 
     private final GuildRepository guildRepository;
     private final UserRepository userRepository;
@@ -79,7 +79,7 @@ public class BasicGuildService {
             user.leaveGuild(guildId);
             userRepository.save(user);
         }
-        guildRepository.deleteById(guildId);
+        guildRepository.softDeleteById(guildId);
     }
 
     public void updateName(UUID guildId, String name) {

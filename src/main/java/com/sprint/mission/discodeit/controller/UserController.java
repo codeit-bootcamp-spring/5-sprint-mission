@@ -7,15 +7,17 @@ import com.sprint.mission.discodeit.dto.request.UserUpdatePasswordRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateUsernameRequest;
-import com.sprint.mission.discodeit.dto.response.FriendRequestResponse;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
-import com.sprint.mission.discodeit.service.BasicFriendRequestService;
-import com.sprint.mission.discodeit.service.BasicUserService;
+import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,31 +32,27 @@ import java.util.UUID;
 @RequestMapping(path = "/api/users")
 public class UserController {
 
-    private final BasicUserService userService;
+    private final UserService userService;
     private final UserStatusService userStatusService;
-    private final BasicFriendRequestService friendRequestService;
+    // private final FriendRequestService friendRequestService;
 
-    @RequestMapping(method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResponse> register(@RequestBody UserRegisterRequest body) {
-        UserResponse created = userService.register(body);
-        return ResponseEntity
-                .created(URI.create("/api/users/" + created.id()))
-                .body(created);
+    @PostMapping
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRegisterRequest body) {
+        UserResponse res = userService.register(body);
+        return ResponseEntity.created(URI.create("/api/users/" + res.id())).body(res);
     }
 
-    @RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}")
     public ResponseEntity<UserResponse> findById(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(userService.findById(id));
     }
 
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping()
     public ResponseEntity<List<UserResponse>> findAll() {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    @RequestMapping(path = "/{id}/profile-settings", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}/profile-settings")
     public ResponseEntity<Void> updateProfileSettings(@PathVariable("id") UUID id,
                                                       @RequestBody UserUpdateProfileSettingsRequest body) {
         userService.updateProfileSettings(id, body);
@@ -109,16 +107,16 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(path = "/{id}/friend-requests", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<FriendRequestResponse>> getFriendRequests(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok(friendRequestService.getFriendRequests(id));
-    }
-
-    @RequestMapping(path = "/{id}/friends/{friendId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> removeFriend(@PathVariable("id") UUID id,
-                                             @PathVariable("friendId") UUID friendId) {
-        userService.removeFriend(id, friendId);
-        return ResponseEntity.noContent().build();
-    }
+    // @RequestMapping(path = "/{id}/friend-requests", method = RequestMethod.GET,
+    //         produces = MediaType.APPLICATION_JSON_VALUE)
+    // public ResponseEntity<List<FriendRequestResponse>> getFriendRequests(@PathVariable("id") UUID id) {
+    //     return ResponseEntity.ok(friendRequestService.getFriendRequests(id));
+    // }
+    //
+    // @RequestMapping(path = "/{id}/friends/{friendId}", method = RequestMethod.DELETE)
+    // public ResponseEntity<Void> removeFriend(@PathVariable("id") UUID id,
+    //                                          @PathVariable("friendId") UUID friendId) {
+    //     userService.removeFriend(id, friendId);
+    //     return ResponseEntity.noContent().build();
+    // }
 }

@@ -12,32 +12,35 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 @Slf4j
 public abstract class FileBaseRepository<T extends BaseEntity> implements BaseRepository<T> {
 
-    private static final String EXTENSION = ".ser";
+    protected static final String EXTENSION = ".ser";
+
     private final Class<T> entityType;
     private final Path directory;
 
     protected FileBaseRepository(Class<T> entityType, AppStorageProperties storageProperties) {
         this.entityType = entityType;
         this.directory = Paths.get(System.getProperty("user.dir"), storageProperties.rootDir(), entityType.getSimpleName());
-
         try {
             if (Files.notExists(directory)) Files.createDirectories(directory);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to create directory: " + directory, e);
+            throw new RuntimeException("디렉터리 생성 실패: " + directory, e);
         }
+    }
+
+    protected Path getDirectory() {
+        return directory;
     }
 
     protected Path resolvePath(UUID id) {
@@ -45,50 +48,58 @@ public abstract class FileBaseRepository<T extends BaseEntity> implements BaseRe
         return directory.resolve(id + EXTENSION);
     }
 
-    private boolean isSerializedFile(Path path) {
-        return Files.isRegularFile(path) && path.getFileName().toString().endsWith(EXTENSION);
-    }
-
-    private List<Path> listSerializedFiles() {
+    protected List<Path> listSerializedFiles() {
         try (Stream<Path> paths = Files.list(directory)) {
             return paths.filter(this::isSerializedFile).toList();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to list serialized files: " + directory, e);
+            throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
         }
     }
 
-    private Optional<T> readObject(Path path) {
+    protected Optional<T> readObject(Path path) {
         try {
             if (path == null || !Files.exists(path)) return Optional.empty();
             try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
                 return Optional.of(entityType.cast(ois.readObject()));
             }
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Failed to read entity from storage: " + path, e);
+            throw new RuntimeException("엔티티 로드 실패: " + path, e);
         }
+    }
+
+    protected void writeObject(T entity) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(resolvePath(entity.getId()).toFile()))) {
+            oos.writeObject(entity);
+        } catch (IOException e) {
+            throw new RuntimeException("엔티티 저장 실패: " + entity.getId(), e);
+        }
+    }
+
+    private boolean isSerializedFile(Path path) {
+        return Files.isRegularFile(path) && path.getFileName().toString().endsWith(EXTENSION);
     }
 
     @Override
     public T save(T entity) {
-        if (entity == null) throw new IllegalArgumentException("entity must not be null");
-
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(resolvePath(entity.getId()).toFile()))) {
-            oos.writeObject(entity);
-            return entity;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save entity: " + entity.getId(), e);
-        }
+        Objects.requireNonNull(entity, "entity must not be null");
+        writeObject(entity);
+        return entity;
     }
 
     @Override
     public List<T> saveAll(Collection<T> entities) {
-        if (entities == null) return List.of();
+        if (entities == null || entities.isEmpty()) return List.of();
         return entities.stream().map(this::save).toList();
     }
 
     @Override
     public Optional<T> findById(UUID id) {
         return readObject(resolvePath(id)).filter(e -> !e.isDeleted());
+    }
+
+    @Override
+    public Optional<T> findByIdIncludingDeleted(UUID id) {
+        return readObject(resolvePath(id));
     }
 
     @Override
@@ -113,9 +124,16 @@ public abstract class FileBaseRepository<T extends BaseEntity> implements BaseRe
     }
 
     @Override
-    public List<T> findAllByIds(Set<UUID> ids) {
-        if (ids == null || ids.isEmpty()) return List.of();
+    public List<T> findAllDeleted() {
+        return listSerializedFiles().stream()
+                .map(this::readObject).flatMap(Optional::stream)
+                .filter(BaseEntity::isDeleted)
+                .toList();
+    }
 
+    @Override
+    public List<T> findAllByIds(Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
         return ids.stream()
                 .map(this::resolvePath)
                 .map(this::readObject).flatMap(Optional::stream)
@@ -129,35 +147,28 @@ public abstract class FileBaseRepository<T extends BaseEntity> implements BaseRe
     }
 
     @Override
-    public boolean existsAllByIds(Set<UUID> ids) {
+    public boolean existsAllByIds(Collection<UUID> ids) {
         if (ids == null || ids.isEmpty()) return false;
         return ids.stream().allMatch(this::existsById);
     }
 
     @Override
-    public boolean deleteById(UUID id) {
+    public boolean softDeleteById(UUID id) {
         Optional<T> opt = readObject(resolvePath(id));
         if (opt.isPresent() && !opt.get().isDeleted()) {
-            opt.get().delete();
-            save(opt.get());
+            T e = opt.get();
+            e.delete();
+            writeObject(e);
             return true;
         }
         return false;
     }
 
     @Override
-    public int deleteAllByIds(Set<UUID> ids) {
+    public int softDeleteAllByIds(Collection<UUID> ids) {
         if (ids == null || ids.isEmpty()) return 0;
-
         int count = 0;
-        for (UUID id : ids) {
-            Optional<T> opt = readObject(resolvePath(id));
-            if (opt.isPresent() && !opt.get().isDeleted()) {
-                opt.get().delete();
-                save(opt.get());
-                count++;
-            }
-        }
+        for (UUID id : ids) if (softDeleteById(id)) count++;
         return count;
     }
 
@@ -165,26 +176,19 @@ public abstract class FileBaseRepository<T extends BaseEntity> implements BaseRe
     public boolean restoreById(UUID id) {
         Optional<T> opt = readObject(resolvePath(id));
         if (opt.isPresent() && opt.get().isDeleted()) {
-            opt.get().restore();
-            save(opt.get());
+            T e = opt.get();
+            e.restore();
+            writeObject(e);
             return true;
         }
         return false;
     }
 
     @Override
-    public int restoreAllByIds(Set<UUID> ids) {
+    public int restoreAllByIds(Collection<UUID> ids) {
         if (ids == null || ids.isEmpty()) return 0;
-
         int count = 0;
-        for (UUID id : ids) {
-            Optional<T> opt = readObject(resolvePath(id));
-            if (opt.isPresent() && opt.get().isDeleted()) {
-                opt.get().restore();
-                save(opt.get());
-                count++;
-            }
-        }
+        for (UUID id : ids) if (restoreById(id)) count++;
         return count;
     }
 
@@ -193,24 +197,37 @@ public abstract class FileBaseRepository<T extends BaseEntity> implements BaseRe
         try {
             return Files.deleteIfExists(resolvePath(id));
         } catch (IOException e) {
-            log.warn("Failed to hard delete {}: {}", entityType.getSimpleName(), id, e);
+            log.warn("hard delete 실패({}): {}", entityType.getSimpleName(), id, e);
             return false;
         }
     }
 
     @Override
-    public int hardDeleteAllByIds(Set<UUID> ids) {
+    public int hardDeleteAllByIds(Collection<UUID> ids) {
         if (ids == null || ids.isEmpty()) return 0;
-
-        int deletedCount = 0;
+        int deleted = 0;
         for (UUID id : ids) {
             try {
-                if (Files.deleteIfExists(resolvePath(id))) deletedCount++;
+                if (Files.deleteIfExists(resolvePath(id))) deleted++;
             } catch (IOException e) {
-                log.warn("Failed to hard delete {} (batch): {}", entityType.getSimpleName(), id, e);
+                log.warn("hard delete in batch 실패({}): {}", entityType.getSimpleName(), id, e);
             }
         }
-        return deletedCount;
+        return deleted;
+    }
+
+    @Override
+    public int hardDeleteAllExpired(Instant now) {
+        Instant ref = (now != null) ? now : Instant.now();
+        List<UUID> toRemove = listSerializedFiles().stream()
+                .map(this::readObject).flatMap(Optional::stream)
+                .filter(BaseEntity::isDeleted)
+                .filter(e -> e.shouldPurge(ref))
+                .map(BaseEntity::getId)
+                .toList();
+        int deleted = 0;
+        for (UUID id : toRemove) if (hardDeleteById(id)) deleted++;
+        return deleted;
     }
 
     @Override
@@ -222,12 +239,7 @@ public abstract class FileBaseRepository<T extends BaseEntity> implements BaseRe
     }
 
     @Override
-    public long count(Predicate<T> condition) {
-        Objects.requireNonNull(condition, "condition must not be null");
-        return listSerializedFiles().stream()
-                .map(this::readObject).flatMap(Optional::stream)
-                .filter(e -> !e.isDeleted())
-                .filter(condition)
-                .count();
+    public long countIncludingDeleted() {
+        return listSerializedFiles().size();
     }
 }

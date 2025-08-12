@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repositoryprod.impl;
 
 import com.sprint.mission.discodeit.domain.entityprod.ProdBaseEntity;
-import com.sprint.mission.discodeit.repository.BaseRepository;
+import com.sprint.mission.discodeit.repositoryprod.ProdBaseRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public abstract class JpaBaseRepository<T extends ProdBaseEntity> implements BaseRepository<T> {
+public abstract class JpaBaseRepository<T extends ProdBaseEntity> implements ProdBaseRepository<T> {
 
     @PersistenceContext
     protected EntityManager entityManager;
@@ -120,7 +120,7 @@ public abstract class JpaBaseRepository<T extends ProdBaseEntity> implements Bas
 
     @Override
     @Transactional
-    public boolean deleteById(UUID id) {
+    public boolean softDeleteById(UUID id) {
         T entity = entityManager.find(entityType, id);
         if (entity == null || entity.isDeleted()) return false;
 
@@ -131,7 +131,7 @@ public abstract class JpaBaseRepository<T extends ProdBaseEntity> implements Bas
 
     @Override
     @Transactional
-    public int deleteAllByIds(Set<UUID> ids) {
+    public int softDeleteAllByIds(Set<UUID> ids) {
         if (ids == null || ids.isEmpty()) return 0;
 
         List<T> entities = entityManager.createQuery(

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -18,7 +17,7 @@ import java.util.function.Consumer;
 @Service
 @RequiredArgsConstructor
 @Profile({"test", "dev"})
-public class BasicMessageService {
+public class MessageService {
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
@@ -29,19 +28,19 @@ public class BasicMessageService {
         messageRepository.save(entity);
     }
 
-    public Message send(UUID chatRoomId, UUID senderId, String content, Set<UUID> attachmentIds, UUID replyTo) {
-        Objects.requireNonNull(chatRoomId, "chatRoomId must not be null");
-        Objects.requireNonNull(senderId, "senderId must not be null");
-        userRepository.getOrThrow(senderId);
-
-        if (replyTo != null) {
-            Message parent = messageRepository.getOrThrow(replyTo);
-            if (!chatRoomId.equals(parent.getChatRoomId()))
-                throw new IllegalArgumentException("replyTo 메시지는 동일한 채팅방에 속해야 합니다.");
-        }
-
-        return messageRepository.save(new Message(chatRoomId, senderId, content, attachmentIds, replyTo));
-    }
+    // public Message send(UUID chatRoomId, UUID senderId, String content, Set<UUID> attachmentIds, UUID replyTo) {
+    //     Objects.requireNonNull(chatRoomId, "chatRoomId must not be null");
+    //     Objects.requireNonNull(senderId, "senderId must not be null");
+    //     userRepository.getOrThrow(senderId);
+    //
+    //     if (replyTo != null) {
+    //         Message parent = messageRepository.getOrThrow(replyTo);
+    //         if (!chatRoomId.equals(parent.getChatRoomId()))
+    //             throw new IllegalArgumentException("replyTo 메시지는 동일한 채팅방에 속해야 합니다.");
+    //     }
+    //
+    //     return messageRepository.save(new Message(chatRoomId, senderId, content, attachmentIds, replyTo));
+    // }
 
     public void updateContent(UUID messageId, String content) {
         update(messageId, m -> m.setContent(content));

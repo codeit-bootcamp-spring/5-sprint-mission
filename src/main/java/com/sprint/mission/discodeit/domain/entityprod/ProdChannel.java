@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.entityprod;
 
-import com.sprint.mission.discodeit.domain.enums.channel.ChannelType;
+import com.sprint.mission.discodeit.domain.enums.ChannelType;
 import com.sprint.mission.discodeit.util.Validators;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

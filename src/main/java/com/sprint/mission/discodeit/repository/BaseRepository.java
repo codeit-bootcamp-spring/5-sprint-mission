@@ -1,13 +1,14 @@
 package com.sprint.mission.discodeit.repository;
 
+import com.sprint.mission.discodeit.domain.entity.BaseEntity;
+
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
 
-public interface BaseRepository<T> {
+public interface BaseRepository<T extends BaseEntity> {
 
     T save(T entity);
 
@@ -15,31 +16,37 @@ public interface BaseRepository<T> {
 
     Optional<T> findById(UUID id);
 
+    Optional<T> findByIdIncludingDeleted(UUID id);
+
     List<T> findAll();
 
     List<T> findAllIncludingDeleted();
 
-    List<T> findAllByIds(Set<UUID> ids);
+    List<T> findAllDeleted();
 
-    T getOrThrow(UUID id);
+    List<T> findAllByIds(Collection<UUID> ids);
 
     boolean existsById(UUID id);
 
-    boolean existsAllByIds(Set<UUID> ids);
+    boolean existsAllByIds(Collection<UUID> ids);
 
-    boolean deleteById(UUID id);
+    T getOrThrow(UUID id);
 
-    int deleteAllByIds(Set<UUID> ids);
+    boolean softDeleteById(UUID id);
+
+    int softDeleteAllByIds(Collection<UUID> ids);
 
     boolean restoreById(UUID id);
 
-    int restoreAllByIds(Set<UUID> ids);
+    int restoreAllByIds(Collection<UUID> ids);
 
     boolean hardDeleteById(UUID id);
 
-    int hardDeleteAllByIds(Set<UUID> ids);
+    int hardDeleteAllByIds(Collection<UUID> ids);
+
+    int hardDeleteAllExpired(Instant now);
 
     long count();
 
-    long count(Predicate<T> condition);
+    long countIncludingDeleted();
 }

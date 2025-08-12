@@ -34,7 +34,7 @@ public class AuthService {
                 user.getUsername(),
                 user.getGlobalName(),
                 user.getProfileId(),
-                userStatus.getStatus()
+                userStatus.getType()
         );
     }
 

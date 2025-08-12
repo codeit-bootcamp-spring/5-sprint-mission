@@ -15,6 +15,9 @@ import java.util.UUID;
 @Getter
 public class Guild extends BaseEntity {
 
+    private static final Set<Permission> DEFAULT_PERMISSIONS =
+            Collections.unmodifiableSet(EnumSet.of(Permission.READ_MESSAGES, Permission.SEND_MESSAGES));
+
     private String name;
     private boolean discoverable;
     private UUID ownerId;
@@ -24,13 +27,10 @@ public class Guild extends BaseEntity {
     private final Set<UUID> channelIds = new LinkedHashSet<>();
     private final Set<UUID> bannedUserIds = new HashSet<>();
 
-    private static final Set<Permission> DEFAULT_PERMISSIONS =
-            Collections.unmodifiableSet(EnumSet.of(Permission.READ_MESSAGES, Permission.SEND_MESSAGES));
-
     public Guild(String name, boolean discoverable, UUID ownerId) {
         setName(name);
         setDiscoverable(discoverable);
-        addUser(ownerId, Set.of(Permission.ADMINISTRATOR));
+        addUser(Objects.requireNonNull(ownerId, "ownerId must not be null."), Set.of(Permission.ADMINISTRATOR));
         this.ownerId = ownerId;
         touch();
     }
@@ -51,7 +51,7 @@ public class Guild extends BaseEntity {
     }
 
     public void setOwnerId(UUID userId) {
-        Objects.requireNonNull(userId, "Owner must not be null.");
+        Objects.requireNonNull(userId, "ownerId must not be null.");
         if (isBanned(userId)) throw new IllegalStateException("Banned user cannot be the owner.");
         if (isNotMember(userId)) throw new IllegalArgumentException("User is not a member of this guild.");
 
@@ -65,11 +65,6 @@ public class Guild extends BaseEntity {
         }
     }
 
-    public boolean isOwner(UUID userId) {
-        Objects.requireNonNull(userId, "userId must not be null.");
-        return userId.equals(ownerId);
-    }
-
     public Set<UUID> getChannelIds() {
         return Collections.unmodifiableSet(channelIds);
     }
@@ -79,68 +74,18 @@ public class Guild extends BaseEntity {
         if (channelIds.add(channelId)) touch();
     }
 
-    public void removeChannel(UUID channel) {
-        if (channelIds.remove(channel)) touch();
+    public void removeChannel(UUID channelId) {
+        Objects.requireNonNull(channelId, "channelId must not be null.");
+        if (channelIds.remove(channelId)) touch();
     }
 
     public Set<UUID> getUserIds() {
         return Collections.unmodifiableSet(userIds);
     }
 
-    public void addUser(UUID userId, Set<Permission> permissions) {
+    public boolean isOwner(UUID userId) {
         Objects.requireNonNull(userId, "userId must not be null.");
-        if (isBanned(userId)) throw new IllegalStateException("User is banned from this guild.");
-        boolean added = userIds.add(userId);
-        setPermissions(userId, permissions);
-        if (added) touch();
-    }
-
-    public void addUser(UUID user) {
-        addUser(user, DEFAULT_PERMISSIONS);
-    }
-
-    public void removeUser(UUID userId) {
-        Objects.requireNonNull(userId, "userId must not be null.");
-        if (isOwner(userId))
-            throw new IllegalStateException("Cannot remove the guild owner. Transfer ownership first.");
-        boolean removed = userIds.remove(userId);
-        boolean permsRemoved = this.permissions.removeIf(p -> p.getUserId().equals(userId));
-        if (removed || permsRemoved) touch();
-    }
-
-    public Set<GuildPermissions> getPermissions() {
-        return Collections.unmodifiableSet(permissions);
-    }
-
-    public void setPermissions(UUID userId, Set<Permission> permissions) {
-        Objects.requireNonNull(userId, "userId must not be null.");
-        if (isNotMember(userId)) throw new IllegalArgumentException("User is not a member of this guild.");
-
-        this.permissions.removeIf(p -> p.getUserId().equals(userId));
-
-        Set<Permission> granted = (permissions == null || permissions.isEmpty())
-                ? DEFAULT_PERMISSIONS
-                : EnumSet.copyOf(permissions);
-        this.permissions.add(new GuildPermissions(getId(), userId, granted));
-        touch();
-    }
-
-    public Set<UUID> getBannedUserIds() {
-        return Collections.unmodifiableSet(bannedUserIds);
-    }
-
-    public void addBan(UUID userId) {
-        Objects.requireNonNull(userId, "userId must not be null.");
-        if (isOwner(userId)) throw new IllegalStateException("Cannot ban the guild owner.");
-        boolean changed = bannedUserIds.add(userId);
-        if (userIds.remove(userId)) changed = true;
-        if (this.permissions.removeIf(p -> p.getUserId().equals(userId))) changed = true;
-        if (changed) touch();
-    }
-
-    public void removeBan(UUID userId) {
-        Objects.requireNonNull(userId, "userId must not be null.");
-        if (bannedUserIds.remove(userId)) touch();
+        return userId.equals(ownerId);
     }
 
     public boolean isNotMember(UUID userId) {
@@ -153,9 +98,70 @@ public class Guild extends BaseEntity {
         return bannedUserIds.contains(userId);
     }
 
+    public void addUser(UUID userId) {
+        addUser(userId, DEFAULT_PERMISSIONS);
+    }
+
+    public void addUser(UUID userId, Set<Permission> permissions) {
+        Objects.requireNonNull(userId, "userId must not be null.");
+        if (isBanned(userId)) throw new IllegalStateException("User is banned from this guild.");
+
+        boolean added = userIds.add(userId);
+        setPermissions(userId, permissions);
+        if (added) touch();
+    }
+
+    public void removeUser(UUID userId) {
+        Objects.requireNonNull(userId, "userId must not be null.");
+        if (isOwner(userId))
+            throw new IllegalStateException("Cannot remove the guild owner. Transfer ownership first.");
+
+        boolean removedUser = userIds.remove(userId);
+        boolean removedPerm = permissions.removeIf(p -> p.getUserId().equals(userId));
+        if (removedUser || removedPerm) touch();
+    }
+
+    public Set<GuildPermissions> getPermissions() {
+        return Collections.unmodifiableSet(permissions);
+    }
+
+    public void setPermissions(UUID userId, Set<Permission> newPermissions) {
+        Objects.requireNonNull(userId, "userId must not be null.");
+        if (isNotMember(userId)) throw new IllegalArgumentException("User is not a member of this guild.");
+
+        permissions.removeIf(p -> p.getUserId().equals(userId));
+
+        Set<Permission> granted = (newPermissions == null || newPermissions.isEmpty())
+                ? DEFAULT_PERMISSIONS
+                : EnumSet.copyOf(newPermissions);
+
+        permissions.add(new GuildPermissions(getId(), userId, granted));
+        touch();
+    }
+
+    public Set<UUID> getBannedUserIds() {
+        return Collections.unmodifiableSet(bannedUserIds);
+    }
+
+    public void addBan(UUID userId) {
+        Objects.requireNonNull(userId, "userId must not be null.");
+        if (isOwner(userId)) throw new IllegalStateException("Cannot ban the guild owner.");
+
+        boolean changed = bannedUserIds.add(userId);
+        if (userIds.remove(userId)) changed = true;
+        if (permissions.removeIf(p -> p.getUserId().equals(userId))) changed = true;
+
+        if (changed) touch();
+    }
+
+    public void removeBan(UUID userId) {
+        Objects.requireNonNull(userId, "userId must not be null.");
+        if (bannedUserIds.remove(userId)) touch();
+    }
+
     @Override
     public String toString() {
-        return String.format("Guild[id=%s, name='%s', ownerId=%s, users=%d, bans=%d]",
-                getId(), name, ownerId, userIds.size(), bannedUserIds.size());
+        return "Guild[id=%s, name='%s', ownerId=%s, users=%d, bans=%d]"
+                .formatted(getId(), name, ownerId, userIds.size(), bannedUserIds.size());
     }
 }

@@ -14,17 +14,14 @@ import java.util.UUID;
 @Getter
 public class BinaryContent extends BaseEntity {
 
-    // ===== Identity / Metadata =====
-    private String filename;        // 정규화된 파일명 (경로 제거)
-    private String contentType;     // 예: image/png
-    private long size;              // 바이트 크기
-    private String sha256;          // 콘텐츠 체크섬 (중복·무결성)
-    private String storagePath;     // 파일 저장소 상대 경로 (File 저장소 사용 시)
+    private String filename;
+    private String contentType;
+    private long size;
+    private String sha256;
+    private String storagePath;
 
-    // ===== Payload (메모리 보관이 필요할 때만) =====
     private byte[] bytes;
 
-    // ===== Constructors / Factories =====
     public BinaryContent(String filename, String contentType, byte[] bytes) {
         setAll(normalizeFilename(requireNonBlank(filename, "filename must not be blank")),
                 requireNonBlank(contentType, "contentType must not be blank"),
@@ -54,11 +51,6 @@ public class BinaryContent extends BaseEntity {
         return of(filename, guessContentType(contentType, filename), bytes);
     }
 
-    // ===== Domain Behaviors =====
-
-    /**
-     * 파일 바이트/메타데이터를 교체합니다.
-     */
     public void updateData(String filename, String contentType, byte[] data) {
         setAll(normalizeFilename(requireNonBlank(filename, "filename must not be blank")),
                 requireNonBlank(contentType, "contentType must not be blank"),
@@ -66,37 +58,28 @@ public class BinaryContent extends BaseEntity {
                 this.storagePath);
     }
 
-    /**
-     * 파일 저장 경로(파일 저장소 상대 경로)를 기록/변경합니다.
-     */
     public void updateStoragePath(String storagePath) {
         this.storagePath = storagePath;
         touch();
     }
 
-    /**
-     * 메모리 상의 payload를 지웁니다(디스크 저장 완료 후 메모리 해제 등).
-     */
     public void wipe() {
         if (this.bytes != null) {
-            // 민감 데이터라면 0 overwrite 고려
             this.bytes = null;
             touch();
         }
     }
 
-    // ===== Getters (안전 사본) =====
     public byte[] getBytes() {
         return (bytes == null) ? null : bytes.clone();
     }
 
-    // ===== Internal Helpers =====
     private void setAll(String filename, String contentType, byte[] data, String storagePath) {
         this.filename = filename;
         this.contentType = contentType;
         this.size = data.length;
         this.sha256 = sha256Hex(data);
-        this.bytes = data.clone();           // 엔티티 외부 불변성 유지
+        this.bytes = data.clone();
         this.storagePath = storagePath;
         touch();
     }
@@ -107,7 +90,6 @@ public class BinaryContent extends BaseEntity {
     }
 
     private static String normalizeFilename(String raw) {
-        // 일부 클라이언트가 경로 전체를 보낼 수 있으므로 파일명만 추출
         String name = raw.replace('\\', '/');
         int idx = name.lastIndexOf('/');
         return (idx >= 0) ? name.substring(idx + 1) : name;
@@ -115,7 +97,6 @@ public class BinaryContent extends BaseEntity {
 
     private static String guessContentType(String contentType, String filename) {
         if (contentType != null && !contentType.isBlank()) return contentType;
-        // 간단한 추정 로직(필요 시 확장)
         String lower = filename.toLowerCase();
         if (lower.endsWith(".png")) return MediaType.IMAGE_PNG_VALUE;
         if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return MediaType.IMAGE_JPEG_VALUE;
@@ -129,12 +110,10 @@ public class BinaryContent extends BaseEntity {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             return HexFormat.of().formatHex(md.digest(data));
         } catch (Exception e) {
-            // 이례적 상황: JRE 보장 알고리즘
             throw new IllegalStateException("SHA-256 not available", e);
         }
     }
 
-    // ===== Object =====
     @Override
     public String toString() {
         return "BinaryContent[id=%s, filename=%s, contentType=%s, size=%d, sha256=%s, storagePath=%s]"

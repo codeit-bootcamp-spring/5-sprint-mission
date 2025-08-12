@@ -1,14 +1,18 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.enums.user.Status;
+import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
-import org.springframework.stereotype.Component;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-@Component
-public class UserMapper {
+import java.util.Objects;
 
-    public static UserResponse toUserResponse(User user, Status status) {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class UserMapper {
+
+    public static UserResponse toUserResponse(User user, UserStatusType status) {
+        Objects.requireNonNull(user, "user must not be null");
         return new UserResponse(
                 user.getId(),
                 user.getCreatedAt(),

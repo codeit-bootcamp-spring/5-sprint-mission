@@ -5,17 +5,13 @@ import com.sprint.mission.discodeit.repository.GuildRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 @Repository
 @Profile("test")
 public class JcfGuildRepository extends JcfBaseRepository<Guild> implements GuildRepository {
-
-    private static final Comparator<Guild> BY_NAME =
-            Comparator.comparing(Guild::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
     @Override
     protected String getEntityTypeName() {
@@ -24,31 +20,32 @@ public class JcfGuildRepository extends JcfBaseRepository<Guild> implements Guil
 
     @Override
     public List<Guild> findDiscoverableGuilds() {
-        return findAll().stream()
-                .filter(Guild::isDiscoverable)
-                .sorted(BY_NAME)
-                .toList();
+        return findAll().stream().filter(Guild::isDiscoverable).toList();
     }
 
     @Override
     public List<Guild> findGuildsOwnedByUser(UUID userId) {
-        if (userId == null) return List.of();
-        return findAll().stream()
-                .filter(g -> g.isOwner(userId))
-                .sorted(BY_NAME) // File과 동일하게 정렬
-                .toList();
+        Objects.requireNonNull(userId, "userId must not be null");
+        return findAll().stream().filter(g -> userId.equals(g.getOwnerId())).toList();
+    }
+
+    @Override
+    public List<Guild> findGuildsByMember(UUID userId) {
+        Objects.requireNonNull(userId, "userId must not be null");
+        return findAll().stream().filter(g -> g.getUserIds().contains(userId)).toList();
     }
 
     @Override
     public List<Guild> searchGuilds(String keyword) {
-        if (keyword == null || keyword.isBlank()) return List.of();
-        String q = keyword.trim().toLowerCase(Locale.ROOT);
+        Objects.requireNonNull(keyword, "keyword must not be null");
+        String k = keyword.strip().toLowerCase();
+        if (k.isEmpty()) return List.of();
         return findAll().stream()
+                .filter(Guild::isDiscoverable)
                 .filter(g -> {
                     String name = g.getName();
-                    return name != null && name.toLowerCase(Locale.ROOT).contains(q);
+                    return name != null && name.toLowerCase().contains(k);
                 })
-                .sorted(BY_NAME)
                 .toList();
     }
 }

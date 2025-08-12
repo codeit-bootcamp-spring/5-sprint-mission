@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 import com.sprint.mission.discodeit.dto.request.UserRegisterRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateEmailRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdatePasswordRequest;
@@ -10,14 +11,15 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateUsernameRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import com.sprint.mission.discodeit.util.Validators;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +33,7 @@ import static com.sprint.mission.discodeit.mapper.UserMapper.toUserResponse;
 @Service
 @RequiredArgsConstructor
 @Profile({"test", "dev"})
-public class BasicUserService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
@@ -39,13 +41,9 @@ public class BasicUserService {
     private final GuildRepository guildRepository;
     private final BinaryContentService binaryContentService;
 
-    public UserResponse toResponse(User user, UserStatus userStatus) {
-        return toUserResponse(user, userStatus.getStatus());
-    }
-
     public UserResponse toResponse(User user) {
         UserStatus userStatus = userStatusRepository.getOrThrowByUserId(user.getId());
-        return toUserResponse(user, userStatus.getStatus());
+        return toUserResponse(user, userStatus.getType());
     }
 
     protected void update(UUID id, Consumer<User> updater) {
@@ -54,23 +52,25 @@ public class BasicUserService {
         userRepository.save(entity);
     }
 
+    @Transactional
     public UserResponse register(UserRegisterRequest req) {
-        Objects.requireNonNull(req, "req must not be null");
-        Objects.requireNonNull(req.birthDate(), "birthDate must not be null");
+        if (userRepository.existsByEmail(req.email())) throw new DuplicateResourceException("이미 사용 중인 이메일입니다.");
+        if (userRepository.existsByUsername(req.username())) throw new DuplicateResourceException("이미 사용 중인 사용자명입니다.");
 
-        String e = Validators.validateEmail(req.email());
-        String u = Validators.validateUsername(req.username());
-        String p = Validators.validatePassword(req.password());
+        User user = new User(
+                req.email(),
+                req.username(),
+                req.password(),
+                req.birthDate(),
+                req.subscribedToNewsletter(),
+                req.globalName()
+        );
+        userRepository.save(user);
 
-        if (userRepository.existsByEmail(e)) throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
-        if (userRepository.existsByUsername(u)) throw new IllegalArgumentException("이미 사용 중인 사용자명입니다.");
+        UserStatus userStatus = new UserStatus(user.getId());
+        userStatusRepository.save(userStatus);
 
-        User user = userRepository.save(new User(
-                e, u, p, req.birthDate(), req.subscribedToNewsletter(), req.globalName()
-        ));
-
-        UserStatus userStatus = userStatusRepository.save(new UserStatus(user.getId()));
-        return toResponse(user, userStatus);
+        return toUserResponse(user, UserStatusType.OFFLINE);
     }
 
     public UserResponse findById(UUID userId) {
@@ -90,18 +90,18 @@ public class BasicUserService {
     }
 
     public void deleteAccount(UUID userId) {
-        if (userId == null) throw new IllegalArgumentException("userId는 null일 수 없습니다.");
+        Objects.requireNonNull(userId, "userId must not be null");
 
-        friendRequestRepository.clear(userId);
+        friendRequestRepository.softDeleteAllByUserId(userId);
 
         User user = userRepository.getOrThrow(userId);
 
         for (UUID guildId : new HashSet<>(user.getGuildIds())) {
             Guild guild = guildRepository.getOrThrow(guildId);
-            if (guild.isOwner(userId)) guildRepository.deleteById(guildId);
+            if (guild.isOwner(userId)) guildRepository.softDeleteById(guildId);
         }
 
-        userRepository.deleteById(userId);
+        userRepository.softDeleteById(userId);
     }
 
     public void updateProfileSettings(UUID userId, UserUpdateProfileSettingsRequest req) {
@@ -188,12 +188,12 @@ public class BasicUserService {
         guildRepository.save(guild);
     }
 
-    public void joinChatRoom(UUID userId, UUID chatRoomId) {
-        update(userId, u -> u.joinChatRoom(chatRoomId));
+    public void joinChatRoom(UUID userId, UUID channelId) {
+        update(userId, u -> u.joinChannel(channelId));
     }
 
-    public void leaveChatRoom(UUID userId, UUID chatRoomId) {
-        update(userId, u -> u.leaveChatRoom(chatRoomId));
+    public void leaveChatRoom(UUID userId, UUID channelId) {
+        update(userId, u -> u.leaveChannel(channelId));
     }
 
     public void hardDeleteAccount(UUID userId) {

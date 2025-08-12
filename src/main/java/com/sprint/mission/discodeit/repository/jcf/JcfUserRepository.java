@@ -5,13 +5,31 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 @Profile("test")
 public class JcfUserRepository extends JcfBaseRepository<User> implements UserRepository {
+
+    private static String norm(String s) {
+        return s == null ? null : s.strip();
+    }
+
+    private static boolean startsWithIgnoreCase(String value, String prefix) {
+        if (value == null || prefix == null) return false;
+        int len = prefix.length();
+        if (value.length() < len) return false;
+        return value.regionMatches(true, 0, prefix, 0, len);
+    }
+
+    private static final Comparator<User> BY_EMAIL =
+            Comparator.comparing(User::getEmail, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+    private static final Comparator<User> BY_USERNAME =
+            Comparator.comparing(User::getUsername, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+    private static final Comparator<User> BY_GLOBAL_NAME =
+            Comparator.comparing(User::getGlobalName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
     @Override
     protected String getEntityTypeName() {
@@ -20,62 +38,63 @@ public class JcfUserRepository extends JcfBaseRepository<User> implements UserRe
 
     @Override
     public Optional<User> findByEmail(String email) {
-        if (email == null || email.isBlank()) return Optional.empty();
-        return data.values().stream()
-                .filter(user -> !user.isDeleted())
-                .filter(user -> user.getEmail().equalsIgnoreCase(email))
+        String key = norm(email);
+        if (key == null || key.isBlank()) return Optional.empty();
+        return findAll().stream()
+                .filter(u -> u.getEmail() != null && u.getEmail().equalsIgnoreCase(key))
                 .findFirst();
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
-        if (username == null || username.isBlank()) return Optional.empty();
-        return data.values().stream()
-                .filter(user -> !user.isDeleted())
-                .filter(user -> user.getUsername().equalsIgnoreCase(username))
+        String key = norm(username);
+        if (key == null || key.isBlank()) return Optional.empty();
+        return findAll().stream()
+                .filter(u -> u.getUsername() != null && u.getUsername().equalsIgnoreCase(key))
                 .findFirst();
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        if (email == null || email.isBlank()) return false;
-        return data.values().stream()
-                .filter(user -> !user.isDeleted())
-                .anyMatch(user -> user.getEmail().equalsIgnoreCase(email));
+        String key = norm(email);
+        if (key == null || key.isBlank()) return false;
+        return findByEmail(key).isPresent();
     }
 
     @Override
     public boolean existsByUsername(String username) {
-        if (username == null || username.isBlank()) return false;
-        return data.values().stream()
-                .filter(user -> !user.isDeleted())
-                .anyMatch(user -> user.getUsername().equalsIgnoreCase(username));
+        String key = norm(username);
+        if (key == null || key.isBlank()) return false;
+        return findByUsername(key).isPresent();
     }
 
     @Override
     public List<User> searchByEmail(String email) {
-        if (email == null || email.isBlank()) return List.of();
-        return data.values().stream()
-                .filter(user -> !user.isDeleted())
-                .filter(user -> user.getEmail().toLowerCase().startsWith(email.toLowerCase()))
-                .collect(Collectors.toList());
+        String prefix = norm(email);
+        if (prefix == null || prefix.isBlank()) return List.of();
+        return findAll().stream()
+                .filter(u -> startsWithIgnoreCase(u.getEmail(), prefix))
+                .sorted(BY_EMAIL)
+                .toList();
     }
 
     @Override
     public List<User> searchByUsername(String username) {
-        if (username == null || username.isBlank()) return List.of();
-        return data.values().stream()
-                .filter(user -> !user.isDeleted())
-                .filter(user -> user.getUsername().toLowerCase().startsWith(username.toLowerCase()))
-                .collect(Collectors.toList());
+        String prefix = norm(username);
+        if (prefix == null || prefix.isBlank()) return List.of();
+        return findAll().stream()
+                .filter(u -> startsWithIgnoreCase(u.getUsername(), prefix))
+                .sorted(BY_USERNAME)
+                .toList();
     }
 
     @Override
     public List<User> searchByGlobalName(String globalName) {
-        if (globalName == null || globalName.isBlank()) return List.of();
-        return data.values().stream()
-                .filter(user -> !user.isDeleted())
-                .filter(user -> user.getUsername().toLowerCase().startsWith(globalName.toLowerCase()))
-                .collect(Collectors.toList());
+        String prefix = norm(globalName);
+        if (prefix == null || prefix.isBlank()) return List.of();
+        return findAll().stream()
+                .filter(u -> startsWithIgnoreCase(u.getGlobalName(), prefix))
+                .sorted(BY_GLOBAL_NAME)
+                .toList();
     }
 }

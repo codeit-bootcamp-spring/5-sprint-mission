@@ -27,9 +27,9 @@ public interface ProdBaseRepository<T> {
 
     boolean existsAllByIds(Set<UUID> ids);
 
-    boolean deleteById(UUID id);
+    boolean softDeleteById(UUID id);
 
-    int deleteAllByIds(Set<UUID> ids);
+    int softDeleteAllByIds(Set<UUID> ids);
 
     boolean restoreById(UUID id);
 

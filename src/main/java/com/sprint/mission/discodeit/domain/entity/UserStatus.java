@@ -1,8 +1,7 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import com.sprint.mission.discodeit.domain.enums.user.Status;
+import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -10,47 +9,69 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Getter
-@RequiredArgsConstructor
 public class UserStatus extends BaseEntity {
-
-    private final UUID userId;
-    private Status status = Status.OFFLINE;
-    private Instant lastActiveAt;
-    private boolean statusFixed;
-    private boolean login;
 
     private static final Duration ONLINE_THRESHOLD = Duration.ofMinutes(5);
 
-    public Status getStatus() {
-        if (!login) return Status.OFFLINE;
-        if (statusFixed) return status;
-        if (lastActiveAt != null && lastActiveAt.isAfter(Instant.now().minus(ONLINE_THRESHOLD))) status = Status.ONLINE;
-        else status = Status.IDLE;
-        return status;
+    private final UUID userId;
+    private UserStatusType type = UserStatusType.OFFLINE;
+    private Instant lastActiveAt;
+    private boolean manual;
+    private boolean loggedIn;
+
+    public UserStatus(UUID userId) {
+        this.userId = Objects.requireNonNull(userId, "userId must not be null");
     }
 
-    public void setStatus(Status status) {
-        this.status = Objects.requireNonNull(status, "status must not be null");
-        this.statusFixed = status != Status.ONLINE;
+    public UserStatusType getType() {
+        if (!loggedIn) return UserStatusType.OFFLINE;
+        if (manual) return type;
+        Instant la = lastActiveAt;
+        Instant cutoff = Instant.now().minus(ONLINE_THRESHOLD);
+        return (la != null && la.isAfter(cutoff)) ? UserStatusType.ONLINE : UserStatusType.IDLE;
+    }
+
+    public void setType(UserStatusType newType) {
+        Objects.requireNonNull(newType, "type must not be null");
+        boolean changed = false;
+        if (this.type != newType) {
+            this.type = newType;
+            changed = true;
+        }
+        boolean newManual = newType != UserStatusType.ONLINE;
+        if (this.manual != newManual) {
+            this.manual = newManual;
+            changed = true;
+        }
+        if (changed) touch();
     }
 
     public void unfixStatus() {
-        this.statusFixed = false;
+        if (this.manual) {
+            this.manual = false;
+            touch();
+        }
     }
 
     public void login() {
-        this.login = true;
-        this.statusFixed = false;
-        this.status = Status.ONLINE;
-        heartBeat();
+        if (!this.loggedIn) {
+            this.loggedIn = true;
+            this.manual = false;
+            this.type = UserStatusType.ONLINE;
+            heartbeat();
+        }
     }
 
     public void logout() {
-        this.login = false;
-        this.status = Status.OFFLINE;
+        if (this.loggedIn || this.type != UserStatusType.OFFLINE) {
+            this.loggedIn = false;
+            this.type = UserStatusType.OFFLINE;
+            touch();
+        }
     }
 
-    public void heartBeat() {
+    public void heartbeat() {
         this.lastActiveAt = Instant.now();
+        touch();
     }
 }

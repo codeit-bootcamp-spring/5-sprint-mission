@@ -8,12 +8,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 @Repository
 @Profile("dev")
 public class FileUserRepository extends FileBaseRepository<User> implements UserRepository {
+
     public FileUserRepository(AppStorageProperties storageProperties) {
         super(User.class, storageProperties);
     }
@@ -22,8 +22,11 @@ public class FileUserRepository extends FileBaseRepository<User> implements User
         return s == null ? null : s.strip();
     }
 
-    private static String lower(String s) {
-        return s == null ? null : s.toLowerCase(Locale.ROOT);
+    private static boolean startsWithIgnoreCase(String value, String prefix) {
+        if (value == null || prefix == null) return false;
+        int len = prefix.length();
+        if (value.length() < len) return false;
+        return value.regionMatches(true, 0, prefix, 0, len);
     }
 
     private static final Comparator<User> BY_EMAIL =
@@ -67,30 +70,30 @@ public class FileUserRepository extends FileBaseRepository<User> implements User
 
     @Override
     public List<User> searchByEmail(String email) {
-        String prefix = lower(norm(email));
+        String prefix = norm(email);
         if (prefix == null || prefix.isBlank()) return List.of();
         return findAll().stream()
-                .filter(u -> u.getEmail() != null && lower(u.getEmail()).startsWith(prefix))
+                .filter(u -> startsWithIgnoreCase(u.getEmail(), prefix))
                 .sorted(BY_EMAIL)
                 .toList();
     }
 
     @Override
     public List<User> searchByUsername(String username) {
-        String prefix = lower(norm(username));
+        String prefix = norm(username);
         if (prefix == null || prefix.isBlank()) return List.of();
         return findAll().stream()
-                .filter(u -> u.getUsername() != null && lower(u.getUsername()).startsWith(prefix))
+                .filter(u -> startsWithIgnoreCase(u.getUsername(), prefix))
                 .sorted(BY_USERNAME)
                 .toList();
     }
 
     @Override
     public List<User> searchByGlobalName(String globalName) {
-        String prefix = lower(norm(globalName));
+        String prefix = norm(globalName);
         if (prefix == null || prefix.isBlank()) return List.of();
         return findAll().stream()
-                .filter(u -> u.getGlobalName() != null && lower(u.getGlobalName()).startsWith(prefix))
+                .filter(u -> startsWithIgnoreCase(u.getGlobalName(), prefix))
                 .sorted(BY_GLOBAL_NAME)
                 .toList();
     }
