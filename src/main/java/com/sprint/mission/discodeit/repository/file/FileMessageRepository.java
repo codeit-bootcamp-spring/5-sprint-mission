@@ -3,20 +3,39 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
+@ConditionalOnProperty(
+        name = "discodeit.repository.type",
+        havingValue = "file"
+)
 public class FileMessageRepository implements MessageRepository {
 
-    private final Path directoryPath = Path.of(FileUtil.getBasePath() +"/messages");
+    private final Path directoryPath;
 
+    public FileMessageRepository(
+            @Value("${discodeit.repository.file-directory:.discodeit}")
+            String rootDir
+    ) {
+        this.directoryPath = Paths.get(rootDir).toAbsolutePath().resolve("messages");
+    }
     @Override
     public Optional<Message> save(Message message) {
+        if(message == null){
+            return Optional.empty();
+        }
+
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + message.getId() + FileUtil.getExtension());
         FileUtil.saveEntity(filePath, message);
         return Optional.of(message);
@@ -24,6 +43,10 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public Optional<Message> findById(UUID messageId) {
+        if(messageId == null){
+            return Optional.empty();
+        }
+
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + messageId + FileUtil.getExtension());
         return FileUtil.loadEntity(filePath, Message.class);
     }
@@ -52,8 +75,13 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    public void delete(Message message) {
-        Path path = Path.of(directoryPath.toAbsolutePath() + "/" + message.getId() + FileUtil.getExtension());
+    public void delete(UUID messageId) {
+        if(messageId == null){
+            return;
+        }
+
+        Path path = Path.of(directoryPath.toAbsolutePath() + "/" + messageId + FileUtil.getExtension());
+
         path.toFile().delete();
     }
 
@@ -65,6 +93,49 @@ public class FileMessageRepository implements MessageRepository {
         if(files != null){
             for(File file : files){
                 file.delete();
+            }
+        }
+    }
+
+    @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        if(channelId == null){
+            return List.of();
+        }
+
+        List<Message> returnMessages = new ArrayList<>();
+
+        File directory = new File(directoryPath.toAbsolutePath() + "/");
+        File[] files = directory.listFiles();
+
+        if(files != null){
+            for(File file : files){
+                Path filePath = file.toPath();
+                Optional<Message> msgOpt = FileUtil.loadEntity(filePath, Message.class);
+                if (msgOpt.isPresent() && channelId.equals(msgOpt.get().getChannelId())) {
+                    returnMessages.add(msgOpt.get());
+                }
+            }
+        }
+        return returnMessages;
+    }
+
+    @Override
+    public void deleteByChannelId(UUID channelId) {
+        if(channelId == null){
+            return;
+        }
+
+        File directory = new File(directoryPath.toAbsolutePath() + "/");
+        File[] files = directory.listFiles();
+
+        if(files != null){
+            for(File file : files){
+                Path filePath = file.toPath();
+                Optional<Message> msgOpt = FileUtil.loadEntity(filePath, Message.class);
+                if (msgOpt.isPresent() && channelId.equals(msgOpt.get().getChannelId())) {
+                    file.delete();
+                }
             }
         }
     }

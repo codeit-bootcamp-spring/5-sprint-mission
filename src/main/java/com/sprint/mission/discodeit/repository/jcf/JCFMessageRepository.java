@@ -1,11 +1,20 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-public class JCFMessageRepository implements MessageRepository {
+
+@Repository
+@ConditionalOnProperty(
+        name = "discodeit.repository.type",
+        havingValue = "jcf",
+        matchIfMissing = true
+)
+public class JCFMessageRepository implements com.sprint.mission.discodeit.repository.MessageRepository {
     private final Map<UUID, Message> data = new HashMap<>();
 
     public JCFMessageRepository() {}
@@ -13,7 +22,7 @@ public class JCFMessageRepository implements MessageRepository {
     @Override
     public Optional<Message> save(Message message) {
         if(message == null){
-            throw new IllegalArgumentException("message 파라미터가 null 입니다.");
+            return Optional.empty();
         }
 
         data.put(message.getId(), message);
@@ -25,7 +34,7 @@ public class JCFMessageRepository implements MessageRepository {
         if(data.containsKey(messageId)){
             return Optional.of(data.get(messageId));
         }
-        throw new IllegalArgumentException("존재하지 않는 메시지 입니다.");
+        return Optional.empty();
     }
 
     @Override
@@ -34,13 +43,32 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public void delete(Message message) {
-        UUID id = message.getId();
-        data.remove(id);
+    public void delete(UUID messageId) {
+        data.remove(messageId);
     }
 
     @Override
     public void deleteAll() {
         data.clear();
+    }
+
+    @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        List<Message> resultList = new ArrayList<>();
+
+        for(Message message : data.values()){
+            if(message.getChannelId().equals(channelId)){
+                resultList.add(message);
+            }
+        }
+
+        return resultList;
+    }
+
+    @Override
+    public void deleteByChannelId(UUID channelId) {
+        data.entrySet().removeIf(entry ->
+                entry.getValue().getChannelId().equals(channelId)
+        );
     }
 }

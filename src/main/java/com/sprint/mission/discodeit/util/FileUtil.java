@@ -1,10 +1,12 @@
 package com.sprint.mission.discodeit.util;
 
 import com.sprint.mission.discodeit.entity.BaseEntity;
+import lombok.Getter;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class FileUtil {
@@ -38,16 +40,16 @@ public class FileUtil {
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 
             Object readObject = objectInputStream.readObject();
+
             if(type.isInstance(readObject)){
                 return Optional.of(type.cast(readObject));
             }
-
-            return Optional.empty();
-        }catch(IOException | ClassNotFoundException e ){
-            System.out.println("FileUtil.loadEntity Error : " + e.getMessage());
+        }catch(Exception e){
+            System.out.println("FileUtil.loadEntity Error: " + e.getMessage());
+            throw new NoSuchElementException("FileUtil.loadEntity Error: " + e.getMessage());
         }
 
-        throw new IllegalArgumentException("FileUtil.loadEntity Error");
+        return Optional.empty();
     }
 
 }

@@ -1,10 +1,21 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+
+@Repository
+@ConditionalOnProperty(
+        name = "discodeit.repository.type",
+        havingValue = "jcf",
+        matchIfMissing = true
+)
 public class JCFChannelRepository implements ChannelRepository {
     Map<UUID, Channel> data = new HashMap<>();
 
@@ -13,7 +24,7 @@ public class JCFChannelRepository implements ChannelRepository {
     @Override
     public Optional<Channel> save(Channel channel) {
         if(channel == null){
-            throw new IllegalArgumentException("channel 파라미터가 null 입니다.");
+            return Optional.empty();
         }
 
         data.put(channel.getId(), channel);
@@ -25,7 +36,7 @@ public class JCFChannelRepository implements ChannelRepository {
         if(data.containsKey(channelId)){
             return Optional.of(data.get(channelId));
         }
-        throw new IllegalArgumentException("존재하지 않는 채널입니다.");
+        return Optional.empty();
     }
 
     @Override
@@ -34,15 +45,27 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public void delete(Channel channel) {
-        UUID id = channel.getId();
-        data.remove(id);
+    public void delete(UUID channelId) {
+        data.remove(channelId);
     }
 
     @Override
     public void deleteAll() {
         data.clear();
     }
+
+    @Override
+    public List<Channel> findPublicChannel(){
+        List<Channel> resultList = new ArrayList<>();
+
+        for(Channel channel : data.values()){
+            if(channel.getChannelType().equals(ChannelType.PUBLIC)){
+                resultList.add(channel);
+            }
+        }
+        return resultList;
+    }
+
 }
 
 

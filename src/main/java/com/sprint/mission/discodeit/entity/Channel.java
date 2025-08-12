@@ -1,82 +1,65 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import lombok.Getter;
 
+import java.io.Serializable;
+import java.util.Objects;
+import java.util.UUID;
+
+@Getter
 public class Channel extends BaseEntity implements Serializable{
     private static final long serialVersionUID = 1L;
 
-    private final User ownerUser;
-    private String channelName;
-    private final Set<User> users = new HashSet<>();
-    private final Set<Message> messages = new HashSet<>();
+    private final ChannelType channelType;
+    private final UUID ownerUserId;
+    private String name;
+    private String description;
 
     public Channel(
-            String channelName, User ownerUser
+            String name, UUID ownerUserId, ChannelType channelType, String description
     ) {
         super();
-        this.channelName = channelName;
-        this.ownerUser = ownerUser;
-    }
-
-    public User getOwnerUser() {
-        return ownerUser;
-    }
-
-    public String getChannelName() {
-        return channelName;
+        this.name = name;
+        this.ownerUserId = ownerUserId;
+        this.channelType = channelType;
+        this.description = description;
     }
 
     public void updateChannelName(String channelName) {
-        if(!this.channelName.equals(channelName)){
-            this.channelName = channelName;
+        if(!this.name.equals(channelName)){
+            this.name = channelName;
             super.updateUpdatedAt();
         }
 
     }
 
-    public Set<User> getUsers() {
-        return users;
+    public void updateDescription(String description) {
+        if(!this.description.equals(description)){
+            this.description = description;
+            super.updateUpdatedAt();
+        }
     }
 
-    public void addUser(User user) {
-        this.users.add(user);
-    }
-
-    public void removeUser(User user) {
-        this.users.remove(user);
-    }
-
-    public Set<Message> getMessages() {
-        return messages;
-    }
-
-    public void addMessage(Message message) {
-        this.messages.add(message);
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Channel{");
+        sb.append("channelType=").append(channelType);
+        sb.append(", ownerUserId=").append(ownerUserId);
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", description='").append(description).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Channel channel = (Channel) o;
-        return Objects.equals(ownerUser, channel.ownerUser) && Objects.equals(channelName, channel.channelName) && Objects.equals(users, channel.users) && Objects.equals(messages, channel.messages);
+        return channelType == channel.channelType && Objects.equals(ownerUserId, channel.ownerUserId) && Objects.equals(name, channel.name) && Objects.equals(description, channel.description);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ownerUser, channelName, users, messages);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Channel{");
-        sb.append("ownerUser=").append(ownerUser);
-        sb.append(", channelName='").append(channelName).append('\'');
-        sb.append(", users=").append(users);
-        sb.append(", messages=").append(messages);
-        sb.append('}');
-        return sb.toString();
+        return Objects.hash(channelType, ownerUserId, name, description);
     }
 }

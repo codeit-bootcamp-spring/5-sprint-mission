@@ -2,18 +2,46 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository
+@ConditionalOnProperty(
+        name = "discodeit.repository.type",
+        havingValue = "jcf",
+        matchIfMissing = true
+)
 public class JCFUserRepository implements UserRepository {
     Map<UUID, User> data = new HashMap<>();
 
     public JCFUserRepository() {}
 
     @Override
+    public Optional<User> findByUserName(String username) {
+        for(User user : data.values()){
+            if(user.getUserName().equals(username)){
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        for(User user : data.values()){
+            if(user.getEmail().equals(email)){
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<User> save(User user) {
         if(user == null){
-            throw new IllegalArgumentException("user 파라미터가 null 입니다.");
+            return Optional.empty();
         }
 
         data.put(user.getId(), user);
@@ -25,7 +53,7 @@ public class JCFUserRepository implements UserRepository {
         if(data.containsKey(userId)){
             return Optional.of(data.get(userId));
         }
-        throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        return Optional.empty();
     }
 
     @Override
@@ -34,9 +62,8 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public void delete(User user) {
-        UUID id = user.getId();
-        data.remove(id);
+    public void delete(UUID userId) {
+        data.remove(userId);
     }
 
     @Override

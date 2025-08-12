@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.repository;
 
+import com.sprint.mission.discodeit.dto.request.UpdateMessageDto;
 import com.sprint.mission.discodeit.entity.Message;
 
 import java.util.List;
@@ -10,6 +11,8 @@ public interface MessageRepository {
     Optional<Message> save(Message message);
     Optional<Message> findById(UUID messageId);
     List<Message> findAll();
-    void delete(Message message);
+    List<Message> findAllByChannelId(UUID channelId);
+    void delete(UUID messageId);
     void deleteAll();
+    void deleteByChannelId(UUID channelId);
 }

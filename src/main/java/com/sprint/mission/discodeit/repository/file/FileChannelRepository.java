@@ -1,22 +1,43 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
+@ConditionalOnProperty(
+        name = "discodeit.repository.type",
+        havingValue = "file"
+)
 public class FileChannelRepository implements ChannelRepository {
 
-    private final Path directoryPath = Path.of(FileUtil.getBasePath() +"/channels" );
+    private final Path directoryPath;
+
+    public FileChannelRepository(
+            @Value("${discodeit.repository.file-directory:.discodeit}")
+            String rootDir
+    ) {
+        this.directoryPath = Paths.get(rootDir).toAbsolutePath().resolve("channels");
+    }
 
     @Override
     public Optional<Channel> save(Channel channel) {
+        if (channel == null) {
+            return Optional.empty();
+        }
+
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + channel.getId() + FileUtil.getExtension());
         FileUtil.saveEntity(filePath, channel);
 
@@ -25,6 +46,10 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public Optional<Channel> findById(UUID channelId) {
+        if(channelId == null){
+            return Optional.empty();
+        }
+
         Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + channelId + FileUtil.getExtension());
         return FileUtil.loadEntity(filePath, Channel.class);
     }
@@ -52,8 +77,13 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public void delete(Channel channel) {
-        Path path = Path.of(directoryPath.toAbsolutePath() + "/" + channel.getId() + FileUtil.getExtension());
+    public void delete(UUID channelId) {
+        if(channelId == null){
+            return;
+        }
+
+        Path path = Path.of(directoryPath.toAbsolutePath() + "/" + channelId + FileUtil.getExtension());
+
         path.toFile().delete();
     }
 
@@ -67,5 +97,26 @@ public class FileChannelRepository implements ChannelRepository {
                 file.delete();
             }
         }
+    }
+
+    @Override
+    public List<Channel> findPublicChannel() {
+        List<Channel> returnChannel = new ArrayList<>();
+
+        File directory = new File(directoryPath.toAbsolutePath() + "/");
+        File[] files = directory.listFiles();
+
+        if(files == null) {
+            return returnChannel;
+        }
+
+        for(File file : files){
+            Path filePath = file.toPath();
+            Optional<Channel> channelOpt = FileUtil.loadEntity(filePath, Channel.class);
+            if (channelOpt.isPresent() && channelOpt.get().getChannelType().equals(ChannelType.PUBLIC)){
+                returnChannel.add(channelOpt.get());
+            }
+        }
+        return returnChannel;
     }
 }

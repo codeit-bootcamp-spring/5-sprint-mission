@@ -1,35 +1,46 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serializable;
-import java.util.Objects;
+import lombok.Getter;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+@Getter
 public class Message extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final Channel channel;
-    private final User authorUser;
+    private final UUID authorUserId;
+    private final UUID channelId;
+    private final List<UUID> attachmentIds = new ArrayList<>();
     private String content;
 
     public Message(
-            String content, Channel channel, User authorUser
+            String content, UUID authorUserId, UUID channelId
     ) {
         super();
-        this.channel = channel;
-        this.authorUser = authorUser;
+        this.authorUserId = authorUserId;
+        this.channelId = channelId;
         this.content = content;
     }
 
-    public Channel getChannel() {
-        return channel;
+    public void addAttachmentId(UUID attachmentId) {
+        this.attachmentIds.add(attachmentId);
     }
 
-    public User getAuthorUser() {
-        return authorUser;
+    public void removeAttachmentId(UUID attachmentId) {
+        if(!this.attachmentIds.contains(attachmentId)){
+            throw new IllegalArgumentException("잘못된 접근입니다.");
+        }
+        this.attachmentIds.remove(attachmentId);
     }
 
-    public String getContent() {
-        return content;
+    public void removeAllAttachmentId() {
+        this.attachmentIds.clear();
     }
+
 
     public void updateContent(String content) {
         if(!this.content.equals(content)){
@@ -39,24 +50,25 @@ public class Message extends BaseEntity implements Serializable {
     }
 
     @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Message{");
+        sb.append("authorUserId=").append(authorUserId);
+        sb.append(", channelId=").append(channelId);
+        sb.append(", attachmentIds=").append(attachmentIds);
+        sb.append(", content='").append(content).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
-        return Objects.equals(channel, message.channel) && Objects.equals(authorUser, message.authorUser) && Objects.equals(content, message.content);
+        return Objects.equals(authorUserId, message.authorUserId) && Objects.equals(channelId, message.channelId) && Objects.equals(attachmentIds, message.attachmentIds) && Objects.equals(content, message.content);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(channel, authorUser, content);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Message{");
-        sb.append("channel=").append(channel);
-        sb.append(", authorUser=").append(authorUser);
-        sb.append(", content='").append(content).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return Objects.hash(authorUserId, channelId, attachmentIds, content);
     }
 }
