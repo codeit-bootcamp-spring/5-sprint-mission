@@ -74,7 +74,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @RequestMapping(path = "/list", method = RequestMethod.GET)
+    @RequestMapping(path = {"/list", "/findAll"}, method = RequestMethod.GET)
     public ResponseEntity<List<UserFindResponse>> list() {
         List<UserFindResponse> users = userService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(users);

@@ -51,10 +51,13 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchElementException("findById : 유저를 찾을 수 없습니다."));
 
         return UserFindResponse.builder()
-                .profileId(user.getProfileId())
+                .id(user.getId())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .loginStatus(userStatusRepository.findByUserId(user.getId())
+                .profileId(user.getProfileId())
+                .online(userStatusRepository.findByUserId(user.getId())
                         .orElseThrow(() -> new NoSuchElementException("findById : UserStatus를 찾을 수 없습니다.")).isLogin())
                 .build();
     }
@@ -65,10 +68,13 @@ public class UserService {
             UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
                     .orElseThrow(() -> new NoSuchElementException("findAll : UserStatus를 찾을 수 없습니다."));
             userFindResponses.add(UserFindResponse.builder()
-                    .profileId(user.getProfileId())
+                    .id(user.getId())
+                    .createdAt(user.getCreatedAt())
+                    .updatedAt(user.getUpdatedAt())
                     .username(user.getUsername())
                     .email(user.getEmail())
-                    .loginStatus(userStatus.isLogin())
+                    .profileId(user.getProfileId())
+                    .online(userStatus.isLogin())
                     .build());
         }
         return userFindResponses;
