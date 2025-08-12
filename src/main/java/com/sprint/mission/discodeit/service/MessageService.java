@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.message.request.MessageCreateDto;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.entity.Message;
 
 import java.util.List;
@@ -8,7 +8,9 @@ import java.util.UUID;
 
 public interface MessageService {
 
-    Message create(MessageCreateDto dto);
+    Message create(MessageDto.create dto);
+
+    Message update(MessageDto.update dto);
 
     List<Message> findByChannel(UUID channelId);
 
@@ -19,8 +21,6 @@ public interface MessageService {
     List<Message> findByUserId(UUID userId);
 
     List<Message> findByContent(String content);
-
-    Message update(UUID messageId, String message);
 
     void attachFile(UUID messageId, UUID fileId);
 

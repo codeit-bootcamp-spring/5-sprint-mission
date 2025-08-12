@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.message.request.MessageCreateDto;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -23,7 +23,7 @@ public class BasicMessageService implements MessageService {
     private final ChannelService channelService;
 
     @Override
-    public Message create(MessageCreateDto dto) {
+    public Message create(MessageDto.create dto) {
         Message message = new Message(dto.userId(), dto.channelId(), dto.content());
 
         userService.findById(dto.userId()); // 존재하는 사용자인지
@@ -73,11 +73,11 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public Message update(UUID id, String newMessage) {
-        Message message = messageRepository.findById(id)
+    public Message update(MessageDto.update dto) {
+        Message message = messageRepository.findById(dto.id())
                         .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
 
-        message.updateContent(newMessage);
+        message.updateContent(dto.content());
         messageRepository.save(message);
         return message;
     }
