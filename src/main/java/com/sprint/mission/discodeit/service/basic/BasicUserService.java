@@ -50,13 +50,13 @@ public class BasicUserService implements UserService {
         UUID imageId = user.getProfileId();
         String imageUrl = (imageId != null) ? "/binary/" + imageId : null;
 
-        return new UserResponse(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                imageId,
-                imageUrl
-        );
+        return UserResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .imageId(imageId)
+                .imageUrl(imageUrl)
+                .build();
     }
 
     @Override
