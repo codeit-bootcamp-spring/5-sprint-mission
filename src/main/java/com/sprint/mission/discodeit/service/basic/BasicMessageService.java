@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.message.MessageCreateDto;
+import com.sprint.mission.discodeit.dto.message.request.MessageCreateDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -44,6 +44,10 @@ public class BasicMessageService implements MessageService {
     public Message findById(UUID id) {
         return messageRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+    }
+
+    public List<Message> findByChannel(UUID channelId) {
+        return messageRepository.findByChannel(channelId);
     }
 
     @Override

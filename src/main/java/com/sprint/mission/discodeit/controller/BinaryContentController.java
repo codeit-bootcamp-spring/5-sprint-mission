@@ -20,6 +20,9 @@ public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;
 
+    /**
+     * 바이너리 파일을 1개 조회할 수 있다
+     */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<byte[]> findById(@PathVariable UUID id) {
         BinaryContent bc = binaryContentService.findById(id)

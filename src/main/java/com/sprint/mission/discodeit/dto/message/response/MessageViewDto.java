@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.message;
+package com.sprint.mission.discodeit.dto.message.response;
 
 import com.sprint.mission.discodeit.dto.binarycontent.FileResponseDto;
 import org.springframework.lang.NonNull;

@@ -23,6 +23,12 @@ public class FileMessageRepository extends FileStore<Message> implements Message
         data.putAll(loaded);
     }
 
+    @Override
+    public List<Message> findByChannel(UUID channelId) {
+        return data.values().stream()
+                .filter(m -> m.getChannelId().equals(channelId)).collect(Collectors.toList());
+    }
+
     // 메시지 저장
     @Override
     public Message save(Message message) {
