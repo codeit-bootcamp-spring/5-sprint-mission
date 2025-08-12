@@ -64,7 +64,7 @@ public class JcfChannelRepository extends JcfBaseRepository<Channel> implements 
         }
         Set<UUID> target = new HashSet<>(members);
         return findAll().stream()
-                .filter(c -> !c.isGuildChannel()) // DM
+                .filter(c -> !c.isGuildChannel())
                 .filter(c -> {
                     Set<UUID> m = c.getMemberIds();
                     return m.size() == target.size() && m.containsAll(target);

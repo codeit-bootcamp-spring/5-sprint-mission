@@ -157,7 +157,6 @@ public class GuildService {
     }
 
     public Set<GuildPermissions> getMemberPermissions(UUID guildId, UUID userId) {
-        // 인터페이스가 Set을 반환하므로 해당 유저의 권한 엔티티(0 또는 1개)를 Set으로 반환
         return guildRepository.getOrThrow(guildId).getPermissions().stream()
                 .filter(p -> p.getUserId().equals(userId))
                 .collect(Collectors.toSet());

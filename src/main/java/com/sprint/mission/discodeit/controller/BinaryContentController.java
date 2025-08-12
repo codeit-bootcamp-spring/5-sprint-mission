@@ -52,7 +52,7 @@ public class BinaryContentController {
                 new BinaryContentCreateRequest(fileName, ct, body)
         );
         return ResponseEntity
-                .created(URI.create("/api/binaryContents/" + created.id()))
+                .created(URI.create("/api/binary-contents/" + created.id()))
                 .body(created);
     }
 

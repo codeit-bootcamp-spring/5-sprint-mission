@@ -28,12 +28,12 @@ public class BinaryContentService {
         Objects.requireNonNull(req, "req must not be null");
         Objects.requireNonNull(req.filename(), "filename must not be null");
         Objects.requireNonNull(req.contentType(), "contentType must not be null");
-        Objects.requireNonNull(req.data(), "data must not be null");
+        Objects.requireNonNull(req.bytes(), "bytes must not be null");
 
         BinaryContent saved = binaryContentRepository.save(new BinaryContent(
                 req.filename(),
                 req.contentType(),
-                req.data()
+                req.bytes()
         ));
 
         return toBinaryContentResponse(saved);

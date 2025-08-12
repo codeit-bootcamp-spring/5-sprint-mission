@@ -7,6 +7,6 @@ public record BinaryContentResponse(
         String filename,
         String contentType,
         long size,
-        byte[] data
+        byte[] bytes
 ) {
 }

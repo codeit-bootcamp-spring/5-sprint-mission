@@ -25,7 +25,7 @@ public class BinaryContent extends BaseEntity {
     public BinaryContent(String filename, String contentType, byte[] bytes) {
         setAll(normalizeFilename(requireNonBlank(filename, "filename must not be blank")),
                 requireNonBlank(contentType, "contentType must not be blank"),
-                Objects.requireNonNull(bytes, "data must not be null"),
+                Objects.requireNonNull(bytes, "bytes must not be null"),
                 null);
     }
 
@@ -33,7 +33,7 @@ public class BinaryContent extends BaseEntity {
         super(id, createdAt);
         setAll(normalizeFilename(requireNonBlank(filename, "filename must not be blank")),
                 requireNonBlank(contentType, "contentType must not be blank"),
-                Objects.requireNonNull(bytes, "data must not be null"),
+                Objects.requireNonNull(bytes, "bytes must not be null"),
                 storagePath);
     }
 
@@ -51,10 +51,10 @@ public class BinaryContent extends BaseEntity {
         return of(filename, guessContentType(contentType, filename), bytes);
     }
 
-    public void updateData(String filename, String contentType, byte[] data) {
+    public void updateBytes(String filename, String contentType, byte[] bytes) {
         setAll(normalizeFilename(requireNonBlank(filename, "filename must not be blank")),
                 requireNonBlank(contentType, "contentType must not be blank"),
-                Objects.requireNonNull(data, "data must not be null"),
+                Objects.requireNonNull(bytes, "bytes must not be null"),
                 this.storagePath);
     }
 
@@ -74,12 +74,12 @@ public class BinaryContent extends BaseEntity {
         return (bytes == null) ? null : bytes.clone();
     }
 
-    private void setAll(String filename, String contentType, byte[] data, String storagePath) {
+    private void setAll(String filename, String contentType, byte[] bytes, String storagePath) {
         this.filename = filename;
         this.contentType = contentType;
-        this.size = data.length;
-        this.sha256 = sha256Hex(data);
-        this.bytes = data.clone();
+        this.size = bytes.length;
+        this.sha256 = sha256Hex(bytes);
+        this.bytes = bytes.clone();
         this.storagePath = storagePath;
         touch();
     }
@@ -105,10 +105,10 @@ public class BinaryContent extends BaseEntity {
         return MediaType.APPLICATION_OCTET_STREAM_VALUE;
     }
 
-    private static String sha256Hex(byte[] data) {
+    private static String sha256Hex(byte[] bytes) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            return HexFormat.of().formatHex(md.digest(data));
+            return HexFormat.of().formatHex(md.digest(bytes));
         } catch (Exception e) {
             throw new IllegalStateException("SHA-256 not available", e);
         }

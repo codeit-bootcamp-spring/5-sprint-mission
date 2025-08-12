@@ -10,6 +10,6 @@ public record BinaryContentCreateRequest(
         @NotBlank
         String contentType,
 
-        byte[] data
+        byte[] bytes
 ) {
 }

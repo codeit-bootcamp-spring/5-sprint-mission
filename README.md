@@ -60,7 +60,7 @@
 
 - [x]  사용자 목록 조회, BinaryContent 파일 조회 API를 다음의 조건을 만족하도록 수정하세요.
     - [x]  사용자 목록 조회
-        - url: `/api/user/findAll` (저는 `/api/users` 로 했습니다.)
+        - url: `/api/user/findAll` (저는 `/api/users`로 했습니다.)
         - 요청
             - 파라미터, 바디 없음
         - 응답
@@ -77,7 +77,7 @@
               ) {
               }
     - [x]  BinaryContent 파일 조회
-        - url: `/api/binaryContent/find`
+        - url: `/api/binaryContent/find` (저는 `/api/binary-contents/{id}`로 했습니다.)
         - 요청
             - 파라미터: `binaryContentId`
             - 바디 없음
