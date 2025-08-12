@@ -1,40 +1,63 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
 import java.util.UUID;
 
-@Getter
-@ToString
-public class Message implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
+public class Message {
     private final UUID id;
-    private final Instant createdAt;
-    private Instant updatedAt;
-    private final UUID userId;
-    private final UUID channelId;
-    private String content;
+    private final long createdAt;
+    private long updatedAt;
 
-    public Message(UUID userId, UUID channelId, String content) {
+    private String content;
+    private UUID userId;
+    private UUID channelId;
+
+    public Message(String content, UUID userId, UUID channelId) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
+        this.createdAt = System.currentTimeMillis();
         this.updatedAt = this.createdAt;
+        this.content = content;
         this.userId = userId;
         this.channelId = channelId;
-        this.content = content;
     }
 
-    public void updateContent(String newContent) {
-        if (newContent != null && !newContent.equals(this.content)) {
-            this.content = newContent;
-            this.updatedAt = Instant.now();
-        }
+    public UUID getId() {
+        return id;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public UUID getChannelId() {
+        return channelId;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", content='" + content + '\'' +
+                ", userId=" + userId +
+                ", channelId=" + channelId +
+                '}';
     }
 }

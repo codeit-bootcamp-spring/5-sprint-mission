@@ -1,55 +1,48 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
 import java.util.UUID;
 
-@Getter
-@ToString
-public class User implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
+public class User {
     private final UUID id;
-    private final Instant createdAt;
-    private Instant updatedAt;
-    private String username;
-    private String email;
-    private String password;
+    private final long createdAt;
+    private long updatedAt;
+    private String name;
 
-    public User(String username, String email, String password) {
+    public User(String name) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
+        this.createdAt = System.currentTimeMillis();
         this.updatedAt = this.createdAt;
-
-        this.username = username;
-        this.email = email;
-        this.password = password;
+        this.name = name;
     }
 
-    public void update(String newUsername, String newEmail, String newPassword) {
-        boolean anyValueUpdated = false;
+    public UUID getId() {
+        return id;
+    }
 
-        if (newUsername != null && !newUsername.equals(this.username)) {
-            this.username = newUsername;
-            anyValueUpdated = true;
-        }
-        if (newEmail != null && !newEmail.equals(this.email)) {
-            this.email = newEmail;
-            anyValueUpdated = true;
-        }
-        if (newPassword != null && !newPassword.equals(this.password)) {
-            this.password = newPassword;
-            anyValueUpdated = true;
-        }
+    public long getCreatedAt() {
+        return createdAt;
+    }
 
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", name='" + name + '\'' +
+                '}';
     }
 }
