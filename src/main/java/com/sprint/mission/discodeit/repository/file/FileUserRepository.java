@@ -107,4 +107,16 @@ public class FileUserRepository implements UserRepository {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return this.findAll().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return this.findAll().stream()
+                .anyMatch(user -> user.getUsername().equals(username));
+    }
 }
