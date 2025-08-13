@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.MessageDto;
+import com.sprint.mission.discodeit.dto.MessageRequest;
+import com.sprint.mission.discodeit.dto.MessageResponse;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.validation.Valid;
@@ -22,13 +23,13 @@ public class MessageController {
 
     // 메시지를 보낼 수 있다
     @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<Message> create(@Valid @ModelAttribute MessageDto.create dto) {
+    public ResponseEntity<MessageResponse.detail> create(@Valid @ModelAttribute MessageRequest.create dto) {
         return ResponseEntity.ok(messageService.create(dto));
     }
 
     // 메시지를 수정할 수 있다
     @RequestMapping(value = "/update", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<Message> update(@Valid @ModelAttribute MessageDto.update dto) {
+    public ResponseEntity<MessageResponse.updated> update(@Valid @ModelAttribute MessageRequest.update dto) {
         return ResponseEntity.ok(messageService.update(dto));
     }
 

@@ -31,7 +31,7 @@ public class ChannelController {
         return ResponseEntity.ok(channelService.createPrivate(dto));
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST, consumes = "multipart/form-data")
+    @RequestMapping(value = "/update", method = RequestMethod.PUT, consumes = "multipart/form-data")
     public ResponseEntity<ChannelResponse.detail> updateChannel(@Valid @ModelAttribute ChannelRequest.update req) {
         return ResponseEntity.ok(channelService.update(req));
     }

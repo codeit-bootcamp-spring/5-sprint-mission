@@ -61,7 +61,7 @@ public class UserController {
         User user = userService.findById(id);
 
         UUID imageId = user.getProfileId();
-        BinaryContent image = binaryContentService.findById(imageId).orElse(null);
+        BinaryContent image = binaryContentService.findById(imageId);
         String imageUrl = (imageId != null) ? "/binary/" + imageId : null;
 
         return ResponseEntity.ok(

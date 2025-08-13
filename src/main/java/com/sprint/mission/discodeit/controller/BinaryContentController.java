@@ -21,17 +21,16 @@ public class BinaryContentController {
     private final BinaryContentService binaryContentService;
 
     /**
-     * 바이너리 파일을 1개 조회할 수 있다
+     * 바이너리 파일을 1개 조회
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<byte[]> findById(@PathVariable UUID id) {
-        BinaryContent bc = binaryContentService.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다: " + id));
+        BinaryContent file = binaryContentService.findById(id);
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(bc.getContentType()))
+                .contentType(MediaType.parseMediaType(file.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-        "inline; filename=\"" + bc.getFileName() + "\"")
-                .body(bc.getContent());
+        "inline; filename=\"" + file.getFileName() + "\"")
+                .body(file.getContent());
     }
 }

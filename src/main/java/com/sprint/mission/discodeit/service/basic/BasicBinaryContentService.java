@@ -37,8 +37,9 @@ public class BasicBinaryContentService implements BinaryContentService {
     }
 
     @Override
-    public Optional<BinaryContent> findById(UUID id) {
-        return binaryContentRepository.findById(id);
+    public BinaryContent findById(UUID id) {
+        return binaryContentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다: " + id));
     }
 
     @Override
