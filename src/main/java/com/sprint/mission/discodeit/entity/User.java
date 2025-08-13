@@ -34,26 +34,18 @@ public class User implements Serializable {
     }
 
     public void update(String username, String email, String password) {
-        boolean anyValueUpdated = false;
-        if (username != null && !username.equals(this.username)) {
-            this.username = username;
-            anyValueUpdated = true;
-        }
-        if (email != null && !email.equals(this.email)) {
-            this.email = email;
-            anyValueUpdated = true;
-        }
-        if (password != null && !password.equals(this.password)) {
-            this.password = password;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
+        if (checkUpdated(username, email, password)) {
             this.updatedAt = Instant.now();
         }
     }
 
     public void update(String username, String email, String password, UUID profileId) {
+        if (checkUpdated(username, email, password, profileId)) {
+            this.updatedAt = Instant.now();
+        }
+    }
+
+    private boolean checkUpdated(String username, String email, String password) {
         boolean anyValueUpdated = false;
         if (username != null && !username.equals(this.username)) {
             this.username = username;
@@ -67,17 +59,22 @@ public class User implements Serializable {
             this.password = password;
             anyValueUpdated = true;
         }
+        return anyValueUpdated;
+    }
+
+    private boolean checkUpdated(String username, String email, String password, UUID profileId) {
+        boolean anyValueUpdated = checkUpdated(username, email, password);
+
         if (profileId != null && !profileId.equals(this.profileId)) {
             this.profileId = profileId;
             anyValueUpdated = true;
         }
-        if (profileId == null) {
+        if (profileId == null && this.profileId != null) {
             this.profileId = null;
             anyValueUpdated = true;
         }
 
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
+        return anyValueUpdated;
     }
+
 }
