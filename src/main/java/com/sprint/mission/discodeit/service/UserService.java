@@ -5,19 +5,20 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserFindResponse;
 import com.sprint.mission.discodeit.entity.User;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
-    User create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest);
+    User create(@Valid UserCreateRequest userCreateRequest, @Valid Optional<BinaryContentCreateRequest> binaryContentCreateRequest);
 
     UserFindResponse findById(UUID userId);
 
     List<UserFindResponse> findAll();
 
-    User update(UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest);
+    User update(@Valid UserUpdateRequest userUpdateRequest, @Valid Optional<BinaryContentCreateRequest> binaryContentCreateRequest);
 
     void delete(UUID userId);
 }

@@ -32,7 +32,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Channel createPrivate(ChannelCreateRequest channelCreateRequest) {
+    public Channel createPrivate(@Valid ChannelCreateRequest channelCreateRequest) {
         Channel channel = new Channel(ChannelType.PRIVATE, null, null);
         if (!channelCreateRequest.userIds().isEmpty()) {
             for (UUID userId : channelCreateRequest.userIds()) {
