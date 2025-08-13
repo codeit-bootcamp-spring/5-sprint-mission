@@ -24,6 +24,9 @@ public class UserResponse {
     public record summary(
             UUID id,
             String name,
-            String email
+            String email,
+            @Nullable UUID imageId,
+            @Nullable String imageUrl,
+            Boolean online
     ) {}
 }

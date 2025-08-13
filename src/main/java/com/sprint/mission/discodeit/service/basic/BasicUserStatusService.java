@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicUserStatusService implements UserStatusService {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
 
     @Override
@@ -35,7 +36,9 @@ public class BasicUserStatusService implements UserStatusService {
     // 마지막 접속 시간 업데이트
     @Override
     public void updateLastAccessedAt(UUID userId) {
-        User user = userService.findById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
         UserStatus userStatus = new UserStatus(user);
         userStatusRepository.save(userStatus);
     }

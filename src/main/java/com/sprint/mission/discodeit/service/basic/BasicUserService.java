@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class BasicUserService implements UserService {
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
     private final BinaryContentService binaryContentService;
+    private final UserStatusService userStatusService;
 
     @Override
     public UserResponse.detail create(UserRequest.create dto) {
@@ -89,6 +91,9 @@ public class BasicUserService implements UserService {
                         .id(u.getId())
                         .name(u.getName())
                         .email(u.getEmail())
+                        .imageId(u.getProfileId())
+                        .imageUrl(u.getProfileId() != null ? "/binary/" + u.getProfileId() : null)
+                        .online(userStatusService.isOnline(u.getId()))
                         .build()
                 ).toList();
     }
