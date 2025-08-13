@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-
 import com.sprint.mission.discodeit.dto.request.AuthLoginRequest;
 import com.sprint.mission.discodeit.dto.request.AuthLogoutRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;

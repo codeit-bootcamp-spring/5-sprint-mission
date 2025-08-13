@@ -33,11 +33,11 @@ public class ReadStatusController {
         return ResponseEntity.ok(readStatusService.findAllByUser(userId));
     }
 
-    @GetMapping
-    public ResponseEntity<ReadStatusResponse> findAllByChannel(@RequestParam("userId") UUID userId,
-                                                               @RequestParam("channelId") UUID channelId) {
-        return ResponseEntity.ok(readStatusService.findByUserAndChannel(userId, channelId));
-    }
+    // @GetMapping
+    // public ResponseEntity<ReadStatusResponse> findAllByChannel(@RequestParam("userId") UUID userId,
+    //                                                            @RequestParam("channelId") UUID channelId) {
+    //     return ResponseEntity.ok(readStatusService.findByUserAndChannel(userId, channelId));
+    // }
 
     @PostMapping
     public ResponseEntity<ReadStatusResponse> create(@Valid @RequestBody ReadStatusCreateRequest body) {

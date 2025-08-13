@@ -25,8 +25,6 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
-// todo: 카테고리 (채널의 모음) 엔티티 추가
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
