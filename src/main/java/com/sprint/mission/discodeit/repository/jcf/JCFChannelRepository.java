@@ -9,41 +9,32 @@ public class JCFChannelRepository implements ChannelRepository {
     private final Map<UUID, Channel> data;
 
     public JCFChannelRepository() {
-        data = new HashMap<>();
+        this.data = new HashMap<>();
     }
 
     @Override
     public Channel save(Channel channel) {
-        data.put(channel.getId(), channel);
+        this.data.put(channel.getId(), channel);
         return channel;
     }
 
     @Override
     public Optional<Channel> findById(UUID id) {
-        if (data.containsKey(id))
-            return Optional.of(data.get(id));
-        return Optional.empty();
+        return Optional.ofNullable(this.data.get(id));
     }
 
     @Override
     public List<Channel> findAll() {
-        return new ArrayList<>(data.values());
-    }
-
-    @Override
-    public long count() {
-        return data.size();
-    }
-
-    @Override
-    public Channel delete(UUID id) {
-        if (!data.containsKey(id))
-            throw new NoSuchElementException("Channel with id " + id + " not found");
-        return data.remove(id);
+        return this.data.values().stream().toList();
     }
 
     @Override
     public boolean existsById(UUID id) {
-        return data.containsKey(id);
+        return this.data.containsKey(id);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        this.data.remove(id);
     }
 }

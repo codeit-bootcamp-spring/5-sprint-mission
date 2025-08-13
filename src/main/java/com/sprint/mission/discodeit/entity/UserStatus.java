@@ -1,0 +1,39 @@
+package com.sprint.mission.discodeit.entity;
+
+
+import lombok.Getter;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.UUID;
+
+@Getter
+public class UserStatus implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private final UUID id;
+    private final Instant createdAt;
+    private Instant updatedAt;
+    //
+    private final UUID userId;
+    private Instant lastLogin;
+
+    public UserStatus(UUID userId){
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.userId = userId;
+    }
+
+    public void updateLastLogin(){
+        this.updatedAt = Instant.now();
+        this.lastLogin = Instant.now();
+    }
+
+    public boolean isLogin(){
+        return lastLogin.isBefore(Instant.now().minus(Duration.ofMinutes(5)));
+    }
+}

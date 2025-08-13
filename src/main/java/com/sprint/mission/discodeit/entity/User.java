@@ -1,67 +1,66 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final UUID id;                //고유 아이디
-    private String password;        //비밀번호
-    private String name;            //이름
-    private final Long createdAt;          //생성 시간
-    private Long updatedAt;          //수정 시간
+    private final UUID id;
+    private final Instant createdAt;
+    private Instant updatedAt;
+    //
+    private String username;
+    private String email;
+    private String password;
+    //
+    private UUID profiledId;
 
-    public User() {
+    public User(String username, String email, String password) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-    };
-
-    public User(String password, String name) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
+        this.createdAt = Instant.now();
+        //
+        this.username = username;
+        this.email = email;
         this.password = password;
-        this.name = name;
+        this.profiledId = null;
     }
 
-    public UUID getId() {
-        return id;
+    public void update(String newUsername, String newEmail, String newPassword) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 
-    public String getPassword() {
-        return password;
-    }
+    public void updateProfile(UUID profiledId){
+        boolean successUpdate = false;
+        if (profiledId != null && !this.profiledId.equals(profiledId)) {
+            this.profiledId = profiledId;
+            successUpdate = true;
+        }
 
-    public String getName() {
-        return name;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    @Override
-    public String toString() {
-        return "사용자 { " +
-                "아이디 = " + id +
-                ", 비밀번호 = '" + password + '\'' +
-                ", 이름 = '" + name + '\'' +
-                ", 생성 시간 = " + createdAt +
-                ", 수정 시간 = " + updatedAt +
-                " }";
+        if (successUpdate) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
