@@ -22,12 +22,20 @@ public class BinaryContentController {
 
     @RequestMapping(value = "/find", method = RequestMethod.GET)
     public ResponseEntity<BinaryContent> find(@RequestParam UUID binaryContentId){
+        if (binaryContentId == null) {
+            throw new IllegalArgumentException("binaryContentId가 필요합니다.");
+        }
+
         BinaryContent binaryContent = binaryContentService.find(binaryContentId);
         return ResponseEntity.status(HttpStatus.OK).body(binaryContent);
     }
 
     @RequestMapping(value = "/findAll", method = RequestMethod.GET)
     public ResponseEntity<List<BinaryContent>> findAllByIdIn(@RequestParam List<UUID> binaryContentIds){
+        if (binaryContentIds == null || binaryContentIds.isEmpty()) {
+            throw new IllegalArgumentException("binaryContentIds가 필요합니다.");
+        }
+
         List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds).stream().toList();
         return ResponseEntity.status(HttpStatus.OK).body(binaryContents);
     }
