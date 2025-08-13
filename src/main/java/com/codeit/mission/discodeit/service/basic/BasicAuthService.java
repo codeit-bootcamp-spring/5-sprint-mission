@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
-@Service()
+@Service
 public class BasicAuthService implements AuthService {
 
     private final UserRepository userRepository;
