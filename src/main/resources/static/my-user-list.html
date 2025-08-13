@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사용자 목록</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background-color: #e5e5e5;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 60px;
+        }
+
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 40px;
+            justify-items: center;
+        }
+
+        .user-card {
+            background-color: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            max-width: 280px;
+            position: relative;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #f8f9fa;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-indicator {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-online {
+            background-color: #22c55e;
+        }
+
+        .status-offline {
+            background-color: #9ca3af;
+        }
+
+        .username {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+            letter-spacing: -0.025em;
+        }
+
+        .email {
+            font-size: 1rem;
+            color: #9ca3af;
+            font-weight: 400;
+        }
+
+        /* Loading state */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            color: #6b7280;
+        }
+
+        /* Error state */
+        .error-container {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            color: #dc2626;
+            margin: 40px auto;
+            max-width: 500px;
+        }
+
+        .error-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* Empty state */
+        .empty-container {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 8px;
+        }
+
+        .empty-description {
+            font-size: 1rem;
+            color: #9ca3af;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+                margin-bottom: 40px;
+            }
+
+            .user-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 30px;
+            }
+
+            .user-card {
+                padding: 30px 20px;
+                max-width: 250px;
+            }
+
+            .profile-image {
+                width: 100px;
+                height: 100px;
+            }
+
+            .username {
+                font-size: 1.2rem;
+            }
+
+            .email {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="title">사용자 목록</h1>
+
+    <div id="loadingState" class="loading-container">
+        <div class="spinner"></div>
+        <div class="loading-text">사용자 정보를 불러오는 중...</div>
+    </div>
+
+    <div id="errorState" class="error-container" style="display: none;">
+        <div class="error-title">오류가 발생했습니다!</div>
+        <div>사용자 목록을 불러올 수 없습니다.</div>
+    </div>
+
+    <div id="emptyState" class="empty-container" style="display: none;">
+        <div class="empty-icon">👥</div>
+        <div class="empty-title">등록된 사용자가 없습니다</div>
+        <div class="empty-description">아직 등록된 사용자가 없습니다.</div>
+    </div>
+
+    <div id="userGrid" class="user-grid" style="display: none;">
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = '/api';
+    const ENDPOINTS = {
+        USERS: `${API_BASE_URL}/user/findAll`,
+        BINARY_CONTENT: `${API_BASE_URL}/binaryContent/find`
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchAndRenderUsers();
+    });
+
+    function showState(stateName) {
+        const states = ['loadingState', 'errorState', 'emptyState', 'userGrid'];
+        states.forEach(state => {
+            const element = document.getElementById(state);
+            if (state === stateName) {
+                element.style.display = state === 'userGrid' ? 'grid' : 'block';
+            } else {
+                element.style.display = 'none';
+            }
+        });
+    }
+
+    async function fetchAndRenderUsers() {
+        try {
+            showState('loadingState');
+
+            const response = await fetch(ENDPOINTS.USERS);
+            if (!response.ok) throw new Error('Failed to fetch users');
+            const users = await response.json();
+
+            await renderUserList(users);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            showState('errorState');
+        }
+    }
+
+    async function fetchUserProfile(profileId) {
+        try {
+            const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}?binaryContentId=${profileId}`);
+            if (!response.ok) throw new Error('Failed to fetch profile');
+            const profile = await response.json();
+
+            return `data:${profile.contentType};base64,${profile.bytes}`;
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+            return null;
+        }
+    }
+
+    function generateAvatar(username) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 120;
+        canvas.height = 120;
+        const ctx = canvas.getContext('2d');
+
+        const colors = ['#C2C2C2FF'];
+        const colorIndex = username.charCodeAt(0) % colors.length;
+
+        ctx.fillStyle = colors[colorIndex];
+        ctx.fillRect(0, 0, 120, 120);
+
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 40px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        const initial = username.charAt(0).toUpperCase();
+        ctx.fillText(initial, 60, 60);
+
+        return canvas.toDataURL();
+    }
+
+    async function renderUserList(users) {
+        if (!users || users.length === 0) {
+            showState('emptyState');
+            return;
+        }
+
+        const userGrid = document.getElementById('userGrid');
+        userGrid.innerHTML = '';
+
+        for (const user of users) {
+            const userCard = document.createElement('div');
+            userCard.className = 'user-card';
+
+            let profileUrl;
+            if (user.profileId) {
+                profileUrl = await fetchUserProfile(user.profileId);
+            }
+
+            if (!profileUrl) {
+                profileUrl = generateAvatar(user.username);
+            }
+
+            const statusClass = user.online ? 'status-online' : 'status-offline';
+
+            userCard.innerHTML = `
+                    <div class="profile-container">
+                        <img src="${profileUrl}" alt="${user.username}" class="profile-image">
+                        <div class="status-indicator ${statusClass}"></div>
+                    </div>
+                    <div class="username">${user.username}</div>
+                    <div class="email">${user.email}</div>
+                `;
+
+            userGrid.appendChild(userCard);
+        }
+
+        showState('userGrid');
+    }
+</script>
+</body>
+</html>
