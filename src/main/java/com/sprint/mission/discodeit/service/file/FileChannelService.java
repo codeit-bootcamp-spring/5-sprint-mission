@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service.file;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.sprint.mission.discodeit.dto.request.channel.CreatePrivateChannelRequest;
@@ -20,183 +20,235 @@ import com.sprint.mission.discodeit.dto.response.channel.DeleteChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.JoinChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.LeaveChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.exception.AlreadyExistsChannelMemberException;
+import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.DuplicateChannelNameException;
+import com.sprint.mission.discodeit.exception.NotChannelMemberException;
+import com.sprint.mission.discodeit.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 public class FileChannelService implements ChannelService {
 	private final ChannelRepository channelRepository;
+	private final ReadStatusRepository readStatusRepository;
+	private final MessageRepository messageRepository;
+	private final UserRepository userRepository;
 
-	public FileChannelService(ChannelRepository channelRepository) {
+	public FileChannelService(ChannelRepository channelRepository,
+							  ReadStatusRepository readStatusRepository,
+							  MessageRepository messageRepository,
+							  UserRepository userRepository) {
 		this.channelRepository = channelRepository;
-	}
-
-	@Override
-	public Channel createChannel(String channelName) {
-		if(channelRepository.existsByName(channelName)) return null;
-
-		Channel channel = new Channel(channelName);
-
-		channelRepository.save(channel);
-
-		return channel;
-	}
-
-	@Override
-	public boolean joinChannel(User user, String channelName) {
-		Optional<Channel> channelOpt = channelRepository.findByName(channelName);
-		if (channelOpt.isPresent()) {
-			Channel channel = channelOpt.get();
-			channel.addUser(user.getId());
-			channel.addNickname(user.getId(), user.getDefaultNickname());
-
-			channelRepository.save(channel);
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public Channel getChannelByName(String channelName) {
-		return channelRepository.findByName(channelName).orElse(null);
-	}
-
-	@Override
-	public Channel getChannelByUUID(UUID channelUUID) {
-		return channelRepository.findById(channelUUID).orElse(null);
-	}
-
-	@Override
-	public List<String> getMemberNicknames(String channelName){
-		if (channelName == null) return new ArrayList<>();
-
-		Optional<Channel> channelOpt = channelRepository.findByName(channelName);
-		if (channelOpt.isPresent()) {
-			Channel channel = channelOpt.get();
-			List<String> nicknameList = new ArrayList<>(channel.getUserNicknames().values());
-			nicknameList.sort((n1, n2) -> n1.compareTo(n2));
-			return nicknameList;
-		}
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<Channel> getAllChannels() {
-		return channelRepository.findAll();
-	}
-
-	@Override
-	public boolean updateChannelName(UUID channelUUID, String channelNewName) {
-		if(channelRepository.existsByName(channelNewName)) {
-			return false;
-		}
-
-		Optional<Channel> channelOpt = channelRepository.findById(channelUUID);
-		if (channelOpt.isPresent()) {
-			Channel channel = channelOpt.get();
-			channel.updateChannelName(channelNewName);
-			channel.updateUpdatedAt();
-			channelRepository.deleteById(channelUUID);
-			channelRepository.save(channel);
-			return true;
-		}
-		return false;
-
-	}
-
-	@Override
-	public boolean updateUserNickname(UUID channelUUID, UUID userUUID, String newNickname) {
-		if (newNickname == null || newNickname.isEmpty()) return false;
-
-		Optional<Channel> channelOpt = channelRepository.findById(channelUUID);
-		if (channelOpt.isPresent()) {
-			Channel channel = channelOpt.get();
-			channel.addNickname(userUUID, newNickname);
-			channel.updateUpdatedAt();
-			// Before: saveFile(CHANNELS_FILE, channelMap);
-			channelRepository.save(channel);
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean leaveChannel(UUID channelUUID, UUID userUUID) {
-		Optional<Channel> channelOpt = channelRepository.findById(channelUUID);
-		if (channelOpt.isPresent()) {
-			Channel channel = channelOpt.get();
-			channel.removeUser(userUUID);
-			channel.removeNickname(userUUID);
-			channelRepository.save(channel);
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean deleteChannel(UUID channelUUID) {
-		if (channelRepository.findById(channelUUID).isPresent()) {
-			channelRepository.deleteById(channelUUID);
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean deleteChannel(String channelName) {
-		if (channelRepository.existsByName(channelName)) {
-			channelRepository.deleteByName(channelName);
-			return true;
-		}
-		return false;
-	}
-
-	public void saveChannel(Channel channel) {
-		channelRepository.save(channel);
+		this.readStatusRepository = readStatusRepository;
+		this.messageRepository = messageRepository;
+		this.userRepository = userRepository;
 	}
 
 	@Override
 	public CreateChannelResponse createPublicChannel(CreatePublicChannelRequest request) {
-		return null;
+		if (channelRepository.existsByName(request.getChannelName())) {
+			throw new DuplicateChannelNameException();
+		}
+
+		Channel channel = new Channel(request.getChannelName());
+		channelRepository.save(channel);
+
+		return CreateChannelResponse.success(channel);
 	}
 
 	@Override
 	public CreateChannelResponse createPrivateChannel(CreatePrivateChannelRequest request) {
-		return null;
+		List<UUID> uniqueMemberIds = request.getMemberIds().stream().distinct().toList();
+
+		for (UUID userId : request.getMemberIds()) {
+			if (userId == null) {
+				throw new IllegalArgumentException("null");
+			}
+
+			if (!userRepository.existsById(userId)) {
+				throw new UserNotFoundException();
+			}
+		}
+
+		Channel channel = new Channel(uniqueMemberIds);
+		channelRepository.save(channel);
+
+		for (UUID userId : uniqueMemberIds) {
+			ReadStatus readStatus = new ReadStatus(userId, channel.getId());
+			readStatusRepository.save(readStatus);
+		}
+
+		return CreateChannelResponse.successWithMembers(channel, uniqueMemberIds);
 	}
 
 	@Override
 	public JoinChannelResponse joinChannel(JoinChannelRequest request) {
-		return null;
-	}
+		Channel channel = channelRepository.findByName(request.getChannelName())
+			.orElseThrow(ChannelNotFoundException::new);
 
-	@Override
-	public LeaveChannelResponse leaveChannel(LeaveChannelRequest request) {
-		return null;
-	}
+		if (channel.getMemberIds().contains(request.getUserId())) {
+			throw new AlreadyExistsChannelMemberException();
+		}
 
-	@Override
-	public List<ChannelResponse> getChannelsByUserId(GetChannelsByUserRequest request) {
-		return List.of();
+		channel.addUser(request.getUserId());
+		channel.addNickname(request.getUserId(), request.getUserDefaultNickname());
+		channelRepository.save(channel);
+
+		return JoinChannelResponse.success(channel, request.getUserId(), request.getUserDefaultNickname());
 	}
 
 	@Override
 	public ChannelResponse getChannelByName(GetChannelBychannelName request) {
-		return null;
+		Channel channel = channelRepository.findByName(request.getChannelName())
+			.orElseThrow(ChannelNotFoundException::new);
+
+		return createChannelByType(channel);
 	}
 
 	@Override
 	public ChannelResponse getChannelByUUID(GetChannelByChannelIdRequest request) {
-		return null;
+		Channel channel = channelRepository.findById(request.getId())
+			.orElseThrow(ChannelNotFoundException::new);
+
+		return createChannelByType(channel);
+	}
+
+	@Override
+	public List<String> getMemberNicknames(String channelName) {
+		Channel channel = channelRepository.findByName(channelName)
+			.orElseThrow(ChannelNotFoundException::new);
+		return new ArrayList<>(channel.getUserNicknames().values());
+	}
+
+	@Override
+	public List<ChannelResponse> getChannelsByUserId(GetChannelsByUserRequest request) {
+		UUID userId = request.getUserId();
+		List<ChannelResponse> channelResponseList = new ArrayList<>();
+
+		List<Channel> publicChannels = channelRepository.findAll()
+			.stream()
+			.filter(channel -> "PUBLIC".equals(channel.getType()))
+			.toList();
+
+		for (Channel channel : publicChannels) {
+			Instant lastMessageTime = getLastMessageTime(channel.getId());
+			channelResponseList.add(ChannelResponse.fromPublicChannel(channel, lastMessageTime));
+		}
+
+		List<ReadStatus> userReadStatuses = readStatusRepository.findByUserId(userId);
+
+		for (ReadStatus readStatus : userReadStatuses) {
+			Channel channel = channelRepository.findById(readStatus.getChannelId())
+				.orElse(null);
+
+			if (channel != null && "PRIVATE".equals(channel.getType())) {
+				Instant lastMessageTime = getLastMessageTime(channel.getId());
+				List<UUID> participantIds = getPrivateChannelParticipants(channel.getId());
+				channelResponseList.add(ChannelResponse.fromPrivateChannel(channel, lastMessageTime, participantIds));
+			}
+		}
+
+		return channelResponseList;
+	}
+
+	@Override
+	public boolean updateChannelName(UUID channelUUID, String channelNewName) {
+		Channel channel = channelRepository.findById(channelUUID)
+			.orElseThrow(ChannelNotFoundException::new);
+
+		if (channelRepository.existsByName(channelNewName)) {
+			throw new DuplicateChannelNameException();
+		}
+
+		if (channel.getType().equals("PRIVATE")) {
+			return false;
+		}
+
+		channel.updateChannelName(channelNewName);
+		channel.updateUpdatedAt();
+		channelRepository.save(channel);
+
+		return true;
 	}
 
 	@Override
 	public boolean updateUserNickname(UpdateUserNicknameRequest request) {
-		return false;
+		Channel channel = channelRepository.findById(request.getChannelId())
+			.orElseThrow(ChannelNotFoundException::new);
+
+		if (!channel.getMemberIds().contains(request.getUserId())) {
+			throw new NotChannelMemberException();
+		}
+
+		if (channel.getType().equals("PRIVATE")) {
+			return false;
+		}
+
+		channel.addNickname(request.getUserId(), request.getNewNickname());
+		channel.updateUpdatedAt();
+		channelRepository.save(channel);
+
+		return true;
+	}
+
+	@Override
+	public LeaveChannelResponse leaveChannel(LeaveChannelRequest request) {
+		Channel channel = channelRepository.findById(request.getChannelId())
+			.orElseThrow(ChannelNotFoundException::new);
+
+		if (!channel.getMemberIds().contains(request.getUserId())) {
+			throw new NotChannelMemberException();
+		}
+
+		channel.removeUser(request.getUserId());
+		channel.removeNickname(request.getUserId());
+		channel.updateUpdatedAt();
+		channelRepository.save(channel);
+		readStatusRepository.deleteByUserIdAndChannelId(request.getUserId(), request.getChannelId());
+
+		return LeaveChannelResponse.success(channel, request.getUserId(), request.getUserDafultNickname());
 	}
 
 	@Override
 	public DeleteChannelResponse deleteChannel(DeleteChannelRequest request) {
-		return null;
+		Channel channel = channelRepository.findById(request.getChannelId())
+			.orElseThrow(ChannelNotFoundException::new);
+
+		messageRepository.deleteByChannelId(request.getChannelId());
+		readStatusRepository.deleteByChannelId(request.getChannelId());
+		channelRepository.deleteById(request.getChannelId());
+
+		return DeleteChannelResponse.success(channel);
+	}
+
+	private ChannelResponse createChannelByType(Channel channel) {
+		Instant lastMessageTime = getLastMessageTime(channel.getId());
+
+		if ("PRIVATE".equals(channel.getType())) {
+			List<UUID> participantIds = getPrivateChannelParticipants(channel.getId());
+			return ChannelResponse.fromPrivateChannel(channel, lastMessageTime, participantIds);
+		} else {
+			return ChannelResponse.fromPublicChannel(channel, lastMessageTime);
+		}
+	}
+
+	private Instant getLastMessageTime(UUID channelId) {
+		List<Message> messages = messageRepository.findByChannelId(channelId);
+		return messages.stream()
+			.map(Message::getCreatedAt)
+			.max(Instant::compareTo)
+			.orElse(null);
+	}
+
+	private List<UUID> getPrivateChannelParticipants(UUID channelId) {
+		return readStatusRepository.findByChannelId(channelId)
+			.stream()
+			.map(ReadStatus::getUserId)
+			.toList();
 	}
 }

@@ -21,19 +21,4 @@ public interface MessageService {
 
 	// 삭제
 	DeleteMessageResponse deleteMessage(DeleteMessageRequest request);
-
-	@Deprecated
-	boolean createMessage(UUID authorUUID, UUID channelUUID,String message);
-	@Deprecated
-	Message getMessage(UUID messageUUID);
-	@Deprecated
-	List<Message> getAllMessages();
-	@Deprecated
-	List<Message> getMessageByAuthor(String targetAuthor, UUID channelUUID);
-	@Deprecated
-	List<Message> getMessageByChannel(UUID channelUUID);
-	@Deprecated
-	boolean updateMessage(UUID messageUUID, UUID authorUUID, String text);
-	@Deprecated
-	void deleteMessage(UUID messageUUID, UUID authorUUID);
 }

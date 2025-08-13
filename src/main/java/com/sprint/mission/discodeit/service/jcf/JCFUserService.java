@@ -1,142 +1,185 @@
 package com.sprint.mission.discodeit.service.jcf;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
-import com.sprint.mission.discodeit.dto.request.auth.LoginRequest;
 import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
-import com.sprint.mission.discodeit.dto.request.user.DeleteUserByIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.DeleteUserByLoingIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefalutNicknameRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserProfileImageRequest;
-import com.sprint.mission.discodeit.dto.response.auth.LoginResponse;
 import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
 import com.sprint.mission.discodeit.dto.response.user.UpdateUserPasswordResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.DuplicateEmailException;
+import com.sprint.mission.discodeit.exception.DuplicateLoginIdException;
+import com.sprint.mission.discodeit.exception.InvalidPasswordException;
+import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.UserStatusNotFoundException;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 public class JCFUserService implements UserService {
-	private final Map<UUID, User> UserMap;
-	private final Map<String, UUID> loginIdToUUID;
-	private UserStatusRepository userStatusRepository;
+	private final UserRepository userRepository;
+	private final UserStatusRepository userStatusRepository;
+	private final BinaryContentRepository binaryContentRepository;
 
-	public JCFUserService() {
-		UserMap = new ConcurrentHashMap<>();
-		loginIdToUUID = new ConcurrentHashMap<>();
+	public JCFUserService(UserRepository userRepository,
+						  UserStatusRepository userStatusRepository,
+						  BinaryContentRepository binaryContentRepository) {
+		this.userRepository = userRepository;
+		this.userStatusRepository = userStatusRepository;
+		this.binaryContentRepository = binaryContentRepository;
 	}
 
 	@Override
 	public UserResponse createUser(CreateUserRequest request) {
+		if (userRepository.existsByLoginId(request.getUsername())) {
+			throw new DuplicateLoginIdException();
+		}
 
-		if (request.getUsername() == null)
-			return null;
-		if (isExistLoginId(request.getUsername()))
-			return null;
+		if (userRepository.existsByEmail(request.getEmail())) {
+			throw new DuplicateEmailException();
+		}
 
-		User user = new User(request.toUser());
-		UserMap.put(user.getId(), user);
-		loginIdToUUID.put(user.getLoginId(), user.getId());
+		User user;
+		UUID profileId = null;
+
+		if (request.getProfileImage() != null) {
+			BinaryContent profileImage = request.getProfileImage().toBinaryContent();
+			binaryContentRepository.save(profileImage);
+			profileId = profileImage.getId();
+
+			user = request.toUserWithProfile(profileId);
+		} else {
+			user = request.toUser();
+		}
+
+		userRepository.save(user);
+
+		UserStatus userStatus = new UserStatus(user.getId());
+		userStatusRepository.save(userStatus);
 
 		return UserResponse.success(user);
 	}
 
-
-	public LoginResponse login(LoginRequest request) {
-		if (request.getUsername() == null || request.getPassword() == null)
-			return null;
-		if (loginIdToUUID.containsKey(request.getUsername())) {
-			User user = UserMap.get(loginIdToUUID.get(request.getUsername()));
-			if (user.getPassword().equals(request.getPassword())) {
-				return LoginResponse.success(user);
-			} else {
-				return LoginResponse.success(null);
-			}
-		}
-		return LoginResponse.success(null);
-	}
-
 	@Override
 	public UserResponse getUserById(GetUserByIdRequest request) {
-		User user = UserMap.get(request.getId());
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
 		return UserResponse.success(user);
 	}
 
 	@Override
 	public UserResponse getUserByLoginId(String loginId) {
-		User user = UserMap.get(loginIdToUUID.get(loginId));
+		User user = userRepository.findByLoginId(loginId)
+			.orElseThrow(UserNotFoundException::new);
+
 		return UserResponse.success(user);
 	}
 
 	@Override
 	public List<UserResponse> getAllUsers() {
-		List<User> userList = new ArrayList<>(UserMap.values());
-		userList.sort((u1, u2) -> u1.getDefaultNickname().compareTo(u2.getDefaultNickname()));
-		List<UserResponse> userResponseList = new ArrayList<>();
-
-		for (User user : userList) {
-			userResponseList.add(UserResponse.success(user));
-		}
-
-		return userResponseList;
+		List<User> users = userRepository.findAll();
+		return users.stream()
+			.map(UserResponse::success)
+			.toList();
 	}
 
 	@Override
 	public UpdateUserPasswordResponse updateUserPassword(UpdateUserPasswordRequest request) {
-		if (request.getId() == null || request.getCurrentPassword() == null)
-			return new UpdateUserPasswordResponse(false);
-		UserMap.get(request.getId()).updatePassword(request.getNewPassword());
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		if (!user.getPassword().equals(request.getCurrentPassword())) {
+			throw new InvalidPasswordException();
+		}
+
+		user.updatePassword(request.getNewPassword());
+		userRepository.save(user);
 
 		return new UpdateUserPasswordResponse(true);
 	}
 
 	@Override
 	public UserResponse updateUserDefalutNickname(UpdateUserDefalutNicknameRequest request) {
-		return null;
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		user.updateDefaultNickname(request.getNickname());
+		userRepository.save(user);
+
+		return UserResponse.success(user);
 	}
 
 	@Override
 	public UserResponse updateUserProfile(UpdateUserProfileImageRequest request) {
-		return null;
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		UUID oldProfileId = user.getProfileId();
+
+		if (request.getUserProfileImage() != null) {
+			// 새로운 프로필 이미지 제공 - 업데이트 (기존과 같아도 새로 저장)
+			BinaryContent newProfileImage = request.getUserProfileImage().toBinaryContent();
+			binaryContentRepository.save(newProfileImage);
+
+			// 기존 프로필 이미지가 있으면 삭제
+			if (oldProfileId != null) {
+				binaryContentRepository.deleteById(oldProfileId);
+			}
+
+			user.updateProfileId(newProfileImage.getId());
+		} else {
+			// null 제공 - 기존 프로필 제거
+			if (oldProfileId != null) {
+				binaryContentRepository.deleteById(oldProfileId);
+				user.removeProfile();
+			}
+		}
+
+		userRepository.save(user);
+
+		return UserResponse.success(user);
 	}
 
 	@Override
 	public DeleteUserResponse delete(UUID id) {
-		if (id == null || !UserMap.containsKey(id)) {
-			return null;
+		User user = userRepository.findById(id)
+			.orElseThrow(UserNotFoundException::new);
+
+		UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
+			.orElseThrow(UserStatusNotFoundException::new);
+
+		if(user.getProfileId() != null) {
+			binaryContentRepository.deleteById(user.getProfileId());
 		}
-
-		User user = UserMap.get(id);
-
-		loginIdToUUID.remove(UserMap.get(id).getLoginId());
-		UserMap.remove(id);
+		userStatusRepository.deleteById(userStatus.getId());
+		userRepository.deleteById(user.getId());
 
 		return DeleteUserResponse.success(user);
 	}
 
 	@Override
 	public DeleteUserResponse delete(String loginId) {
-		if (loginId == null || !loginIdToUUID.containsKey(loginId)) {
-			return null;
+		User user = userRepository.findByLoginId(loginId)
+			.orElseThrow(UserNotFoundException::new);
+
+		UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
+			.orElseThrow(UserStatusNotFoundException::new);
+
+		if(user.getProfileId() != null) {
+			binaryContentRepository.deleteById(user.getProfileId());
 		}
-
-		User user = UserMap.get(loginIdToUUID.get(loginId));
-
-		UserMap.remove(loginIdToUUID.get(loginId));
-		loginIdToUUID.remove(loginId);
+		userStatusRepository.deleteById(userStatus.getId());
+		userRepository.deleteById(user.getId());
 
 		return DeleteUserResponse.success(user);
-	}
-
-
-
-	public boolean isExistLoginId(String loginId) {
-		return loginIdToUUID.containsKey(loginId);
 	}
 }
