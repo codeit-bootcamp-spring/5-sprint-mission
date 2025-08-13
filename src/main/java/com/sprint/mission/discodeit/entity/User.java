@@ -1,99 +1,55 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.UUID;
 
+@Getter
 public class User implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
-    private final UUID id;
-    private final String discriminator;   // 유저의 디스코드 태그 - #7533
-
-    private final Long createAt;    // DB timestamp
-    private Long modifyAt;
-
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
+    private String username;
     private String email;
     private String password;
-    private String username;
-    private UserStatus status;
+    private UUID profileId;     // BinaryContent
 
-    public User(String email, String username, String password, String discriminator, UserStatus status) {
+    public User(String username, String email, String password, UUID profileId) {
         this.id = UUID.randomUUID();
-        Instant now = Instant.now();
-        this.createAt = now.getEpochSecond();
-
+        this.createdAt = Instant.now();
+        //
+        this.username = username;
         this.email = email;
-        this.username = username;
         this.password = password;
-        this.discriminator = discriminator;
-        this.status = status;
+        this.profileId = profileId;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public long getCreateAt() {
-        return createAt;
-    }
-
-    public long getModifyAt() { return modifyAt; }
-
-    public String getEmail() { return email; }
-
-    public String getUsername() { return username; }
-
-    public String getPassword() { return password; }
-
-    public String getDiscriminator() { return discriminator; }
-
-    public UserStatus getStatus() { return status; }
-
-    public void update(String email, String username, String password, UserStatus status) {
-        int sameValueCount = 0;
-        if(this.email.equals(email)){
-            System.out.println("[Alarm] : The original email and the email to be changed are the same.");
-            sameValueCount++;
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
         }
-        if(this.username.equals(username)){
-            System.out.println("[Alarm] : The original user's name and the user's name to be changed are the same.");
-            sameValueCount++;
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
         }
-        if(this.password.equals(password)){
-            System.out.println("[Alarm] : The original password and the password to be changed are the same.");
-            sameValueCount++;
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
         }
-        if(status.equals(this.status)){
-            System.out.println("[Alarm] : The original user status and the user status to be changed are the same.");
-            sameValueCount++;
+        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+            this.profileId = newProfileId;
+            anyValueUpdated = true;
         }
-        this.email =  email;
-        this.username = username;
-        this.password = password;
-        this.status = status;
 
-        if (sameValueCount != 4) {
-            Instant now = Instant.now();
-            modifyAt = now.getEpochSecond();
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
         }
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("User{");
-        sb.append("id=").append(id);
-        sb.append(", discriminator='").append(discriminator).append('\'');
-        sb.append(", username='").append(username).append('\'');
-        sb.append(", password='").append(password).append('\'');
-        sb.append(", email='").append(email).append('\'');
-        sb.append(", status='").append(status).append('\'');
-        sb.append(", createAt=").append(createAt);
-        sb.append(", modifyAt=").append(modifyAt);
-        sb.append('}');
-        return sb.toString();
     }
 }

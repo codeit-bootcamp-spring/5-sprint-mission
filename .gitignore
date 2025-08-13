@@ -186,4 +186,7 @@ gradle-app.setting
 ### VS Code ###
 .vscode/
 
+### Avoid file data
+.discodeit
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,macos,windows
