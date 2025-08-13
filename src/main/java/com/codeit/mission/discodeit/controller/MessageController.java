@@ -26,6 +26,19 @@ public class MessageController {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public ResponseEntity<Message> create(@RequestPart MessageCreateRequest messageCreateRequest,
                                           @RequestPart(required = false) MultipartFile[] attachments) throws IOException {
+        if (messageCreateRequest == null) {
+            throw new IllegalArgumentException("messageCreateRequest가 필요합니다.");
+        }
+        if (messageCreateRequest.content() == null || messageCreateRequest.content().trim().isEmpty()) {
+            throw new IllegalArgumentException("content가 필요합니다.");
+        }
+        if (messageCreateRequest.channelId() == null) {
+            throw new IllegalArgumentException("channelId가 필요합니다.");
+        }
+        if (messageCreateRequest.authorId() == null) {
+            throw new IllegalArgumentException("authorId가 필요합니다.");
+        }
+
         List<BinaryContentCreateRequest> attachmentRequests = new ArrayList<>();
 
         if (attachments != null && attachments.length > 0) {
@@ -48,18 +61,33 @@ public class MessageController {
 
     @RequestMapping(value = "/update/{messageId}", method = RequestMethod.PUT)
     public ResponseEntity<Message> update(@PathVariable UUID messageId, @RequestBody MessageUpdateRequest request) {
+        if (messageId == null) {
+            throw new IllegalArgumentException("messageId가 필요합니다.");
+        }
+        if (request == null) {
+            throw new IllegalArgumentException("request가 필요합니다.");
+        }
+
         Message updatedMessage = messageService.update(messageId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedMessage);
     }
 
     @RequestMapping(value = "/delete/{messageId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
+        if (messageId == null) {
+            throw new IllegalArgumentException("messageId가 필요합니다.");
+        }
+
         messageService.delete(messageId);
         return ResponseEntity.noContent().build();
     }
 
     @RequestMapping(value = "/{channelId}", method = RequestMethod.GET)
     public ResponseEntity<List<Message>> findAllByChannelId(@PathVariable UUID channelId) {
+        if (channelId == null) {
+            throw new IllegalArgumentException("channelId가 필요합니다.");
+        }
+
         List<Message> allByChannelId = messageService.findAllByChannelId(channelId);
         return ResponseEntity.status(HttpStatus.OK).body(allByChannelId);
     }
