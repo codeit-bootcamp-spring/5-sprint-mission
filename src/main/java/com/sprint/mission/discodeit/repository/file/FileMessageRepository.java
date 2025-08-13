@@ -18,26 +18,27 @@ import java.util.UUID;
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 public class FileMessageRepository implements MessageRepository {
-    private final Path DIRECTORY;
-    private final String EXTENSION = ".ser";
+    private final Path directory;
+    private static final String EXTENSION = ".ser";
+    private static final String DOMAIN_NAME = Message.class.getSimpleName();
 
     public FileMessageRepository(RepositoryProps props) {
         Path root = Paths.get(props.getFileDirectory());
         if (!root.isAbsolute()) {
             root = Paths.get(System.getProperty("user.dir")).resolve(root);
         }
-        this.DIRECTORY = root.resolve(Message.class.getSimpleName());
-        if (Files.notExists(DIRECTORY)) {
+        this.directory = root.resolve(DOMAIN_NAME);
+        if (Files.notExists(directory)) {
             try {
-                Files.createDirectories(DIRECTORY);
+                Files.createDirectories(directory);
             } catch (IOException e) {
-                throw new ThrowableIOException("디렉토리 생성 실패 : " + DIRECTORY, e);
+                throw new ThrowableIOException("디렉토리 생성 실패 : " + directory, e);
             }
         }
     }
 
     private Path resolvePath(UUID id) {
-        return DIRECTORY.resolve(id + EXTENSION);
+        return directory.resolve(id + EXTENSION);
     }
 
     @Override
@@ -74,7 +75,7 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public List<Message> findAll() {
         try {
-            return Files.list(DIRECTORY)
+            return Files.list(directory)
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (
@@ -88,7 +89,7 @@ public class FileMessageRepository implements MessageRepository {
                     })
                     .toList();
         } catch (IOException e) {
-            throw new ThrowableIOException("불러오기 실패 : " + DIRECTORY, e);
+            throw new ThrowableIOException("불러오기 실패 : " + directory, e);
         }
     }
 
