@@ -3,19 +3,18 @@ package com.sprint.mission.discodeit.dto;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.UUID;
 
-public class ChannelDto {
+public class ChannelRequest {
 
     public record create(
             @NotBlank(message = "이름을 입력하세요")
             String name,
-
             @Schema(description = "채널 상태", implementation = ChannelType.class, allowableValues = {"PUBLIC", "PRIVATE"})
             @NotNull(message = "채널 타입을 입력하세요")
             ChannelType type,
@@ -24,6 +23,9 @@ public class ChannelDto {
     ) {}
 
     public record createPrivate(
+            @NotBlank(message = "이름을 입력하세요")
+            String name,
+            @NotEmpty(message = "멤버를 1명 이상 추가하세요")
             List<UUID> memberIds
     ) {}
 
@@ -42,15 +44,4 @@ public class ChannelDto {
             @NotNull(message = "아이디를 입력해주세요")
             UUID channelId
     ){}
-
-    @Builder
-    public record response(
-            UUID id,
-            ChannelType type,
-            String name,
-            String topic,
-            String description,
-            String createdAt,
-            String updatedAt
-    ) {}
 }

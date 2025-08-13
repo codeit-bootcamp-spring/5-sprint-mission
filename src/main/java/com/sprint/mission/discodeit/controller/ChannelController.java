@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.ChannelRequest;
 import com.sprint.mission.discodeit.dto.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -22,17 +22,22 @@ public class ChannelController {
     private final ChannelService channelService;
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<ChannelDto.response> createChannel(@Valid @ModelAttribute ChannelDto.create dto) {
+    public ResponseEntity<ChannelResponse.detail> createChannel(@Valid @ModelAttribute ChannelRequest.create dto) {
         return ResponseEntity.ok(channelService.create(dto));
     }
 
+    @RequestMapping(value = "/create/private", method = RequestMethod.POST, consumes = "application/json")
+    public ResponseEntity<ChannelResponse.detail> createPrivateChannel(@Valid @RequestBody ChannelRequest.createPrivate dto) {
+        return ResponseEntity.ok(channelService.createPrivate(dto));
+    }
+
     @RequestMapping(value = "/update", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<ChannelDto.response> updateChannel(@Valid @ModelAttribute ChannelDto.update req) {
+    public ResponseEntity<ChannelResponse.detail> updateChannel(@Valid @ModelAttribute ChannelRequest.update req) {
         return ResponseEntity.ok(channelService.update(req));
     }
 
     @RequestMapping(value = "/join", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<ChannelResponse.join> joinChannel(@ModelAttribute ChannelDto.join dto) {
+    public ResponseEntity<ChannelResponse.join> joinChannel(@ModelAttribute ChannelRequest.join dto) {
         return ResponseEntity.ok(channelService.join(dto.userId(), dto.channelId()));
     }
 

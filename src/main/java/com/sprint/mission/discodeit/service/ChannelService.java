@@ -1,21 +1,19 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.ChannelRequest;
 import com.sprint.mission.discodeit.dto.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public interface ChannelService {
 
-    ChannelDto.response create(ChannelDto.create dto);
+    ChannelResponse.detail create(ChannelRequest.create dto);
 
-    ChannelDto.response update(ChannelDto.update dto);
+    ChannelResponse.detail update(ChannelRequest.update dto);
 
-    Channel createPrivate(ChannelDto.createPrivate dto);
+    ChannelResponse.detail createPrivate(ChannelRequest.createPrivate dto);
 
     List<Channel> findAll();
 

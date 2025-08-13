@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.ChannelRequest;
 import com.sprint.mission.discodeit.dto.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
@@ -11,11 +11,9 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -27,7 +25,7 @@ public class BasicChannelService implements ChannelService {
     private final UserRepository userRepository;
 
     @Override
-    public ChannelDto.response create(ChannelDto.create dto) {
+    public ChannelResponse.detail create(ChannelRequest.create dto) {
         if (dto.name() == null || dto.name().isBlank()) {
             throw new IllegalArgumentException("채널 이름은 필수입니다.");
         }
@@ -37,7 +35,7 @@ public class BasicChannelService implements ChannelService {
         Channel channel = new Channel(dto.name(), dto.type());
         channelRepository.save(channel);
 
-        return ChannelDto.response.builder()
+        return ChannelResponse.detail.builder()
                 .id(channel.getId())
                 .type(channel.getType())
                 .name(channel.getName())
@@ -49,7 +47,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Channel createPrivate(ChannelDto.createPrivate dto) {
+    public ChannelResponse.detail createPrivate(ChannelRequest.createPrivate dto) {
 
         if (dto.memberIds() == null || dto.memberIds().isEmpty())
             throw new IllegalArgumentException("PRIVATE 채널은 최소 1명 이상의 참여자가 필요합니다.");
@@ -60,10 +58,8 @@ public class BasicChannelService implements ChannelService {
                         .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다.")))
                 .toList();
 
-
-        // 채널 생성(이름/설명은 선택)
-        Channel channel = new Channel(ChannelType.PRIVATE);
-        Channel saved = channelRepository.save(channel);
+        Channel channel = new Channel(dto.name(),ChannelType.PRIVATE);
+        channelRepository.save(channel);
 
         // 참여자 전원에 대해 ReadStatus 생성(lastReadAt = null)
         List<ReadStatus> statuses = members.stream()
@@ -71,11 +67,19 @@ public class BasicChannelService implements ChannelService {
 
         readStatusRepository.saveAll(statuses);
 
-        return saved;
+        return ChannelResponse.detail.builder()
+                .id(channel.getId())
+                .type(channel.getType())
+                .name(channel.getName())
+                .topic(channel.getTopic())
+                .description(channel.getDescription())
+                .createdAt(channel.getCreatedAtFormatted())
+                .updatedAt(channel.getUpdatedAtFormatted())
+                .build();
     }
 
     @Override
-    public ChannelDto.response update(ChannelDto.update dto) {
+    public ChannelResponse.detail update(ChannelRequest.update dto) {
 
         // ID에 해당하는 채널 조회
         Channel channel = channelRepository.findById(dto.id())
@@ -88,7 +92,7 @@ public class BasicChannelService implements ChannelService {
 
         channelRepository.save(channel);
 
-        return ChannelDto.response.builder()
+        return ChannelResponse.detail.builder()
                 .id(channel.getId())
                 .type(channel.getType())
                 .name(channel.getName())

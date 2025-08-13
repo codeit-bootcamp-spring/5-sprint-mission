@@ -10,12 +10,8 @@ public class Channel extends Base {
     private ChannelType type;
     private String description;
 
-    public Channel(ChannelType type){
-        this.type = type;
-    }
-
     public Channel(String name, ChannelType type) {
-        this(type);
+        this.type = type;
         this.name = name;
     }
 
