@@ -20,14 +20,14 @@ public class ReadStatusController {
     private final BasicReadStatusService readStatusService;
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<ReadStatus> create(@RequestPart ReadStatusCreateRequest request) {
-        ReadStatus readStatus = readStatusService.create(request);
+    public ResponseEntity<ReadStatus> create(@RequestPart ReadStatusCreateRequest readStatusCreateRequest) {
+        ReadStatus readStatus = readStatusService.create(readStatusCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(readStatus);
     }
 
     @RequestMapping(value = {"/update"}, method = RequestMethod.POST)
-    public ResponseEntity<ReadStatus> update(@RequestPart ReadStatusUpdateRequest request) {
-        ReadStatus readStatus = readStatusService.update(request);
+    public ResponseEntity<ReadStatus> update(@RequestPart ReadStatusUpdateRequest readStatusUpdateRequest) {
+        ReadStatus readStatus = readStatusService.update(readStatusUpdateRequest);
         return ResponseEntity.status(HttpStatus.OK).body(readStatus);
     }
 
