@@ -29,7 +29,7 @@ public class UserController {
     private final UserStatusService userStatusService;
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<User> createUser(
+    public ResponseEntity<User> create(
             @RequestPart UserCreateRequest userCreateRequest,
             @RequestPart(required = false) MultipartFile profile
     ) throws IOException {
@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/update/{userId}", method = RequestMethod.PUT)
-    public ResponseEntity<User> updateUser(
+    public ResponseEntity<User> update(
             @PathVariable UUID userId,
             @RequestPart UserUpdateRequest userUpdateRequest,
             @RequestPart(required = false) MultipartFile profile
@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/delete/{userId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID userId) {
+    public ResponseEntity<Void> delete(@PathVariable UUID userId) {
         userService.delete(userId);
         return ResponseEntity.noContent().build();
     }
