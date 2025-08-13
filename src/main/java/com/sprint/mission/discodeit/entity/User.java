@@ -1,87 +1,55 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.StringJoiner;
 import java.util.UUID;
 
+@Getter
 public class User implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
     private UUID id;
-    private Long createdAt;
-    private Long updatedAt;
-
-
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
     private String username;
     private String email;
     private String password;
+    private UUID profileId;     // BinaryContent
 
-    public User(String username, String email, String password) {
+    public User(String username, String email, String password, UUID profileId) {
         this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
         this.username = username;
         this.email = email;
         this.password = password;
-        this.createdAt = Instant.now().getEpochSecond();
-        this.updatedAt = createdAt;
+        this.profileId = profileId;
     }
 
-    public UUID getId() {
-        return id;
-    }
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+            this.profileId = newProfileId;
+            anyValueUpdated = true;
+        }
 
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void update(String username, String email, String password) {
-      boolean flag = false;
-      if(username != null && !username.equals(this.username)) {
-          this.username = username;
-          flag = true;
-      }
-      if(email != null && !email.equals(this.username)) {
-          this.email = email;
-          flag = true;
-      }
-      if(password != null && !password.equals(this.password)) {
-          this.password = password;
-          flag = true;
-      }
-      if(flag) {
-          this.updatedAt = Instant.now().toEpochMilli();
-      }
-
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }

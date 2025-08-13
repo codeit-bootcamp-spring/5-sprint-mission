@@ -1,81 +1,44 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.StringJoiner;
 import java.util.UUID;
 
+@Getter
 public class Channel implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
-
     private UUID id;
-    private Long createdAt; // 생성시간
-    private Long updatedAt; // 수정시간
-
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
     private ChannelType type;
-    private String channelname;
+    private String name;
     private String description;
 
-    public Channel(ChannelType type, String channelname, String description) {
+    public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().getEpochSecond();
+        this.createdAt = Instant.now();
+        //
         this.type = type;
-        this.updatedAt = createdAt;
-        this.channelname = channelname;
+        this.name = name;
         this.description = description;
     }
 
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getChannelname() {
-        return channelname;
-    }
-
-    public ChannelType getType() {
-        return type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void update(String name, String description) {
-        boolean flag = false;
-        if(name != null && name.equals(this.channelname)){
-            this.channelname = name;
-            flag=true;
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
         }
-        if(description != null && !description.equals(this.description)){
-            this.description = description;
-            flag=true;
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
         }
-        if(flag){
-            this.updatedAt = Instant.now().toEpochMilli();
-        }
-    }
 
-    @Override
-    public String toString() {
-        return "Channel{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", type=" + type +
-                ", channelname='" + channelname + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
