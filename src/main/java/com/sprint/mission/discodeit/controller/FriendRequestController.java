@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.FriendRequestDeleteRequest;
 import com.sprint.mission.discodeit.dto.request.FriendRequestHandleRequest;
 import com.sprint.mission.discodeit.dto.request.FriendRequestSendRequest;
 import com.sprint.mission.discodeit.dto.response.FriendRequestResponse;
@@ -17,18 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-
-// POST   /api/friend-requests                # send (body: receiverId)
-// GET    /api/friend-requests/sent           # 내가 보낸
-// GET    /api/friend-requests/received       # 내가 받은
-// POST   /api/friend-requests/{id}/accept    # 수락(수신자)
-// POST   /api/friend-requests/{id}/reject    # 거절(수신자)
-// POST   /api/friend-requests/{id}/cancel    # 취소(발신자)
 
 @RestController
 @RequiredArgsConstructor
@@ -39,32 +31,54 @@ public class FriendRequestController {
     private final FriendRequestService friendRequestService;
 
     @GetMapping
-    public ResponseEntity<List<FriendRequestResponse>> findAllByUserId(@RequestParam UUID id,
-                                                                       @RequestParam String direction) {
-        return ResponseEntity.ok(friendRequestService.findAllByUserId(id, direction));
+    public ResponseEntity<List<FriendRequestResponse>> findAll() {
+        return ResponseEntity.ok(friendRequestService.findAll());
+    }
+
+    @GetMapping(path = "/sent")
+    public ResponseEntity<List<FriendRequestResponse>> findAllBySenderId(@RequestParam("userId") UUID userId) {
+        return ResponseEntity.ok(friendRequestService.findAllBySenderId(userId));
+    }
+
+    @GetMapping(path = "/received")
+    public ResponseEntity<List<FriendRequestResponse>> findAllByReceiverId(@RequestParam("userId") UUID userId) {
+        return ResponseEntity.ok(friendRequestService.findAllByReceiverId(userId));
     }
 
     @PostMapping
     public ResponseEntity<FriendRequestResponse> sendFriendRequest(@Valid @RequestBody FriendRequestSendRequest body) {
         FriendRequestResponse saved = friendRequestService.send(body);
-        return ResponseEntity
-                .created(URI.create("/api/friend-requests/"))
-                .body(saved);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(saved.id())
+                .toUri();
+        return ResponseEntity.created(location).body(saved);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> deleteAllFriendRequests(FriendRequestDeleteRequest body) {
-        friendRequestService.deleteAllByUserId(body.userId());
+    @DeleteMapping(path = "/by-user/{userId}")
+    public ResponseEntity<Void> clearFriendRequests(@PathVariable("userId") UUID userId) {
+        friendRequestService.clearFriendRequests(userId);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(path = "/{id}")
-    public ResponseEntity<Void> handleFriendRequest(@PathVariable("id") UUID requestId,
-                                                    @RequestBody FriendRequestHandleRequest body) {
-        String s = Objects.requireNonNull(body.status()).strip().toUpperCase();
-        if (!s.equals("ACCEPTED") && !s.equals("REJECTED")) return ResponseEntity.badRequest().build();
-        if (s.equals("ACCEPTED")) friendRequestService.accept(requestId);
-        else friendRequestService.reject(requestId);
+    @PostMapping(path = "/{id}/accept")
+    public ResponseEntity<Void> accept(@PathVariable("id") UUID requestId,
+                                       @Valid @RequestBody FriendRequestHandleRequest body) {
+        friendRequestService.accept(requestId, body.userId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(path = "/{id}/reject")
+    public ResponseEntity<Void> reject(@PathVariable("id") UUID requestId,
+                                       @Valid @RequestBody FriendRequestHandleRequest body) {
+        friendRequestService.reject(requestId, body.userId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(path = "/{id}/cancel")
+    public ResponseEntity<Void> cancel(@PathVariable("id") UUID requestId,
+                                       @Valid @RequestBody FriendRequestHandleRequest body) {
+        friendRequestService.cancel(requestId, body.userId());
         return ResponseEntity.noContent().build();
     }
 }

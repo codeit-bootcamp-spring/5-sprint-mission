@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.domain.entity.FriendRequest;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.dto.request.FriendRequestSendRequest;
 import com.sprint.mission.discodeit.dto.response.FriendRequestResponse;
+import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -38,6 +39,17 @@ public class FriendRequestService {
         friendRequestRepository.save(entity);
     }
 
+    public List<FriendRequestResponse> findAll() {
+        return friendRequestRepository.findAll().stream()
+                .sorted(Comparator.comparing(FriendRequest::getCreatedAt).reversed())
+                .map(fr -> toFriendRequestResponse(
+                        fr,
+                        userRepository.getOrThrow(fr.getSenderId()),
+                        userRepository.getOrThrow(fr.getReceiverId())
+                ))
+                .toList();
+    }
+
     public List<FriendRequestResponse> findAllBySenderId(UUID id) {
         return friendRequestRepository
                 .findAllBySenderId(id).stream()
@@ -62,16 +74,6 @@ public class FriendRequestService {
                 .toList();
     }
 
-    public List<FriendRequestResponse> findAllByUserId(UUID id, String direction) {
-        if (id == null) throw new IllegalArgumentException("id must not be null");
-        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다" + id));
-        return switch (direction.strip().toUpperCase()) {
-            case "SENT" -> findAllBySenderId(id);
-            case "RECEIVED" -> findAllByReceiverId(id);
-            default -> throw new IllegalStateException("Unexpected value: " + direction.strip().toLowerCase());
-        };
-    }
-
     @Transactional
     public FriendRequestResponse send(FriendRequestSendRequest body) {
         final User sender = userRepository.findById(body.senderId()).orElseThrow(
@@ -91,10 +93,11 @@ public class FriendRequestService {
     }
 
     @Transactional
-    public void accept(UUID requestId) {
+    public void accept(UUID requestId, UUID userId) {
         FriendRequest fr = friendRequestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("이미 처리된 요청입니다."));
         UUID senderId = fr.getSenderId();
         UUID receiverId = fr.getReceiverId();
+        if (!receiverId.equals(userId)) throw new AccessDeniedException("친구 요청 수락 권한이 없습니다.");
 
         Set<UUID> ids = Set.of(senderId, receiverId);
         Map<UUID, User> users = userRepository.findAllByIds(ids).stream()
@@ -116,12 +119,20 @@ public class FriendRequestService {
     }
 
     @Transactional
-    public void reject(UUID requestId) {
-        if (friendRequestRepository.findById(requestId).isEmpty()) throw new NotFoundException("이미 처리된 요청입니다.");
+    public void reject(UUID requestId, UUID userId) {
+        FriendRequest fr = friendRequestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("이미 처리된 요청입니다."));
+        if (!fr.getReceiverId().equals(userId)) throw new AccessDeniedException("친구 요청 거절 권한이 없습니다.");
         friendRequestRepository.hardDeleteById(requestId);
     }
 
-    public void deleteAllByUserId(UUID userId) {
+    @Transactional
+    public void cancel(UUID requestId, UUID userId) {
+        FriendRequest fr = friendRequestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("이미 처리된 요청입니다."));
+        if (!fr.getSenderId().equals(userId)) throw new AccessDeniedException("친구 요청 거절 권한이 없습니다.");
+        friendRequestRepository.softDeleteById(requestId);
+    }
+
+    public void clearFriendRequests(UUID userId) {
         friendRequestRepository.softDeleteAllByUserId(userId);
     }
 }
