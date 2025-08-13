@@ -59,6 +59,9 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public List<Message> findAllByChannelId(UUID channelId) {
+        if(!channelRepository.existsById(channelId)) {
+            throw new NoSuchElementException("findAllByChannelId : 채널을 찾을 수 없습니다");
+        }
         return messageRepository.findAll().stream()
                 .filter(m -> m.getChannelId().equals(channelId))
                 .collect(Collectors.toList());
