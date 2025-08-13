@@ -57,6 +57,7 @@ public class BasicUserService implements UserService {
 		UserStatus userStatus = new UserStatus(user.getId());
 		userStatusRepository.save(userStatus);
 
+
 		return CreateUserResponse.success(user);
 	}
 
