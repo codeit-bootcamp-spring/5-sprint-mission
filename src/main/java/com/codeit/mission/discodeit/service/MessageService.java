@@ -1,20 +1,21 @@
 package com.codeit.mission.discodeit.service;
 
-import com.codeit.mission.discodeit.dto.message.MessageCreateRequest;
-import com.codeit.mission.discodeit.dto.message.MessageResponse;
-import com.codeit.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.codeit.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.codeit.mission.discodeit.dto.request.MessageCreateRequest;
+import com.codeit.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.codeit.mission.discodeit.entity.Message;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface MessageService {
-    MessageResponse create(MessageCreateRequest request);
+    Message create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests);
 
-    MessageResponse find(UUID messageId);
+    Message find(UUID messageId);
 
-    List<MessageResponse> findAllByChannelId(UUID channelId);
+    List<Message> findAllByChannelId(UUID channelId);
 
-    MessageResponse update(MessageUpdateRequest request);
+    Message update(UUID messageId, MessageUpdateRequest request);
 
     void delete(UUID messageId);
 }
