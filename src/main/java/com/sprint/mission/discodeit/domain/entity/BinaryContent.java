@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.domain.entity;
 
 import lombok.Getter;
-import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,6 +13,11 @@ import java.util.UUID;
 @Getter
 public class BinaryContent extends BaseEntity {
 
+    private static final String IMAGE_PNG = "image/png";
+    private static final String IMAGE_JPEG = "image/jpeg";
+    private static final String IMAGE_GIF = "image/gif";
+    private static final String APP_OCTET = "application/octet-stream";
+
     private String filename;
     private String contentType;
     private long size;
@@ -23,22 +27,22 @@ public class BinaryContent extends BaseEntity {
     private byte[] bytes;
 
     public BinaryContent(String filename, String contentType, byte[] bytes) {
-        setAll(normalizeFilename(requireNonBlank(filename, "filename must not be blank")),
-                requireNonBlank(contentType, "contentType must not be blank"),
+        setAll(
+                normalizeFilename(requireNonBlank(filename, "filename must not be blank")),
+                normalizeContentType(requireNonBlank(contentType, "contentType must not be blank")),
                 Objects.requireNonNull(bytes, "bytes must not be null"),
-                null);
+                null
+        );
     }
 
     protected BinaryContent(UUID id, Instant createdAt, String filename, String contentType, byte[] bytes, String storagePath) {
         super(id, createdAt);
-        setAll(normalizeFilename(requireNonBlank(filename, "filename must not be blank")),
-                requireNonBlank(contentType, "contentType must not be blank"),
+        setAll(
+                normalizeFilename(requireNonBlank(filename, "filename must not be blank")),
+                normalizeContentType(requireNonBlank(contentType, "contentType must not be blank")),
                 Objects.requireNonNull(bytes, "bytes must not be null"),
-                storagePath);
-    }
-
-    public static BinaryContent of(String filename, String contentType, byte[] bytes) {
-        return new BinaryContent(filename, contentType, bytes);
+                storagePath
+        );
     }
 
     public static BinaryContent fromMultipart(MultipartFile file) throws IOException {
@@ -48,19 +52,28 @@ public class BinaryContent extends BaseEntity {
     }
 
     public static BinaryContent fromOctetStream(String filename, String contentType, byte[] bytes) {
-        return of(filename, guessContentType(contentType, filename), bytes);
+        return new BinaryContent(filename, guessContentType(contentType, filename), bytes);
     }
 
     public void updateBytes(String filename, String contentType, byte[] bytes) {
-        setAll(normalizeFilename(requireNonBlank(filename, "filename must not be blank")),
-                requireNonBlank(contentType, "contentType must not be blank"),
+        setAll(
+                normalizeFilename(requireNonBlank(filename, "filename must not be blank")),
+                normalizeContentType(requireNonBlank(contentType, "contentType must not be blank")),
                 Objects.requireNonNull(bytes, "bytes must not be null"),
-                this.storagePath);
+                this.storagePath
+        );
     }
 
     public void updateStoragePath(String storagePath) {
-        this.storagePath = storagePath;
-        touch();
+        if (!Objects.equals(this.storagePath, storagePath)) {
+            this.storagePath = storagePath;
+            touch();
+        }
+    }
+
+    public void markStored(String storagePath, boolean wipeBytes) {
+        updateStoragePath(storagePath);
+        if (wipeBytes) wipe();
     }
 
     public void wipe() {
@@ -68,6 +81,16 @@ public class BinaryContent extends BaseEntity {
             this.bytes = null;
             touch();
         }
+    }
+
+    public boolean isStored() {
+        return this.storagePath != null && !this.storagePath.isBlank();
+    }
+
+    public boolean hasSameContentAs(BinaryContent other) {
+        if (other == null) return false;
+        if (this.size != other.size) return false;
+        return Objects.equals(this.sha256, other.sha256);
     }
 
     public byte[] getBytes() {
@@ -92,17 +115,31 @@ public class BinaryContent extends BaseEntity {
     private static String normalizeFilename(String raw) {
         String name = raw.replace('\\', '/');
         int idx = name.lastIndexOf('/');
-        return (idx >= 0) ? name.substring(idx + 1) : name;
+        name = (idx >= 0) ? name.substring(idx + 1) : name;
+        // 제어문자 제거
+        name = name.chars()
+                .filter(c -> c >= 32)   // control char 제거
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString()
+                .trim();
+        if (name.isEmpty()) throw new IllegalArgumentException("filename must not be blank after normalization");
+        if (name.length() > 255) name = name.substring(0, 255);
+        return name;
+    }
+
+    private static String normalizeContentType(String ct) {
+        return ct.trim().toLowerCase();
     }
 
     private static String guessContentType(String contentType, String filename) {
-        if (contentType != null && !contentType.isBlank()) return contentType;
+        if (contentType != null && !contentType.isBlank()) {
+            return normalizeContentType(contentType);
+        }
         String lower = filename.toLowerCase();
-        if (lower.endsWith(".png")) return MediaType.IMAGE_PNG_VALUE;
-        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return MediaType.IMAGE_JPEG_VALUE;
-        if (lower.endsWith(".gif")) return MediaType.IMAGE_GIF_VALUE;
-        if (lower.endsWith(".pdf")) return "application/pdf";
-        return MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        if (lower.endsWith(".png")) return IMAGE_PNG;
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return IMAGE_JPEG;
+        if (lower.endsWith(".gif")) return IMAGE_GIF;
+        return APP_OCTET;
     }
 
     private static String sha256Hex(byte[] bytes) {

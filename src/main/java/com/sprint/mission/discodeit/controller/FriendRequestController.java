@@ -23,6 +23,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+// POST   /api/friend-requests                # send (body: receiverId)
+// GET    /api/friend-requests/sent           # 내가 보낸
+// GET    /api/friend-requests/received       # 내가 받은
+// POST   /api/friend-requests/{id}/accept    # 수락(수신자)
+// POST   /api/friend-requests/{id}/reject    # 거절(수신자)
+// POST   /api/friend-requests/{id}/cancel    # 취소(발신자)
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/friend-requests")

@@ -8,19 +8,13 @@ import java.util.UUID;
 @Getter
 public class FriendRequest extends BaseEntity {
 
-    public enum Status {
-        PENDING, ACCEPTED, REJECTED, CANCELED, EXPIRED
-    }
-
     private final UUID senderId;
     private final UUID receiverId;
 
     public FriendRequest(UUID senderId, UUID receiverId) {
         this.senderId = Objects.requireNonNull(senderId, "senderId must not be null.");
         this.receiverId = Objects.requireNonNull(receiverId, "receiverId must not be null.");
-        if (senderId.equals(receiverId)) {
-            throw new IllegalArgumentException("Cannot send friend request to self.");
-        }
+        if (senderId.equals(receiverId)) throw new IllegalArgumentException("자기 자신에게 보낼 수 없습니다.");
     }
 
     public void accept(UUID actorId) {

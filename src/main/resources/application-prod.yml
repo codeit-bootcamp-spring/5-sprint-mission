@@ -22,3 +22,4 @@ spring:
     properties:
       hibernate:
         format_sql: false
+    open-in-view: false

@@ -7,13 +7,13 @@ import java.util.UUID;
 
 public interface FriendRequestRepository extends BaseRepository<FriendRequest> {
 
-    boolean existsBySenderIdAndReceiverId(UUID senderId, UUID receiverId);
-
-    boolean existsBetween(UUID userA, UUID userB);
-
     List<FriendRequest> findAllBySenderId(UUID senderId);
 
     List<FriendRequest> findAllByReceiverId(UUID receiverId);
+
+    boolean existsBySenderIdAndReceiverId(UUID senderId, UUID receiverId);
+
+    boolean existsBetween(UUID userA, UUID userB);
 
     int softDeleteAllByUserId(UUID userId);
 
