@@ -26,16 +26,17 @@ public class User implements Serializable {
     private final Instant createdAt;
     private Instant updatedAt;
 
-    public User(String username, String email, String password) {
+    public User(String username, String email, String password, UUID profileId) {
         this.id = UUID.randomUUID();
-        this.createdAt = now();
+        this.createdAt = Instant.now();
 
         this.username = username;
         this.email = email;
         this.password = password;
+        this.profileId = profileId;
     }
 
-    public void update(String newUsername, String newEmail, String newPassword) {
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
         boolean anyValueUpdated = false;
 
         if(isNameChanged(newUsername)) {
@@ -50,6 +51,11 @@ public class User implements Serializable {
 
         if(isPasswordChanged(newPassword)) {
             this.password = newPassword;
+            anyValueUpdated = true;
+        }
+
+        if (isProfileIdChanged(newProfileId)) {
+            this.profileId = newProfileId;
             anyValueUpdated = true;
         }
 
@@ -68,6 +74,10 @@ public class User implements Serializable {
 
     public boolean isPasswordChanged(String password) {
         return password != null && !Objects.equals(this.password, password);
+    }
+
+    private boolean isProfileIdChanged(UUID newProfileId) {
+        return newProfileId != null && !newProfileId.equals(this.profileId);
     }
 
     @Override
