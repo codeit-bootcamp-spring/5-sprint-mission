@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -19,6 +20,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +28,7 @@ import java.util.UUID;
 @SpringBootApplication
 public class DiscodeitApplication {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         // Spring Context
         ConfigurableApplicationContext context =
@@ -126,6 +128,9 @@ public class DiscodeitApplication {
 
 
         /* Channel 고도화 테스트 (PRIVATE + ReadStatus) */
+        System.out.println("----------------------------------------");
+        System.out.println("-------- Channel 고도화 단독 테스트 --------");
+        System.out.println("----------------------------------------");
 
         // 1. Given: PRIVATE 채널에 참여할 유저들 생성
         String userId1 = "channelUser-" + UUID.randomUUID();
@@ -219,6 +224,8 @@ public class DiscodeitApplication {
         } catch (IllegalArgumentException e) {
             System.out.println("❌ 삭제된 메시지는 더 이상 조회되지 않습니다.");
 
+
+            // -------- ReadStatus 단독 테스트 --------
             System.out.println("----------------------------------------");
             System.out.println("-------- ReadStatus 단독 테스트 --------");
             System.out.println("----------------------------------------");
@@ -332,6 +339,53 @@ public class DiscodeitApplication {
                 System.out.println("✅ UserStatus 삭제 성공");
             }
             System.out.println("----------------------------------------");
+
+
+            // -------- BinaryContent + User 단독 테스트 --------
+            System.out.println("----------------------------------------");
+            System.out.println("-------- BinaryContent + User 테스트 --------");
+            System.out.println("----------------------------------------");
+
+            // 1. Given: 파일 없이 유저 등록
+            UserCreateRequest withImage = new UserCreateRequest(
+                    "binary-user",
+                    "binary@email.com",
+                    "pass"
+            );
+
+            // BinaryContent 생성자용 데이터 준비
+            UUID binaryId = UUID.randomUUID();
+            Instant now = Instant.now();
+            UUID ownerIdd = UUID.randomUUID(); // 가짜 유저 ID
+            String fileName = "test.png";
+            String contentType = "image/png";
+            long size = 1234L;
+            byte[] data = "fake image data".getBytes();
+
+            // BinaryContent 직접 저장
+            BinaryContent binary = new BinaryContent(
+                    binaryId,
+                    now,
+                    ownerIdd,
+                    fileName,
+                    contentType,
+                    size,
+                    data
+            );
+            BinaryContentRepository binaryContentRepository = context.getBean(BinaryContentRepository.class);
+            binaryContentRepository.save(binary);
+            System.out.println("✅ BinaryContent 저장 완료: " + binary.getId());
+
+            // 2. When: 유저 생성
+            userService.create(withImage);
+
+            // 3. Then: 유저 저장 확인
+            UserResponse createdUserWithImage = userService.findAll().stream()
+                    .filter(u -> u.getUserId().equals("binary-user"))
+                    .findFirst()
+                    .orElseThrow();
+
+            System.out.println("✅ 유저 생성 완료: " + createdUserWithImage.getId());
 
 
         }

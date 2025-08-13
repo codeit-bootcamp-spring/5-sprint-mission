@@ -23,6 +23,17 @@ public class BinaryContent implements Serializable {
     private byte[] bytes; // 실제 파일 데이터
 
     //기본 생성자
+    public BinaryContent(UUID id, Instant createdAt, UUID ownerId, String fileName, String contentType, long size, byte[] bytes) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.ownerId = ownerId;
+        this.fileName = fileName;
+        this.contentType = contentType;
+        this.size = size;
+        this.bytes = bytes;
+    }
+
+    // BinaryContent.java 파일에 추가
     public BinaryContent(UUID id, Instant createdAt, UUID ownerId, String fileName, String contentType, long size) {
         this.id = id;
         this.createdAt = createdAt;
