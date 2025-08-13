@@ -16,6 +16,8 @@ public interface MessageService {
 	List<MessageResponse> getAllByChannelId(GetMessagesByChannelIdRequest request);
 	List<MessageResponse> getMessageByAuthor(GetMessagesByAuthorRequest request);
 
+	List<Message> getAllMessages();
+
 	// 수정
 	MessageResponse updateMessage(UpdateMessageRequest request);
 

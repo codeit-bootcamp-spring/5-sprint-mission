@@ -153,36 +153,4 @@ public class BasicMessageService implements MessageService {
 			}
 		}
 	}
-
-	// Deprecated 레거시 코드
-
-	@Override
-	public boolean createMessage(UUID authorUUID, UUID channelUUID, String message) {
-		return false;
-	}
-
-	@Override
-	public Message getMessage(UUID messageUUID) {
-		return null;
-	}
-
-	@Override
-	public List<Message> getMessageByAuthor(String targetAuthor, UUID channelUUID) {
-		return List.of();
-	}
-
-	@Override
-	public List<Message> getMessageByChannel(UUID channelUUID) {
-		return List.of();
-	}
-
-	@Override
-	public boolean updateMessage(UUID messageUUID, UUID authorUUID, String text) {
-		return false;
-	}
-
-	@Override
-	public void deleteMessage(UUID messageUUID, UUID authorUUID) {
-
-	}
 }

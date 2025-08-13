@@ -17,27 +17,36 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
 public class FileUserRepository implements UserRepository {
-	private final String DATA_DIR = "data/";
+	private final String DATA_DIR;
 	private final String EXTENSION = ".ser";
-	private final String USERS_FILE = DATA_DIR + "users" + EXTENSION;
-	private final String LOGIN_MAPPING_FILE = DATA_DIR + "loginMapping" + EXTENSION;
-	private final String EMAIL_MAPPING_FILE = DATA_DIR + "emailMapping" + EXTENSION;
+	private final String USERS_FILE;
+	private final String LOGIN_MAPPING_FILE;
+	private final String EMAIL_MAPPING_FILE;
+
 
 	private final Map<UUID, User> userMap;
 	private final Map<String, UUID> loginIdToUUID;
 	private final Map<String, UUID> emailToUUID;
 
-	public FileUserRepository() {
+	public FileUserRepository(@Value("${discodeit.repository.file-directory:.discodeit}") String fileDirectory) {
 		userMap = new ConcurrentHashMap<>();
 		loginIdToUUID = new ConcurrentHashMap<>();
 		emailToUUID = new ConcurrentHashMap<>();
+
+		this.DATA_DIR = fileDirectory.endsWith("/") ? fileDirectory : fileDirectory + "/";
+		this.USERS_FILE = DATA_DIR + "users" + EXTENSION;
+		this.LOGIN_MAPPING_FILE = DATA_DIR + "loginMapping" + EXTENSION;
+		this.EMAIL_MAPPING_FILE = DATA_DIR + "emailMapping" + EXTENSION;
 
 		createDirectoryIfNotExists();
 		loadFile();

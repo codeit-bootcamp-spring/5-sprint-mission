@@ -16,23 +16,32 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
 public class FileUserStatusRepository implements UserStatusRepository {
+	private final String DATA_DIR;
+	private final String EXTENSION = ".ser";
+	private final String USER_STATUS_FILE;
+	private final String USER_STATUS_MAPPING_FILE;
+
 	private final Map<UUID, UserStatus> userStatusMap;
 	private final Map<UUID, UUID> userIdToStatusIdMap;
-	private final String DATA_DIR = "data/";
-	private final String EXTENSION = ".ser";
-	private final String USER_STATUS_FILE = DATA_DIR + "userStatus" + EXTENSION;
-	private final String USER_STATUS_MAPPING_FILE = DATA_DIR + "userStatusMapping" + EXTENSION;
 
-	public FileUserStatusRepository() {
+	public FileUserStatusRepository(@Value("${discodeit.repository.file-directory:.discodeit}") String fileDirectory) {
 		userStatusMap = new ConcurrentHashMap<>();
 		userIdToStatusIdMap = new ConcurrentHashMap<>();
+
+		this.DATA_DIR = fileDirectory.endsWith("/") ? fileDirectory : fileDirectory + "/";
+		this.USER_STATUS_FILE = DATA_DIR + "userStatus" + EXTENSION;
+		this.USER_STATUS_MAPPING_FILE = DATA_DIR + "userStatusMapping" + EXTENSION;
+
 		createDirectoryIfNotExists();
 		loadFile();
 	}

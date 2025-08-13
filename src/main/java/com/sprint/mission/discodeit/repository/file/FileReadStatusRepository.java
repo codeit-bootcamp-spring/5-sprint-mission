@@ -17,27 +17,35 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
 public class FileReadStatusRepository implements ReadStatusRepository {
-	private final String DATA_DIR = "data/";
+	private final String DATA_DIR;
 	private final String EXTENSION = ".ser";
-	private final String READ_STATUS_FILE = DATA_DIR + "readStatus" + EXTENSION;
-	private final String USER_INDEX_FILE = DATA_DIR + "readStatusUserIndex" + EXTENSION;
-	private final String CHANNEL_INDEX_FILE = DATA_DIR + "readStatusChannelIndex" + EXTENSION;
+	private final String READ_STATUS_FILE;
+	private final String USER_INDEX_FILE;
+	private final String CHANNEL_INDEX_FILE;
 
 	private final Map<UUID, ReadStatus> readStatusMap;
-	private final Map<UUID, List<UUID>> userToReadStatusMap;    // userId -> List<readStatusId>
-	private final Map<UUID, List<UUID>> channelToReadStatusMap; // channelId -> List<readStatusId>
+	private final Map<UUID, List<UUID>> userToReadStatusMap;
+	private final Map<UUID, List<UUID>> channelToReadStatusMap;
 
-	public FileReadStatusRepository() {
+	public FileReadStatusRepository(@Value("${discodeit.repository.file-directory:.discodeit}") String fileDirectory) {
 		readStatusMap = new ConcurrentHashMap<>();
 		userToReadStatusMap = new ConcurrentHashMap<>();
 		channelToReadStatusMap = new ConcurrentHashMap<>();
+
+		this.DATA_DIR = fileDirectory.endsWith("/") ? fileDirectory : fileDirectory + "/";
+		this.READ_STATUS_FILE = DATA_DIR + "readStatus" + EXTENSION;
+		this.USER_INDEX_FILE = DATA_DIR + "readStatusUserIndex" + EXTENSION;
+		this.CHANNEL_INDEX_FILE = DATA_DIR + "readStatusChannelIndex" + EXTENSION;
 
 		createDirectoryIfNotExists();
 		loadFile();

@@ -18,21 +18,27 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
 public class FileBinaryContentRepository implements BinaryContentRepository {
-	private final String DATA_DIR = "data/";
+	private final String DATA_DIR;
 	private final String EXTENSION = ".ser";
-	private final String BINARY_CONTENT_FILE = DATA_DIR + "binaryContent" + EXTENSION;
+	private final String BINARY_CONTENT_FILE;
 
 	private final Map<UUID, BinaryContent> binaryContentMap;
 
-	public FileBinaryContentRepository() {
+	public FileBinaryContentRepository(@Value("${discodeit.repository.file-directory:.discodeit}") String fileDirectory) {
 		binaryContentMap = new ConcurrentHashMap<>();
+
+		this.DATA_DIR = fileDirectory.endsWith("/") ? fileDirectory : fileDirectory + "/";
+		this.BINARY_CONTENT_FILE = DATA_DIR + "binaryContent" + EXTENSION;
 
 		createDirectoryIfNotExists();
 		loadFile();
