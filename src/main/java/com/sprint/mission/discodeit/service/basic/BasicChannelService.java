@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.dto.request.channel.GetChannelBychannelName;
 import com.sprint.mission.discodeit.dto.request.channel.GetChannelsByUserRequest;
 import com.sprint.mission.discodeit.dto.request.channel.JoinChannelRequest;
 import com.sprint.mission.discodeit.dto.request.channel.LeaveChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.UpdateChannelnameRequest;
 import com.sprint.mission.discodeit.dto.request.channel.UpdateUserNicknameRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
@@ -28,6 +29,7 @@ import com.sprint.mission.discodeit.exception.channel.AlreadyExistsChannelMember
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.DuplicateChannelNameException;
 import com.sprint.mission.discodeit.exception.channel.NotChannelMemberException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -153,28 +155,31 @@ public class BasicChannelService implements ChannelService {
 		return channelResponseList;
 	}
 
+
+	// 수정된 updateChannelName 메서드
 	@Override
-	public boolean updateChannelName(UUID channelUUID, String channelNewName) {
-		Channel channel = channelRepository.findById(channelUUID)
+	public ChannelResponse updateChannelName(UpdateChannelnameRequest request) {
+		Channel channel = channelRepository.findById(request.getChannelId())
 			.orElseThrow(ChannelNotFoundException::new);
 
-		if (channelRepository.existsByName(channelNewName)) {
+		if (channelRepository.existsByName(request.getChannelNewName())) {
 			throw new DuplicateChannelNameException();
 		}
 
 		if (channel.getType().equals("PRIVATE")) {
-			return false;
+			throw new PrivateChannelUpdateException();
 		}
 
-		channel.updateChannelName(channelNewName);
+		channel.updateChannelName(request.getChannelNewName());
 		channel.updateUpdatedAt();
 		channelRepository.save(channel);
 
-		return true;
+		return createChannelByType(channel);
 	}
 
+	// 수정된 updateUserNickname 메서드
 	@Override
-	public boolean updateUserNickname(UpdateUserNicknameRequest request) {
+	public ChannelResponse updateUserNickname(UpdateUserNicknameRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
 			.orElseThrow(ChannelNotFoundException::new);
 
@@ -183,14 +188,14 @@ public class BasicChannelService implements ChannelService {
 		}
 
 		if (channel.getType().equals("PRIVATE")) {
-			return false;
+			throw new PrivateChannelUpdateException();
 		}
 
 		channel.addNickname(request.getUserId(), request.getNewNickname());
 		channel.updateUpdatedAt();
 		channelRepository.save(channel);
 
-		return true;
+		return createChannelByType(channel);
 	}
 
 	@Override

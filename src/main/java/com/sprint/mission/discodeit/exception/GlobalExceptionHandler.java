@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.exception.channel.AlreadyExistsChannelMember
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.DuplicateChannelNameException;
 import com.sprint.mission.discodeit.exception.channel.NotChannelMemberException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.message.UnauthorizedMessageAccessException;
 import com.sprint.mission.discodeit.exception.readstatus.AlreadyExistsReadStatusException;
@@ -24,6 +25,11 @@ import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundExcep
 // 도메인 별로 모아두기?
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<String> handleGenericException(Exception e) {
+		return ResponseEntity.status(500).body("서버 내부 오류");
+	}
 
 	@ExceptionHandler(UserNotFoundException.class)
 	public ResponseEntity<String> handleUserNotFound(UserNotFoundException e) {
@@ -100,8 +106,8 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(403).body(e.getMessage());
 	}
 
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<String> handleGenericException(Exception e) {
-		return ResponseEntity.status(500).body("서버 내부 오류");
+	@ExceptionHandler(PrivateChannelUpdateException.class)
+	public ResponseEntity<String> handlePrivateChannelUpdate(PrivateChannelUpdateException e) {
+		return ResponseEntity.status(400).body(e.getMessage());
 	}
 }

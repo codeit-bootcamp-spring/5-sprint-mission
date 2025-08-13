@@ -27,8 +27,8 @@ public interface ChannelService {
 	List<String> getMemberNicknames(String channelName);
 
 	// 수정
-	boolean updateUserNickname(UpdateUserNicknameRequest request);
-	boolean updateChannelName(UUID channelUUID, String channelNewName);
+	ChannelResponse updateUserNickname(UpdateUserNicknameRequest request);
+	ChannelResponse updateChannelName(UpdateChannelnameRequest request);
 
 	// 삭제
 	DeleteChannelResponse deleteChannel(DeleteChannelRequest request);

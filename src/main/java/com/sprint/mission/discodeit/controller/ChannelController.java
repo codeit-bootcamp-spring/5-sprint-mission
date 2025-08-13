@@ -16,6 +16,7 @@ import com.sprint.mission.discodeit.dto.request.channel.DeleteChannelRequest;
 import com.sprint.mission.discodeit.dto.request.channel.GetChannelsByUserRequest;
 import com.sprint.mission.discodeit.dto.request.channel.JoinChannelRequest;
 import com.sprint.mission.discodeit.dto.request.channel.UpdateChannelnameRequest;
+import com.sprint.mission.discodeit.dto.request.channel.UpdateUserNicknameRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.DeleteChannelResponse;
@@ -41,13 +42,15 @@ public class ChannelController {
 	}
 
 	@RequestMapping(path= "/update", method = RequestMethod.PATCH)
-	public ResponseEntity<Boolean> updateChannel(@RequestBody UpdateChannelnameRequest request) {
-		boolean result = channelService.updateChannelName(request.getChannelId(), request.getChannelNewName());
-		if(result) {
-			return ResponseEntity.ok(result);
-		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
-		}
+	public ResponseEntity<ChannelResponse> updateChannel(@RequestBody UpdateChannelnameRequest request) {
+		ChannelResponse response = channelService.updateChannelName(request);
+		return ResponseEntity.ok(response);
+	}
+
+	@RequestMapping(path= "/update/userNickname", method = RequestMethod.PATCH)
+	public ResponseEntity<ChannelResponse> updateUserNickname(@RequestBody UpdateUserNicknameRequest request) {
+		ChannelResponse response = channelService.updateUserNickname(request);
+		return ResponseEntity.ok(response);
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
