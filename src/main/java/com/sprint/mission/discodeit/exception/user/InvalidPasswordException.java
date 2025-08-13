@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.exception;
+package com.sprint.mission.discodeit.exception.user;
 
 public class InvalidPasswordException extends RuntimeException {
 	public InvalidPasswordException() {

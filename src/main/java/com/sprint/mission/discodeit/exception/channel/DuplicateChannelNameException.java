@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.exception;
+package com.sprint.mission.discodeit.exception.channel;
 
 public class DuplicateChannelNameException extends RuntimeException {
 	public DuplicateChannelNameException() {

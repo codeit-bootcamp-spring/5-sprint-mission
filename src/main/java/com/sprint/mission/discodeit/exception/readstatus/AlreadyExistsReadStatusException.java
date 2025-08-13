@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.exception;
+package com.sprint.mission.discodeit.exception.readstatus;
 
 public class AlreadyExistsReadStatusException extends RuntimeException {
 	public AlreadyExistsReadStatusException() {

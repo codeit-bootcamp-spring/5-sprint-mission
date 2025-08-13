@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.exception;
+package com.sprint.mission.discodeit.exception.user;
 
 public class DuplicateLoginIdException extends RuntimeException {
 	public DuplicateLoginIdException() {

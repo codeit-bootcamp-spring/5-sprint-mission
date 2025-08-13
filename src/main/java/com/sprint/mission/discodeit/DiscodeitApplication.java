@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.test.MessageTest;
 import com.sprint.mission.discodeit.test.YmlTest;
 
 @SpringBootApplication

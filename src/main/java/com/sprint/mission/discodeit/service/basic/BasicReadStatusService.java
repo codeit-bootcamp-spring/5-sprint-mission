@@ -9,8 +9,8 @@ import com.sprint.mission.discodeit.dto.request.readStatus.CreateReadStatusReque
 import com.sprint.mission.discodeit.dto.request.readStatus.UpdateReadStatusRequest;
 import com.sprint.mission.discodeit.dto.response.readStatus.ReadStatusResponse;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.exception.AlreadyExistsReadStatusException;
-import com.sprint.mission.discodeit.exception.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.readstatus.AlreadyExistsReadStatusException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
