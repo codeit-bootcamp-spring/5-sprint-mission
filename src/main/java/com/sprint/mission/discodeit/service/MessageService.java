@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.Message;
-import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,11 +46,5 @@ public class MessageService {
     public void updateAttachmentIds(UUID messageId, List<UUID> attachmentIds) {
         Set<UUID> attachmentSet = (attachmentIds == null) ? Set.of() : new LinkedHashSet<>(attachmentIds);
         update(messageId, m -> m.setAttachmentIds(attachmentSet));
-    }
-
-    public void printSenderAndContent(UUID messageId) {
-        Message m = messageRepository.getOrThrow(messageId);
-        User sender = userRepository.getOrThrow(m.getAuthorId());
-        System.out.println(sender.getGlobalName() + ": " + m.getContent());
     }
 }
