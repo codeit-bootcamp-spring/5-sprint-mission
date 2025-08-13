@@ -37,7 +37,7 @@ public class BasicUserService implements UserService {
         userRepository.save(user);
 
         // user 상태 생성 및 저장
-        UserStatus userStatus = new UserStatus(user);
+        UserStatus userStatus = new UserStatus(user.getId());
         userStatusRepository.save(userStatus);
 
         // 프로필 이미지가 있을 경우

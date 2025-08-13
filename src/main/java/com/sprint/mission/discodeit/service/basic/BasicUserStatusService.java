@@ -24,22 +24,26 @@ public class BasicUserStatusService implements UserStatusService {
         return userStatusRepository.findByUserId(userId);
     }
 
-    // 온라인 상태 여부
-    @Override
-    public boolean isOnline(UUID userId) {
-        UserStatus status =  userStatusRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        return status.isOnline();
-    }
-
     // 마지막 접속 시간 업데이트
     @Override
     public void updateLastAccessedAt(UUID userId) {
+        // 사용자 검증
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        UserStatus userStatus = new UserStatus(user);
+        // 온라인 상태 객체 생성 후 업데이트
+        UserStatus userStatus = new UserStatus(user.getId());
+        userStatus.updateLastAccessedAt();
+
+        //상태 저장
         userStatusRepository.save(userStatus);
+    }
+
+    // 온라인 상태 여부
+    @Override
+    public boolean isOnline(UUID userId) {
+        return userStatusRepository.findByUserId(userId)
+                .map(UserStatus::isOnline)
+                .orElse(false); // 기록이 없다면 오프라인
     }
 }
