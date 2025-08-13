@@ -12,6 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class UserStatus extends BaseEntity implements Serializable {
+    //사용자 별 마지막으로 확인된 접속 시간
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -31,7 +32,7 @@ public class UserStatus extends BaseEntity implements Serializable {
         }
 
         if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
+            super.updateTimestamp();
         }
     }
     public Boolean isOnline() {

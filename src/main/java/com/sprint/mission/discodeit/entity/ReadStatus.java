@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Getter
 public class ReadStatus extends BaseEntity implements Serializable {
+    //사용자가 채널 별 마지막으로 메시지를 읽은 시간을 표현
     @Serial
     private static final long serialVersionUID = 1L;
 

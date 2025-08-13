@@ -18,7 +18,7 @@ public class Message extends BaseEntity implements Serializable {
     private String content;
     private List<UUID> attachmentIds;
 
-    public Message(UUID userId,UUID channelId,String content,List<UUID> attachmentIds) {
+    public Message(UUID userId, UUID channelId,String content,List<UUID> attachmentIds) {
         super();
         this.authorId=userId;
         this.channelId=channelId;

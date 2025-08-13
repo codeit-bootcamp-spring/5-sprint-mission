@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface BinaryContentRepository {
-    Channel save(BinaryContent binaryContent);
+    BinaryContent save(BinaryContent binaryContent);
     Optional<BinaryContent> findById(UUID id);
     List<BinaryContent> findAllByIdIn(List<UUID> ids);//여러 파일 찾기
     boolean existsById(UUID id);

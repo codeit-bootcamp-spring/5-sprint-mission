@@ -18,18 +18,24 @@ public class User extends BaseEntity implements Serializable {
     private UUID profileId;
     private String username;
     private String password;
+    private String email;
 
-    public User(String username, String password, UUID profileId) {
+    public User(String username, String password, String email,UUID profileId) {
         super();
         this.username=username;
         this.password=password;
+        this.email=email;
         this.profileId=profileId;
     }
 
-    public void update(String newUsername,String newPassword,UUID newProfileId){
+    public void update(String newUsername,String newPassword,String newEmail, UUID newProfileId){
         boolean anyValueUpdated = false;
         if (newUsername != null && !newUsername.equals(this.username)) {
             this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
             anyValueUpdated = true;
         }
         if (newPassword != null && !newPassword.equals(this.password)) {
