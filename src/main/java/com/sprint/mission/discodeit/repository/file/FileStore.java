@@ -28,8 +28,15 @@ public abstract class FileStore<T> {
     protected Map<UUID, T> loadFromFile() {
         File file = new File(filePath);
 
-        if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
-            throw new IllegalStateException("디렉토리 생성 실패: " + file.getParentFile().getAbsolutePath());
+        File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) {
+            if (!parent.mkdirs()) {
+                throw new IllegalStateException("디렉토리 생성 실패: " + parent.getAbsolutePath());
+            }
+        }
+
+        if (!file.exists()) {
+            return Collections.emptyMap(); // 파일 없으면 빈 맵
         }
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
@@ -51,9 +58,11 @@ public abstract class FileStore<T> {
      */
     protected void saveToFile(Map<UUID, T> map) {
         try {
-            // 파일 경로에 디렉토리가 없을 수 있으므로 디렉토리 생성
             File file = new File(filePath);
-            file.getParentFile().mkdirs(); // "data" 디렉토리 생성
+            File parent = file.getParentFile();
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs();
+            }
 
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
                 oos.writeObject(map);
