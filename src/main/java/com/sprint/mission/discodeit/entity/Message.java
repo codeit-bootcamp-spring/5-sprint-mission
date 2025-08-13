@@ -16,11 +16,11 @@ public class Message implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     //필드
-    private final UUID id; // 메시지 고유 id (내부 식별자)
+    private final UUID id; // 메시지 고유 ID (내부 식별자)
     private final Instant createdAt;
     private Instant updatedAt;
-    private String content;
-    private UUID channelId;
+    private String content; //메세지 내용
+    private UUID channelId; // 채널 ID
     private UUID sender; // 채널 기준으로 누가 보냈는지
     private List<UUID> attachmentIds; // Message가 가진 첨부파일 ID 리스트
 
@@ -59,6 +59,16 @@ public class Message implements Serializable {
     //메서드
     public void updateTime() {
         this.updatedAt = Instant.now();
+    }
+
+
+    public void setAttachmentIds(List<UUID> attachmentIds) {
+        this.attachmentIds = attachmentIds;
+    }
+
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     //toString

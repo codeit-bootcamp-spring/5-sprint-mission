@@ -20,8 +20,8 @@ import java.util.UUID;
 @RequiredArgsConstructor // final 필드 기반 생성자 자동 생성 (this 안써도 됨)
 public class FileChannelService implements ChannelService {
 
-    private final ChannelRepository channelRepository; // 레포에서 등록한 생성자 주입
-    private final ReadStatusRepository readStatusRepository; // 추가
+    private final ChannelRepository channelRepository; // 채널 저장
+    private final ReadStatusRepository readStatusRepository; //채널 생성후 읽음상태 저장할수있도록
 
     @Override
     public void create(Channel channel) {
