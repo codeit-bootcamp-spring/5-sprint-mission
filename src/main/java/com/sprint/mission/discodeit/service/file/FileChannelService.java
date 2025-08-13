@@ -75,8 +75,11 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public void createPrivateChannel(PrivateChannelCreateRequest request) {
+        UUID channelId = UUID.randomUUID(); // 미리 생성해 고정
+
+
         //1. DTO에서 Entity로 변환
-        Channel privateChannel = request.toEntity();
+        Channel privateChannel = request.toEntityWithId(channelId);
 
         //2. 채널 먼저 저장
         channelRepository.save(privateChannel);
@@ -85,11 +88,12 @@ public class FileChannelService implements ChannelService {
         for (String memberId : request.getMembersId()) {
             ReadStatus readStatus = new ReadStatus(
                     UUID.randomUUID(),                  // 읽음 기록의 고유 ID
-                    privateChannel.getId(),             // 어떤 채널의 기록인지
+                    channelId,            // 어떤 채널의 기록인지
                     UUID.fromString(memberId),          // 어떤 유저가 읽은 건지
                     Instant.now()                       // 생성 시간
             );
             readStatusRepository.save(readStatus);  // 저장
+
         }
     }
 

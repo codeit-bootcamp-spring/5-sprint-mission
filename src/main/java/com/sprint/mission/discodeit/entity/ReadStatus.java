@@ -33,6 +33,7 @@ public class ReadStatus implements Serializable {
         this.lastReadAt = createdAt;
     }
 
+
     public void update(Instant newLastReadAt) {
 
     }
