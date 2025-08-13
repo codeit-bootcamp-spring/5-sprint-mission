@@ -85,10 +85,6 @@ public class BasicMessageService implements MessageService {
         messageRepository.deleteById(message.getId());
     }
 
-    public void deleteAll() {
-        messageRepository.findAll().forEach(m -> delete(m.getId()));
-    }
-
     private void validateExist(UUID authorId, UUID channelId) {
         if (!userRepository.existsById(authorId) || !channelRepository.existsById(channelId)) {
             throw new NoSuchElementException("validateExist : 해당 유저 또는 채널을 찾을 수 없습니다.");
