@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
@@ -18,6 +20,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -125,7 +128,7 @@ public class DiscodeitApplication {
 
         /* Channel 고도화 테스트 (PRIVATE + ReadStatus) */
 
-// 1. Given: PRIVATE 채널에 참여할 유저들 생성
+        // 1. Given: PRIVATE 채널에 참여할 유저들 생성
         String userId1 = "channelUser-" + UUID.randomUUID();
         String userId2 = "channelUser-" + UUID.randomUUID();
 
@@ -144,21 +147,21 @@ public class DiscodeitApplication {
                 .findFirst()
                 .orElseThrow();
 
-// 2. When: PrivateChannelCreateRequest 만들고 채널 생성
+        // 2. When: PrivateChannelCreateRequest 만들고 채널 생성
         PrivateChannelCreateRequest requested = new PrivateChannelCreateRequest();
         requested.setOwnerId(ownerId.toString());
         requested.setMembersId(List.of(ownerId.toString(), memberId.toString()));
 
         channelService.createPrivateChannel(requested);
 
-// 3. Then: 채널 조회 및 검증
+        // 3. Then: 채널 조회 및 검증
         Channel created = channelService.findAll().get(channelService.findAll().size() - 1);
         System.out.println("✅ PRIVATE 채널 ID: " + created.getId());
         System.out.println("✅ 채널 타입: " + created.getChannelType());
         System.out.println("✅ 채널 소유자: " + created.getOwnerId());
         System.out.println("✅ 채널 제목: '" + created.getTitle() + "' (비어 있음이 정상)");
 
-// 4. Then: ReadStatus 조회 및 검증
+        // 4. Then: ReadStatus 조회 및 검증
         ReadStatusRepository readStatusRepository = context.getBean(ReadStatusRepository.class);
         List<ReadStatus> readStatuses = readStatusRepository.findByChannelId(created.getId());
 
@@ -168,6 +171,7 @@ public class DiscodeitApplication {
         }
         System.out.println("----------------------------------------");
         System.out.println("----------------------------------------");
+
 
 
 
@@ -215,7 +219,74 @@ public class DiscodeitApplication {
             System.out.println("❌ 삭제된 메시지가 조회됩니다. 오류!");
         } catch (IllegalArgumentException e) {
             System.out.println("❌ 삭제된 메시지는 더 이상 조회되지 않습니다.");
-        }
 
+            System.out.println("----------------------------------------");
+            System.out.println("-------- ReadStatus 단독 테스트 --------");
+            System.out.println("----------------------------------------");
+
+            // 1. Given: 유저, 채널 생성 (ReadStatus 저장에 필요)
+            UserCreateRequest readUserReq = new UserCreateRequest("read-user", "readuser@email.com", "pass");
+            userService.create(readUserReq);
+
+            UserResponse readUser = userService.findAll().stream()
+                    .filter(u -> u.getUserId().equals("read-user"))
+                    .findFirst()
+                    .orElseThrow();
+
+            Channel readChannel = new Channel("읽음채널", "읽음 테스트용 채널", ChannelType.TEXT);
+            channelService.create(readChannel);
+
+            // 2. When: ReadStatus 생성
+            ReadStatusCreateRequest readStatusCreate = new ReadStatusCreateRequest();
+            readStatusCreate.setUserId(readUser.getId());
+            readStatusCreate.setChannelId(readChannel.getId());
+
+            ReadStatusRepository readStatusRepositoryBean = context.getBean(ReadStatusRepository.class);
+            readStatusRepositoryBean.save(new ReadStatus(
+                    UUID.randomUUID(),
+                    readStatusCreate.getChannelId(),
+                    readStatusCreate.getUserId(),
+                    Instant.now()
+            ));
+
+            // 3. Then: ReadStatus 단건 조회
+            List<ReadStatus> allReadStatuses = readStatusRepositoryBean.findAll();
+            ReadStatus one = allReadStatuses.get(allReadStatuses.size() - 1);
+
+            System.out.println("✅ ReadStatus 생성: ID = " + one.getId());
+            System.out.println("✅ ReadStatus 유저 = " + one.getUserId());
+            System.out.println("✅ ReadStatus 채널 = " + one.getChannelId());
+
+            // 4. When: ReadStatus 수정
+            ReadStatusUpdateRequest updateRequested = new ReadStatusUpdateRequest();
+            updateRequested.setId(one.getId());
+            updateRequested.setLastReadAt(Instant.now());
+
+            ReadStatus updatedd = new ReadStatus(
+                    one.getId(),
+                    one.getChannelId(),
+                    one.getUserId(),
+                    updateRequested.getLastReadAt()
+            );
+
+            readStatusRepositoryBean.save(updatedd);
+
+            // 5. Then: 수정 확인
+            ReadStatus afterUpdate = readStatusRepositoryBean.findById(one.getId());
+            System.out.println("✅ 수정된 ReadStatus lastReadAt = " + afterUpdate.getLastReadAt());
+
+            // 6. When: 삭제
+            readStatusRepositoryBean.deleteById(one.getId());
+
+            // 7. Then: 삭제 확인
+            ReadStatus deleted = readStatusRepositoryBean.findById(one.getId());
+            if (deleted == null) {
+                System.out.println("✅ ReadStatus 삭제 성공");
+            } else {
+                System.out.println("❌ 삭제 실패: 아직 존재함");
+            }
+
+
+        }
     }
 }

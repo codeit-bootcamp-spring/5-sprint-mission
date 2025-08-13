@@ -24,6 +24,16 @@ public class PrivateChannelCreateRequest {
                 membersId
         );
     }
-}
 
+    // ✅ 고정된 UUID를 외부에서 주입받는 방식
+    public Channel toEntityWithId(UUID fixedId) {
+        return new Channel(
+                fixedId, // ✅ 전달받은 UUID 사용
+                "",
+                ownerId,
+                ChannelType.PRIVATE_CHANNEL,
+                membersId
+        );
+    }
+}
 
