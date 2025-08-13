@@ -33,6 +33,19 @@ public class UserController {
             @RequestPart UserCreateRequest userCreateRequest,
             @RequestPart(required = false) MultipartFile profile
     ) throws IOException {
+        if (userCreateRequest == null) {
+            throw new IllegalArgumentException("userCreateRequest가 필요합니다.");
+        }
+        if (userCreateRequest.username() == null || userCreateRequest.username().trim().isEmpty()) {
+            throw new IllegalArgumentException("username이 필요합니다.");
+        }
+        if (userCreateRequest.email() == null || userCreateRequest.email().trim().isEmpty()) {
+            throw new IllegalArgumentException("email이 필요합니다.");
+        }
+        if (userCreateRequest.password() == null || userCreateRequest.password().trim().isEmpty()) {
+            throw new IllegalArgumentException("password가 필요합니다.");
+        }
+
         Optional<BinaryContentCreateRequest> profileCreateRequest = Optional.empty();
         if (profile != null && !profile.isEmpty()) {
             profileCreateRequest = Optional.of(new BinaryContentCreateRequest(
@@ -52,6 +65,19 @@ public class UserController {
             @RequestPart UserUpdateRequest userUpdateRequest,
             @RequestPart(required = false) MultipartFile profile
     ) throws IOException {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId가 필요합니다.");
+        }
+        if (userUpdateRequest == null) {
+            throw new IllegalArgumentException("userUpdateRequest가 필요합니다.");
+        }
+        if (userUpdateRequest.newUsername() != null && userUpdateRequest.newUsername().trim().isEmpty()) {
+            throw new IllegalArgumentException("newUsername이 필요합니다.");
+        }
+        if (userUpdateRequest.newPassword() != null && userUpdateRequest.newPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("newPassword가 필요합니다.");
+        }
+
         Optional<BinaryContentCreateRequest> profileCreateRequest = Optional.empty();
         if (profile != null && !profile.isEmpty()) {
             profileCreateRequest = Optional.of(new BinaryContentCreateRequest(
@@ -67,6 +93,10 @@ public class UserController {
 
     @RequestMapping(value = "/delete/{userId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable UUID userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId가 필요합니다.");
+        }
+
         userService.delete(userId);
         return ResponseEntity.noContent().build();
     }
@@ -82,6 +112,13 @@ public class UserController {
             @PathVariable UUID userId,
             @RequestBody UserStatusUpdateRequest userStatusUpdateRequest
     ) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId가 필요합니다.");
+        }
+        if (userStatusUpdateRequest == null) {
+            throw new IllegalArgumentException("userStatusUpdateRequest가 필요합니다.");
+        }
+
         UserStatus userStatus = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
         return ResponseEntity.status(HttpStatus.OK).body(userStatus);
     }
