@@ -83,6 +83,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
                             throw new RuntimeException(e);
                         }
                     })
+                    .filter(readStatus -> readStatus.getUserId().equals(userId))
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
