@@ -1,5 +1,5 @@
 // API endpoints
-const API_BASE_URL = '/api';
+const API_BASE_URL = '/api/v1';
 const ENDPOINTS = {
     USERS: `${API_BASE_URL}/users`,
     BINARY_CONTENT: `${API_BASE_URL}/binary-contents`

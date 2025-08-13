@@ -1,4 +1,7 @@
 spring:
+  mvc:
+    servlet:
+      path: /api/v1/
   profiles:
     default: dev
 

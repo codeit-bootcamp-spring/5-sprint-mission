@@ -30,7 +30,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/users")
+@RequestMapping(path = "/users")
 public class UserController {
 
     private final UserService userService;
