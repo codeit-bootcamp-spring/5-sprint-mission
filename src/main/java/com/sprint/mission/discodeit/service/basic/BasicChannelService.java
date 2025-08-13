@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -10,9 +11,11 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -110,6 +113,45 @@ public class BasicChannelService implements ChannelService {
     @Override
     public List<Channel> findByName(String name) {
         return channelRepository.findByName(name);
+    }
+
+    @Override
+    public List<ChannelResponse.summary> findByUser(UUID userId) {
+
+        // 유저가 참여한 채널 아이디 리스트
+        List<UUID> channelIds = readStatusRepository.findAllByUserId(userId).stream()
+                .map(ReadStatus::getChannelId)
+                .distinct()
+                .toList();
+
+        if (channelIds.isEmpty()) return List.of(); // 없으면 빈 리스트 반환
+
+        List<Channel> channels = channelRepository.findAllById(channelIds);
+
+        return channels.stream().map(ch -> ChannelResponse.summary.builder()
+                .channelId(ch.getId())
+                .name(ch.getName())
+                .topic(ch.getTopic())
+                .build()
+        ).toList();
+    }
+
+    @Override
+    public ChannelResponse.join join(UUID userId, UUID channelId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자을 찾을 수 없습니다."));
+
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
+
+        ReadStatus readStatus = new ReadStatus(userId, channelId);
+        readStatusRepository.save(readStatus);
+
+        return ChannelResponse.join.builder()
+                .userId(user.getId())
+                .channelId(channel.getId())
+                .message(user.getName() + " 님이 " + channel.getName() + " 채널에 참여했습니다.")
+                .build();
     }
 
     @Override

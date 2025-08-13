@@ -33,6 +33,13 @@ public class FileChannelRepository extends FileStore<Channel> implements Channel
     }
 
     @Override
+    public List<Channel> findAllById(List<UUID> ids) {
+        return channelMap.values().stream()
+                .filter(c -> ids.contains(c.getId()))
+                .toList();
+    }
+
+    @Override
     public Optional<Channel> findById(UUID id) {
         return Optional.ofNullable(channelMap.get(id));
     }

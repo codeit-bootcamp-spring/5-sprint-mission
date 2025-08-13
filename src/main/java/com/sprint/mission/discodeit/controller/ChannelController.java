@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.ChannelResponse;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -26,6 +29,21 @@ public class ChannelController {
     @RequestMapping(value = "/update", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<ChannelDto.response> updateChannel(@Valid @ModelAttribute ChannelDto.update req) {
         return ResponseEntity.ok(channelService.update(req));
+    }
+
+    @RequestMapping(value = "/join", method = RequestMethod.POST, consumes = "multipart/form-data")
+    public ResponseEntity<ChannelResponse.join> joinChannel(@ModelAttribute ChannelDto.join dto) {
+        return ResponseEntity.ok(channelService.join(dto.userId(), dto.channelId()));
+    }
+
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public ResponseEntity<List<Channel>> findAll() {
+        return ResponseEntity.ok(channelService.findAll());
+    }
+
+    @RequestMapping(value = "/list/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<List<ChannelResponse.summary>> findByUser(@PathVariable UUID userId) {
+        return ResponseEntity.ok(channelService.findByUser(userId));
     }
 
     @RequestMapping(value = "delete/{id}", method = RequestMethod.DELETE)

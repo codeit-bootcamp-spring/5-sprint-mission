@@ -38,6 +38,13 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
+    public List<Channel> findAllById(List<UUID> ids) {
+        return data.values().stream()
+                .filter(c -> ids.contains(c.getId()))
+                .toList();
+    }
+
+    @Override
     public Optional<Channel> updateName(UUID id, String name) {
         Channel channel = data.get(id);
         if (channel != null) {

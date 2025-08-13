@@ -12,6 +12,8 @@ public interface ChannelRepository {
 
     List<Channel> findAll();
 
+    List<Channel> findAllById(List<UUID> ids);
+
     Optional<Channel> findById(UUID id);
 
     List<Channel> findByName(String name);

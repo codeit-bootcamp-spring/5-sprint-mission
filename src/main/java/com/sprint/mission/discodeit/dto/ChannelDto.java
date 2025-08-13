@@ -36,6 +36,13 @@ public class ChannelDto {
             @Nullable String description
     ) {}
 
+    public record join(
+            @NotNull(message = "아이디를 입력해주세요")
+            UUID userId,
+            @NotNull(message = "아이디를 입력해주세요")
+            UUID channelId
+    ){}
+
     @Builder
     public record response(
             UUID id,
