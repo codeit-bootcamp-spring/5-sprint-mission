@@ -69,9 +69,4 @@ public class BasicReadStatusService implements ReadStatusService {
         }
         readStatusRepository.deleteById(id);
     }
-
-    public void deleteAll() {
-        readStatusRepository.findAll().forEach(r -> delete(r.getId()));
-    }
-
 }
