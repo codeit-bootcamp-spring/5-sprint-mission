@@ -1,23 +1,25 @@
 package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.dto.auth.request.LoginRequest;
+import com.sprint.mission.discodeit.dto.channel.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.channel.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.dto.user.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.main.Channel;
 import com.sprint.mission.discodeit.entity.main.Message;
 import com.sprint.mission.discodeit.entity.main.User;
-import com.sprint.mission.discodeit.entity.enums.ChannelType;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
-import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
-import com.sprint.mission.discodeit.repository.file.FileUserRepository;
+import com.sprint.mission.discodeit.repository.*;
+import com.sprint.mission.discodeit.repository.file.*;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.basic.BasicAuthService;
-import com.sprint.mission.discodeit.service.basic.BasicChannelService;
-import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,8 +27,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import static com.sprint.mission.discodeit.entity.enums.ChannelType.PUBLIC;
+import java.util.Optional;
 
 @SpringBootApplication
 public class DiscodeitApplication {
@@ -44,21 +45,33 @@ public class DiscodeitApplication {
         ChannelRepository channelRepository = new FileChannelRepository();
         MessageRepository messageRepository = new FileMessageRepository();
 
-        UserService userService = new BasicUserService(userRepository);
+        BinaryContentRepository binaryContentRepository = new FileBinaryContentRepository();
+        UserStatusRepository userStatusRepository = new FileUserStatusRepository();
+
+        UserService userService = new BasicUserService(userRepository, binaryContentRepository, userStatusRepository);
         AuthService authService = new BasicAuthService(userRepository);
-        ChannelService channelService = new BasicChannelService(channelRepository);
-        MessageService messageService = new BasicMessageService(messageRepository, channelRepository, userRepository);
+        ChannelService channelService = context.getBean(ChannelService.class);
+        MessageService messageService = context.getBean(MessageService.class);
 
         userCRUDTest(userService);
         authTest(authService, userService);
-//        channelCRUDTest(channelService);
-//        messageCRUDTest(userService, channelService, messageService);
+        channelCRUDTest(channelService);
+        messageCRUDTest(userService, channelService, messageService);
     }
 
     private static void userCRUDTest(UserService userService) {
         // 생성
-        User user1 = userService.create("jae", "jae@example.com", "jae1234");
-        User user2 = userService.create("hyeok", "hyeok@example.com", "hyeok1234");
+        UserCreateRequest userCreateRequest1 = new UserCreateRequest("jae", "jae@example.com", "jae1234");
+        UserCreateRequest userCreateRequest2 = new UserCreateRequest("hyeok", "hyeok@example.com", "hyeok1234");
+
+        Optional<BinaryContentCreateRequest> binaryContentCreateRequest1 =
+                Optional.of(new BinaryContentCreateRequest("file", "image/jpeg", new byte[]{}));
+
+        Optional<BinaryContentCreateRequest> binaryContentCreateRequest2 =
+                Optional.of(new BinaryContentCreateRequest("file", "image/jpeg", new byte[]{}));
+
+        User user1 = userService.create(userCreateRequest1, binaryContentCreateRequest1);
+        User user2 = userService.create(userCreateRequest2, binaryContentCreateRequest2);
         System.out.println("유저 생성: " + user1);
         System.out.println("유저 생성: " + user2);
 
@@ -67,20 +80,29 @@ public class DiscodeitApplication {
         System.out.println("유저 조회(다건): " + userService.findAll().size());
         System.out.println("유저 조회(다건): " + userService.findAll());
 
-        // 수정
-        User updatedUser = userService.update(user1.getId(), null, null, "jae4321");
+        // 수정 (UserUpdateRequest 사용)
+        UserUpdateRequest updateRequest =
+                new UserUpdateRequest("jaeNew", "jaeNew@example.com", "jae4321");
+
+        User updatedUser = userService.update(user1.getId(), updateRequest, Optional.empty());
         System.out.println("유저 수정: " + String.join("/", updatedUser.getUsername(), updatedUser.getEmail(), updatedUser.getPassword()));
         System.out.println("유저 조회(단건): " + userService.find(user1.getId()));
 
         // 삭제
-        List<User> foundUsersAfterDelete = userService.findAll();
+        List<UserDto> foundUsersAfterDelete = userService.findAll();
         userService.delete(user1.getId());
         userService.delete(user2.getId());
         System.out.println("유저 삭제: " + foundUsersAfterDelete.size());
     }
 
     private static void authTest(AuthService authService, UserService userService) {
-        User user = userService.create("jae", "jae@example.com", "jae1234");
+        UserCreateRequest userCreateRequest1 = new UserCreateRequest("jae", "jae@example.com", "jae1234");
+
+        Optional<BinaryContentCreateRequest> binaryContentCreateRequest1 =
+                Optional.of(new BinaryContentCreateRequest("file", "image/jpeg", new byte[]{}));
+
+        User user = userService.create(userCreateRequest1, binaryContentCreateRequest1);
+
         String username = user.getUsername();
         String password = user.getPassword();
 
@@ -106,24 +128,34 @@ public class DiscodeitApplication {
     }
 
     private static void channelCRUDTest(ChannelService channelService) {
-        // 생성
-        Channel channel1 = channelService.create(PUBLIC, "공지 채널입니다.", "공지");
-        Channel channel2 = channelService.create(PUBLIC, "스터디 채널입니다.", "스터디");
+        // 생성 - PublicChannelCreateRequest 사용
+        PublicChannelCreateRequest publicReq1 =
+                new PublicChannelCreateRequest("공지 채널입니다.", "공지");
+        PublicChannelCreateRequest publicReq2 =
+                new PublicChannelCreateRequest("스터디 채널입니다.", "스터디");
+
+        Channel channel1 = channelService.create(publicReq1);
+        Channel channel2 = channelService.create(publicReq2);
+
         System.out.println("채널 생성: " + channel1.getId());
         System.out.println("채널 생성: " + channel2.getId());
 
         // 조회
         System.out.println("채널 조회(단건): " + channelService.find(channel1.getId()));
-        System.out.println("채널 조회(다건): " + channelService.findAll().size());
-        System.out.println("채널 조회(다건): " + channelService.findAll());
+        System.out.println("채널 조회(다건): " + channelService.findAllByUserId(null).size());
+        System.out.println("채널 조회(다건): " + channelService.findAllByUserId(null));
 
-        // 수정
-        Channel updatedChannel = channelService.update(channel1.getId(), "공지사항", null);
-        System.out.println("채널 수정: " + String.join("/", updatedChannel.getName(), updatedChannel.getDescription()));
+        // 수정 - PublicChannelUpdateRequest 사용
+        PublicChannelUpdateRequest updateReq =
+                new PublicChannelUpdateRequest("공지사항", null);
+        Channel updatedChannel = channelService.update(channel1.getId(), updateReq);
+
+        System.out.println("채널 수정: " +
+                String.join("/", updatedChannel.getName(), updatedChannel.getDescription()));
         System.out.println("채널 조회(단건): " + channelService.find(channel1.getId()));
 
         // 삭제
-        List<Channel> foundChannelsAfterDelete = channelService.findAll();
+        List<ChannelDto> foundChannelsAfterDelete = channelService.findAllByUserId(null);
         channelService.delete(channel1.getId());
         channelService.delete(channel2.getId());
         System.out.println("채널 삭제: " + foundChannelsAfterDelete.size());
@@ -131,38 +163,57 @@ public class DiscodeitApplication {
 
     private static void messageCRUDTest(UserService userService, ChannelService channelService, MessageService messageService) {
         // 셋업
-        User user = userService.create("woody", "woody@codeit.com", "woody1234");
-        Channel channel = channelService.create(ChannelType.PUBLIC, "공지 채널입니다.", "공지");
+        UserCreateRequest userCreateRequest1 =
+                new UserCreateRequest("jae", "jae@example.com", "jae1234");
 
-        // 생성
-        Message message1 = messageService.create("안녕하세요.", channel.getId(), user.getId());
-        Message message2 = messageService.create("안녕하세요.", channel.getId(), user.getId());
+        Optional<BinaryContentCreateRequest> binaryContentCreateRequest1 =
+                Optional.of(new BinaryContentCreateRequest("file", "image/jpeg", new byte[]{}));
+
+        User user = userService.create(userCreateRequest1, binaryContentCreateRequest1);
+
+        // 채널 생성 - PublicChannelCreateRequest 사용
+        PublicChannelCreateRequest publicChannelReq =
+                new PublicChannelCreateRequest("공지 채널입니다.", "공지");
+        Channel channel = channelService.create(publicChannelReq);
+
+        // 메시지 생성 - MessageCreateRequest + 첨부파일 리스트
+        MessageCreateRequest messageReq1 =
+                new MessageCreateRequest("안녕하세요.", channel.getId(), user.getId());
+        MessageCreateRequest messageReq2 =
+                new MessageCreateRequest("안녕하세요.", channel.getId(), user.getId());
+
+        List<BinaryContentCreateRequest> attachments = List.of(); // 첨부 없을 경우 빈 리스트
+
+        Message message1 = messageService.create(messageReq1, attachments);
+        Message message2 = messageService.create(messageReq2, attachments);
+
         System.out.println("메시지 생성: " + message1.getId());
         System.out.println("메시지 생성: " + message2.getId());
 
-        // 조회
+        // 메시지 조회
         System.out.println("메시지 조회(단건): " + messageService.find(message1.getId()));
-        System.out.println("메시지 조회(다건): " + messageService.findAll().size());
-        System.out.println("메시지 조회(다건): " + messageService.findAll());
+        System.out.println("메시지 조회(채널별): " + messageService.findAllByChannelId(channel.getId()).size());
+        System.out.println("메시지 조회(채널별): " + messageService.findAllByChannelId(channel.getId()));
 
-        // 수정
-        Message updatedMessage = messageService.update(message1.getId(), "반갑습니다.");
+        // 메시지 수정 - MessageUpdateRequest 사용
+        MessageUpdateRequest updateReq = new MessageUpdateRequest("반갑습니다.");
+        Message updatedMessage = messageService.update(message1.getId(), updateReq);
         System.out.println("메시지 수정: " + updatedMessage.getContent());
         System.out.println("메시지 조회(단건): " + messageService.find(message1.getId()));
 
         // 메시지 삭제
-        List<Message> foundMessagesAfterDelete = messageService.findAll();
+        List<Message> foundMessagesAfterDelete = messageService.findAllByChannelId(channel.getId());
         messageService.delete(message1.getId());
         messageService.delete(message2.getId());
         System.out.println("메시지 삭제: " + foundMessagesAfterDelete.size());
 
-        // 채널 삭제
-        List<Channel> foundChannelsAfterDelete = channelService.findAll();
+        // 채널 삭제 - findAllByUserId 사용
+        List<ChannelDto> foundChannelsAfterDelete = channelService.findAllByUserId(user.getId());
         channelService.delete(channel.getId());
         System.out.println("채널 삭제: " + foundChannelsAfterDelete.size());
 
         // 유저 삭제
-        List<User> foundUsersAfterDelete = userService.findAll();
+        List<UserDto> foundUsersAfterDelete = userService.findAll();
         userService.delete(user.getId());
         System.out.println("유저 삭제: " + foundUsersAfterDelete.size());
     }
