@@ -3,6 +3,7 @@ package com.codeit.mission.discodeit.repository.file;
 import com.codeit.mission.discodeit.entity.User;
 import com.codeit.mission.discodeit.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
 public class FileUserRepository implements UserRepository {
 

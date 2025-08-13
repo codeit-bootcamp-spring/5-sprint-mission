@@ -2,10 +2,12 @@ package com.codeit.mission.discodeit.repository.jcf;
 
 import com.codeit.mission.discodeit.entity.UserStatus;
 import com.codeit.mission.discodeit.repository.UserStatusRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
 public class JCFUserStatusRepository implements UserStatusRepository {
 
