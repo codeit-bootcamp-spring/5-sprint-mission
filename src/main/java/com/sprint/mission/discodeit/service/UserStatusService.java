@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.dto.request.UserStatusHeartbeatRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserStatusResponse;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import static com.sprint.mission.discodeit.mapper.UserStatusMapper.toUserStatusR
 @Transactional(readOnly = true)
 public class UserStatusService {
 
+    private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
 
     protected void update(UUID id, Consumer<UserStatus> updater) {
@@ -56,6 +59,13 @@ public class UserStatusService {
         return userStatusRepository.findAllByUserIds(userIds).stream()
                 .map(UserStatusMapper::toUserStatusResponse)
                 .toList();
+    }
+
+    @Transactional
+    public void heartbeat(UserStatusHeartbeatRequest req) {
+        UserStatus us = userStatusRepository.findByUserId(req.userId()).orElseGet(() -> new UserStatus(req.userId()));
+        us.heartbeat();
+        userStatusRepository.save(us);
     }
 
     @Transactional

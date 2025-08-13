@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Fetch users from the API
-async function fetchAndRenderUsers() {
+const fetchAndRenderUsers = async () => {
     try {
         const response = await fetch(ENDPOINTS.USERS);
         if (!response.ok) console.error('Failed to fetch users');
@@ -25,7 +25,7 @@ async function fetchAndRenderUsers() {
 }
 
 // Fetch user profile image
-async function fetchUserProfile(profileId) {
+const fetchUserProfile = async (profileId) => {
     try {
         const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}/${profileId}`);
         if (!response.ok) console.error('Failed to fetch profile');
@@ -39,8 +39,13 @@ async function fetchUserProfile(profileId) {
     }
 }
 
+/**
+ * @typedef {{ id:string, username:string, email:string, profileId?:string,
+ *            userStatusType?:('ONLINE'|'OFFLINE'|'IDLE'|'DO_NOT_DISTURB') }} User
+ */
+/** @param {User[]} users */
 // Render user list
-async function renderUserList(users) {
+const renderUserList = async (users) => {
     const userListElement = document.getElementById('userList');
     userListElement.innerHTML = ''; // Clear existing content
 
@@ -53,14 +58,18 @@ async function renderUserList(users) {
             await fetchUserProfile(user.profileId) :
             '/default-avatar.png';
 
+        const status = (user.userStatusType ?? 'OFFLINE');
+        const statusClass = status.toLowerCase();
+        const statusText = ({ONLINE: '온라인', DO_NOT_DISTURB: '방해 금지', IDLE: '자리 비움', OFFLINE: '오프라인'})[status] ?? '오프라인';
+
         userElement.innerHTML = `
             <img src="${profileUrl}" alt="${user.username}" class="user-avatar">
             <div class="user-info">
                 <div class="user-name">${user.username}</div>
                 <div class="user-email">${user.email}</div>
             </div>
-            <div class="status-badge ${user.userStatusType == 'ONLINE' ? 'online' : 'offline'}">
-                ${user.userStatusType == 'ONLINE' ? '온라인' : '오프라인'}
+            <div class="status-badge ${statusClass}">
+                ${statusText}
             </div>
         `;
 

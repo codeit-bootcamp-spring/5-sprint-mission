@@ -74,6 +74,16 @@ h1 {
     color: white;
 }
 
+.do_not_disturb {
+    background-color: #d32f2f;
+    color: white;
+}
+
+.idle {
+    background-color: #b45309;
+    color: white;
+}
+
 .offline {
     background-color: #9e9e9e;
     color: white;
