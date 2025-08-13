@@ -43,9 +43,7 @@ public class UserStatus implements Serializable {
     }
 
     public boolean isLogin() {
-        if (updatedAt != null && updatedAt.getEpochSecond() - Instant.now().getEpochSecond() <= TIME_DIFF) {
-            loginStatus = true;
-        }
+        loginStatus = updatedAt != null && updatedAt.getEpochSecond() - Instant.now().getEpochSecond() <= TIME_DIFF;
         return loginStatus;
     }
 }
