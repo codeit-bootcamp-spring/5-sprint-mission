@@ -1,24 +1,24 @@
 spring:
+  config:
+    activate:
+      on-profile: prod
+
   datasource:
-    url: jdbc:h2:mem:discodeitdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:./data/discodeit;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
     username: sa
     password:
+
   h2:
     console:
       enabled: true
       path: /h2-console
+
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
-
-logging:
-  level:
-    org.springframework: INFO
-    com.sprint.mission: INFO
-    org.hibernate.SQL: WARN
-    org.hibernate.orm.jdbc.bind: OFF
+        format_sql: false

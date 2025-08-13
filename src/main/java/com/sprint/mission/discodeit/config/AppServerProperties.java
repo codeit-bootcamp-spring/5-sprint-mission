@@ -1,4 +1,4 @@
 package com.sprint.mission.discodeit.config;
 
-public record AppServerProperties(int port, String url, int timeout) {
+public record AppServerProperties(String url, int timeout) {
 }
