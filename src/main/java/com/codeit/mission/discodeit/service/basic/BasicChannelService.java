@@ -96,7 +96,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     private ChannelDto toDto(Channel channel) {
-        Instant lastMessageAt = messageRepository.findByChannelId(channel.getId())
+        Instant lastMessageAt = messageRepository.findAllByChannelId(channel.getId())
                 .stream()
                 .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
                 .map(Message::getCreatedAt)
