@@ -45,7 +45,7 @@ public class JCFUserStatusRepository implements UserStatusRepository {
     }
 
     @Override
-    public void existsBydeleteByUserId(UUID userId) {
+    public void deleteByUserId(UUID userId) {
         this.findByUserId(userId)
                 .ifPresent(userStatus -> this.data.remove(userStatus.getId()));
     }
