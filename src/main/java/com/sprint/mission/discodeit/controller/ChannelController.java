@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.ChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelFindResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,20 +22,20 @@ public class ChannelController {
     private final ChannelService channelService;
 
     @RequestMapping(value = {"/createPublic", "/create"}, method = RequestMethod.POST)
-    public ResponseEntity<Channel> createPublicChannel(@RequestPart ChannelCreateRequest channelCreateRequest) {
-        Channel publicChannel = channelService.createPublic(channelCreateRequest);
+    public ResponseEntity<Channel> createPublicChannel(@RequestPart PublicChannelCreateRequest publicChannelCreateRequest) {
+        Channel publicChannel = channelService.createPublic(publicChannelCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(publicChannel);
     }
 
     @RequestMapping(value = "/createPrivate", method = RequestMethod.POST)
-    public ResponseEntity<Channel> createPrivateChannel(@RequestPart ChannelCreateRequest channelCreateRequest) {
-        Channel privateChannel = channelService.createPrivate(channelCreateRequest);
+    public ResponseEntity<Channel> createPrivateChannel(@RequestPart PrivateChannelCreateRequest privateChannelCreateRequest) {
+        Channel privateChannel = channelService.createPrivate(privateChannelCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(privateChannel);
     }
 
     @RequestMapping(value = {"/updatePublic", "/update"}, method = RequestMethod.POST)
-    public ResponseEntity<Channel> updatePublicChannel(@RequestPart ChannelUpdateRequest channelUpdateRequest) {
-        Channel updatedChannel = channelService.update(channelUpdateRequest);
+    public ResponseEntity<Channel> updatePublicChannel(@RequestPart PublicChannelUpdateRequest publicChannelUpdateRequest) {
+        Channel updatedChannel = channelService.update(publicChannelUpdateRequest);
         return ResponseEntity.status(HttpStatus.OK).body(updatedChannel);
     }
 

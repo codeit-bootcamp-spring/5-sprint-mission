@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.ChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelFindResponse;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -26,18 +27,17 @@ public class BasicChannelService implements ChannelService {
     private final MessageRepository messageRepository;
 
     @Override
-    public Channel createPublic(@Valid ChannelCreateRequest channelCreateRequest) {
-        Channel channel = new Channel(ChannelType.PUBLIC, channelCreateRequest.name(), channelCreateRequest.description());
+    public Channel createPublic(@Valid PublicChannelCreateRequest publicChannelCreateRequest) {
+        Channel channel = new Channel(ChannelType.PUBLIC, publicChannelCreateRequest.name(), publicChannelCreateRequest.description());
         return channelRepository.save(channel);
     }
 
     @Override
-    public Channel createPrivate(@Valid ChannelCreateRequest channelCreateRequest) {
+    public Channel createPrivate(@Valid PrivateChannelCreateRequest privateChannelCreateRequest) {
         Channel channel = new Channel(ChannelType.PRIVATE, null, null);
-        if (!channelCreateRequest.userIds().isEmpty()) {
-            for (UUID userId : channelCreateRequest.userIds()) {
-                readStatusRepository.save(new ReadStatus(userId, channel.getId()));
-            }
+
+        for (UUID userId : privateChannelCreateRequest.userIds()) {
+            readStatusRepository.save(new ReadStatus(userId, channel.getId()));
         }
 
         return channelRepository.save(channel);
@@ -81,7 +81,7 @@ public class BasicChannelService implements ChannelService {
 
         return channelRepository.findAll().stream()
                 .map(channel -> {
-                    if (channel.getType() ==  ChannelType.PUBLIC) {
+                    if (channel.getType() == ChannelType.PUBLIC) {
                         return findById(channel);
                     }
                     if (readStatusMap.containsKey(channel.getId())) {
@@ -94,13 +94,13 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Channel update(@Valid ChannelUpdateRequest channelUpdateRequest) {
-        Channel channel = channelRepository.findById(channelUpdateRequest.id())
+    public Channel update(@Valid PublicChannelUpdateRequest publicChannelUpdateRequest) {
+        Channel channel = channelRepository.findById(publicChannelUpdateRequest.id())
                 .orElseThrow(() -> new NoSuchElementException("update : 채널을 찾을 수 없습니다."));
         if (channel.getType() == ChannelType.PRIVATE) {
             throw new SecurityException("update : Private 채널은 업데이트 할 수 없습니다.");
         }
-        channel.update(channelUpdateRequest.name(), channelUpdateRequest.description());
+        channel.update(publicChannelUpdateRequest.name(), publicChannelUpdateRequest.description());
         return channelRepository.save(channel);
     }
 
