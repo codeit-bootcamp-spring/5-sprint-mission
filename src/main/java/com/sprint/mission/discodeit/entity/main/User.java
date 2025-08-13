@@ -1,67 +1,71 @@
-package com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.entity.main;
+
+import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
 import static java.time.Instant.*;
 
+@Getter
 public class User implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     private final UUID id;
-    private final Long createdAt;
+    private UUID profileId;
 
-    private Long updatedAt;
-    private String name;
+    private String username;
     private String email;
     private String password;
 
-    public User(String name, String email, String password) {
-        this.id = UUID.randomUUID();
-        this.createdAt = now().getEpochSecond();
+    private final Instant createdAt;
+    private Instant updatedAt;
 
-        this.name = name;
+    public User(String username, String email, String password, UUID profileId) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+
+        this.username = username;
         this.email = email;
         this.password = password;
-        this.updatedAt = now().getEpochSecond();
+        this.profileId = profileId;
     }
 
-    public UUID getId() { return id; }
-    public Long getCreatedAt() { return createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
-    public String getName() { return name; }
-    public String getEmail() { return email; }
-    public String getPassword() { return password; }
-
-    public void update(String name, String email, String password) {
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
         boolean anyValueUpdated = false;
 
-        if(isNameChanged(name)) {
-            this.name = name;
+        if(isNameChanged(newUsername)) {
+            this.username = newUsername;
             anyValueUpdated = true;
         }
 
-        if(isEmailChanged(email)) {
-            this.email = email;
+        if(isEmailChanged(newEmail)) {
+            this.email = newEmail;
             anyValueUpdated = true;
         }
 
-        if(isPasswordChanged(password)) {
-            this.password = password;
+        if(isPasswordChanged(newPassword)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+
+        if (isProfileIdChanged(newProfileId)) {
+            this.profileId = newProfileId;
             anyValueUpdated = true;
         }
 
         if(anyValueUpdated) {
-            this.updatedAt = now().getEpochSecond();
+            this.updatedAt = now();
         }
     }
 
     public boolean isNameChanged(String name) {
-        return name != null && !Objects.equals(this.name, name);
+        return name != null && !Objects.equals(this.username, name);
     }
 
     public boolean isEmailChanged(String email) {
@@ -72,13 +76,17 @@ public class User implements Serializable {
         return password != null && !Objects.equals(this.password, password);
     }
 
+    private boolean isProfileIdChanged(UUID newProfileId) {
+        return newProfileId != null && !newProfileId.equals(this.profileId);
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", name='" + name + '\'' +
+                ", name='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 '}';

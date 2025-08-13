@@ -1,64 +1,56 @@
-package com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.entity.main;
 
 import com.sprint.mission.discodeit.entity.enums.ChannelType;
+import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
 import static java.time.Instant.*;
 
+@Getter
 public class Channel implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     private final UUID id;
-    private final Long createdAt;
 
-    private Long updatedAt;
     private ChannelType type;
+
     private String name;
     private String description;
 
-    public Channel(String name, String description, ChannelType type) {
-        this.id = UUID.randomUUID();
-        this.createdAt = now().getEpochSecond();
+    private final Instant createdAt;
+    private Instant updatedAt;
 
+    public Channel(ChannelType type, String name, String description) {
+        this.id = UUID.randomUUID();
+        this.createdAt = now();
+
+        this.type = type;
         this.name = name;
         this.description = description;
-        this.type = type;
-        this.updatedAt = now().getEpochSecond();
     }
 
-    public UUID getId() { return id;}
-    public Long getCreatedAt() { return createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
-    public String getName() { return name; }
-    public String getDescription() { return description; }
-    public ChannelType getType() { return type; }
-
-    public void update(String name, String description, ChannelType type) {
+    public void update(String newName, String newDescription) {
         boolean anyValueUpdated = false;
 
-        if(isNameChanged(name)) {
-            this.name = name;
+        if(isNameChanged(newName)) {
+            this.name = newName;
             anyValueUpdated = true;
         }
 
-        if(isDescriptionChanged(description)) {
-            this.description = description;
-            anyValueUpdated = true;
-        }
-
-        if(isTypeChanged(type)) {
-            this.type = type;
+        if(isDescriptionChanged(newDescription)) {
+            this.description = newDescription;
             anyValueUpdated = true;
         }
 
         if(anyValueUpdated) {
-            this.updatedAt = now().getEpochSecond();
+            this.updatedAt = now();
         }
     }
 

@@ -1,12 +1,17 @@
-package com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.entity.main;
+
+import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 import static java.time.Instant.*;
 
+@Getter
 public class Message implements Serializable {
 
     @Serial
@@ -15,27 +20,24 @@ public class Message implements Serializable {
     private final UUID id;
     private final UUID authorId;
     private final UUID channelId;
-    private final Long createdAt;
 
-    private Long updatedAt;
     private String content;
 
-    public Message(UUID authorId, UUID channelId, String content) {
+    private List<UUID> attachmentIds;
+
+    private final Instant createdAt;
+    private Instant updatedAt;
+
+
+    public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
         this.id = UUID.randomUUID();
-        this.authorId = authorId;
-        this.channelId = channelId;
-        this.createdAt = now().getEpochSecond();
+        this.createdAt = now();
 
         this.content = content;
-        this.updatedAt = now().getEpochSecond();
+        this.channelId = channelId;
+        this.authorId = authorId;
+        this.attachmentIds = attachmentIds;
     }
-
-    public UUID getId() { return id; }
-    public UUID getAuthorId() { return authorId; }
-    public UUID getChannelId() { return channelId; }
-    public Long getCreatedAt() { return createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
-    public String getContent() { return content; }
 
     public void update(String content) {
         boolean anyValueUpdated = false;
@@ -46,12 +48,12 @@ public class Message implements Serializable {
         }
 
         if(anyValueUpdated) {
-            this.updatedAt = now().getEpochSecond();
+            this.updatedAt = now();
         }
     }
 
-    public boolean isContentChanged(String content) {
-        return content != null && !Objects.equals(this.content, content);
+    public boolean isContentChanged(String newContent) {
+        return newContent != null && !Objects.equals(this.content, newContent);
     }
 
     @Override
