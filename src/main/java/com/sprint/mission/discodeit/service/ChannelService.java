@@ -26,7 +26,7 @@ public interface ChannelService {
 
     void createPrivateChannel(PrivateChannelCreateRequest request);
 
-    void createPublicChannel(PublicChannelCreateRequest request);
+    void createPublicChannel(PublicChannelCreateRequest request); // 공개채널 생성
 
 
 }

@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
@@ -121,79 +123,99 @@ public class DiscodeitApplication {
         System.out.println("----------------------------------------");
 
 
-        /*Message Test*/
+        /* Channel 고도화 테스트 (PRIVATE + ReadStatus) */
 
-        // 1. Given: 메시지 Test를 위한 데이터 준비
-        try {
-            UserCreateRequest senderRequest = new UserCreateRequest("senderUser", "sender@email.com", "1234");
-            userService.create(senderRequest);
-        } catch (IllegalArgumentException e) {
-            System.out.println("⚠️ senderUser는 이미 등록된 유저입니다. 건너뜀");
-        }
+// 1. Given: PRIVATE 채널에 참여할 유저들 생성
+        String userId1 = "channelUser-" + UUID.randomUUID();
+        String userId2 = "channelUser-" + UUID.randomUUID();
 
-        // sender ID 꺼내오기
-        UUID senderId = userService.findAll().stream()
-                .filter(u -> u.getUserId().equals("senderUser"))
+        userService.create(new UserCreateRequest(userId1, userId1 + "@email.com", "1234"));
+        userService.create(new UserCreateRequest(userId2, userId2 + "@email.com", "1234"));
+
+        UUID ownerId = userService.findAll().stream()
+                .filter(u -> u.getUserId().equals(userId1))
                 .map(UserResponse::getId)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+                .orElseThrow();
 
-        Channel messageChannel = new Channel("메시지 테스트 채널", "채널 설명", ChannelType.VOICE);
-        channelService.create(messageChannel);
+        UUID memberId = userService.findAll().stream()
+                .filter(u -> u.getUserId().equals(userId2))
+                .map(UserResponse::getId)
+                .findFirst()
+                .orElseThrow();
 
-        // And Given: 메시지 준비
-        Message message = new Message("테스트 내용", senderId, messageChannel.getId());
+// 2. When: PrivateChannelCreateRequest 만들고 채널 생성
+        PrivateChannelCreateRequest requested = new PrivateChannelCreateRequest();
+        requested.setOwnerId(ownerId.toString());
+        requested.setMembersId(List.of(ownerId.toString(), memberId.toString()));
 
-        // 2. When: 생성/조회/수정
-        messageService.create(message);
-        Message foundMessage = messageService.findById(message.getId());
-        List<Message> foundAllMessage = messageService.findAll();
+        channelService.createPrivateChannel(requested);
 
-        // ✅ PRIVATE 채널 + ReadStatus 테스트 시작
-        System.out.println("\n----------------------------------------");
-        System.out.println("✅ PRIVATE 채널 생성 + ReadStatus 테스트 시작");
-        System.out.println("----------------------------------------");
-
-        // ✅ 참여 유저 만들기 (중복 생성 방지 위해 UUID 사용)
-        String testUserId1 = UUID.randomUUID().toString();
-        String testUserId2 = UUID.randomUUID().toString();
-
-        try {
-            userService.create(new UserCreateRequest(testUserId1, testUserId1 + "@test.com", "1234"));
-            userService.create(new UserCreateRequest(testUserId2, testUserId2 + "@test.com", "1234"));
-        } catch (IllegalArgumentException e) {
-            System.out.println("⚠️ 이미 등록된 유저입니다. 건너뜀");
-        }
-
-        // ✅ 참여자 ID 리스트
-        List<String> memberIds = List.of(testUserId1, testUserId2);
-
-        // ✅ 요청 객체 생성
-        PrivateChannelCreateRequest privateRequest = new PrivateChannelCreateRequest();
-        privateRequest.setOwnerId(testUserId1); // 첫 번째 유저를 방장으로
-        privateRequest.setMembersId(memberIds);
-
-        // ✅ 채널 생성
-        channelService.createPrivateChannel(privateRequest);
-
-        // ✅ 채널 확인
-        List<Channel> allChannels = channelService.findAll();
-        Channel created = allChannels.get(allChannels.size() - 1); // 마지막 요소
-
-        System.out.println("✅ 채널 ID: " + created.getId());
+// 3. Then: 채널 조회 및 검증
+        Channel created = channelService.findAll().get(channelService.findAll().size() - 1);
+        System.out.println("✅ PRIVATE 채널 ID: " + created.getId());
         System.out.println("✅ 채널 타입: " + created.getChannelType());
-        System.out.println("✅ 채널 title: '" + created.getTitle() + "'"); // 비어 있어야 함
-        System.out.println("✅ 채널 owner: " + created.getOwnerId());
+        System.out.println("✅ 채널 소유자: " + created.getOwnerId());
+        System.out.println("✅ 채널 제목: '" + created.getTitle() + "' (비어 있음이 정상)");
 
-        // ✅ ReadStatus 확인
+// 4. Then: ReadStatus 조회 및 검증
         ReadStatusRepository readStatusRepository = context.getBean(ReadStatusRepository.class);
         List<ReadStatus> readStatuses = readStatusRepository.findByChannelId(created.getId());
 
-        System.out.println("✅ ReadStatus 저장 개수: " + readStatuses.size());
+        System.out.println("✅ ReadStatus 총 개수: " + readStatuses.size());
         for (ReadStatus rs : readStatuses) {
-            System.out.println("   📌 ReadStatus - userId: " + rs.getUserId() + ", 채널: " + rs.getChannelId());
+            System.out.println("   📌 ReadStatus - userId: " + rs.getUserId() + ", 채널 ID: " + rs.getChannelId());
+        }
+        System.out.println("----------------------------------------");
+        System.out.println("----------------------------------------");
+
+
+
+        /* Message Test */
+
+        //1. Given: 유저, 채널, 메시지 생성 준비
+        UUID senderId = userService.findAll().get(0).getId(); // 첫 번째 유저
+        UUID channelId = channelService.findAll().get(0).getId(); // 첫 번째 채널
+
+        MessageCreateRequest createRequest = new MessageCreateRequest();
+        createRequest.setContent("메시지 테스트");
+        createRequest.setChannelId(channelId);
+        createRequest.setSender(senderId);
+        createRequest.setAttachmentIds(null); // 첨부파일 없을 수도 있음
+
+        //2. When: 메시지 생성
+        messageService.create(createRequest);
+
+        //3. Then: 생성된 메시지 확인
+        List<Message> allMessages = messageService.findAllByChannelId(channelId);
+        Message create = allMessages.get(allMessages.size() - 1); // 마지막 메시지
+
+        System.out.println("✅ 메시지 생성됨: " + create.getId());
+        System.out.println("✅ 메시지 내용: " + create.getContent());
+        System.out.println("✅ 메시지 보낸 사람: " + create.getSender());
+        System.out.println("✅ 메시지 채널: " + create.getChannelId());
+
+        //4. When: 메시지 수정
+        MessageUpdateRequest updatedRequest = new MessageUpdateRequest();
+        updatedRequest.setId(create.getId());
+        updatedRequest.setContent("수정된 메시지 ✨");
+
+        messageService.update(updatedRequest);
+
+        //5. Then: 수정된 메시지 확인
+        Message updated = messageService.findById(create.getId());
+        System.out.println("✅ 메시지 수정 완료: " + updated.getContent());
+
+        //6. When: 메시지 삭제
+        messageService.delete(updated);
+
+        //7. Then: 삭제된 메시지 확인
+        try {
+            messageService.findById(updated.getId());
+            System.out.println("❌ 삭제된 메시지가 조회됩니다. 오류!");
+        } catch (IllegalArgumentException e) {
+            System.out.println("❌ 삭제된 메시지는 더 이상 조회되지 않습니다.");
         }
 
-        System.out.println("🎉 PRIVATE 채널 + ReadStatus 생성 테스트 완료!");
     }
 }
