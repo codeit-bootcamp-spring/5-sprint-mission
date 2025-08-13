@@ -19,10 +19,7 @@ public class UserStatus implements Serializable {
     private Instant updatedAt;
 
     private UUID userId;
-
     private Instant lastAccessTime;
-
-    private static final long ONLINE_THRESHOLD_MILLIS = 5 * 60 * 1000;
 
     public UserStatus(UUID userId, Instant lastAccessTime) {
         this.id = UUID.randomUUID();
@@ -45,11 +42,8 @@ public class UserStatus implements Serializable {
     }
 
     public boolean isOnline() {
-        if (lastAccessTime == null) {
-            return false;
-        }
+        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
 
-        Duration timeDiff = Duration.between(lastAccessTime, Instant.now());
-        return timeDiff.toMillis() <= ONLINE_THRESHOLD_MILLIS;
+        return lastAccessTime.isAfter(instantFiveMinutesAgo);
     }
 }
