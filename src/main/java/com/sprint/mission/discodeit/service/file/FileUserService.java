@@ -91,6 +91,7 @@ public class FileUserService implements UserService {
         if (status != null) {
             lastOnline = status.getLastOnline();
             isOnline = lastOnline != null && Instant.now().minusSeconds(300).isBefore(lastOnline);
+
         }
 
         return new UserResponse(
@@ -180,9 +181,8 @@ public class FileUserService implements UserService {
 
     @Override
     public void delete(UUID id) {
-        // 🔒 ID가 null이면 예외
         if (id == null) {
-            throw new IllegalArgumentException("삭제할 유저 ID가 null입니다.");
+            throw new IllegalArgumentException("삭제 유저가 null입니다.");
         }
         if (repository.findById(id) == null) {
             throw new IllegalStateException("삭제할 유저가 존재하지 않습니다: " + id);

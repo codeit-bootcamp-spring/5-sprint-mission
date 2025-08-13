@@ -35,7 +35,7 @@ public class FileMessageService implements MessageService {
         if (sender.isEmpty()) {
             throw new IllegalArgumentException("보낸 유저가 존재하지 않습니다.");
         }
-
+      
         //2. Message 객체 생성
         Message message = new Message(
                 request.getContent(),
