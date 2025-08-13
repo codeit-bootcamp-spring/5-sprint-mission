@@ -45,12 +45,14 @@ public class User extends BaseEntity {
             boolean subscribedToNewsletter,
             String globalName
     ) {
-        setEmail(email);
-        setPassword(password);
-        setUsername(username);
-        setBirthDate(birthDate);
-        setSubscribedToNewsletter(subscribedToNewsletter);
-        setGlobalName(globalName);
+        this.email = Validators.validateEmail(email);
+        this.username = Validators.validateUsername(username);
+        this.password = BCrypt.hashpw(Validators.validatePassword(password), BCrypt.gensalt());
+        this.birthDate = Objects.requireNonNull(birthDate, "birthDate must not be null");
+        this.subscribedToNewsletter = subscribedToNewsletter;
+
+        String n = normalizeString(globalName);
+        this.globalName = n.isBlank() ? this.username : Validators.validateGlobalName(n);
     }
 
     public void setEmail(String email) {
@@ -62,8 +64,22 @@ public class User extends BaseEntity {
     }
 
     public void setPassword(String password) {
-        this.password = BCrypt.hashpw(Validators.validatePassword(password), BCrypt.gensalt());
-        touch();
+        String hashed = BCrypt.hashpw(Validators.validatePassword(password), BCrypt.gensalt());
+        if (!hashed.equals(this.password)) {
+            this.password = hashed;
+            touch();
+        }
+    }
+
+    protected void setPasswordHash(String bcryptHash) {
+        Objects.requireNonNull(bcryptHash, "bcryptHash must not be null");
+        if (!bcryptHash.startsWith("$2a$") && !bcryptHash.startsWith("$2b$") && !bcryptHash.startsWith("$2y$")) {
+            throw new IllegalArgumentException("유효한 bcrypt 해시가 아닙니다.");
+        }
+        if (!bcryptHash.equals(this.password)) {
+            this.password = bcryptHash;
+            touch();
+        }
     }
 
     public boolean checkPassword(String password) {
@@ -74,6 +90,9 @@ public class User extends BaseEntity {
         String v = Validators.validateUsername(username);
         if (!Objects.equals(this.username, v)) {
             this.username = v;
+            if (this.globalName == null || this.globalName.isBlank() || this.globalName.equals(this.username)) {
+                this.globalName = v;
+            }
             touch();
         }
     }

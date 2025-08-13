@@ -55,14 +55,17 @@ public class Guild extends BaseEntity {
         if (isBanned(userId)) throw new IllegalStateException("Banned user cannot be the owner.");
         if (isNotMember(userId)) throw new IllegalArgumentException("User is not a member of this guild.");
 
-        setPermissions(userId, Set.of(Permission.ADMINISTRATOR));
+        if (Objects.equals(this.ownerId, userId)) return; // 변경 없음
 
         UUID prev = this.ownerId;
-        if (!userId.equals(prev)) {
-            this.ownerId = userId;
-            permissions.removeIf(p -> p.getUserId().equals(prev));
-            touch();
+
+        setPermissions(userId, Set.of(Permission.ADMINISTRATOR));
+
+        if (prev != null && userIds.contains(prev)) {
+            setPermissions(prev, DEFAULT_PERMISSIONS);
         }
+
+        this.ownerId = userId;
     }
 
     public Set<UUID> getChannelIds() {
@@ -128,15 +131,22 @@ public class Guild extends BaseEntity {
     public void setPermissions(UUID userId, Set<Permission> newPermissions) {
         Objects.requireNonNull(userId, "userId must not be null.");
         if (isNotMember(userId)) throw new IllegalArgumentException("User is not a member of this guild.");
-
-        permissions.removeIf(p -> p.getUserId().equals(userId));
+        if (isBanned(userId)) throw new IllegalStateException("Banned user cannot have permissions.");
 
         Set<Permission> granted = (newPermissions == null || newPermissions.isEmpty())
-                ? DEFAULT_PERMISSIONS
+                ? EnumSet.copyOf(DEFAULT_PERMISSIONS)
                 : EnumSet.copyOf(newPermissions);
 
-        permissions.add(new GuildPermissions(getId(), userId, granted));
-        touch();
+        if (isOwner(userId)) {
+            granted.add(Permission.ADMINISTRATOR);
+        }
+
+        granted = Collections.unmodifiableSet(granted);
+
+        boolean changed = permissions.removeIf(p -> p.getUserId().equals(userId));
+        changed |= permissions.add(new GuildPermissions(getId(), userId, granted));
+
+        if (changed) touch();
     }
 
     public Set<UUID> getBannedUserIds() {

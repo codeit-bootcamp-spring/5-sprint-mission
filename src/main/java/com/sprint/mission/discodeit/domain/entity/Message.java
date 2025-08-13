@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.domain.entity;
 import com.sprint.mission.discodeit.util.Validators;
 import lombok.Getter;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -23,8 +24,12 @@ public class Message extends BaseEntity {
         this.channelId = Objects.requireNonNull(channelId, "channelId must not be null.");
         this.authorId = Objects.requireNonNull(authorId, "authorId must not be null.");
 
-        setContent(content);
-        setAttachmentIds(attachmentIds);
+        this.content = Validators.validateMessageContent(content);
+        if (attachmentIds != null) {
+            for (UUID id : attachmentIds) {
+                this.attachmentIds.add(Objects.requireNonNull(id, "attachmentId must not be null"));
+            }
+        }
 
         if (replyTo != null && replyTo.equals(getId())) {
             throw new IllegalArgumentException("Message cannot reply to itself.");
@@ -48,6 +53,10 @@ public class Message extends BaseEntity {
         }
     }
 
+    public Set<UUID> getAttachmentIds() {
+        return Collections.unmodifiableSet(attachmentIds);
+    }
+
     public void setAttachmentIds(Set<UUID> attachmentIds) {
         Set<UUID> target = (attachmentIds == null) ? Set.of() : attachmentIds;
         if (target.contains(null)) throw new NullPointerException("attachmentId must not be null");
@@ -59,22 +68,41 @@ public class Message extends BaseEntity {
         }
     }
 
-    public boolean addAttachment(UUID id) {
+    public boolean addAttachmentId(UUID id) {
         Objects.requireNonNull(id, "attachmentId must not be null");
         boolean added = this.attachmentIds.add(id);
         if (added) touch();
         return added;
     }
 
-    public boolean removeAttachment(UUID id) {
+    public int addAttachmentIds(Collection<UUID> ids) {
+        Objects.requireNonNull(ids, "ids must not be null");
+        int before = attachmentIds.size();
+        for (UUID id : ids) {
+            this.attachmentIds.add(Objects.requireNonNull(id, "attachmentId must not be null"));
+        }
+        int changed = attachmentIds.size() - before;
+        if (changed > 0) touch();
+        return changed;
+    }
+
+    public boolean removeAttachmentId(UUID id) {
         Objects.requireNonNull(id, "attachmentId must not be null");
         boolean removed = this.attachmentIds.remove(id);
         if (removed) touch();
         return removed;
     }
 
-    public Set<UUID> getAttachmentIds() {
-        return Collections.unmodifiableSet(attachmentIds);
+    public int removeAttachmentIds(Collection<UUID> ids) {
+        Objects.requireNonNull(ids, "ids must not be null");
+        int removed = 0;
+        for (UUID id : ids) {
+            if (this.attachmentIds.remove(Objects.requireNonNull(id, "attachmentId must not be null"))) {
+                removed++;
+            }
+        }
+        if (removed > 0) touch();
+        return removed;
     }
 
     @Override

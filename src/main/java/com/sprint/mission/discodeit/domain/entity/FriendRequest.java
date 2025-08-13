@@ -17,31 +17,39 @@ public class FriendRequest extends BaseEntity {
         if (senderId.equals(receiverId)) throw new IllegalArgumentException("자기 자신에게 보낼 수 없습니다.");
     }
 
-    public void accept(UUID actorId) {
-        requireReceiver(actorId);
-        touch();
-    }
-
-    public void reject(UUID actorId) {
-        requireReceiver(actorId);
-        touch();
-    }
-
-    public void cancel(UUID actorId) {
-        requireSender(actorId);
-        touch();
-    }
-
-    private void requireSender(UUID actorId) {
-        if (!this.senderId.equals(Objects.requireNonNull(actorId, "actorId must not be null"))) {
+    public void verifySender(UUID actorId) {
+        if (!isSender(actorId)) {
             throw new IllegalStateException("Only sender can perform this action.");
         }
     }
 
-    private void requireReceiver(UUID actorId) {
-        if (!this.receiverId.equals(Objects.requireNonNull(actorId, "actorId must not be null"))) {
+    public void verifyReceiver(UUID actorId) {
+        if (!isReceiver(actorId)) {
             throw new IllegalStateException("Only receiver can perform this action.");
         }
+    }
+
+    public boolean isSender(UUID userId) {
+        return senderId.equals(Objects.requireNonNull(userId, "userId must not be null"));
+    }
+
+    public boolean isReceiver(UUID userId) {
+        return receiverId.equals(Objects.requireNonNull(userId, "userId must not be null"));
+    }
+
+    public UUID otherParty(UUID userId) {
+        Objects.requireNonNull(userId, "userId must not be null");
+        if (isSender(userId)) return receiverId;
+        if (isReceiver(userId)) return senderId;
+        throw new IllegalStateException("User is not a participant of this request.");
+    }
+
+    public UUID pairLow() {
+        return senderId.compareTo(receiverId) <= 0 ? senderId : receiverId;
+    }
+
+    public UUID pairHigh() {
+        return senderId.compareTo(receiverId) <= 0 ? receiverId : senderId;
     }
 
     @Override

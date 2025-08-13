@@ -49,19 +49,21 @@ public class FileReadStatusRepository extends FileBaseRepository<ReadStatus> imp
     @Override
     public List<ReadStatus> findUnreadByUserId(UUID userId) {
         Objects.requireNonNull(userId, "userId must not be null");
-        return findAll().stream()
-                .filter(rs -> userId.equals(rs.getUserId()))
-                .filter(rs -> !rs.isRead())
-                .toList();
+        // return findAll().stream()
+        //         .filter(rs -> userId.equals(rs.getUserId()))
+        //         .filter(rs -> !rs.isRead())
+        //         .toList();
+        return List.of();
     }
 
     @Override
     public long countUnreadByUserId(UUID userId) {
         Objects.requireNonNull(userId, "userId must not be null");
-        return findAll().stream()
-                .filter(rs -> userId.equals(rs.getUserId()))
-                .filter(rs -> !rs.isRead())
-                .count();
+        // return findAll().stream()
+        //         .filter(rs -> userId.equals(rs.getUserId()))
+        //         .filter(rs -> !rs.isRead())
+        //         .count();
+        return 0L;
     }
 
     @Override

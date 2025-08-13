@@ -27,7 +27,7 @@ public class UserStatus extends BaseEntity {
         if (!loggedIn) return UserStatusType.OFFLINE;
         if (manual) return type;
         Instant la = lastActiveAt;
-        Instant cutoff = Instant.now().minus(ONLINE_THRESHOLD);
+        Instant cutoff = now().minus(ONLINE_THRESHOLD);
         return (la != null && la.isAfter(cutoff)) ? UserStatusType.ONLINE : UserStatusType.IDLE;
     }
 
@@ -59,19 +59,22 @@ public class UserStatus extends BaseEntity {
             this.manual = false;
             this.type = UserStatusType.ONLINE;
             heartbeat();
-        }
-    }
-
-    public void logout() {
-        if (this.loggedIn || this.type != UserStatusType.OFFLINE) {
-            this.loggedIn = false;
-            this.type = UserStatusType.OFFLINE;
             touch();
         }
     }
 
+    public void logout() {
+        if (this.loggedIn || this.type != UserStatusType.OFFLINE || this.lastActiveAt != null || this.manual) {
+            this.loggedIn = false;
+            this.type = UserStatusType.OFFLINE;
+            this.manual = false;
+            this.lastActiveAt = null;
+            touch();
+        }
+    }
+
+
     public void heartbeat() {
-        this.lastActiveAt = Instant.now();
-        touch();
+        this.lastActiveAt = now();
     }
 }
