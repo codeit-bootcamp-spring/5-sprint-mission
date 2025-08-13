@@ -8,14 +8,13 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.UserStatusService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -285,6 +284,54 @@ public class DiscodeitApplication {
             } else {
                 System.out.println("❌ 삭제 실패: 아직 존재함");
             }
+
+            // -------- UserStatusService 단독 테스트 --------
+            System.out.println("----------------------------------------");
+            System.out.println("-------- UserStatusService 테스트 --------");
+            System.out.println("----------------------------------------");
+
+// 생성된 유저의 ID 찾기
+            UserResponse createdUser = userService.findAll().stream()
+                    .filter(u -> u.getUserId().equals("read-user"))
+                    .findFirst()
+                    .orElseThrow();
+
+            UserStatusService userStatusService = context.getBean(UserStatusService.class);
+
+// 생성된 상태 객체 찾기
+            List<UserStatus> allStatuses = userStatusService.findAll();
+            UserStatus newStatus = allStatuses.stream()
+                    .filter(status -> status.getUserId().equals(createdUser.getId()))
+                    .findFirst()
+                    .orElseThrow();
+
+            System.out.println("✅ UserStatus 생성됨: ID = " + newStatus.getId());
+
+// 4. When: findById 로 조회
+            UserStatus found = userStatusService.findById(newStatus.getId());
+            System.out.println("✅ UserStatus 단건 조회 성공: userId = " + found.getUserId());
+
+// 5. When: update 수행
+            UserStatusUpdateRequest statusUpdateRequest = new UserStatusUpdateRequest();
+            statusUpdateRequest.setId(newStatus.getId());
+            statusUpdateRequest.setLastOnline(Instant.now().plusSeconds(10));
+            userStatusService.update(statusUpdateRequest);
+
+// Then: 수정 확인
+            UserStatus afterUpdated = userStatusService.findById(newStatus.getId());
+            System.out.println("✅ UserStatus 수정 완료: lastOnline = " + afterUpdated.getLastOnline());
+
+// 6. When: 삭제
+            userStatusService.delete(newStatus.getId());
+
+// Then: 삭제 확인
+            try {
+                userStatusService.findById(newStatus.getId());
+                System.out.println("❌ 삭제된 UserStatus가 조회됩니다. 오류!");
+            } catch (IllegalArgumentException e1) {
+                System.out.println("✅ UserStatus 삭제 성공");
+            }
+            System.out.println("----------------------------------------");
 
 
         }
