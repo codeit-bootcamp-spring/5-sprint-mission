@@ -37,7 +37,7 @@ public class BinaryContentController {
             MediaType.APPLICATION_OCTET_STREAM_VALUE,
             MediaType.IMAGE_PNG_VALUE,
             MediaType.IMAGE_JPEG_VALUE})
-    public ResponseEntity<BinaryContentResponse> uploadBinaryContent(
+    public ResponseEntity<BinaryContentResponse> upload(
             @RequestHeader(value = "Content-Type", required = false) String contentType,
             @RequestHeader(value = "Content-Disposition", required = false) String contentDisposition,
             @RequestBody byte[] body

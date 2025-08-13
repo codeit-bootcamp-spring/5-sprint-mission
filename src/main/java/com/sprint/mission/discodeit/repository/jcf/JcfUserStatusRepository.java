@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -39,7 +40,7 @@ public class JcfUserStatusRepository extends JcfBaseRepository<UserStatus> imple
     @Override
     public UserStatus getOrThrowByUserId(UUID userId) {
         Objects.requireNonNull(userId, "userId must not be null");
-        return findByUserId(userId).orElseThrow(() -> new java.util.NoSuchElementException("UserStatus not found: " + userId));
+        return findByUserId(userId).orElseThrow(() -> new NotFoundException("UserStatus not found: " + userId));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.domain.entity.BaseEntity;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BaseRepository;
 
 import java.time.Instant;
@@ -8,7 +9,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,7 +44,7 @@ public class JcfBaseRepository<T extends BaseEntity> implements BaseRepository<T
     @Override
     public T getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->
-                new NoSuchElementException("엔티티(" + getEntityTypeName() + ")를 찾을 수 없습니다: " + id));
+                new NotFoundException("엔티티(" + getEntityTypeName() + ")를 찾을 수 없습니다: " + id));
     }
 
     @Override

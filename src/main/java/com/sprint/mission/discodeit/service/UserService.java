@@ -72,7 +72,7 @@ public class UserService {
         return toUserResponse(user, UserStatusType.OFFLINE);
     }
 
-    public UserResponse findById(UUID userId) {
+    public UserResponse find(UUID userId) {
         return userRepository.findById(userId)
                 .map(this::toResponse)
                 .orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다: " + userId));

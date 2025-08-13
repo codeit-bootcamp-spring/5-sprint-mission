@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.config.AppStorageProperties;
 import com.sprint.mission.discodeit.domain.entity.BaseEntity;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,7 +16,6 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -105,7 +105,7 @@ public abstract class FileBaseRepository<T extends BaseEntity> implements BaseRe
     @Override
     public T getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->
-                new NoSuchElementException("엔티티(" + entityType.getSimpleName() + ")를 찾을 수 없습니다: " + id));
+                new NotFoundException("엔티티(" + entityType.getSimpleName() + ")를 찾을 수 없습니다: " + id));
     }
 
     @Override

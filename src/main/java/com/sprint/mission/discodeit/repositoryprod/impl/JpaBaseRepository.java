@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repositoryprod.impl;
 
 import com.sprint.mission.discodeit.domain.entityprod.ProdBaseEntity;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repositoryprod.ProdBaseRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -9,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -86,7 +86,7 @@ public abstract class JpaBaseRepository<T extends ProdBaseEntity> implements Pro
     public T getOrThrow(UUID id) {
         return findById(id)
                 .orElseThrow(() ->
-                        new NoSuchElementException(
+                        new NotFoundException(
                                 String.format("엔티티(%s)를 찾을 수 없습니다: %s", entityType.getSimpleName(), id)));
     }
 
