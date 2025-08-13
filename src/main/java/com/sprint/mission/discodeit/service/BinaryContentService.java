@@ -7,7 +7,6 @@ import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +18,6 @@ import static com.sprint.mission.discodeit.mapper.BinaryContentMapper.toBinaryCo
 
 @Service
 @RequiredArgsConstructor
-@Profile({"test", "dev"})
 public class BinaryContentService {
 
     private final BinaryContentRepository binaryContentRepository;

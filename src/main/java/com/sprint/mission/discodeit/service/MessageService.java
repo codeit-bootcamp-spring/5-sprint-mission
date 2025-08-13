@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashSet;
@@ -16,7 +15,6 @@ import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
-@Profile({"test", "dev"})
 public class MessageService {
 
     private final MessageRepository messageRepository;

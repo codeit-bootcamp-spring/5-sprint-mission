@@ -9,7 +9,6 @@ import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +20,6 @@ import static com.sprint.mission.discodeit.mapper.UserMapper.toUserResponse;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Profile({"test", "dev"})
 public class AuthService {
 
     private final UserRepository userRepository;

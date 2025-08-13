@@ -9,7 +9,6 @@ import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +25,6 @@ import static com.sprint.mission.discodeit.mapper.FriendRequestMapper.toFriendRe
 
 @Service
 @RequiredArgsConstructor
-@Profile({"test", "dev"})
 @Transactional(readOnly = true)
 public class FriendRequestService {
 

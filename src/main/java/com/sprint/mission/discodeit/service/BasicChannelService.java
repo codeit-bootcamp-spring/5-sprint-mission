@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -12,7 +11,6 @@ import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
-@Profile({"test", "dev"})
 public class BasicChannelService {
 
     private final ChannelRepository channelRepository;
