@@ -6,16 +6,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
-import com.sprint.mission.discodeit.dto.request.user.DeleteUserByIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.DeleteUserByLoingIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefalutNicknameRequest;
-import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
-import com.sprint.mission.discodeit.dto.request.user.UpdateUserProfileImageRequest;
-import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
-import com.sprint.mission.discodeit.dto.response.user.UpdateUserPasswordResponse;
-import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.dto.request.user.*;
+import com.sprint.mission.discodeit.dto.response.user.*;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
