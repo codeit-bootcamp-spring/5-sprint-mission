@@ -18,6 +18,16 @@ public class AuthController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<UserDto> login(@RequestBody LoginRequest loginRequest) {
+        if (loginRequest == null) {
+            throw new IllegalArgumentException("loginRequest가 필요합니다.");
+        }
+        if (loginRequest.username() == null || loginRequest.username().trim().isEmpty()) {
+            throw new IllegalArgumentException("username이 필요합니다.");
+        }
+        if (loginRequest.password() == null || loginRequest.password().trim().isEmpty()) {
+            throw new IllegalArgumentException("password가 필요합니다.");
+        }
+
         User loginedUser = authService.login(loginRequest);
 
         UserDto userDto = new UserDto(
