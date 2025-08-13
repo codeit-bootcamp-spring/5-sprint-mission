@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,7 +24,7 @@ public interface UserService {
 
     List<UserResponse> findAll(); //리스트에 넣기
 
-    void update(UserUpdateRequest request);
+    void update(UserUpdateRequest request) throws IOException;
 
     void delete(UUID id); //삭제
 

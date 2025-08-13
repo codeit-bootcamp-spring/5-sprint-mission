@@ -41,6 +41,17 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         return new ArrayList<>(data.values());
     }
 
+    @Override
+    public BinaryContent findById(UUID id) {
+        return data.get(id);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        data.remove(id);
+        saveToFile(); // 삭제 후 저장 반영
+    }
+
     // ✅ 임시 저장 메서드 (직렬화 구현 예정)
     private void saveToFile() {
         System.out.println("[BinaryContent] 저장 완료 (임시)");

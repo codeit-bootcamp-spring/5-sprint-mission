@@ -13,4 +13,8 @@ public interface BinaryContentRepository {
 
     // ✅ 전체 조회 (추가 기능)
     List<BinaryContent> findAll();
+
+    BinaryContent findById(UUID id);
+
+    void deleteById(UUID id);
 }

@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -130,7 +131,7 @@ public class FileUserService implements UserService {
 
 
     @Override
-    public void update(UserUpdateRequest request) {
+    public void update(UserUpdateRequest request) throws IOException {
         if (request == null) {
             throw new IllegalArgumentException("UserUpdateRequest가 null입니다.");
         }
@@ -161,7 +162,8 @@ public class FileUserService implements UserService {
                         user.getId(),
                         file.getOriginalFilename(),
                         file.getContentType(),
-                        file.getSize()
+                        file.getSize(),
+                        file.getBytes()
                 );
                 binaryRepository.save(newImage);
             }
