@@ -1,0 +1,31 @@
+spring:
+  profiles:
+    default: dev
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework: INFO
+    com.sprint.mission: DEBUG
+    org.hibernate.SQL: INFO
+    org.hibernate.orm.jdbc.bind: OFF
+
+app:
+  name: Discodeit
+  version: 1.0.0
+  server:
+    url: http://localhost:8080
+    timeout: 5000
+  metadata:
+    region: korea
+    owner: admin-team
+  storage:
+    type: file
+    root-dir: file-data-map

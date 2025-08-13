@@ -1,18 +1,129 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.entity.FriendRequest;
+import com.sprint.mission.discodeit.domain.entity.FriendRequest;
+import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.dto.request.FriendRequestSendRequest;
+import com.sprint.mission.discodeit.dto.response.FriendRequestResponse;
+import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.repository.FriendRequestRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-public interface FriendRequestService extends BaseService<FriendRequest> {
-    void acceptFriendRequest(UUID requestId);
+import static com.sprint.mission.discodeit.mapper.FriendRequestMapper.toFriendRequestResponse;
 
-    void declineFriendRequest(UUID requestId);
+@Service
+@RequiredArgsConstructor
+@Profile({"test", "dev"})
+@Transactional(readOnly = true)
+public class FriendRequestService {
 
-    void clearFriendRequests(UUID userId);
+    private final UserRepository userRepository;
+    private final FriendRequestRepository friendRequestRepository;
+    private final UserStatusRepository userStatusRepository;
 
-    List<FriendRequest> getSentRequests(UUID senderId);
+    protected void update(UUID id, Consumer<FriendRequest> updater) {
+        FriendRequest entity = friendRequestRepository.getOrThrow(id);
+        updater.accept(entity);
+        friendRequestRepository.save(entity);
+    }
 
-    List<FriendRequest> getReceivedRequests(UUID receiverId);
+    public List<FriendRequestResponse> findAllBySenderId(UUID id) {
+        return friendRequestRepository
+                .findAllBySenderId(id).stream()
+                .sorted(Comparator.comparing(FriendRequest::getCreatedAt).reversed())
+                .map(fr -> toFriendRequestResponse(
+                        fr,
+                        userRepository.getOrThrow(fr.getSenderId()),
+                        userRepository.getOrThrow(fr.getReceiverId())
+                ))
+                .toList();
+    }
+
+    public List<FriendRequestResponse> findAllByReceiverId(UUID id) {
+        return friendRequestRepository
+                .findAllByReceiverId(id).stream()
+                .sorted(Comparator.comparing(FriendRequest::getCreatedAt).reversed())
+                .map(fr -> toFriendRequestResponse(
+                        fr,
+                        userRepository.getOrThrow(fr.getSenderId()),
+                        userRepository.getOrThrow(fr.getReceiverId())
+                ))
+                .toList();
+    }
+
+    public List<FriendRequestResponse> findAllByUserId(UUID id, String direction) {
+        if (id == null) throw new IllegalArgumentException("id must not be null");
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다" + id));
+        return switch (direction.strip().toUpperCase()) {
+            case "SENT" -> findAllBySenderId(id);
+            case "RECEIVED" -> findAllByReceiverId(id);
+            default -> throw new IllegalStateException("Unexpected value: " + direction.strip().toLowerCase());
+        };
+    }
+
+    @Transactional
+    public FriendRequestResponse send(FriendRequestSendRequest body) {
+        final User sender = userRepository.findById(body.senderId()).orElseThrow(
+                () -> new NotFoundException("유저가 존재하지 않습니다: " + body.senderId())
+        );
+        final User receiver = userRepository.findByUsername(body.receiverUsername()).orElseThrow(
+                () -> new NotFoundException("유저가 존재하지 않습니다."));
+        if (sender.isFriend(receiver.getId())) {
+            throw new IllegalArgumentException("이미 친구입니다.");
+        }
+        if (friendRequestRepository.existsBySenderIdAndReceiverId(sender.getId(), receiver.getId())
+                || friendRequestRepository.existsBySenderIdAndReceiverId(receiver.getId(), sender.getId())) {
+            throw new IllegalArgumentException("친구 요청이 이미 존재합니다.");
+        }
+        FriendRequest fr = friendRequestRepository.save(new FriendRequest(sender.getId(), receiver.getId()));
+        return toFriendRequestResponse(fr, sender, receiver);
+    }
+
+    @Transactional
+    public void accept(UUID requestId) {
+        FriendRequest fr = friendRequestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("이미 처리된 요청입니다."));
+        UUID senderId = fr.getSenderId();
+        UUID receiverId = fr.getReceiverId();
+
+        Set<UUID> ids = Set.of(senderId, receiverId);
+        Map<UUID, User> users = userRepository.findAllByIds(ids).stream()
+                .collect(Collectors.toMap(User::getId, u -> u));
+        User sender = Optional.ofNullable(users.get(senderId)).orElseThrow(() -> new NotFoundException("유저가 존재하지 않습니다: " + senderId));
+        User receiver = Optional.ofNullable(users.get(receiverId)).orElseThrow(() -> new NotFoundException("유저가 존재하지 않습니다: " + receiverId));
+
+        if (!sender.isFriend(receiverId)) {
+            sender.addFriend(receiverId);
+            userRepository.save(sender);
+        }
+        if (!receiver.isFriend(senderId)) {
+            receiver.addFriend(senderId);
+            userRepository.save(receiver);
+        }
+
+        friendRequestRepository.hardDeleteById(requestId);
+        friendRequestRepository.softDeleteBySenderAndReceiver(receiverId, senderId);
+    }
+
+    @Transactional
+    public void reject(UUID requestId) {
+        if (friendRequestRepository.findById(requestId).isEmpty()) throw new NotFoundException("이미 처리된 요청입니다.");
+        friendRequestRepository.hardDeleteById(requestId);
+    }
+
+    public void deleteAllByUserId(UUID userId) {
+        friendRequestRepository.softDeleteAllByUserId(userId);
+    }
 }

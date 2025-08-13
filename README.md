@@ -1,82 +1,92 @@
-# 요구사항
+# 기본 요구사항
 
-## 기본 요구사항
+## 컨트롤러 레이어 구현
 
-### File IO를 통한 데이터 영속화
+- [x]  DiscodeitApplication의 테스트 로직은 삭제하세요.
 
-- [x] 다음의 조건을 만족하는 서비스 인터페이스의 구현체를 작성하세요.
-    - [x] 클래스 패키지명: com.sprint.mission.discodeit.service.file
-    - [x] 클래스 네이밍 규칙: File[인터페이스 이름]
-    - [x] JCF 대신 FileIO와 객체 직렬화를 활용해 메소드를 구현하세요.
-- [x] Application에서 서비스 구현체를 File*Service로 바꾸어 테스트해보세요.
+- [x]  지금까지 구현한 서비스 로직을 활용해 웹 API를 구현하세요.  
+  이때 @RequestMapping만 사용해 구현해보세요.
 
-### 서비스 구현체 분석
+- [x]  웹 API의 예외를 전역으로 처리하세요.
 
-- [x] JCF\*Service 구현체와 File\*Service 구현체를 비교하여 공통점과 차이점을 발견해보세요.
-    - [x] "비즈니스 로직"과 관련된 코드를 식별해보세요.
-        - View에선 코드 변경이 없음
-        - Service에서도 File 스트림을 쓰는 것 외엔 코드 변경이 없음. File 스트림 -> JCF -> 스트림으로 변경되어 Lazy Evaluation 구현이 어려워짐
-    - [x] "저장 로직"과 관련된 코드를 식별해보세요.
-        - Jcf는 휘발성, File은 영속적으로 파일로 저장함
+## 웹 API 요구사항
 
-### 레포지토리 설계 및 구현
+### 사용자 관리
 
-- [x] "저장 로직"과 관련된 기능을 도메인 모델 별 인터페이스로 선언하세요.
-    - [x] 인터페이스 패키지명: com.sprint.mission.discodeit.repository
-    - [x] 인터페이스 네이밍 규칙: [도메인 모델 이름]Repository
-- [x] 다음의 조건을 만족하는 레포지토리 인터페이스의 구현체를 작성하세요.
-    - [x] 클래스 패키지명: com.sprint.mission.discodeit.repository.jcf
-    - [x] 클래스 네이밍 규칙: JCF[인터페이스 이름]
-    - [x] 기존에 구현한 JCF\*Service 구현체의 "저장 로직"과 관련된 코드를 참고하여 구현하세요.
-- [x] 다음의 조건을 만족하는 레포지토리 인터페이스의 구현체를 작성하세요.
-    - [x] 클래스 패키지명: com.sprint.mission.discodeit.repository.file
-    - [x] 클래스 네이밍 규칙: File[인터페이스 이름]
-    - [x] 기존에 구현한 File*Service 구현체의 "저장 로직"과 관련된 코드를 참고하여 구현하세요.
+- [x] 사용자를 등록할 수 있다.
+- [x] 사용자 정보를 수정할 수 있다.
+- [x] 사용자를 삭제할 수 있다.
+- [x] 모든 사용자를 조회할 수 있다.
+- [x] 사용자의 온라인 상태를 업데이트할 수 있다.
 
-## 심화 요구 사항
+### 권한 관리
 
-### 관심사 분리를 통한 레이어 간 의존성 주입
+- [x] 사용자는 로그인할 수 있다.
 
-- [ ] 다음의 조건을 만족하는 서비스 인터페이스의 구현체를 작성하세요.
-    - [ ] 클래스 패키지명: com.sprint.mission.discodeit.service.basic
-    - [ ] 클래스 네이밍 규칙: Basic[인터페이스 이름]
-    - [ ] 기존에 구현한 서비스 구현체의 "비즈니스 로직"과 관련된 코드를 참고하여 구현하세요.
-    - [ ] 필요한 Repository 인터페이스를 필드로 선언하고 생성자를 통해 초기화하세요.
-    - [ ] "저장 로직"은 Repository 인터페이스 필드를 활용하세요. (직접 구현하지 마세요.)
-- [ ] Basic\*Service 구현체를 활용하여 테스트해보세요.
-    - 코드 템플릿
-      ```
-      public class JavaApplication {
-      static User setupUser(UserService userService) {
-      User user = userService.create("woody", "woody@codeit.com", "woody1234");
-      return user;
-      }
-      
-          static Channel setupChannel(ChannelService channelService) {
-              Channel channel = channelService.create(ChannelType.PUBLIC, "공지", "공지 채널입니다.");
-              return channel;
-          }
-      
-          static void messageCreateTest(MessageService messageService, Channel channel, User author) {
-              Message message = messageService.create("안녕하세요.", channel.getId(), author.getId());
-              System.out.println("메시지 생성: " + message.getId());
-          }
-      
-          public static void main(String[] args) {
-              // 서비스 초기화
-              // TODO Basic*Service 구현체를 초기화하세요.
-              UserService userService;
-              ChannelService channelService;
-              MessageService messageService;
-      
-              // 셋업
-              User user = setupUser(userService);
-              Channel channel = setupChannel(channelService);
-              // 테스트
-              messageCreateTest(messageService, channel, user);
-          }
-      }
-      ```
-    - [ ]  JCF*Repository 구현체를 활용하여 테스트해보세요.
-    - [ ]  File*Repository 구현체를 활용하여 테스트해보세요.
-- [ ] 이전에 작성했던 코드(JCF\*Service 또는 File\*Service)와 비교해 어떤 차이가 있는지 정리해보세요.
+### 채널 관리
+
+- [ ] 공개 채널을 생성할 수 있다.
+- [ ] 비공개 채널을 생성할 수 있다.
+- [ ] 공개 채널의 정보를 수정할 수 있다.
+- [ ] 채널을 삭제할 수 있다.
+- [ ] 특정 사용자가 볼 수 있는 모든 채널 목록을 조회할 수 있다.
+
+### 메시지 관리
+
+- [ ] 메시지를 보낼 수 있다.
+- [ ] 메시지를 수정할 수 있다.
+- [ ] 메시지를 삭제할 수 있다.
+- [ ] 특정 채널의 메시지 목록을 조회할 수 있다.
+
+### 메시지 수신 정보 관리
+
+- [ ] 특정 채널의 메시지 수신 정보를 생성할 수 있다.
+- [ ] 특정 채널의 메시지 수신 정보를 수정할 수 있다.
+- [ ] 특정 사용자의 메시지 수신 정보를 조회할 수 있다.
+
+### 바이너리 파일 다운로드
+
+- [x] 바이너리 파일을 1개 또는 여러 개 조회할 수 있다.
+
+## API 테스트
+
+- [x] Postman을 활용해 컨트롤러를 테스트 하세요.
+    - Postman API 테스트 결과를 다음과 같이 export하여 PR에 첨부해주세요.
+    - ![](readme1.png)
+
+# 심화 요구사항
+
+## 정적 리소스 서빙
+
+- [x]  사용자 목록 조회, BinaryContent 파일 조회 API를 다음의 조건을 만족하도록 수정하세요.
+    - [x]  사용자 목록 조회
+        - url: `/api/user/findAll` (저는 `/api/users`로 했습니다.)
+        - 요청
+            - 파라미터, 바디 없음
+        - 응답
+            - ```java
+              ResponseEntity<List<UserDto>>
+              public record UserDto(
+              UUID id,
+              Instant createdAt,
+              Instant updatedAt,
+              String username,
+              String email,
+              UUID profileId,
+              Boolean online
+              ) {
+              }
+    - [x]  BinaryContent 파일 조회
+        - url: `/api/binaryContent/find` (저는 `/api/binary-contents/{id}`로 했습니다.)
+        - 요청
+            - 파라미터: `binaryContentId`
+            - 바디 없음
+        - 응답: `ResponseEntity<BinaryContent>`
+- [ ]  다음의 파일을 활용하여 사용자 목록을 보여주는 화면을 서빙해보세요.
+
+> static-resources.zip
+
+![](readme2.png)
+
+- 생성형 AI 활용
+    - [ ] 생성형 AI (Claude, ChatGPT 등)를 활용해서 위 이미지와 비슷한 화면을 생성 후 서빙해보세요.
