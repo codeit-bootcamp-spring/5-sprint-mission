@@ -23,6 +23,13 @@ public class ChannelController {
 
     @RequestMapping(value = "/public", method = RequestMethod.POST)
     public ResponseEntity<Channel> create(@RequestBody PublicChannelCreateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("request가 필요합니다.");
+        }
+        if (request.name() == null || request.name().trim().isEmpty()) {
+            throw new IllegalArgumentException("name이 필요합니다.");
+        }
+
         Channel channel = channelService.create(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(channel);
@@ -30,6 +37,13 @@ public class ChannelController {
 
     @RequestMapping(value = "/private", method = RequestMethod.POST)
     public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("request가 필요합니다.");
+        }
+        if (request.participantIds() == null || request.participantIds().isEmpty()) {
+            throw new IllegalArgumentException("participantIds가 필요합니다.");
+        }
+
         Channel channel = channelService.create(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(channel);
@@ -38,6 +52,13 @@ public class ChannelController {
     @RequestMapping(value = "/update/{channelId}", method = RequestMethod.PUT)
     public ResponseEntity<Channel> update(@PathVariable UUID channelId,
                                           @RequestBody PublicChannelUpdateRequest request) {
+        if (channelId == null) {
+            throw new IllegalArgumentException("channelId가 필요합니다.");
+        }
+        if (request == null) {
+            throw new IllegalArgumentException("request가 필요합니다.");
+        }
+
         Channel channel = channelService.update(channelId, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(channel);
@@ -45,12 +66,20 @@ public class ChannelController {
 
     @RequestMapping(value = "/delete/{channelId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable UUID channelId) {
+        if (channelId == null) {
+            throw new IllegalArgumentException("channelId가 필요합니다.");
+        }
+
         channelService.delete(channelId);
         return ResponseEntity.noContent().build();
     }
 
     @RequestMapping(value = "{userId}", method = RequestMethod.GET)
     public ResponseEntity<List<ChannelDto>> findAllByUserId(@PathVariable UUID userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId가 필요합니다.");
+        }
+
         List<ChannelDto> allByUserId = channelService.findAllByUserId(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(allByUserId);
