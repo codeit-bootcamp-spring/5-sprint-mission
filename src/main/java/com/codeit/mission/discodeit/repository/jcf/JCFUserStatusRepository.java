@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository
 public class JCFUserStatusRepository implements UserStatusRepository {
 
     private final Map<UUID, UserStatus> data;
@@ -26,6 +27,13 @@ public class JCFUserStatusRepository implements UserStatusRepository {
     }
 
     @Override
+    public Optional<UserStatus> findByUserId(UUID userId) {
+        return this.findAll().stream()
+                .filter(userStatus -> userStatus.getUserId().equals(userId))
+                .findFirst();
+    }
+
+    @Override
     public List<UserStatus> findAll() {
         return data.values().stream().toList();
     }
@@ -38,6 +46,12 @@ public class JCFUserStatusRepository implements UserStatusRepository {
     @Override
     public void deleteById(UUID id) {
         data.remove(id);
+    }
+
+    @Override
+    public void deleteByUserId(UUID userId) {
+        this.findByUserId(userId)
+                .ifPresent(userStatus -> this.deleteByUserId(userStatus.getId()));
     }
 }
 
