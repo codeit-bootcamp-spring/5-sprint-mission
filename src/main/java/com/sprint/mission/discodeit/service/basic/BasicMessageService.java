@@ -7,7 +7,6 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -46,7 +45,6 @@ public class BasicMessageService implements MessageService {
         if (optionalChannel.isEmpty()) return null;
 
         Message message = new Message(optionalUser.get(), optionalChannel.get(), request.content(), attachmentIds);
-        messageRepository.save(message);
         return toResponse(message);
     }
 
@@ -77,7 +75,7 @@ public class BasicMessageService implements MessageService {
     @Override
     public MessageResponse update(UpdateMessageRequest request) {
         Optional<Message> optionalMessage = messageRepository.findById(request.messageId());
-        if (optionalMessage.isEmpty()) throw new NotFoundException("메시지를 찾을 수 없습니다.");
+        if (optionalMessage.isEmpty()) return null;
 
         Message message = optionalMessage.get();
         if (request.content().isEmpty()) {

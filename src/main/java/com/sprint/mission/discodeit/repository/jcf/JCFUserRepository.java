@@ -2,16 +2,20 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Primary
+@Repository
 public class JCFUserRepository implements UserRepository {
     private final Map<UUID, User> userMap = new HashMap<>();
 
     @Override
-    public User save(User user) {
-        return userMap.put(user.getId(), user);
+    public void save(User user) {
+        userMap.put(user.getId(), user);
     }
 
     @Override
