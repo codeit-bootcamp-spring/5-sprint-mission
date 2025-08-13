@@ -76,16 +76,21 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public List<ChannelFindResponse> findAllByUserId(UUID userId) {
-        List<ChannelFindResponse> channelFindResponses = channelRepository.findAll().stream()
-                .filter(channel -> channel.getType() == ChannelType.PUBLIC)
-                .map(this::findById)
-                .collect(Collectors.toCollection(ArrayList::new));
+        Map<UUID, ReadStatus> readStatusMap = readStatusRepository.findByUserId(userId).stream()
+                .collect(Collectors.toMap(ReadStatus::getChannelId, readStatus -> readStatus));
 
-        readStatusRepository.findByUserId(userId).stream()
-                .filter(readStatus -> findById(readStatus.getChannelId()).type().equals(ChannelType.PRIVATE))
-                .forEach(readStatus -> channelFindResponses.add(findById(readStatus.getChannelId())));
-
-        return List.copyOf(channelFindResponses);
+        return channelRepository.findAll().stream()
+                .map(channel -> {
+                    if (channel.getType() ==  ChannelType.PUBLIC) {
+                        return findById(channel);
+                    }
+                    if (readStatusMap.containsKey(channel.getId())) {
+                        return findById(channel);
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     @Override
