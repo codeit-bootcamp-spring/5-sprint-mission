@@ -3,10 +3,8 @@
 ## 컨트롤러 레이어 구현
 
 - [x]  DiscodeitApplication의 테스트 로직은 삭제하세요.
-
 - [x]  지금까지 구현한 서비스 로직을 활용해 웹 API를 구현하세요.  
   이때 @RequestMapping만 사용해 구현해보세요. (저는 RequestMapping 쓰다가 GetMapping 등으로 바꿨습니다.)
-
 - [x]  웹 API의 예외를 전역으로 처리하세요.
 
 ## 웹 API 요구사항
