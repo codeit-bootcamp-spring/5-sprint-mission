@@ -38,7 +38,7 @@ public class UserController {
             @RequestPart(required = false) MultipartFile profileImage
     ) throws IOException {
         Optional<BinaryContentCreateRequest> binaryRequest = Optional.empty();
-        if (!profileImage.isEmpty()) {
+        if (profileImage != null && !profileImage.isEmpty()) {
             binaryRequest = Optional.of(new BinaryContentCreateRequest(
                     profileImage.getName(),
                     profileImage.getContentType(),
