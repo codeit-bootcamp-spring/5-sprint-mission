@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.NoSuchElementException;
-
 @Service("authService")
 @RequiredArgsConstructor
 @Validated
