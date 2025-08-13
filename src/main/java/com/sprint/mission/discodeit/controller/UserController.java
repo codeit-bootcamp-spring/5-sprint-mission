@@ -37,15 +37,15 @@ public class UserController {
             @RequestPart UserCreateRequest userCreateRequest,
             @RequestPart(required = false) MultipartFile profileImage
     ) throws IOException {
-        Optional<BinaryContentCreateRequest> binaryRequest = Optional.empty();
+        Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
         if (profileImage != null && !profileImage.isEmpty()) {
-            binaryRequest = Optional.of(new BinaryContentCreateRequest(
+            binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
                     profileImage.getName(),
                     profileImage.getContentType(),
                     profileImage.getBytes()
             ));
         }
-        User createdUser = userService.create(userCreateRequest, binaryRequest);
+        User createdUser = userService.create(userCreateRequest, binaryContentCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
@@ -56,15 +56,15 @@ public class UserController {
             @RequestPart UserUpdateRequest userUpdateRequest,
             @RequestPart(required = false) MultipartFile profileImage
     ) throws IOException {
-        Optional<BinaryContentCreateRequest> binaryRequest = Optional.empty();
-        if (!profileImage.isEmpty()) {
-            binaryRequest = Optional.of(new BinaryContentCreateRequest(
+        Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
+        if (profileImage != null && !profileImage.isEmpty()) {
+            binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
                     profileImage.getName(),
                     profileImage.getContentType(),
                     profileImage.getBytes()
             ));
         }
-        User updatedUser = userService.update(userUpdateRequest, binaryRequest);
+        User updatedUser = userService.update(userUpdateRequest, binaryContentCreateRequest);
         return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
     }
 
