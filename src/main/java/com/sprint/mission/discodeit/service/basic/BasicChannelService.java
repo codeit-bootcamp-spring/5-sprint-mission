@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Channel createPublic(@Valid PublicChannelCreateRequest publicChannelCreateRequest) {
@@ -34,9 +36,17 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public Channel createPrivate(@Valid PrivateChannelCreateRequest privateChannelCreateRequest) {
+        List<UUID> userIds = privateChannelCreateRequest.userIds();
+
+        for (UUID userId : userIds) {
+            if (!userRepository.existsById(userId)) {
+                throw new NoSuchElementException("존재하지 않는 유저입니다 : " + userId);
+            }
+        }
+
         Channel channel = new Channel(ChannelType.PRIVATE, null, null);
 
-        for (UUID userId : privateChannelCreateRequest.userIds()) {
+        for (UUID userId : userIds) {
             readStatusRepository.save(new ReadStatus(userId, channel.getId()));
         }
 
