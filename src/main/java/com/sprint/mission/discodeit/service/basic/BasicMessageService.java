@@ -59,7 +59,7 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public List<Message> findAllByChannelId(UUID channelId) {
-        if(!channelRepository.existsById(channelId)) {
+        if (!channelRepository.existsById(channelId)) {
             throw new NoSuchElementException("findAllByChannelId : 채널을 찾을 수 없습니다");
         }
         return messageRepository.findAll().stream()
@@ -81,7 +81,9 @@ public class BasicMessageService implements MessageService {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new NoSuchElementException("delete : 메세지를 찾을 수 없습니다"));
 
-        message.getAttachmentIds().forEach(binaryContentRepository::deleteById);
+        for (UUID binaryContentId : message.getAttachmentIds()) {
+            binaryContentRepository.deleteById(binaryContentId);
+        }
         messageRepository.deleteById(message.getId());
     }
 
