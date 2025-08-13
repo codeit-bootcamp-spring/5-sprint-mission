@@ -26,12 +26,11 @@ public class Channel extends BaseEntity {
     private final Boolean isSecret;
 
     private final Set<UUID> memberIds = new HashSet<>();
-
     private final Set<UUID> activeParticipantIds = new LinkedHashSet<>();
 
     private Channel(UUID guildId, boolean isPrivate, Boolean isSecret, String name, ChannelType type, Set<UUID> initialMembers) {
         this.isPrivate = isPrivate;
-        this.guildId = isPrivate ? null : Objects.requireNonNull(guildId, "Guild id must not be null for guild channel.");
+        this.guildId = isPrivate ? null : Objects.requireNonNull(guildId, "guildId must not be null for guild channel.");
         this.isSecret = isPrivate ? null : normalizeSecret(isSecret);
         setName(name);
         setType(type);
@@ -39,7 +38,6 @@ public class Channel extends BaseEntity {
             addMembers(initialMembers);
         }
         validateInvariants();
-        touch();
     }
 
     public static Channel createDm(String name, ChannelType type, Set<UUID> participants) {
@@ -118,8 +116,10 @@ public class Channel extends BaseEntity {
 
     public void removeMember(UUID userId) {
         assertMembershipAllowed("removeMember");
-        boolean removed = memberIds.remove(requireUserId(userId));
-        if (removed) {
+        UUID uid = requireUserId(userId);
+        boolean removed = memberIds.remove(uid);
+        boolean removedActive = activeParticipantIds.remove(uid);
+        if (removed || removedActive) {
             if (isPrivate) assertDmCardinality();
             touch();
         }
