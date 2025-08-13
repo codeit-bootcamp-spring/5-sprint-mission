@@ -55,7 +55,7 @@ public class Guild extends BaseEntity {
         if (isBanned(userId)) throw new IllegalStateException("Banned user cannot be the owner.");
         if (isNotMember(userId)) throw new IllegalArgumentException("User is not a member of this guild.");
 
-        if (Objects.equals(this.ownerId, userId)) return; // 변경 없음
+        if (Objects.equals(this.ownerId, userId)) return;
 
         UUID prev = this.ownerId;
 

@@ -26,6 +26,7 @@ public class Channel extends BaseEntity {
     private final Boolean isSecret;
 
     private final Set<UUID> memberIds = new HashSet<>();
+    private final Set<UUID> messageIds = new LinkedHashSet<>();
     private final Set<UUID> activeParticipantIds = new LinkedHashSet<>();
 
     private Channel(UUID guildId, boolean isPrivate, Boolean isSecret, String name, ChannelType type, Set<UUID> initialMembers) {
@@ -137,6 +138,36 @@ public class Channel extends BaseEntity {
             touch();
         }
     }
+    
+    public void addMessage(UUID messageId) {
+        if (memberIds.add(requireMessageId(messageId))) {
+            touch();
+        }
+    }
+
+    public void addMessages(Collection<UUID> messageIds) {
+        Objects.requireNonNull(messageIds, "messageIds must not be null");
+        boolean changed = false;
+        for (UUID id : messageIds) {
+            if (memberIds.add(requireUserId(id))) changed = true;
+        }
+        if (changed) touch();
+    }
+
+    public void removeMessage(UUID messageId) {
+        if (memberIds.remove(requireMessageId(messageId))) {
+            touch();
+        }
+    }
+
+    public void removeMessages(Collection<UUID> messageIds) {
+        Objects.requireNonNull(messageIds, "messageIds must not be null");
+        boolean changed = false;
+        for (UUID id : messageIds) {
+            if (memberIds.remove(requireUserId(id))) changed = true;
+        }
+        if (changed) touch();
+    }
 
     public Set<UUID> getActiveParticipantIds() {
         return Collections.unmodifiableSet(activeParticipantIds);
@@ -216,6 +247,10 @@ public class Channel extends BaseEntity {
 
     private static UUID requireUserId(UUID userId) {
         return Objects.requireNonNull(userId, "User id must not be null");
+    }
+
+    private static UUID requireMessageId(UUID messageId) {
+        return Objects.requireNonNull(messageId, "Message id must not be null");
     }
 
     public String membersFingerprint() {

@@ -116,9 +116,8 @@ public class BinaryContent extends BaseEntity {
         String name = raw.replace('\\', '/');
         int idx = name.lastIndexOf('/');
         name = (idx >= 0) ? name.substring(idx + 1) : name;
-        // 제어문자 제거
         name = name.chars()
-                .filter(c -> c >= 32)   // control char 제거
+                .filter(c -> c >= 32)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString()
                 .trim();

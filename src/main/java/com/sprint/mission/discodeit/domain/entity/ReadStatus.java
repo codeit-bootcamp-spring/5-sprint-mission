@@ -26,6 +26,11 @@ public class ReadStatus extends BaseEntity {
         }
     }
 
+    public void setLastReadMessageId(UUID messageId) {
+        Objects.requireNonNull(messageId, "messageId must not be null");
+        this.lastReadMessageId = messageId;
+    }
+
     @Override
     public String toString() {
         return "ReadStatus[userId=%s, channelId=%s, lastReadMessageId=%s]"
