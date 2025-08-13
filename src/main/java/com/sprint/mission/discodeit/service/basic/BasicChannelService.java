@@ -29,10 +29,7 @@ public class BasicChannelService implements ChannelService {
         if (dto.name() == null || dto.name().isBlank()) {
             throw new IllegalArgumentException("채널 이름은 필수입니다.");
         }
-        if (dto.type() == null) {
-            throw new IllegalArgumentException("채널 이름은 필수입니다.");
-        }
-        Channel channel = new Channel(dto.name(), dto.type());
+        Channel channel = new Channel(dto.name(), ChannelType.PUBLIC, dto.topic(),  dto.description());
         channelRepository.save(channel);
 
         return ChannelResponse.detail.builder()
@@ -85,8 +82,11 @@ public class BasicChannelService implements ChannelService {
         Channel channel = channelRepository.findById(dto.id())
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
 
+        if(channel.getType() != ChannelType.PUBLIC) {
+            throw new IllegalStateException("PUBLIC 채널만 수정할 수 있습니다.");
+        }
+
         channel.updateName(dto.name() != null ? dto.name() : channel.getName());
-        channel.updateType(dto.channelType() != null ? dto.channelType() : channel.getType());
         channel.updateTopic(dto.topic() != null ? dto.topic() : channel.getTopic());
         channel.updateDescription(dto.description() != null ? dto.description() : channel.getDescription());
 

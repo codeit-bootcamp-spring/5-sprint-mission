@@ -15,9 +15,6 @@ public class ChannelRequest {
     public record create(
             @NotBlank(message = "이름을 입력하세요")
             String name,
-            @Schema(description = "채널 상태", implementation = ChannelType.class, allowableValues = {"PUBLIC", "PRIVATE"})
-            @NotNull(message = "채널 타입을 입력하세요")
-            ChannelType type,
             @Nullable String topic,
             @Nullable String description
     ) {}
@@ -32,7 +29,6 @@ public class ChannelRequest {
     public record update(
             @NotNull(message = "아이디를 입력해주세요")
             UUID id,
-            ChannelType channelType,
             @Nullable String name,
             @Nullable String topic,
             @Nullable String description
