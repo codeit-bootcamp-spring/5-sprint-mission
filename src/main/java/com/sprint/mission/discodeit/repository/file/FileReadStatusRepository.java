@@ -12,6 +12,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -111,9 +112,13 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 			return List.of();
 		}
 
-		return readStatusMap.values().stream()
-			.filter(rs -> rs.getChannelId().equals(channelId) &&
-				rs.getUserId().equals(userId))
+		List<UUID> channelIds = channelToReadStatusMap.getOrDefault(channelId, List.of());
+		List<UUID> userIds = userToReadStatusMap.getOrDefault(userId, List.of());
+
+		return channelIds.stream()
+			.filter(userIds::contains)
+			.map(readStatusMap::get)
+			.filter(Objects::nonNull)
 			.map(ReadStatus::copy)
 			.toList();
 	}

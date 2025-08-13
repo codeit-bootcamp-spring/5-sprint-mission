@@ -5,13 +5,14 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
 @AllArgsConstructor
-@Data
+@Getter
 @Builder
 public class LoginRequest {
 	@NotBlank
-	private String username;
+	private final String username;
 	@NotBlank
-	private String password;
+	private final String password;
 }

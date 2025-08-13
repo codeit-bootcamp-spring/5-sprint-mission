@@ -29,9 +29,11 @@ import com.sprint.mission.discodeit.exception.AlreadyExistsChannelMemberExceptio
 import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.DuplicateChannelNameException;
 import com.sprint.mission.discodeit.exception.NotChannelMemberException;
+import com.sprint.mission.discodeit.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class BasicChannelService implements ChannelService {
 	private final ChannelRepository channelRepository;
 	private final ReadStatusRepository readStatusRepository;
 	private final MessageRepository messageRepository;
+	private final UserRepository  userRepository;
 
 	@Override
 	public CreateChannelResponse createPublicChannel(CreatePublicChannelRequest request) {
@@ -57,16 +60,28 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	public CreateChannelResponse createPrivateChannel(CreatePrivateChannelRequest request) {
-		Channel channel = new Channel(request.getMemberIds());
+		List<UUID> uniqueMemberIds = request.getMemberIds().stream().distinct().toList();
+
+		for (UUID userId : request.getMemberIds()) {
+			if (userId == null) {
+				throw new IllegalArgumentException("null");
+			}
+
+			if (!userRepository.existsById(userId)) {
+				throw new UserNotFoundException();
+			}
+		}
+
+		Channel channel = new Channel(uniqueMemberIds);
 
 		channelRepository.save(channel);
 
-		for (UUID userId : request.getMemberIds()) {
+		for (UUID userId : uniqueMemberIds) {
 			ReadStatus readStatus = new ReadStatus(userId, channel.getId());
 			readStatusRepository.save(readStatus);
 		}
 
-		return CreateChannelResponse.successWithMembers(channel, request.getMemberIds());
+		return CreateChannelResponse.successWithMembers(channel, uniqueMemberIds);
 	}
 
 	@Override

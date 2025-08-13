@@ -59,8 +59,30 @@ public class BasicReadStatusService implements ReadStatusService {
 	}
 
 	@Override
-	public ReadStatusResponse update(UpdateReadStatusRequest request) {
-		ReadStatus readStatus = readStatusRepository.findById(request.getId())
+	public List<ReadStatusResponse> getAllByChannelId(UUID channelId) {
+		List<ReadStatus> readStatuses = readStatusRepository.findByUserId(channelId);
+
+		return readStatuses.stream()
+			.map(ReadStatusResponse::success)
+			.toList();
+	}
+
+	@Override
+	public ReadStatusResponse updateById(UUID id) {
+		ReadStatus readStatus = readStatusRepository.findById(id)
+			.orElseThrow(ReadStatusNotFoundException::new);
+
+		readStatus.updateUpdatedAt();
+		readStatusRepository.save(readStatus);
+
+		return ReadStatusResponse.success(readStatus);
+	}
+
+	@Override
+	public ReadStatusResponse updateByChannelIdAndUserId(UpdateReadStatusRequest request) {
+		ReadStatus readStatus = readStatusRepository.findByChannelIdAndUserId(request.getChannelId(), request.getUserId())
+			.stream()
+			.findFirst()
 			.orElseThrow(ReadStatusNotFoundException::new);
 
 		readStatus.updateUpdatedAt();

@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
+import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.binaryContent.CreateUserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
 import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
@@ -38,6 +40,25 @@ public class UserController {
 		List<UserResponse> userResponses = userService.getAllUsers();
 
 		return ResponseEntity.ok(userResponses);
+	}
+
+	@RequestMapping(path = "/findAll", method = RequestMethod.GET)
+	public ResponseEntity<List<UserDto>> findAllUsers() {
+		List<UserResponse> userResponses = userService.getAllUsers();
+
+		List<UserDto> userDtos = userResponses.stream()
+			.map(user -> new UserDto(
+				user.getId(),
+				user.getCreatedAt(),
+				user.getUpdatedAt(),
+				user.getNickname(), // 보여줄 username -> nickname
+				user.getEmail(),
+				user.getProfileId(),
+				userStatusService.isOnline(user.getId())
+			))
+			.toList();
+
+		return ResponseEntity.ok(userDtos);
 	}
 
 	// username(=loginId)로 조회
@@ -102,5 +123,10 @@ public class UserController {
 		userStatusService.updateByUserId(id);
 		boolean online = userStatusService.isOnline(id);
 		return ResponseEntity.ok(online);
+	}
+
+	@RequestMapping(path = "/list", method = RequestMethod.GET)
+	public ModelAndView userListPage() {
+		return new ModelAndView("redirect:/user-list.html");
 	}
 }
