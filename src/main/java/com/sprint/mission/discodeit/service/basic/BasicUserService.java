@@ -1,72 +1,140 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.user.CreateUserRequest;
+import com.sprint.mission.discodeit.dto.CreateFile;
+import com.sprint.mission.discodeit.dto.user.UpdateUserRequest;
+import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
+    private final UserStatusRepository userStatusRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public boolean register(String email, String userName, String nickname, String password, String phoneNumber) {
-        if (userRepository.findByEmail(email) != null) return false;
-        if (userRepository.findByUserName(userName) != null) return false;
-        userRepository.save(new User(UUID.randomUUID(), Instant.now().getEpochSecond(), email, userName, nickname, password, phoneNumber));
-        return true;
+    public UserResponse register(CreateUserRequest userRequest, CreateFile profileImage) {
+        if (!isUnique(userRequest.email(), userRequest.userName())) return null;
+
+        UUID profileId = null;
+        if (profileImage != null) {
+            BinaryContent saved = binaryContentRepository.save(
+                    new BinaryContent(profileImage.fileName(), profileImage.fileType(), profileImage.data(), profileImage.fileSize())
+            );
+            profileId = saved.getId();
+        }
+
+        User user = new User(profileId, userRequest.email(), userRequest.userName(), userRequest.nickname(), userRequest.password(), userRequest.phoneNumber());
+        userRepository.save(user);
+
+        UserStatus status = new UserStatus(user.getId());
+        userStatusRepository.save(status);
+
+        return toResponse(user, status);
     }
 
     @Override
-    public User getById(UUID id) {
-        return userRepository.findById(id);
+    public Optional<UserResponse> getById(UUID id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty()) return Optional.empty();
+
+        User user = optionalUser.get();
+        UserStatus status = userStatusRepository.findByUserId(user.getId()).get();
+        return Optional.of(toResponse(user, status));
     }
 
     @Override
-    public User getByEmail(String email) {
-        return userRepository.findByUserName(email);
+    public Optional<UserResponse> getByEmail(String email) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) return Optional.empty();
+
+        User user = optionalUser.get();
+        UserStatus status = userStatusRepository.findByUserId(user.getId()).get();
+        return Optional.of(toResponse(user, status));
     }
 
     @Override
-    public User getByUserName(String userName) {
-        return userRepository.findByUserName(userName);
+    public Optional<UserResponse> getByUserName(String userName) {
+        Optional<User> optionalUser = userRepository.findByUserName(userName);
+        if (optionalUser.isEmpty()) return Optional.empty();
+
+        User user = optionalUser.get();
+        UserStatus status = userStatusRepository.findByUserId(user.getId()).get();
+        return Optional.of(toResponse(user, status));
     }
 
     @Override
-    public List<User> searchByNickname(String nickname) {
-        return userRepository.findByNickName(nickname);
+    public List<UserResponse> searchByNickname(String nickname) {
+        return userRepository.findByNickName(nickname).stream()
+                .map(user -> {
+                    UserStatus status = userStatusRepository.findByUserId(user.getId()).get();
+                    return toResponse(user, status);
+                })
+                .toList();
     }
 
     @Override
-    public List<User> getAll() {
-        return userRepository.findAll();
+    public List<UserResponse> getAll() {
+        return userRepository.findAll().stream()
+                .map(user -> {
+                    UserStatus status = userStatusRepository.findByUserId(user.getId()).get();
+                    return toResponse(user, status);
+                })
+                .toList();
     }
 
     @Override
-    public boolean updateByEmail(String email, String userName, String nickname, String password, String phoneNumber) {
-        if (userRepository.findByUserName(userName) != null) return false;
-        return userRepository.updateByEmail(email, userName, nickname, password, phoneNumber);
+    public UserResponse update(UpdateUserRequest userRequest, CreateFile profileImage) {
+        if (!isUnique(userRequest.email(), userRequest.userName())) return null;
+
+        Optional<User> optionalUser = userRepository.findById(userRequest.userId());
+        if (optionalUser.isEmpty()) return null;
+
+        User user = optionalUser.get();
+        user.update(userRequest);
+
+        if (profileImage != null) {
+            Optional.ofNullable(user.getProfileId()).ifPresent(binaryContentRepository::delete);
+            BinaryContent saved = binaryContentRepository.save(
+                    new BinaryContent(profileImage.fileName(), profileImage.fileType(), profileImage.data(), profileImage.fileSize())
+            );
+            user.changeProfileId(saved.getId());
+        }
+        userRepository.save(user);
+
+        UserStatus status = userStatusRepository.findByUserId(user.getId()).get();
+        return toResponse(user, status);
     }
 
     @Override
-    public boolean updateByUserName(String userName, String email, String nickname, String password, String phoneNumber) {
-        if (userRepository.findByEmail(email) != null) return false;
-        return userRepository.updateByUserName(userName, email, nickname, password, phoneNumber);
+    public boolean remove(UUID userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) return false;
+
+        User user = optionalUser.get();
+        Optional.ofNullable(user.getProfileId()).ifPresent(binaryContentRepository::delete);
+        userStatusRepository.delete(userId);
+        return userRepository.delete(userId);
     }
 
-    @Override
-    public boolean removeByEmail(String email) {
-        return userRepository.deleteByEmail(email);
+    private UserResponse toResponse(User user, UserStatus status) {
+        return new UserResponse(user.getId(), user.getProfileId(), user.getEmail(), user.getUserName(), user.getNickname(), user.getPhoneNumber(), status.isOnline(), status.getLastActiveAt());
     }
 
-    @Override
-    public boolean removeByUserName(String userName) {
-        return userRepository.deleteByUserName(userName);
+    private boolean isUnique(String email, String username) {
+        return userRepository.findByEmail(email).isEmpty() && userRepository.findByUserName(username).isEmpty();
     }
 }

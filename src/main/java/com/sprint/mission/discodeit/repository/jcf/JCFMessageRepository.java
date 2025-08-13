@@ -4,55 +4,50 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class JCFMessageRepository implements MessageRepository {
-
-    private final List<Message> messages;
-
-    public JCFMessageRepository() {
-        this.messages = new ArrayList<>();
-    }
+    private final Map<UUID, Message> messageMap = new HashMap<>();
 
     @Override
     public void save(Message message) {
-        messages.add(message);
+        messageMap.put(message.getId(), message);
+    }
+
+    @Override
+    public Optional<Message> findById(UUID messageId) {
+        return Optional.ofNullable(messageMap.get(messageId));
     }
 
     @Override
     public List<Message> findByUser(User user) {
-        return messages.stream()
+        return messageMap.values().stream()
                 .filter(message -> message.getUser().equals(user))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public List<Message> findByMessage(String message) {
-        return messages.stream()
-                .filter(m -> m.getMessage().contains(message))
-                .collect(Collectors.toList());
+        return messageMap.values().stream()
+                .filter(m -> m.getContent().contains(message))
+                .toList();
     }
 
     @Override
     public List<Message> findAll() {
-        return messages;
-    }
-
-    @Override
-    public void update(UUID id, Message message) {
-        for (int i = 0; i < messages.size(); i++) {
-            if (messages.get(i).getId().equals(id)) {
-                messages.set(i, message);
-                break;
-            }
-        }
+        return messageMap.values().stream().toList();
     }
 
     @Override
     public boolean delete(UUID id) {
-        return messages.removeIf(message -> message.getId().equals(id));
+        return messageMap.remove(id) != null;
+    }
+
+    @Override
+    public void deleteByChannelId(UUID channelId) {
+        messageMap.values().stream()
+                .filter(message -> message.getChannel().getId().equals(channelId))
+                .toList()
+                .forEach(message -> messageMap.remove(message.getId()));
     }
 }

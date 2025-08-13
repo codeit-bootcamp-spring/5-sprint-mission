@@ -16,7 +16,7 @@ public class FileChannelRepository extends AbstractFileRepository<Channel> imple
 
     @Override
     public List<Channel> findByName(String channelName) {
-        return dataList.stream()
+        return dataMap.values().stream()
                 .filter(channel -> channel.getChannelName().contains(channelName))
                 .collect(Collectors.toList());
     }

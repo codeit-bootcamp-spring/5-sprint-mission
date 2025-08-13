@@ -3,64 +3,56 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.BaseEntity;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class AbstractFileRepository<T extends BaseEntity> {
     private final String fileName;
-    protected final List<T> dataList;
+    protected final Map<UUID, T> dataMap;
 
     protected AbstractFileRepository(String fileName) {
         this.fileName = fileName;
-        dataList = loadFile();
+        dataMap = loadFile();
     }
 
     public void save(T entity) {
-        dataList.add(entity);
+        dataMap.put(entity.getId(), entity);
         writeToFile();
     }
 
-    public T findById(UUID id) {
-        return dataList.stream()
-                .filter(entity -> entity.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+    public Optional<T> findById(UUID id) {
+        return Optional.ofNullable(dataMap.get(id));
     }
 
     public List<T> findAll() {
-        return dataList;
+        return dataMap.values().stream()
+                .toList();
     }
 
     public void update(UUID id, T updatedEntity) {
-        for (int i = 0; i < dataList.size(); i++) {
-            if (dataList.get(i).getId().equals(id)) {
-                dataList.set(i, updatedEntity);
-                writeToFile();
-                break;
-            }
-        }
+        save(updatedEntity);
     }
 
     public boolean delete(UUID id) {
-        return dataList.remove(findById(id));
+        if (dataMap.remove(id) == null) return false;
+        writeToFile();
+        return true;
     }
 
-    private List<T> loadFile() {
+    private Map<UUID, T> loadFile() {
         File file = new File(fileName + ".dat");
-        if (!file.exists()) return new ArrayList<>();
+        if (!file.exists()) return new HashMap<>();
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (List<T>) ois.readObject();
+            return (Map<UUID, T>) ois.readObject();
         }
         catch (IOException | ClassNotFoundException ignored) {
-            return new ArrayList<>();
+            return new HashMap<>();
         }
     }
 
     protected void writeToFile() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))) {
-            oos.writeObject(dataList);
+            oos.writeObject(dataMap);
         } catch (IOException ignored) {}
     }
 }
