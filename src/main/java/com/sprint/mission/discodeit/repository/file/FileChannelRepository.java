@@ -17,8 +17,9 @@ import java.util.stream.Stream;
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 public class FileChannelRepository implements ChannelRepository {
-    private final Path DIRECTORY;
-    private final String EXTENSION = ".ser";
+    private final Path directory;
+    private static final String EXTENSION = ".ser";
+    private static final String DOMAIN_NAME = Channel.class.getSimpleName();
     private final Map<UUID, Channel> channelMap = new HashMap<>();
 
     public FileChannelRepository(RepositoryProps props) {
@@ -26,23 +27,23 @@ public class FileChannelRepository implements ChannelRepository {
         if (!root.isAbsolute()) {
             root = Paths.get(System.getProperty("user.dir")).resolve(root);
         }
-        this.DIRECTORY = root.resolve(Channel.class.getSimpleName());
-        if (Files.notExists(DIRECTORY)) {
+        this.directory = root.resolve(DOMAIN_NAME);
+        if (Files.notExists(directory)) {
             try {
-                Files.createDirectories(DIRECTORY);
+                Files.createDirectories(directory);
             } catch (IOException e) {
-                throw new ThrowableIOException("디렉토리 생성 실패 : " + DIRECTORY, e);
+                throw new ThrowableIOException("디렉토리 생성 실패 : " + directory, e);
             }
         }
         load();
     }
 
     private Path resolvePath(UUID id) {
-        return DIRECTORY.resolve(id + EXTENSION);
+        return directory.resolve(id + EXTENSION);
     }
 
     private void load() {
-        try (Stream<Path> paths = Files.list(DIRECTORY)) {
+        try (Stream<Path> paths = Files.list(directory)) {
             List<Channel> list = paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
@@ -58,7 +59,7 @@ public class FileChannelRepository implements ChannelRepository {
                     .toList();
             list.forEach(channel -> channelMap.put(channel.getId(), channel));
         } catch (IOException e) {
-            throw new ThrowableIOException("불러오기 실패 : " + DIRECTORY, e);
+            throw new ThrowableIOException("불러오기 실패 : " + directory, e);
         }
     }
 
