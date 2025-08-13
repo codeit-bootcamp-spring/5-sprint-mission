@@ -23,7 +23,6 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service("basicUserService")
-@Primary
 @RequiredArgsConstructor
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
@@ -53,12 +52,12 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
-        boolean online = userStatusRepository.findByUserId(userId)
-                .map(UserStatus::isOnline)
-                .orElse(false);
+        boolean online = user.isOnline();
 
         return new UserResponseDto(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getProfileImageId(),
@@ -69,21 +68,16 @@ public class BasicUserService implements UserService {
     @Override
     public List<UserResponseDto> findAll() {
         return userRepository.findAll().stream()
-                .map(user -> {
-                    boolean online = userStatusRepository.findByUserId(user.getId())
-                                    .map(UserStatus::isOnline)
-                                            .orElse(false);
-
-            return new UserResponseDto(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getEmail(),
-                    user.getProfileImageId(),
-                    online
-            );
-        })
+                .map(user -> new UserResponseDto(
+                        user.getId(),
+                        user.getCreatedAt(),
+                        user.getUpdatedAt(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getProfileImageId(),
+                        user.isOnline()
+                ))
                 .toList();
-
     }
 
 
@@ -129,6 +123,8 @@ public class BasicUserService implements UserService {
 
         return new UserResponseDto(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getProfileImageId(),
@@ -150,37 +146,35 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User create(UserCreateRequest request, @Nullable BinaryContentCreateRequest profileImage) {
-        if (userRepository.existsByUsername(request.username())){
-            throw new IllegalArgumentException("이미 존재하는 username입니다.");
-        }
-        if (userRepository.existsByEmail(request.email())){
-            throw new IllegalArgumentException("이미 존재하는 email입니다.");
-        }
-        UUID profileImageId = null;
-        if (profileImage != null) {
-            BinaryContent binaryContent = new BinaryContent(
-                    profileImage.filename(),
-                    profileImage.contentType(),
-                    profileImage.size(),
-                    profileImage.data()
-            );
-            binaryContent = binaryContentRepository.save(binaryContent);
-            profileImageId = binaryContent.getId();
-        }
-        User user = new User(
-                request.username(),
-                request.email(),
-                request.password(),
-                profileImageId
-        );
+    public UserResponseDto create(UserCreateRequest request, BinaryContentCreateRequest profileImage) {
+        User user = new User(request.username(), request.email(), request.password());
         user = userRepository.save(user);
 
-        UserStatus userStatus = new UserStatus(
+        UserStatus status = new UserStatus(user.getId(), Instant.now());
+        userStatusRepository.save(status);
+
+        return new UserResponseDto(
                 user.getId(),
-                Instant.now()
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getProfileImageId(),
+                status.isOnline()
         );
-        userStatusRepository.save(userStatus);
-        return user;
+    }
+
+    @Override
+    public void updateLastAccessAt(UUID userId, Instant lastAccessAt) {
+        UserStatus status = userStatusRepository.findByUserId(userId)
+                .orElse(new UserStatus(userId, lastAccessAt));
+
+        status.userAccessUpdate(lastAccessAt);
+        userStatusRepository.save(status);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+        user.setLastAccessAt(lastAccessAt);
+        userRepository.save(user);
     }
 }

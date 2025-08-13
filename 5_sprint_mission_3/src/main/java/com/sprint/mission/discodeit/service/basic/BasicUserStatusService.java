@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service("basicUserStatusService")
-@Primary
 @RequiredArgsConstructor
 public class BasicUserStatusService implements UserStatusService {
     private final UserStatusRepository userStatusRepository;

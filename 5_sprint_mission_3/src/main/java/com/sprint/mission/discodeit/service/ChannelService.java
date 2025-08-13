@@ -22,4 +22,8 @@ public interface ChannelService {
 
     Channel update(ChannelUpdateRequest request);
     void delete(UUID channelId);
+
+    List<UUID> findParticipantsByChannelId(UUID channelId);
+    void addParticipant(UUID channelId, UUID userId);
+    void removeParticipant(UUID channelId, UUID userId);
 }

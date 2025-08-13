@@ -47,10 +47,11 @@ public class JavaApplication {
         BinaryContentRepository binaryContentRepository = new FileBinaryContentRepository(fileDirectory);
         ReadStatusRepository readStatusRepository = new FileReadStatusRepository(fileDirectory);
         UserStatusRepository userStatusRepository = new FileUserStatusRepository(fileDirectory);
+        ChannelParticipantRepository channelParticipantRepository = new FileChannelParticipantRepository(fileDirectory);
 
         // 서비스 초기화
         UserService userService = new BasicUserService(userRepository, binaryContentRepository, userStatusRepository);
-        ChannelService channelService = new BasicChannelService(channelRepository, readStatusRepository, userRepository, messageRepository);
+        ChannelService channelService = new BasicChannelService(channelRepository, readStatusRepository, userRepository, messageRepository, channelParticipantRepository);
         MessageService messageService = new BasicMessageService(messageRepository, channelRepository, userRepository, binaryContentRepository);
 
         // 셋업

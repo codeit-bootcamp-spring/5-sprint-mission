@@ -1,4 +1,4 @@
 discodeit:
   repository:
     type: file
-    file-directory: .discodeit
+    file-path: C:/dev_source/work_space_sprint/storage
