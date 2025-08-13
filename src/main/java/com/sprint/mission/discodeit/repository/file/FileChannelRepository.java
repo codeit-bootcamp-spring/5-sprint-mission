@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Repository
@@ -20,7 +21,7 @@ public class FileChannelRepository implements ChannelRepository {
     private final Path directory;
     private static final String EXTENSION = ".ser";
     private static final String DOMAIN_NAME = Channel.class.getSimpleName();
-    private final Map<UUID, Channel> channelMap = new HashMap<>();
+    private final Map<UUID, Channel> channelMap;
 
     public FileChannelRepository(RepositoryProps props) {
         Path root = Paths.get(props.getFileDirectory());
@@ -35,16 +36,16 @@ public class FileChannelRepository implements ChannelRepository {
                 throw new ThrowableIOException("디렉토리 생성 실패 : " + directory, e);
             }
         }
-        load();
+        channelMap = new HashMap<>(load());
     }
 
     private Path resolvePath(UUID id) {
         return directory.resolve(id + EXTENSION);
     }
 
-    private void load() {
+    private Map<UUID, Channel> load() {
         try (Stream<Path> paths = Files.list(directory)) {
-            List<Channel> list = paths
+            return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (
@@ -56,8 +57,7 @@ public class FileChannelRepository implements ChannelRepository {
                             throw new ThrowableIOException("불러오기 실패 : " + path, e);
                         }
                     })
-                    .toList();
-            list.forEach(channel -> channelMap.put(channel.getId(), channel));
+                    .collect(Collectors.toMap(Channel::getId, channel -> channel));
         } catch (IOException e) {
             throw new ThrowableIOException("불러오기 실패 : " + directory, e);
         }

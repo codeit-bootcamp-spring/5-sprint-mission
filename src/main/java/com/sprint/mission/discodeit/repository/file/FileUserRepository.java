@@ -12,9 +12,9 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
@@ -22,6 +22,7 @@ public class FileUserRepository implements UserRepository {
     private final Path directory;
     private static final String EXTENSION = ".ser";
     private static final String DOMAIN_NAME = User.class.getSimpleName();
+    private final Map<UUID, User> userMap;
 
     public FileUserRepository(RepositoryProps props) {
         Path root = Paths.get(props.getFileDirectory());
@@ -36,56 +37,16 @@ public class FileUserRepository implements UserRepository {
                 throw new ThrowableIOException("디렉토리 생성 실패: " + directory, e);
             }
         }
+        userMap = new HashMap<>(load());
     }
 
     private Path resolvePath(UUID id) {
         return directory.resolve(id + EXTENSION);
     }
 
-    @Override
-    public User save(User user) {
-        Path path = resolvePath(user.getId());
-        try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
-        ) {
-            oos.writeObject(user);
-        } catch (IOException e) {
-            throw new ThrowableIOException("저장 실패 :  " + path, e);
-        }
-        return user;
-    }
-
-    @Override
-    public Optional<User> findById(UUID id) {
-        User userNullable = null;
-        Path path = resolvePath(id);
-        if (Files.exists(path)) {
-            try (
-                    FileInputStream fis = new FileInputStream(path.toFile());
-                    ObjectInputStream ois = new ObjectInputStream(fis)
-            ) {
-                userNullable = (User) ois.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                throw new ThrowableIOException("불러오기 실패 : ", e);
-            }
-        }
-        return Optional.ofNullable(userNullable);
-    }
-
-    @Override
-    public Optional<User> findByUsername(String username) {
-        User userNullable = findAll().stream()
-                .filter(user -> user.getUsername().equals(username))
-                .findFirst()
-                .orElse(null);
-        return Optional.ofNullable(userNullable);
-    }
-
-    @Override
-    public List<User> findAll() {
-        try {
-            return Files.list(directory)
+    private Map<UUID, User> load() {
+        try (Stream<Path> paths = Files.list(directory)) {
+            return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (
@@ -97,26 +58,59 @@ public class FileUserRepository implements UserRepository {
                             throw new ThrowableIOException("불러오기 실패 : " + path, e);
                         }
                     })
-                    .toList();
+                    .collect(Collectors.toMap(User::getId, user -> user));
         } catch (IOException e) {
             throw new ThrowableIOException("불러오기 실패 : " + directory, e);
         }
     }
 
     @Override
+    public User save(User user) {
+        Path path = resolvePath(user.getId());
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
+            oos.writeObject(user);
+            userMap.put(user.getId(), user);
+        } catch (IOException e) {
+            throw new ThrowableIOException("저장 실패 :  " + path, e);
+        }
+        return user;
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(userMap.get(id));
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        User userNullable = userMap.values().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
+        return Optional.ofNullable(userNullable);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return List.copyOf(userMap.values());
+    }
+
+    @Override
     public boolean existsById(UUID id) {
-        Path path = resolvePath(id);
-        return Files.exists(path);
+        return userMap.containsKey(id);
     }
 
     @Override
     public boolean existsByUsername(String username) {
-        return findAll().stream().anyMatch(user -> user.getUsername().equals(username));
+        return userMap.values().stream().anyMatch(user -> user.getUsername().equals(username));
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        return findAll().stream().anyMatch(user -> user.getEmail().equals(email));
+        return userMap.values().stream().anyMatch(user -> user.getEmail().equals(email));
     }
 
     @Override
@@ -124,6 +118,7 @@ public class FileUserRepository implements UserRepository {
         Path path = resolvePath(id);
         try {
             Files.deleteIfExists(path);
+            userMap.remove(id);
         } catch (IOException e) {
             throw new ThrowableIOException("삭제 실패 : " + path, e);
         }
