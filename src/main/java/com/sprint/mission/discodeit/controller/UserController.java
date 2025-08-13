@@ -15,12 +15,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
@@ -37,7 +39,10 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRegisterRequest body) {
         UserResponse res = userService.register(body);
-        return ResponseEntity.created(URI.create("/api/users/" + res.id())).body(res);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(res.id()).toUri();
+        return ResponseEntity.created(location).body(res);
     }
 
     @GetMapping(path = "/{id}")
@@ -50,9 +55,9 @@ public class UserController {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    @PutMapping(path = "/{id}/profile-settings")
+    @PatchMapping(path = "/{id}/profile-settings")
     public ResponseEntity<Void> updateProfileSettings(@PathVariable("id") UUID id,
-                                                      @RequestBody UserUpdateProfileSettingsRequest body) {
+                                                      @Valid @RequestBody UserUpdateProfileSettingsRequest body) {
         userService.updateProfileSettings(id, body);
         return ResponseEntity.noContent().build();
     }
@@ -99,7 +104,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(path = "/{id}/deactivate")
+    @PostMapping(path = "/{id}/deactivation")
     public ResponseEntity<Void> deactivateAccount(@PathVariable("id") UUID id) {
         userService.deactivateAccount(id);
         return ResponseEntity.noContent().build();
