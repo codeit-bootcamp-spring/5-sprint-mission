@@ -51,14 +51,8 @@ public class ChannelController {
 
     @RequestMapping(value = "{userId}", method = RequestMethod.GET)
     public ResponseEntity<List<ChannelDto>> findAllByUserId(@PathVariable UUID userId) {
-        System.out.println("=== Controller 디버깅 ===");
-        System.out.println("요청받은 userId: " + userId);
-
         List<ChannelDto> allByUserId = channelService.findAllByUserId(userId);
-        System.out.println("서비스에서 반환받은 채널 개수: " + allByUserId.size());
-        allByUserId.forEach(channel -> {
-            System.out.println("채널: " + channel.id() + ", 타입: " + channel.type());
-        });
+
         return ResponseEntity.status(HttpStatus.OK).body(allByUserId);
     }
 }
