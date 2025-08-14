@@ -1,13 +1,10 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.request.AddMessageDto;
-import com.sprint.mission.discodeit.dto.request.AddPublicChannelDto;
-import com.sprint.mission.discodeit.dto.request.AddUserDto;
-import com.sprint.mission.discodeit.dto.request.UpdateMessageDto;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.dto.request.AddMessageRequest;
+import com.sprint.mission.discodeit.dto.request.AddPublicChannelRequest;
+import com.sprint.mission.discodeit.dto.request.AddUserRequest;
+import com.sprint.mission.discodeit.dto.request.UpdateMessageRequest;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,21 +26,21 @@ public class MessageServiceTest {
 
     @Test
     public void updateMessageTest(){
-        AddUserDto addUserDto = new AddUserDto("UserName", "UserEmail", "PW", "PHONE", null);
-        User user = userService.addUser(addUserDto);
-        AddPublicChannelDto addPublicChannelDto = new AddPublicChannelDto("channelName", "channelDescription", user.getId());
-        Channel channel = channelService.addPublicChannel(addPublicChannelDto);
+        AddUserRequest addUserRequest = new AddUserRequest("UserName", "UserEmail", "PW", "PHONE", null);
+        User user = userService.addUser(addUserRequest);
+        AddPublicChannelRequest addPublicChannelRequest = new AddPublicChannelRequest("channelName", "channelDescription", user.getId());
+        Channel channel = channelService.addPublicChannel(addPublicChannelRequest);
         byte[] image1 = {0x01, 0x02, 0x03, 0x04};
         byte[] image2 = {0x01, 0x02, 0x03, 0x04};
-        BinaryContent binaryContent1 = new BinaryContent(image1);
-        BinaryContent binaryContent2 = new BinaryContent(image2);
-        AddMessageDto messageContent = new AddMessageDto("messageContent", user.getId(), channel.getId(), binaryContent1.getId(), binaryContent2.getId());
+        BinaryContent binaryContent1 = new BinaryContent(image1, BinaryContentType.JPEG);
+        BinaryContent binaryContent2 = new BinaryContent(image2, BinaryContentType.JPEG);
+        AddMessageRequest messageContent = new AddMessageRequest("messageContent", user.getId(), channel.getId(), binaryContent1.getId(), binaryContent2.getId());
         Message message = messageService.addMessage(messageContent);
         byte[] image3 = {0x01, 0x02, 0x03, 0x04};
-        BinaryContent binaryContent3 = new BinaryContent(image3);
+        BinaryContent binaryContent3 = new BinaryContent(image3, BinaryContentType.JPEG);
 
-        UpdateMessageDto updatedMessageContent = new UpdateMessageDto(message.getId(), "updatedMessageContent", binaryContent3.getId());
-        messageService.updateMessage(updatedMessageContent);
+        UpdateMessageRequest updatedMessageContent = new UpdateMessageRequest( "updatedMessageContent", binaryContent3.getId());
+        messageService.updateMessage(message.getId(), updatedMessageContent);
 
         Message updatedMessage = messageService.getMessageById(message.getId());
 

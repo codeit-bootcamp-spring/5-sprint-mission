@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.AddBinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentType;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +18,11 @@ public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public BinaryContent addBinaryContent(byte[] binaryContent) {
-        BinaryContent newContent = new BinaryContent(binaryContent);
+    public BinaryContent addBinaryContent(AddBinaryContentDto addBinaryContentDto) {
+        if(addBinaryContentDto == null){
+            throw new IllegalArgumentException("BinaryContent cannot be null");
+        }
+        BinaryContent newContent = new BinaryContent(addBinaryContentDto.binaryContent(), addBinaryContentDto.contentType());
         return binaryContentRepository.save(newContent).orElseThrow();
     }
 

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.response.LoginDto;
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
+import com.sprint.mission.discodeit.dto.response.LoginResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -19,10 +20,10 @@ public class BasicAuthService implements AuthService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public LoginDto login(String username, String password) {
-        User user = userRepository.findByUserName(username).orElseThrow(()
+    public LoginResponse login(LoginRequest loginRequest) {
+        User user = userRepository.findByUserName(loginRequest.username()).orElseThrow(()
                 -> new IllegalArgumentException("Login: User not found"));
-        if(!user.getPassword().equals(password)){
+        if(!user.getPassword().equals(loginRequest.password())){
             throw new IllegalArgumentException("Login: Wrong password");
         }
 
@@ -32,7 +33,7 @@ public class BasicAuthService implements AuthService {
             binaryContent = byId.get().getContent();
         }
 
-        return new LoginDto(
+        return new LoginResponse(
                 user.getUserName(),
                 user.getEmail(),
                 user.getPhoneNumber(),

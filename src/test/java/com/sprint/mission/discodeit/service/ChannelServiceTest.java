@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.request.*;
-import com.sprint.mission.discodeit.dto.response.GetChannelByIdDto;
+import com.sprint.mission.discodeit.dto.response.GetChannelByIdResponse;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -42,44 +42,44 @@ public class ChannelServiceTest {
         readStatusService.deleteAllReadStatus();
         messageService.deleteAllMessage();
         userService.deleteAllUser();
-        user1 = userService.addUser(new AddUserDto("testName1", "testMail1", "testPassword1", "testPhone1", null));
-        user2 = userService.addUser(new AddUserDto("testName2", "testMail2", "testPassword2", "testPhone1", null));
+        user1 = userService.addUser(new AddUserRequest("testName1", "testMail1", "testPassword1", "testPhone1", null));
+        user2 = userService.addUser(new AddUserRequest("testName2", "testMail2", "testPassword2", "testPhone1", null));
     }
 
     @Test
     public void addPublicChannelTest(){
-        AddPublicChannelDto addPublicChannelDto = new AddPublicChannelDto("testName1", "testDescription", user1.getId());
-        Channel channel = channelService.addPublicChannel(addPublicChannelDto);
+        AddPublicChannelRequest addPublicChannelRequest = new AddPublicChannelRequest("testName1", "testDescription", user1.getId());
+        Channel channel = channelService.addPublicChannel(addPublicChannelRequest);
 
-        Assertions.assertThat(channel.getName()).isEqualTo(addPublicChannelDto.channelName());
+        Assertions.assertThat(channel.getName()).isEqualTo(addPublicChannelRequest.channelName());
         Assertions.assertThat(channel.getChannelType()).isEqualTo(ChannelType.PUBLIC);
-        Assertions.assertThat(channel.getOwnerUserId()).isEqualTo(addPublicChannelDto.ownerUserId());
+        Assertions.assertThat(channel.getOwnerUserId()).isEqualTo(addPublicChannelRequest.ownerUserId());
     }
 
     @Test
     public void addPrivateChannelTest(){
-        AddPrivateChannelDto addPrivateChannelDto = new AddPrivateChannelDto(user1.getId());
-        Channel channel = channelService.addPrivateChannel(addPrivateChannelDto);
+        AddPrivateChannelRequest addPrivateChannelRequest = new AddPrivateChannelRequest(user1.getId());
+        Channel channel = channelService.addPrivateChannel(addPrivateChannelRequest);
 
         Assertions.assertThat(channel.getChannelType()).isEqualTo(ChannelType.PRIVATE);
-        Assertions.assertThat(channel.getOwnerUserId()).isEqualTo(addPrivateChannelDto.ownerUserId());
+        Assertions.assertThat(channel.getOwnerUserId()).isEqualTo(addPrivateChannelRequest.ownerUserId());
         Assertions.assertThat(channel.getName()).isNull();
         Assertions.assertThat(channel.getDescription()).isNull();
     }
 
     @Test
     public void GetChannelByIdTest(){
-        Channel publicChannel = channelService.addPublicChannel(new AddPublicChannelDto("testPublic", "testDescription", user1.getId()));
-        Channel privateChannel = channelService.addPrivateChannel(new AddPrivateChannelDto(user2.getId()));
+        Channel publicChannel = channelService.addPublicChannel(new AddPublicChannelRequest("testPublic", "testDescription", user1.getId()));
+        Channel privateChannel = channelService.addPrivateChannel(new AddPrivateChannelRequest(user2.getId()));
 
 
-        messageService.addMessage(new AddMessageDto("publicMessage1", user1.getId(), publicChannel.getId()));
-        messageService.addMessage(new AddMessageDto("publicMessage2", user1.getId(), publicChannel.getId()));
-        messageService.addMessage(new AddMessageDto("privateMessage1", user2.getId(), privateChannel.getId()));
-        messageService.addMessage(new AddMessageDto("privateMessage12", user2.getId(), privateChannel.getId()));
+        messageService.addMessage(new AddMessageRequest("publicMessage1", user1.getId(), publicChannel.getId()));
+        messageService.addMessage(new AddMessageRequest("publicMessage2", user1.getId(), publicChannel.getId()));
+        messageService.addMessage(new AddMessageRequest("privateMessage1", user2.getId(), privateChannel.getId()));
+        messageService.addMessage(new AddMessageRequest("privateMessage12", user2.getId(), privateChannel.getId()));
 
-        GetChannelByIdDto channelById = channelService.getChannelById(publicChannel.getId());
-        GetChannelByIdDto channelById2 = channelService.getChannelById(privateChannel.getId());
+        GetChannelByIdResponse channelById = channelService.getChannelById(publicChannel.getId());
+        GetChannelByIdResponse channelById2 = channelService.getChannelById(privateChannel.getId());
 
         // PublicChannel
         Assertions.assertThat(channelById.channel().getId()).isEqualTo(publicChannel.getId());
@@ -94,44 +94,46 @@ public class ChannelServiceTest {
 
     @Test
     public void getAllChannelByUserIdTest(){
-        // given
-        Channel publicChannel = channelService.addPublicChannel(new AddPublicChannelDto("testPublic", "testDescription", user1.getId()));
-        Channel privateChannel1 = channelService.addPrivateChannel(new AddPrivateChannelDto(user1.getId()));
-        Channel privateChannel2 = channelService.addPrivateChannel(new AddPrivateChannelDto(user1.getId()));
 
-        messageService.addMessage(new AddMessageDto("publicMessage1", user1.getId(), publicChannel.getId()));
-        messageService.addMessage(new AddMessageDto("publicMessage2", user1.getId(), publicChannel.getId()));
-        messageService.addMessage(new AddMessageDto("privateMessage1", user2.getId(), privateChannel1.getId()));
-        messageService.addMessage(new AddMessageDto("privateMessage12", user2.getId(), privateChannel2.getId()));
+
+        // given
+        Channel publicChannel = channelService.addPublicChannel(new AddPublicChannelRequest("testPublic", "testDescription", user1.getId()));
+        Channel privateChannel1 = channelService.addPrivateChannel(new AddPrivateChannelRequest(user1.getId()));
+        Channel privateChannel2 = channelService.addPrivateChannel(new AddPrivateChannelRequest(user1.getId()));
+
+        messageService.addMessage(new AddMessageRequest("publicMessage1", user1.getId(), publicChannel.getId()));
+        messageService.addMessage(new AddMessageRequest("publicMessage2", user1.getId(), publicChannel.getId()));
+        messageService.addMessage(new AddMessageRequest("privateMessage1", user2.getId(), privateChannel1.getId()));
+        messageService.addMessage(new AddMessageRequest("privateMessage12", user2.getId(), privateChannel2.getId()));
 
         // when
-        List<GetChannelByIdDto> allChannelByUserId = channelService.getAllChannelByUserId(user1.getId());
+        List<GetChannelByIdResponse> allChannelByUserId = channelService.getAllChannelByUserId(user1.getId());
 
         // Then
         Assertions.assertThat(allChannelByUserId.size()).isEqualTo(3);
 
-        List<UUID> channelIds = allChannelByUserId.stream().map(GetChannelByIdDto::channel).map(Channel::getId).toList();
+        List<UUID> channelIds = allChannelByUserId.stream().map(GetChannelByIdResponse::channel).map(Channel::getId).toList();
         Assertions.assertThat(channelIds).contains(publicChannel.getId(), privateChannel1.getId(), privateChannel2.getId());
     }
 
     @Test
     public void updateChannelTest(){
 
-        Channel publicChannel = channelService.addPublicChannel(new AddPublicChannelDto("testPublic", "testDescription", user1.getId()));
-        Channel privateChannel = channelService.addPrivateChannel(new AddPrivateChannelDto(user1.getId()));
+        Channel publicChannel = channelService.addPublicChannel(new AddPublicChannelRequest("testPublic", "testDescription", user1.getId()));
+        Channel privateChannel = channelService.addPrivateChannel(new AddPrivateChannelRequest(user1.getId()));
 
-        UpdateChannelDto updatePublicChannelDto = new UpdateChannelDto(publicChannel.getId(),"updateName", "updateDescription");
+        UpdateChannelRequest updatePublicChannelDto = new UpdateChannelRequest("updateName", "updateDescription");
 
-        channelService.updateChannel(updatePublicChannelDto);
-        GetChannelByIdDto channelById = channelService.getChannelById(publicChannel.getId());
+        channelService.updateChannel(updatePublicChannelDto, publicChannel.getId());
+        GetChannelByIdResponse channelById = channelService.getChannelById(publicChannel.getId());
 
         Assertions.assertThat(channelById.channel().getName()).isEqualTo(updatePublicChannelDto.channelName());
         Assertions.assertThat(channelById.channel().getDescription()).isEqualTo(updatePublicChannelDto.channelDescription());
         Assertions.assertThat(channelById.channel().getId()).isEqualTo(publicChannel.getId());
 
-        UpdateChannelDto updatePrivateChannelDto = new UpdateChannelDto(privateChannel.getId(),"updateName", "updateDescription");
+        UpdateChannelRequest updatePrivateChannelDto = new UpdateChannelRequest("updateName", "updateDescription");
 
-        Assertions.assertThatThrownBy(() -> channelService.updateChannel(updatePrivateChannelDto)).isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> channelService.updateChannel(updatePrivateChannelDto, privateChannel.getId())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -139,10 +141,10 @@ public class ChannelServiceTest {
         List<ReadStatus> all = readStatusRepository.findAll();
         Assertions.assertThat(all.size()).isEqualTo(0);
 
-        Channel privateChannel = channelService.addPrivateChannel(new AddPrivateChannelDto(user1.getId()));
-        messageService.addMessage(new AddMessageDto("privateMessage1", user1.getId(), privateChannel.getId()));
-        messageService.addMessage(new AddMessageDto("privateMessage2", user1.getId(), privateChannel.getId()));
-        messageService.addMessage(new AddMessageDto("privateMessage3", user1.getId(), privateChannel.getId()));
+        Channel privateChannel = channelService.addPrivateChannel(new AddPrivateChannelRequest(user1.getId()));
+        messageService.addMessage(new AddMessageRequest("privateMessage1", user1.getId(), privateChannel.getId()));
+        messageService.addMessage(new AddMessageRequest("privateMessage2", user1.getId(), privateChannel.getId()));
+        messageService.addMessage(new AddMessageRequest("privateMessage3", user1.getId(), privateChannel.getId()));
 
         all = readStatusRepository.findAll();
         Assertions.assertThat(all.size()).isEqualTo(1);
