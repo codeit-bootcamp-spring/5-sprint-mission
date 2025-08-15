@@ -33,7 +33,8 @@ public class BasicUserService implements UserService {
         String username = userCreateRequest.username();
         String password = userCreateRequest.password();
         String email = userCreateRequest.email();
-        validateUnique(username, email);
+        validateUsername(username);
+        validateEmail(email);
 
         UUID profileId = binaryContentCreateRequest
                 .map(request -> {
@@ -90,10 +91,16 @@ public class BasicUserService implements UserService {
         String username = userUpdateRequest.username();
         String password = userUpdateRequest.password();
         String email = userUpdateRequest.email();
-        validateUnique(username, email);
 
         User user = userRepository.findById(userUpdateRequest.userId())
                 .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다."));
+
+        if(!user.getUsername().equals(username)) {
+            validateUsername(username);
+        }
+        if(!user.getEmail().equals(email)) {
+            validateEmail(email);
+        }
 
         UUID profileId = binaryContentCreateRequest
                 .map(request -> {
@@ -121,10 +128,13 @@ public class BasicUserService implements UserService {
         userRepository.deleteById(user.getId());
     }
 
-    private void validateUnique(String username, String email) {
+    private void validateUsername(String username) {
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("validateUnique : 이미 존재하는 username 입니다.");
         }
+    }
+
+    private void validateEmail(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("validateUnique : 이미 존재하는 email 입니다.");
         }
