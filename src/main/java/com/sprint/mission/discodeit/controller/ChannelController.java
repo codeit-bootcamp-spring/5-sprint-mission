@@ -26,7 +26,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/channels")
+@RequestMapping(path = "/api/channels")
 public class ChannelController {
 
     private final ChannelService channelService;

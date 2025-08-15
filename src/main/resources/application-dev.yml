@@ -1,9 +1,26 @@
 spring:
-  config:
-    activate:
-      on-profile: dev
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+  devtools:
+    restart:
+      additional-exclude: |
+        file-data-map/**,
+        **/*.ser
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.test: DEBUG
+    com.sprint.mission.discodeit: DEBUG
+
+app:
+  storage:
+    type: file
+    root-dir: file-data-map

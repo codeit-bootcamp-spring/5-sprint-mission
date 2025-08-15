@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.config.AppStorageProperties;
+import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -19,8 +19,8 @@ import java.util.UUID;
 @Profile("dev")
 public class FileUserStatusRepository extends FileBaseRepository<UserStatus> implements UserStatusRepository {
 
-    public FileUserStatusRepository(AppStorageProperties storageProperties) {
-        super(UserStatus.class, storageProperties);
+    public FileUserStatusRepository(AppProperties appProperties) {
+        super(UserStatus.class, appProperties.storage());
     }
 
     @Override

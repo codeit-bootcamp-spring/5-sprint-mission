@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/guilds")
+@RequestMapping(path = "/api/guilds")
 public class GuildController {
 
     private final GuildService guildService;

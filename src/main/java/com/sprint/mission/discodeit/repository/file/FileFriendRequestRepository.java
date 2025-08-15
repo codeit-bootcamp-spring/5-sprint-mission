@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.config.AppStorageProperties;
+import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.FriendRequest;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import org.springframework.context.annotation.Profile;
@@ -18,8 +18,8 @@ import java.util.UUID;
 @Profile("dev")
 public class FileFriendRequestRepository extends FileBaseRepository<FriendRequest> implements FriendRequestRepository {
 
-    public FileFriendRequestRepository(AppStorageProperties storageProperties) {
-        super(FriendRequest.class, storageProperties);
+    public FileFriendRequestRepository(AppProperties appProperties) {
+        super(FriendRequest.class, appProperties.storage());
     }
 
     @Override

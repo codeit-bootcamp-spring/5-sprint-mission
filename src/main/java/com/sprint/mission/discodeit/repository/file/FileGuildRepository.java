@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.config.AppStorageProperties;
+import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import org.springframework.context.annotation.Profile;
@@ -14,8 +14,8 @@ import java.util.UUID;
 @Profile("dev")
 public class FileGuildRepository extends FileBaseRepository<Guild> implements GuildRepository {
 
-    public FileGuildRepository(AppStorageProperties storageProperties) {
-        super(Guild.class, storageProperties);
+    public FileGuildRepository(AppProperties appProperties) {
+        super(Guild.class, appProperties.storage());
     }
 
     @Override

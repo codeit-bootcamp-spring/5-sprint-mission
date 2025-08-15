@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.config.AppStorageProperties;
+import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import org.springframework.context.annotation.Profile;
@@ -18,8 +18,8 @@ import java.util.UUID;
 @Profile("dev")
 public class FileChannelRepository extends FileBaseRepository<Channel> implements ChannelRepository {
 
-    public FileChannelRepository(AppStorageProperties storageProperties) {
-        super(Channel.class, storageProperties);
+    public FileChannelRepository(AppProperties appProperties) {
+        super(Channel.class, appProperties.storage());
     }
 
     @Override

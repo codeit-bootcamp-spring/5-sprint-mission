@@ -24,7 +24,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/friend-requests")
+@RequestMapping("/api/friend-requests")
 public class FriendRequestController {
 
     private final UserService userService;

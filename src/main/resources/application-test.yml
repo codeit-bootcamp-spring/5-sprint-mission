@@ -1,9 +1,20 @@
 spring:
-  config:
-    activate:
-      on-profile: test
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.test: DEBUG
+    com.sprint.mission.discodeit: DEBUG
+
+app:
+  storage:
+    type: jcf

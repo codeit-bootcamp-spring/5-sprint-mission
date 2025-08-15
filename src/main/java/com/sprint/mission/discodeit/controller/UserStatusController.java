@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user-statuses")
+@RequestMapping("/api/user-statuses")
 public class UserStatusController {
 
     private final UserService userService;

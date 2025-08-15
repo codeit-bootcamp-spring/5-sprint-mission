@@ -1,29 +1,8 @@
 spring:
-  mvc:
-    servlet:
-      path: /api/v1/
   profiles:
-    default: dev
+    active: dev
 
 server:
-  port: 8080
-
-logging:
-  level:
-    org.springframework: INFO
-    com.sprint.mission: INFO
-    org.hibernate.SQL: OFF
-    org.hibernate.orm.jdbc.bind: OFF
-
-app:
-  name: Discodeit
-  version: 1.0.0
-  server:
-    url: http://localhost:8080
-    timeout: 5000
-  metadata:
-    region: korea
-    owner: admin-team
-  storage:
-    type: file
-    root-dir: file-data-map
+  shutdown: graceful
+  compression:
+    enabled: true

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.config.AppStorageProperties;
+import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.GuildPermissions;
 import com.sprint.mission.discodeit.domain.enums.Permission;
 import com.sprint.mission.discodeit.repository.GuildPermissionsRepository;
@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 @Profile("dev")
 public class FileGuildPermissionsRepository extends FileBaseRepository<GuildPermissions> implements GuildPermissionsRepository {
 
-    public FileGuildPermissionsRepository(AppStorageProperties storageProperties) {
-        super(GuildPermissions.class, storageProperties);
+    public FileGuildPermissionsRepository(AppProperties appProperties) {
+        super(GuildPermissions.class, appProperties.storage());
     }
 
     @Override
