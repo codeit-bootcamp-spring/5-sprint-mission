@@ -101,7 +101,7 @@ public class BasicUserService implements UserService {
                     return binaryContentRepository.save(binaryContent).getId();
                 })
                 .orElse(null);
-
+        binaryContentRepository.deleteById(user.getProfileId());
         user.update(username, email, password, profileId);
 
         return userRepository.save(user);
