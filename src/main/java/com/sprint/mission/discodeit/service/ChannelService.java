@@ -13,7 +13,8 @@ public interface ChannelService {
     Channel create(PublicChannelCreateRequest publicChannelCreateRequest);
     Channel create(PrivateChannelCreateRequest privateChannelCreateRequest);
     ChannelDto find(UUID channelId);
-    List<Channel> findAll();
+    List<ChannelDto> findAll();
+    List<ChannelDto> findAllByUserId(UUID userId);
     Channel update(UUID channelId, String newName, String newDescription);
     void delete(UUID channelId);
 }

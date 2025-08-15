@@ -52,8 +52,24 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public List<Channel> findAll() {
-        return channelRepository.findAll();
+    public List<ChannelDto> findAll() {
+        return channelRepository.findAll()
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<ChannelDto> findAllByUserId(UUID userId) {
+        List<UUID> mySubscribedChannelIds = readStatusRepository.findByUserId(userId).stream()
+                .map(ReadStatus::getChannelId)
+                .toList();
+
+        return channelRepository.findAll().stream()
+                .filter(channel ->
+                        channel.getType() == ChannelType.PRIVATE || mySubscribedChannelIds.contains(channel.getId()))
+                .map(this::toDto)
+                .toList();
     }
 
     @Override
