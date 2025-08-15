@@ -78,8 +78,4 @@ public class BasicUserStatusService implements UserStatusService {
                 .orElseThrow(() -> new NoSuchElementException("delete : UserStatus를 찾을 수 없습니다."));
         userStatusRepository.deleteById(userStatus.getId());
     }
-
-    public void deleteAll() {
-        userStatusRepository.findAll().forEach(userStatus -> delete(userStatus.getId()));
-    }
 }

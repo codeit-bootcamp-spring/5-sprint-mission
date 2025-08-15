@@ -121,10 +121,6 @@ public class BasicUserService implements UserService {
         userRepository.deleteById(user.getId());
     }
 
-    public void deleteAll() {
-        userRepository.findAll().forEach(user -> delete(user.getId()));
-    }
-
     private void validateUnique(String username, String email) {
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("validateUnique : 이미 존재하는 username 입니다.");

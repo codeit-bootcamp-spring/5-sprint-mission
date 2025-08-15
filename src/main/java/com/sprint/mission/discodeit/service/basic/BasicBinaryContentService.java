@@ -44,8 +44,4 @@ public class BasicBinaryContentService implements BinaryContentService {
         }
         binaryContentRepository.deleteById(id);
     }
-
-    public void deleteAll() {
-        binaryContentRepository.findAll().forEach(binaryContent -> delete(binaryContent.getId()));
-    }
 }
