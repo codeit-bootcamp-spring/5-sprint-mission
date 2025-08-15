@@ -100,4 +100,10 @@ public class FileMessageRepository implements MessageRepository {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public void deleteAllByChannelId(UUID channelId) {
+        findAllByChannelId(channelId)
+                .forEach(message -> deleteById(message.getId()));
+    }
 }

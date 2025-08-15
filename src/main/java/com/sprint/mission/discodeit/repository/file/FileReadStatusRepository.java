@@ -115,4 +115,10 @@ public class FileReadStatusRepository implements ReadStatusRepository {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public void deleteAllByChannelId(UUID channelId) {
+       findByChannelId(channelId).
+               forEach(readStatus -> deleteById(readStatus.getId()));
+    }
 }
