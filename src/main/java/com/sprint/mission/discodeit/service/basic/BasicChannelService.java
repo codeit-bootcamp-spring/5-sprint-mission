@@ -1,8 +1,13 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepositoty;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,17 +20,33 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
+    private final ReadStatusRepositoty readStatusRepositoty;
+    private final MessageRepository messageRepository;
 
     @Override
-    public Channel create(ChannelType type, String name, String description) {
-        Channel channel = new Channel(type, name, description);
+    public Channel create(PublicChannelCreateRequest publicChannelCreateRequest) {
+        String name = publicChannelCreateRequest.name();
+        String description = publicChannelCreateRequest.description();
+
+        Channel channel = new Channel(ChannelType.PUBLIC, name, description);
         return channelRepository.save(channel);
+    }
+
+    @Override
+    public Channel create(PrivateChannelCreateRequest privateChannelCreateRequest) {
+        Channel channel = new Channel(ChannelType.PRIVATE, null, null);
+        Channel createChannel = channelRepository.save(channel);
+
+        privateChannelCreateRequest.participantIds().stream()
+                .map(userId -> new ReadStatus(userId, channel.getId()))
+                .forEach(readStatusRepositoty::save);
+        return createChannel;
     }
 
     @Override
     public Channel find(UUID channelId) {
         return channelRepository.findById(channelId)
-                        .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
     }
 
     @Override
