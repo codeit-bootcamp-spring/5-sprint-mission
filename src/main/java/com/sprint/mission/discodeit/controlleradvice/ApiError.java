@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.error;
+package com.sprint.mission.discodeit.controlleradvice;
 
 import java.util.List;
 

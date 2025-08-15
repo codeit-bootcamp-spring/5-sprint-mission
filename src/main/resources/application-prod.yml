@@ -16,6 +16,8 @@ management:
       show-details: when_authorized
 
 server:
+  error:
+    include-stacktrace: never
   forward-headers-strategy: native
   http2:
     enabled: true
