@@ -38,7 +38,7 @@ public class MessageController {
                     .map(file -> {
                         try {
                             return new BinaryContentCreateRequest(
-                                    file.getName(),
+                                    file.getOriginalFilename(),
                                     file.getContentType(),
                                     file.getBytes()
                             );

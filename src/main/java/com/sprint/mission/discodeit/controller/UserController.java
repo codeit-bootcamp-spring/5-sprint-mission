@@ -40,7 +40,7 @@ public class UserController {
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
         if (profileImage != null && !profileImage.isEmpty()) {
             binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profileImage.getName(),
+                    profileImage.getOriginalFilename(),
                     profileImage.getContentType(),
                     profileImage.getBytes()
             ));
@@ -59,7 +59,7 @@ public class UserController {
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
         if (profileImage != null && !profileImage.isEmpty()) {
             binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profileImage.getName(),
+                    profileImage.getOriginalFilename(),
                     profileImage.getContentType(),
                     profileImage.getBytes()
             ));
