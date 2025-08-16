@@ -4,52 +4,19 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+@SuperBuilder
+@Getter
+@Setter
 public class User extends BaseEntity {
     private String username;
     private String password;
+    private UUID profileImageId;
 
-    public User(String username, String password) {
-        super(UUID.randomUUID(), Instant.now().getEpochSecond(), Instant.now().getEpochSecond());
-        this.username = username;
-        this.password = password;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-
-    public void update(String username, String password) {
-        boolean anyValueUpdated = false;
-        if (username != null && !username.equals(this.username)) {
-            this.username = username;
-            anyValueUpdated = true;
-        }
-        if (password != null && !password.equals(this.password)) {
-            this.password = password;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now().getEpochSecond();
-        }
-    }
+    
 
     @Override
     public String toString() {
