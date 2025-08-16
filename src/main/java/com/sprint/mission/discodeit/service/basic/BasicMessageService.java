@@ -76,9 +76,11 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public void delete(UUID messageId) {
-        if (!messageRepository.existsById(messageId)) {
-            throw new NoSuchElementException("Message with id " + messageId + " not found");
-        }
+        Message message = messageRepository.findById(messageId).
+           orElseThrow(()-> new NoSuchElementException("Message with id " + messageId + " not found"));
+
+        message.getAttachmentIds()
+                        .forEach(binaryContentRepository::deleteById);
         messageRepository.deleteById(messageId);
     }
 }
