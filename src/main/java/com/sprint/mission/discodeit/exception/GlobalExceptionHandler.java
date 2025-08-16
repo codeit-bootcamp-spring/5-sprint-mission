@@ -11,14 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 // 전역 예외 처리 핸들러
-// 모든 컨트롤러에서 발생하는 예외를 한 곳에서 JSON 형태로 응답
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    // 공통 응답 생성 메서드
-    // {
-    //   "timestamp": ..., "status": ..., "error": ..., "message": ..., "path": ...
-    // }
     private ResponseEntity<Map<String, Object>> buildErrorResponse(
             HttpStatus status,
             String message,
@@ -33,7 +27,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(body);
     }
 
-    // 유효성 검증 실패 처리 (@Valid DTO)
+    // 유효성 검증 실패 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(
             MethodArgumentNotValidException ex

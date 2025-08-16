@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>AI 스타일 · 사용자 목록</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="appbar">
+    <div class="brand">
+        <span class="dot"></span>
+        <strong>Discodeit</strong>
+    </div>
+    <div class="actions">
+        <button id="refresh" class="btn">새로고침</button>
+        <label class="switch" title="다크/라이트">
+            <input type="checkbox" id="themeToggle">
+            <span class="slider"></span>
+        </label>
+    </div>
+</header>
+
+<main class="container">
+    <h1>사용자 목록</h1>
+
+    <div class="toolbar">
+        <input id="q" class="search" placeholder="이름 또는 이메일 검색"/>
+    </div>
+
+    <section id="list" class="grid">
+        <!-- skeletons -->
+        <div class="card skeleton"></div>
+        <div class="card skeleton"></div>
+        <div class="card skeleton"></div>
+        <div class="card skeleton"></div>
+    </section>
+</main>
+
+<footer class="footer">generated with ChatGPT ✨</footer>
+
+<script src="/script.js"></script>
+</body>
+</html>
