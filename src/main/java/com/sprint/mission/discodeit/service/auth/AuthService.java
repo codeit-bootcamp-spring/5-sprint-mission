@@ -15,8 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import static com.sprint.mission.discodeit.mapper.UserMapper.toUserResponse;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -47,7 +45,7 @@ public class AuthService {
         userStatus.login();
         userStatusRepository.save(userStatus);
 
-        return toUserResponse(user, UserStatusType.ONLINE);
+        return UserResponse.from(user, UserStatusType.ONLINE);
     }
 
     @Transactional

@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.request.status.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserRegisterRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateEmailRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdatePhoneNumberRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateUsernameRequest;
@@ -55,6 +56,9 @@ public class UserController {
     public List<UserResponse> findAll(
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String email) {
+        if (username != null && email != null) {
+            throw new IllegalArgumentException("username과 email은 동시에 사용할 수 없습니다.");
+        }
         if (username != null) {
             return userService.findByUsername(username);
         }
@@ -71,53 +75,70 @@ public class UserController {
     }
 
     @PatchMapping(path = "/{id}/profile-settings")
-    public ResponseEntity<Void> updateProfileSettings(@PathVariable("id") UUID id,
-                                                      @Valid @RequestBody UserUpdateProfileSettingsRequest body) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProfileSettings(@PathVariable("id") UUID id,
+                                      @Valid @RequestBody UserUpdateProfileSettingsRequest body) {
         userService.updateProfileSettings(id, body);
-        return ResponseEntity.noContent().build();
     }
 
     @PutMapping(path = "/{id}/profile-image")
-    public ResponseEntity<Void> updateProfileImage(@PathVariable("id") UUID id,
-                                                   @Valid @RequestBody UserUpdateProfileImageRequest body) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProfileImage(@PathVariable("id") UUID id,
+                                   @Valid @RequestBody UserUpdateProfileImageRequest body) {
         userService.updateProfileImage(id, body);
-        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping(path = "/{id}/profile-image")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void clearProfileImage(@PathVariable("id") UUID id) {
+        userService.clearProfileImage(id);
     }
 
     @PutMapping(path = "/{id}/email")
-    public ResponseEntity<Void> updateEmail(@PathVariable("id") UUID id,
-                                            @Valid @RequestBody UserUpdateEmailRequest body) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateEmail(@PathVariable("id") UUID id,
+                            @Valid @RequestBody UserUpdateEmailRequest body) {
         userService.updateEmail(id, body);
-        return ResponseEntity.noContent().build();
     }
 
     @PutMapping(path = "/{id}/username")
-    public ResponseEntity<Void> updateUsername(@PathVariable("id") UUID id,
-                                               @Valid @RequestBody UserUpdateUsernameRequest body) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateUsername(@PathVariable("id") UUID id,
+                               @Valid @RequestBody UserUpdateUsernameRequest body) {
         userService.updateUsername(id, body);
-        return ResponseEntity.noContent().build();
     }
-
 
     @PutMapping(path = "/{id}/password")
-    public ResponseEntity<Void> updatePassword(@PathVariable("id") UUID id,
-                                               @Valid @RequestBody UserUpdatePasswordRequest body) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updatePassword(@PathVariable("id") UUID id,
+                               @Valid @RequestBody UserUpdatePasswordRequest body) {
         userService.updatePassword(id, body);
-        return ResponseEntity.noContent().build();
     }
 
+    @PutMapping(path = "/{id}/phone-number")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updatePhoneNumber(@PathVariable("id") UUID id,
+                                  @Valid @RequestBody UserUpdatePhoneNumberRequest body) {
+        userService.updatePhoneNumber(id, body);
+    }
+
+    @DeleteMapping(path = "/{id}/phone-number")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void clearPhoneNumber(@PathVariable("id") UUID id) {
+        userService.clearPhoneNumber(id);
+    }
 
     @PutMapping(path = "/{id}/status")
-    public ResponseEntity<Void> updateStatus(@PathVariable("id") UUID id,
-                                             @Valid @RequestBody UserStatusUpdateRequest body) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateStatus(@PathVariable("id") UUID id,
+                             @Valid @RequestBody UserStatusUpdateRequest body) {
         userStatusService.updateStatusByUserId(id, body);
-        return ResponseEntity.noContent().build();
     }
 
     @PostMapping(path = "/{id}/deactivation")
-    public ResponseEntity<Void> deactivateAccount(@PathVariable("id") UUID id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deactivateAccount(@PathVariable("id") UUID id) {
         userService.deactivateAccount(id);
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping(path = "/{id}/friends")

@@ -3,9 +3,11 @@ package com.sprint.mission.discodeit.service.user;
 import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 import com.sprint.mission.discodeit.dto.request.user.UserRegisterRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateEmailRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdatePhoneNumberRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateUsernameRequest;
@@ -18,6 +20,7 @@ import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.support.PhoneNumbers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,11 +28,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-import static com.sprint.mission.discodeit.mapper.UserMapper.toUserResponse;
 import static com.sprint.mission.discodeit.support.StringUtil.stripToLowerCase;
 
 @Service
@@ -45,9 +49,9 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponse toResponse(User user) {
+    private UserResponse toResponse(User user) {
         UserStatus userStatus = userStatusRepository.getOrThrowByUserId(user.getId());
-        return toUserResponse(user, userStatus.getType());
+        return UserResponse.from(user, userStatus.getType());
     }
 
     @Transactional
@@ -94,8 +98,18 @@ public class UserService {
     }
 
     public List<UserResponse> findAll() {
-        return userRepository.findAll().stream()
-                .map(this::toResponse)
+        List<User> users = userRepository.findAll();
+        if (users.isEmpty()) return List.of();
+        Set<UUID> ids = users.stream().map(User::getId).collect(Collectors.toSet());
+
+        Map<UUID, UserStatusType> statusMap = userStatusRepository.findAllByUserIds(ids).stream()
+                .collect(Collectors.toMap(
+                        UserStatus::getUserId,
+                        UserStatus::getType
+                ));
+
+        return users.stream()
+                .map(u -> UserResponse.from(u, statusMap.get(u.getId())))
                 .toList();
     }
 
@@ -117,7 +131,6 @@ public class UserService {
 
     @Transactional
     public void deactivateAccount(UUID userId) {
-        userRepository.getOrThrow(userId);
         update(userId, User::deactivate);
     }
 
@@ -142,33 +155,83 @@ public class UserService {
 
     @Transactional
     public void updateProfileImage(UUID userId, UserUpdateProfileImageRequest req) {
-        binaryContentRepository.findById(req.profileId()).orElseThrow(() -> new NotFoundException("프로필 이미지를 찾을 수 없습니다."));
-        update(userId, u -> u.changeProfileId(req.profileId()));
+        binaryContentRepository.getOrThrow(req.profileId());
+        update(userId, u -> {
+            UUID old = u.getProfileId();
+            u.changeProfileId(req.profileId());
+            if (old != null && !old.equals(req.profileId())) {
+                binaryContentRepository.softDeleteById(old);
+            }
+        });
+    }
+
+    @Transactional
+    public void clearProfileImage(UUID userId) {
+        User user = userRepository.getOrThrow(userId);
+        if (user.getProfileId() == null) return;
+        binaryContentRepository.softDeleteById(user.getProfileId());
+        user.clearProfileId();
+        userRepository.save(user);
     }
 
     @Transactional
     public void updateEmail(UUID userId, UserUpdateEmailRequest req) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
-        if (user.getEmail().equals(req.email())) throw new IllegalArgumentException("기존과 동일한 이메일입니다.");
-        if (userRepository.findByEmail(req.email()).isPresent())
+        String email = stripToLowerCase(req.email());
+        User user = userRepository.getOrThrow(userId);
+
+        if (user.getEmail().equals(email)) {
+            throw new IllegalArgumentException("기존과 동일한 이메일입니다.");
+        }
+        if (userRepository.existsByEmail(email)) {
             throw new DuplicateResourceException("중복된 이메일이 존재합니다.");
-        update(userId, u -> u.changeEmail(req.email()));
+        }
+        try {
+            update(userId, u -> u.changeEmail(email));
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateResourceException("중복된 이메일이 존재합니다.");
+        }
     }
 
     @Transactional
     public void updateUsername(UUID userId, UserUpdateUsernameRequest req) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
-        if (user.getUsername().equals(req.username())) throw new IllegalArgumentException("기존과 동일한 사용자명입니다.");
-        if (userRepository.findByUsername(req.username()).isPresent())
+        String username = stripToLowerCase(req.username());
+        User user = userRepository.getOrThrow(userId);
+
+        if (user.getUsername().equals(username)) {
+            throw new IllegalArgumentException("기존과 동일한 사용자명입니다.");
+        }
+
+        if (userRepository.existsByUsername(username)) {
             throw new DuplicateResourceException("중복된 사용자명이 존재합니다.");
-        update(userId, u -> u.changeUsername(req.username()));
+        }
+
+        try {
+            update(userId, u -> u.changeUsername(username));
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateResourceException("중복된 사용자명이 존재합니다.");
+        }
     }
 
     @Transactional
     public void updatePassword(UUID userId, UserUpdatePasswordRequest req) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
-        // if (user.checkPassword(req.password())) throw new DuplicateResourceException("동일한 비밀번호입니다.");
-        update(userId, u -> u.changePassword(req.password()));
+        String password = req.password().strip();
+        User user = userRepository.getOrThrow(userId);
+        if (passwordEncoder.matches(password, user.getPassword())) throw new DuplicateResourceException("동일한 비밀번호입니다.");
+        update(userId, u -> u.changePassword(passwordEncoder.encode(password)));
+    }
+
+    @Transactional
+    public void updatePhoneNumber(UUID userId, UserUpdatePhoneNumberRequest req) {
+        String v = PhoneNumbers.normalizeToE164(req.phoneNumber());
+        update(userId, u -> u.changePhoneNumber(v));
+    }
+
+    @Transactional
+    public void clearPhoneNumber(UUID userId) {
+        User user = userRepository.getOrThrow(userId);
+        if (user.getPhoneNumber() == null) return;
+        user.clearPhoneNumber();
+        userRepository.save(user);
     }
 
     public List<UserResponse> getFriends(UUID userId) {

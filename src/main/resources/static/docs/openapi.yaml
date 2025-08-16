@@ -42,22 +42,29 @@ paths:
 
     get:
       tags: [ Users ]
-      summary: 사용자 목록 조회
-      description: 모든 사용자를 조회하거나, username / email 조건으로 검색합니다.
+      summary: 사용자 목록/검색
+      description: |
+        모든 사용자를 조회하거나 `username` 또는 `email` 조건으로 검색합니다.
+        `username`과 `email`을 동시에 전달하면 400을 반환합니다.
       parameters:
         - in: query
           name: username
           schema:
             type: string
+            minLength: 2
+            maxLength: 32
+            pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
           required: false
-          description: username으로 사용자 검색
+          description: username으로 사용자 검색 (서버에서 strip+lowercase 정규화)
         - in: query
           name: email
           schema:
             type: string
             format: email
+            minLength: 6
+            maxLength: 254
           required: false
-          description: email로 사용자 검색
+          description: email로 사용자 검색 (서버에서 strip+lowercase 정규화)
       responses:
         '200':
           description: OK
@@ -81,9 +88,7 @@ paths:
         - in: path
           name: id
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
           description: 사용자 UUID
       responses:
         '200':
@@ -93,21 +98,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserResponse'
         '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiError'
-              example:
-                timestamp: "2025-08-16T12:34:56Z"
-                code: "NOT_FOUND"
-                message: "사용자를 찾을 수 없습니다."
-                details:
-                  - "GET /api/users/{id}"
+          $ref: '#/components/responses/NotFound'
         '400':
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalError'
+
     delete:
       tags: [ Users ]
       summary: 사용자 삭제 (소프트 삭제)
@@ -119,25 +115,13 @@ paths:
         - in: path
           name: id
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
           description: 사용자 UUID
       responses:
         '204':
           description: No Content
         '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiError'
-              example:
-                timestamp: "2025-08-16T12:34:56Z"
-                code: "NOT_FOUND"
-                message: "사용자를 찾을 수 없습니다."
-                details:
-                  - "DELETE /api/users/{id}"
+          $ref: '#/components/responses/NotFound'
         '400':
           $ref: '#/components/responses/BadRequest'
         '405':
@@ -145,8 +129,243 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
+  /users/{id}/profile-settings:
+    patch:
+      tags: [ Users ]
+      summary: 프로필 설정 변경
+      description: globalName, bio를 수정합니다.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateProfileSettingsRequest'
+            example:
+              globalName: Alice
+              bio: Hello, world!
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /users/{id}/profile-image:
+    put:
+      tags: [ Users ]
+      summary: 프로필 이미지 변경
+      description: profileId를 업데이트합니다. 기존 이미지가 있다면 서버 정책에 따라 정리됩니다.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateProfileImageRequest'
+            example:
+              profileId: "b9a9a9c2-3d3b-4f0a-b5a1-1f2a4c6b7d8e"
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+    delete:
+      tags: [ Users ]
+      summary: 프로필 이미지 제거
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: No Content }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /users/{id}/email:
+    put:
+      tags: [ Users ]
+      summary: 이메일 변경
+      description: 이메일을 변경합니다. 중복 시 409를 반환합니다.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateEmailRequest'
+            example:
+              email: "alice.new@example.com"
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /users/{id}/username:
+    put:
+      tags: [ Users ]
+      summary: 사용자명 변경
+      description: 사용자명을 변경합니다. 중복 시 409를 반환합니다.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateUsernameRequest'
+            example:
+              username: "alice.k"
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /users/{id}/password:
+    put:
+      tags: [ Users ]
+      summary: 비밀번호 변경
+      description: 동일한 비밀번호로 변경 시 409를 반환합니다.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdatePasswordRequest'
+            example:
+              password: "N3wP@ssw0rd!"
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /users/{id}/phone-number:
+    put:
+      tags: [ Users ]
+      summary: 전화번호 등록/변경
+      description: E.164 형식(`+`로 시작, 숫자 8~15자리)만 허용합니다.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdatePhoneNumberRequest'
+            examples:
+              e164:
+                summary: E.164 예시
+                value: { phoneNumber: "+821012345678" }
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+    delete:
+      tags: [ Users ]
+      summary: 전화번호 제거
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: No Content }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /users/{id}/status:
+    put:
+      tags: [ Users ]
+      summary: 사용자 상태 변경
+      description: ONLINE, OFFLINE, IDLE, DO_NOT_DISTURB 중 하나로 상태를 변경합니다.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserStatusUpdateRequest'
+            example:
+              userStatusType: "IDLE"
+      responses:
+        '204': { description: No Content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /users/{id}/deactivation:
+    post:
+      tags: [ Users ]
+      summary: 계정 비활성화
+      description: 계정을 비활성화합니다. (소프트 삭제와는 다름)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: No Content }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
 components:
   schemas:
+    UserResponse:
+      type: object
+      required: [ id, createdAt, updatedAt, email, username, globalName, userStatusType ]
+      properties:
+        id: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        email: { type: string, format: email, maxLength: 254 }
+        username: { type: string, maxLength: 32 }
+        globalName: { type:
+                        string, nullable:
+                        true, maxLength: 32 }
+        bio: { type: string, nullable: true, maxLength: 2000 }
+        profileId: { type: string, format: uuid, nullable: true }
+        userStatusType:
+          $ref: '#/components/schemas/UserStatusType'
+
     UserRegisterRequest:
       type: object
       required: [ email, username, password, birthDate ]
@@ -184,53 +403,86 @@ components:
       type: object
       required: [ id, email, username, globalName ]
       properties:
-        id:
-          type: string
-          format: uuid
-        email:
-          type: string
-          format: email
-          maxLength: 254
-        username:
-          type: string
-          maxLength: 32
-        globalName:
-          type: string
-          nullable: true
-          maxLength: 32
+        id: { type: string, format: uuid }
+        email: { type: string, format: email, maxLength: 254 }
+        username: { type: string, maxLength: 32 }
+        globalName: { type:
+                        string, nullable:
+                        true, maxLength: 32 }
 
-    UserResponse:
+    UserUpdateProfileSettingsRequest:
       type: object
-      required: [ id, createdAt, updatedAt, email, username, globalName ]
+      required: [ ]
       properties:
-        id:
-          type: string
-          format: uuid
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        email:
-          type: string
-          format: email
-        username:
-          type: string
-          maxLength: 32
         globalName:
           type: string
           nullable: true
+          maxLength: 32
+          description: 빈 문자열은 서버에서 null 처리
         bio:
           type: string
           nullable: true
-        profileId:
+          maxLength: 2000
+
+    UserUpdateProfileImageRequest:
+      type: object
+      required: [ profileId ]
+      properties:
+        profileId: { type: string, format: uuid }
+
+    UserUpdateEmailRequest:
+      type: object
+      required: [ email ]
+      properties:
+        email:
           type: string
-          format: uuid
-          nullable: true
+          format: email
+          minLength: 6
+          maxLength: 254
+          description: 서버에서 strip+lowercase 정규화됨
+
+    UserUpdateUsernameRequest:
+      type: object
+      required: [ username ]
+      properties:
+        username:
+          type: string
+          minLength: 2
+          maxLength: 32
+          pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
+          description: 서버에서 strip+lowercase 정규화됨
+
+    UserUpdatePasswordRequest:
+      type: object
+      required: [ password ]
+      properties:
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+
+    UserUpdatePhoneNumberRequest:
+      type: object
+      required: [ phoneNumber ]
+      properties:
+        phoneNumber:
+          type: string
+          description:
+            "E.164 국제 표준. 예: +821012345678"
+          pattern: "^\\+[1-9]\\d{7,14}$"
+          minLength: 9
+          maxLength: 16
+
+    UserStatusUpdateRequest:
+      type: object
+      required: [ userStatusType ]
+      properties:
         userStatusType:
-          type: string
-          enum: [ ONLINE, OFFLINE, IDLE, DO_NOT_DISTURB ]
+          $ref: '#/components/schemas/UserStatusType'
+
+    UserStatusType:
+      type: string
+      enum: [ ONLINE, OFFLINE, IDLE, DO_NOT_DISTURB ]
 
     ApiError:
       type: object
@@ -249,8 +501,7 @@ components:
       description: Bad Request
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
+          schema: { $ref: '#/components/schemas/ApiError' }
           examples:
             validation:
               summary: 유효성 검증 실패
@@ -260,13 +511,22 @@ components:
                 message: "요청이 올바르지 않습니다."
                 details:
                   - "email: must be a well-formed email address"
-                  - "POST /api/users"
+                  - "GET /api/users?username=...&email=..."
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+          example:
+            timestamp: "2025-08-16T12:34:56Z"
+            code: "NOT_FOUND"
+            message: "리소스를 찾을 수 없습니다."
+            details: [ ]
     Conflict:
       description: Conflict
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
+          schema: { $ref: '#/components/schemas/ApiError' }
           example:
             timestamp: "2025-08-16T12:34:56Z"
             code: "CONFLICT"
@@ -276,8 +536,7 @@ components:
       description: Method Not Allowed
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
+          schema: { $ref: '#/components/schemas/ApiError' }
           example:
             timestamp: "2025-08-16T12:34:56Z"
             code: "METHOD_NOT_ALLOWED"
@@ -288,8 +547,7 @@ components:
       description: Internal Server Error
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
+          schema: { $ref: '#/components/schemas/ApiError' }
           example:
             timestamp: "2025-08-16T12:34:56Z"
             code: "INTERNAL_ERROR"

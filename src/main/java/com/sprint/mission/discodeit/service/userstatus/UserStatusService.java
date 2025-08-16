@@ -75,7 +75,7 @@ public class UserStatusService {
 
     @Transactional
     public void updateStatusByUserId(UUID userId, UserStatusUpdateRequest req) {
-        UserStatus us = userStatusRepository.findByUserId(userId).orElseGet(() -> new UserStatus(userId));
+        UserStatus us = userStatusRepository.getOrThrowByUserId(userId);
         update(us.getId(), u -> u.setType(req.userStatusType()));
     }
 

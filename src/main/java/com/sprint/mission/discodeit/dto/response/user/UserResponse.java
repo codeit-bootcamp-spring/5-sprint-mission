@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto.response.user;
 
+import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 
 import java.time.Instant;
@@ -16,4 +17,18 @@ public record UserResponse(
         UUID profileId,
         UserStatusType userStatusType
 ) {
+
+    public static UserResponse from(User user, UserStatusType status) {
+        return new UserResponse(
+                user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getGlobalName(),
+                user.getBio(),
+                user.getProfileId(),
+                status
+        );
+    }
 }
