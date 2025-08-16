@@ -1,0 +1,11 @@
+ApiError:
+  type: object
+  required: [ timestamp, code, message, details ]
+  properties:
+    timestamp: { type: string, format: date-time }
+    code: { type: string, example: "BAD_REQUEST" }
+    message: { type: string, example: "요청이 올바르지 않습니다." }
+    details:
+      type: array
+      items: { type: string }
+      description: 추가 정보(필드 에러, 경로, requestId 등)
