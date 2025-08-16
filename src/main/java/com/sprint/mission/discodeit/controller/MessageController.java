@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.channel.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.request.BinaryContentCreateRequest;
@@ -15,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -28,18 +26,14 @@ public class MessageController {
     private final MessageService messageService;
     private final ChannelService channelService;
 
-    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Message> createMessage(
             @RequestPart MessageCreateRequest messageCreateRequest,
             @RequestPart(name = "mediaContents", required = false) MultipartFile[] mediaContents
     ) throws IOException {
-        try {
-            List<BinaryContentCreateRequest> contentRequests = toBinaryContentRequests(mediaContents);
-            Message created = messageService.create(messageCreateRequest, contentRequests);
-            return ResponseEntity.status(201).body(created);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+        List<BinaryContentCreateRequest> contentRequests = toBinaryContentRequests(mediaContents);
+        Message created = messageService.create(messageCreateRequest, contentRequests);
+        return ResponseEntity.status(201).body(created);
     }
 
     private List<BinaryContentCreateRequest> toBinaryContentRequests(MultipartFile[] files) throws IOException {
@@ -49,17 +43,13 @@ public class MessageController {
 
         List<BinaryContentCreateRequest> result = new java.util.ArrayList<>(files.length);
         for (MultipartFile f : files) {
-            if (f == null || f.isEmpty()) {
-                continue;
-            }
-
+            if (f == null || f.isEmpty()) continue;
             result.add(new BinaryContentCreateRequest(
                     f.getOriginalFilename(),
                     f.getContentType(),
                     f.getBytes()
             ));
         }
-
         return result;
     }
 
@@ -68,26 +58,16 @@ public class MessageController {
             @PathVariable UUID messageId,
             @RequestBody MessageUpdateRequest messageUpdateRequest
     ) {
-        try {
-            Message message = messageService.update(messageId, messageUpdateRequest);
-            return ResponseEntity.ok(message);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Message message = messageService.update(messageId, messageUpdateRequest);
+        return ResponseEntity.ok(message);
     }
 
     @RequestMapping(value = "/{messageId}", method = DELETE)
-    public ResponseEntity<Message> deleteMessage(
+    public ResponseEntity<Void> deleteMessage(
             @PathVariable UUID messageId
     ) {
-        try {
-            messageService.delete(messageId);
-            return ResponseEntity.noContent().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+        messageService.delete(messageId);
+        return ResponseEntity.noContent().build();
     }
 
     @RequestMapping(value = "/channel/{channelId}", method = GET)
@@ -98,15 +78,11 @@ public class MessageController {
         return ResponseEntity.ok(messages);
     }
 
-    @RequestMapping(value = "/{messageID}", method = GET)
+    @RequestMapping(value = "/{messageId}", method = GET)
     public ResponseEntity<Message> getMessage(
-            @PathVariable UUID messageID
+            @PathVariable UUID messageId
     ) {
-        try {
-            Message message = messageService.find(messageID);
-            return ResponseEntity.ok(message);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+        Message message = messageService.find(messageId);
+        return ResponseEntity.ok(message);
     }
 }

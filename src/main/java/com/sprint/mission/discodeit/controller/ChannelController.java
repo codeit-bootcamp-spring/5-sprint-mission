@@ -5,15 +5,12 @@ import com.sprint.mission.discodeit.dto.channel.request.PrivateChannelCreateRequ
 import com.sprint.mission.discodeit.dto.channel.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.main.Channel;
-import com.sprint.mission.discodeit.entity.main.Message;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -46,26 +43,16 @@ public class ChannelController {
             @PathVariable UUID channelId,
             @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest
     ) {
-        try {
-            Channel channel = channelService.update(channelId, publicChannelUpdateRequest);
-            return ResponseEntity.ok(channel);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Channel channel = channelService.update(channelId, publicChannelUpdateRequest);
+        return ResponseEntity.ok(channel);
     }
 
     @RequestMapping(value = "/{channelId}", method = DELETE)
-    public ResponseEntity<Channel> deleteChannel(
+    public ResponseEntity<Void> deleteChannel(
             @PathVariable UUID channelId
     ) {
-        try {
-            channelService.delete(channelId);
-            return ResponseEntity.noContent().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+        channelService.delete(channelId);
+        return ResponseEntity.noContent().build();
     }
 
     @RequestMapping(value = "/user/{userId}", method = GET)
@@ -80,11 +67,8 @@ public class ChannelController {
     public ResponseEntity<ChannelDto> getChannel(
             @PathVariable UUID channelId
     ) {
-        try {
-            ChannelDto channelDto = channelService.find(channelId);
-            return ResponseEntity.ok(channelDto);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+        ChannelDto channelDto = channelService.find(channelId);
+        return ResponseEntity.ok(channelDto);
     }
 }
+

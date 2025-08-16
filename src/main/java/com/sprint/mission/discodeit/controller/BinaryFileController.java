@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.entity.sub.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,23 +18,12 @@ public class BinaryFileController {
 
     private final BinaryContentService binaryContentService;
 
-
-/*
-    @RequestMapping(value = "/{binaryContentId}", method = GET)
-    public ResponseEntity<BinaryContent> getBinaryContent(
-            @PathVariable("binaryContentId") UUID binaryContentId
-    ) {
-        BinaryContent binaryContent = binaryContentService.find(binaryContentId);
-        return ResponseEntity.ok(binaryContent);
-    }
-*/
-
     @RequestMapping(value = "/find", method = GET)
     public ResponseEntity<BinaryContent> getBinaryContentByParam(
             @RequestParam UUID binaryContentId
     ) {
         BinaryContent content = binaryContentService.find(binaryContentId);
-        return ResponseEntity.ok(content); // { id, filename, contentType, bytes(Base64) } 형태 JSON
+        return ResponseEntity.ok(content);
     }
 
     @RequestMapping(value = "/find", method = POST)
