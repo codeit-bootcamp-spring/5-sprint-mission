@@ -67,8 +67,8 @@ public class BasicReadStatusService implements ReadStatusService {
 
     @Override
     public void delete(UUID readStatusId) {
-        if(!readStatusRepository.existsById(readStatusId)){
-                throw new NoSuchElementException("ReadStatus not found with id " + readStatusId);
+        if (!readStatusRepository.existsById(readStatusId)) {
+            throw new NoSuchElementException("ReadStatus not found with id " + readStatusId);
         }
         readStatusRepository.deleteById(readStatusId);
     }

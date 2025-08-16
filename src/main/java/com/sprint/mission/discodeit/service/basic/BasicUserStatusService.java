@@ -1,12 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -32,7 +28,7 @@ public class BasicUserStatusService implements UserStatusService {
             throw new NoSuchElementException("User not found with id " + userId);
         }
         userStatusRepository.findByUserId(userId)
-                .orElseThrow(()->new IllegalArgumentException("userStatus has been already exists"));
+                .orElseThrow(() -> new IllegalArgumentException("userStatus has been already exists"));
 
         Instant lastActiveAt = Instant.now();
         UserStatus readStatus = new UserStatus(userId, lastActiveAt);
