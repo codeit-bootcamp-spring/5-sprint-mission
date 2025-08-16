@@ -42,8 +42,7 @@ public class BasicUserService implements UserService {
         User user = new User(userCreateRequest.username(), userCreateRequest.email(), userCreateRequest.password());
 
         if (binaryContentCreateRequest != null) {
-            BinaryContent profile = new BinaryContent(binaryContentCreateRequest.fileName(), binaryContentCreateRequest.contentType(),
-                    binaryContentCreateRequest.size(), binaryContentCreateRequest.binaryContent());
+            BinaryContent profile = new BinaryContent(binaryContentCreateRequest.fileName(), binaryContentCreateRequest.contentType(), binaryContentCreateRequest.binaryContent());
             user.updateProfile(profile.getId());
             binaryContentRepository.save(profile);
         }
@@ -75,8 +74,8 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
         if (binaryContentCreateRequest != null) {
-            BinaryContent profile = new BinaryContent(binaryContentCreateRequest.fileName(), binaryContentCreateRequest.contentType(),
-                    binaryContentCreateRequest.size(), binaryContentCreateRequest.binaryContent());
+            BinaryContent profile = new BinaryContent(binaryContentCreateRequest.fileName(), binaryContentCreateRequest.contentType()
+                    , binaryContentCreateRequest.binaryContent());
             user.updateProfile(profile.getId());
             binaryContentRepository.save(profile);
         }
