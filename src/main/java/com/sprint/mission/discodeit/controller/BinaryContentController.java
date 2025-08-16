@@ -4,37 +4,56 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import java.io.ByteArrayOutputStream;
 
+@RestController
 @RequiredArgsConstructor
-@Controller
-@ResponseBody
-@RequestMapping("/api/binary")
+@RequestMapping("/api/binaryContent")
 public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;
 
-    // [GET] 단건 다운로드
+    /**
+     * [GET] BinaryContent 단건 조회 (심화 요구사항)
+     * - URL: /api/binaryContent/find?binaryContentId=...
+     * - 응답: ResponseEntity<BinaryContent>
+     *   (bytes는 Base64로 직렬화되어 내려갑니다)
+     */
+    @RequestMapping(path = "find", method = RequestMethod.GET)
+    public ResponseEntity<BinaryContent> find(@RequestParam UUID binaryContentId) {
+        BinaryContent file = binaryContentService.find(binaryContentId);
+        return ResponseEntity.ok(file);
+    }
+
+    /**
+     * (유지) 단건 다운로드: Content-Disposition: attachment
+     */
     @RequestMapping(path = "download/{id}", method = RequestMethod.GET)
     public ResponseEntity<byte[]> downloadOne(@PathVariable("id") UUID id) {
         BinaryContent file = binaryContentService.find(id);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(file.getContentType()));
         headers.setContentDisposition(ContentDisposition.attachment()
                 .filename(file.getFileName(), StandardCharsets.UTF_8)
                 .build());
+
         return new ResponseEntity<>(file.getBytes(), headers, HttpStatus.OK);
     }
 
-    // [POST] 여러 건 다운로드 (zip)
-    @RequestMapping(path = "download", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    /**
+     * (유지) 여러 건 ZIP 다운로드
+     * - Body: [ "uuid1", "uuid2", ... ]
+     */
+    @RequestMapping(path = "download", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<byte[]> downloadMany(@RequestBody List<UUID> ids) {
         List<BinaryContent> files = binaryContentService.findAllByIdIn(ids);
 
@@ -53,6 +72,7 @@ public class BinaryContentController {
             headers.setContentDisposition(ContentDisposition.attachment()
                     .filename("files.zip", StandardCharsets.UTF_8)
                     .build());
+
             return new ResponseEntity<>(baos.toByteArray(), headers, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
