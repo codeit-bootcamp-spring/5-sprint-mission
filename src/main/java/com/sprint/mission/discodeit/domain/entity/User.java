@@ -25,13 +25,10 @@ public class User extends AbstractEntity {
 
     private String email;
     private String username;
-
     private String password;
-
     private LocalDate birthDate;
     private boolean subscribedToNewsletter;
     private String globalName;
-
     private String bio;
     private String phoneNumber;
 

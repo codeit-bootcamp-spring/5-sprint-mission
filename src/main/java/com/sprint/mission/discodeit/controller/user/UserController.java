@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,13 +45,29 @@ public class UserController {
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<UserResponse> findById(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok(userService.find(id));
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse find(@PathVariable("id") UUID id) {
+        return userService.find(id);
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> findAll() {
-        return ResponseEntity.ok(userService.findAll());
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserResponse> findAll(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email) {
+        if (username != null) {
+            return userService.findByUsername(username);
+        }
+        if (email != null) {
+            return userService.findByEmail(email);
+        }
+        return userService.findAll();
+    }
+
+    @DeleteMapping(path = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") UUID id) {
+        userService.deleteAccount(id);
     }
 
     @PatchMapping(path = "/{id}/profile-settings")
@@ -89,11 +106,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
-        userService.deleteAccount(id);
-        return ResponseEntity.noContent().build();
-    }
 
     @PutMapping(path = "/{id}/status")
     public ResponseEntity<Void> updateStatus(@PathVariable("id") UUID id,

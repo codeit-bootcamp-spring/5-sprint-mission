@@ -7,9 +7,9 @@ public record ApiError(
         Instant timestamp,
         String code,
         String message,
-        List<String> errors) {
+        List<String> details) {
 
-    public ApiError(String code, String message, List<String> errors) {
-        this(Instant.now(), code, message, errors);
+    public ApiError(String code, String message, List<String> details) {
+        this(Instant.now(), code, message, details);
     }
 }

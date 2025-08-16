@@ -3,7 +3,7 @@ info:
   title: Discodeit API
   version: "1.0.0"
 servers:
-  - url: /api/v1
+  - url: /api
 
 paths:
   /users:
@@ -40,17 +40,110 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
-  /ping:
     get:
-      tags: [ Health ]
-      summary: 핑
+      tags: [ Users ]
+      summary: 사용자 목록 조회
+      description: 모든 사용자를 조회하거나, username / email 조건으로 검색합니다.
+      parameters:
+        - in: query
+          name: username
+          schema:
+            type: string
+          required: false
+          description: username으로 사용자 검색
+        - in: query
+          name: email
+          schema:
+            type: string
+            format: email
+          required: false
+          description: email로 사용자 검색
       responses:
         '200':
           description: OK
           content:
-            text/plain:
-              schema: { type: string }
-              example: "pong"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /users/{id}:
+    get:
+      tags: [ Users ]
+      summary: 사용자 단건 조회
+      description: ID(UUID)로 사용자를 조회합니다.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 사용자 UUID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                timestamp: "2025-08-16T12:34:56Z"
+                code: "NOT_FOUND"
+                message: "사용자를 찾을 수 없습니다."
+                details:
+                  - "GET /api/users/{id}"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [ Users ]
+      summary: 사용자 삭제 (소프트 삭제)
+      description: |
+        사용자 계정을 소프트 삭제합니다.
+        또한 사용자가 **owner**인 길드를 소프트 삭제하고,
+        해당 사용자가 보낸/받은 **친구 요청**도 함께 소프트 삭제합니다.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 사용자 UUID
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                timestamp: "2025-08-16T12:34:56Z"
+                code: "NOT_FOUND"
+                message: "사용자를 찾을 수 없습니다."
+                details:
+                  - "DELETE /api/users/{id}"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
 components:
   schemas:
@@ -74,7 +167,7 @@ components:
           minLength: 2
           maxLength: 32
           pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
-          description: 대소문자 구분 없이 허용(서버에서 정규화)
+          description: 서버에서 strip+lowercase 정규화됨
         password:
           type: string
           minLength: 8
@@ -89,19 +182,59 @@ components:
 
     UserRegisterResponse:
       type: object
-      required: [ id, email, username ]
+      required: [ id, email, username, globalName ]
       properties:
-        id: { type: string, format: uuid }
-        email: { type: string, format: email, maxLength: 254 }
-        username: { type: string, maxLength: 32 }
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        username:
+          type: string
+          maxLength: 32
         globalName:
           type: string
           nullable: true
           maxLength: 32
 
+    UserResponse:
+      type: object
+      required: [ id, createdAt, updatedAt, email, username, globalName ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+          maxLength: 32
+        globalName:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        profileId:
+          type: string
+          format: uuid
+          nullable: true
+        userStatusType:
+          type: string
+          enum: [ ONLINE, OFFLINE, IDLE, DO_NOT_DISTURB ]
+
     ApiError:
       type: object
-      required: [ timestamp, code, message ]
+      required: [ timestamp, code, message, details ]
       properties:
         timestamp: { type: string, format: date-time }
         code: { type: string, example: "BAD_REQUEST" }
@@ -127,7 +260,7 @@ components:
                 message: "요청이 올바르지 않습니다."
                 details:
                   - "email: must be a well-formed email address"
-                  - "POST /api/v1/users"
+                  - "POST /api/users"
     Conflict:
       description: Conflict
       content:
@@ -150,7 +283,7 @@ components:
             code: "METHOD_NOT_ALLOWED"
             message: "허용되지 않은 메서드입니다."
             details:
-              - "PATCH /api/v1/users (allowed: [POST])"
+              - "PATCH /api/users (allowed: [POST])"
     InternalError:
       description: Internal Server Error
       content:

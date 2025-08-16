@@ -99,15 +99,31 @@ public class UserService {
                 .toList();
     }
 
+    public List<UserResponse> findByUsername(String username) {
+        String v = stripToLowerCase(username);
+        return userRepository.findByUsername(v)
+                .map(this::toResponse)
+                .map(List::of)
+                .orElse(List.of());
+    }
+
+    public List<UserResponse> findByEmail(String email) {
+        String v = stripToLowerCase(email);
+        return userRepository.findByEmail(v)
+                .map(this::toResponse)
+                .map(List::of)
+                .orElse(List.of());
+    }
+
     @Transactional
     public void deactivateAccount(UUID userId) {
-        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다: " + userId));
+        userRepository.getOrThrow(userId);
         update(userId, User::deactivate);
     }
 
     @Transactional
     public void deleteAccount(UUID userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다: " + userId));
+        User user = userRepository.getOrThrow(userId);
 
         guildRepository.findGuildsOwnedByUser(userId).forEach(g -> guildRepository.softDeleteById(g.getId()));
 

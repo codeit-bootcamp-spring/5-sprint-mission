@@ -30,16 +30,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
     public ResponseEntity<ApiError> handleBinding(BindException e, HttpServletRequest req) {
-        List<String> errors = bindingErrors(e);
-        log.warn("400(BINDING) {} {} -> {}", req.getMethod(), req.getRequestURI(), errors);
-        return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "요청이 올바르지 않습니다.", errors);
+        List<String> details = bindingErrors(e);
+        log.warn("400(BINDING) {} {} -> {}", req.getMethod(), req.getRequestURI(), details);
+        return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "요청이 올바르지 않습니다.", details);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiError> handleConstraintViolation(ConstraintViolationException e, HttpServletRequest req) {
-        List<String> errors = constraintErrors(e);
-        log.warn("400(CONSTRAINT) {} {} -> {}", req.getMethod(), req.getRequestURI(), errors);
-        return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "요청이 올바르지 않습니다.", errors);
+        List<String> details = constraintErrors(e);
+        log.warn("400(CONSTRAINT) {} {} -> {}", req.getMethod(), req.getRequestURI(), details);
+        return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "요청이 올바르지 않습니다.", details);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
