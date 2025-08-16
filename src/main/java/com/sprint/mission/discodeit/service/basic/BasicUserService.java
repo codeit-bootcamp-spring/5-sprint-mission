@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service.file;
+package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-public class FileUserService implements UserService {
+public class BasicUserService implements UserService {
     private final UserRepository userRepository;
 
-    public FileUserService(UserRepository userRepository) {
+    public BasicUserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -23,8 +23,8 @@ public class FileUserService implements UserService {
 
     @Override
     public User findById(UUID id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
+        return userRepository.findById(id).
+                orElseThrow(() -> new NoSuchElementException("User not found: " + id));
     }
 
     @Override
@@ -37,7 +37,7 @@ public class FileUserService implements UserService {
         validate(userDto);
         User user = findById(id);
         user.update(userDto.getName(), userDto.getNickname(), userDto.getPassword());
-        return userRepository.save(user);
+        return user;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class FileUserService implements UserService {
         if (userDto.getNickname() == null || userDto.getNickname().isBlank()) {
             throw new IllegalArgumentException("User nickname is required");
         }
-        if (userDto.getPassword() == null || userDto.getPassword().isBlank()) {
+         if (userDto.getPassword() == null || userDto.getPassword().isBlank()) {
             throw new IllegalArgumentException("User password is required");
         }
     }
