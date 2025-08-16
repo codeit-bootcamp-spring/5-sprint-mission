@@ -70,4 +70,8 @@ public class BinaryContentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    @RequestMapping(path = "findAll", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<BinaryContent>> findAll(@RequestBody List<UUID> ids) {
+        return ResponseEntity.ok(binaryContentService.findAllByIdIn(ids));
+    }
 }

@@ -24,12 +24,8 @@ public class UserController {
     private final UserService userService;
     private final UserStatusService userStatusService;
 
-    /**
-     * [POST] 사용자 등록 (심화 요구사항과 무관: 기존 그대로 유지)
-     * - multipart/form-data
-     * - @RequestPart("userCreateRequest") 에 JSON 문자열(또는 JSON Content-Type) 전달
-     * - @RequestPart(value="profile") 로 프로필 이미지(선택)
-     */
+    // [POST] 사용자 등록
+
     @RequestMapping(path = "create", method = RequestMethod.POST,
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<User> create(
@@ -49,13 +45,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    /**
-     * [PUT] 사용자 정보 수정 (선택: 프로필 교체 가능)
-     * - multipart/form-data
-     * - @PathVariable userId
-     * - @RequestPart("userUpdateRequest") JSON
-     * - @RequestPart(value="profile") 파일(옵션)
-     */
+    // [PUT] 사용자 정보 수정 (선택: 프로필 교체 가능)
+
     @RequestMapping(path = "update/{userId}", method = RequestMethod.PUT,
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<User> update(
@@ -75,35 +66,24 @@ public class UserController {
         return ResponseEntity.ok(updated);
     }
 
-    /**
-     * [DELETE] 사용자 삭제
-     */
+    // [DELETE] 사용자 삭제
+
     @RequestMapping(path = "delete/{userId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
         userService.delete(userId);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * [GET] 사용자 목록 조회 (심화 요구사항)
-     * - URL: /api/user/findAll
-     * - 파라미터/바디 없음
-     * - 응답: ResponseEntity<List<UserDto>>
-     *   record UserDto(UUID id, Instant createdAt, Instant updatedAt, String username,
-     *                  String email, UUID profileId, Boolean online)
-     */
+    // [GET] 사용자 목록 조회 (심화 요구사항)
+
     @RequestMapping(path = "findAll", method = RequestMethod.GET)
     public ResponseEntity<List<UserDto>> findAll() {
         List<UserDto> users = userService.findAll();
         return ResponseEntity.ok(users);
     }
 
-    /**
-     * [PATCH] 사용자의 온라인 상태 업데이트
-     * - URL: /api/user/status/update/{userId}
-     * - Body: UserStatusUpdateRequest
-     * - 응답: 204 No Content
-     */
+    //[PATCH] 사용자의 온라인 상태 업데이트
+
     @RequestMapping(path = "status/update/{userId}", method = RequestMethod.PATCH,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateStatus(
