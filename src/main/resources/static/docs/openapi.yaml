@@ -1,0 +1,164 @@
+openapi: 3.0.3
+info:
+  title: Discodeit API
+  version: "1.0.0"
+servers:
+  - url: /api/v1
+
+paths:
+  /users:
+    post:
+      tags: [ Users ]
+      summary: 사용자 등록
+      description: 새 사용자를 등록합니다. 성공 시 201과 함께 생성된 사용자 정보를 반환합니다. 이 엔드포인트는 인증이 필요하지 않습니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+            example:
+              email: alice@example.com
+              globalName: Alice Kim
+              username: alice.k
+              password: P@ssw0rd123
+              birthDate: '2001-05-10'
+              subscribedToNewsletter: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegisterResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /ping:
+    get:
+      tags: [ Health ]
+      summary: 핑
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema: { type: string }
+              example: "pong"
+
+components:
+  schemas:
+    UserRegisterRequest:
+      type: object
+      required: [ email, username, password, birthDate ]
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 6
+          maxLength: 254
+          description: 서버에서 strip+lowercase 정규화됨
+        globalName:
+          type: string
+          nullable: true
+          maxLength: 32
+          description: 빈 문자열은 서버에서 null로 처리됨
+        username:
+          type: string
+          minLength: 2
+          maxLength: 32
+          pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
+          description: 대소문자 구분 없이 허용(서버에서 정규화)
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+          description: 서버에서 해시 저장됨
+        birthDate:
+          type: string
+          format: date
+        subscribedToNewsletter:
+          type: boolean
+          default: false
+
+    UserRegisterResponse:
+      type: object
+      required: [ id, email, username ]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email, maxLength: 254 }
+        username: { type: string, maxLength: 32 }
+        globalName:
+          type: string
+          nullable: true
+          maxLength: 32
+
+    ApiError:
+      type: object
+      required: [ timestamp, code, message ]
+      properties:
+        timestamp: { type: string, format: date-time }
+        code: { type: string, example: "BAD_REQUEST" }
+        message: { type: string, example: "요청이 올바르지 않습니다." }
+        details:
+          type: array
+          items: { type: string }
+          description: 추가 정보(필드 에러, 경로, requestId 등)
+
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          examples:
+            validation:
+              summary: 유효성 검증 실패
+              value:
+                timestamp: "2025-08-16T12:34:56Z"
+                code: "BAD_REQUEST"
+                message: "요청이 올바르지 않습니다."
+                details:
+                  - "email: must be a well-formed email address"
+                  - "POST /api/v1/users"
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            timestamp: "2025-08-16T12:34:56Z"
+            code: "CONFLICT"
+            message: "이미 사용 중인 이메일 또는 사용자명입니다."
+            details: [ ]
+    MethodNotAllowed:
+      description: Method Not Allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            timestamp: "2025-08-16T12:34:56Z"
+            code: "METHOD_NOT_ALLOWED"
+            message: "허용되지 않은 메서드입니다."
+            details:
+              - "PATCH /api/v1/users (allowed: [POST])"
+    InternalError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            timestamp: "2025-08-16T12:34:56Z"
+            code: "INTERNAL_ERROR"
+            message: "서버 오류가 발생했습니다."
+            details: [ ]

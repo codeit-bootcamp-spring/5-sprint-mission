@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
-import com.sprint.mission.discodeit.dto.response.BinaryContentResponse;
+import com.sprint.mission.discodeit.dto.response.binarycontent.BinaryContentResponse;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

@@ -8,8 +8,10 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+import static java.time.Instant.now;
+
 @Getter
-public class UserStatus extends BaseEntity {
+public class UserStatus extends AbstractEntity {
 
     private static final Duration ONLINE_THRESHOLD = Duration.ofMinutes(5);
 

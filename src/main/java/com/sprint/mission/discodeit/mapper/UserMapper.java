@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
-import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

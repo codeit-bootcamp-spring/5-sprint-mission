@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import com.sprint.mission.discodeit.util.Validators;
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.mindrot.jbcrypt.BCrypt;
+import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -11,26 +11,34 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-import static com.sprint.mission.discodeit.util.StringUtil.normalizeString;
+import static com.sprint.mission.discodeit.support.StringUtil.digitsOnlyOrNull;
+import static com.sprint.mission.discodeit.support.StringUtil.normalizeEmail;
+import static com.sprint.mission.discodeit.support.StringUtil.normalizeUsername;
+import static com.sprint.mission.discodeit.support.StringUtil.stripOrNull;
 
 @Getter
-public class User extends BaseEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class User extends AbstractEntity {
 
     private String email;
+    private String username;
 
-    @Getter(AccessLevel.NONE)
     private String password;
 
-    private String username;
-    private String globalName;
     private LocalDate birthDate;
     private boolean subscribedToNewsletter;
+    private String globalName;
+
     private String bio;
     private String phoneNumber;
+
     private boolean verified;
     private boolean deactivated;
     private boolean banned;
+
     private UUID profileId;
 
     private final Set<UUID> friendIds = new HashSet<>();
@@ -45,152 +53,95 @@ public class User extends BaseEntity {
             boolean subscribedToNewsletter,
             String globalName
     ) {
-        this.email = Validators.validateEmail(email);
-        this.username = Validators.validateUsername(username);
-        this.password = BCrypt.hashpw(Validators.validatePassword(password), BCrypt.gensalt());
+        this.email = normalizeEmail(Objects.requireNonNull(email, "email must not be null"));
+        this.username = normalizeUsername(Objects.requireNonNull(username, "username must not be null"));
+        this.password = Objects.requireNonNull(password, "password must not be null");
         this.birthDate = Objects.requireNonNull(birthDate, "birthDate must not be null");
         this.subscribedToNewsletter = subscribedToNewsletter;
-
-        String n = normalizeString(globalName);
-        this.globalName = n.isBlank() ? this.username : Validators.validateGlobalName(n);
+        this.globalName = stripOrNull(globalName);
     }
 
-    public void setEmail(String email) {
-        String v = Validators.validateEmail(email);
-        if (!Objects.equals(this.email, v)) {
-            this.email = v;
+    public void changeEmail(String email) {
+        String v = normalizeEmail(Objects.requireNonNull(email, "email must not be null"));
+        assignIfChanged(v, () -> this.email, x -> this.email = x);
+    }
+
+    public void changeUsername(String username) {
+        String v = normalizeUsername(Objects.requireNonNull(username, "username must not be null"));
+        assignIfChanged(v, () -> this.username, x -> this.username = x);
+    }
+
+    public void changePassword(String password) {
+        String v = Objects.requireNonNull(password, "password must not be null");
+        assignIfChanged(v, () -> this.password, x -> this.password = x);
+    }
+
+    public boolean matchesPassword(String raw, PasswordEncoder encoder) {
+        return encoder.matches(raw, this.password);
+    }
+
+    public void changeGlobalName(String globalName) {
+        String v = (globalName == null || globalName.isBlank()) ? null : globalName.strip();
+        assignIfChanged(v, () -> this.globalName, x -> this.globalName = x);
+    }
+
+    public void changeBirthDate(LocalDate birthDate) {
+        LocalDate v = Objects.requireNonNull(birthDate, "birthDate must not be null");
+        assignIfChanged(v, () -> this.birthDate, x -> this.birthDate = x);
+    }
+
+    public void changeBio(String bio) {
+        String v = stripOrNull(bio);
+        assignIfChanged(v, () -> this.bio, x -> this.bio = x);
+    }
+
+    public void changePhoneNumber(String phoneNumber) {
+        String v = digitsOnlyOrNull(phoneNumber);
+        assignIfChanged(v, () -> this.phoneNumber, x -> this.phoneNumber = x);
+    }
+
+    public void clearPhoneNumber() {
+        clearIfPresent(() -> this.phoneNumber, () -> this.phoneNumber = null);
+    }
+
+    public void setSubscribedToNewsletter(boolean subscribed) {
+        if (this.subscribedToNewsletter != subscribed) {
+            this.subscribedToNewsletter = subscribed;
             touch();
         }
     }
 
-    public void setPassword(String password) {
-        String hashed = BCrypt.hashpw(Validators.validatePassword(password), BCrypt.gensalt());
-        if (!hashed.equals(this.password)) {
-            this.password = hashed;
-            touch();
-        }
+    public void changeProfileId(UUID profileId) {
+        UUID v = Objects.requireNonNull(profileId, "profileId must not be null");
+        assignIfChanged(v, () -> this.profileId, x -> this.profileId = x);
     }
 
-    protected void setPasswordHash(String bcryptHash) {
-        Objects.requireNonNull(bcryptHash, "bcryptHash must not be null");
-        if (!bcryptHash.startsWith("$2a$") && !bcryptHash.startsWith("$2b$") && !bcryptHash.startsWith("$2y$")) {
-            throw new IllegalArgumentException("유효한 bcrypt 해시가 아닙니다.");
-        }
-        if (!bcryptHash.equals(this.password)) {
-            this.password = bcryptHash;
-            touch();
-        }
-    }
-
-    public boolean checkPassword(String password) {
-        return password != null && BCrypt.checkpw(password, this.password);
-    }
-
-    public void setUsername(String username) {
-        String v = Validators.validateUsername(username);
-        if (!Objects.equals(this.username, v)) {
-            this.username = v;
-            if (this.globalName == null || this.globalName.isBlank() || this.globalName.equals(this.username)) {
-                this.globalName = v;
-            }
-            touch();
-        }
-    }
-
-    public void setGlobalName(String globalName) {
-        String n = normalizeString(globalName);
-        String v = n.isBlank() ? this.username : Validators.validateGlobalName(n);
-        if (Objects.equals(this.globalName, v)) return;
-        this.globalName = v;
-        touch();
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        Objects.requireNonNull(birthDate, "birthDate must not be null");
-        if (!Objects.equals(this.birthDate, birthDate)) {
-            this.birthDate = birthDate;
-            touch();
-        }
-    }
-
-    public void setBio(String bio) {
-        String v = Validators.validateBio(bio);
-        if (!Objects.equals(this.bio, v)) {
-            this.bio = v;
-            touch();
-        }
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        String v = Validators.validatePhoneNumber(phoneNumber);
-        if (!Objects.equals(this.phoneNumber, v)) {
-            this.phoneNumber = v;
-            touch();
-        }
-    }
-
-    public void setSubscribedToNewsletter(boolean subscribedToNewsletter) {
-        if (this.subscribedToNewsletter != subscribedToNewsletter) {
-            this.subscribedToNewsletter = subscribedToNewsletter;
-            touch();
-        }
-    }
-
-    public void setProfileId(UUID profileId) {
-        Objects.requireNonNull(profileId, "profileId must not be null");
-        if (!Objects.equals(this.profileId, profileId)) {
-            this.profileId = profileId;
-            touch();
-        }
-    }
-
-    public void clearProfile() {
-        if (this.profileId != null) {
-            this.profileId = null;
-            touch();
-        }
+    public void clearProfileId() {
+        clearIfPresent(() -> this.profileId, () -> this.profileId = null);
     }
 
     public void verify() {
-        if (!this.verified) {
-            this.verified = true;
-            touch();
-        }
+        setFlagIfNeeded(true, () -> this.verified, x -> this.verified = x);
     }
 
     public void unverify() {
-        if (this.verified) {
-            this.verified = false;
-            touch();
-        }
+        setFlagIfNeeded(false, () -> this.verified, x -> this.verified = x);
     }
 
     public void deactivate() {
-        if (!this.deactivated) {
-            this.deactivated = true;
-            touch();
-        }
+        setFlagIfNeeded(true, () -> this.deactivated, x -> this.deactivated = x);
     }
 
     public void activate() {
-        if (this.deactivated) {
-            this.deactivated = false;
-            touch();
-        }
+        setFlagIfNeeded(false, () -> this.deactivated, x -> this.deactivated = x);
     }
 
     public void ban() {
-        if (!this.banned) {
-            this.banned = true;
-            touch();
-        }
+        setFlagIfNeeded(true, () -> this.banned, x -> this.banned = x);
     }
 
     public void unban() {
-        if (this.banned) {
-            this.banned = false;
-            touch();
-        }
+        setFlagIfNeeded(false, () -> this.banned, x -> this.banned = x);
     }
 
     public boolean isActive() {
@@ -257,7 +208,29 @@ public class User extends BaseEntity {
 
     @Override
     public String toString() {
-        return "User[id=%s, email=%s, username=%s, isActive=%s]"
-                .formatted(getId(), email, username, isActive());
+        return "User[id=%s, email=%s, username=%s, globalName=%s, active=%s]"
+                .formatted(getId(), email, username, globalName, isActive());
+    }
+
+    private <T> void assignIfChanged(T newValue, Supplier<T> getter, Consumer<T> writer) {
+        T current = getter.get();
+        if (!Objects.equals(current, newValue)) {
+            writer.accept(newValue);
+            touch();
+        }
+    }
+
+    private void clearIfPresent(Supplier<?> getter, Runnable clearer) {
+        if (getter.get() != null) {
+            clearer.run();
+            touch();
+        }
+    }
+
+    private void setFlagIfNeeded(boolean desired, Supplier<Boolean> getter, Consumer<Boolean> setter) {
+        if (getter.get() != desired) {
+            setter.accept(desired);
+            touch();
+        }
     }
 }

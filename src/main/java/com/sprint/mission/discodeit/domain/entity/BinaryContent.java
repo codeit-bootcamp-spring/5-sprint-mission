@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Getter
-public class BinaryContent extends BaseEntity {
+public class BinaryContent extends AbstractEntity {
 
     private static final String IMAGE_PNG = "image/png";
     private static final String IMAGE_JPEG = "image/jpeg";

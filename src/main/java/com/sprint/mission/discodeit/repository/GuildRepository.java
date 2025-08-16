@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.domain.entity.Guild;
 import java.util.List;
 import java.util.UUID;
 
-public interface GuildRepository extends BaseRepository<Guild> {
+public interface GuildRepository extends AbstractRepository<Guild> {
 
     List<Guild> findDiscoverableGuilds();
 

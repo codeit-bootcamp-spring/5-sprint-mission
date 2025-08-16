@@ -6,3 +6,8 @@ server:
   shutdown: graceful
   compression:
     enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /docs
+    url: /docs/openapi.yaml

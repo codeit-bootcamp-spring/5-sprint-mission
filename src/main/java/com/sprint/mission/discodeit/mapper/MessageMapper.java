@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.domain.entity.Message;
-import com.sprint.mission.discodeit.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

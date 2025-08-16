@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Getter
-public class ReadStatus extends BaseEntity {
+public class ReadStatus extends AbstractEntity {
 
     private final UUID userId;
     private final UUID channelId;

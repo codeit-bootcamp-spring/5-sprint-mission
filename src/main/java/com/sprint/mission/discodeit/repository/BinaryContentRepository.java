@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import java.util.List;
 import java.util.Optional;
 
-public interface BinaryContentRepository extends BaseRepository<BinaryContent> {
+public interface BinaryContentRepository extends AbstractRepository<BinaryContent> {
 
     Optional<BinaryContent> findBySha256(String sha256);
 

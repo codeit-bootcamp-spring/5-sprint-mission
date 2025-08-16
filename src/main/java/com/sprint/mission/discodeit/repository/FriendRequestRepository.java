@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.domain.entity.FriendRequest;
 import java.util.List;
 import java.util.UUID;
 
-public interface FriendRequestRepository extends BaseRepository<FriendRequest> {
+public interface FriendRequestRepository extends AbstractRepository<FriendRequest> {
 
     List<FriendRequest> findAllBySenderId(UUID senderId);
 

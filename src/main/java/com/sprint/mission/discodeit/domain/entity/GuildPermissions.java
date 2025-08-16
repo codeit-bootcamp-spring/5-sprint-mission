@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Getter
 @EqualsAndHashCode(of = "guildPermissionsId", callSuper = false)
-public class GuildPermissions extends BaseEntity {
+public class GuildPermissions extends AbstractEntity {
 
     private final GuildPermissionsId guildPermissionsId;
 

@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Getter
-public class FriendRequest extends BaseEntity {
+public class FriendRequest extends AbstractEntity {
 
     private final UUID senderId;
     private final UUID receiverId;

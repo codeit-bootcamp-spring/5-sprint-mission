@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import com.sprint.mission.discodeit.util.Validators;
+import com.sprint.mission.discodeit.support.Validators;
 import lombok.Getter;
 
 import java.util.Collection;
@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Getter
-public class Message extends BaseEntity {
+public class Message extends AbstractEntity {
 
     private final UUID channelId;
     private final UUID authorId;

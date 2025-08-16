@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.domain.entity.FriendRequest;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.dto.response.FriendRequestResponse;
+import com.sprint.mission.discodeit.dto.response.friendrequest.FriendRequestResponse;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.domain.entity;
 
 import com.sprint.mission.discodeit.domain.enums.Permission;
-import com.sprint.mission.discodeit.util.Validators;
 import lombok.Getter;
 
 import java.util.Collections;
@@ -13,7 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Getter
-public class Guild extends BaseEntity {
+public class Guild extends AbstractEntity {
 
     private static final Set<Permission> DEFAULT_PERMISSIONS =
             Collections.unmodifiableSet(EnumSet.of(Permission.READ_MESSAGES, Permission.SEND_MESSAGES));
@@ -36,9 +35,8 @@ public class Guild extends BaseEntity {
     }
 
     public void setName(String name) {
-        String v = Validators.validateGuildName(name);
-        if (!Objects.equals(this.name, v)) {
-            this.name = v;
+        if (!Objects.equals(this.name, name)) {
+            this.name = name;
             touch();
         }
     }

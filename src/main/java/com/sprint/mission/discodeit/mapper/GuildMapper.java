@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.entity.GuildPermissions;
-import com.sprint.mission.discodeit.dto.response.GuildPermissionsResponse;
-import com.sprint.mission.discodeit.dto.response.GuildResponse;
+import com.sprint.mission.discodeit.dto.response.guild.GuildPermissionsResponse;
+import com.sprint.mission.discodeit.dto.response.guild.GuildResponse;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

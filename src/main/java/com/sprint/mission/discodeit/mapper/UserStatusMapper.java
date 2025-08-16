@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
-import com.sprint.mission.discodeit.dto.response.UserStatusResponse;
+import com.sprint.mission.discodeit.dto.response.userstatus.UserStatusResponse;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.entity;
 
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
-import com.sprint.mission.discodeit.util.Validators;
+import com.sprint.mission.discodeit.support.Validators;
 import lombok.Getter;
 
 import java.util.Collection;
@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Getter
-public class Channel extends BaseEntity {
+public class Channel extends AbstractEntity {
 
     private static final int DM_MIN = 2;
     private static final int DM_MAX = 10;
@@ -138,7 +138,7 @@ public class Channel extends BaseEntity {
             touch();
         }
     }
-    
+
     public void addMessage(UUID messageId) {
         if (memberIds.add(requireMessageId(messageId))) {
             touch();

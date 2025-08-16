@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.domain.entity.User;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepository extends BaseRepository<User> {
+public interface UserRepository extends AbstractRepository<User> {
 
     Optional<User> findByEmail(String email);
 
@@ -15,9 +15,15 @@ public interface UserRepository extends BaseRepository<User> {
 
     boolean existsByUsername(String username);
 
-    List<User> searchByEmail(String email);
+    List<User> searchByEmailKeyword(String keyword);
 
-    List<User> searchByUsername(String username);
+    List<User> searchByUsernameKeyword(String keyword);
 
-    List<User> searchByGlobalName(String globalName);
+    List<User> searchByGlobalNameKeyword(String keyword);
+
+    List<User> searchByEmailPrefix(String prefix);
+
+    List<User> searchByUsernamePrefix(String prefix);
+
+    List<User> searchByGlobalNamePrefix(String prefix);
 }

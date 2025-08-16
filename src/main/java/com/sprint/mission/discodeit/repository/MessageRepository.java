@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public interface MessageRepository extends BaseRepository<Message> {
+public interface MessageRepository extends AbstractRepository<Message> {
 
     List<Message> findAllByChannelId(UUID channelId);
 
