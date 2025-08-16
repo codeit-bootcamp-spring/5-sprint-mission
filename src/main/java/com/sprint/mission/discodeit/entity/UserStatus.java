@@ -1,35 +1,46 @@
 package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
-import lombok.ToString;
 
-import java.io.Serial;
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
-@ToString
 public class UserStatus implements Serializable {
-
-    @Serial
     private static final long serialVersionUID = 1L;
 
-    private final UUID id;
-    private final Instant createdAt;
-    private Instant updatedAt; // 마지막 접속 시간
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
+    private UUID userId;
+    private Instant lastActiveAt;
 
-    private boolean isLoggedIn; // 현재 상태(과연 이게 필요한가)
-    private final UUID userId;
-
-    public UserStatus(UUID userId) {
+    public UserStatus(UUID userId, Instant lastActiveAt) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
-        this.isLoggedIn = true;
+        //
         this.userId = userId;
+        this.lastActiveAt = lastActiveAt;
     }
 
-    public void update() {
-        this.updatedAt = Instant.now();
+    public void update(Instant lastActiveAt) {
+        boolean anyValueUpdated = false;
+        if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+            this.lastActiveAt = lastActiveAt;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
+    }
+
+    public Boolean isOnline() {
+        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
+
+        return lastActiveAt.isAfter(instantFiveMinutesAgo);
     }
 }
