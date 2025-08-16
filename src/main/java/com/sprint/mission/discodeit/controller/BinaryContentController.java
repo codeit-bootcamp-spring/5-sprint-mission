@@ -20,21 +20,16 @@ public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;
 
-    /**
-     * [GET] BinaryContent 단건 조회 (심화 요구사항)
-     * - URL: /api/binaryContent/find?binaryContentId=...
-     * - 응답: ResponseEntity<BinaryContent>
-     *   (bytes는 Base64로 직렬화되어 내려갑니다)
-     */
+    // [GET] BinaryContent 단건 조회 (심화 요구사항)
+
     @RequestMapping(path = "find", method = RequestMethod.GET)
     public ResponseEntity<BinaryContent> find(@RequestParam UUID binaryContentId) {
         BinaryContent file = binaryContentService.find(binaryContentId);
         return ResponseEntity.ok(file);
     }
 
-    /**
-     * (유지) 단건 다운로드: Content-Disposition: attachment
-     */
+    // 단건 다운로드: Content-Disposition: attachment
+
     @RequestMapping(path = "download/{id}", method = RequestMethod.GET)
     public ResponseEntity<byte[]> downloadOne(@PathVariable("id") UUID id) {
         BinaryContent file = binaryContentService.find(id);
@@ -48,10 +43,7 @@ public class BinaryContentController {
         return new ResponseEntity<>(file.getBytes(), headers, HttpStatus.OK);
     }
 
-    /**
-     * (유지) 여러 건 ZIP 다운로드
-     * - Body: [ "uuid1", "uuid2", ... ]
-     */
+    //  여러 건 ZIP 다운로드
     @RequestMapping(path = "download", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<byte[]> downloadMany(@RequestBody List<UUID> ids) {
