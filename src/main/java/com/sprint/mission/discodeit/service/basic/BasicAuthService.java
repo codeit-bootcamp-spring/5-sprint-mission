@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.auth.LoginRequest;
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
@@ -10,16 +10,22 @@ import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
-@Service("BasicAuthService")
+@Service
 public class BasicAuthService implements AuthService {
     private final UserRepository userRepository;
 
     @Override
-    public User login(LoginRequest request) {
-        return userRepository.findAll().stream()
-                .filter(user -> user.getUsername().equals(request.getUsername()) &&
-                        user.getPassword().equals(request.getPassword()))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Invalid username or password"));
+    public User login(LoginRequest loginRequest) {
+        String username = loginRequest.username();
+        String password = loginRequest.password();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("User with username " + username + " not found"));
+
+        if (!user.getPassword().equals(password)) {
+            throw new IllegalArgumentException("Wrong password");
+        }
+
+        return user;
     }
 }
