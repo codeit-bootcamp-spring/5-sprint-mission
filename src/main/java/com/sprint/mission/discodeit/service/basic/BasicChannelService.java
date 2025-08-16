@@ -40,7 +40,7 @@ public class BasicChannelService implements ChannelService {
         Channel createChannel = channelRepository.save(channel);
 
         privateChannelCreateRequest.participantIds().stream()
-                .map(userId -> new ReadStatus(userId, channel.getId()))
+                .map(userId -> new ReadStatus(userId, channel.getId(), Instant.MIN))
                 .forEach(readStatusRepository::save);
         return createChannel;
     }
