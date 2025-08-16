@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -44,17 +45,24 @@ public class BasicReadStatusService implements ReadStatusService {
 
     @Override
     public ReadStatus find(UUID readStatusId) {
-        return null;
+        return readStatusRepository.findById(readStatusId)
+                .orElseThrow(() -> new NoSuchElementException("ReadStatus not found with id " + readStatusId));
     }
 
     @Override
     public List<ReadStatus> findAllByUserId(UUID userId) {
-        return List.of();
+        return readStatusRepository.findByUserId(userId);
     }
 
     @Override
-    public ReadStatus update() {
-        return null;
+    public ReadStatus update(UUID readStatusId, ReadStatusUpdateRequest readStatusUpdateRequest) {
+        Instant newLastReadAt = readStatusUpdateRequest.newLastReadAt();
+
+        ReadStatus readStatus = readStatusRepository.findById(readStatusId)
+                .orElseThrow(() -> new NoSuchElementException("ReadStatus not found with id " + readStatusId));
+
+        readStatus.updateReadStatus(newLastReadAt);
+        return readStatusRepository.save(readStatus);
     }
 
     @Override
