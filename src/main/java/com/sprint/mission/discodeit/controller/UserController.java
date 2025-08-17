@@ -49,6 +49,13 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    // 특정 사용자 조회
+    @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<UserResponse> getUser(@PathVariable UUID userId) {
+        UserResponse user = userService.find(userId);
+        return ResponseEntity.ok(user);
+    }
+
     // 사용자 정보 수정
     @RequestMapping(value = "/{userId}", method = RequestMethod.PUT)
     public ResponseEntity<UserResponse> updateUser(@PathVariable UUID userId, @RequestBody UserUpdateRequest request) {

@@ -2,21 +2,31 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-@SuperBuilder
 @Getter
 @Setter
-public class ReadStatus extends BaseEntity {
+public class ReadStatus extends BaseEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
     private UUID userId;
     private UUID channelId;
     private Instant lastReadAt;
 
-    
+    // Simple constructor for testing serialization
+    public ReadStatus() {
+        super();
+    }
+
+    public ReadStatus(UUID id, Instant createdAt, Instant updatedAt, UUID userId, UUID channelId, Instant lastReadAt) {
+        super(id, createdAt, updatedAt);
+        this.userId = userId;
+        this.channelId = channelId;
+        this.lastReadAt = lastReadAt;
+    }
 
     @Override
     public boolean equals(Object o) {

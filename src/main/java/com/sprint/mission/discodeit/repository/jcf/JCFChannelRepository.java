@@ -10,8 +10,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Profile;
+
+@Repository
+@Profile("test")
 public class JCFChannelRepository implements ChannelRepository {
-    private final Map<UUID, Channel> data = new ConcurrentHashMap<>();
+    private static final Map<UUID, Channel> data = new ConcurrentHashMap<>();
 
     @Override
     public Channel save(Channel channel) {
@@ -37,7 +42,7 @@ public class JCFChannelRepository implements ChannelRepository {
     @Override
     public Optional<Channel> findByChannelName(String channelName) {
         return data.values().stream()
-                .filter(channel -> channel.getChannelName().equals(channelName))
+                .filter(channel -> channel.getChannelName() != null && channel.getChannelName().equals(channelName))
                 .findFirst();
     }
 

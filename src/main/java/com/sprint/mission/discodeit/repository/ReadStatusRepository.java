@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface ReadStatusRepository extends Repository<ReadStatus, UUID> {
     List<ReadStatus> findAllByUserId(UUID userId);
+    List<ReadStatus> findAllByChannelId(UUID channelId);
 }

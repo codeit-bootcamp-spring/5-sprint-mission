@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @Getter
 @Setter
 public class UserStatus extends BaseEntity implements java.io.Serializable {

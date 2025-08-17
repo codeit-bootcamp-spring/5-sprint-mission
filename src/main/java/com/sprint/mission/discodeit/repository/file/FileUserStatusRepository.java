@@ -4,21 +4,23 @@ import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.FileInitializationException;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Profile;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Repository;
 import org.springframework.context.annotation.Primary;
 
 @Repository
 @Primary
+@Profile("file")
 public class FileUserStatusRepository implements UserStatusRepository {
 
     private final Path DIRECTORY;
@@ -42,11 +44,15 @@ public class FileUserStatusRepository implements UserStatusRepository {
     @Override
     public UserStatus save(UserStatus userStatus) {
         Path path = resolvePath(userStatus.getId());
-        try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
-        ) {
+        Path tempPath = DIRECTORY.resolve(UUID.randomUUID().toString() + EXTENSION + ".tmp"); // Temporary file
+
+        try {
+            FileOutputStream fos = new FileOutputStream(tempPath.toFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(userStatus);
+            oos.flush(); // Explicitly flush
+            oos.close(); // Explicitly close
+            fos.close(); // Explicitly close
         } catch (IOException e) {
             throw new FileInitializationException("Failed to save userStatus: " + userStatus.getId(), e);
         }
@@ -89,6 +95,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
         ) {
             return (UserStatus) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error reading user status file: " + path + " - " + e.getMessage());
             throw new FileInitializationException("Failed to read userStatus file: " + path, e);
         }
     }

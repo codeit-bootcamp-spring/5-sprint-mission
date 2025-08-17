@@ -10,8 +10,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Profile;
+
+@Repository
+@Profile("test")
 public class JCFUserRepository implements UserRepository {
-    private final Map<UUID, User> data = new ConcurrentHashMap<>();
+    private static final Map<UUID, User> data = new ConcurrentHashMap<>();
 
     @Override
     public User save(User user) {

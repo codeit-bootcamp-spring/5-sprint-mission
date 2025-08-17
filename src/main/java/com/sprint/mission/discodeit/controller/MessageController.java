@@ -18,7 +18,7 @@ public class MessageController {
 
     private final MessageService messageService;
 
-    public MessageController(@Qualifier("basicMessageService") MessageService messageService) {
+    public MessageController(@Qualifier("fileMessageService") MessageService messageService) {
         this.messageService = messageService;
     }
 
@@ -26,6 +26,7 @@ public class MessageController {
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<MessageResponse> createMessage(@RequestBody MessageCreateRequest request) {
         MessageResponse response = messageService.create(request);
+        System.out.println("MessageController: Message ID before returning: " + response.getId());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

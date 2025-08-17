@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Profile;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -10,11 +11,13 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption; // Added import
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
+@Profile("file")
 public class FileMessageRepository implements MessageRepository {
 
     private final Path DIRECTORY;
@@ -38,11 +41,14 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public Message save(Message message) {
         Path path = resolvePath(message.getId());
+        Path tempPath = DIRECTORY.resolve(UUID.randomUUID().toString() + EXTENSION + ".tmp"); // Temporary file
+
         try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
+                FileOutputStream fos = new FileOutputStream(tempPath.toFile());
                 ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(message);
+            Files.move(tempPath, path, StandardCopyOption.REPLACE_EXISTING); // Atomically replace the original file
         } catch (IOException e) {
             throw new FileInitializationException("Failed to save message: " + message.getId(), e);
         }

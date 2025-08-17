@@ -38,13 +38,14 @@ public class BasicReadStatusService implements ReadStatusService {
             throw new IllegalArgumentException("ReadStatus for user " + request.getUserId() + " and channel " + request.getChannelId() + " already exists.");
         }
 
-        ReadStatus readStatus = ReadStatus.builder()
-                .userId(request.getUserId())
-                .channelId(request.getChannelId())
-                .lastReadAt(request.getLastReadAt())
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .build();
+        ReadStatus readStatus = new ReadStatus(
+                UUID.randomUUID(),
+                Instant.now(),
+                Instant.now(),
+                request.getUserId(),
+                request.getChannelId(),
+                request.getLastReadAt()
+        );
         ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
         return toReadStatusResponse(savedReadStatus);
     }

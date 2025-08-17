@@ -39,14 +39,15 @@ public class JCFMessageService implements MessageService {
             throw new IllegalArgumentException("Channel not found with id: " + request.getChannelId());
         }
 
-        Message message = Message.builder()
-                .channelId(request.getChannelId())
-                .authorId(request.getAuthorId())
-                .content(request.getContent())
-                .attachmentIds(request.getAttachmentIds())
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .build();
+        Message message = new Message(
+                UUID.randomUUID(),
+                Instant.now(),
+                Instant.now(),
+                request.getContent(),
+                request.getChannelId(),
+                request.getAuthorId(),
+                request.getAttachmentIds()
+        );
         Message savedMessage = messageRepository.save(message);
         return toMessageResponse(savedMessage);
     }

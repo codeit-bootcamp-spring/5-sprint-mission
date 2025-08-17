@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository.jcf;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,9 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Repository
+@Profile("test")
 public class JCFUserStatusRepository implements UserStatusRepository {
 
-    private final ConcurrentHashMap<UUID, UserStatus> storage = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, UserStatus> storage = new ConcurrentHashMap<>();
 
     @Override
     public UserStatus save(UserStatus userStatus) {
@@ -48,8 +50,11 @@ public class JCFUserStatusRepository implements UserStatusRepository {
 
     @Override
     public Optional<UserStatus> findByUserId(UUID userId) {
-        return storage.values().stream()
-                .filter(userStatus -> userStatus.getUserId().equals(userId))
-                .findFirst();
+        for (UserStatus us : storage.values()) {
+            if (us.getUserId().equals(userId)) {
+                return Optional.of(us);
+            }
+        }
+        return Optional.empty();
     }
 }

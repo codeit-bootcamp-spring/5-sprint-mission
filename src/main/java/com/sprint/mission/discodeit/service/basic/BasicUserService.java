@@ -46,6 +46,9 @@ public class BasicUserService implements UserService {
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
+        if (user.getId() == null) { // Generate ID if null
+            user.setId(UUID.randomUUID());
+        }
         user.setProfileImageId(request.getProfileImageId());
         User savedUser = userRepository.save(user);
 
@@ -55,6 +58,9 @@ public class BasicUserService implements UserService {
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
+        if (userStatus.getId() == null) { // Generate ID if null
+            userStatus.setId(UUID.randomUUID());
+        }
         userStatusRepository.save(userStatus);
 
         return toUserResponse(savedUser, userStatus);
@@ -64,8 +70,9 @@ public class BasicUserService implements UserService {
     public UserResponse find(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
-        UserStatus userStatus = userStatusRepository.findByUserId(userId)
-                .orElse(null);
+        System.out.println("BasicUserService.find - Searching for UserStatus with userId: " + userId);
+        Optional<UserStatus> userStatusOptional = userStatusRepository.findByUserId(userId);
+        UserStatus userStatus = userStatusOptional.orElse(null);
         return toUserResponse(user, userStatus);
     }
 
@@ -131,13 +138,14 @@ public class BasicUserService implements UserService {
     }
 
     private UserResponse toUserResponse(User user, UserStatus userStatus) {
+        boolean isOnline = userStatus != null && userStatus.isOnline();
         return new UserResponse(
                 user.getId(),
                 user.getUsername(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getProfileImageId(),
-                userStatus != null && userStatus.isOnline()
+                isOnline
         );
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -37,5 +38,12 @@ public class ReadStatusController {
         }
         ReadStatusResponse response = readStatusService.update(request);
         return ResponseEntity.ok(response);
+    }
+
+    // 특정 사용자의 메시지 수신 정보 조회
+    @RequestMapping(value = "/users/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<List<ReadStatusResponse>> getReadStatusesByUserId(@PathVariable UUID userId) {
+        List<ReadStatusResponse> readStatuses = readStatusService.findAllByUserId(userId);
+        return ResponseEntity.ok(readStatuses);
     }
 }
