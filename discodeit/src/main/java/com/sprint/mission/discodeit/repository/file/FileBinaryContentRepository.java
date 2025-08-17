@@ -1,31 +1,30 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
 
-@Repository("fileBinaryContentRepository")
-@Profile("file")
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
+@Repository
 public class FileBinaryContentRepository implements BinaryContentRepository {
-    private final Map<UUID, BinaryContent> data;
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
 
-    public FileBinaryContentRepository() {
-        data = new HashMap<>();
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", "BinaryContent");
+    public FileBinaryContentRepository(
+            @Value("${discodeit.repository.file-directory:data}") String fileDirectory
+    ) {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, BinaryContent.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -48,39 +47,6 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         ) {
             oos.writeObject(binaryContent);
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-        data.put(binaryContent.getId(), binaryContent);
-        return binaryContent;
-    }
-
-
-    public BinaryContent save(BinaryContent binaryContent, User user) {
-        Path path = resolvePath(binaryContent.getId());
-        binaryContent.setUserId(user.getId());
-        try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
-        ) {
-            oos.writeObject(binaryContent);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-        return binaryContent;
-    }
-
-    public BinaryContent save(BinaryContent binaryContent, Message message) {
-        Path path = resolvePath(binaryContent.getId());
-        binaryContent.setMessageId(message.getId());
-        try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
-        ) {
-            oos.writeObject(binaryContent);
-        } catch (IOException e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
         return binaryContent;
@@ -104,9 +70,9 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     }
 
     @Override
-    public List<BinaryContent> findAllByIdIn(List<UUID> id) {
-        try {
-            return Files.list(DIRECTORY)
+    public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
+        try (Stream<Path> paths = Files.list(DIRECTORY)) {
+            return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (
@@ -118,19 +84,11 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
                             throw new RuntimeException(e);
                         }
                     })
-                    .filter(content -> id.contains(content.getId()))
+                    .filter(content -> ids.contains(content.getId()))
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public List<BinaryContent> getAllData() {
-        if(data.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return new ArrayList<>(data.values());
     }
 
     @Override
@@ -147,6 +105,5 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        data.remove(id);
     }
 }
