@@ -43,7 +43,7 @@ public class BasicUserService implements UserService {
         UUID nullableProfileId = optionalProfileCreateRequest
                 .map(profileRequest -> {
                     String fileName = profileRequest.fileName();
-                    String contentType = profileRequest.contentType();
+                    BinaryContent.ContentType contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
                     BinaryContent binaryContent = new BinaryContent(fileName, (long)bytes.length, contentType, bytes);
                     return binaryContentRepository.save(binaryContent).getId();
@@ -96,7 +96,7 @@ public class BasicUserService implements UserService {
                             .ifPresent(binaryContentRepository::deleteById);
 
                     String fileName = profileRequest.fileName();
-                    String contentType = profileRequest.contentType();
+                    BinaryContent.ContentType contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
                     BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
                     return binaryContentRepository.save(binaryContent).getId();
