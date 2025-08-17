@@ -7,10 +7,14 @@ import lombok.ToString;
 @Data
 public class UserCreateRequest {
 
-    private final String userId;
-    private final String email;
-    private final String password;
+    private String userId;
+    private String email;
+    private String password;
     private ProfileImageRequest profileImage;
+
+    public UserCreateRequest() {
+    }
+
 
     public UserCreateRequest(String userId, String email, String password) {
         this.userId = userId;
