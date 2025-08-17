@@ -8,7 +8,7 @@ BadRequest:
         invalidJson:
           value:
             timestamp: "2025-08-16T12:34:56Z"
-            path: "/api/users"
+            path: "/api/*"
             method: "POST"
             status: 400
             code: "VALIDATION_ERROR"
@@ -24,7 +24,7 @@ NotFound:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/users/6c1c5c7b-6d7a-4e9d-8a1f-bb2b3c4d5e6f"
+        path: "/api/*/6c1c5c7a-6d7d-4e9d-8a1f-bb2b3c4d5e6f"
         method: "GET"
         status: 404
         code: "NOT_FOUND"
@@ -38,7 +38,7 @@ Conflict:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/users"
+        path: "/api/*"
         method: "POST"
         status: 409
         code: "CONFLICT"
@@ -52,7 +52,7 @@ MethodNotAllowed:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/users"
+        path: "/api/*"
         method: "PATCH"
         status: 405
         code: "METHOD_NOT_ALLOWED"
@@ -68,7 +68,7 @@ UnsupportedMediaType:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/users"
+        path: "/api/*"
         method: "POST"
         status: 415
         code: "UNSUPPORTED_MEDIA_TYPE"
@@ -84,7 +84,7 @@ InternalError:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/users"
+        path: "/api/*"
         method: "POST"
         status: 500
         code: "INTERNAL_ERROR"

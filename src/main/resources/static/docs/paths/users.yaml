@@ -196,13 +196,12 @@ user_profile_settings:
       '204': { description: No Content }
       '400': { $ref: '../response/errors.yaml#/BadRequest' }
       '404': { $ref: '../response/errors.yaml#/NotFound' }
-      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_profile_image:
   put:
     tags: [ Users ]
     summary: 프로필 이미지 변경
-    description: profileId를 업데이트합니다. 기존 이미지가 있다면 서버 정책에 따라 정리됩니다.
+    description: Binary Content로 업로드한 profileId를 업데이트합니다.<br>기존 이미지가 있다면 서버 정책에 따라 정리됩니다.
     parameters:
       - in: path
         name: id
@@ -220,7 +219,6 @@ user_profile_image:
       '204': { description: No Content }
       '400': { $ref: '../response/errors.yaml#/BadRequest' }
       '404': { $ref: '../response/errors.yaml#/NotFound' }
-      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
   delete:
     tags: [ Users ]
@@ -234,7 +232,6 @@ user_profile_image:
       '204': { description: No Content }
       '400': { $ref: '../response/errors.yaml#/BadRequest' }
       '404': { $ref: '../response/errors.yaml#/NotFound' }
-      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_email:
   put:
@@ -259,7 +256,6 @@ user_email:
       '400': { $ref: '../response/errors.yaml#/BadRequest' }
       '404': { $ref: '../response/errors.yaml#/NotFound' }
       '409': { $ref: '../response/errors.yaml#/Conflict' }
-      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_username:
   put:
@@ -284,7 +280,6 @@ user_username:
       '400': { $ref: '../response/errors.yaml#/BadRequest' }
       '404': { $ref: '../response/errors.yaml#/NotFound' }
       '409': { $ref: '../response/errors.yaml#/Conflict' }
-      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_password:
   put:
@@ -309,7 +304,6 @@ user_password:
       '400': { $ref: '../response/errors.yaml#/BadRequest' }
       '404': { $ref: '../response/errors.yaml#/NotFound' }
       '409': { $ref: '../response/errors.yaml#/Conflict' }
-      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_phone_number:
   put:
@@ -335,7 +329,6 @@ user_phone_number:
       '204': { description: No Content }
       '400': { $ref: '../response/errors.yaml#/BadRequest' }
       '404': { $ref: '../response/errors.yaml#/NotFound' }
-      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
   delete:
     tags: [ Users ]
@@ -347,11 +340,9 @@ user_phone_number:
         schema: { type: string, format: uuid }
     responses:
       '204': { description: No Content }
-      '400': { $ref: '../response/errors.yaml#/BadRequest' }
       '404': { $ref: '../response/errors.yaml#/NotFound' }
-      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
-user_status:
+UserStatus:
   put:
     tags: [ Users ]
     summary: 사용자 상태 변경
@@ -360,7 +351,9 @@ user_status:
       - in: path
         name: id
         required: true
-        schema: { type: string, format: uuid }
+        schema:
+          type: string
+          format: uuid
     requestBody:
       required: true
       content:
@@ -370,10 +363,23 @@ user_status:
           example:
             userStatusType: "IDLE"
     responses:
-      '204': { description: No Content }
-      '400': { $ref: '../response/errors.yaml#/BadRequest' }
-      '404': { $ref: '../response/errors.yaml#/NotFound' }
-      '500': { $ref: '../response/errors.yaml#/InternalError' }
+      '204':
+        description: No Content
+      '400':
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            example:
+              timestamp: "2025-08-16T12:34:56Z"
+              path: "/api/users/{id}/status"
+              method: "PUT"
+              status: 400
+              code: "VALIDATION_ERROR"
+              message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+              details:
+                - "Cannot deserialize value of type `com.sprint.mission.discodeit.domain.enums.UserStatusType` from String \"online\": not one of the values accepted for Enum class: [ONLINE, IDLE, DO_NOT_DISTURB, OFFLINE]\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 2, column: 23] (through reference chain: com.sprint.mission.discodeit.dto.request.status.UserStatusUpdateRequest[\"userStatusType\"])"
 
 user_deactivation:
   post:
@@ -384,9 +390,11 @@ user_deactivation:
       - in: path
         name: id
         required: true
-        schema: { type: string, format: uuid }
+        schema:
+          type: string
+          format: uuid
     responses:
-      '204': { description: No Content }
-      '400': { $ref: '../response/errors.yaml#/BadRequest' }
-      '404': { $ref: '../response/errors.yaml#/NotFound' }
-      '500': { $ref: '../response/errors.yaml#/InternalError' }
+      '204':
+        description: No Content
+      '404':
+        $ref: '../response/errors.yaml#/NotFound'

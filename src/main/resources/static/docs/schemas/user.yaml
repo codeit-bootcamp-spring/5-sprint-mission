@@ -146,4 +146,8 @@ UserStatusUpdateRequest:
 
 UserStatusType:
   type: string
-  enum: [ ONLINE, OFFLINE, IDLE, DO_NOT_DISTURB ]
+  enum:
+    - ONLINE
+    - OFFLINE
+    - IDLE
+    - DO_NOT_DISTURB
