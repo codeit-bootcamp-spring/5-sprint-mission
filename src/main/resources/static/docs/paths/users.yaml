@@ -342,45 +342,6 @@ user_phone_number:
       '204': { description: No Content }
       '404': { $ref: '../response/errors.yaml#/NotFound' }
 
-UserStatus:
-  put:
-    tags: [ Users ]
-    summary: 사용자 상태 변경
-    description: ONLINE, OFFLINE, IDLE, DO_NOT_DISTURB 중 하나로 상태를 변경합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-          format: uuid
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserStatusUpdateRequest'
-          example:
-            userStatusType: "IDLE"
-    responses:
-      '204':
-        description: No Content
-      '400':
-        description: Bad Request
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/error.yaml#/ApiError'
-            example:
-              timestamp: "2025-08-16T12:34:56Z"
-              path: "/api/users/{id}/status"
-              method: "PUT"
-              status: 400
-              code: "VALIDATION_ERROR"
-              message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
-              details:
-                - "Cannot deserialize value of type `com.sprint.mission.discodeit.domain.enums.UserStatusType` from String \"online\": not one of the values accepted for Enum class: [ONLINE, IDLE, DO_NOT_DISTURB, OFFLINE]\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 2, column: 23] (through reference chain: com.sprint.mission.discodeit.dto.request.status.UserStatusUpdateRequest[\"userStatusType\"])"
-
 user_deactivation:
   post:
     tags: [ Users ]

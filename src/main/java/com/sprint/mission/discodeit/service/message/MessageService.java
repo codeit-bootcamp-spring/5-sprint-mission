@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.sprint.mission.discodeit.mapper.MessageMapper.toMessageResponse;
@@ -45,7 +46,7 @@ public class MessageService {
                 channelId,
                 req.senderId(),
                 req.content(),
-                (req.attachmentIds() == null ? java.util.Set.of() : req.attachmentIds()),
+                (req.attachmentIds() == null ? Set.of() : req.attachmentIds()),
                 req.replyTo()
         );
 

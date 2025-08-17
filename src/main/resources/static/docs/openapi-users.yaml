@@ -22,8 +22,6 @@ paths:
     $ref: "./paths/users.yaml#/user_password"
   /{id}/phone-number:
     $ref: "./paths/users.yaml#/user_phone_number"
-  /{id}/status:
-    $ref: "./paths/users.yaml#/UserStatus"
   /{id}/deactivation:
     $ref: "./paths/users.yaml#/user_deactivation"
 
@@ -47,9 +45,5 @@ components:
       $ref: "./schemas/user.yaml#/UserUpdatePasswordRequest"
     UserUpdatePhoneNumberRequest:
       $ref: "./schemas/user.yaml#/UserUpdatePhoneNumberRequest"
-    UserStatusUpdateRequest:
-      $ref: "./schemas/user.yaml#/UserStatusUpdateRequest"
-    UserStatusType:
-      $ref: "./schemas/user.yaml#/UserStatusType"
     ApiError:
       $ref: "./schemas/error.yaml#/ApiError"

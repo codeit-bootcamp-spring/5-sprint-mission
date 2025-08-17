@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller.user;
 
-import com.sprint.mission.discodeit.dto.request.status.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserRegisterRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateEmailRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
@@ -11,7 +10,6 @@ import com.sprint.mission.discodeit.dto.request.user.UserUpdateUsernameRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserRegisterResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.service.user.UserService;
-import com.sprint.mission.discodeit.service.userstatus.UserStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -36,7 +34,6 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
-    private final UserStatusService userStatusService;
 
     @PostMapping({"", "/"})
     @ResponseStatus(HttpStatus.CREATED)
@@ -125,13 +122,6 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void clearPhoneNumber(@PathVariable("id") UUID id) {
         userService.clearPhoneNumber(id);
-    }
-
-    @PutMapping(path = "/{id}/status")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateStatus(@PathVariable("id") UUID id,
-                             @Valid @RequestBody UserStatusUpdateRequest body) {
-        userStatusService.updateStatusByUserId(id, body);
     }
 
     @PostMapping(path = "/{id}/deactivation")

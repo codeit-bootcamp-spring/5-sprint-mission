@@ -13,7 +13,7 @@ UserResponse:
     bio: { type: string, nullable: true, maxLength: 2000 }
     profileId: { type: string, format: uuid, nullable: true }
     userStatusType:
-      $ref: '#/UserStatusType'
+      $ref: './user-status.yaml#/UserStatusType'
 
 UserRegisterRequest:
   type: object
@@ -136,18 +136,3 @@ UserUpdatePhoneNumberRequest:
       pattern: "^\\+[1-9]\\d{7,14}$"
       minLength: 9
       maxLength: 16
-
-UserStatusUpdateRequest:
-  type: object
-  required: [ userStatusType ]
-  properties:
-    userStatusType:
-      $ref: '#/UserStatusType'
-
-UserStatusType:
-  type: string
-  enum:
-    - ONLINE
-    - OFFLINE
-    - IDLE
-    - DO_NOT_DISTURB
