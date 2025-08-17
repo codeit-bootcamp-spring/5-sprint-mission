@@ -60,7 +60,7 @@ binary_contents_root:
                   size: 125834
                   createdAt: "2025-08-17T15:30:00Z"
       '400':
-        description: Bad Request (빈 바디 등)
+        description: Bad Request (빈 바디)
         content:
           application/json:
             schema:

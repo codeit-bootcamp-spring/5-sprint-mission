@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.controller.binarycontent;
 
 import com.sprint.mission.discodeit.dto.request.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.response.binarycontent.BinaryContentResponse;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.service.binarycontent.BinaryContentService;
-import com.sprint.mission.discodeit.support.FileNames;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,7 +47,16 @@ public class BinaryContentController {
 
         String ct = normalizeContentType(contentType);
         String original = parseFilename(contentDisposition);
-        String fileName = FileNames.randomWithExtension(original, ct);
+        String random = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+
+        String ext = original != null && original.contains(".")
+                ? original.substring(original.lastIndexOf("."))
+                : "";
+        String nameWithoutExt = original != null
+                ? original.substring(0, original.lastIndexOf(ext))
+                : "file";
+
+        String fileName = nameWithoutExt + "_" + random + ext;
 
         return binaryContentService.create(
                 new BinaryContentCreateRequest(fileName, ct, body)
@@ -69,7 +78,7 @@ public class BinaryContentController {
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") UUID id) {
-        binaryContentService.delete(id);
+        if (!binaryContentService.delete(id)) throw new NotFoundException("바이너리 컨텐츠를 찾을 수 없습니다: " + id);
     }
 
     private static String normalizeContentType(String ct) {

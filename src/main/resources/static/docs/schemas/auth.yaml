@@ -1,4 +1,4 @@
-AuthLoginRequest:
+LoginRequest:
   type: object
   required: [ email, password ]
   properties:

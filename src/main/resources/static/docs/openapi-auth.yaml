@@ -15,5 +15,7 @@ components:
   schemas:
     UserResponse:
       $ref: "./schemas/user.yaml#/UserResponse"
-    AuthLoginRequest:
-      $ref: "./schemas/auth.yaml#/AuthLoginRequest"
+    LoginRequest:
+      $ref: "./schemas/auth.yaml#/LoginRequest"
+    LogoutRequest:
+      $ref: "./schemas/auth.yaml#/LogoutRequest"

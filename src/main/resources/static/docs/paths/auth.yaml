@@ -9,12 +9,10 @@ login:
       content:
         application/json:
           schema:
-            $ref: "../schemas/auth.yaml#/AuthLoginRequest"
-          examples:
-            valid:
-              value:
-                email: "alice@example.com"
-                password: "P@ssw0rd123!"
+            $ref: "../schemas/auth.yaml#/LoginRequest"
+          example:
+            email: "alice@example.com"
+            password: "P@ssw0rd123!"
     responses:
       '200':
         description: OK
