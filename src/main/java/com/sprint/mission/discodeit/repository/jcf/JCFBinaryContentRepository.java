@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +18,8 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
 
     @Override
     public BinaryContent save(BinaryContent binaryContent) {
+        Objects.requireNonNull(binaryContent, "binaryContent cannot be null");
+        Objects.requireNonNull(binaryContent.getId(), "binaryContent id cannot be null");
         storage.put(binaryContent.getId(), binaryContent);
         return binaryContent;
     }
