@@ -14,11 +14,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/read-statuses")
-@RequiredArgsConstructor
 public class ReadStatusController {
 
-    @Qualifier("basicReadStatusService")
     private final ReadStatusService readStatusService;
+
+    public ReadStatusController(@Qualifier("basicReadStatusService") ReadStatusService readStatusService) {
+        this.readStatusService = readStatusService;
+    }
 
     // 메시지 수신 정보 생성
     @RequestMapping(method = RequestMethod.POST)

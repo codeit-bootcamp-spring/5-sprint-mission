@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -17,6 +18,7 @@ public class Message extends BaseEntity implements java.io.Serializable {
     private String content;
     private UUID channelId;
     private UUID authorId;
+    @Builder.Default
     private List<UUID> attachmentIds = new ArrayList<>();
 
     private Object readResolve() {

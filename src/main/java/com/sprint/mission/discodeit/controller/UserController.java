@@ -16,20 +16,24 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
-@RequiredArgsConstructor
 public class UserController {
 
-    @Qualifier("basicUserService")
     private final UserService userService;
-
-    @Qualifier("basicUserStatusService")
     private final UserStatusService userStatusService;
-
-    @Qualifier("basicChannelService")
     private final ChannelService channelService;
-
-    @Qualifier("basicReadStatusService")
     private final ReadStatusService readStatusService;
+
+    public UserController(
+            @Qualifier("basicUserService") UserService userService,
+            @Qualifier("basicUserStatusService") UserStatusService userStatusService,
+            @Qualifier("basicChannelService") ChannelService channelService,
+            @Qualifier("basicReadStatusService") ReadStatusService readStatusService
+    ) {
+        this.userService = userService;
+        this.userStatusService = userStatusService;
+        this.channelService = channelService;
+        this.readStatusService = readStatusService;
+    }
 
     // 사용자 등록
     @RequestMapping(method = RequestMethod.POST)
@@ -72,7 +76,7 @@ public class UserController {
     // 특정 사용자가 접근 가능한 모든 채널 목록 조회
     @RequestMapping(value = "/{userId}/channels", method = RequestMethod.GET)
     public ResponseEntity<List<ChannelResponse>> getChannelsForUser(@PathVariable UUID userId) {
-        List<ChannelResponse> channels = channelService.findChannelsByUserId(userId);
+        List<ChannelResponse> channels = channelService.findAllByUserId(userId);
         return ResponseEntity.ok(channels);
     }
 

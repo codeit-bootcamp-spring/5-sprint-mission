@@ -14,14 +14,18 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/channels")
-@RequiredArgsConstructor
 public class ChannelController {
 
-    @Qualifier("basicChannelService")
     private final ChannelService channelService;
-
-    @Qualifier("basicMessageService")
     private final MessageService messageService;
+
+    public ChannelController(
+            @Qualifier("basicChannelService") ChannelService channelService,
+            @Qualifier("basicMessageService") MessageService messageService
+    ) {
+        this.channelService = channelService;
+        this.messageService = messageService;
+    }
 
     // 공개 채널 생성
     @RequestMapping(value = "/public", method = RequestMethod.POST)
@@ -57,7 +61,7 @@ public class ChannelController {
     // 특정 채널의 메시지 목록 조회
     @RequestMapping(value = "/{channelId}/messages", method = RequestMethod.GET)
     public ResponseEntity<List<MessageResponse>> getMessagesInChannel(@PathVariable UUID channelId) {
-        List<MessageResponse> messages = messageService.findMessagesByChannelId(channelId);
+        List<MessageResponse> messages = messageService.findAllByChannelId(channelId);
         return ResponseEntity.ok(messages);
     }
 }

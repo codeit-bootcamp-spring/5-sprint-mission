@@ -15,11 +15,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/binary-contents")
-@RequiredArgsConstructor
 public class BinaryContentController {
 
-    @Qualifier("basicBinaryContentService")
     private final BinaryContentService binaryContentService;
+
+    public BinaryContentController(@Qualifier("basicBinaryContentService") BinaryContentService binaryContentService) {
+        this.binaryContentService = binaryContentService;
+    }
 
     // 바이너리 파일 1개 또는 여러 개 조회
     @RequestMapping(method = RequestMethod.GET)

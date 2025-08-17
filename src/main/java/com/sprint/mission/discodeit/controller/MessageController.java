@@ -14,11 +14,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/messages")
-@RequiredArgsConstructor
 public class MessageController {
 
-    @Qualifier("basicMessageService")
     private final MessageService messageService;
+
+    public MessageController(@Qualifier("basicMessageService") MessageService messageService) {
+        this.messageService = messageService;
+    }
 
     // 메시지 전송
     @RequestMapping(method = RequestMethod.POST)

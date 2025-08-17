@@ -71,16 +71,15 @@ public class BasicUserStatusService implements UserStatusService {
     }
 
     @Override
-    public UserStatusResponse updateByUserId(UserStatusUpdateByUserIdRequest request) {
-        UserStatus userStatus = userStatusRepository.findByUserId(request.getUserId())
-                .orElseThrow(() -> new NoSuchElementException("UserStatus for user " + request.getUserId() + " not found"));
+    public void updateUserStatusByUserId(UUID userId, UserStatusUpdateByUserIdRequest request) {
+        UserStatus userStatus = userStatusRepository.findByUserId(userId)
+                .orElseThrow(() -> new NoSuchElementException("UserStatus for user " + userId + " not found"));
 
         if (request.getLastSeenAt() != null) {
             userStatus.setLastSeenAt(request.getLastSeenAt());
         }
         userStatus.setUpdatedAt(Instant.now());
-        UserStatus updatedUserStatus = userStatusRepository.save(userStatus);
-        return toUserStatusResponse(updatedUserStatus);
+        userStatusRepository.save(userStatus);
     }
 
     @Override
