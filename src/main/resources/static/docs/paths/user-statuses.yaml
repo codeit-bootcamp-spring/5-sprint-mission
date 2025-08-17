@@ -29,7 +29,7 @@ user_statuses_root:
               userId: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
               displayName: "방해 금지"
       '400':
-        description: Bad Request (필수 파라미터/바디 누락 또는 형식 오류)
+        description: Bad Request (userId 누락/JSON 유효성 오류)
         content:
           application/json:
             schema: { $ref: "../schemas/error.yaml#/ApiError" }
@@ -53,7 +53,7 @@ user_statuses_root:
                   message: "입력 값이 유효하지 않습니다."
                   details: [ "userStatusType: 널이어서는 안됩니다" ]
       '404':
-        description: Not Found (사용자가 존재하지 않는 경우)
+        description: Not Found (유저를 찾지 못함)
         content:
           application/json:
             schema: { $ref: "../schemas/error.yaml#/ApiError" }
