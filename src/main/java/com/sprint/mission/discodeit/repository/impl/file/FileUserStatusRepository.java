@@ -19,6 +19,11 @@ import java.util.UUID;
 @Profile("dev")
 public class FileUserStatusRepository extends AbstractFileRepository<UserStatus> implements UserStatusRepository {
 
+    @Override
+    protected String getEntityTypeName() {
+        return "유저 상태";
+    }
+
     public FileUserStatusRepository(AppProperties appProperties) {
         super(UserStatus.class, appProperties.storage());
     }

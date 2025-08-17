@@ -18,6 +18,11 @@ import java.util.UUID;
 @Profile("dev")
 public class FileFriendRequestRepository extends AbstractFileRepository<FriendRequest> implements FriendRequestRepository {
 
+    @Override
+    protected String getEntityTypeName() {
+        return "친구 요청";
+    }
+
     public FileFriendRequestRepository(AppProperties appProperties) {
         super(FriendRequest.class, appProperties.storage());
     }

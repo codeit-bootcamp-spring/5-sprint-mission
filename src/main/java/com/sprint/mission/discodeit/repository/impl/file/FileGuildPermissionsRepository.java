@@ -20,6 +20,11 @@ import java.util.stream.Collectors;
 @Profile("dev")
 public class FileGuildPermissionsRepository extends AbstractFileRepository<GuildPermissions> implements GuildPermissionsRepository {
 
+    @Override
+    protected String getEntityTypeName() {
+        return "서버 권한 목록";
+    }
+
     public FileGuildPermissionsRepository(AppProperties appProperties) {
         super(GuildPermissions.class, appProperties.storage());
     }

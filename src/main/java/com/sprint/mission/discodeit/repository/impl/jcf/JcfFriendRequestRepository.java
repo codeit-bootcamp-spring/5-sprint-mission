@@ -19,7 +19,7 @@ public class JcfFriendRequestRepository extends AbstractJcfRepository<FriendRequ
 
     @Override
     protected String getEntityTypeName() {
-        return "FriendRequest";
+        return "친구 요청";
     }
 
     @Override

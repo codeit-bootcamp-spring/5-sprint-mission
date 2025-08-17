@@ -15,7 +15,7 @@ public class JcfGuildRepository extends AbstractJcfRepository<Guild> implements 
 
     @Override
     protected String getEntityTypeName() {
-        return "Guild";
+        return "서버";
     }
 
     @Override

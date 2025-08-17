@@ -20,7 +20,7 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
 
     @Override
     protected String getEntityTypeName() {
-        return "UserStatus";
+        return "유저 상태";
     }
 
     @Override

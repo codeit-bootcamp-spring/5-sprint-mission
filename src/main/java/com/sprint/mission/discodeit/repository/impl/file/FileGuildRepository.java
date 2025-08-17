@@ -14,6 +14,11 @@ import java.util.UUID;
 @Profile("dev")
 public class FileGuildRepository extends AbstractFileRepository<Guild> implements GuildRepository {
 
+    @Override
+    protected String getEntityTypeName() {
+        return "서버";
+    }
+
     public FileGuildRepository(AppProperties appProperties) {
         super(Guild.class, appProperties.storage());
     }

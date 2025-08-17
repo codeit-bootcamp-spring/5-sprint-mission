@@ -14,6 +14,11 @@ import java.util.Optional;
 @Profile("dev")
 public class FileBinaryContentRepository extends AbstractFileRepository<BinaryContent> implements BinaryContentRepository {
 
+    @Override
+    protected String getEntityTypeName() {
+        return "바이너리 컨텐츠";
+    }
+
     public FileBinaryContentRepository(AppProperties appProperties) {
         super(BinaryContent.class, appProperties.storage());
     }

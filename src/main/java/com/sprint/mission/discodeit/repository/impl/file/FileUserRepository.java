@@ -15,6 +15,11 @@ import java.util.function.Function;
 @Profile("dev")
 public class FileUserRepository extends AbstractFileRepository<User> implements UserRepository {
 
+    @Override
+    protected String getEntityTypeName() {
+        return "유저";
+    }
+
     public FileUserRepository(AppProperties appProperties) {
         super(User.class, appProperties.storage());
     }

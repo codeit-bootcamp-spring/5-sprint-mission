@@ -21,7 +21,7 @@ public class JcfGuildPermissionsRepository extends AbstractJcfRepository<GuildPe
 
     @Override
     protected String getEntityTypeName() {
-        return "GuildPermissions";
+        return "서버 권한 목록";
     }
 
     @Override

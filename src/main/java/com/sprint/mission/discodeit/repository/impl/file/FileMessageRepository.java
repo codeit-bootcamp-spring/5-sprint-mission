@@ -15,6 +15,11 @@ import java.util.UUID;
 @Profile("dev")
 public class FileMessageRepository extends AbstractFileRepository<Message> implements MessageRepository {
 
+    @Override
+    protected String getEntityTypeName() {
+        return "메시지";
+    }
+
     public FileMessageRepository(AppProperties appProperties) {
         super(Message.class, appProperties.storage());
     }

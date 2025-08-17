@@ -19,7 +19,7 @@ public class JcfChannelRepository extends AbstractJcfRepository<Channel> impleme
 
     @Override
     protected String getEntityTypeName() {
-        return "Channel";
+        return "채널";
     }
 
     @Override

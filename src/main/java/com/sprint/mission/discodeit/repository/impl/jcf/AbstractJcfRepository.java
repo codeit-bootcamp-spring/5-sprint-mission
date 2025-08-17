@@ -49,7 +49,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
     @Override
     public T getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->
-                new NotFoundException("엔티티(" + getEntityTypeName() + ")를 찾을 수 없습니다: " + id));
+                new NotFoundException(getEntityTypeName() + "을(를) 찾을 수 없습니다: " + id));
     }
 
     @Override
@@ -172,6 +172,6 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
     }
 
     protected String getEntityTypeName() {
-        return "Entity";
+        return "엔티티";
     }
 }

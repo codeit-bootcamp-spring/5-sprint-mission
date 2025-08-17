@@ -18,7 +18,7 @@ public class JcfReadStatusRepository extends AbstractJcfRepository<ReadStatus> i
 
     @Override
     protected String getEntityTypeName() {
-        return "ReadStatus";
+        return "읽음 상태";
     }
 
     @Override

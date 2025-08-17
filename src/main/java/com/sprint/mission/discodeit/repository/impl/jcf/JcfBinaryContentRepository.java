@@ -15,7 +15,7 @@ public class JcfBinaryContentRepository extends AbstractJcfRepository<BinaryCont
 
     @Override
     protected String getEntityTypeName() {
-        return "BinaryContent";
+        return "바이너리 컨텐츠";
     }
 
     @Override

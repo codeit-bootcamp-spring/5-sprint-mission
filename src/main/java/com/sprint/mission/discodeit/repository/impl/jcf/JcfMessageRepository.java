@@ -18,7 +18,7 @@ public class JcfMessageRepository extends AbstractJcfRepository<Message> impleme
 
     @Override
     protected String getEntityTypeName() {
-        return "Message";
+        return "메시지";
     }
 
     @Override

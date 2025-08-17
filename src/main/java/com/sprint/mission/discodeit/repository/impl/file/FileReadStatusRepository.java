@@ -17,6 +17,11 @@ import java.util.stream.Collectors;
 @Profile("dev")
 public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus> implements ReadStatusRepository {
 
+    @Override
+    protected String getEntityTypeName() {
+        return "읽음 상태";
+    }
+
     public FileReadStatusRepository(AppProperties appProperties) {
         super(ReadStatus.class, appProperties.storage());
     }

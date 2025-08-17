@@ -22,15 +22,16 @@ login:
           application/json:
             schema:
               $ref: "../schemas/user.yaml#/UserResponse"
-            examples:
-              ok:
-                value:
-                  id: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
-                  email: "alice@example.com"
-                  username: "alice.k"
-                  globalName: "Alice Kim"
-                  birthDate: "2001-05-10"
-                  createdAt: "2025-08-17T15:30:00Z"
+            example:
+              "id": "8c804c9b-a512-44b8-9b9b-4adace09b2ac"
+              "createdAt": "2025-08-16T12:20:08.016839Z"
+              "updatedAt": "2025-08-17T11:26:05.007836Z"
+              "email": "alice@example.com"
+              "username": "alice.k"
+              "globalName": "Alice Kim"
+              "bio": null
+              "profileId": null
+              "userStatusType": "ONLINE"
       '400':
         description: Bad Request (이메일/비밀번호 불일치, 형식 오류)
         content:
@@ -71,13 +72,12 @@ login:
               status: 403
               code: "FORBIDDEN"
               message: "정지된 계정입니다."
-              details: [ ]
 
 logout:
   post:
     tags: [ Auth ]
     summary: 로그아웃
-    description: 사용자의 현재 세션/상태를 로그아웃 처리합니다.<br>JWT를 사용하지 않으므로 `userId`를 본문으로 받습니다.
+    description: 사용자의 현재 세션/상태를 로그아웃 처리합니다.<br>`userId`를 body로 받습니다.
     operationId: logout
     requestBody:
       required: true
@@ -85,30 +85,26 @@ logout:
         application/json:
           schema:
             $ref: "../schemas/auth.yaml#/LogoutRequest"
-          examples:
-            valid:
-              value:
-                userId: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
+          example:
+            userId: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
     responses:
       '204':
         description: No Content (성공)
       '400':
-        description: Bad Request (형식/검증 오류)
+        description: Bad Request (userId 미포함)
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
-            examples:
-              missingUserId:
-                value:
-                  timestamp: "2025-08-17T15:32:00Z"
-                  path: "/api/auth/logout"
-                  method: "POST"
-                  status: 400
-                  code: "BAD_REQUEST"
-                  message: "요청이 올바르지 않습니다."
-                  details:
-                    - "userId: 널이어서는 안됩니다"
+            example:
+              timestamp: "2025-08-17T15:32:00Z"
+              path: "/api/auth/logout"
+              method: "POST"
+              status: 400
+              code: "BAD_REQUEST"
+              message: "요청이 올바르지 않습니다."
+              details:
+                - "userId: 널이어서는 안됩니다"
       '404':
         description: Not Found (존재하지 않는 사용자)
         content:
@@ -121,5 +117,4 @@ logout:
               method: "POST"
               status: 404
               code: "NOT_FOUND"
-              message: "리소스를 찾을 수 없습니다: <UUID>"
-              details: [ ]
+              message: "유저를 찾을 수 없습니다: 2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"

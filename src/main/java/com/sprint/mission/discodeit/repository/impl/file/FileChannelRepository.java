@@ -18,6 +18,11 @@ import java.util.UUID;
 @Profile("dev")
 public class FileChannelRepository extends AbstractFileRepository<Channel> implements ChannelRepository {
 
+    @Override
+    protected String getEntityTypeName() {
+        return "채널";
+    }
+
     public FileChannelRepository(AppProperties appProperties) {
         super(Channel.class, appProperties.storage());
     }

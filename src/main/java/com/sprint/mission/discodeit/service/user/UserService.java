@@ -68,12 +68,10 @@ public class UserService {
         String username = stripToLowerCase(req.username());
         if (userRepository.existsByUsername(username)) throw new DuplicateResourceException("이미 사용 중인 사용자명입니다.");
 
-        String password = passwordEncoder.encode(req.password());
-
         User user = new User(
                 email,
                 username,
-                password,
+                passwordEncoder.encode(req.password().strip()),
                 req.birthDate(),
                 req.subscribedToNewsletter(),
                 req.globalName()
@@ -245,8 +243,8 @@ public class UserService {
 
     @Transactional
     public void removeFriend(UUID userId, UUID friendId) {
-        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
-        userRepository.findById(friendId).orElseThrow(() -> new NotFoundException("상대 유저를 찾을 수 없습니다."));
+        userRepository.getOrThrow(userId);
+        userRepository.getOrThrow(friendId);
         update(userId, u -> u.removeFriend(friendId));
         update(friendId, u -> u.removeFriend(userId));
     }

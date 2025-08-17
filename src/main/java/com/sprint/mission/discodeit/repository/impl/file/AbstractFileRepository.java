@@ -38,6 +38,10 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     private final Class<T> entityType;
     private final Path directory;
 
+    protected String getEntityTypeName() {
+        return "엔티티";
+    }
+
     protected AbstractFileRepository(Class<T> entityType, AppStorageProperties storageProperties) {
         this.entityType = entityType;
         this.directory = Paths.get(System.getProperty("user.dir"), storageProperties.rootDir(), entityType.getSimpleName());
@@ -134,7 +138,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     @Override
     public T getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->
-                new NotFoundException("엔티티(" + entityType.getSimpleName() + ")를 찾을 수 없습니다: " + id));
+                new NotFoundException(getEntityTypeName() + "를 찾을 수 없습니다: " + id));
     }
 
     @Override

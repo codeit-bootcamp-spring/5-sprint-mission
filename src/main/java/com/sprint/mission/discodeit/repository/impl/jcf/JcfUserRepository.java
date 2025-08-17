@@ -36,7 +36,7 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
 
     @Override
     protected String getEntityTypeName() {
-        return "User";
+        return "유저";
     }
 
     @Override
