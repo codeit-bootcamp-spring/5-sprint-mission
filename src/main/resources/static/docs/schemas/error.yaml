@@ -1,11 +1,48 @@
 ApiError:
   type: object
-  required: [ timestamp, code, message, details ]
+  required:
+    - timestamp
+    - path
+    - method
+    - status
+    - code
+    - message
+    - details
   properties:
-    timestamp: { type: string, format: date-time }
-    code: { type: string, example: "BAD_REQUEST" }
-    message: { type: string, example: "요청이 올바르지 않습니다." }
+    timestamp:
+      type: string
+      format: date-time
+      description: 오류 발생 시각(UTC)
+    path:
+      type: string
+      description: 요청 uri
+    method:
+      type: string
+      description: 요청 method
+      enum:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+    status:
+      type: integer
+      description: 리스폰스 상태 코드
+    code:
+      type: string
+      description: 애플리케이션 오류 코드
+      enum:
+        - BAD_REQUEST
+        - NOT_FOUND
+        - METHOD_NOT_ALLOWED
+        - CONFLICT
+        - UNSUPPORTED_MEDIA_TYPE
+        - INTERNAL_ERROR
+    message:
+      type: string
+      description: 사용자 표시용 메시지
     details:
       type: array
-      items: { type: string }
-      description: 추가 정보(필드 에러, 경로, requestId 등)
+      description: 세부 오류 목록
+      items:
+        type: string

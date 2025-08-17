@@ -10,4 +10,6 @@ server:
 springdoc:
   swagger-ui:
     path: /docs
-    url: /docs/openapi.yaml
+    urls:
+      - name: Users API
+        url: /docs/openapi-users.yaml

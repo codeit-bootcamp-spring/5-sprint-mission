@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.dto.request.user;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public record UserUpdateAccountStatusCommand(
 
-        @NotBlank
+        @NotNull
         UUID userId,
         Optional<Boolean> verified,
         Optional<Boolean> banned,

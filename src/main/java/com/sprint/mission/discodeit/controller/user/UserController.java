@@ -15,7 +15,6 @@ import com.sprint.mission.discodeit.service.userstatus.UserStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,7 +38,7 @@ public class UserController {
     private final UserService userService;
     private final UserStatusService userStatusService;
 
-    @PostMapping
+    @PostMapping({"", "/"})
     @ResponseStatus(HttpStatus.CREATED)
     public UserRegisterResponse register(@Valid @RequestBody UserRegisterRequest body) {
         return userService.register(body);
@@ -51,13 +50,13 @@ public class UserController {
         return userService.find(id);
     }
 
-    @GetMapping
+    @GetMapping({"", "/"})
     @ResponseStatus(HttpStatus.OK)
     public List<UserResponse> findAll(
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String email) {
         if (username != null && email != null) {
-            throw new IllegalArgumentException("username과 email은 동시에 사용할 수 없습니다.");
+            throw new IllegalArgumentException("username과 email은 동시에 포함될 수 없습니다.");
         }
         if (username != null) {
             return userService.findByUsername(username);
@@ -142,14 +141,15 @@ public class UserController {
     }
 
     @GetMapping(path = "/{id}/friends")
-    public ResponseEntity<List<UserResponse>> getFriends(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok(userService.getFriends(id));
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserResponse> getFriends(@PathVariable("id") UUID id) {
+        return userService.getFriends(id);
     }
 
     @DeleteMapping(path = "/{id}/friends/{friendId}")
-    public ResponseEntity<Void> removeFriend(@PathVariable("id") UUID id,
-                                             @PathVariable("friendId") UUID friendId) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFriend(@PathVariable("id") UUID id,
+                             @PathVariable("friendId") UUID friendId) {
         userService.removeFriend(id, friendId);
-        return ResponseEntity.noContent().build();
     }
 }

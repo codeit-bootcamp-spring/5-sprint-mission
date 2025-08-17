@@ -1,8 +1,8 @@
 users:
   post:
     tags: [ Users ]
-    summary: 사용자 등록
-    description: 새 사용자를 등록합니다. 성공 시 201과 함께 생성된 사용자 정보를 반환합니다. 이 엔드포인트는 인증이 필요하지 않습니다.
+    summary: 회원가입
+    description: 새 사용자를 등록합니다.<br>성공 시 201과 함께 생성된 사용자 정보를 반환합니다.<br>이 엔드포인트는 인증이 필요하지 않습니다.
     requestBody:
       required: true
       content:
@@ -10,11 +10,11 @@ users:
           schema:
             $ref: '../schemas/user.yaml#/UserRegisterRequest'
           example:
-            email: alice@example.com
-            globalName: Alice Kim
-            username: alice.k
-            password: P@ssw0rd123
-            birthDate: '2001-05-10'
+            email: "alice@example.com"
+            username: "alice.k"
+            globalName: "Alice Kim"
+            password: "P@ssw0rd123!"
+            birthDate: "2001-05-10"
             subscribedToNewsletter: true
     responses:
       '201':
@@ -23,17 +23,73 @@ users:
           application/json:
             schema:
               $ref: '../schemas/user.yaml#/UserRegisterResponse'
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '409': { $ref: '../response/error.yaml#/Conflict' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+            example:
+              id: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
+              email: "alice@example.com"
+              username: "alice.k"
+              globalName: "Alice Kim"
+      '400':
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            examples:
+              invalidField:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "입력 값이 유효하지 않습니다."
+                  details:
+                    - "username: 공백일 수 없습니다."
+                    - "password: 크기가 8에서 72 사이여야 합니다"
+                    - "email: 크기가 6에서 254 사이여야 합니다"
+                    - "email: 올바른 형식의 이메일 주소여야 합니다"
+              invalidJSON:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  details:
+                    - "Unrecognized token 'True': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false') at line: 7, column: 35"
+
+      '409':
+        description: Conflict (이메일/사용자명 중복)
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              duplicateEmail:
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "이미 사용 중인 이메일입니다."
+              duplicateUsername:
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "이미 사용 중인 사용자명입니다."
 
   get:
     tags: [ Users ]
     summary: 사용자 목록/검색
     description: |
-      모든 사용자를 조회하거나 `username` 또는 `email` 조건으로 검색합니다.
-      `username`과 `email`을 동시에 전달하면 400을 반환합니다.
+      모든 사용자를 조회하거나 `username` 또는 `email` 조건으로 검색합니다.<br>
+      `username`과 `email`을 동시에 전달하면 400을 반환합니다.<br>
+      조회된 사용자가 1명이어도 array로 반환합니다.
     parameters:
       - in: query
         name: username
@@ -62,8 +118,21 @@ users:
               type: array
               items:
                 $ref: '../schemas/user.yaml#/UserResponse'
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '400':
+        description: Bad Request (이메일/사용자명 동시 포함)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            example:
+              timestamp: "2025-08-17T15:30:02Z"
+              path: "/api/users"
+              method: "GET"
+              status: 400
+              code: "BAD_REQUEST"
+              message: "요청이 올바르지 않습니다."
+              details:
+                - "username과 email은 동시에 포함될 수 없습니다."
 
 user:
   get:
@@ -83,16 +152,15 @@ user:
           application/json:
             schema:
               $ref: '../schemas/user.yaml#/UserResponse'
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '404':
+        $ref: '../response/errors.yaml#/NotFound'
 
   delete:
     tags: [ Users ]
     summary: 사용자 삭제 (소프트 삭제)
     description: |
-      사용자 계정을 소프트 삭제합니다.
-      또한 사용자가 **owner**인 길드를 소프트 삭제하고,
+      사용자 계정을 소프트 삭제합니다.<br>
+      또한 사용자가 **owner**인 길드를 소프트 삭제하고,<br>
       해당 사용자가 보낸/받은 **친구 요청**도 함께 소프트 삭제합니다.
     parameters:
       - in: path
@@ -103,10 +171,7 @@ user:
     responses:
       '204':
         description: No Content
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '409': { $ref: '../response/error.yaml#/Conflict' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
 
 user_profile_settings:
   patch:
@@ -129,9 +194,9 @@ user_profile_settings:
             bio: Hello, world!
     responses:
       '204': { description: No Content }
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_profile_image:
   put:
@@ -153,9 +218,9 @@ user_profile_image:
             profileId: "b9a9a9c2-3d3b-4f0a-b5a1-1f2a4c6b7d8e"
     responses:
       '204': { description: No Content }
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
   delete:
     tags: [ Users ]
@@ -167,9 +232,9 @@ user_profile_image:
         schema: { type: string, format: uuid }
     responses:
       '204': { description: No Content }
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_email:
   put:
@@ -191,10 +256,10 @@ user_email:
             email: "alice.new@example.com"
     responses:
       '204': { description: No Content }
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '409': { $ref: '../response/error.yaml#/Conflict' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '409': { $ref: '../response/errors.yaml#/Conflict' }
+      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_username:
   put:
@@ -216,10 +281,10 @@ user_username:
             username: "alice.k"
     responses:
       '204': { description: No Content }
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '409': { $ref: '../response/error.yaml#/Conflict' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '409': { $ref: '../response/errors.yaml#/Conflict' }
+      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_password:
   put:
@@ -241,10 +306,10 @@ user_password:
             password: "N3wP@ssw0rd!"
     responses:
       '204': { description: No Content }
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '409': { $ref: '../response/error.yaml#/Conflict' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '409': { $ref: '../response/errors.yaml#/Conflict' }
+      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_phone_number:
   put:
@@ -268,9 +333,9 @@ user_phone_number:
               value: { phoneNumber: "+821012345678" }
     responses:
       '204': { description: No Content }
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
   delete:
     tags: [ Users ]
@@ -282,9 +347,9 @@ user_phone_number:
         schema: { type: string, format: uuid }
     responses:
       '204': { description: No Content }
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_status:
   put:
@@ -306,9 +371,9 @@ user_status:
             userStatusType: "IDLE"
     responses:
       '204': { description: No Content }
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '500': { $ref: '../response/errors.yaml#/InternalError' }
 
 user_deactivation:
   post:
@@ -322,6 +387,6 @@ user_deactivation:
         schema: { type: string, format: uuid }
     responses:
       '204': { description: No Content }
-      '400': { $ref: '../response/error.yaml#/BadRequest' }
-      '404': { $ref: '../response/error.yaml#/NotFound' }
-      '500': { $ref: '../response/error.yaml#/InternalError' }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '500': { $ref: '../response/errors.yaml#/InternalError' }

@@ -17,7 +17,11 @@ UserResponse:
 
 UserRegisterRequest:
   type: object
-  required: [ email, username, password, birthDate ]
+  required:
+    - email
+    - username
+    - password
+    - birthDate
   properties:
     email:
       type: string
@@ -44,20 +48,31 @@ UserRegisterRequest:
     birthDate:
       type: string
       format: date
+      description: 생년월일(YYYY-MM-DD)
     subscribedToNewsletter:
       type: boolean
       default: false
+      description: 광고성 이메일 수신 여부
 
 UserRegisterResponse:
   type: object
-  required: [ id, email, username, globalName ]
+  required:
+    - id
+    - email
+    - username
+    - globalName
   properties:
-    id: { type: string, format: uuid }
-    email: { type: string, format: email, maxLength: 254 }
-    username: { type: string, maxLength: 32 }
-    globalName: { type:
-                    string, nullable:
-                    true, maxLength: 32 }
+    id:
+      type: string
+      format: uuid
+    email:
+      - type: string
+      - format: email
+    username:
+      - type: string
+    globalName:
+      - type: string
+      - nullable: true
 
 UserUpdateProfileSettingsRequest:
   type: object
