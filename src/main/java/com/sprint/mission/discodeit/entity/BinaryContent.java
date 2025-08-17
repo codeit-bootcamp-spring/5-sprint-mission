@@ -16,7 +16,6 @@ public class BinaryContent extends BaseEntity implements Serializable {
     private long size;
     private byte[] data;
 
-    // Simple constructor for testing serialization
     public BinaryContent() {
         super();
     }

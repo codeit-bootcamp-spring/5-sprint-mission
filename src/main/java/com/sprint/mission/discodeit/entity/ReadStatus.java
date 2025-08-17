@@ -16,7 +16,6 @@ public class ReadStatus extends BaseEntity implements Serializable {
     private UUID channelId;
     private Instant lastReadAt;
 
-    // Simple constructor for testing serialization
     public ReadStatus() {
         super();
     }

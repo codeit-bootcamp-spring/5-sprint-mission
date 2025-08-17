@@ -28,7 +28,6 @@ public class BinaryContentController {
         this.binaryContentService = binaryContentService;
     }
 
-    // 바이너리 파일 1개 또는 여러 개 조회
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<BinaryContentResponse>> getBinaryContents(@RequestParam("ids") List<UUID> ids) {
         List<BinaryContentResponse> response = binaryContentService.findAllByIdIn(ids);

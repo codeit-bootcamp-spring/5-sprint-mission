@@ -16,7 +16,6 @@ public abstract class BaseEntity implements Serializable {
     protected Instant createdAt;
     protected Instant updatedAt;
 
-    // Add this constructor to ensure ID is always initialized
     public BaseEntity(UUID id, Instant createdAt, Instant updatedAt) {
         this.id = (id == null) ? UUID.randomUUID() : id;
         this.createdAt = (createdAt == null) ? Instant.now() : createdAt;

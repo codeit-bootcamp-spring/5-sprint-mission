@@ -22,7 +22,6 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    // 메시지 전송
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<MessageResponse> createMessage(@RequestBody MessageCreateRequest request) {
         MessageResponse response = messageService.create(request);
@@ -30,7 +29,6 @@ public class MessageController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // 메시지 수정
     @RequestMapping(value = "/{messageId}", method = RequestMethod.PUT)
     public ResponseEntity<MessageResponse> updateMessage(@PathVariable UUID messageId, @RequestBody MessageUpdateRequest request) {
         if (request.getId() == null || !messageId.equals(request.getId())) {
@@ -40,7 +38,6 @@ public class MessageController {
         return ResponseEntity.ok(response);
     }
 
-    // 메시지 삭제
     @RequestMapping(value = "/{messageId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteMessage(@PathVariable UUID messageId) {
         messageService.delete(messageId);

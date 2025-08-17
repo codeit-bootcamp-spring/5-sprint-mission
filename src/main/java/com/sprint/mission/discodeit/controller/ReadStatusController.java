@@ -23,14 +23,12 @@ public class ReadStatusController {
         this.readStatusService = readStatusService;
     }
 
-    // 메시지 수신 정보 생성
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<ReadStatusResponse> createReadStatus(@RequestBody ReadStatusCreateRequest request) {
         ReadStatusResponse response = readStatusService.create(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // 메시지 수신 정보 수정
     @RequestMapping(value = "/{statusId}", method = RequestMethod.PUT)
     public ResponseEntity<ReadStatusResponse> updateReadStatus(@PathVariable UUID statusId, @RequestBody ReadStatusUpdateRequest request) {
         if (request.getId() == null || !statusId.equals(request.getId())) {
@@ -40,7 +38,6 @@ public class ReadStatusController {
         return ResponseEntity.ok(response);
     }
 
-    // 특정 사용자의 메시지 수신 정보 조회
     @RequestMapping(value = "/users/{userId}", method = RequestMethod.GET)
     public ResponseEntity<List<ReadStatusResponse>> getReadStatusesByUserId(@PathVariable UUID userId) {
         List<ReadStatusResponse> readStatuses = readStatusService.findAllByUserId(userId);

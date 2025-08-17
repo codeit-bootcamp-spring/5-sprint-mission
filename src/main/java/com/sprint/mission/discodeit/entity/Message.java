@@ -17,7 +17,6 @@ public class Message extends BaseEntity implements java.io.Serializable {
     private UUID authorId;
     private List<UUID> attachmentIds = new ArrayList<>();
 
-    // Simple constructor for testing serialization
     public Message() {
         super();
     }
