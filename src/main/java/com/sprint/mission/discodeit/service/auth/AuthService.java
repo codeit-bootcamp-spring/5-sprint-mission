@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
+    private final PasswordEncoder passwordEncoder;
 
     protected void update(UUID id, Consumer<User> updater) {
         User entity = userRepository.getOrThrow(id);
@@ -31,9 +33,11 @@ public class AuthService {
 
     @Transactional
     public UserResponse login(AuthLoginRequest req) {
-        User user = userRepository.findByEmail(req.email())
-                // .filter(u -> u.checkPassword(req.password()))
-                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다."));
+        String email = req.email().strip().toLowerCase();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다."));
+        String password = req.password().strip();
+        if (!passwordEncoder.matches(password, user.getPassword()))
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다.");
 
         if (user.isBanned()) throw new AccessDeniedException("정지된 계정입니다.");
 
@@ -50,6 +54,7 @@ public class AuthService {
 
     @Transactional
     public void logout(UUID userId) {
+        userRepository.getOrThrow(userId);
         UserStatus userStatus = userStatusRepository.findByUserId(userId).orElseGet(() -> new UserStatus(userId));
         userStatus.logout();
         userStatusRepository.save(userStatus);

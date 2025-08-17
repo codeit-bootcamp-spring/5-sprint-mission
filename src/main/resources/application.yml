@@ -13,3 +13,5 @@ springdoc:
     urls:
       - name: Users API
         url: /docs/openapi-users.yaml
+      - name: Auth API
+        url: /docs/openapi-auth.yaml
