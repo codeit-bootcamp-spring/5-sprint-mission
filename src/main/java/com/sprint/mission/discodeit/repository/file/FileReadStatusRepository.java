@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -14,14 +15,16 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Repository("fileReadStatusRepository")
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
+@Repository
 public class FileReadStatusRepository implements ReadStatusRepository {
 
     private static final String DIRECTORY = "file-data-map/ReadStatus";
     private final Path directoryPath;
+    private final String EXTENSION = ".ser";
 
     public FileReadStatusRepository(@Value("${discodeit.repository.file-directory}")String fileDirectory) {
-        this.directoryPath = Paths.get(System.getProperty("user.dir"), DIRECTORY);
+        this.directoryPath = Paths.get(System.getProperty("user.dir"), fileDirectory, "ReadStatus");
         if (Files.notExists(directoryPath)) {
             try {
                 Files.createDirectories(directoryPath);
@@ -83,26 +86,26 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         }
     }
 
-    @Override
-    public List<UUID> findChannelIdsByUserId(UUID userId) {
-        try {
-            return Files.list(directoryPath)
-                    .filter(path -> path.toString().endsWith(".ser"))
-                    .map(path -> {
-                        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile()))) {
-                            return (ReadStatus) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .filter(rs -> rs.getUserId().equals(userId))
-                    .map(ReadStatus::getChannelId)
-                    .distinct()
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    @Override
+//    public List<UUID> findChannelIdsByUserId(UUID userId) {
+//        try {
+//            return Files.list(directoryPath)
+//                    .filter(path -> path.toString().endsWith(".ser"))
+//                    .map(path -> {
+//                        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile()))) {
+//                            return (ReadStatus) ois.readObject();
+//                        } catch (IOException | ClassNotFoundException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                    })
+//                    .filter(rs -> rs.getUserId().equals(userId))
+//                    .map(ReadStatus::getChannelId)
+//                    .distinct()
+//                    .collect(Collectors.toList());
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     @Override
     public List<ReadStatus> findByUserId(UUID userId) {
@@ -124,12 +127,61 @@ public class FileReadStatusRepository implements ReadStatusRepository {
     }
 
     @Override
-    public List<UUID> findUserIdsByChannelId(UUID channelId) {
-        return findByChannelId(channelId).stream()
-                .map(ReadStatus::getUserId)
-                .distinct()
-                .collect(Collectors.toList());
+    public List<ReadStatus> findAllByUserId(UUID userId) {
+        try {
+            return Files.list(directoryPath)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (ReadStatus) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .filter(readStatus -> readStatus.getChannelId().equals(userId))
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    @Override
+    public List<ReadStatus> findAllByChannelId(UUID channelId) {
+        try {
+            return Files.list(directoryPath)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (ReadStatus) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .filter(readStatus -> readStatus.getChannelId().equals(channelId))
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteAllByChannelId(UUID id) {
+        this.findAllByChannelId(id)
+                .forEach(readStatus -> this.deleteById(readStatus.getId()));
+    }
+//    @Override
+//    public List<UUID> findUserIdsByChannelId(UUID channelId) {
+//        return findByChannelId(channelId).stream()
+//                .map(ReadStatus::getUserId)
+//                .distinct()
+//                .collect(Collectors.toList());
+//    }
 
     @Override
     public boolean existsById(UUID id) {

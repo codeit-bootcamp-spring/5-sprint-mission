@@ -4,9 +4,8 @@ import java.util.UUID;
 
 public record BinaryContentResponse(
         UUID id,
-        UUID messageId,
         String fileName,
         String contentType,
-        long size
+        String base64Bytes
 ) {
 }

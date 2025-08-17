@@ -15,33 +15,24 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private UUID id;
-    private UUID profileId;
     private Instant createdAt;
     private Instant updatedAt;
+
     private String username;
     private String email;
     private String password;
+    private UUID profileId;
 
-    public User(String username, String email, String password) {
+    public User(String username, String email, String password, UUID profileId) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.username = username;
         this.email = email;
         this.password = password;
-    }
-
-    public void setProfileId(UUID profileId) {
         this.profileId = profileId;
-        this.updatedAt = Instant.now();
     }
 
-    public void removeProfile() {
-        this.profileId = null;
-        this.updatedAt = Instant.now();
-    }
-
-
-    public void update(String newUsername, String newEmail, String newPassword) {
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
         boolean anyValueUpdated = false;
         if (newUsername != null && !newUsername.equals(this.username)) {
             this.username = newUsername;
@@ -53,6 +44,11 @@ public class User implements Serializable {
         }
         if (newPassword != null && !newPassword.equals(this.password)) {
             this.password = newPassword;
+            anyValueUpdated = true;
+        }
+
+        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+            this.profileId = newProfileId;
             anyValueUpdated = true;
         }
 

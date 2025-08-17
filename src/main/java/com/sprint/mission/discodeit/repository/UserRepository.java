@@ -12,7 +12,7 @@ public interface UserRepository {
     Optional<User> findByUsername(String username);
     List<User> findAll();
     boolean existsById(UUID id);
+    void deleteById(UUID id);
     boolean existsByName(String name);
     boolean existsByEmail(String email);
-    void deleteById(UUID id);
 }
