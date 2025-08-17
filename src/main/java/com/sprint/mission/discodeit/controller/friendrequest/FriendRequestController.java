@@ -1,13 +1,14 @@
 package com.sprint.mission.discodeit.controller.friendrequest;
 
+import com.sprint.mission.discodeit.domain.enums.FriendRequestAction;
 import com.sprint.mission.discodeit.dto.request.friendrequest.FriendRequestHandleRequest;
 import com.sprint.mission.discodeit.dto.request.friendrequest.FriendRequestSendRequest;
 import com.sprint.mission.discodeit.dto.response.friendrequest.FriendRequestResponse;
 import com.sprint.mission.discodeit.service.friendrequest.FriendRequestService;
-import com.sprint.mission.discodeit.service.user.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,10 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,58 +27,55 @@ import java.util.UUID;
 @RequestMapping("/api/friend-requests")
 public class FriendRequestController {
 
-    private final UserService userService;
     private final FriendRequestService friendRequestService;
 
-    @GetMapping
-    public ResponseEntity<List<FriendRequestResponse>> findAll() {
-        return ResponseEntity.ok(friendRequestService.findAll());
+    @GetMapping({"", "/"})
+    @ResponseStatus(HttpStatus.OK)
+    public List<FriendRequestResponse> findAll() {
+        return friendRequestService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public FriendRequestResponse find(
+            @PathVariable("id") @NotNull UUID id) {
+        return friendRequestService.findById(id);
     }
 
     @GetMapping(path = "/sent")
-    public ResponseEntity<List<FriendRequestResponse>> findAllBySenderId(@RequestParam("userId") UUID userId) {
-        return ResponseEntity.ok(friendRequestService.findAllBySenderId(userId));
+    @ResponseStatus(HttpStatus.OK)
+    public List<FriendRequestResponse> findAllBySenderId(@RequestParam("userId") UUID userId) {
+        return friendRequestService.findAllBySenderId(userId);
     }
 
     @GetMapping(path = "/received")
-    public ResponseEntity<List<FriendRequestResponse>> findAllByReceiverId(@RequestParam("userId") UUID userId) {
-        return ResponseEntity.ok(friendRequestService.findAllByReceiverId(userId));
+    @ResponseStatus(HttpStatus.OK)
+    public List<FriendRequestResponse> findAllByReceiverId(@RequestParam("userId") UUID userId) {
+        return friendRequestService.findAllByReceiverId(userId);
     }
 
-    @PostMapping
-    public ResponseEntity<FriendRequestResponse> sendFriendRequest(@Valid @RequestBody FriendRequestSendRequest body) {
-        FriendRequestResponse saved = friendRequestService.send(body);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(saved.id())
-                .toUri();
-        return ResponseEntity.created(location).body(saved);
+    @PostMapping({"", "/"})
+    @ResponseStatus(HttpStatus.CREATED)
+    public FriendRequestResponse send(@Valid @RequestBody FriendRequestSendRequest body) {
+        return friendRequestService.send(body);
     }
 
     @DeleteMapping(path = "/by-user/{userId}")
-    public ResponseEntity<Void> clearFriendRequests(@PathVariable("userId") UUID userId) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void clearFriendRequests(@PathVariable("userId") UUID userId) {
         friendRequestService.clearFriendRequests(userId);
-        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(path = "/{id}/accept")
-    public ResponseEntity<Void> accept(@PathVariable("id") UUID requestId,
-                                       @Valid @RequestBody FriendRequestHandleRequest body) {
-        friendRequestService.accept(requestId, body.userId());
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping(path = "/{id}/reject")
-    public ResponseEntity<Void> reject(@PathVariable("id") UUID requestId,
-                                       @Valid @RequestBody FriendRequestHandleRequest body) {
-        friendRequestService.reject(requestId, body.userId());
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping(path = "/{id}/cancel")
-    public ResponseEntity<Void> cancel(@PathVariable("id") UUID requestId,
-                                       @Valid @RequestBody FriendRequestHandleRequest body) {
-        friendRequestService.cancel(requestId, body.userId());
-        return ResponseEntity.noContent().build();
+    @DeleteMapping(path = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void accept(@PathVariable("id") UUID requestId,
+                       @RequestParam(name = "action") FriendRequestAction action,
+                       @Valid @RequestBody FriendRequestHandleRequest body) {
+        switch (action) {
+            case ACCEPT -> friendRequestService.accept(requestId, body.userId());
+            case REJECT -> friendRequestService.reject(requestId, body.userId());
+            case CANCEL -> friendRequestService.cancel(requestId, body.userId());
+            default -> throw new IllegalArgumentException("지원하지 않는 action입니다: " + action);
+        }
     }
 }

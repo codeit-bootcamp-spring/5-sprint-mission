@@ -7,11 +7,11 @@ servers:
 
 paths:
   /:
-    $ref: "./paths/binarycontents.yaml#/binary_contents_root"
+    $ref: "./paths/binary-contents.yaml#/binary_contents_root"
   /{id}:
-    $ref: "./paths/binarycontents.yaml#/binary_content_by_id"
+    $ref: "./paths/binary-contents.yaml#/binary_content_by_id"
 
 components:
   schemas:
     UserResponse:
-      $ref: "./schemas/binarycontent.yaml#/BinaryContentResponse"
+      $ref: "./schemas/binary-content.yaml#/BinaryContentResponse"

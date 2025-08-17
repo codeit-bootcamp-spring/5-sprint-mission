@@ -84,4 +84,14 @@ public class FileFriendRequestRepository extends AbstractFileRepository<FriendRe
                 .findFirst();
         return fr.map(e -> softDeleteById(e.getId())).orElse(false);
     }
+
+    @Override
+    public boolean hardDeleteBySenderAndReceiver(UUID senderId, UUID receiverId) {
+        Objects.requireNonNull(senderId, "senderId must not be null");
+        Objects.requireNonNull(receiverId, "receiverId must not be null");
+        Optional<FriendRequest> fr = findAll().stream()
+                .filter(e -> senderId.equals(e.getSenderId()) && receiverId.equals(e.getReceiverId()))
+                .findFirst();
+        return fr.map(e -> hardDeleteById(e.getId())).orElse(false);
+    }
 }

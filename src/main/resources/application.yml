@@ -17,3 +17,5 @@ springdoc:
         url: /docs/openapi-auth.yaml
       - name: Binary Contents API
         url: /docs/openapi-binary-contents.yaml
+      - name: Friend Requests API
+        url: /docs/openapi-friend-requests.yaml

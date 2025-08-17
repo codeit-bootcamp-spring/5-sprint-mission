@@ -1,0 +1,29 @@
+openapi: 3.0.3
+info:
+  title: Discodeit API
+  version: "1.0.0"
+servers:
+  - url: /api/friend-requests
+
+paths:
+  /:
+    $ref: "./paths/friend-requests.yaml#/friend_requests_root"
+  /{id}:
+    $ref: "./paths/friend-requests.yaml#/friend_request_by_id"
+  /sent:
+    $ref: "./paths/friend-requests.yaml#/friend_requests_sent"
+  /received:
+    $ref: "./paths/friend-requests.yaml#/friend_requests_received"
+  /by-user/{userId}:
+    $ref: "./paths/friend-requests.yaml#/friend_requests_clear_by_user"
+
+components:
+  schemas:
+    FriendRequestSendRequest:
+      $ref: "./schemas/friend-request.yaml#/FriendRequestSendRequest"
+    FriendRequestHandleRequest:
+      $ref: "./schemas/friend-request.yaml#/FriendRequestHandleRequest"
+    FriendRequestResponse:
+      $ref: "./schemas/friend-request.yaml#/FriendRequestResponse"
+    ApiError:
+      $ref: "./schemas/error.yaml#/ApiError"

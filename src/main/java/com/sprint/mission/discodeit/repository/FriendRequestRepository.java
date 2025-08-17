@@ -18,4 +18,6 @@ public interface FriendRequestRepository extends AbstractRepository<FriendReques
     int softDeleteAllByUserId(UUID userId);
 
     boolean softDeleteBySenderAndReceiver(UUID senderId, UUID receiverId);
+
+    boolean hardDeleteBySenderAndReceiver(UUID senderId, UUID receiverId);
 }

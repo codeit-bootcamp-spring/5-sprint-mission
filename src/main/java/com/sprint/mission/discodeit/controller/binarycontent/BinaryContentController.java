@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static org.springframework.http.ContentDisposition.parse;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/api/binary-contents")
@@ -97,7 +99,7 @@ public class BinaryContentController {
     private static String parseFilename(String contentDisposition) {
         if (contentDisposition == null || contentDisposition.isBlank()) return null;
         try {
-            return org.springframework.http.ContentDisposition.parse(contentDisposition).getFilename();
+            return parse(contentDisposition).getFilename();
         } catch (Exception ignore) {
             return null;
         }

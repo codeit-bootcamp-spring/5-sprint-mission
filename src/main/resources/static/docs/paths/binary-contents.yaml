@@ -50,7 +50,7 @@ binary_contents_root:
         content:
           application/json:
             schema:
-              $ref: "../schemas/binarycontent.yaml#/BinaryContentResponse"
+              $ref: "../schemas/binary-content.yaml#/BinaryContentResponse"
             examples:
               created:
                 value:
@@ -89,7 +89,7 @@ binary_contents_root:
             schema:
               type: array
               items:
-                $ref: "../schemas/binarycontent.yaml#/BinaryContentResponse"
+                $ref: "../schemas/binary-content.yaml#/BinaryContentResponse"
 
 binary_content_by_id:
   get:
@@ -109,7 +109,7 @@ binary_content_by_id:
         content:
           application/json:
             schema:
-              $ref: "../schemas/binarycontent.yaml#/BinaryContentResponse"
+              $ref: "../schemas/binary-content.yaml#/BinaryContentResponse"
       '404':
         $ref: "../response/errors.yaml#/NotFound"
 
