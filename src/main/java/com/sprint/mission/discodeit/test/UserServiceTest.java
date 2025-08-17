@@ -82,7 +82,9 @@ public class UserServiceTest {
         User user = new User("홍길동", "hong", "1111");
         userService.save(user);
 
-        User updateUser = userService.update(user.getId(), new User("홍남동", "동에번쩍", "4321"));
+        userService.update(user.getId(), new User("홍남동", "동에번쩍", "4321"));
+
+        User updateUser = userService.findById(user.getId());
 
         boolean isSuccess = "홍남동".equals(updateUser.getName())
                 && "동에번쩍".equals(updateUser.getNickname())

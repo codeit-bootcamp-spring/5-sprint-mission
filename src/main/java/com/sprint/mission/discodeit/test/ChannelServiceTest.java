@@ -78,7 +78,9 @@ public class ChannelServiceTest {
         Channel channel = new Channel("질문방", "질문 있으면 하는 방");
         channelService.save(channel);
 
-        Channel updateChannel = channelService.update(channel.getId(), new Channel("Q&A", "공지 봐주세요"));
+        channelService.update(channel.getId(), new Channel("Q&A", "공지 봐주세요"));
+
+        Channel updateChannel = channelService.findById(channel.getId());
 
         boolean isSuccess = "Q&A".equals(updateChannel.getName())
                 && "공지 봐주세요".equals(updateChannel.getDescription());
