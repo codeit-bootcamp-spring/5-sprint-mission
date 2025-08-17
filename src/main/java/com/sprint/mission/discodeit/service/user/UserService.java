@@ -136,11 +136,15 @@ public class UserService {
     public void deleteAccount(UUID userId) {
         User user = userRepository.getOrThrow(userId);
 
-        guildRepository.findGuildsOwnedByUser(userId).forEach(g -> guildRepository.softDeleteById(g.getId()));
+        guildRepository.findGuildsOwnedByUser(user.getId()).forEach(g -> guildRepository.softDeleteById(g.getId()));
 
-        friendRequestRepository.softDeleteAllByUserId(userId);
+        friendRequestRepository.softDeleteAllByUserId(user.getId());
 
-        userRepository.softDeleteById(userId);
+        if (user.getProfileId() != null) binaryContentRepository.softDeleteById(user.getProfileId());
+
+        userStatusRepository.softDeleteByUserId(user.getId());
+
+        userRepository.softDeleteById(user.getId());
     }
 
     @Transactional
