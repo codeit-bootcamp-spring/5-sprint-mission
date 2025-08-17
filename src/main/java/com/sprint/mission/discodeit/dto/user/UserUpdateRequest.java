@@ -8,10 +8,10 @@ import java.util.UUID;
 @Data
 @ToString
 public class UserUpdateRequest {
-    private final UUID id;
-    private final String userId;
-    private final String email;
-    private final String password;
+    private UUID id;
+    private String userId;
+    private String email;
+    private String password;
     private ProfileImageRequest profileImage;
 
     public UserUpdateRequest(UUID id, String userId, String email, String password, ProfileImageRequest profileImage) {
@@ -20,6 +20,9 @@ public class UserUpdateRequest {
         this.email = email;
         this.password = password;
         this.profileImage = profileImage;
+    }
+
+    public UserUpdateRequest() {
     }
 
     public UserUpdateRequest(UUID id, String userId, String email, String password) {

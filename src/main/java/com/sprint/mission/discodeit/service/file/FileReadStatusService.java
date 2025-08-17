@@ -47,7 +47,7 @@ public class FileReadStatusService implements ReadStatusService {
                 //anyMatch : 하나라도 조건에 맞으면 true 반환
                 .anyMatch(rs -> rs.getChannelId().equals(request.getChannelId())
                         && rs.getUserId().equals(request.getUserId()));
-        if (!exists) {
+        if (exists) {
             throw new IllegalArgumentException("이미 읽음 처리된 상태입니다.");
         }
 

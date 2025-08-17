@@ -19,9 +19,11 @@ public class FileBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public void create(BinaryContentCreateRequest request) {
+    public UUID create(BinaryContentCreateRequest request) {
+        UUID newId = UUID.randomUUID();
+
         BinaryContent binaryContent = new BinaryContent(
-                UUID.randomUUID(),
+                newId,
                 Instant.now(),                   // createdAt
                 request.getOwnerId(),            // ownerId
                 request.getFileName(),           // fileName
@@ -30,6 +32,7 @@ public class FileBinaryContentService implements BinaryContentService {
                 request.getData()
         );
         binaryContentRepository.save(binaryContent);
+        return newId; // 새로 생성한 파일의 ID 반환
     }
 
     @Override
