@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.Clock;
 import java.time.Duration;
@@ -11,47 +11,43 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Getter
+@EqualsAndHashCode(of = {"id", "userId"})
 public class UserStatus implements Serializable {
-    @Serial private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public static final Duration ONLINE_TIMEOUT = Duration.ofMinutes(5);
 
     private final UUID id;
     private final UUID userId;
-    private Instant lastAt;
+    private Instant lastActiveAt;
 
-    private Instant createdAt;
+    private final Instant createdAt;
     private Instant updatedAt;
 
-    public UserStatus(UUID userId, Instant lastAt) {
+    public UserStatus(UUID userId, Instant lastActiveAt) {
         this.id = UUID.randomUUID();
         this.userId = userId;
-        this.lastAt = lastAt;
+        this.lastActiveAt = lastActiveAt;
 
         this.createdAt = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS);
         this.updatedAt = createdAt;
     }
 
-    public boolean isOnline() {
-        return isOnline(Instant.now());
-    }
-
-    public boolean isOnline(Instant now) {
-        if (lastAt == null) {
-            return false;
+    public void update(Instant lastActiveAt) {
+        boolean anyValueUpdated = false;
+        if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+            this.lastActiveAt = lastActiveAt;
+            anyValueUpdated = true;
         }
-        return !now.isBefore(lastAt) && Duration.between(lastAt, now).compareTo(ONLINE_TIMEOUT) <= 0;
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 
-    public boolean isOnline(Clock clock) {
-        return isOnline(Instant.now(clock));
-    }
+    public Boolean isOnline() {
+        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
 
-    public void markOnlineNow() {
-        this.lastAt = Instant.now();
-    }
-
-    public void markOnline(Instant now) {
-        this.lastAt = Objects.requireNonNull(now, "now");
+        return lastActiveAt.isAfter(instantFiveMinutesAgo);
     }
 }
