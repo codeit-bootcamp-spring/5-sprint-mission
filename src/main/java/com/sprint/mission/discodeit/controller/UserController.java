@@ -78,7 +78,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
-    @RequestMapping(value = "/update/{userId}/status", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/updateStatus/{userId}", method = RequestMethod.PATCH)
     public ResponseEntity<UserStatus> updateStatus(
             @PathVariable UUID userId,
             @RequestBody UserStatusUpdateRequest userStatusUpdateRequest) {
