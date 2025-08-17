@@ -41,6 +41,15 @@ public final class FileNames {
         return ext.matches("[a-z0-9]+") ? ext : null;
     }
 
+    private static String baseNameFromFilename(String filename) {
+        if (filename == null) return null;
+        int dot = filename.lastIndexOf('.');
+        if (dot > 0) {
+            return filename.substring(0, dot);
+        }
+        return filename;
+    }
+
     public static String extFromContentType(String contentType) {
         if (contentType == null || contentType.isBlank()) return null;
         try {
@@ -57,6 +66,12 @@ public final class FileNames {
         if (ext == null) {
             ext = Objects.requireNonNullElse(extFromContentType(contentType), "bin");
         }
-        return randomBase() + "." + ext;
+
+        String baseName = baseNameFromFilename(originalFilename);
+        if (baseName == null || baseName.isBlank()) {
+            baseName = "file";
+        }
+
+        return baseName + "_" + randomBase() + "." + ext;
     }
 }

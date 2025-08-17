@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.request.binarycontent.BinaryContentCreat
 import com.sprint.mission.discodeit.dto.response.binarycontent.BinaryContentResponse;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.service.binarycontent.BinaryContentService;
+import com.sprint.mission.discodeit.support.FileNames;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,16 +48,23 @@ public class BinaryContentController {
 
         String ct = normalizeContentType(contentType);
         String original = parseFilename(contentDisposition);
-        String random = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
 
-        String ext = original != null && original.contains(".")
-                ? original.substring(original.lastIndexOf("."))
-                : "";
-        String nameWithoutExt = original != null
-                ? original.substring(0, original.lastIndexOf(ext))
-                : "file";
+        String fileName;
+        if (original == null) {
+            fileName = FileNames.randomWithExtension(null, ct);
+        } else {
+            String random = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
 
-        String fileName = nameWithoutExt + "_" + random + ext;
+            String ext = original.contains(".")
+                    ? original.substring(original.lastIndexOf("."))
+                    : "";
+
+            String nameWithoutExt = original.contains(".")
+                    ? original.substring(0, original.lastIndexOf("."))
+                    : original;
+
+            fileName = nameWithoutExt + "_" + random + ext;
+        }
 
         return binaryContentService.create(
                 new BinaryContentCreateRequest(fileName, ct, body)
