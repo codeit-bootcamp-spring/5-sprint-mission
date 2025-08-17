@@ -1,0 +1,131 @@
+binary_contents_root:
+  post:
+    tags: [ BinaryContents ]
+    summary: 바이너리 콘텐츠 업로드
+    description: |
+      요청 본문에 **바이너리 데이터**를 담아 업로드합니다.
+      파일명은 `Content-Disposition` 헤더의 `filename` 파라미터를 우선 사용하며, 없으면 서버에서 확장자를 포함해 랜덤 생성합니다.
+    operationId: uploadBinaryContent
+    parameters:
+      - in: header
+        name: Content-Type
+        required: true
+        description: 업로드할 바이너리의 MIME 타입
+        schema:
+          type: string
+          enum: [ application/octet-stream, image/png, image/jpeg ]
+        example: image/png
+      - in: header
+        name: Content-Disposition
+        required: false
+        description: |
+          파일명 지정 시 사용합니다. 예) `attachment; filename="avatar.png"`
+        schema:
+          type: string
+        example: attachment; filename="avatar.png"
+    requestBody:
+      required: true
+      content:
+        application/octet-stream:
+          schema:
+            type: string
+            format: binary
+        image/png:
+          schema:
+            type: string
+            format: binary
+        image/jpeg:
+          schema:
+            type: string
+            format: binary
+    responses:
+      '201':
+        description: Created
+        headers:
+          Location:
+            description: 생성된 리소스 URI
+            schema:
+              type: string
+              format: uri
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/binarycontent.yaml#/BinaryContentResponse"
+            examples:
+              created:
+                value:
+                  id: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
+                  filename: "avatar_9f3a1c.png"
+                  contentType: "image/png"
+                  size: 125834
+                  createdAt: "2025-08-17T15:30:00Z"
+      '400':
+        description: Bad Request (빈 바디 등)
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              emptyBody:
+                value:
+                  timestamp: "2025-08-17T15:31:00Z"
+                  path: "/api/binary-contents"
+                  method: "POST"
+                  status: 400
+                  code: "BAD_REQUEST"
+                  message: "요청이 올바르지 않습니다."
+                  details:
+                    - "빈 파일은 업로드할 수 없습니다."
+
+  get:
+    tags: [ BinaryContents ]
+    summary: 바이너리 콘텐츠 목록 조회
+    operationId: listBinaryContents
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "../schemas/binarycontent.yaml#/BinaryContentResponse"
+
+binary_content_by_id:
+  get:
+    tags: [ BinaryContents ]
+    summary: 바이너리 콘텐츠 단건 조회
+    operationId: getBinaryContent
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/binarycontent.yaml#/BinaryContentResponse"
+      '404':
+        $ref: "../response/errors.yaml#/NotFound"
+
+  delete:
+    tags: [ BinaryContents ]
+    summary: 바이너리 콘텐츠 삭제(soft delete)
+    operationId: deleteBinaryContent
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '204':
+        description: No Content
+      '404':
+        $ref: "../response/errors.yaml#/NotFound"

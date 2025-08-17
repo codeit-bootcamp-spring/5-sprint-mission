@@ -1,4 +1,4 @@
-users:
+users_root:
   post:
     tags: [ Users ]
     summary: 회원가입

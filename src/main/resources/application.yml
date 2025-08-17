@@ -15,3 +15,5 @@ springdoc:
         url: /docs/openapi-users.yaml
       - name: Auth API
         url: /docs/openapi-auth.yaml
+      - name: Binary Contents API
+        url: /docs/openapi-binary-contents.yaml

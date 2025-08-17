@@ -7,7 +7,7 @@ servers:
 
 paths:
   /:
-    $ref: "./paths/users.yaml#/users"
+    $ref: "./paths/users.yaml#/users_root"
   /{id}:
     $ref: "./paths/users.yaml#/user"
   /{id}/profile-settings:

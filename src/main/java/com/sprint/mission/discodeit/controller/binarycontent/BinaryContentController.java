@@ -5,8 +5,8 @@ import com.sprint.mission.discodeit.dto.response.binarycontent.BinaryContentResp
 import com.sprint.mission.discodeit.service.binarycontent.BinaryContentService;
 import com.sprint.mission.discodeit.support.FileNames;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,11 +33,12 @@ public class BinaryContentController {
             MediaType.IMAGE_JPEG_VALUE
     );
 
-    @PostMapping(consumes = {
+    @PostMapping(path = {"", "/"}, consumes = {
             MediaType.APPLICATION_OCTET_STREAM_VALUE,
             MediaType.IMAGE_PNG_VALUE,
             MediaType.IMAGE_JPEG_VALUE})
-    public ResponseEntity<BinaryContentResponse> upload(
+    @ResponseStatus(HttpStatus.CREATED)
+    public BinaryContentResponse upload(
             @RequestHeader(value = "Content-Type", required = false) String contentType,
             @RequestHeader(value = "Content-Disposition", required = false) String contentDisposition,
             @RequestBody byte[] body
@@ -48,28 +49,27 @@ public class BinaryContentController {
         String original = parseFilename(contentDisposition);
         String fileName = FileNames.randomWithExtension(original, ct);
 
-        BinaryContentResponse created = binaryContentService.create(
+        return binaryContentService.create(
                 new BinaryContentCreateRequest(fileName, ct, body)
         );
-        return ResponseEntity
-                .created(URI.create("/api/binary-contents/" + created.id()))
-                .body(created);
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<BinaryContentResponse> find(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok(binaryContentService.findById(id));
+    @ResponseStatus(HttpStatus.OK)
+    public BinaryContentResponse find(@PathVariable("id") UUID id) {
+        return binaryContentService.findById(id);
     }
 
-    @GetMapping
-    public ResponseEntity<List<BinaryContentResponse>> findAll() {
-        return ResponseEntity.ok(binaryContentService.findAll());
+    @GetMapping({"", "/"})
+    @ResponseStatus(HttpStatus.OK)
+    public List<BinaryContentResponse> findAll() {
+        return binaryContentService.findAll();
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") UUID id) {
         binaryContentService.delete(id);
-        return ResponseEntity.noContent().build();
     }
 
     private static String normalizeContentType(String ct) {
