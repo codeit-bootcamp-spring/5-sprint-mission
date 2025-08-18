@@ -6,6 +6,7 @@ import java.util.Base64;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.MediaType;
@@ -80,5 +81,45 @@ public final class FileNames {
     }
 
     return baseName + "_" + randomBase() + "." + ext;
+  }
+
+  public static String normalizeContentType(String ct) {
+    if (ct == null || ct.isBlank()) {
+      return MediaType.APPLICATION_OCTET_STREAM_VALUE;
+    }
+    int semi = ct.indexOf(';');
+    return (semi >= 0 ? ct.substring(0, semi) : ct).trim().toLowerCase();
+  }
+
+  public static String buildStoredName(String original, String contentType) {
+    String random = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+    String ext = extFromOriginalOrContentType(original, contentType);
+    String base = baseName(original);
+    return base + "_" + random + ext;
+  }
+
+  public static String baseName(String original) {
+    if (original == null || original.isBlank()) {
+      return "file";
+    }
+    String name = Paths.get(original).getFileName().toString();
+    int dot = name.lastIndexOf('.');
+    return (dot > 0) ? name.substring(0, dot) : name;
+  }
+
+  public static String extFromOriginalOrContentType(String original, String ct) {
+    if (original != null) {
+      String name = Paths.get(original).getFileName().toString();
+      int dot = name.lastIndexOf('.');
+      if (dot > 0 && dot < name.length() - 1) {
+        return name.substring(dot);
+      }
+    }
+    return switch (ct) {
+      case MediaType.IMAGE_PNG_VALUE -> ".png";
+      case MediaType.IMAGE_JPEG_VALUE -> ".jpg";
+      case "image/webp" -> ".webp";
+      default -> "";
+    };
   }
 }

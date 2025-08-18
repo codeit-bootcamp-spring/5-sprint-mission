@@ -6,14 +6,14 @@ import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
-import com.sprint.mission.discodeit.dto.request.user.UserRegisterRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateEmailRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdatePhoneNumberRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateUsernameRequest;
-import com.sprint.mission.discodeit.dto.response.user.UserRegisterResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserCreateResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
@@ -61,23 +61,22 @@ public class UserService {
   }
 
   @Transactional
-  public UserRegisterResponse register(UserRegisterRequest req) {
+  public UserCreateResponse create(UserCreateRequest req, UUID profileId) {
     String email = stripToLowerCase(req.email());
     if (userRepository.existsByEmail(email)) {
-      throw new DuplicateResourceException("이미 사용 중인 이메일입니다.");
+      throw new DuplicateResourceException("User with email %s already exists".formatted(email));
     }
     String username = stripToLowerCase(req.username());
     if (userRepository.existsByUsername(username)) {
-      throw new DuplicateResourceException("이미 사용 중인 사용자명입니다.");
+      throw new DuplicateResourceException(
+          "User with username %s already exists".formatted(username));
     }
 
     User user = new User(
         email,
         username,
         passwordEncoder.encode(req.password().strip()),
-        req.birthDate(),
-        req.subscribedToNewsletter(),
-        req.globalName()
+        profileId
     );
 
     try {
@@ -86,9 +85,10 @@ public class UserService {
       UserStatus userStatus = new UserStatus(saved.getId());
       userStatusRepository.save(userStatus);
 
-      return UserRegisterResponse.from(saved);
+      return UserCreateResponse.from(saved);
     } catch (DataIntegrityViolationException e) {
-      throw new DuplicateResourceException("이미 사용 중인 이메일 또는 사용자명입니다.");
+      throw new DuplicateResourceException(
+          "User with email %s or username %s already exists".formatted(email, username));
     }
   }
 

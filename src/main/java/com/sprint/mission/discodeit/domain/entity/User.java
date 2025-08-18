@@ -45,17 +45,13 @@ public class User extends AbstractEntity {
       String email,
       String username,
       String password,
-      LocalDate birthDate,
-      boolean subscribedToNewsletter,
-      String globalName
+      UUID profileId
   ) {
     this.email = normalizeEmail(Objects.requireNonNull(email, "email must not be null"));
     this.username = normalizeUsername(
         Objects.requireNonNull(username, "username must not be null"));
     this.password = Objects.requireNonNull(password, "password must not be null");
-    this.birthDate = Objects.requireNonNull(birthDate, "birthDate must not be null");
-    this.subscribedToNewsletter = subscribedToNewsletter;
-    this.globalName = stripOrNull(globalName);
+    this.profileId = profileId;
   }
 
   public void changeEmail(String email) {
@@ -83,8 +79,7 @@ public class User extends AbstractEntity {
   }
 
   public void changeBirthDate(LocalDate birthDate) {
-    LocalDate v = Objects.requireNonNull(birthDate, "birthDate must not be null");
-    assignIfChanged(v, () -> this.birthDate, x -> this.birthDate = x);
+    assignIfChanged(birthDate, () -> this.birthDate, x -> this.birthDate = x);
   }
 
   public void changeBio(String bio) {

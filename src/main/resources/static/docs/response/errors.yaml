@@ -42,7 +42,7 @@ Conflict:
         method: "POST"
         status: 409
         code: "CONFLICT"
-        message: "이미 사용 중인 이메일/사용자명입니다."
+        message: "User with email {email} already exists"
 
 MethodNotAllowed:
   description: Method Not Allowed

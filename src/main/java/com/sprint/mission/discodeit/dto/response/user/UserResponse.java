@@ -23,7 +23,7 @@ public record UserResponse(
         user.getUsername(),
         user.getEmail(),
         user.getProfileId(),
-        status.equals(UserStatusType.ONLINE)
+        !status.equals(UserStatusType.OFFLINE)
     );
   }
 }

@@ -32,7 +32,8 @@ public class BinaryContentController {
   private static final List<String> ACCEPTS = List.of(
       MediaType.APPLICATION_OCTET_STREAM_VALUE,
       MediaType.IMAGE_PNG_VALUE,
-      MediaType.IMAGE_JPEG_VALUE
+      MediaType.IMAGE_JPEG_VALUE,
+      "image.webp"
   );
 
   @PostMapping(path = {"", "/"}, consumes = {
