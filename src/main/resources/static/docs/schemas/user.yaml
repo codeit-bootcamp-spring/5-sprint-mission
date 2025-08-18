@@ -1,19 +1,14 @@
 UserResponse:
   type: object
-  required: [ id, createdAt, updatedAt, email, username, globalName, userStatusType ]
+  required: [ id, createdAt, updatedAt, email, username, online ]
   properties:
     id: { type: string, format: uuid }
     createdAt: { type: string, format: date-time }
     updatedAt: { type: string, format: date-time }
     email: { type: string, format: email, maxLength: 254 }
     username: { type: string, maxLength: 32 }
-    globalName: { type:
-                    string, nullable:
-                    true, maxLength: 32 }
-    bio: { type: string, nullable: true, maxLength: 2000 }
     profileId: { type: string, format: uuid, nullable: true }
-    userStatusType:
-      $ref: './user-status.yaml#/UserStatusType'
+    online: { type: boolean }
 
 UserRegisterRequest:
   type: object

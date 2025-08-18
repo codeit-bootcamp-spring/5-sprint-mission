@@ -9,12 +9,10 @@ public record UserResponse(
     UUID id,
     Instant createdAt,
     Instant updatedAt,
-    String email,
     String username,
-    String globalName,
-    String bio,
+    String email,
     UUID profileId,
-    UserStatusType userStatusType
+    boolean online
 ) {
 
   public static UserResponse from(User user, UserStatusType status) {
@@ -22,12 +20,10 @@ public record UserResponse(
         user.getId(),
         user.getCreatedAt(),
         user.getUpdatedAt(),
-        user.getEmail(),
         user.getUsername(),
-        user.getGlobalName(),
-        user.getBio(),
+        user.getEmail(),
         user.getProfileId(),
-        status
+        status.equals(UserStatusType.ONLINE)
     );
   }
 }

@@ -1,10 +1,10 @@
 openapi: 3.0.3
 info:
-  title: Discodeit API
+  title: Discodeit Friend Requests API
   version: "1.0.0"
+  description: 친구 요청(FriendRequest) 관련 API 문서
 servers:
   - url: /api/friend-requests
-
 paths:
   /:
     $ref: "./paths/friend-requests.yaml#/friend_requests_root"
@@ -16,7 +16,6 @@ paths:
     $ref: "./paths/friend-requests.yaml#/friend_requests_received"
   /by-user/{userId}:
     $ref: "./paths/friend-requests.yaml#/friend_requests_clear_by_user"
-
 components:
   schemas:
     FriendRequestSendRequest:

@@ -1,10 +1,10 @@
 openapi: 3.0.3
 info:
-  title: Discodeit API
+  title: Discodeit Users API
   version: "1.0.0"
+  description: 사용자(User) 관련 API 문서
 servers:
   - url: /api/users
-
 paths:
   /:
     $ref: "./paths/users.yaml#/users_root"
@@ -24,7 +24,6 @@ paths:
     $ref: "./paths/users.yaml#/user_phone_number"
   /{id}/deactivation:
     $ref: "./paths/users.yaml#/user_deactivation"
-
 components:
   schemas:
     UserResponse:
