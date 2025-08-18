@@ -11,9 +11,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
-    User createUser(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> profileCreateRequest);
-    UserDto findByUser(UUID userId);
+    User create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> profileCreateRequest);
+    UserDto find(UUID userId);
     List<UserDto> findAll();
-    User updateUser(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> profileCreateRequest );
-    void deleteByIdUser(UUID userId);
+    User update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> profileCreateRequest);
+    void delete(UUID userId);
 }
