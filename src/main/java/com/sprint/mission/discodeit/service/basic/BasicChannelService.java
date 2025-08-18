@@ -1,14 +1,14 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.channel.ChannelCreateDto;
-import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateDto;
+import com.sprint.mission.discodeit.dto.ChannelRequest;
+import com.sprint.mission.discodeit.dto.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.respository.ChannelRepository;
-import com.sprint.mission.discodeit.respository.ReadStatusRepository;
-import com.sprint.mission.discodeit.respository.UserRepository;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,19 +25,26 @@ public class BasicChannelService implements ChannelService {
     private final UserRepository userRepository;
 
     @Override
-    public Channel create(ChannelCreateDto dto) {
+    public ChannelResponse.detail create(ChannelRequest.create dto) {
         if (dto.name() == null || dto.name().isBlank()) {
             throw new IllegalArgumentException("채널 이름은 필수입니다.");
         }
-        if (dto.type() == null) {
-            throw new IllegalArgumentException("채널 이름은 필수입니다.");
-        }
-        Channel channel = new Channel(dto.name(), dto.type());
-        return channelRepository.save(channel);
+        Channel channel = new Channel(dto.name(), ChannelType.PUBLIC, dto.topic(),  dto.description());
+        channelRepository.save(channel);
+
+        return ChannelResponse.detail.builder()
+                .id(channel.getId())
+                .type(channel.getType())
+                .name(channel.getName())
+                .topic(channel.getTopic())
+                .description(channel.getDescription())
+                .createdAt(channel.getCreatedAtFormatted())
+                .updatedAt(channel.getUpdatedAtFormatted())
+                .build();
     }
 
     @Override
-    public Channel createPrivate(PrivateChannelCreateDto dto) {
+    public ChannelResponse.detail createPrivate(ChannelRequest.createPrivate dto) {
 
         if (dto.memberIds() == null || dto.memberIds().isEmpty())
             throw new IllegalArgumentException("PRIVATE 채널은 최소 1명 이상의 참여자가 필요합니다.");
@@ -48,18 +55,52 @@ public class BasicChannelService implements ChannelService {
                         .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자를 찾을 수 없습니다.")))
                 .toList();
 
-
-        // 채널 생성(이름/설명은 선택)
-        Channel channel = new Channel(ChannelType.PRIVATE);
-        Channel saved = channelRepository.save(channel);
+        Channel channel = new Channel(dto.name(),ChannelType.PRIVATE);
+        channelRepository.save(channel);
 
         // 참여자 전원에 대해 ReadStatus 생성(lastReadAt = null)
         List<ReadStatus> statuses = members.stream()
-                .map(u -> new ReadStatus(u,channel)).toList();
+                .map(user -> new ReadStatus(user.getId(),channel.getId())).toList();
 
         readStatusRepository.saveAll(statuses);
 
-        return saved;
+        return ChannelResponse.detail.builder()
+                .id(channel.getId())
+                .type(channel.getType())
+                .name(channel.getName())
+                .topic(channel.getTopic())
+                .description(channel.getDescription())
+                .createdAt(channel.getCreatedAtFormatted())
+                .updatedAt(channel.getUpdatedAtFormatted())
+                .build();
+    }
+
+    @Override
+    public ChannelResponse.detail update(ChannelRequest.update dto) {
+
+        // ID에 해당하는 채널 조회
+        Channel channel = channelRepository.findById(dto.id())
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
+
+        if(channel.getType() != ChannelType.PUBLIC) {
+            throw new IllegalStateException("PUBLIC 채널만 수정할 수 있습니다.");
+        }
+
+        channel.updateName(dto.name() != null ? dto.name() : channel.getName());
+        channel.updateTopic(dto.topic() != null ? dto.topic() : channel.getTopic());
+        channel.updateDescription(dto.description() != null ? dto.description() : channel.getDescription());
+
+        channelRepository.save(channel);
+
+        return ChannelResponse.detail.builder()
+                .id(channel.getId())
+                .type(channel.getType())
+                .name(channel.getName())
+                .topic(channel.getTopic())
+                .description(channel.getDescription())
+                .createdAt(channel.getCreatedAtFormatted())
+                .updatedAt(channel.getUpdatedAtFormatted())
+                .build();
     }
 
     @Override
@@ -79,30 +120,42 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Channel updateName(UUID id, String name) {
-        Channel channel = channelRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
+    public List<ChannelResponse.summary> findByUser(UUID userId) {
 
-        channel.updateName(name);
-        return channelRepository.save(channel);
+        // 유저가 참여한 채널 아이디 리스트
+        List<UUID> channelIds = readStatusRepository.findAllByUserId(userId).stream()
+                .map(ReadStatus::getChannelId)
+                .distinct()
+                .toList();
+
+        if (channelIds.isEmpty()) return List.of(); // 없으면 빈 리스트 반환
+
+        List<Channel> channels = channelRepository.findAllById(channelIds);
+
+        return channels.stream().map(ch -> ChannelResponse.summary.builder()
+                .channelId(ch.getId())
+                .name(ch.getName())
+                .topic(ch.getTopic())
+                .build()
+        ).toList();
     }
 
     @Override
-    public Channel updateTopic(UUID id, String topic) {
-        Channel channel = channelRepository.findById(id)
+    public ChannelResponse.join join(UUID userId, UUID channelId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 사용자을 찾을 수 없습니다."));
+
+        Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
 
-        channel.updateTopic(topic);
-        return channelRepository.save(channel);
-    }
+        ReadStatus readStatus = new ReadStatus(userId, channelId);
+        readStatusRepository.save(readStatus);
 
-    @Override
-    public Channel updateDescription(UUID id, String description) {
-        Channel channel = channelRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 채널을 찾을 수 없습니다."));
-
-        channel.updateDescription(description);
-        return channelRepository.save(channel);
+        return ChannelResponse.join.builder()
+                .userId(user.getId())
+                .channelId(channel.getId())
+                .message(user.getName() + " 님이 " + channel.getName() + " 채널에 참여했습니다.")
+                .build();
     }
 
     @Override

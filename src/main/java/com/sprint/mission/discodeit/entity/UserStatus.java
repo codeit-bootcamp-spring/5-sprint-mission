@@ -14,17 +14,17 @@ import java.util.UUID;
  **/
 @Getter
 public class UserStatus extends Base {
+
     private final UUID userId;
     private Instant lastAccessedAt;
 
-    public UserStatus(User user) {
-        super(); // 베이스 생성자 호출
-        this.userId = user.getId();
+    public UserStatus(UUID userId) {
+        this.userId = userId;
         this.lastAccessedAt = Instant.now();
     }
 
     /**
-     * 마지막 접속 시간 갱신
+     * 마지막 접속 시간이 현재 시간(Instant.now())로 갱신
      **/
     public void updateLastAccessedAt() {
         this.lastAccessedAt = Instant.now();
@@ -39,7 +39,7 @@ public class UserStatus extends Base {
         if(lastAccessedAt == null) {
             return false; // 접속 기록이 없으면 무조건 오프라인
         }
-        Instant threshold = Instant.now().minus(Duration.ofMinutes(5));
-        return lastAccessedAt.isAfter(threshold);
+        Instant limit = Instant.now().minus(Duration.ofMinutes(5)); // 유지시간은 5분
+        return lastAccessedAt.isAfter(limit);
     }
 }

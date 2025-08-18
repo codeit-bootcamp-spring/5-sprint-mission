@@ -1,41 +1,55 @@
 
 ## 기본 요구사항
+컨트롤러 레이어 구현
+- [x] DiscodeitApplication의 테스트 로직은 삭제하세요.
+- [ ] 지금까지 구현한 서비스 로직을 활용해 웹 API를 구현하세요. 이때 @RequestMapping만 사용해 구현해보세요.
+- [ ]  웹 API의 예외를 전역으로 처리하세요.
 
-- [x] Spring 프로젝트 초기화
-- [x] Bean 선언 및 테스트
+## 웹 API 요구사항
+사용자 관리
+- [x] 사용자를 등록할 수 있다.
+- [x] 사용자 정보를 수정할 수 있다.
+- [x] 사용자를 삭제할 수 있다.
+- [x] 모든 사용자를 조회할 수 있다.
+- [ ] 사용자의 온라인 상태를 업데이트할 수 있다.
 
-#### [Spring 핵심 개념 이해하기]
-기존에는 `new` 연산자를 사용해 수동으로 객체를 생성했지만, `DiscodeitApplication`에서는 Spring의 
-IoC Container가 객체의 생성과 관리를 담당하도록 변경했습니다.
-Service 클래스는 이제 직접 생성하지 않고 Spring이 관리하는 Bean으로 등록되어, 필요한 곳에서 자동으로 주입됩니다.
-이 과정을 DI(Dependency Injection)이라고 합니다.
+권한 관리
+- [x] 사용자는 로그인할 수 있다.
 
-- [x] Lombok 적용 : 도메인 모델에 getter 메소드를 `@Getter`로 대체
-- [x] Basic*Service의 생성자를 `@RequiredArgsConstructor`로 대체
+채널 관리
+- [x] 공개 채널을 생성할 수 있다.
+- [x] 비공개 채널을 생성할 수 있다.
+- [x] 공개 채널의 정보를 수정할 수 있다.
+- [x] 채널을 삭제할 수 있다.
+- [ ] 특정 사용자가 볼 수 있는 모든 채널 목록을 조회할 수 있다.
+
+메시지 관리
+- [x] 메시지를 보낼 수 있다.
+- [x] 메시지를 수정할 수 있다.
+- [x] 메시지를 삭제할 수 있다.
+- [x] 특정 채널의 메시지 목록을 조회할 수 있다.
+
+메시지 수신 정보 관리
+- [x] 특정 채널의 메시지 수신 정보를 생성할 수 있다.
+- [x] 특정 채널의 메시지 수신 정보를 수정할 수 있다.
+- [x] 특정 사용자의 메시지 수신 정보를 조회할 수 있다.
+
+바이너리 파일 다운로드
+- [ ] 바이너리 파일을 1개 또는 여러 개 조회할 수 있다.
 
 --- 
 
-## 추가 기능 요구 사항
-
-- [x] 시간 타입 변경하기 : Long -> Instant
-- [x] 새로운 도메인 추가하기: `UserStatus`, `ReadStatus`,`BinaryContent`
-- [x] DTO 활용하기
-- [x] UserService 고도화
-- [x] AuthService 구현
-- [x] ChannelService 고도화
-- [x] MessageService 고도화
-- [x] ReadStatusService 구현
-- [x] UserStatusService 고도화
-- [x] BinaryContentService 구현
-
----
-
 ## 심화 요구사항
-- [x] Bean 다루기: application.yaml
+- [ ]  사용자 목록 조회, BinaryContent 파일 조회 API를 다음의 조건을 만족하도록 수정하세요.
+- [ ]  사용자 목록 조회
+- [ ]  BinaryContent 파일 조회
+- [ ]  다음의 파일을 활용하여 사용자 목록을 보여주는 화면을 서빙해보세요.
+- [ ] 생성형 AI (Claude, ChatGPT 등)를 활용해서 위 이미지와 비슷한 화면을 생성 후 서빙해보세요.
+
+## Swagger
+http://localhost:8080/swagger-ui/index.html
 
 ## 스크린샷
-![image](이미지url)
 
 ## 멘토에게
 - 셀프 코드 리뷰를 통해 질문 이어가겠습니다.
-- 
