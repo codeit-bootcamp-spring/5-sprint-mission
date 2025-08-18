@@ -42,8 +42,8 @@ public class ReadStatusService {
                   req.channelId()));
         });
 
-    ReadStatus rs = new ReadStatus(req.userId(), req.channelId(), req.lastReadAt());
-    return ReadStatusResponse.from(readStatusRepository.save(rs));
+    return ReadStatusResponse.from(readStatusRepository.save(
+        new ReadStatus(req.userId(), req.channelId(), req.lastReadAt())));
   }
 
   @Transactional

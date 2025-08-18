@@ -19,7 +19,7 @@ public class ReadStatus extends AbstractEntity {
     this.lastReadAt = Objects.requireNonNull(lastReadAt, "lastReadAt must not be null");
   }
 
-  public void setLastReadAt(Instant lastReadAt) {
+  public void changeLastReadAt(Instant lastReadAt) {
     Objects.requireNonNull(lastReadAt, "lastReadAt must not be null");
     this.lastReadAt = lastReadAt;
   }

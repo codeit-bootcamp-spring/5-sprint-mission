@@ -70,10 +70,10 @@ UserCreateResponse:
     profileId:
       type: string
       format: uuid
+      nullable: true
 
 UserUpdateProfileSettingsRequest:
   type: object
-  required: [ ]
   properties:
     globalName:
       type: string

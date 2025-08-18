@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
+import com.sprint.mission.discodeit.dto.request.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateEmailRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
@@ -22,7 +23,10 @@ import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.service.binarycontent.BinaryContentService;
+import com.sprint.mission.discodeit.support.FileNames;
 import com.sprint.mission.discodeit.support.PhoneNumbers;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +38,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final BinaryContentService binaryContentService;
   private final UserStatusRepository userStatusRepository;
   private final FriendRequestRepository friendRequestRepository;
   private final GuildRepository guildRepository;
@@ -58,44 +64,6 @@ public class UserService {
     User entity = userRepository.getOrThrow(id);
     updater.accept(entity);
     userRepository.save(entity);
-  }
-
-  @Transactional
-  public UserCreateResponse create(UserCreateRequest req, UUID profileId) {
-    String email = stripToLowerCase(req.email());
-    if (userRepository.existsByEmail(email)) {
-      throw new DuplicateResourceException("User with email %s already exists".formatted(email));
-    }
-    String username = stripToLowerCase(req.username());
-    if (userRepository.existsByUsername(username)) {
-      throw new DuplicateResourceException(
-          "User with username %s already exists".formatted(username));
-    }
-
-    User user = new User(
-        email,
-        username,
-        passwordEncoder.encode(req.password().strip()),
-        profileId
-    );
-
-    try {
-      User saved = userRepository.save(user);
-
-      UserStatus userStatus = new UserStatus(saved.getId());
-      userStatusRepository.save(userStatus);
-
-      return UserCreateResponse.from(saved);
-    } catch (DataIntegrityViolationException e) {
-      throw new DuplicateResourceException(
-          "User with email %s or username %s already exists".formatted(email, username));
-    }
-  }
-
-  public UserResponse find(UUID userId) {
-    return userRepository.findById(userId)
-        .map(this::toResponse)
-        .orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다: " + userId));
   }
 
   public List<UserResponse> findAll() {
@@ -130,6 +98,50 @@ public class UserService {
         .map(this::toResponse)
         .map(List::of)
         .orElse(List.of());
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public UserCreateResponse create(UserCreateRequest req, MultipartFile profile)
+      throws IOException {
+    String email = stripToLowerCase(req.email());
+    if (userRepository.existsByEmail(email)) {
+      throw new DuplicateResourceException("User with email %s already exists".formatted(email));
+    }
+    String username = stripToLowerCase(req.username());
+    if (userRepository.existsByUsername(username)) {
+      throw new DuplicateResourceException(
+          "User with username %s already exists".formatted(username));
+    }
+
+    UUID profileId = null;
+    if (profile != null && !profile.isEmpty()) {
+      String ct = FileNames.normalizeContentType(profile.getContentType());
+      String original = profile.getOriginalFilename();
+      String fileName = FileNames.buildStoredName(original, ct);
+      profileId = binaryContentService.create(
+          new BinaryContentCreateRequest(fileName, ct, profile.getBytes())
+      ).id();
+    }
+
+    User user = new User(
+        email,
+        username,
+        passwordEncoder.encode(req.password().strip()),
+        profileId
+    );
+
+    User saved = userRepository.save(user);
+
+    UserStatus userStatus = new UserStatus(saved.getId());
+    userStatusRepository.save(userStatus);
+
+    return UserCreateResponse.from(saved);
+  }
+
+  public UserResponse find(UUID userId) {
+    return userRepository.findById(userId)
+        .map(this::toResponse)
+        .orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다: " + userId));
   }
 
   @Transactional

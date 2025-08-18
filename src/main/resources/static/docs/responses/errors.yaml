@@ -11,9 +11,10 @@ BadRequest:
             path: "/api/*"
             method: "POST"
             status: 400
-            code: "VALIDATION_ERROR"
-            message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+            code: "BAD_REQUEST"
+            message: "요청이 올바르지 않습니다."
             details:
+              - "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
               - "Unrecognized token 'True': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false') at line 7, column 35"
 
 NotFound:
@@ -61,7 +62,7 @@ MethodNotAllowed:
           - "허용되는 메서드: POST, GET"
 
 UnsupportedMediaType:
-  description: Media Type Not Supported
+  description: Unsupported Media Type
   content:
     application/json:
       schema:
@@ -72,9 +73,9 @@ UnsupportedMediaType:
         method: "POST"
         status: 415
         code: "UNSUPPORTED_MEDIA_TYPE"
-        message: "허용되지 않은 미디어 타입입니다. 지원되는 타입: application/octet-stream, image/png, image/jpeg, image/webp"
+        message: "허용되지 않은 미디어 타입입니다. 지원되는 타입: application/json, application/*+json, application/yaml"
         details:
-          - "지원되지 않는 이미지 타입입니다: image/gif"
+          - "Content-Type 'application/octet-stream' is not supported"
 
 InternalError:
   description: Internal Server Error

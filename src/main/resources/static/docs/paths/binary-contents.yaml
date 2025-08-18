@@ -111,7 +111,7 @@ binary_content_by_id:
             schema:
               $ref: "../schemas/binary-content.yaml#/BinaryContentResponse"
       '404':
-        $ref: "../response/errors.yaml#/NotFound"
+        $ref: "../responses/errors.yaml#/NotFound"
 
   delete:
     tags: [ BinaryContents ]
@@ -128,4 +128,4 @@ binary_content_by_id:
       '204':
         description: No Content
       '404':
-        $ref: "../response/errors.yaml#/NotFound"
+        $ref: "../responses/errors.yaml#/NotFound"

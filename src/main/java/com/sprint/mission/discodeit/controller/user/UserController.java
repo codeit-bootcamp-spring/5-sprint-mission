@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller.user;
 
-import com.sprint.mission.discodeit.dto.request.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateEmailRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
@@ -8,7 +7,6 @@ import com.sprint.mission.discodeit.dto.request.user.UserUpdatePhoneNumberReques
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateUsernameRequest;
-import com.sprint.mission.discodeit.dto.response.binarycontent.BinaryContentResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserCreateResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.service.binarycontent.BinaryContentService;
@@ -84,7 +82,6 @@ public class UserController {
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) throws HttpMediaTypeNotSupportedException, IOException {
 
-    UUID profileId = null;
     if (profile != null && !profile.isEmpty()) {
       String ct = FileNames.normalizeContentType(profile.getContentType());
       if (!SUPPORTED.contains(ct)) {
@@ -93,17 +90,8 @@ public class UserController {
             SUPPORTED.stream().map(MediaType::valueOf).toList()
         );
       }
-
-      String original = profile.getOriginalFilename();
-      String fileName = FileNames.buildStoredName(original, ct);
-
-      BinaryContentResponse saved = binaryContentService.create(
-          new BinaryContentCreateRequest(fileName, ct, profile.getBytes())
-      );
-      profileId = saved.id();
     }
-
-    return userService.create(req, profileId);
+    return userService.create(req, profile);
   }
 
   @GetMapping("/{id}")

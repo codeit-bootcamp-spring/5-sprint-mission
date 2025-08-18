@@ -1,0 +1,69 @@
+MessageResponse:
+  type: object
+  required: [ id, createdAt, updatedAt, content, channelId, authorId, attachmentIds ]
+  properties:
+    id:
+      type: string
+      format: uuid
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+    content:
+      type: string
+    channelId:
+      type: string
+      format: uuid
+    authorId:
+      type: string
+      format: uuid
+    attachmentIds:
+      type: array
+      items:
+        type: string
+        format: uuid
+
+MessageCreateRequest:
+  type: object
+  required:
+    - content
+    - channelId
+    - authorId
+  properties:
+    content:
+      type: string
+      maxLength: 2000
+    channelId:
+      type: string
+      format: uuid
+    authorId:
+      type: string
+      format: uuid
+
+MessageCreateResponse:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+    content:
+      type: string
+    channelId:
+      type: string
+      format: uuid
+    authorId:
+      type: string
+      format: uuid
+    attachmentIds:
+      type: array
+      items:
+        type: string
+        format: uuid

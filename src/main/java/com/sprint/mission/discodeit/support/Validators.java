@@ -32,7 +32,7 @@ public final class Validators {
     }
     String normalized = content.strip();
     if (normalized.isEmpty()) {
-      throw new ValidatorsValidationException("내용은 비워둘 수 없습니다.");
+      return null;
     }
     int cpLen = normalized.codePointCount(0, normalized.length());
     if (cpLen > MAX_MESSAGE_CONTENT_LENGTH) {

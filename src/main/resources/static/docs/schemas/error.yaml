@@ -7,7 +7,6 @@ ApiError:
     - status
     - code
     - message
-    - details
   properties:
     timestamp:
       type: string
@@ -19,12 +18,7 @@ ApiError:
     method:
       type: string
       description: 요청 method
-      enum:
-        - GET
-        - POST
-        - PUT
-        - PATCH
-        - DELETE
+      enum: [ GET, POST, PUT, PATCH, DELETE ]
     status:
       type: integer
       description: 리스폰스 상태 코드
@@ -44,5 +38,4 @@ ApiError:
     details:
       type: array
       description: 세부 오류 목록
-      items:
-        type: string
+      items: { type: string }

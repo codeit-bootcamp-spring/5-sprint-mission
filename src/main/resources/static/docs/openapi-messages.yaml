@@ -1,0 +1,18 @@
+openapi: 3.0.3
+info:
+  title: Discodeit Messages API
+  version: "1.0.0"
+  description: 메시지(Message) 관련 API 문서
+servers:
+  - url: /api/messages
+paths:
+  /:
+    $ref: "./paths/messages.yaml#/messages_root"
+components:
+  schemas:
+    MessageResponse:
+      $ref: "./schemas/message.yaml#/MessageResponse"
+    MessageCreateRequest:
+      $ref: "./schemas/message.yaml#/MessageCreateRequest"
+    MessageCreateResponse:
+      $ref: "./schemas/message.yaml#/MessageCreateResponse"
