@@ -1,17 +1,17 @@
 package com.codeit.mission.discodeit.service;
 
-import com.codeit.mission.discodeit.dto.binarycontent.BinaryContentCreateRequest;
-import com.codeit.mission.discodeit.dto.binarycontent.BinaryContentResponse;
+import com.codeit.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.codeit.mission.discodeit.entity.BinaryContent;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface BinaryContentService {
-    BinaryContentResponse create(BinaryContentCreateRequest request);
+    BinaryContent create(BinaryContentCreateRequest request);
 
-    BinaryContentResponse find(UUID binaryContentId);
+    BinaryContent find(UUID binaryContentId);
 
-    List<BinaryContentResponse> findAllByIdIn(List<UUID> ids);
+    List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds);
 
     void delete(UUID binaryContentId);
 }

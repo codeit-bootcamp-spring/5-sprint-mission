@@ -1,23 +1,22 @@
 package com.codeit.mission.discodeit.service;
 
-import com.codeit.mission.discodeit.dto.userstatus.UserStatusCreateRequest;
-import com.codeit.mission.discodeit.dto.userstatus.UserStatusResponse;
-import com.codeit.mission.discodeit.dto.userstatus.UserStatusUpdateByUserRequest;
-import com.codeit.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
+import com.codeit.mission.discodeit.dto.request.UserStatusCreateRequest;
+import com.codeit.mission.discodeit.dto.request.UserStatusUpdateRequest;
+import com.codeit.mission.discodeit.entity.UserStatus;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface UserStatusService {
-    UserStatusResponse create(UserStatusCreateRequest request);
+    UserStatus create(UserStatusCreateRequest request);
 
-    UserStatusResponse find(UUID userStatusId);
+    UserStatus find(UUID userStatusId);
 
-    List<UserStatusResponse> findAll();
+    List<UserStatus> findAll();
 
-    UserStatusResponse update(UserStatusUpdateRequest request);
+    UserStatus update(UUID userStatusId, UserStatusUpdateRequest request);
 
-    UserStatusResponse updateByUserId(UserStatusUpdateByUserRequest request);
+    UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest request);
 
     void delete(UUID userStatusId);
 }
