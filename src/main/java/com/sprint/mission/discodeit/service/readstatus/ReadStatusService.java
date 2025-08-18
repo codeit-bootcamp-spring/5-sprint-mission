@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.service.readstatus;
 
-import static com.sprint.mission.discodeit.mapper.ReadStatusMapper.toReadStatusResponse;
-
 import com.sprint.mission.discodeit.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.dto.request.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.readstatus.ReadStatusUpdateRequest;
@@ -26,10 +24,10 @@ public class ReadStatusService {
   private final ChannelRepository channelRepository;
   private final MessageRepository messageRepository;
 
-  public ReadStatusResponse toResponse(ReadStatus rs) {
-    UUID lastMessageId = messageRepository.findRecentByChannelId(rs.getChannelId(), 1).get(0)
-        .getId();
-    return toReadStatusResponse(rs, lastMessageId);
+  public List<ReadStatusResponse> findAllByUserId(UUID userId) {
+    userRepository.getOrThrow(userId);
+    return readStatusRepository.findAllByUserId(userId).stream().map(ReadStatusResponse::from)
+        .toList();
   }
 
   @Transactional
@@ -39,26 +37,19 @@ public class ReadStatusService {
 
     readStatusRepository.findByUserIdAndChannelId(req.userId(), req.channelId())
         .ifPresent(rs -> {
-          throw new IllegalStateException("이미 존재합니다.");
+          throw new IllegalStateException(
+              "ReadStatus with userId %s and channelId %s already exists.".formatted(req.userId(),
+                  req.channelId()));
         });
 
-    ReadStatus rs = new ReadStatus(req.userId(), req.channelId());
-    if (req.lastReadMessageId() != null) {
-      rs.setLastReadMessageId(req.lastReadMessageId());
-    }
-    return toResponse(readStatusRepository.save(rs));
+    ReadStatus rs = new ReadStatus(req.userId(), req.channelId(), req.lastReadAt());
+    return ReadStatusResponse.from(readStatusRepository.save(rs));
   }
 
   @Transactional
   public void update(UUID id, ReadStatusUpdateRequest req) {
     ReadStatus rs = readStatusRepository.getOrThrow(id);
-    rs.setLastReadMessageId(req.lastReadMessageId());
     readStatusRepository.save(rs);
-  }
-
-  public List<ReadStatusResponse> findAllByUser(UUID userId) {
-    userRepository.getOrThrow(userId);
-    return readStatusRepository.findAllByUserId(userId).stream().map(this::toResponse).toList();
   }
 
   public ReadStatusResponse findByUserAndChannel(UUID userId, UUID channelId) {
@@ -66,6 +57,6 @@ public class ReadStatusService {
     channelRepository.getOrThrow(channelId);
     ReadStatus rs = readStatusRepository.findByUserIdAndChannelId(userId, channelId)
         .orElseThrow(() -> new IllegalArgumentException("해당 정보가 없습니다."));
-    return toResponse(rs);
+    return ReadStatusResponse.from(rs);
   }
 }

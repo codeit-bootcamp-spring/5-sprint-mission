@@ -1,0 +1,18 @@
+openapi: 3.0.3
+info:
+  title: Discodeit Read Status API
+  version: "1.0.0"
+  description: 메시지 읽음 상태(ReadStatus) 관련 API 문서
+servers:
+  - url: /api/read-statuses
+paths:
+  /:
+    $ref: "./paths/read-statuses.yaml#/read_statuses_root"
+components:
+  schemas:
+    ReadStatusResponse:
+      $ref: "./schemas/read-status.yaml#/ReadStatusResponse"
+    ReadStatusCreateRequest:
+      $ref: "./schemas/read-status.yaml#/ReadStatusCreateRequest"
+    ApiError:
+      $ref: "./schemas/error.yaml#/ApiError"

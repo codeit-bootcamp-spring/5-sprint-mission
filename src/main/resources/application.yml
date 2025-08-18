@@ -21,3 +21,5 @@ springdoc:
         url: /docs/openapi-friend-requests.yaml
       - name: User Statuses API
         url: /docs/openapi-user-statuses.yaml
+      - name: Read Statuses API
+        url: /docs/openapi-read-statuses.yaml

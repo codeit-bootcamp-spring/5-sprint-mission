@@ -140,6 +140,8 @@ users_root:
                 status: 409
                 code: "CONFLICT"
                 message: "User with username {username} already exists"
+    '415':
+      $ref: '../response/errors.yaml#/UnsupportedMediaType'
 user:
   get:
     tags: [ Users ]

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.domain.entity;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.Getter;
@@ -10,29 +11,22 @@ public class ReadStatus extends AbstractEntity {
   private final UUID userId;
   private final UUID channelId;
 
-  private UUID lastReadMessageId;
+  private Instant lastReadAt;
 
-  public ReadStatus(UUID userId, UUID channelId) {
+  public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
     this.userId = Objects.requireNonNull(userId, "userId must not be null");
     this.channelId = Objects.requireNonNull(channelId, "channelId must not be null");
+    this.lastReadAt = Objects.requireNonNull(lastReadAt, "lastReadAt must not be null");
   }
 
-  public void read(UUID messageId) {
-    Objects.requireNonNull(messageId, "messageId must not be null");
-    if (!Objects.equals(this.lastReadMessageId, messageId)) {
-      this.lastReadMessageId = messageId;
-      touch();
-    }
-  }
-
-  public void setLastReadMessageId(UUID messageId) {
-    Objects.requireNonNull(messageId, "messageId must not be null");
-    this.lastReadMessageId = messageId;
+  public void setLastReadAt(Instant lastReadAt) {
+    Objects.requireNonNull(lastReadAt, "lastReadAt must not be null");
+    this.lastReadAt = lastReadAt;
   }
 
   @Override
   public String toString() {
-    return "ReadStatus[userId=%s, channelId=%s, lastReadMessageId=%s]"
-        .formatted(userId, channelId, lastReadMessageId);
+    return "ReadStatus[userId=%s, channelId=%s, lastReadAt=%s]"
+        .formatted(userId, channelId, lastReadAt);
   }
 }
