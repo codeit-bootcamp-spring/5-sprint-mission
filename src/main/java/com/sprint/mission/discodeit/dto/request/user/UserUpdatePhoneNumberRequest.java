@@ -4,7 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 
 public record UserUpdatePhoneNumberRequest(
 
-        @NotBlank
-        String phoneNumber
+    @NotBlank
+    String phoneNumber
 ) {
+
 }

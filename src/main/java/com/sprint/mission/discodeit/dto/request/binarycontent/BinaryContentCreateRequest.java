@@ -4,12 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 
 public record BinaryContentCreateRequest(
 
-        @NotBlank
-        String filename,
+    @NotBlank
+    String filename,
 
-        @NotBlank
-        String contentType,
+    @NotBlank
+    String contentType,
 
-        byte[] bytes
+    byte[] bytes
 ) {
+
 }

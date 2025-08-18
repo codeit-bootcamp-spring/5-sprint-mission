@@ -4,12 +4,12 @@ import lombok.Getter;
 
 @Getter
 public enum ChannelType {
-    CHAT("채팅 채널"),
-    VOICE("음성 채널");
+  CHAT("채팅 채널"),
+  VOICE("음성 채널");
 
-    private final String displayName;
+  private final String displayName;
 
-    ChannelType(String displayName) {
-        this.displayName = displayName;
-    }
+  ChannelType(String displayName) {
+    this.displayName = displayName;
+  }
 }

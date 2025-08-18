@@ -18,17 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/api/auth")
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 
-    @PostMapping(path = "/login")
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponse login(@RequestBody AuthLoginRequest body) {
-        return authService.login(body);
-    }
+  @PostMapping(path = "/login")
+  @ResponseStatus(HttpStatus.OK)
+  public UserResponse login(@RequestBody AuthLoginRequest body) {
+    return authService.login(body);
+  }
 
-    @PostMapping(path = "/logout")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(@Valid @RequestBody AuthLogoutRequest body) {
-        authService.logout(body.userId());
-    }
+  @PostMapping(path = "/logout")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void logout(@Valid @RequestBody AuthLogoutRequest body) {
+    authService.logout(body.userId());
+  }
 }

@@ -5,6 +5,9 @@ import com.sprint.mission.discodeit.dto.request.readstatus.ReadStatusUpdateReque
 import com.sprint.mission.discodeit.dto.response.readstatus.ReadStatusResponse;
 import com.sprint.mission.discodeit.service.readstatus.ReadStatusService;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,46 +20,45 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
-import java.util.List;
-import java.util.UUID;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/api/read-status")
 public class ReadStatusController {
 
-    private final ReadStatusService readStatusService;
+  private final ReadStatusService readStatusService;
 
-    @GetMapping
-    public ResponseEntity<List<ReadStatusResponse>> findAllByUser(@RequestParam("userId") UUID userId) {
-        return ResponseEntity.ok(readStatusService.findAllByUser(userId));
-    }
+  @GetMapping
+  public ResponseEntity<List<ReadStatusResponse>> findAllByUser(
+      @RequestParam("userId") UUID userId) {
+    return ResponseEntity.ok(readStatusService.findAllByUser(userId));
+  }
 
-    // @GetMapping
-    // public ResponseEntity<ReadStatusResponse> findAllByChannel(@RequestParam("userId") UUID userId,
-    //                                                            @RequestParam("channelId") UUID channelId) {
-    //     return ResponseEntity.ok(readStatusService.findByUserAndChannel(userId, channelId));
-    // }
+  // @GetMapping
+  // public ResponseEntity<ReadStatusResponse> findAllByChannel(@RequestParam("userId") UUID userId,
+  //                                                            @RequestParam("channelId") UUID channelId) {
+  //     return ResponseEntity.ok(readStatusService.findByUserAndChannel(userId, channelId));
+  // }
 
-    @PostMapping
-    public ResponseEntity<ReadStatusResponse> create(@Valid @RequestBody ReadStatusCreateRequest body) {
-        ReadStatusResponse res = readStatusService.create(body);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(res.id()).toUri();
-        return ResponseEntity.created(location).body(res);
-    }
+  @PostMapping
+  public ResponseEntity<ReadStatusResponse> create(
+      @Valid @RequestBody ReadStatusCreateRequest body) {
+    ReadStatusResponse res = readStatusService.create(body);
+    URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+        .path("/{id}").buildAndExpand(res.id()).toUri();
+    return ResponseEntity.created(location).body(res);
+  }
 
-    @PutMapping(path = "/{id}")
-    public ResponseEntity<Void> update(@PathVariable("id") UUID id,
-                                       @Valid @RequestBody ReadStatusUpdateRequest body) {
-        readStatusService.update(id, body);
-        return ResponseEntity.noContent().build();
-    }
+  @PutMapping(path = "/{id}")
+  public ResponseEntity<Void> update(@PathVariable("id") UUID id,
+      @Valid @RequestBody ReadStatusUpdateRequest body) {
+    readStatusService.update(id, body);
+    return ResponseEntity.noContent().build();
+  }
 
-    @GetMapping(path = "/by")
-    public ResponseEntity<ReadStatusResponse> findByUserAndChannel(@RequestParam("userId") UUID userId,
-                                                                   @RequestParam("channelId") UUID channelId) {
-        return ResponseEntity.ok(readStatusService.findByUserAndChannel(userId, channelId));
-    }
+  @GetMapping(path = "/by")
+  public ResponseEntity<ReadStatusResponse> findByUserAndChannel(
+      @RequestParam("userId") UUID userId,
+      @RequestParam("channelId") UUID channelId) {
+    return ResponseEntity.ok(readStatusService.findByUserAndChannel(userId, channelId));
+  }
 }
