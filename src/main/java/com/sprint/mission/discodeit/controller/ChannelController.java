@@ -14,13 +14,10 @@ import com.sprint.mission.discodeit.dto.request.channel.CreatePrivateChannelRequ
 import com.sprint.mission.discodeit.dto.request.channel.CreatePublicChannelRequest;
 import com.sprint.mission.discodeit.dto.request.channel.DeleteChannelRequest;
 import com.sprint.mission.discodeit.dto.request.channel.GetChannelsByUserRequest;
-import com.sprint.mission.discodeit.dto.request.channel.JoinChannelRequest;
 import com.sprint.mission.discodeit.dto.request.channel.UpdateChannelRequest;
-import com.sprint.mission.discodeit.dto.request.channel.UpdateUserNicknameRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.DeleteChannelResponse;
-import com.sprint.mission.discodeit.dto.response.channel.JoinChannelResponse;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,25 +28,19 @@ import lombok.RequiredArgsConstructor;
 public class ChannelController {
 	private final ChannelService channelService;
 
-	@RequestMapping(method = RequestMethod.POST)
+	@RequestMapping(path = "/public",method = RequestMethod.POST)
 	public ResponseEntity<CreateChannelResponse> createPublicChannel(@RequestBody CreatePublicChannelRequest request){
-		return ResponseEntity.status(HttpStatus.CREATED).body(channelService.createPublicChannel(request));
+		return ResponseEntity.status(HttpStatus.CREATED).body(channelService.create(request));
 	}
 
 	@RequestMapping(path="/private",method = RequestMethod.POST)
 	public ResponseEntity<CreateChannelResponse> createPrivateChannel(@RequestBody CreatePrivateChannelRequest request){
-		return ResponseEntity.status(HttpStatus.CREATED).body(channelService.createPrivateChannel(request));
+		return ResponseEntity.status(HttpStatus.CREATED).body(channelService.create(request));
 	}
 
 	@RequestMapping(path= "/update", method = RequestMethod.PATCH)
 	public ResponseEntity<ChannelResponse> updateChannel(@RequestBody UpdateChannelRequest request) {
 		ChannelResponse response = channelService.updateChannel(request);
-		return ResponseEntity.ok(response);
-	}
-
-	@RequestMapping(path= "/update/userNickname", method = RequestMethod.PATCH)
-	public ResponseEntity<ChannelResponse> updateUserNickname(@RequestBody UpdateUserNicknameRequest request) {
-		ChannelResponse response = channelService.updateUserNickname(request);
 		return ResponseEntity.ok(response);
 	}
 
@@ -59,11 +50,6 @@ public class ChannelController {
 		return ResponseEntity.ok(channels);
 	}
 
-	@RequestMapping(path="/join", method = RequestMethod.POST)
-	public ResponseEntity<JoinChannelResponse> joinChannel(@RequestBody JoinChannelRequest request){
-		JoinChannelResponse response = channelService.joinChannel(request);
-		return ResponseEntity.ok(response);
-	}
 
 	@RequestMapping(path="/delete", method = RequestMethod.DELETE)
 	public ResponseEntity<DeleteChannelResponse> deleteChannel(@RequestBody DeleteChannelRequest request) {

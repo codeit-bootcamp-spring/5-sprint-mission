@@ -1,5 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +39,8 @@ public class BasicUserService implements UserService {
 	private final UserRepository userRepository;
 	private final UserStatusRepository userStatusRepository;
 	private final BinaryContentRepository binaryContentRepository;
+	private final ChannelRepository channelRepository;
+	private final ReadStatusRepository readStatusRepository;
 
 	@Override
 	public UserResponse createUser(CreateUserRequest request) {
@@ -63,6 +69,15 @@ public class BasicUserService implements UserService {
 
 		UserStatus userStatus = new UserStatus(user.getId());
 		userStatusRepository.save(userStatus);
+
+		List<Channel> publicChannels = channelRepository.findAll().stream()
+				.filter(channel -> "PUBLIC".equals(channel.getType()))
+				.toList();
+
+		for (Channel channel : publicChannels) {
+			ReadStatus readStatus = new ReadStatus(user.getId(), channel.getId());
+			readStatusRepository.save(readStatus);
+		}
 
 		return UserResponse.success(user);
 	}

@@ -18,6 +18,4 @@ public class LeaveChannelRequest {
 	private UUID channelId;
 	@NotNull(message = "사용자 ID는 필수")
 	private UUID userId;
-	@NotBlank(message = "유저 닉네임은 필수")
-	private String userDafultNickname;
 }

@@ -10,6 +10,6 @@ import lombok.Data;
 @Builder
 public class CreatePublicChannelRequest {
 	@NotBlank(message = "채널명은 필수")
-	private String channelName;
+	private String name;
 	private String description;
 }

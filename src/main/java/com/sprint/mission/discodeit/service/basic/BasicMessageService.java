@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,20 +31,16 @@ import lombok.RequiredArgsConstructor;
 public class BasicMessageService implements MessageService {
 	private final MessageRepository messageRepository;
 	private final ChannelRepository channelRepository;
-	private final UserRepository userRepository; // 요구사항때문에 일단 넣어두기
+	private final UserRepository userRepository;
 	private final BinaryContentRepository binaryContentRepository;
 
 
 	@Override
 	public MessageResponse createMessage(CreateMessageRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
-			.orElseThrow(ChannelNotFoundException::new);
+				.orElseThrow(ChannelNotFoundException::new);
 
-		if (!channel.getMemberIds().contains(request.getAuthorId())) {
-			throw new NotChannelMemberException();
-		}
-
-		Message message = new Message(request.getAuthorId(), request.getChannelId(), request.getText());
+		Message message = new Message(request.getAuthorId(), request.getChannelId(), request.getContent());
 
 		addAttachments(message, request.getAttachments());
 		messageRepository.save(message);
@@ -65,12 +63,14 @@ public class BasicMessageService implements MessageService {
 	@Override
 	public List<MessageResponse> getMessageByAuthor(GetMessagesByAuthorRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
-			.orElseThrow(ChannelNotFoundException::new);
+				.orElseThrow(ChannelNotFoundException::new);
 
 		UUID authorId = null;
-		for (Map.Entry<UUID, String> entry : channel.getUserNicknames().entrySet()) {
-			if (request.getAuthor().equals(entry.getValue())) {
-				authorId = entry.getKey();
+		List<User> allUsers = userRepository.findAll();
+
+		for (User user : allUsers) {
+			if (request.getAuthor().equals(user.getUsername())) {
+				authorId = user.getId();
 				break;
 			}
 		}
@@ -82,8 +82,8 @@ public class BasicMessageService implements MessageService {
 		List<Message> messages = messageRepository.findByAuthorIdAndChannelId(authorId, request.getChannelId());
 
 		return messages.stream()
-			.map(MessageResponse::success)
-			.toList();
+				.map(MessageResponse::success)
+				.toList();
 	}
 
 	@Override
@@ -98,13 +98,13 @@ public class BasicMessageService implements MessageService {
 	@Override
 	public MessageResponse updateMessage(UpdateMessageRequest request) {
 		Message message = messageRepository.findById(request.getMessageId())
-			.orElseThrow(MessageNotFoundException::new);
+				.orElseThrow(MessageNotFoundException::new);
 
 		if (!message.getAuthorId().equals(request.getAuthorId())) {
 			throw new UnauthorizedMessageAccessException();
 		}
 
-		message.setContent(request.getText());
+		message.setContent(request.getContent());
 
 		if (!request.getAttachmentIdsToRemove().isEmpty()) {
 			for (UUID attachmentId : request.getAttachmentIdsToRemove()) {

@@ -23,7 +23,7 @@ public class CreateMessageRequest {
 	private UUID channelId;
 
 	@NotBlank(message = "메시지 내용은 필수")
-	private String text;
+	private String content;
 
 	@Builder.Default
 	private List<CreateBinaryContentRequest> attachments = new ArrayList<>();

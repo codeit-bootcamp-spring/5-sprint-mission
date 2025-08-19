@@ -27,69 +27,34 @@ public class Channel implements Serializable {
 	private String type = "PUBLIC"; // 채널 타입, PUBLIC 또는 PRIVATE
 	private Instant updatedAt;
 	private String name;
-	private final List<UUID> memberIds;
-	// userUUID
-	private final Map<UUID, String> userNicknames;
 	private String description;
 
 
-	public Channel(String name) {
+	public Channel(String name, String description) {
 		this.name = Objects.requireNonNull(name, "채널 이름은 필수 입력값입니다.");
-		memberIds = new ArrayList<>();
-		userNicknames = new ConcurrentHashMap<UUID, String>();
-
 		id = UUID.randomUUID();
 		createdAt = Instant.now();
-		updatedAt = createdAt;
+		this.description = description;
 	}
 
 	public Channel(List<UUID> userUUIDs) {
-		memberIds = new ArrayList<>();
-		userNicknames = new ConcurrentHashMap<UUID, String>();
-
-		List<UUID> uniqueUserIds = userUUIDs.stream().distinct().toList();
-
 		id = UUID.randomUUID();
 		type = "PRIVATE";
 		name = "private-"+id;
 		createdAt = Instant.now();
-		updatedAt = createdAt;
-		this.memberIds.addAll(uniqueUserIds);
 	}
 
 	public Channel(Channel original) {
 		this.id = original.id;
 		this.createdAt = original.createdAt;
-		this.memberIds = new ArrayList<>(original.memberIds);
-		this.userNicknames = new HashMap<>(original.userNicknames);
 		this.name = original.name;
 		this.updatedAt = original.updatedAt;
 		this.type = original.type;
 		this.description = original.description;
 	}
 
-	public String getUserNickname(UUID userUUID) {
-		return userNicknames.get(userUUID);
-	}
-
 	public void updateUpdatedAt() {
 		this.updatedAt = Instant.now();
-	}
-
-	public void addUser(UUID userUUID) {
-		this.memberIds.add(userUUID);
-	}
-
-	public void addNickname(UUID userUUID, String nickname) {
-		this.userNicknames.put(userUUID, nickname);
-	}
-
-	public void removeUser(UUID userUUID) {
-		this.memberIds.remove(userUUID);
-	}
-
-	public void removeNickname(UUID userUUID) {
-		this.userNicknames.remove(userUUID);
 	}
 
 	public Channel copy() {
