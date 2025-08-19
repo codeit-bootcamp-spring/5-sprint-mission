@@ -1,42 +1,56 @@
 package com.sprint.mission.discodeit.dto;
 
-import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
 public class MessageDto {
 
-    @Getter
-    @Builder
-    public static class CreateRequest {
-        UUID channelId;
-        UUID authorId;
-        String text;
-        List<MultipartFile> additionalFiles;
-    }
+  @Getter
+  public static class MessageCreateRequest {
 
-    @Getter
-    @Builder
-    public static class UpdateRequest {
-        UUID id;
-        String text;
-    }
+    UUID channelId;
+    UUID authorId;
+    String content;
+  }
 
-    @Getter
-    @Builder
-    @ToString
-    public static class DetailResponse {
-        UUID channelId;
-        UUID authorId;
-        UUID id;
-        String authorName;
-        String channelName;
-        String text;
-        List<UUID> additionalFileIds;
-        Instant createdAt;
-        Instant updatedAt;
-    }
+  @Getter
+  @Builder
+  public static class CreateRequest {
+
+    UUID channelId;
+    UUID authorId;
+    String content;
+    List<MultipartFile> attachments;
+  }
+
+  @Getter
+  @Builder
+  public static class UpdateRequest {
+
+    @Setter
+    UUID id;
+    String text;
+  }
+
+  @Getter
+  @Builder
+  @ToString
+  public static class DetailResponse {
+
+    UUID channelId;
+    UUID authorId;
+    UUID id;
+    String authorName;
+    String channelName;
+    String content;
+    List<UUID> attachmentIds;
+    Instant createdAt;
+    Instant updatedAt;
+  }
 }

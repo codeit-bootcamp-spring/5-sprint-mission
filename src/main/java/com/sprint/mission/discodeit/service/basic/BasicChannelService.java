@@ -4,184 +4,193 @@ import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
-    private final ChannelRepository channelRepository;
-    private final ReadStatusRepository readStatusRepository;
-    private final MessageRepository messageRepository;
 
-    public ChannelDto.DetailResponse create(ChannelDto.CreateRequest request) {
+  private final ChannelRepository channelRepository;
+  private final ReadStatusRepository readStatusRepository;
+  private final MessageRepository messageRepository;
 
-        Channel channel = null;
+  public ChannelDto.DetailResponse create(ChannelDto.CreateRequest request) {
 
-        if (request.getType().equals(ChannelType.PRIVATE)) {
-            channel = createPrivate(request);
-        } else {
-            channel = createPublic(request);
-        }
+    Channel channel = null;
 
-        channelRepository.save(channel);
-
-        readStatusRepository.save(new ReadStatus(request.getAdminUserId(), channel.getId()));
-        if (request.getUserId() != null) {
-            readStatusRepository.save(new ReadStatus(request.getUserId(), channel.getId()));
-        }
-
-        return ChannelDto.DetailResponse.builder()
-            .id(channel.getId())
-            .type(channel.getType())
-            .name(channel.getName())
-            .description(channel.getDescription())
-            .lastMessageCreatedAt(getLastMessageCreateAt(channel.getId()))
-            .userIds(channel.getUserIds())
-            .build();
+    if (request.getType().equals(ChannelType.PRIVATE)) {
+      channel = createPrivate(request);
+    } else {
+      channel = createPublic(request);
     }
 
-    private Channel createPrivate(ChannelDto.CreateRequest request) {
+    channelRepository.save(channel);
 
-        return new Channel(ChannelType.PRIVATE
-            , ""
-            , ""
-            , request.getAdminUserId()
-            , new ArrayList<>(List.of(request.getAdminUserId(), request.getUserId())));
+//        if(request.getAdminUserId() != null){
+//            readStatusRepository.save(new ReadStatus(request.getAdminUserId(), channel.getId()));
+//        }
+//
+//        if (request.getParticipantIds() != null) {
+//            request.getParticipantIds().forEach(userId -> {
+//                readStatusRepository.save(new ReadStatus(userId, channel.getId()));
+//            });
+//        }
+
+    return ChannelDto.DetailResponse.builder()
+        .id(channel.getId())
+        .type(channel.getType())
+        .name(channel.getName())
+        .description(channel.getDescription())
+        .lastMessageAt(getLastMessageCreateAt(channel.getId()))
+        .participantIds(channel.getUserIds())
+        .build();
+  }
+
+  private Channel createPrivate(ChannelDto.CreateRequest request) {
+    // TODO FE에 맞추기위해 일단 다른요소 null 처리
+    return new Channel(ChannelType.PRIVATE
+        , ""
+        , ""
+        , null
+        , request.getParticipantIds() == null ? List.of() : request.getParticipantIds());
+  }
+
+  private Channel createPublic(ChannelDto.CreateRequest request) {
+
+    return new Channel(ChannelType.PUBLIC
+        , request.getName()
+        , request.getDescription()
+        , null
+        , request.getParticipantIds() == null ? List.of() : request.getParticipantIds());
+  }
+
+  private Instant getLastMessageCreateAt(UUID channelId) {
+    List<Message> messages = messageRepository.findAllByChannelId(channelId);
+
+    if (messages.isEmpty()) {
+      return null;
     }
 
-    private Channel createPublic(ChannelDto.CreateRequest request) {
+    return messages.stream()
+        .map(Message::getCreatedAt)
+        .max(Instant::compareTo)
+        .orElse(null);
+  }
 
-        return new Channel(ChannelType.PUBLIC
-            , request.getName()
-            , request.getDescription()
-            , request.getAdminUserId()
-            , new ArrayList<>(List.of(request.getAdminUserId())));
+  public ChannelDto.DetailResponse findById(UUID id) {
+
+    Channel channel = channelRepository.findById(id).orElse(null);
+
+    if (channel == null) {
+      return null;
     }
 
-    private Instant getLastMessageCreateAt(UUID channelId) {
-        List<Message> messages = messageRepository.findAllByChannelId(channelId);
+    return ChannelDto.DetailResponse.builder()
+        .id(channel.getId())
+        .type(channel.getType())
+        .name(channel.getName())
+        .description(channel.getDescription())
+        .lastMessageAt(getLastMessageCreateAt(channel.getId()))
+        .participantIds(channel.getUserIds())
+        .build();
+  }
 
-        if (messages.isEmpty()) {
-            return null;
-        }
+  public List<ChannelDto.DetailResponse> findAll() {
+    List<Channel> channels = channelRepository.findAll();
 
-        return messages.stream()
-            .map(Message::getCreatedAt)
-            .max(Instant::compareTo)
-            .orElse(null);
-    }
-
-    public ChannelDto.DetailResponse findById(UUID id) {
-
-        Channel channel = channelRepository.findById(id).orElse(null);
-
-        if (channel == null) {
-            return null;
-        }
-
-        return ChannelDto.DetailResponse.builder()
-            .id(channel.getId())
-            .type(channel.getType())
-            .name(channel.getName())
-            .description(channel.getDescription())
-            .lastMessageCreatedAt(getLastMessageCreateAt(channel.getId()))
-            .userIds(channel.getUserIds())
-            .build();
-    }
-
-    public List<ChannelDto.DetailResponse> findAll() {
-        List<Channel> channels = channelRepository.findAll();
-
-        return channels.stream().map(c ->
+    return channels.stream().map(c ->
             ChannelDto.DetailResponse.builder()
                 .id(c.getId())
                 .type(c.getType())
                 .name(c.getName())
                 .description(c.getDescription())
-                .lastMessageCreatedAt(getLastMessageCreateAt(c.getId()))
-                .userIds(c.getUserIds())
+                .lastMessageAt(getLastMessageCreateAt(c.getId()))
+                .participantIds(c.getUserIds())
                 .build())
-            .collect(Collectors.toList());
-    }
+        .collect(Collectors.toList());
+  }
 
-    public List<ChannelDto.DetailResponse> findAllByUserId(UUID userId) {
+  public List<ChannelDto.DetailResponse> findAllByUserId(UUID userId) {
 
-        List<Channel> channels = channelRepository.findAllByUserId(userId);
+    List<Channel> channels = channelRepository.findAllByUserId(userId);
 
-        return channels.stream().map(c ->
+    return channels.stream().map(c ->
             ChannelDto.DetailResponse.builder()
                 .id(c.getId())
                 .type(c.getType())
                 .name(c.getName())
                 .description(c.getDescription())
-                .lastMessageCreatedAt(getLastMessageCreateAt(c.getId()))
-                .userIds(c.getUserIds())
+                .lastMessageAt(getLastMessageCreateAt(c.getId()))
+                .participantIds(c.getUserIds())
                 .build())
-            .collect(Collectors.toList());
+        .collect(Collectors.toList());
+  }
+
+  public ChannelDto.DetailResponse update(ChannelDto.UpdateRequest request) {
+
+    Channel channel = channelRepository.findById(request.getId()).orElse(null);
+
+    if (channel == null || channel.getType().equals(ChannelType.PRIVATE)) {
+      return null;
     }
 
-    public ChannelDto.DetailResponse update(ChannelDto.UpdateRequest request) {
-
-        Channel channel = channelRepository.findById(request.getId()).orElse(null);
-
-        if (channel == null || channel.getType().equals(ChannelType.PRIVATE)) {
-            return null;
-        }
-
-        if (request.getName() != null && request.getDescription() != null) {
-            channel.update(request.getName(), request.getDescription());
-        }
-
-        if (request.getUserId() != null) {
-            channel.addUser(request.getUserId());
-        }
-
-        channelRepository.save(channel);
-
-        return ChannelDto.DetailResponse.builder()
-            .id(channel.getId())
-            .type(channel.getType())
-            .name(channel.getName())
-            .description(channel.getDescription())
-            .lastMessageCreatedAt(getLastMessageCreateAt(channel.getId()))
-            .userIds(channel.getUserIds())
-            .build();
+    if (request.getName() != null && request.getDescription() != null) {
+      channel.update(request.getName(), request.getDescription());
     }
 
-    @Override
-    public void delete(UUID id) {
-        Channel channel = channelRepository.findById(id).orElse(null);
+    if (request.getParticipantIds() != null) {
+      request.getParticipantIds().forEach(userId -> {
+        if (channel.getUserIds().contains(userId)) {
+          return;
+        }
 
-        if (channel != null) {
-            channelRepository.delete(id);
+        channel.addUser(userId);
+      });
+    }
 
-            messageRepository.findAllByChannelId(id).forEach(m -> {
-                messageRepository.delete(m.getId());
+    channelRepository.save(channel);
+
+    return ChannelDto.DetailResponse.builder()
+        .id(channel.getId())
+        .type(channel.getType())
+        .name(channel.getName())
+        .description(channel.getDescription())
+        .lastMessageAt(getLastMessageCreateAt(channel.getId()))
+        .participantIds(channel.getUserIds())
+        .build();
+  }
+
+  @Override
+  public void delete(UUID id) {
+    Channel channel = channelRepository.findById(id).orElse(null);
+
+    if (channel != null) {
+      channelRepository.delete(id);
+
+      messageRepository.findAllByChannelId(id).forEach(m -> {
+        messageRepository.delete(m.getId());
+      });
+
+      channel.getUserIds().forEach(userId -> {
+        readStatusRepository.findAllByUserId(userId)
+            .forEach(rs -> {
+              readStatusRepository.delete(rs.getId());
             });
-
-            channel.getUserIds().forEach(userId -> {
-                readStatusRepository.findAllByUserId(userId)
-                    .forEach(rs -> {
-                        readStatusRepository.delete(rs.getId());
-                    });
-            });
-        }
+      });
     }
+  }
 
-    @Override
-    public void deleteAll() {
-        channelRepository.deleteAll();
-    }
+  @Override
+  public void deleteAll() {
+    channelRepository.deleteAll();
+  }
 }

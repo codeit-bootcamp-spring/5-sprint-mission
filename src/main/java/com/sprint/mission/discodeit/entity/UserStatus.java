@@ -1,32 +1,32 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.Getter;
 
 @Getter
-public class UserStatus extends BaseEntity{
-    private final UUID userId;
-    private Instant lastLogin;
+public class UserStatus extends BaseEntity {
 
-    public UserStatus(UUID userId, Instant lastSeenAt) {
-        super();
-        this.userId = userId;
-        this.lastLogin = lastSeenAt;
-    }
+  private final UUID userId;
+  private Instant lastLogin;
 
-    public boolean isOnline() {
-        return lastLogin.isAfter(Instant.now().minus(Duration.ofMinutes(5)));
-    }
+  public UserStatus(UUID userId, Instant lastSeenAt) {
+    super();
+    this.userId = userId;
+    this.lastLogin = lastSeenAt;
+  }
 
-    public static UserStatus of(UUID userId) {
-        return new UserStatus(userId, Instant.now());
-    }
+  public boolean isOnline() {
+    return lastLogin.isAfter(Instant.now().minus(Duration.ofMinutes(5)));
+  }
 
-    public void update() {
-        this.lastLogin = Instant.now();
-        updateTimestamp();
-    }
+  public static UserStatus of(UUID userId) {
+    return new UserStatus(userId, Instant.now());
+  }
+
+  public void update() {
+    this.lastLogin = Instant.now();
+    updateTimestamp();
+  }
 }

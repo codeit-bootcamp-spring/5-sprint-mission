@@ -1,28 +1,29 @@
 package com.sprint.mission.discodeit.dto;
 
+import java.time.Instant;
+import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.time.Instant;
-import java.util.UUID;
+public class ReadStatusDto {
 
-public class ReadStatusDto
-{
-    @Getter
-    @Builder
-    public static class CreateRequest {
-        UUID userId;
-        UUID channelId;
-    }
+  @Getter
+  @Builder
+  public static class CreateRequest {
 
-    @Getter
-    @Builder
-    @ToString
-    public static class DetailResponse {
-        UUID id;
-        UUID userId;
-        UUID channelId;
-        Instant lastReadAt;
-    }
+    UUID userId;
+    UUID channelId;
+  }
+
+  @Getter
+  @Builder
+  @ToString
+  public static class DetailResponse {
+
+    UUID id;
+    UUID userId;
+    UUID channelId;
+    Instant lastReadAt;
+  }
 }

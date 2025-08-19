@@ -5,3 +5,8 @@ discodeit:
   repository:
     type: file  # jcf or file
     file-path: ./data.dir
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

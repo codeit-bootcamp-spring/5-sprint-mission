@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.AuthDto;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -13,35 +14,31 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BasicAuthService implements AuthService {
 
-    private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository;
+  private final UserRepository userRepository;
+  private final UserStatusRepository userStatusRepository;
 
-    @Override
-    public UserDto.DetailResponse login(String username, String password) {
+  @Override
+  public UserDto.DetailResponse login(AuthDto.LoginRequest request) {
 
-        User user = userRepository.findByName(username).orElse(null);
+    String username = request.getUsername();
+    String password = request.getPassword();
 
-        if (user == null || user.getPassword() == null || !user.getPassword().equals(password)) {
-            throw new IllegalArgumentException("로그인 실패");
-        }
+    User user = userRepository.findByName(username).orElse(null);
 
-        UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-            .orElse(null);
-        if(userStatus == null) {
-            throw new IllegalArgumentException("비정상 유저");
-        }
-
-        userStatus.update();
-        userStatusRepository.save(userStatus);
-
-        return UserDto.DetailResponse.builder()
-            .id(user.getId())
-            .name(user.getName())
-            .email(user.getEmail())
-            .profileId(user.getProfileId())
-            .isOnline(userStatus.isOnline())
-            .createdAt(user.getCreatedAt())
-            .updatedAt(user.getUpdatedAt())
-            .build();
+    if (user == null || user.getPassword() == null || !user.getPassword().equals(password)) {
+      throw new IllegalArgumentException("로그인 실패");
     }
+
+    UserStatus userStatus = userStatusRepository.findByUserId(user.getId()).orElse(null);
+    if (userStatus == null) {
+      throw new IllegalArgumentException("비정상 유저");
+    }
+
+    userStatus.update();
+    userStatusRepository.save(userStatus);
+
+    return UserDto.DetailResponse.builder().id(user.getId()).username(user.getName())
+        .email(user.getEmail()).profileId(user.getProfileId()).online(userStatus.isOnline())
+        .createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
+  }
 }
