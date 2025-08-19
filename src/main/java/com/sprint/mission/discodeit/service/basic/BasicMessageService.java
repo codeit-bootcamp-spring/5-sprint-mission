@@ -47,7 +47,7 @@ public class BasicMessageService implements MessageService {
         })
         .toList();
 
-    Message message = new Message(content, authorId, channelId, attachmentIds);
+    Message message = new Message(content, channelId, authorId, attachmentIds);
 
     return messageRepository.save(message);
   }
