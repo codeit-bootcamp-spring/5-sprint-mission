@@ -85,22 +85,20 @@ public class UserService {
   }
 
   public List<UserResponse> findByUsername(String username) {
-    String v = stripToLowerCase(username);
-    return userRepository.findByUsername(v)
+    return userRepository.findByUsername(username)
         .map(this::toResponse)
         .map(List::of)
         .orElse(List.of());
   }
 
   public List<UserResponse> findByEmail(String email) {
-    String v = stripToLowerCase(email);
-    return userRepository.findByEmail(v)
+    return userRepository.findByEmail(email)
         .map(this::toResponse)
         .map(List::of)
         .orElse(List.of());
   }
 
-  @Transactional(rollbackFor = Exception.class)
+  @Transactional
   public UserCreateResponse create(UserCreateRequest req, MultipartFile profile)
       throws IOException {
     String email = stripToLowerCase(req.email());
@@ -114,13 +112,18 @@ public class UserService {
     }
 
     UUID profileId = null;
+
     if (profile != null && !profile.isEmpty()) {
       String ct = FileNames.normalizeContentType(profile.getContentType());
       String original = profile.getOriginalFilename();
       String fileName = FileNames.buildStoredName(original, ct);
-      profileId = binaryContentService.create(
-          new BinaryContentCreateRequest(fileName, ct, profile.getBytes())
-      ).id();
+
+      try {
+        profileId = binaryContentService.create(
+            new BinaryContentCreateRequest(fileName, ct, profile.getBytes())).id();
+      } catch (IOException e) {
+        throw new IOException("Failed to read profile image", e);
+      }
     }
 
     User user = new User(

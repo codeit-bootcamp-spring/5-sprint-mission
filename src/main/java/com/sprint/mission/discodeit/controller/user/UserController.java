@@ -86,11 +86,12 @@ public class UserController {
       String ct = FileNames.normalizeContentType(profile.getContentType());
       if (!SUPPORTED.contains(ct)) {
         throw new HttpMediaTypeNotSupportedException(
-            "지원되지 않는 이미지 타입입니다: " + ct,
+            "Content-Type '%s' is not supported".formatted(ct),
             SUPPORTED.stream().map(MediaType::valueOf).toList()
         );
       }
     }
+
     return userService.create(req, profile);
   }
 
