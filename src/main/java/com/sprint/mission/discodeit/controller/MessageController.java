@@ -40,10 +40,10 @@ public class MessageController {
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<Message> create(
       @RequestPart MessageCreateRequest messageCreateRequest,
-      @RequestPart(required = false) List<MultipartFile> multipartFiles
+      @RequestPart(required = false) List<MultipartFile> attachments
   ) {
     List<BinaryContentCreateRequest> binaryContentCreateRequests =
-        Optional.ofNullable(multipartFiles)
+        Optional.ofNullable(attachments)
             .map(files -> files.stream()
                 .map(file -> {
                   try {
