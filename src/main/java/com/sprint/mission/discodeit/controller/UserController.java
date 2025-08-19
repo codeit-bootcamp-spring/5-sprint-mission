@@ -63,4 +63,16 @@ public class UserController {
         User updatedUser = userService.update(id, userUpdateRequest, contentCreateRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResult.ok(updatedUser, "수정 완료되었습니다"));
     }
+
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<ApiResult<String>> userDelete(@PathVariable("id") UUID id){
+        userService.delete(id);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResult.ok("사용자 "+id+" 가 삭제되었습니다"));
+    }
+
+    @RequestMapping(value = "/findAll", method = RequestMethod.GET)
+    public ResponseEntity<ApiResult<List<UserDto>>> findAllUser(){
+        List<UserDto> users = userService.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResult.ok(users));
+    }
 }
