@@ -7,9 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,22 +25,18 @@ public class BinaryContentController {
 
   @Operation(summary = "첨부 파일 조회")
   @GetMapping("/{binaryContentId}")
-  public ResponseEntity<byte[]> find(@PathVariable("binaryContentId") UUID binaryContentId) {
-    BinaryContent file = binaryContentService.findById(binaryContentId);
+  public ResponseEntity<BinaryContent> find(@PathVariable("binaryContentId") UUID binaryContentId) {
+    BinaryContent binaryContent = binaryContentService.findById(binaryContentId);
 
-    return ResponseEntity.status(HttpStatus.OK)
-        .contentType(MediaType.parseMediaType(file.getContentType()))
-        .header(HttpHeaders.CONTENT_DISPOSITION,
-            "inline; filename=\"" + file.getFileName() + "\"")
-        .body(file.getBytes());
+    return ResponseEntity.status(HttpStatus.OK).body(binaryContent);
   }
 
   @Operation(summary = "여러 첨부 파일 조회")
   @GetMapping
   public ResponseEntity<List<BinaryContent>> findAllByIdIn(
       @RequestParam List<UUID> binaryContentIds) {
-    List<BinaryContent> files = binaryContentService.findAllByIdIn(binaryContentIds);
+    List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
 
-    return ResponseEntity.status(HttpStatus.OK).body(files);
+    return ResponseEntity.status(HttpStatus.OK).body(binaryContents);
   }
 }
