@@ -11,9 +11,9 @@ import java.util.UUID;
 
 public interface ChannelService {
 
-  Channel createPublic(@Valid PublicChannelCreateRequest publicChannelCreateRequest);
+  Channel create(@Valid PublicChannelCreateRequest publicChannelCreateRequest);
 
-  Channel createPrivate(@Valid PrivateChannelCreateRequest privateChannelCreateRequest);
+  Channel create(@Valid PrivateChannelCreateRequest privateChannelCreateRequest);
 
   ChannelFindResponse findById(UUID channelId);
 
@@ -21,7 +21,7 @@ public interface ChannelService {
 
   List<ChannelFindResponse> findAllByUserId(UUID userId);
 
-  Channel update(@Valid PublicChannelUpdateRequest publicChannelUpdateRequest);
+  Channel update(UUID channelId, @Valid PublicChannelUpdateRequest publicChannelUpdateRequest);
 
   void delete(UUID channelId);
 }

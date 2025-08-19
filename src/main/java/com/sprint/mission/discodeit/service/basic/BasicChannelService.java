@@ -37,14 +37,14 @@ public class BasicChannelService implements ChannelService {
   private final UserRepository userRepository;
 
   @Override
-  public Channel createPublic(@Valid PublicChannelCreateRequest publicChannelCreateRequest) {
+  public Channel create(@Valid PublicChannelCreateRequest publicChannelCreateRequest) {
     Channel channel = new Channel(ChannelType.PUBLIC, publicChannelCreateRequest.name(),
         publicChannelCreateRequest.description());
     return channelRepository.save(channel);
   }
 
   @Override
-  public Channel createPrivate(@Valid PrivateChannelCreateRequest privateChannelCreateRequest) {
+  public Channel create(@Valid PrivateChannelCreateRequest privateChannelCreateRequest) {
     List<UUID> userIds = privateChannelCreateRequest.userIds();
 
     for (UUID userId : userIds) {
@@ -113,11 +113,12 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Override
-  public Channel update(@Valid PublicChannelUpdateRequest publicChannelUpdateRequest) {
-    Channel channel = channelRepository.findById(publicChannelUpdateRequest.id())
+  public Channel update(UUID channelId,
+      @Valid PublicChannelUpdateRequest publicChannelUpdateRequest) {
+    Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> new NoSuchElementException("update : 채널을 찾을 수 없습니다."));
     if (channel.getType() == ChannelType.PRIVATE) {
-      throw new SecurityException("update : Private 채널은 업데이트 할 수 없습니다.");
+      throw new IllegalArgumentException("update : Private 채널은 업데이트 할 수 없습니다.");
     }
     channel.update(publicChannelUpdateRequest.name(), publicChannelUpdateRequest.description());
     return channelRepository.save(channel);
