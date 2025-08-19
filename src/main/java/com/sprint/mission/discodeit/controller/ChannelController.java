@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/channels")
+@RequestMapping("/api/channel")
 public class ChannelController {
 
     private final ChannelService channelService;
@@ -22,14 +22,14 @@ public class ChannelController {
     }
 
     // ✅ 공개 채널 생성
-    @RequestMapping(value = "/public", method = RequestMethod.POST)
+    @RequestMapping(value = "/createPublic", method = RequestMethod.POST)
     public ResponseEntity<Void> createPublic(@RequestBody PublicChannelCreateRequest request) {
         channelService.createPublicChannel(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     // ✅ 비공개 채널 생성
-    @RequestMapping(value = "/private", method = RequestMethod.POST)
+    @RequestMapping(value = "/createPrivate", method = RequestMethod.POST)
     public ResponseEntity<Void> createPrivate(@RequestBody PrivateChannelCreateRequest request) {
         channelService.createPrivateChannel(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -43,20 +43,20 @@ public class ChannelController {
     }
 
     // ✅ 전체 채널 조회
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = "/findAll", method = RequestMethod.GET)
     public ResponseEntity<List<Channel>> findAll() {
         return ResponseEntity.ok(channelService.findAll());
     }
 
     // ✅ 채널 수정
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
     public ResponseEntity<Void> update(@PathVariable UUID id, @RequestBody Channel updated) {
         channelService.update(updated);
         return ResponseEntity.ok().build();
     }
 
     // ✅ 채널 삭제
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         channelService.delete(id);
         return ResponseEntity.noContent().build();
