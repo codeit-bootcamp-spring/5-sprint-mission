@@ -13,16 +13,15 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/message/status")
+@RequestMapping("/read/status")
 public class ReadStatusController {
 
     private final ReadStatusService readStatusService;
 
     /** [웹 API 요구사항] 메시지 수신 정보 관리
-     * - 특정 채널의 메시지 수신 정보를 생성할 수 있다.
-     * - 최초 생성 시점에는 새 객체를 만들고 저장
-     * - 요청 시 읽은 시각(readAt)도 함께 받을 수 있음
-     * -기존 데이터가 있으면 수정, 없으면 생성
+     * ex) 사용자가 채널에 들어왔을 때
+     * - 1. 최초 방문 시 메시지가 존재한다면 마지막 메시지가 생성된 시간, 없으면 null
+     * - 2. 두번째 방문 부터(기존 데이터가 있으면) 새로운 시간으로 업데이트
      * */
     @RequestMapping(method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<ReadStatusDto.response> saveOrUpdate(@Valid @ModelAttribute ReadStatusDto.create dto) {

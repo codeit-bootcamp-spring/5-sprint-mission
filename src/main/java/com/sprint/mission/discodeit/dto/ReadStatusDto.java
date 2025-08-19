@@ -27,6 +27,6 @@ public class ReadStatusDto {
     public record response(
             UUID userId,
             UUID channelId,
-            Instant readAt
+            String readAt
     ) {}
 }

@@ -43,4 +43,8 @@ public class ReadStatus extends Base {
     public boolean isRead(Instant messageCreatedAt) {
         return lastReadAt != null && !messageCreatedAt.isAfter(lastReadAt);
     }
+
+    public String getLastReadAtFormatted() {
+       return super.formatTimestamp(lastReadAt);
+    }
 }

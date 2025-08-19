@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.UserRequest;
-import com.sprint.mission.discodeit.dto.UserResponse;
+import com.sprint.mission.discodeit.dto.binaryContent.FileDto;
+import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.user.UserRequest;
+import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
 
 import java.util.List;
@@ -9,13 +11,13 @@ import java.util.UUID;
 
 public interface UserService {
 
-    UserResponse.detail create(UserRequest.create dto);
+    User create(UserDto userDto, FileDto fileDto);
 
-    User update(UserRequest.update dto);
+    User update(UUID id, String name, FileDto fileDto);
 
-    User updatePassword(UserRequest.passwordReset dto);
+    void updatePassword(UUID id, String password, String newPassword);
 
-    List<UserResponse.summary> findAll();
+    List<User> findAll();
 
     User findById(UUID id);
 

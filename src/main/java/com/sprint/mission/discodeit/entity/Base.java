@@ -41,7 +41,7 @@ public class Base implements Serializable {
     }
 
     // 날짜(시간)포맷팅 로직
-    private String formatTimestamp(Instant timestamp) {
+    public String formatTimestamp(Instant timestamp) {
         LocalDateTime dateTime = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault());
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }

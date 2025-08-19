@@ -5,10 +5,8 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.ReadStatusService;
-import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,18 +21,15 @@ import java.util.stream.Collectors;
 public class BasicReadStatusService implements ReadStatusService {
 
     private final ReadStatusRepository readStatusRepository;
-    private final MessageService messageService;
     private final MessageRepository messageRepository;
-    private final UserService userService;
-    private final ChannelService channelService;
 
     @Override
     public ReadStatusDto.response updateLastReadAt(ReadStatusDto.create dto) {
 
-        // 메시지 아이디로 메시지 조회
-        Message message = messageService.findById(dto.messageId());
+        Message message = messageRepository.findById(dto.messageId())
+                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾지 못했습니다."));
 
-        // 채널 일치 검증
+        // 메시지 - 채널 일치하는지 확인
         if(!message.getChannelId().equals(dto.channelId())){
             throw new IllegalArgumentException("지정한 채널에 속하지 않는 메시지입니다.");
         }
@@ -55,7 +50,7 @@ public class BasicReadStatusService implements ReadStatusService {
         return ReadStatusDto.response.builder()
                 .userId(dto.userId())
                 .channelId(dto.channelId())
-                .readAt(lastReadAt)
+                .readAt(readStatus.getLastReadAtFormatted())
                 .build();
     }
 

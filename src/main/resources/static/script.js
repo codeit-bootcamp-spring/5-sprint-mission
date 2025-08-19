@@ -19,9 +19,7 @@ async function renderUserList(users) {
     userListElement.innerHTML = '';
 
     for (const user of users) {
-        const profileUrl = user.imageUrl != null ? user.imageUrl : '/default-avatar.png';
-            // ? await fetchUserProfile(user.imageId)
-            // : '/default-avatar.png';
+        const profileUrl = user.imageUrl ?? '/default-avatar.png';
 
         const userElement = document.createElement('div');
         userElement.className = 'user-item';
