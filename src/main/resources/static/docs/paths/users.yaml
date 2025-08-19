@@ -1,7 +1,7 @@
 users_root:
   get:
     tags:
-      - Users
+      - User
     summary: 전체 User 목록 조회
     operationId: findAll
     description: |
@@ -76,7 +76,7 @@ users_root:
                 - "email은 6자 이상이어야 합니다."
   post:
     tags:
-      - Users
+      - User
     summary: User 등록
     operationId: create
     requestBody:

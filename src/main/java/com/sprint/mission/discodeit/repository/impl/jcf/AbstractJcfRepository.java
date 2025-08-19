@@ -99,19 +99,6 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public boolean existsAllByIds(Collection<UUID> ids) {
-    if (ids == null || ids.isEmpty()) {
-      return true;
-    }
-    for (UUID id : ids) {
-      if (!existsById(id)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  @Override
   public boolean softDeleteById(UUID id) {
     T entity = data.get(id);
     if (isActive(entity)) {

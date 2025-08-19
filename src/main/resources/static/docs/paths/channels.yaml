@@ -1,0 +1,125 @@
+channels_public:
+  post:
+    tags:
+      - Channel
+    summary: Public Channel 생성
+    operationId: createPublic
+    description: 공개 채널을 생성합니다.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/channel.yaml#/PublicChannelCreateRequest'
+    responses:
+      '201':
+        description: Public Channel이 성공적으로 생성됨
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/channel.yaml#/ChannelResponse'
+      '400':
+        description: Field validation/JSON parsing 오류
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            examples:
+              invalidField:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/channels/public"
+                  method: "POST"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "입력 값이 유효하지 않습니다."
+                  details:
+                    - "name: 공백일 수 없습니다"
+                    - "name: 크기가 1에서 100 사이여야 합니다"
+                    - "description: 크기가 0에서 1024 사이여야 합니다"
+              invalidJSON:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/channels/public"
+                  method: "POST"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  details:
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 1]"
+
+channels_private:
+  post:
+    tags:
+      - Channel
+    summary: Private Channel 생성
+    operationId: createPrivate
+    description: 비공개 채널을 생성합니다.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/channel.yaml#/PrivateChannelCreateRequest'
+          example:
+            participantIds:
+              - "f77609a6-ad81-425a-85a9-0e7f04dcb769"
+              - "f7243a72-3831-4a0d-896e-b889ee4693de"
+              - "d6831c9f-d9c3-45d8-bfd3-6c5b0976077e"
+              - "983ef160-4389-4d80-aadc-13a772525173"
+    responses:
+      '201':
+        description: Private Channel이 성공적으로 생성됨
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/channel.yaml#/ChannelResponse'
+            example:
+              id: "9b80f2ab-838d-49b5-881f-344fe310acdb"
+              createdAt: "2025-08-19T09:07:47.200570Z"
+              updatedAt: "2025-08-19T09:07:47.200570Z"
+              type: "PRIVATE"
+              name: null
+              description: null
+      '400':
+        description: Field validation/JSON parsing 오류
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            examples:
+              invalidField:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/channels/private"
+                  method: "POST"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "입력 값이 유효하지 않습니다."
+                  details:
+                    - "participantIds: 참여자 ID 목록은 필수입니다."
+                    - "participantIds: 비공개 채널은 2명~10명 사이여야 합니다."
+                    - "participantIds[]: 널이어서는 안됩니다"
+              invalidJSON:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/channels/private"
+                  method: "POST"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  details:
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 3, column: 1]"
+      '404':
+        description: participantIds 중 존재하지 않는 User가 존재함
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            example:
+              timestamp: "2025-08-16T12:34:56Z"
+              path: "/api/channels/private"
+              method: "POST"
+              status: 404
+              code: "NOT_FOUND"
+              message: "유저를 찾을 수 없습니다: f77609a6-ad81-425a-85a9-0e7f04dcb761"

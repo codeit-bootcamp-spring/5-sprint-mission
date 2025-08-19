@@ -215,19 +215,6 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public boolean existsAllByIds(Collection<UUID> ids) {
-    if (ids == null || ids.isEmpty()) {
-      return true;
-    }
-    for (UUID id : ids) {
-      if (!existsById(id)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  @Override
   public boolean softDeleteById(UUID id) {
     Optional<T> opt = readObject(resolvePath(id));
     if (opt.isPresent() && !opt.get().isDeleted()) {

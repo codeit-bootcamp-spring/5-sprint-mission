@@ -19,8 +19,6 @@ public interface AbstractRepository<T extends AbstractEntity> {
 
   boolean existsById(UUID id);
 
-  boolean existsAllByIds(Collection<UUID> ids);
-
   T getOrThrow(UUID id);
 
   List<T> findAll();

@@ -20,18 +20,6 @@ public final class StringUtil {
     return (s == null) ? null : s.strip();
   }
 
-  public static String trimOrNull(String s) {
-    return (s == null) ? null : s.trim();
-  }
-
-  public static String stripToEmpty(String s) {
-    return (s == null) ? "" : s.strip();
-  }
-
-  public static String stripOrDefault(String s, String defaultValue) {
-    return isNullOrBlank(s) ? defaultValue : s.strip();
-  }
-
   public static String normalizeLower(String s) {
     if (s == null) {
       return null;

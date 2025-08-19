@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import com.sprint.mission.discodeit.support.Validators;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -24,7 +23,7 @@ public class Message extends AbstractEntity {
     this.channelId = Objects.requireNonNull(channelId, "channelId must not be null.");
     this.authorId = Objects.requireNonNull(authorId, "authorId must not be null.");
 
-    this.content = Validators.validateMessageContent(content);
+    this.content = content;
     if (attachmentIds != null) {
       for (UUID id : attachmentIds) {
         this.attachmentIds.add(Objects.requireNonNull(id, "attachmentId must not be null"));
@@ -46,9 +45,8 @@ public class Message extends AbstractEntity {
   }
 
   public void setContent(String content) {
-    String normalized = Validators.validateMessageContent(content);
-    if (!Objects.equals(this.content, normalized)) {
-      this.content = normalized;
+    if (!Objects.equals(this.content, content)) {
+      this.content = content;
       touch();
     }
   }

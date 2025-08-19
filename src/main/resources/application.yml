@@ -11,17 +11,19 @@ springdoc:
   swagger-ui:
     path: /docs
     urls:
-      - name: Users API
-        url: /docs/openapi-users.yaml
       - name: Auth API
         url: /docs/openapi-auth.yaml
       - name: Binary Contents API
         url: /docs/openapi-binary-contents.yaml
+      - name: Channels API
+        url: /docs/openapi-channels.yaml
       - name: Friend Requests API
         url: /docs/openapi-friend-requests.yaml
-      - name: User Statuses API
-        url: /docs/openapi-user-statuses.yaml
-      - name: Read Statuses API
-        url: /docs/openapi-read-statuses.yaml
       - name: Messages API
         url: /docs/openapi-messages.yaml
+      - name: Read Statuses API
+        url: /docs/openapi-read-statuses.yaml
+      - name: User Statuses API
+        url: /docs/openapi-user-statuses.yaml
+      - name: Users API
+        url: /docs/openapi-users.yaml

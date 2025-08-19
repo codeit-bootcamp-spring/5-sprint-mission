@@ -44,6 +44,7 @@ MessageCreateRequest:
 
 MessageCreateResponse:
   type: object
+  description: Message 생성 정보
   properties:
     id:
       type: string

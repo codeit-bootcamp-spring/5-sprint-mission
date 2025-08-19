@@ -22,7 +22,11 @@ ReadStatusResponse:
 
 ReadStatusCreateRequest:
   type: object
-  required: [ userId, channelId, lastReadAt ]
+  description: Message 읽음 상태 생성 정보
+  required:
+    - userId
+    - channelId
+    - lastReadAt
   properties:
     userId:
       type: string

@@ -1,22 +1,15 @@
 package com.sprint.mission.discodeit.service.guild;
 
-import static com.sprint.mission.discodeit.mapper.GuildMapper.toGuildResponse;
-
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.entity.GuildPermissions;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.enums.Permission;
-import com.sprint.mission.discodeit.dto.request.guild.GuildCreateRequest;
-import com.sprint.mission.discodeit.dto.response.guild.GuildResponse;
-import com.sprint.mission.discodeit.exception.NotFoundException;
-import com.sprint.mission.discodeit.mapper.GuildMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -38,35 +31,35 @@ public class GuildService {
     guildRepository.save(g);
   }
 
-  public GuildResponse create(GuildCreateRequest req) {
-    Objects.requireNonNull(req, "req must not be null");
-    Objects.requireNonNull(req.ownerId(), "ownerId must not be null");
-
-    Guild saved = guildRepository.save(new Guild(
-        req.name(), req.discoverable(), req.ownerId()
-    ));
-
-    return toGuildResponse(saved);
-  }
-
-  public GuildResponse find(UUID guildId) {
-    return guildRepository.findById(guildId)
-        .map(GuildMapper::toGuildResponse)
-        .orElseThrow(() -> new NotFoundException("서버를 찾을 수 없습니다: " + guildId));
-  }
-
-  public List<GuildResponse> findAll() {
-    return guildRepository.findAll().stream()
-        .map(GuildMapper::toGuildResponse)
-        .toList();
-  }
-
-  public List<GuildResponse> findGuildsJoinedByUser(UUID userId) {
-    Set<UUID> ids = userRepository.getOrThrow(userId).getGuildIds();
-    return guildRepository.findAllByIds(ids).stream()
-        .map(GuildMapper::toGuildResponse)
-        .toList();
-  }
+  // public GuildResponse create(GuildCreateRequest req) {
+  //   Objects.requireNonNull(req, "req must not be null");
+  //   Objects.requireNonNull(req.ownerId(), "ownerId must not be null");
+  //
+  //   Guild saved = guildRepository.save(new Guild(
+  //       req.name(), req.discoverable(), req.ownerId()
+  //   ));
+  //
+  //   return toGuildResponse(saved);
+  // }
+  //
+  // public GuildResponse find(UUID guildId) {
+  //   return guildRepository.findById(guildId)
+  //       .map(GuildMapper::toGuildResponse)
+  //       .orElseThrow(() -> new NotFoundException("서버를 찾을 수 없습니다: " + guildId));
+  // }
+  //
+  // public List<GuildResponse> findAll() {
+  //   return guildRepository.findAll().stream()
+  //       .map(GuildMapper::toGuildResponse)
+  //       .toList();
+  // }
+  //
+  // public List<GuildResponse> findGuildsJoinedByUser(UUID userId) {
+  //   Set<UUID> ids = userRepository.getOrThrow(userId).getGuildIds();
+  //   return guildRepository.findAllByIds(ids).stream()
+  //       .map(GuildMapper::toGuildResponse)
+  //       .toList();
+  // }
 
   public void deleteGuild(UUID guildId, UUID ownerId) {
     Guild guild = guildRepository.getOrThrow(guildId);

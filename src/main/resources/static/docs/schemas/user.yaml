@@ -1,6 +1,12 @@
 UserResponse:
   type: object
-  required: [ id, createdAt, updatedAt, email, username, online ]
+  required:
+    - id
+    - createdAt
+    - updatedAt
+    - email
+    - username
+    - online
   properties:
     id:
       type: string
@@ -25,6 +31,7 @@ UserResponse:
 
 UserCreateRequest:
   type: object
+  description: User 생성 정보
   required:
     - username
     - email
@@ -77,19 +84,20 @@ UserUpdateProfileSettingsRequest:
   properties:
     globalName:
       type: string
-      nullable: true
       maxLength: 32
       description: 빈 문자열은 서버에서 null 처리
     bio:
       type: string
-      nullable: true
       maxLength: 2000
 
 UserUpdateProfileImageRequest:
   type: object
-  required: [ profileId ]
+  required:
+    - profileId
   properties:
-    profileId: { type: string, format: uuid }
+    profileId:
+      type: string
+      format: uuid
 
 UserUpdateEmailRequest:
   type: object
