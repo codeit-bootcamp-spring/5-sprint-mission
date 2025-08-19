@@ -4,6 +4,7 @@ import com.codeit.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.codeit.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.codeit.mission.discodeit.entity.ReadStatus;
 import com.codeit.mission.discodeit.service.ReadStatusService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +29,7 @@ public class ReadStatusController {
     private final ReadStatusService readStatusService;
 
     @PostMapping
+    @Operation(summary = "읽음 확인 생성", description = "읽음 확인을 위한 readStatus를 생성합니다.")
     public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request가 필요합니다.");
@@ -44,6 +46,7 @@ public class ReadStatusController {
     }
 
     @PatchMapping(value = "/{readStatusId}")
+    @Operation(summary = "읽음 상태 업데이트", description = "해당 Id의 읽음 상태를 업데이트합니다.")
     public ResponseEntity<ReadStatus> update(@PathVariable UUID readStatusId,
         @RequestBody ReadStatusUpdateRequest request) {
         if (readStatusId == null) {
@@ -58,6 +61,7 @@ public class ReadStatusController {
     }
 
     @GetMapping
+    @Operation(summary = "유저별 읽음 상태 조회", description = "해당 userId의 전체 읽음 상태를 조회합니다.")
     public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam("userId") UUID userId) {
         if (userId == null) {
             throw new IllegalArgumentException("userId가 필요합니다.");

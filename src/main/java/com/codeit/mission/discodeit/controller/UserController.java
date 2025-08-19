@@ -9,6 +9,7 @@ import com.codeit.mission.discodeit.entity.User;
 import com.codeit.mission.discodeit.entity.UserStatus;
 import com.codeit.mission.discodeit.service.UserService;
 import com.codeit.mission.discodeit.service.UserStatusService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
@@ -38,6 +39,7 @@ public class UserController {
     private final UserStatusService userStatusService;
 
     @PostMapping
+    @Operation(summary = "사용자 생성", description = "사용자를 생성합니다.")
     public ResponseEntity<User> create(
         @RequestPart UserCreateRequest userCreateRequest,
         @RequestPart(required = false) MultipartFile profile
@@ -69,6 +71,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
+    @Operation(summary = "사용자 정보 업데이트", description = "해당 Id의 사용자 정보를 업데이트합니다.")
     public ResponseEntity<User> update(
         @PathVariable UUID userId,
         @RequestPart UserUpdateRequest userUpdateRequest,
@@ -103,6 +106,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @Operation(summary = "사용자 삭제", description = "해당 Id의 사용자를 삭제합니다.")
     public ResponseEntity<Void> delete(@PathVariable UUID userId) {
         if (userId == null) {
             throw new IllegalArgumentException("userId가 필요합니다.");
@@ -113,12 +117,14 @@ public class UserController {
     }
 
     @GetMapping
+    @Operation(summary = "전체 사용자 조회", description = "전체 사용자 목록을 조회합니다.")
     public ResponseEntity<List<UserDto>> findAll() {
         List<UserDto> users = userService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
     @PatchMapping("/{userId}/userStatus")
+    @Operation(summary = "유저 상태 변경", description = "해당 userId 사용자의 userStatus를 업데이트합니다.")
     public ResponseEntity<UserStatus> updateUserStatusByUserId(
         @PathVariable UUID userId,
         @RequestBody UserStatusUpdateRequest userStatusUpdateRequest
