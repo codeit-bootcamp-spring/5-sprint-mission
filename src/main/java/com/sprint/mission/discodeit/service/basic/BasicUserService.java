@@ -109,6 +109,8 @@ public class BasicUserService implements UserService {
 
     @Override
     public boolean delete(UUID id) {
+        userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         return userRepository.delete(id);
     }
 }

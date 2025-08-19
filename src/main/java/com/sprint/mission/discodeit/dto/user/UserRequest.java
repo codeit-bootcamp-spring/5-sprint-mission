@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class UserRequest {
 
-    public record create(
+    public record Create(
             @NotBlank(message = "이름을 입력해주세요")
             String name,
 
@@ -17,10 +17,7 @@ public class UserRequest {
             String email,
 
             @NotBlank(message = "비밀번호를 입력해주세요")
-            String password,
-
-            @Nullable
-            MultipartFile profileImage
+            String password
     ) {}
 
     public record update(

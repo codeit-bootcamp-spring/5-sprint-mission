@@ -11,8 +11,10 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("api/users")
 public class UserController {
 
     private final UserService userService;
@@ -29,14 +31,17 @@ public class UserController {
 
     // 사용자 등록: POST /users
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<UserResponse.detail> create(@Valid @ModelAttribute UserRequest.create req) throws IOException {
+    public ResponseEntity<UserResponse.detail> create(
+            @RequestPart("userCreateRequest") UserRequest.Create req,
+            @RequestPart(value = "profile", required = false) MultipartFile profile
+    ) throws IOException {
 
         UserDto userDto = new UserDto(req.name(), req.email(), req.password());
         FileDto fileDto = null;
 
-        if(req.profileImage() != null) {
-            if(req.profileImage().isEmpty()) throw new IllegalArgumentException("이미지 파일이 비어있습니다.");
-            fileDto = new FileDto(UUID.randomUUID().toString(), req.profileImage().getContentType(), req.profileImage().getBytes());
+        if(profile != null) {
+            if(profile.isEmpty()) throw new IllegalArgumentException("이미지 파일이 비어있습니다.");
+            fileDto = new FileDto(UUID.randomUUID().toString(), profile.getContentType(), profile.getBytes());
         }
 
         User user = userService.create(userDto, fileDto);
@@ -100,8 +105,8 @@ public class UserController {
 
     // 삭제: DELETE /user/{id}
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        boolean deleted = userService.delete(id);
-        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    public ResponseEntity<String> delete(@PathVariable UUID id) {
+        userService.delete(id);
+        return ResponseEntity.ok("계정이 삭제되었습니다.");
     }
 }
