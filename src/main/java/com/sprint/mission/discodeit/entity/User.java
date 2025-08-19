@@ -7,25 +7,37 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import jakarta.annotation.Nullable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+@AllArgsConstructor
+@Data
+@Builder
 public class User implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	// createdAt, updateAt : Unix timeStamp
 	private final UUID id;
-	private final Long createdAt;
-	private Long updatedAt;
+	private final Instant createdAt;
+	private Instant updatedAt;
+	private String email;
 	private String loginId;
 	private String password;
 	private String defaultNickname;
+	@Nullable
+	private UUID profileId;
 
-	public User(String loginId, String password, String defaultNickname) {
-		this.loginId = Objects.requireNonNull(loginId, "로그인ID는 필수입니다");
-		this.password = Objects.requireNonNull(password, "비밀번호는 필수입니다");
-		this.defaultNickname = Objects.requireNonNull(defaultNickname, "닉네임은 필수입니다");
+	public User(String loginId, String password, String defaultNickname, String email, @Nullable UUID profileId) {
+		this.loginId = loginId;
+		this.password = password;
+		this.defaultNickname = defaultNickname;
+		this.email = email;
+		this.profileId = profileId;
 
 		id = UUID.randomUUID();
-		createdAt = Instant.now().getEpochSecond();
+		createdAt = Instant.now();
 		updatedAt = createdAt;
 	}
 
@@ -34,49 +46,40 @@ public class User implements Serializable {
 		this.id = original.id;
 		this.createdAt = original.createdAt;
 		this.updatedAt = original.updatedAt;
+		this.email = original.email;
+		this.profileId = original.profileId;
 		this.loginId = original.loginId;
 		this.password = original.password;
 		this.defaultNickname = original.defaultNickname;
 	}
 
-	public UUID getId() {
-		return id;
-	}
-
-	public Long getCreatedAt() {
-		return createdAt;
-	}
-
-	public Long getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public String getLoginId() {
-		return loginId;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public String getDefaultNickname() {
-		return defaultNickname;
-	}
-
 	public void updateUpdatedAt() {
-		this.updatedAt = Instant.now().getEpochSecond();;
+		this.updatedAt = Instant.now();
 	}
 
-	public void updateLoginId(String loginId) {
-		this.loginId = loginId;
+	public void updateEmail(String email) {
+		updateUpdatedAt();
+		this.email = Objects.requireNonNull(email, "이메일은 필수 입력값입니다.");
+	}
+
+	public void updateProfileId(@Nullable UUID profileId) {
+		updateUpdatedAt();
+		this.profileId = profileId;
 	}
 
 	public void updatePassword(String password) {
-		this.password = password;
+		updateUpdatedAt();
+		this.password = Objects.requireNonNull(password, "비밀번호는 필수 입력값입니다.");
 	}
 
 	public void updateDefaultNickname(String defaultNickname) {
-		this.defaultNickname = defaultNickname;
+		updateUpdatedAt();
+		this.defaultNickname = Objects.requireNonNull(defaultNickname, "닉네임은 필수 입력값입니다.");
+	}
+
+	public void removeProfile() {
+		updateUpdatedAt();
+		this.profileId = null;
 	}
 
 	public User copy() {

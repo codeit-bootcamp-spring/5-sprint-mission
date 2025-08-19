@@ -11,66 +11,57 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+@AllArgsConstructor
+@Data
+@Builder
 public class Channel implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
 	private final UUID id;
-	private final Long createdAt;
-	private Long updatedAt;
+	private final Instant createdAt;
+	private String type = "PUBLIC"; // 채널 타입, PUBLIC 또는 PRIVATE
+	private Instant updatedAt;
 	private String channelName;
-	private final List<UUID> channelUsersUUID;
-	private final List<UUID> channelMessagesUUID;
+	private final List<UUID> memberIds;
 	// userUUID
 	private final Map<UUID, String> userNicknames;
 
+
 	public Channel(String channelName) {
 		this.channelName = Objects.requireNonNull(channelName, "채널 이름은 필수 입력값입니다.");
-		channelUsersUUID = new ArrayList<>();
-		channelMessagesUUID = new ArrayList<>();
+		memberIds = new ArrayList<>();
 		userNicknames = new ConcurrentHashMap<UUID, String>();
 
 		id = UUID.randomUUID();
-		createdAt = Instant.now().getEpochSecond();
+		createdAt = Instant.now();
 		updatedAt = createdAt;
+	}
+
+	public Channel(List<UUID> userUUIDs) {
+		memberIds = new ArrayList<>();
+		userNicknames = new ConcurrentHashMap<UUID, String>();
+
+		id = UUID.randomUUID();
+		type = "PRIVATE";
+		channelName = "private-"+id;
+		createdAt = Instant.now();
+		updatedAt = createdAt;
+		this.memberIds.addAll(userUUIDs);
 	}
 
 	public Channel(Channel original) {
 		this.id = original.id;
 		this.createdAt = original.createdAt;
-		this.channelUsersUUID = new ArrayList<>(original.channelUsersUUID);
-		this.channelMessagesUUID = new ArrayList<>(original.channelMessagesUUID);
+		this.memberIds = new ArrayList<>(original.memberIds);
 		this.userNicknames = new HashMap<>(original.userNicknames);
 		this.channelName = original.channelName;
 		this.updatedAt = original.updatedAt;
-	}
-
-	public UUID getId() {
-		return id;
-	}
-
-	public Long getCreatedAt() {
-		return createdAt;
-	}
-
-	public Long getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public String getChannelName() {
-		return channelName;
-	}
-
-	public List<UUID> getChannelUsersUUID() {
-		return channelUsersUUID;
-	}
-
-	public List<UUID> getChannelMessagesUUID() {
-		return channelMessagesUUID;
-	}
-
-	public Map<UUID, String> getUserNicknames() {
-		return userNicknames;
+		this.type = original.type;
 	}
 
 	public String getUserNickname(UUID userUUID) {
@@ -78,7 +69,7 @@ public class Channel implements Serializable {
 	}
 
 	public void updateUpdatedAt() {
-		this.updatedAt = Instant.now().getEpochSecond();;
+		this.updatedAt = Instant.now();
 	}
 
 	public void updateChannelName(String channelName) {
@@ -86,24 +77,18 @@ public class Channel implements Serializable {
 	}
 
 	public void addUser(UUID userUUID) {
-		this.channelUsersUUID.add(userUUID);
+		this.memberIds.add(userUUID);
 	}
 
-	public void addMessage(UUID messageUUID) {
-		this.channelMessagesUUID.add(messageUUID);
-	}
 
 	public void addNickname(UUID userUUID, String nickname) {
 		this.userNicknames.put(userUUID, nickname);
 	}
 
 	public void removeUser(UUID userUUID) {
-		this.channelUsersUUID.remove(userUUID);
+		this.memberIds.remove(userUUID);
 	}
 
-	public void removeMessage(UUID messageUUID) {
-		this.channelMessagesUUID.remove(messageUUID);
-	}
 
 	public void removeNickname(UUID userUUID) {
 		this.userNicknames.remove(userUUID);

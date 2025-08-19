@@ -6,11 +6,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 
+import lombok.RequiredArgsConstructor;
+
+
+@RequiredArgsConstructor
 public class JCFMessageRepository implements MessageRepository {
 	private final Map<UUID, Message> messageMap;
 
@@ -49,7 +52,7 @@ public class JCFMessageRepository implements MessageRepository {
 
 		List<Message> messages = new ArrayList<>();
 		for (Message message : messageMap.values()) {
-			if (channelId.equals(message.getChannelUUID())) {
+			if (channelId.equals(message.getChannelId())) {
 				messages.add(message.copy());
 			}
 		}
@@ -63,6 +66,31 @@ public class JCFMessageRepository implements MessageRepository {
 		}
 
 		messageMap.remove(messageId);
+	}
+
+	@Override
+	public void deleteByChannelId(UUID channelId) {
+		System.out.println("미구현");
+	}
+
+	@Override
+	public List<Message> findByAuthorIdAndChannelId(UUID authorId, UUID channelId) {
+		return List.of();
+	}
+
+	@Override
+	public void createDirectoryIfNotExists() {
+
+	}
+
+	@Override
+	public void loadFile() {
+
+	}
+
+	@Override
+	public void saveFile() {
+
 	}
 
 }

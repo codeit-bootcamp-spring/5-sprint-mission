@@ -10,8 +10,4 @@ public class UserNotFoundException extends RuntimeException {
 	public UserNotFoundException() {
 		super("없는 아이디 입니다.");
 	}
-
-	public UserNotFoundException(String field, String value) {
-		super("찾을 수 없는 유저 [" + field + "]: " + value);
-	}
 }

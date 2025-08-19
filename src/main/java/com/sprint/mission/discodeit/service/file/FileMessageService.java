@@ -1,28 +1,21 @@
 package com.sprint.mission.discodeit.service.file;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.dto.request.message.CreateMessageRequest;
+import com.sprint.mission.discodeit.dto.request.message.DeleteMessageRequest;
+import com.sprint.mission.discodeit.dto.request.message.GetMessageRequest;
+import com.sprint.mission.discodeit.dto.request.message.GetMessagesByAuthorRequest;
+import com.sprint.mission.discodeit.dto.request.message.GetMessagesByChannelIdRequest;
+import com.sprint.mission.discodeit.dto.request.message.UpdateMessageRequest;
+import com.sprint.mission.discodeit.dto.response.message.DeleteMessageResponse;
+import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelMessageService;
-import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
 
 public class FileMessageService implements MessageService {
 	private final MessageRepository messageRepository;
@@ -68,7 +61,7 @@ public class FileMessageService implements MessageService {
 		Optional<Message> messageOpt = messageRepository.findById(messageUUID);
 		if (messageOpt.isPresent()) {
 			Message message = messageOpt.get();
-			if (!message.getAuthorUUID().equals(authorUUID)) return false;
+			if (!message.getAuthorId().equals(authorUUID)) return false;
 
 			message.updateText(text);
 			message.updateUpdatedAt();
@@ -78,10 +71,38 @@ public class FileMessageService implements MessageService {
 		return false;
 	}
 
-
-
 	@Override
 	public void deleteMessage(UUID messageUUID, UUID authorUUID) {
 		channelMessageService.deleteMessage(messageUUID, authorUUID);
+	}
+
+	@Override
+	public MessageResponse createMessage(CreateMessageRequest request) {
+		return null;
+	}
+
+	@Override
+	public MessageResponse getMessage(GetMessageRequest request) {
+		return null;
+	}
+
+	@Override
+	public List<MessageResponse> getAllByChannelId(GetMessagesByChannelIdRequest request) {
+		return List.of();
+	}
+
+	@Override
+	public List<MessageResponse> getMessageByAuthor(GetMessagesByAuthorRequest request) {
+		return List.of();
+	}
+
+	@Override
+	public MessageResponse updateMessage(UpdateMessageRequest request) {
+		return null;
+	}
+
+	@Override
+	public DeleteMessageResponse deleteMessage(DeleteMessageRequest request) {
+		return null;
 	}
 }

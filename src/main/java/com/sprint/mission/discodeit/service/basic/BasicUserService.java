@@ -1,93 +1,188 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.stereotype.Service;
+
+import com.sprint.mission.discodeit.dto.request.user.*;
+import com.sprint.mission.discodeit.dto.response.user.*;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.DuplicateEmailException;
 import com.sprint.mission.discodeit.exception.DuplicateLoginIdException;
 import com.sprint.mission.discodeit.exception.InvalidPasswordException;
 import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.UserStatusNotFoundException;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
 public class BasicUserService implements UserService {
 	private final UserRepository userRepository;
-
-	public BasicUserService(UserRepository userRepository) {
-		this.userRepository = userRepository;
-	}
+	private final UserStatusRepository userStatusRepository;
+	private final BinaryContentRepository binaryContentRepository;
 
 	@Override
-	public User login(String loginId, String password) {
-		User user = userRepository.findByLoginId(loginId)
-			.orElseThrow(UserNotFoundException::new);
-
-		if (!user.getPassword().equals(password)) {
-			throw new InvalidPasswordException();
-		}
-
-		return user;
-	}
-
-	@Override
-	public User createUser(String loginId, String password, String defaultNickname) {
-		if (userRepository.existsByLoginId(loginId)) {
+	public UserResponse createUser(CreateUserRequest request) {
+		if (userRepository.existsByLoginId(request.getUsername())) {
 			throw new DuplicateLoginIdException();
 		}
 
-		User newUser = new User(loginId, password, defaultNickname);
-		userRepository.save(newUser);
+		if (userRepository.existsByEmail(request.getEmail())) {
+			throw new DuplicateEmailException();
+		}
 
-		return getUserById(newUser.getId());
-	}
+		User user;
+		UUID profileId = null;
 
-	@Override
-	public User getUserById(UUID id) {
-		return userRepository.findById(id)
-			.orElseThrow(UserNotFoundException::new);
-	}
+		if (request.getProfileImage() != null) {
+			BinaryContent profileImage = request.getProfileImage().toBinaryContent();
+			binaryContentRepository.save(profileImage);
+			profileId = profileImage.getId();
 
-	@Override
-	public User getUserByLoginId(String loginId) {
-		return userRepository.findByLoginId(loginId)
-			.orElseThrow(UserNotFoundException::new);
-	}
-
-	@Override
-	public List<User> getAllUsers() {
-		return userRepository.findAll();
-	}
-
-	@Override
-	public boolean updateUserPassword(UUID id, String password) {
-		User user = userRepository.findById(id)
-			.orElseThrow(UserNotFoundException::new);
-
-		user.updatePassword(password);
+			user = request.toUserWithProfile(profileId);
+		} else {
+			user = request.toUser();
+		}
 
 		userRepository.save(user);
 
-		// 만약 비밀번호 설정 제약이 있다면 받은 비밀번호 검사 후 boolean타입으로 반환
-		return true;
+		UserStatus userStatus = new UserStatus(user.getId());
+		userStatusRepository.save(userStatus);
+
+		return UserResponse.success(user);
 	}
 
 	@Override
-	public boolean deleteUser(UUID id) {
-		userRepository.findById(id)
+	public UserResponse getUserById(GetUserByIdRequest request) {
+		User user = userRepository.findById(request.getId())
 			.orElseThrow(UserNotFoundException::new);
 
-		userRepository.deleteById(id);
-
-		return true;
+		return UserResponse.success(user);
 	}
 
 	@Override
-	public boolean deleteUser(String LoginId) {
-		userRepository.findByLoginId(LoginId)
+	public UserResponse getUserByLoginId(String loginId) {
+		User user = userRepository.findByLoginId(loginId)
 			.orElseThrow(UserNotFoundException::new);
 
-		userRepository.deleteByLoginId(LoginId);
+		return UserResponse.success(user);
+	}
 
-		return true;
+
+	@Override
+	public List<UserResponse> getAllUsers() {
+		List<User> users = userRepository.findAll();
+		List<UserResponse> userResponseList = new ArrayList<>();
+
+		for (User user : users) {
+
+			userResponseList.add(UserResponse.success(user));
+		}
+
+		return userResponseList;
+	}
+
+	@Override
+	public UpdateUserPasswordResponse updateUserPassword(UpdateUserPasswordRequest request) {
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		if (!user.getPassword().equals(request.getCurrentPassword())) {
+			throw new InvalidPasswordException();
+		}
+
+		user.updatePassword(request.getNewPassword());
+
+		userRepository.save(user);
+
+		// 만약 비밀번호 설정 제약이 있다면 받은 비밀번호 검사 후 Response 반환
+		return new UpdateUserPasswordResponse(true);
+	}
+
+	@Override
+	public UserResponse updateUserDefalutNickname(UpdateUserDefalutNicknameRequest request) {
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		user.updateDefaultNickname(request.getNickname());
+
+		userRepository.save(user);
+
+		return UserResponse.success(user);
+	}
+
+	@Override
+	public UserResponse updateUserProfile(UpdateUserProfileImageRequest request) {
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		UUID oldProfileId = user.getProfileId();
+
+		if (request.getUserProfileImage() != null) {
+			// 새로운 프로필 이미지 제공 - 업데이트 (기존과 같아도 새로 저장)
+			BinaryContent newProfileImage = request.getUserProfileImage().toBinaryContent();
+			binaryContentRepository.save(newProfileImage);
+
+			// 기존 프로필 이미지가 있으면 삭제
+			if (oldProfileId != null) {
+				binaryContentRepository.deleteById(oldProfileId);
+			}
+
+			user.updateProfileId(newProfileImage.getId());
+		} else {
+			// null 제공 - 기존 프로필 제거
+			if (oldProfileId != null) {
+				binaryContentRepository.deleteById(oldProfileId);
+				user.removeProfile();
+			}
+		}
+
+		userRepository.save(user);
+
+		return UserResponse.success(user);
+	}
+
+	@Override
+	public DeleteUserResponse delete(UUID id) {
+		User user = userRepository.findById(id)
+			.orElseThrow(UserNotFoundException::new);
+
+		UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		if(user.getProfileId() != null) {
+			binaryContentRepository.deleteById(user.getProfileId());
+		}
+		userStatusRepository.deleteById(userStatus.getId());
+		userRepository.deleteById(user.getId());
+
+
+		return DeleteUserResponse.success(user);
+	}
+
+	@Override
+	public DeleteUserResponse delete(String loginId) {
+		User user = userRepository.findByLoginId(loginId)
+			.orElseThrow(UserNotFoundException::new);
+
+		UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
+			.orElseThrow(UserStatusNotFoundException::new);
+
+		if(user.getProfileId() != null) {
+			binaryContentRepository.deleteById(user.getProfileId());
+		}
+		userStatusRepository.deleteById(userStatus.getId());
+		userRepository.deleteById(user.getId());
+
+		return DeleteUserResponse.success(user);
 	}
 }

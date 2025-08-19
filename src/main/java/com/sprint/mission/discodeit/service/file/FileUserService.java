@@ -1,107 +1,146 @@
 package com.sprint.mission.discodeit.service.file;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
+import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
+import com.sprint.mission.discodeit.dto.request.user.DeleteUserByIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.DeleteUserByLoingIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
+import com.sprint.mission.discodeit.dto.request.user.GetUserByLoginIdRequest;
+import com.sprint.mission.discodeit.dto.request.auth.LoginRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefalutNicknameRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserProfileImageRequest;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.dto.response.auth.LoginResponse;
+import com.sprint.mission.discodeit.dto.response.user.UpdateUserPasswordResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.DuplicateEmailException;
+import com.sprint.mission.discodeit.exception.DuplicateLoginIdException;
+import com.sprint.mission.discodeit.exception.InvalidPasswordException;
+import com.sprint.mission.discodeit.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
 public class FileUserService implements UserService {
-
+	private final UserStatusRepository userStatusRepository;
 	private final UserRepository userRepository;
 
-	public FileUserService(UserRepository userRepository) {
+	public FileUserService(UserRepository userRepository, UserStatusRepository userStatusRepository) {
 		this.userRepository =userRepository;
+		this.userStatusRepository = userStatusRepository;
 	}
 
-	@Override
-	public User login(String loginId, String password) {
-		Optional<User> userOpt = userRepository.findByLoginId(loginId);
+
+	public LoginResponse login(LoginRequest request) {
+		Optional<User> userOpt = userRepository.findByLoginId(request.getUsername());
 		if (userOpt.isPresent()) {
 			User user = userOpt.get();
-			if (user.getPassword().equals(password)) {
-				return user;
+			if (user.getPassword().equals(request.getPassword())) {
+				return LoginResponse.success(user);
 			}
 		}
 		return null;
 	}
 
 	@Override
-	public User createUser(String loginId, String password, String defaultNickname) {
-		if (userRepository.existsByLoginId(loginId)) return null;
+	public UserResponse createUser(CreateUserRequest request) {
+		if (userRepository.existsByLoginId(request.getUsername())) {
+			throw new DuplicateLoginIdException();
+		}
 
-		User user = new User(loginId, password, defaultNickname);
+		if (userRepository.existsByEmail(request.getEmail())) {
+			throw new DuplicateEmailException();
+		}
+
+		User user = request.toUser();
+		userRepository.save(user);
+
+		return UserResponse.success(user);
+	}
+
+	@Override
+	public UserResponse getUserById(GetUserByIdRequest request) {
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		return UserResponse.success(user);
+	}
+
+	@Override
+	public UserResponse getUserByLoginId(String loginId) {
+		User user = userRepository.findByLoginId(loginId)
+			.orElseThrow(UserNotFoundException::new);
+
+
+		return UserResponse.success(user);
+	}
+
+	@Override
+	public List<UserResponse> getAllUsers() {
+		List<User> users = userRepository.findAll();
+		List<UserResponse> userResponseList = new ArrayList<>();
+
+		for (User user : users) {
+			userResponseList.add(UserResponse.success(user));
+		}
+
+		return userResponseList;
+	}
+
+	@Override
+	public UpdateUserPasswordResponse updateUserPassword(UpdateUserPasswordRequest request) {
+		User user = userRepository.findById(request.getId())
+			.orElseThrow(UserNotFoundException::new);
+
+		if (!user.getPassword().equals(request.getCurrentPassword())) {
+			throw new InvalidPasswordException();
+		}
+
+		user.updatePassword(request.getNewPassword());
 
 		userRepository.save(user);
 
-		return user;
+		// 만약 비밀번호 설정 제약이 있다면 받은 비밀번호 검사 후 boolean타입으로 반환
+		return new UpdateUserPasswordResponse(true);
 	}
 
 	@Override
-	public User getUserById(UUID id) {
-		return userRepository.findById(id).orElse(null);
+	public UserResponse updateUserDefalutNickname(UpdateUserDefalutNicknameRequest request) {
+		return null;
 	}
 
 	@Override
-	public User getUserByLoginId(String loginId) {
-		return userRepository.findByLoginId(loginId).orElse(null);
+	public UserResponse updateUserProfile(UpdateUserProfileImageRequest request) {
+		return null;
 	}
 
 	@Override
-	public List<User> getAllUsers() {
-		return userRepository.findAll();
+	public DeleteUserResponse delete(UUID id) {
+		User user = userRepository.findById(id)
+			.orElseThrow(UserNotFoundException::new);
+
+		userRepository.deleteById(id);
+
+		return DeleteUserResponse.success(user);
 	}
 
 	@Override
-	public boolean updateUserPassword(UUID id, String password) {
-		if (id == null || password == null) return false;
+	public DeleteUserResponse delete(String loginId) {
+		User user = userRepository.findByLoginId(loginId)
+			.orElseThrow(UserNotFoundException::new);
 
-		Optional<User> userOpt = userRepository.findById(id);
-		if (userOpt.isPresent()) {
-			User user = userOpt.get();
-			user.updatePassword(password);
-			user.updateUpdatedAt();
+		userRepository.deleteByLoginId(loginId);
 
-			userRepository.save(user);
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean deleteUser(UUID id) {
-		if (id == null) return false;
-
-		if (userRepository.findById(id).isPresent()) {
-			userRepository.deleteById(id);
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean deleteUser(String loginId) {
-		if (loginId == null) return false;
-
-		if (userRepository.findByLoginId(loginId).isPresent()) {
-			userRepository.deleteByLoginId(loginId);
-			return true;
-		}
-		return false;
+		return DeleteUserResponse.success(user);
 	}
 
 	public boolean existsLoginId(String loginId) {

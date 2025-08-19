@@ -3,78 +3,69 @@ package com.sprint.mission.discodeit.entity;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+@AllArgsConstructor
+@Data
+@Builder
 public class Message implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
 	private final UUID id;
-	private final Long createdAt;
-	private Long updatedAt;
-	private UUID authorUUID;
-	private UUID channelUUID;
+	private final Instant createdAt;
+	private Instant updatedAt;
+	private final UUID authorId;
+	private final UUID channelId;
 	private String text;
+	private final List<UUID> attachmentIds;
 
-	public Message(UUID authorUUID, UUID channelUUID,String text) {
-		this.authorUUID = Objects.requireNonNull(authorUUID, "작성자UUID는 필수 입니다.");
-		this.channelUUID = Objects.requireNonNull(channelUUID, "채널UUID는 필수입니다.");
+	public Message(UUID authorId, UUID channelId, String text) {
+		this.authorId = Objects.requireNonNull(authorId, "작성자UUID는 필수 입니다.");
+		this.channelId = Objects.requireNonNull(channelId, "채널UUID는 필수입니다.");
 		this.text = Objects.requireNonNull(text, "내용은 필수 입니다.");
 
 		id = UUID.randomUUID();
-		createdAt = Instant.now().getEpochSecond();
+		createdAt = Instant.now();
 		updatedAt = createdAt;
+		attachmentIds = new ArrayList<>();
 	}
 
 	public Message(Message original) {
 		this.id = original.id;
 		this.createdAt = original.createdAt;
 		this.updatedAt = original.updatedAt;
-		this.authorUUID = original.authorUUID;
-		this.channelUUID = original.channelUUID;
+		this.authorId = original.authorId;
+		this.channelId = original.channelId;
 		this.text = original.text;
+		this.attachmentIds = original.attachmentIds;
 	}
-
-	public UUID getId() {
-		return id;
-	}
-
-	public Long getCreatedAt() {
-		return createdAt;
-	}
-
-	public Long getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public UUID getAuthorUUID() {
-		return authorUUID;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public UUID getChannelUUID() {
-		return channelUUID;
-	}
-
 
 	public void updateUpdatedAt() {
-		this.updatedAt = Instant.now().getEpochSecond();
-	}
-
-	public void updateAuthorUUID(UUID authorUUID) {
-		this.authorUUID = authorUUID;
-	}
-
-	public void updateChannelUUID(UUID channelUUID) {
-		this.channelUUID = channelUUID;
+		this.updatedAt = Instant.now();
 	}
 
 	public void updateText(String text) {
 		this.text = text;
+	}
+
+	public void addAttachment(UUID attachmentId) {
+		if (attachmentId != null && !this.attachmentIds.contains(attachmentId)) {
+			this.attachmentIds.add(attachmentId);
+		}
+	}
+
+	public void removeAttachment(UUID attachmentId) {
+		if (this.attachmentIds.remove(attachmentId)) {
+			updateUpdatedAt();
+		}
 	}
 
 	public Message copy() {

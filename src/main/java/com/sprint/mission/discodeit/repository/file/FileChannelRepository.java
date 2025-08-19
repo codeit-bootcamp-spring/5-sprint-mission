@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -17,14 +18,19 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.stereotype.Repository;
+
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.FileRepository;
 
-public class FileChannelRepository implements ChannelRepository, FileRepository {
+@Repository
+public class FileChannelRepository implements ChannelRepository {
 	private static final String DATA_DIR = "data/";
-	private static final String CHANNELS_FILE = DATA_DIR + "channels";
-	private static final String CHANNEL_MAPPING_FILE = DATA_DIR + "channelMapping";
+	private static final String EXTENSION = ".ser";
+	private static final String CHANNELS_FILE = DATA_DIR + "channels" + EXTENSION;
+	private static final String CHANNEL_MAPPING_FILE = DATA_DIR + "channelMapping" + EXTENSION;
+
 
 	private final Map<UUID, Channel> channelMap;
 	private final Map<String, UUID> channelNameToUUID;
@@ -34,9 +40,7 @@ public class FileChannelRepository implements ChannelRepository, FileRepository 
 		channelNameToUUID = new ConcurrentHashMap<>();
 
 		createDirectoryIfNotExists();
-		loadFile(CHANNELS_FILE, channelMap);
-		loadFile(CHANNEL_MAPPING_FILE, channelNameToUUID);
-
+		loadFile();
 	}
 
 	@Override
@@ -48,8 +52,7 @@ public class FileChannelRepository implements ChannelRepository, FileRepository 
 		channelMap.put(channel.getId(), channel);
 		channelNameToUUID.put(channel.getChannelName(), channel.getId());
 
-		saveFile(CHANNELS_FILE, channelMap);
-		saveFile(CHANNEL_MAPPING_FILE, channelNameToUUID);
+		saveFile();
 	}
 
 	@Override
@@ -92,8 +95,7 @@ public class FileChannelRepository implements ChannelRepository, FileRepository 
 			channelNameToUUID.remove(channel.getChannelName());
 			channelMap.remove(channelId);
 
-			saveFile(CHANNELS_FILE, channelMap);
-			saveFile(CHANNEL_MAPPING_FILE, channelNameToUUID);
+			saveFile();
 		}
 	}
 
@@ -108,8 +110,7 @@ public class FileChannelRepository implements ChannelRepository, FileRepository 
 			channelMap.remove(channelId);
 			channelNameToUUID.remove(channelName);
 
-			saveFile(CHANNELS_FILE, channelMap);
-			saveFile(CHANNEL_MAPPING_FILE, channelNameToUUID);
+			saveFile();
 		}
 	}
 
@@ -126,23 +127,61 @@ public class FileChannelRepository implements ChannelRepository, FileRepository 
 	}
 
 	@Override
-	public void loadFile(String filename, Map map) {
-		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
-			Map load = (Map) ois.readObject();
-			map.putAll(load);
-		} catch (FileNotFoundException ignored) {
+	public void loadFile() {
+		Map<UUID, Channel> tempChannelMap = null;
+		Map<String, UUID> tempChannelNameToUUID = null;
 
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(CHANNELS_FILE))) {
+			tempChannelMap = (Map<UUID, Channel>) ois.readObject();
 		} catch (Exception e) {
-			e.printStackTrace();
+			return;
+			// throw new RuntimeException("채널 파일 읽기 실패", e);
 		}
+
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(CHANNEL_MAPPING_FILE))) {
+			tempChannelNameToUUID = (Map<String, UUID>) ois.readObject();
+		} catch (Exception e) {
+			return;
+			// throw new RuntimeException("채널 캐시 파일 읽기 실패", e);
+		}
+
+			channelMap.clear();
+			channelMap.putAll(tempChannelMap);
+			channelNameToUUID.clear();
+			channelNameToUUID.putAll(tempChannelNameToUUID);
 	}
 
 	@Override
-	public void saveFile(String filename, Object data) {
-		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-			oos.writeObject(data);
+	public void saveFile() {
+
+		Path channelsTmp = Paths.get(CHANNELS_FILE + ".tmp");
+		Path channelMappingTmp = Paths.get(CHANNEL_MAPPING_FILE + ".tmp");
+
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(channelsTmp.toFile()))) {
+			oos.writeObject(channelMap);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("채널 임시 저장 파일 생성 실패", e);
 		}
+
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(channelMappingTmp.toFile()))) {
+			oos.writeObject(channelNameToUUID);
+		} catch (Exception e) {
+			throw new RuntimeException("채널 캐시 임시 저장 파일 생성 실패", e);
+		}
+
+		try {
+			Files.move(channelsTmp, Paths.get(CHANNELS_FILE), StandardCopyOption.REPLACE_EXISTING);
+			Files.move(channelMappingTmp, Paths.get(CHANNEL_MAPPING_FILE), StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			throw new RuntimeException("채널 파일 복사 실패", e);
+		}
+
+		try {
+			Files.deleteIfExists(channelsTmp);
+			Files.deleteIfExists(channelMappingTmp);
+		} catch (IOException e) {
+			throw new RuntimeException("임시 파일 삭제 실패", e);
+		}
+
 	}
 }

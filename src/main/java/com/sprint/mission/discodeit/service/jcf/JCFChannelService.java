@@ -6,6 +6,20 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sprint.mission.discodeit.dto.request.channel.CreatePrivateChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.CreatePublicChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.DeleteChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.GetChannelByChannelIdRequest;
+import com.sprint.mission.discodeit.dto.request.channel.GetChannelBychannelName;
+import com.sprint.mission.discodeit.dto.request.channel.GetChannelsByUserRequest;
+import com.sprint.mission.discodeit.dto.request.channel.JoinChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.LeaveChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.UpdateUserNicknameRequest;
+import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
+import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
+import com.sprint.mission.discodeit.dto.response.channel.DeleteChannelResponse;
+import com.sprint.mission.discodeit.dto.response.channel.JoinChannelResponse;
+import com.sprint.mission.discodeit.dto.response.channel.LeaveChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -72,7 +86,7 @@ public class JCFChannelService implements ChannelService {
 	}
 
 	@Override
-	public boolean updateChannelName(User user, UUID channelUUID, String channelNewName) {
+	public boolean updateChannelName(UUID channelUUID, String channelNewName) {
 		// 새로운 이름이 이미 사용 중이거나 업데이트 할 채널이 없을 경우 return false
 		if(channelNameToUUID.containsKey(channelNewName) ||
 			!channelMap.containsKey(channelUUID)){
@@ -136,4 +150,48 @@ public class JCFChannelService implements ChannelService {
 		return true;
 	}
 
+	@Override
+	public CreateChannelResponse createPublicChannel(CreatePublicChannelRequest request) {
+		return null;
+	}
+
+	@Override
+	public CreateChannelResponse createPrivateChannel(CreatePrivateChannelRequest request) {
+		return null;
+	}
+
+	@Override
+	public JoinChannelResponse joinChannel(JoinChannelRequest request) {
+		return null;
+	}
+
+	@Override
+	public LeaveChannelResponse leaveChannel(LeaveChannelRequest request) {
+		return null;
+	}
+
+	@Override
+	public List<ChannelResponse> getChannelsByUserId(GetChannelsByUserRequest request) {
+		return List.of();
+	}
+
+	@Override
+	public ChannelResponse getChannelByName(GetChannelBychannelName request) {
+		return null;
+	}
+
+	@Override
+	public ChannelResponse getChannelByUUID(GetChannelByChannelIdRequest request) {
+		return null;
+	}
+
+	@Override
+	public boolean updateUserNickname(UpdateUserNicknameRequest request) {
+		return false;
+	}
+
+	@Override
+	public DeleteChannelResponse deleteChannel(DeleteChannelRequest request) {
+		return null;
+	}
 }

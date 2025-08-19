@@ -7,9 +7,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.stereotype.Repository;
+
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 
+import lombok.RequiredArgsConstructor;
+
+
+@RequiredArgsConstructor
 public class JCFChannelRepository implements ChannelRepository {
 	private final Map<UUID, Channel> channelMap;
 	private final Map<String, UUID> channelNameToUUID;
@@ -83,6 +89,21 @@ public class JCFChannelRepository implements ChannelRepository {
 			channelMap.remove(channelId);
 			channelNameToUUID.remove(channelName);
 		}
+	}
+
+	@Override
+	public void createDirectoryIfNotExists() {
+
+	}
+
+	@Override
+	public void loadFile() {
+
+	}
+
+	@Override
+	public void saveFile() {
+
 	}
 
 }
