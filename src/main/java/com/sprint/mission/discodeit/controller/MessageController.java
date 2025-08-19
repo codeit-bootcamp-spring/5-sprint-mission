@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,11 +24,14 @@ public class MessageController {
     }
 
     // ✅메시지 생성
-    @PostMapping
-    public ResponseEntity<Void> create(@RequestBody MessageCreateRequest request) {
-        messageService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @PostMapping("/create")
+    public ResponseEntity<Message> create(
+            @RequestPart("messageCreateRequest") MessageCreateRequest request,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        Message created = messageService.create(request, file);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+
 
     // ✅메시지 단건 조회
     @GetMapping("/{id}")
@@ -37,24 +41,25 @@ public class MessageController {
     }
 
     // ✅채널 내 모든 메시지 조회
-    @GetMapping("/channel/{channelId}")
-    public ResponseEntity<List<Message>> findAllByChannelId(@PathVariable UUID channelId) {
+    @GetMapping("/findAllByChannelId")
+    public ResponseEntity<List<Message>> findAllByChannelId(@RequestParam UUID channelId) {
         List<Message> messages = messageService.findAllByChannelId(channelId);
         return ResponseEntity.ok(messages);
     }
 
     // ✅메시지 수정
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> update(@PathVariable UUID id, @RequestBody MessageUpdateRequest request) {
-        messageService.update(request);
-        return ResponseEntity.ok().build();
+    @PutMapping("/update")
+    public ResponseEntity<Message> update(@RequestBody MessageUpdateRequest request) {
+        Message updated = messageService.update(request);
+        return ResponseEntity.ok(updated);
     }
 
+
     // ✅메시지 삭제
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        Message target = messageService.findById(id); // 삭제 전 존재 확인
-        messageService.delete(target);
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> delete(@RequestParam UUID messageId) {
+        messageService.delete(messageId);
         return ResponseEntity.noContent().build();
     }
+
 }
