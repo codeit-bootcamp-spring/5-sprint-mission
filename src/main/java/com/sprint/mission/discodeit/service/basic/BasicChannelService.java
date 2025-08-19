@@ -45,18 +45,18 @@ public class BasicChannelService implements ChannelService {
 
   @Override
   public Channel create(@Valid PrivateChannelCreateRequest privateChannelCreateRequest) {
-    List<UUID> userIds = privateChannelCreateRequest.userIds();
+    List<UUID> participantIds = privateChannelCreateRequest.participantIds();
 
-    for (UUID userId : userIds) {
-      if (!userRepository.existsById(userId)) {
-        throw new NoSuchElementException("존재하지 않는 유저입니다 : " + userId);
+    for (UUID participantId : participantIds) {
+      if (!userRepository.existsById(participantId)) {
+        throw new NoSuchElementException("존재하지 않는 유저입니다 : " + participantId);
       }
     }
 
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
 
-    for (UUID userId : userIds) {
-      readStatusRepository.save(new ReadStatus(userId, channel.getId()));
+    for (UUID participantId : participantIds) {
+      readStatusRepository.save(new ReadStatus(participantId, channel.getId()));
     }
 
     return channelRepository.save(channel);
