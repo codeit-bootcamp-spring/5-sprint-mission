@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record UserUpdateRequest(
-    @NotNull UUID userId,
     @NotBlank String username,
     @NotBlank @Email String email,
     @NotBlank String password

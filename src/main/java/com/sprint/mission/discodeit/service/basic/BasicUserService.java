@@ -91,13 +91,13 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public User update(@Valid UserUpdateRequest userUpdateRequest,
+  public User update(UUID userId, @Valid UserUpdateRequest userUpdateRequest,
       @Valid Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
     String username = userUpdateRequest.username();
     String password = userUpdateRequest.password();
     String email = userUpdateRequest.email();
 
-    User user = userRepository.findById(userUpdateRequest.userId())
+    User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다."));
 
     if (!user.getUsername().equals(username)) {

@@ -19,7 +19,7 @@ public interface UserService {
 
   List<UserFindResponse> findAll();
 
-  User update(@Valid UserUpdateRequest userUpdateRequest,
+  User update(UUID userId, @Valid UserUpdateRequest userUpdateRequest,
       @Valid Optional<BinaryContentCreateRequest> binaryContentCreateRequest);
 
   void delete(UUID userId);

@@ -55,8 +55,9 @@ public class BasicUserStatusService implements UserStatusService {
   }
 
   @Override
-  public UserStatus update(@Valid UserStatusUpdateRequest userStatusUpdateRequest) {
-    UserStatus userStatus = userStatusRepository.findById(userStatusUpdateRequest.id())
+  public UserStatus update(UUID userStatusId,
+      @Valid UserStatusUpdateRequest userStatusUpdateRequest) {
+    UserStatus userStatus = userStatusRepository.findById(userStatusId)
         .orElseThrow(() -> new NoSuchElementException("update : UserStatus를 찾을 수 없습니다."));
     userStatus.update(userStatusUpdateRequest.loginStatus());
 
@@ -64,8 +65,9 @@ public class BasicUserStatusService implements UserStatusService {
   }
 
   @Override
-  public UserStatus updateByUserId(@Valid UserStatusUpdateRequest userStatusUpdateRequest) {
-    UserStatus userStatus = userStatusRepository.findByUserId(userStatusUpdateRequest.id())
+  public UserStatus updateByUserId(UUID userId,
+      @Valid UserStatusUpdateRequest userStatusUpdateRequest) {
+    UserStatus userStatus = userStatusRepository.findByUserId(userId)
         .orElseThrow(() -> new NoSuchElementException("updateByUserId : UserStatus를 찾을 수 없습니다."));
     userStatus.update(userStatusUpdateRequest.loginStatus());
 
