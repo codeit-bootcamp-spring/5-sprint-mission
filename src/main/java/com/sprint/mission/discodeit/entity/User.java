@@ -23,15 +23,6 @@ public class User implements Serializable {
     private String email;
     private String password;
 
-    public User(String username, String email, String password) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
-
     public User(String username, String email, String password, UUID profileId) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
@@ -42,37 +33,24 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public void update(String username, String email, String password) {
-        boolean anyValueUpdated = false;
-        if (username != null && !username.equals(this.username)) {
-            this.username = username;
-            anyValueUpdated = true;
-        }
-        if (email != null && !email.equals(this.email)) {
-            this.email = email;
-            anyValueUpdated = true;
-        }
-        if (password != null && !password.equals(this.password)) {
-            this.password = password;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
+    public void update(String username, String email, String password, UUID profileId) {
+        if (checkUpdated(username, email, password, profileId)) {
             this.updatedAt = Instant.now();
         }
     }
 
-    public void update(String username, String email, String password, UUID profileId) {
+    private boolean checkUpdated(String username, String email, String password, UUID profileId) {
         boolean anyValueUpdated = false;
-        if (username != null && !username.equals(this.username)) {
+
+        if (!username.equals(this.username)) {
             this.username = username;
             anyValueUpdated = true;
         }
-        if (email != null && !email.equals(this.email)) {
+        if (!email.equals(this.email)) {
             this.email = email;
             anyValueUpdated = true;
         }
-        if (password != null && !password.equals(this.password)) {
+        if (!password.equals(this.password)) {
             this.password = password;
             anyValueUpdated = true;
         }
@@ -80,13 +58,8 @@ public class User implements Serializable {
             this.profileId = profileId;
             anyValueUpdated = true;
         }
-        if (profileId == null) {
-            this.profileId = null;
-            anyValueUpdated = true;
-        }
 
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
+        return anyValueUpdated;
     }
+
 }

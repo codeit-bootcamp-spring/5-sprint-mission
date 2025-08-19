@@ -6,7 +6,6 @@ import lombok.ToString;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,16 +24,6 @@ public class Message implements Serializable {
     //
     private final UUID channelId;
     private final UUID authorId;
-
-    public Message(String content, UUID channelId, UUID authorId) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.attachmentIds = List.of();
-        //
-        this.content = content;
-        this.channelId = channelId;
-        this.authorId = authorId;
-    }
 
     public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
         this.id = UUID.randomUUID();

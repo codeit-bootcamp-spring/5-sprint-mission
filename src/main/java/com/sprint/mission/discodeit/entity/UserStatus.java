@@ -13,6 +13,7 @@ import java.util.UUID;
 public class UserStatus implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+    private static final int TIME_DIFF = 300;
 
     private final UUID id;
     private final UUID userId;
@@ -31,20 +32,18 @@ public class UserStatus implements Serializable {
     public void update(boolean loginStatus) {
         boolean anyValueUpdated = false;
 
-        if(this.loginStatus != loginStatus) {
+        if (this.loginStatus != loginStatus) {
             this.loginStatus = loginStatus;
             anyValueUpdated = true;
         }
 
-        if(anyValueUpdated) {
+        if (anyValueUpdated) {
             updatedAt = Instant.now();
         }
     }
 
     public boolean isLogin() {
-        if (updatedAt != null && updatedAt.getEpochSecond() - Instant.now().getEpochSecond() <= 300) {
-        loginStatus = true;
-        }
+        loginStatus = updatedAt != null && updatedAt.getEpochSecond() - Instant.now().getEpochSecond() <= TIME_DIFF;
         return loginStatus;
     }
 }

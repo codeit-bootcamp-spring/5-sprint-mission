@@ -1,109 +1,24 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserFindResponse;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
-@Service("userService")
-@RequiredArgsConstructor
-@Validated
-public class UserService {
+public interface UserService {
+    User create(@Valid UserCreateRequest userCreateRequest, @Valid Optional<BinaryContentCreateRequest> binaryContentCreateRequest);
 
-    private final UserRepository userRepository;
-    private final BinaryContentRepository binaryContentRepository;
-    private final UserStatusRepository userStatusRepository;
+    UserFindResponse findById(UUID userId);
 
-    public User create(@Valid UserCreateRequest request) {
-        validateUnique(request.username(), request.email());
-        User user;
+    List<UserFindResponse> findAll();
 
-        if (request.uploadProfileImage()) {
-            user = new User(request.username(), request.email(), request.password(), request.profileId());
-        } else {
-            user = new User(request.username(), request.email(), request.password());
-        }
-        userStatusRepository.save(new UserStatus(user.getId()));
-        return userRepository.save(user);
-    }
+    User update(@Valid UserUpdateRequest userUpdateRequest, @Valid Optional<BinaryContentCreateRequest> binaryContentCreateRequest);
 
-    public UserFindResponse findById(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("findById : 유저를 찾을 수 없습니다."));
-
-        return UserFindResponse.builder()
-                .profileId(user.getProfileId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .loginStatus(userStatusRepository.findByUserId(user.getId())
-                        .orElseThrow(() -> new NoSuchElementException("findById : UserStatus를 찾을 수 없습니다.")).isLogin())
-                .build();
-    }
-
-    public List<UserFindResponse> findAll() {
-        List<UserFindResponse> userFindResponses = new ArrayList<>();
-        for (User user : userRepository.findAll()) {
-            UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-                    .orElseThrow(() -> new NoSuchElementException("findAll : UserStatus를 찾을 수 없습니다."));
-            userFindResponses.add(UserFindResponse.builder()
-                    .profileId(user.getProfileId())
-                    .username(user.getUsername())
-                    .email(user.getEmail())
-                    .loginStatus(userStatus.isLogin())
-                    .build());
-        }
-        return userFindResponses;
-    }
-
-    public User update(@Valid UserUpdateRequest request) {
-        validateUnique(request.username(), request.email());
-        User user = userRepository.findById(request.userId())
-                .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다."));
-
-        if (request.updateProfileImage()) {
-            user.update(request.username(), request.email(), request.password(), request.profileId());
-        } else {
-            user.update(request.username(), request.email(), request.password());
-        }
-        return userRepository.save(user);
-    }
-
-    public void delete(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("delete : 유저를 찾을 수 없습니다."));
-
-        if (user.getProfileId() != null) {
-            binaryContentRepository.deleteById(user.getProfileId());
-        }
-
-        userStatusRepository.findByUserId(user.getId()).ifPresent(userStatus -> userStatusRepository.deleteById(userStatus.getId()));
-
-        userRepository.deleteById(user.getId());
-    }
-
-    public void deleteAll() {
-        userRepository.findAll().forEach(user -> delete(user.getId()));
-    }
-
-    private void validateUnique(String username, String email) {
-        if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("validateUnique : 이미 존재하는 username 입니다.");
-        }
-        if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("validateUnique : 이미 존재하는 email 입니다.");
-        }
-    }
+    void delete(UUID userId);
 }

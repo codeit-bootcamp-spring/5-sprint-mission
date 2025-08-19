@@ -11,70 +11,41 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 public class FileBinaryContentRepository implements BinaryContentRepository {
-    private final Path DIRECTORY;
-    private final String EXTENSION = ".ser";
+    private final Path directory;
+    private static final String EXTENSION = ".ser";
+    private static final String DOMAIN_NAME = BinaryContent.class.getSimpleName();
+    private final Map<UUID, BinaryContent> contentMap;
 
     public FileBinaryContentRepository(RepositoryProps props) {
         Path root = Paths.get(props.getFileDirectory());
         if (!root.isAbsolute()) {
             root = Paths.get(System.getProperty("user.dir")).resolve(root);
         }
-        this.DIRECTORY = root.resolve(BinaryContent.class.getSimpleName());
-        if (Files.notExists(DIRECTORY)) {
+        this.directory = root.resolve(DOMAIN_NAME);
+        if (Files.notExists(directory)) {
             try {
-                Files.createDirectories(DIRECTORY);
+                Files.createDirectories(directory);
             } catch (IOException e) {
-                throw new ThrowableIOException("디렉토리 생성 실패 : " + DIRECTORY, e);
+                throw new ThrowableIOException("디렉토리 생성 실패 : " + directory, e);
             }
         }
+        contentMap = new HashMap<>(load());
     }
 
     private Path resolvePath(UUID id) {
-        return DIRECTORY.resolve(id + EXTENSION);
+        return directory.resolve(id + EXTENSION);
     }
 
-    @Override
-    public BinaryContent save(BinaryContent binaryContent) {
-        Path path = resolvePath(binaryContent.getId());
-        try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
-        ) {
-            oos.writeObject(binaryContent);
-        } catch (IOException e) {
-            throw new ThrowableIOException("저장 실패 : " + path, e);
-        }
-        return binaryContent;
-    }
-
-    @Override
-    public Optional<BinaryContent> findById(UUID id) {
-        BinaryContent binaryContent = null;
-        Path path = resolvePath(id);
-        if (Files.exists(path)) {
-            try (
-                    FileInputStream fis = new FileInputStream(path.toFile());
-                    ObjectInputStream ois = new ObjectInputStream(fis)
-            ) {
-                binaryContent = (BinaryContent) ois.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                throw new ThrowableIOException("불러오기 실패 : " + path, e);
-            }
-        }
-        return Optional.ofNullable(binaryContent);
-    }
-
-    @Override
-    public List<BinaryContent> findAll() {
-        try {
-            return Files.list(DIRECTORY)
+    private Map<UUID, BinaryContent> load() {
+        try (Stream<Path> paths = Files.list(directory)) {
+            return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (
@@ -86,16 +57,40 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
                             throw new ThrowableIOException("불러오기 실패 : " + path, e);
                         }
                     })
-                    .toList();
+                    .collect(Collectors.toMap(BinaryContent::getId, binaryContent -> binaryContent));
         } catch (IOException e) {
-            throw new ThrowableIOException("불러오기 실패 : " + DIRECTORY, e);
+            throw new ThrowableIOException("불러오기 실패 : " + directory, e);
         }
     }
 
     @Override
+    public BinaryContent save(BinaryContent binaryContent) {
+        Path path = resolvePath(binaryContent.getId());
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
+            oos.writeObject(binaryContent);
+            contentMap.put(binaryContent.getId(), binaryContent);
+        } catch (IOException e) {
+            throw new ThrowableIOException("저장 실패 : " + path, e);
+        }
+        return binaryContent;
+    }
+
+    @Override
+    public Optional<BinaryContent> findById(UUID id) {
+        return Optional.ofNullable(contentMap.get(id));
+    }
+
+    @Override
+    public List<BinaryContent> findAll() {
+        return List.copyOf(contentMap.values());
+    }
+
+    @Override
     public boolean existsById(UUID id) {
-        Path path = resolvePath(id);
-        return Files.exists(path);
+        return contentMap.containsKey(id);
     }
 
     @Override
@@ -103,6 +98,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         Path path = resolvePath(id);
         try {
             Files.deleteIfExists(path);
+            contentMap.remove(id);
         } catch (IOException e) {
             throw new ThrowableIOException("삭제 실패 : " + path, e);
         }

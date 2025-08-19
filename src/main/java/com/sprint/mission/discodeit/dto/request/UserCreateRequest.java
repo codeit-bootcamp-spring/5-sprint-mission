@@ -8,8 +8,6 @@ import java.util.UUID;
 public record UserCreateRequest(
         @NotBlank String username,
         @NotBlank @Email String email,
-        @NotBlank String password,
-        boolean uploadProfileImage,
-        UUID profileId
+        @NotBlank String password
 ) {
 }
