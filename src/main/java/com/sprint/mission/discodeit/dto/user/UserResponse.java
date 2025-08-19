@@ -41,5 +41,16 @@ public class UserResponse {
             @Nullable UUID imageId,
             @Nullable String imageUrl,
             Boolean online
-    ) {}
+    ) {
+        public static summary from (User user, boolean online) {
+            return summary.builder()
+                    .id(user.getId())
+                    .name(user.getName())
+                    .email(user.getEmail())
+                    .imageId(user.getProfileId())
+                    .imageUrl(user.getProfileId() != null ? "/binary/" + user.getProfileId() : null)
+                    .online(online)
+                    .build();
+        }
+    }
 }

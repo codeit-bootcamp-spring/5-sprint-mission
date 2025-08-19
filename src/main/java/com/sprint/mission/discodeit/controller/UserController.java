@@ -73,14 +73,8 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserResponse.summary>> findAll() {
         List<User> users = userService.findAll();
-        return ResponseEntity.ok(users.stream().map(user -> UserResponse.summary.builder()
-                        .id(user.getId())
-                        .name(user.getName())
-                        .email(user.getEmail())
-                        .imageId(user.getProfileId())
-                        .imageUrl(user.getProfileId() != null ? "/binary/" + user.getProfileId() : null)
-                        .online(userStatusService.isOnline(user.getId()))
-                        .build()
+        return ResponseEntity.ok(users.stream()
+                .map(user -> UserResponse.summary.from(user, userStatusService.isOnline(user.getId()))
         ).toList());
     }
 
