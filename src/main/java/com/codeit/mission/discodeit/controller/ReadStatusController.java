@@ -4,6 +4,7 @@ import com.codeit.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.codeit.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.codeit.mission.discodeit.entity.ReadStatus;
 import com.codeit.mission.discodeit.service.ReadStatusService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +16,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/readStatuses")
+@Tag(name = "ReadStatus", description = "ReadStatus API")
 public class ReadStatusController {
 
     private final ReadStatusService readStatusService;

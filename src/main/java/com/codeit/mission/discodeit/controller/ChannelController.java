@@ -6,6 +6,7 @@ import com.codeit.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.codeit.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.codeit.mission.discodeit.entity.Channel;
 import com.codeit.mission.discodeit.service.ChannelService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/channels")
+@Tag(name = "Channel", description = "Channel API")
 public class ChannelController {
 
     private final ChannelService channelService;

@@ -5,6 +5,7 @@ import com.codeit.mission.discodeit.dto.request.MessageCreateRequest;
 import com.codeit.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.codeit.mission.discodeit.entity.Message;
 import com.codeit.mission.discodeit.service.MessageService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/messages")
+@Tag(name = "Message", description = "Message API")
 public class MessageController {
 
     private final MessageService messageService;

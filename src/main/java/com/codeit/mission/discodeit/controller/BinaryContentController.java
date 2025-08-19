@@ -2,6 +2,7 @@ package com.codeit.mission.discodeit.controller;
 
 import com.codeit.mission.discodeit.entity.BinaryContent;
 import com.codeit.mission.discodeit.service.BinaryContentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/binaryContents")
+@Tag(name = "BinaryContent", description = "BinaryContent API")
 public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;
