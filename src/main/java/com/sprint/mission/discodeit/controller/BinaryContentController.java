@@ -4,8 +4,6 @@ import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentCreateRequest
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,22 +26,20 @@ public class BinaryContentController {
 
 
     // ✅ 파일 1개 조회
-    @GetMapping("/{id}")
-    public ResponseEntity<byte[]> findById(@PathVariable UUID id) {
-        BinaryContent file = binaryContentService.findById(id);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFileName() + "\"")
-                .contentType(MediaType.parseMediaType(file.getContentType()))
-                .body(file.getBytes());
+    @GetMapping("/find")
+    public ResponseEntity<BinaryContent> findById(@RequestParam UUID binaryContentId) {
+        BinaryContent file = binaryContentService.findById(binaryContentId);
+        return ResponseEntity.ok(file);
     }
+
 
     // ✅ 파일 여러개 조회
-    @PostMapping("/batch")
-    public ResponseEntity<List<BinaryContent>> findAllByIdIn(@RequestBody List<UUID> ids) {
-        List<BinaryContent> files = binaryContentService.findAllByIdIn(ids);
+    @GetMapping("/findAllByIdIn")
+    public ResponseEntity<List<BinaryContent>> findAllByIdIn(@RequestParam List<UUID> binaryContentIds) {
+        List<BinaryContent> files = binaryContentService.findAllByIdIn(binaryContentIds);
         return ResponseEntity.ok(files);
     }
+
 
     // ✅ 파일 삭제
     @DeleteMapping("/{id}")
