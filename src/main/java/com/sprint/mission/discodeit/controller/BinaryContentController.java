@@ -16,10 +16,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestController
-@RestControllerAdvice
 @RequiredArgsConstructor
 @RequestMapping("/api/binaryContents")
 @Tag(name = "BinaryContent", description = "첨부파일 API")
