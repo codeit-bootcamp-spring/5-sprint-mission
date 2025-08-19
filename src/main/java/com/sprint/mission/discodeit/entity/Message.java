@@ -1,72 +1,47 @@
 package com.sprint.mission.discodeit.entity;
 
+import io.micrometer.common.lang.Nullable;
+import lombok.Getter;
+
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
-public class Message implements Comparable<Message>, Serializable {
-    private final UUID id;
-    private final Long createdAt;
-    private Long updatedAt;
+@Getter
+public class Message implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    private UUID channelId;
-    private UUID fromUserId;
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
     private String content;
+    //
+    private UUID channelId;
+    private UUID authorId;
+    @Nullable
+    private List<UUID> attachmentIds;
 
-    public Message(UUID id, Long createdAt, UUID channelId, UUID fromUserId, String content) {
-        this.id = id;
-        this.createdAt = createdAt;
+    public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.content = content;
         this.channelId = channelId;
-        this.fromUserId = fromUserId;
-        this.content = content;
+        this.authorId = authorId;
+        this.attachmentIds = attachmentIds;
     }
 
-    public Message(UUID channelId, UUID fromUserId, String content) {
-        this(UUID.randomUUID(), System.currentTimeMillis(), channelId, fromUserId, content);
-    }
+    public void update(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
 
-    public void update(String content) {
-        this.updatedAt = System.currentTimeMillis();
-        this.content = content;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public long getCreatedAt() {
-        return createdAt;
-    }
-
-    public long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public UUID getFromUserId() {
-        return fromUserId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    @Override
-    public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", channelId=" + channelId +
-                ", fromUserId=" + fromUserId +
-                ", content='" + content + '\'' +
-                '}';
-    }
-
-    @Override
-    public int compareTo(Message o) {
-        return Long.compare(this.createdAt,o.createdAt);
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
