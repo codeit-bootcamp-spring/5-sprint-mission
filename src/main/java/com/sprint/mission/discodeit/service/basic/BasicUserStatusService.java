@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.validation.Valid;
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -33,7 +34,7 @@ public class BasicUserStatusService implements UserStatusService {
     if (userStatus != null) {
       throw new IllegalArgumentException("create : UserStatus가 이미 존재합니다.");
     }
-    userStatus = new UserStatus(userStatusCreateRequest.userId());
+    userStatus = new UserStatus(userStatusCreateRequest.userId(), Instant.now());
     return userStatusRepository.save(userStatus);
   }
 
@@ -59,7 +60,7 @@ public class BasicUserStatusService implements UserStatusService {
       @Valid UserStatusUpdateRequest userStatusUpdateRequest) {
     UserStatus userStatus = userStatusRepository.findById(userStatusId)
         .orElseThrow(() -> new NoSuchElementException("update : UserStatus를 찾을 수 없습니다."));
-    userStatus.update(userStatusUpdateRequest.loginStatus());
+    userStatus.update(userStatusUpdateRequest.newLastActiveAt());
 
     return userStatusRepository.save(userStatus);
   }
@@ -69,7 +70,7 @@ public class BasicUserStatusService implements UserStatusService {
       @Valid UserStatusUpdateRequest userStatusUpdateRequest) {
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
         .orElseThrow(() -> new NoSuchElementException("updateByUserId : UserStatus를 찾을 수 없습니다."));
-    userStatus.update(userStatusUpdateRequest.loginStatus());
+    userStatus.update(userStatusUpdateRequest.newLastActiveAt());
 
     return userStatusRepository.save(userStatus);
   }

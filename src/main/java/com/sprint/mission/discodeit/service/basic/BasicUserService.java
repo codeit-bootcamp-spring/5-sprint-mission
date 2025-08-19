@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -49,7 +50,7 @@ public class BasicUserService implements UserService {
 
     User user = new User(username, email, password, profileId);
 
-    userStatusRepository.save(new UserStatus(user.getId()));
+    userStatusRepository.save(new UserStatus(user.getId(), Instant.now()));
     return userRepository.save(user);
   }
 
@@ -67,7 +68,7 @@ public class BasicUserService implements UserService {
         .profileId(user.getProfileId())
         .online(userStatusRepository.findByUserId(user.getId())
             .orElseThrow(() -> new NoSuchElementException("findById : UserStatus를 찾을 수 없습니다."))
-            .isLogin())
+            .isOnline())
         .build();
   }
 
@@ -84,7 +85,7 @@ public class BasicUserService implements UserService {
           .username(user.getUsername())
           .email(user.getEmail())
           .profileId(user.getProfileId())
-          .online(userStatus.isLogin())
+          .online(userStatus.isOnline())
           .build());
     }
     return userFindResponses;
@@ -93,21 +94,21 @@ public class BasicUserService implements UserService {
   @Override
   public User update(UUID userId, @Valid UserUpdateRequest userUpdateRequest,
       @Valid Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
-    String username = userUpdateRequest.username();
-    String password = userUpdateRequest.password();
-    String email = userUpdateRequest.email();
+    String newUserName = userUpdateRequest.newUsername();
+    String newPassword = userUpdateRequest.newPassword();
+    String newEmail = userUpdateRequest.newEmail();
 
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다."));
 
-    if (!user.getUsername().equals(username)) {
-      validateUsername(username);
+    if (!user.getUsername().equals(newUserName)) {
+      validateUsername(newUserName);
     }
-    if (!user.getEmail().equals(email)) {
-      validateEmail(email);
+    if (!user.getEmail().equals(newEmail)) {
+      validateEmail(newEmail);
     }
 
-    UUID profileId = binaryContentCreateRequest
+    UUID newProfileId = binaryContentCreateRequest
         .map(request -> {
           BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(),
               request.bytes());
@@ -115,10 +116,10 @@ public class BasicUserService implements UserService {
         })
         .orElse(null);
 
-    if (profileId != null) {
+    if (newProfileId != null) {
       binaryContentRepository.deleteById(user.getProfileId());
     }
-    user.update(username, email, password, profileId);
+    user.update(newUserName, newEmail, newPassword, newProfileId);
 
     return userRepository.save(user);
   }
@@ -140,13 +141,13 @@ public class BasicUserService implements UserService {
 
   private void validateUsername(String username) {
     if (userRepository.existsByUsername(username)) {
-      throw new IllegalArgumentException("validateUnique : 이미 존재하는 username 입니다.");
+      throw new IllegalArgumentException("validateUnique : 이미 존재하는 newUsername 입니다.");
     }
   }
 
   private void validateEmail(String email) {
     if (userRepository.existsByEmail(email)) {
-      throw new IllegalArgumentException("validateUnique : 이미 존재하는 email 입니다.");
+      throw new IllegalArgumentException("validateUnique : 이미 존재하는 newEmail 입니다.");
     }
   }
 }

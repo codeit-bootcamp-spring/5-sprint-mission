@@ -43,14 +43,14 @@ public class UserController {
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<User> create(
       @RequestPart UserCreateRequest userCreateRequest,
-      @RequestPart(required = false) MultipartFile profileImage
+      @RequestPart(required = false) MultipartFile profile
   ) throws IOException {
     Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
-    if (profileImage != null && !profileImage.isEmpty()) {
+    if (profile != null && !profile.isEmpty()) {
       binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-          profileImage.getOriginalFilename(),
-          profileImage.getContentType(),
-          profileImage.getBytes()
+          profile.getOriginalFilename(),
+          profile.getContentType(),
+          profile.getBytes()
       ));
     }
     User createdUser = userService.create(userCreateRequest, binaryContentCreateRequest);
@@ -62,14 +62,14 @@ public class UserController {
   public ResponseEntity<User> update(
       @PathVariable UUID userId,
       @RequestPart UserUpdateRequest userUpdateRequest,
-      @RequestPart(required = false) MultipartFile profileImage
+      @RequestPart(required = false) MultipartFile profile
   ) throws IOException {
     Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
-    if (profileImage != null && !profileImage.isEmpty()) {
+    if (profile != null && !profile.isEmpty()) {
       binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-          profileImage.getOriginalFilename(),
-          profileImage.getContentType(),
-          profileImage.getBytes()
+          profile.getOriginalFilename(),
+          profile.getContentType(),
+          profile.getBytes()
       ));
     }
     User updatedUser = userService.update(userId, userUpdateRequest, binaryContentCreateRequest);
