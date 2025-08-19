@@ -1,94 +1,44 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class Channel implements Serializable {
-
     private static final long serialVersionUID = 1L;
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
+    private ChannelType type;
+    private String name;
+    private String description;
 
-    private final UUID id;
-    private final long createdAt;
-    private final long updatedAt;
-    private final String name;
-    private final String description;
-    private final String channelType;
-    private final boolean isPrivate;
-
-    public Channel(String name, String description, String channelType, boolean isPrivate) {
-        this(UUID.randomUUID(), System.currentTimeMillis(), System.currentTimeMillis(), name, description, channelType, isPrivate);
-    }
-
-    public Channel(UUID id, long createdAt, long updatedAt, String name, String description, String channelType, boolean isPrivate) {
-        this.id = id;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+    public Channel(ChannelType type, String name, String description) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.type = type;
         this.name = name;
         this.description = description;
-        this.channelType = channelType;
-        this.isPrivate = isPrivate;
     }
 
-    public Channel(Channel other) {
-        this(other.id, other.createdAt, other.updatedAt, other.name, other.description, other.channelType, other.isPrivate);
-    }
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
 
-    public Channel withName(String newName) {
-        return new Channel(id, createdAt, System.currentTimeMillis(), newName, description, channelType, isPrivate);
-    }
-
-    public Channel withDescription(String newDescription) {
-        return new Channel(id, createdAt, System.currentTimeMillis(), name, newDescription, channelType, isPrivate);
-    }
-
-    public Channel withChannelType(String newType) {
-        return new Channel(id, createdAt, System.currentTimeMillis(), name, description, newType, isPrivate);
-    }
-
-    public Channel withPrivacy(boolean newPrivacy) {
-        return new Channel(id, createdAt, System.currentTimeMillis(), name, description, channelType, newPrivacy);
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public long getCreatedAt() {
-        return createdAt;
-    }
-
-    public long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getChannelType() {
-        return channelType;
-    }
-
-    public boolean isPrivate() {
-        return isPrivate;
-    }
-
-    @Override
-    public String toString() {
-        return "Channel{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", channelType='" + channelType + '\'' +
-                ", isPrivate=" + isPrivate +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
-
-
