@@ -22,10 +22,6 @@ public class BinaryContentController {
 
     @RequestMapping(value = "/find", method = RequestMethod.GET)
     public ResponseEntity<BinaryContent> find(@RequestParam UUID binaryContentId){
-        if (binaryContentId == null) {
-            throw new IllegalArgumentException("binaryContentId가 필요합니다.");
-        }
-
         BinaryContent binaryContent = binaryContentService.find(binaryContentId);
         return ResponseEntity.status(HttpStatus.OK).body(binaryContent);
     }
@@ -36,7 +32,7 @@ public class BinaryContentController {
             throw new IllegalArgumentException("binaryContentIds가 필요합니다.");
         }
 
-        List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds).stream().toList();
+        List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
         return ResponseEntity.status(HttpStatus.OK).body(binaryContents);
     }
 }

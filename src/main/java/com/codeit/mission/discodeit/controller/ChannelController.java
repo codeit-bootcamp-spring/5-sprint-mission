@@ -9,6 +9,7 @@ import com.codeit.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class ChannelController {
         if (request == null) {
             throw new IllegalArgumentException("request가 필요합니다.");
         }
-        if (request.name() == null || request.name().trim().isEmpty()) {
+        if (!StringUtils.hasText(request.name())) {
             throw new IllegalArgumentException("name이 필요합니다.");
         }
 
@@ -52,9 +53,6 @@ public class ChannelController {
     @RequestMapping(value = "/update/{channelId}", method = RequestMethod.PUT)
     public ResponseEntity<Channel> update(@PathVariable UUID channelId,
                                           @RequestBody PublicChannelUpdateRequest request) {
-        if (channelId == null) {
-            throw new IllegalArgumentException("channelId가 필요합니다.");
-        }
         if (request == null) {
             throw new IllegalArgumentException("request가 필요합니다.");
         }

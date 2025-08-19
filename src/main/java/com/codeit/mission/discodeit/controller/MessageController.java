@@ -8,6 +8,7 @@ import com.codeit.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,10 +27,7 @@ public class MessageController {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public ResponseEntity<Message> create(@RequestPart MessageCreateRequest messageCreateRequest,
                                           @RequestPart(required = false) MultipartFile[] attachments) throws IOException {
-        if (messageCreateRequest == null) {
-            throw new IllegalArgumentException("messageCreateRequest가 필요합니다.");
-        }
-        if (messageCreateRequest.content() == null || messageCreateRequest.content().trim().isEmpty()) {
+        if (!StringUtils.hasText(messageCreateRequest.content())) {
             throw new IllegalArgumentException("content가 필요합니다.");
         }
         if (messageCreateRequest.channelId() == null) {

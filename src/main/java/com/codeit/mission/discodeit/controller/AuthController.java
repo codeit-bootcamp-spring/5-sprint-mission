@@ -7,7 +7,11 @@ import com.codeit.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,29 +21,16 @@ public class AuthController {
     private final AuthService authService;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<UserDto> login(@RequestBody LoginRequest loginRequest) {
-        if (loginRequest == null) {
-            throw new IllegalArgumentException("loginRequest가 필요합니다.");
-        }
-        if (loginRequest.username() == null || loginRequest.username().trim().isEmpty()) {
+    public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
+        if (!StringUtils.hasText(loginRequest.username())) {
             throw new IllegalArgumentException("username이 필요합니다.");
         }
-        if (loginRequest.password() == null || loginRequest.password().trim().isEmpty()) {
+        if (!StringUtils.hasText(loginRequest.password())) {
             throw new IllegalArgumentException("password가 필요합니다.");
         }
 
         User loginedUser = authService.login(loginRequest);
 
-        UserDto userDto = new UserDto(
-                loginedUser.getId(),
-                loginedUser.getCreatedAt(),
-                loginedUser.getUpdatedAt(),
-                loginedUser.getUsername(),
-                loginedUser.getEmail(),
-                loginedUser.getProfileId(),
-                true
-        );
-
-        return ResponseEntity.status(HttpStatus.OK).body(userDto);
+        return ResponseEntity.status(HttpStatus.OK).body(loginedUser);
     }
 }

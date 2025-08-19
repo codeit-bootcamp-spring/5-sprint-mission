@@ -11,6 +11,7 @@ import com.codeit.mission.discodeit.service.UserService;
 import com.codeit.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +29,7 @@ public class UserController {
     private final UserService userService;
     private final UserStatusService userStatusService;
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<User> create(
             @RequestPart UserCreateRequest userCreateRequest,
             @RequestPart(required = false) MultipartFile profile
@@ -59,7 +60,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
-    @RequestMapping(value = "/update/{userId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/update/{userId}", method = RequestMethod.PUT, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<User> update(
             @PathVariable UUID userId,
             @RequestPart UserUpdateRequest userUpdateRequest,
