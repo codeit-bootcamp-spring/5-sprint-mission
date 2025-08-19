@@ -1,1 +1,8 @@
-spring.application.name=5-sprint-mission
+spring:
+  application:
+    name: discodeit
+
+discodeit:
+  repository:
+    type: file   # jcf | file
+    file-directory: .discodeit
