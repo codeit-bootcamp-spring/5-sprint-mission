@@ -92,7 +92,7 @@ public class UserController {
 
   @Operation(summary = "User 온라인 상태 업데이트")
   @PatchMapping("/{userId}/userStatus")
-  public ResponseEntity<UserStatus> updateUserStatus(
+  public ResponseEntity<UserStatus> updateUserStatusByUserId(
       @PathVariable UUID userId,
       @RequestBody UserStatusUpdateRequest userStatusUpdateRequest) {
     UserStatus updatedStatus = userStatusService.updateByUserId(userId, userStatusUpdateRequest);

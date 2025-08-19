@@ -63,7 +63,7 @@ public class ChannelController {
     return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Channel이 성공적으로 삭제됨");
   }
 
-  @Operation(summary = "User가 참여 중인 Channel 목록 조회")
+  @Operation(summary = "User가 참여 중인 Channel 목록 조회", operationId = "findAll_1")
   @GetMapping
   public ResponseEntity<List<ChannelFindResponse>> findAllByUserId(
       @RequestParam(value = "userId") UUID userId) {
