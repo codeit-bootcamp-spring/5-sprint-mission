@@ -5,12 +5,13 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service("binaryContentService")
 @RequiredArgsConstructor

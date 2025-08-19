@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.UUID;
 

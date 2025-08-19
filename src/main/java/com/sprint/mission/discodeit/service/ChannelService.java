@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelFindResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.UUID;
 
