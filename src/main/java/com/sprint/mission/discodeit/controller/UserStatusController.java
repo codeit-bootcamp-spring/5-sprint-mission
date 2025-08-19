@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateByUserIdRequest;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +17,7 @@ public class UserStatusController {
 
     private final UserStatusService userStatusService;
 
+    @Autowired
     public UserStatusController(UserStatusService userStatusService) {
         this.userStatusService = userStatusService;
     }
@@ -49,7 +50,7 @@ public class UserStatusController {
 
     // ✅ 상태 수정 (userId 기반)
     @PatchMapping
-    public ResponseEntity<Void> updateByUserId(@RequestBody UserStatusUpdateByUserIdRequest request) {
+    public ResponseEntity<Void> updateByUserId(@RequestBody UserStatusUpdateRequest request) {
         userStatusService.updateByUserId(request);
         return ResponseEntity.ok().build();
     }
@@ -60,4 +61,13 @@ public class UserStatusController {
         userStatusService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    // ✅ 유저 상태 조회
+    @PutMapping("/online")
+    public ResponseEntity<Void> updateOnlineStatus(@RequestBody UserStatusUpdateRequest request) {
+        userStatusService.updateOnlineStatus(request);
+        return ResponseEntity.ok().build();
+    }
+
+
 }

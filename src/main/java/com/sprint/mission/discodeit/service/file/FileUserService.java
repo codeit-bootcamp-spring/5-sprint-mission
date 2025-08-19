@@ -32,7 +32,7 @@ public class FileUserService implements UserService {
 
 
     @Override
-    public void create(UserCreateRequest request) {
+    public User create(UserCreateRequest request, MultipartFile profileImage) {
         if (request == null)
             throw new IllegalArgumentException("UserCreateRequest가 null입니다.");
 
@@ -49,19 +49,19 @@ public class FileUserService implements UserService {
         User user = new User(request.getUserId(), request.getPassword(), request.getEmail());
 
         //1. Optional 프로필 이미지 처리(BinaryContent 연동시 추가)
-        if (request.getProfileImage() != null && request.getProfileImage().getFile() != null) {
-            MultipartFile file = request.getProfileImage().getFile();
-            if (!file.isEmpty()) {
-                BinaryContent image = new BinaryContent(
-                        UUID.randomUUID(),
-                        Instant.now(),
-                        user.getId(),
-                        file.getOriginalFilename(),
-                        file.getContentType(),
-                        file.getSize()
-                );
-                binaryRepository.save(image);
-            }
+        if (profileImage != null && !profileImage.isEmpty()) {
+            BinaryContent image = new BinaryContent(
+                    UUID.randomUUID(),
+                    Instant.now(),
+                    user.getId(),
+                    profileImage.getOriginalFilename(),
+                    profileImage.getContentType(),
+                    profileImage.getSize()
+                    // 필요하면 profileImage.getBytes()도 추가!
+            );
+            binaryRepository.save(image);
+            //프로필 이미지 ID를 User에 연결!
+            user.setProfileId(image.getId());
         }
 
         //2. UserStatus 함께 생성
@@ -75,6 +75,7 @@ public class FileUserService implements UserService {
 
         //3. 저장
         repository.save(user);
+        return user;
     }
 
     @Override
@@ -97,6 +98,7 @@ public class FileUserService implements UserService {
                 user.getId(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
+                user.getProfileId(),
                 user.getUserId(),
                 user.getEmail(),
                 isOnline,
@@ -118,20 +120,21 @@ public class FileUserService implements UserService {
             }
 
             return new UserResponse(
-                    user.getId(),
-                    user.getCreatedAt(),
-                    user.getUpdatedAt(),
-                    user.getUserId(),
-                    user.getEmail(),
-                    isOnline,
-                    lastOnline
+                    user.getId(),            // 1
+                    user.getCreatedAt(),     // 2
+                    user.getUpdatedAt(),     // 3
+                    user.getProfileId(),     // 4
+                    user.getUserId(),        // 5
+                    user.getEmail(),         // 6
+                    isOnline,                // 7
+                    lastOnline               // 8
             );
         }).toList();
     }
 
 
     @Override
-    public void update(UserUpdateRequest request) throws IOException {
+    public User update(UserUpdateRequest request, MultipartFile profileImage) throws IOException {
         if (request == null) {
             throw new IllegalArgumentException("UserUpdateRequest가 null입니다.");
         }
@@ -149,24 +152,20 @@ public class FileUserService implements UserService {
         repository.update(user);
 
         //3. 프로필 이미지 대체 처리 (optional)
-        if (request.getProfileImage() != null && request.getProfileImage().getFile() != null) {
-            MultipartFile file = request.getProfileImage().getFile();
-            if (!file.isEmpty()) {
-                // 기존 이미지 삭제
-                binaryRepository.deleteByOwnerId(user.getId());
-
-                // 새 이미지 저장
-                BinaryContent newImage = new BinaryContent(
-                        UUID.randomUUID(),
-                        Instant.now(),
-                        user.getId(),
-                        file.getOriginalFilename(),
-                        file.getContentType(),
-                        file.getSize(),
-                        file.getBytes()
-                );
-                binaryRepository.save(newImage);
-            }
+        if (profileImage != null && !profileImage.isEmpty()) {
+            // 기존 이미지 삭제
+            binaryRepository.deleteByOwnerId(user.getId());
+            // 새 이미지 저장
+            BinaryContent newImage = new BinaryContent(
+                    UUID.randomUUID(),
+                    Instant.now(),
+                    user.getId(),
+                    profileImage.getOriginalFilename(),
+                    profileImage.getContentType(),
+                    profileImage.getSize(),
+                    profileImage.getBytes()
+            );
+            binaryRepository.save(newImage);
         }
 
         //4. UserStatus 갱신 (lastOnline 시간 갱신)
@@ -175,6 +174,8 @@ public class FileUserService implements UserService {
             status.setLastOnline(Instant.now());
             statusRepository.update(status);
         }
+
+        return user;
     }
 
 

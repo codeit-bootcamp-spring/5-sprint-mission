@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateByUserIdRequest;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -73,9 +72,9 @@ public class FileUserStatusService implements UserStatusService {
     }
 
     @Override
-    public void updateByUserId(UserStatusUpdateByUserIdRequest request) {
+    public void updateByUserId(UserStatusUpdateRequest request) {
         UserStatus status = userStatusRepository.findAll().stream()
-                .filter(s -> s.getUserId().equals(request.getUserId()))
+                .filter(s -> s.getUserId().equals(request.getId()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저 상태 정보 없음"));
 
@@ -90,5 +89,13 @@ public class FileUserStatusService implements UserStatusService {
     public void delete(UUID id) {
         UserStatus status = findById(id); // 존재 확인
         userStatusRepository.delete(id);
+    }
+
+    @Override
+    public void updateOnlineStatus(UserStatusUpdateRequest request) {
+        UserStatus status = userStatusRepository.findByUserId(request.getUserId());
+        if (status == null) throw new IllegalArgumentException("유저 상태 없음");
+        status.setLastOnline(Instant.now()); // 현재시간으로 온라인 처리
+        userStatusRepository.update(status);
     }
 }
