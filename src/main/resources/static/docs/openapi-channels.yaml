@@ -10,6 +10,8 @@ paths:
     $ref: "./paths/channels.yaml#/channels_public"
   /private:
     $ref: "./paths/channels.yaml#/channels_private"
+  /{channelId}:
+    $ref: "./paths/channels.yaml#/channel_by_id"
 components:
   schemas:
     ChannelResponse:

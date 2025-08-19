@@ -123,3 +123,115 @@ channels_private:
               status: 404
               code: "NOT_FOUND"
               message: "유저를 찾을 수 없습니다: f77609a6-ad81-425a-85a9-0e7f04dcb761"
+
+channel_by_id:
+  delete:
+    tags:
+      - Channel
+    summary: Channel 삭제
+    operationId: delete
+    description: 채널을 삭제합니다.
+    parameters:
+      - name: channelId
+        in: path
+        description: 삭제할 Channel ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      "204":
+        description: Channel이 성공적으로 삭제됨
+      "404":
+        description: Channel을 찾을 수 없음
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            example:
+              timestamp: "2025-08-16T12:34:56Z"
+              path: "/api/channels/{channelId}"
+              method: "DELETE"
+              status: 404
+              code: "NOT_FOUND"
+              message: "채널을(를) 찾을 수 없습니다: 2cf7f12f-e0f9-4736-a5b8-2e7b51404eac"
+  patch:
+    tags:
+      - Channel
+    summary: Channel 정보 수정
+    operationId: update
+    parameters:
+      - name: channelId
+        in: path
+        description: 수정할 Channel ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/channel.yaml#/PublicChannelUpdateRequest'
+        example:
+          newName: "새 이름"
+          newDescription: "새 설명"
+    responses:
+      "200":
+        description: Channel 정보가 성공적으로 수정됨
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/channel.yaml#/ChannelResponse'
+      '400':
+        description: Private Channel은 수정할 수 없음<br>또는 Field validation/JSON parsing 오류
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            examples:
+              invalidChannelType:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/channels/{channelId}"
+                  method: "PATCH"
+                  status: 400
+                  code: "BAD_REQUEST"
+                  message: "요청이 올바르지 않습니다."
+                  details:
+                    - "Private channel cannot be updated"
+              invalidField:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/channels/{channelId}"
+                  method: "PATCH"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "입력 값이 유효하지 않습니다."
+                  details:
+                    - "newName: 공백일 수 없습니다"
+                    - "newName: 크기가 1에서 100 사이여야 합니다"
+                    - "newDescription: 크기가 0에서 1024 사이여야 합니다"
+              invalidJSON:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/channels/{channelId}"
+                  method: "PATCH"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  details:
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 1]"
+      "404":
+        description: Channel을 찾을 수 없음
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            example:
+              timestamp: "2025-08-16T12:34:56Z"
+              path: "/api/channels/{channelId}"
+              method: "PATCH"
+              status: 404
+              code: "NOT_FOUND"
+              message: "채널을(를) 찾을 수 없습니다: 2cf7f12f-e0f9-4736-a5b8-2e7b51404eac"

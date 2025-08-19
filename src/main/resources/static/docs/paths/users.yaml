@@ -196,9 +196,9 @@ users_root:
                   message: "허용되지 않은 미디어 타입입니다. 지원되는 타입: application/octet-stream, image/png, image/jpeg, image/webp"
                   details:
                     - "Content-Type 'image/vnd.microsoft.icon' is not supported"
-user:
+user_by_id:
   get:
-    tags: [ Users ]
+    tags:
     summary: 사용자 단건 조회
     description: ID(UUID)로 사용자를 조회합니다.
     parameters:
@@ -218,7 +218,8 @@ user:
         $ref: '../responses/errors.yaml#/NotFound'
 
   delete:
-    tags: [ Users ]
+    tags:
+      - User
     summary: 사용자 삭제 (소프트 삭제)
     description: |
       사용자 계정을 소프트 삭제합니다.<br>
@@ -237,7 +238,8 @@ user:
 
 user_profile_settings:
   patch:
-    tags: [ Users ]
+    tags:
+      - User
     summary: 프로필 설정 변경
     description: globalName, bio를 수정합니다.
     parameters:
@@ -261,7 +263,8 @@ user_profile_settings:
 
 user_profile_image:
   put:
-    tags: [ Users ]
+    tags:
+      - User
     summary: 프로필 이미지 변경
     description: Binary Content로 업로드한 profileId를 업데이트합니다.<br>기존 이미지가 있다면 서버 정책에 따라 정리됩니다.
     parameters:
@@ -283,7 +286,8 @@ user_profile_image:
       '404': { $ref: '../responses/errors.yaml#/NotFound' }
 
   delete:
-    tags: [ Users ]
+    tags:
+      - User
     summary: 프로필 이미지 제거
     parameters:
       - in: path
@@ -297,7 +301,8 @@ user_profile_image:
 
 user_email:
   put:
-    tags: [ Users ]
+    tags:
+      - User
     summary: 이메일 변경
     description: 이메일을 변경합니다. 중복 시 409를 반환합니다.
     parameters:
@@ -321,7 +326,8 @@ user_email:
 
 user_username:
   put:
-    tags: [ Users ]
+    tags:
+      - User
     summary: 사용자명 변경
     description: 사용자명을 변경합니다. 중복 시 409를 반환합니다.
     parameters:
@@ -345,7 +351,8 @@ user_username:
 
 user_password:
   put:
-    tags: [ Users ]
+    tags:
+      - User
     summary: 비밀번호 변경
     description: 동일한 비밀번호로 변경 시 409를 반환합니다.
     parameters:
@@ -369,7 +376,8 @@ user_password:
 
 user_phone_number:
   put:
-    tags: [ Users ]
+    tags:
+      - User
     summary: 전화번호 등록/변경
     description: E.164 형식(`+`로 시작, 숫자 8~15자리)만 허용합니다.
     parameters:
@@ -393,7 +401,8 @@ user_phone_number:
       '404': { $ref: '../responses/errors.yaml#/NotFound' }
 
   delete:
-    tags: [ Users ]
+    tags:
+      - User
     summary: 전화번호 제거
     parameters:
       - in: path
@@ -406,7 +415,8 @@ user_phone_number:
 
 user_deactivation:
   post:
-    tags: [ Users ]
+    tags:
+      - User
     summary: 계정 비활성화
     description: 계정을 비활성화합니다. (소프트 삭제와는 다름)
     parameters:

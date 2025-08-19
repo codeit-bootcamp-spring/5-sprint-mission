@@ -57,3 +57,17 @@ PrivateChannelCreateRequest:
         format: uuid
       minItems: 2
       maxItems: 10
+
+PublicChannelUpdateRequest:
+  type: object
+  description: 수정할 Channel 정보
+  required:
+    - name
+  properties:
+    newName:
+      type: string
+      minLength: 1
+      maxLength: 100
+    newDescription:
+      type: string
+      maxLength: 1024

@@ -48,6 +48,13 @@ public class Channel extends AbstractEntity {
     }
   }
 
+  public void changeDescription(String description) {
+    if (!Objects.equals(this.description, description)) {
+      this.description = description;
+      touch();
+    }
+  }
+
   @Override
   public String toString() {
     return "Channel[id=%s, name=%s, type=%s, participants=%d]"

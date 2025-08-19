@@ -9,7 +9,7 @@ paths:
   /:
     $ref: "./paths/users.yaml#/users_root"
   /{id}:
-    $ref: "./paths/users.yaml#/user"
+    $ref: "./paths/users.yaml#/user_by_id"
   /{id}/profile-settings:
     $ref: "./paths/users.yaml#/user_profile_settings"
   /{id}/profile-image:
