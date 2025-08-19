@@ -9,9 +9,9 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 @Builder
-public class CreateUserProfileImageResponse {
+public class UserProfileImageCreateResponse {
 	private UUID profileId;
-	private String filename;
+	private String fileName;
 	private String contentType;
 	private Long size;
 }

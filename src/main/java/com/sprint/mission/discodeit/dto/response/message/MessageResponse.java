@@ -19,7 +19,7 @@ public class MessageResponse {
 	private Instant updatedAt;
 	private UUID authorId;
 	private UUID channelId;
-	private String text;
+	private String content;
 	private List<UUID> attachmentIds;
 	private boolean success;
 
@@ -29,7 +29,7 @@ public class MessageResponse {
 		this.updatedAt = message.getUpdatedAt();
 		this.authorId = message.getAuthorId();
 		this.channelId = message.getChannelId();
-		this.text = message.getContent();
+		this.content = message.getContent();
 		this.attachmentIds = message.getAttachmentIds();
 		this.success = true;
 	}

@@ -11,20 +11,20 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 @Builder
-public class DeleteChannelResponse {
+public class ChannelDeleteResponse {
 	private UUID channelId;
-	private String channelName;
+	private String name;
 	private String type;
 	private boolean success;
 
-	private DeleteChannelResponse(Channel channel) {
+	private ChannelDeleteResponse(Channel channel) {
 		this.channelId = channel.getId();
-		this.channelName = channel.getName();
+		this.name = channel.getName();
 		this.type = channel.getType();
 		this.success = true;
 	}
 
-	public static DeleteChannelResponse success(Channel channel) {
-		return new DeleteChannelResponse(channel);
+	public static ChannelDeleteResponse success(Channel channel) {
+		return new ChannelDeleteResponse(channel);
 	}
 }

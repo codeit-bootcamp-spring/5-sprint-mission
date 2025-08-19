@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +16,11 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.sprint.mission.discodeit.dto.request.binaryContent.CreateBinaryContentRequest;
-import com.sprint.mission.discodeit.dto.request.message.CreateMessageRequest;
-import com.sprint.mission.discodeit.dto.request.message.DeleteMessageRequest;
-import com.sprint.mission.discodeit.dto.request.message.GetMessagesByChannelIdRequest;
-import com.sprint.mission.discodeit.dto.request.message.UpdateMessageRequest;
-import com.sprint.mission.discodeit.dto.response.message.DeleteMessageResponse;
+import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.message.MessageDeleteRequest;
+import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.message.MessageDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 
@@ -34,19 +34,19 @@ public class MessageController {
 
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<MessageResponse> createMessage(
-		@RequestPart("message") CreateMessageRequest request,
+		@RequestPart("message") MessageCreateRequest request,
 		@RequestPart(value = "attachments", required = false) List<MultipartFile> files
 	) {
 		try {
 			if (files != null && !files.isEmpty()) {
-				List<CreateBinaryContentRequest> attachments = new ArrayList<>();
+				List<BinaryContentCreateRequest> attachments = new ArrayList<>();
 				for (MultipartFile file : files) {
 					if (!file.isEmpty()) {
-						CreateBinaryContentRequest attachment = CreateBinaryContentRequest.builder()
-							.filename(file.getOriginalFilename())
+						BinaryContentCreateRequest attachment = BinaryContentCreateRequest.builder()
+							.fileName(file.getOriginalFilename())
 							.contentType(file.getContentType())
 							.size(file.getSize())
-							.content(file.getBytes())
+							.bytes(file.getBytes())
 							.build();
 						attachments.add(attachment);
 					}
@@ -62,26 +62,26 @@ public class MessageController {
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<List<MessageResponse>> getMessagesByChannel(@ModelAttribute GetMessagesByChannelIdRequest request) {
-		List<MessageResponse> messages = messageService.getAllByChannelId(request);
+	public ResponseEntity<List<MessageResponse>> getMessagesByChannel(@ModelAttribute UUID channelId) {
+		List<MessageResponse> messages = messageService.findMessagesByChannelId(channelId);
 		return ResponseEntity.ok(messages);
 	}
 
 	@RequestMapping(path = "/update", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<MessageResponse> updateMessage(
-		@RequestPart("message") UpdateMessageRequest request,
+		@RequestPart("message") MessageUpdateRequest request,
 		@RequestPart(value = "attachments", required = false) List<MultipartFile> files
 	) {
 		try {
 			if (files != null && !files.isEmpty()) {
-				List<CreateBinaryContentRequest> attachments = new ArrayList<>();
+				List<BinaryContentCreateRequest> attachments = new ArrayList<>();
 				for (MultipartFile file : files) {
 					if (!file.isEmpty()) {
-						CreateBinaryContentRequest attachment = CreateBinaryContentRequest.builder()
-							.filename(file.getOriginalFilename())
+						BinaryContentCreateRequest attachment = BinaryContentCreateRequest.builder()
+							.fileName(file.getOriginalFilename())
 							.contentType(file.getContentType())
 							.size(file.getSize())
-							.content(file.getBytes())
+							.bytes(file.getBytes())
 							.build();
 						attachments.add(attachment);
 					}
@@ -97,8 +97,8 @@ public class MessageController {
 	}
 
 	@RequestMapping(path = "/delete", method = RequestMethod.DELETE)
-	public ResponseEntity<DeleteMessageResponse> deleteMessage(@RequestBody DeleteMessageRequest request) {
-		DeleteMessageResponse response = messageService.deleteMessage(request);
+	public ResponseEntity<MessageDeleteResponse> deleteMessage(@RequestBody MessageDeleteRequest request) {
+		MessageDeleteResponse response = messageService.deleteMessage(request);
 		return ResponseEntity.ok(response);
 	}
 }

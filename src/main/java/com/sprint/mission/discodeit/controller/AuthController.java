@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.entity.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,7 +22,10 @@ public class AuthController {
 	private final AuthService authService;
 
 	@RequestMapping(path = "/login",method = RequestMethod.POST)
-	public LoginResponse login(@RequestBody LoginRequest loginRequest) {
-		return authService.login(loginRequest);
+	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+		LoginResponse login = authService.login(loginRequest);
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.body(login);
 	}
 }

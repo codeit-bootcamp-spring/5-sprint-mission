@@ -15,7 +15,7 @@ import lombok.Data;
 public class BinaryContentResponse {
 	private UUID id;
 	private Instant createdAt;
-	private String filename;
+	private String fileName;
 	private String contentType;
 	private Long size;
 	private byte[] content;
@@ -24,7 +24,7 @@ public class BinaryContentResponse {
 	private BinaryContentResponse(BinaryContent binaryContent) {
 		this.id = binaryContent.getId();
 		this.createdAt = binaryContent.getCreatedAt();
-		this.filename = binaryContent.getFileName();
+		this.fileName = binaryContent.getFileName();
 		this.contentType = binaryContent.getContentType();
 		this.size = binaryContent.getSize();
 		this.content = binaryContent.getBytes();

@@ -40,7 +40,7 @@ public class Base64BinaryContentResponse {
 		return Base64BinaryContentResponse.builder()
 			.id(response.getId())
 			.createdAt(response.getCreatedAt())
-			.fileName(response.getFilename())
+			.fileName(response.getFileName())
 			.contentType(response.getContentType())
 			.size(response.getSize())
 			.bytes(Base64.getEncoder().encodeToString(response.getContent()))

@@ -1,17 +1,14 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.channel.CreatePrivateChannelRequest;
-import com.sprint.mission.discodeit.dto.request.channel.CreatePublicChannelRequest;
-import com.sprint.mission.discodeit.dto.request.channel.DeleteChannelRequest;
-import com.sprint.mission.discodeit.dto.request.channel.GetChannelByChannelIdRequest;
-import com.sprint.mission.discodeit.dto.request.channel.GetChannelBychannelName;
-import com.sprint.mission.discodeit.dto.request.channel.GetChannelsByUserRequest;
-import com.sprint.mission.discodeit.dto.request.channel.LeaveChannelRequest;
-import com.sprint.mission.discodeit.dto.request.channel.UpdateChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.channel.ChannelDeleteRequest;
+import com.sprint.mission.discodeit.dto.request.channel.ChannelLeaveRequest;
+import com.sprint.mission.discodeit.dto.request.channel.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
-import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
-import com.sprint.mission.discodeit.dto.response.channel.DeleteChannelResponse;
-import com.sprint.mission.discodeit.dto.response.channel.LeaveChannelResponse;
+import com.sprint.mission.discodeit.dto.response.channel.ChannelCreateResponse;
+import com.sprint.mission.discodeit.dto.response.channel.ChannelDeleteResponse;
+import com.sprint.mission.discodeit.dto.response.channel.ChannelLeaveResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -42,7 +39,7 @@ public class BasicChannelService implements ChannelService {
 
 
 	@Override
-	public CreateChannelResponse create(CreatePublicChannelRequest request) {
+	public ChannelCreateResponse create(PublicChannelCreateRequest request) {
 		if (channelRepository.existsByName(request.getName())) {
 			throw new DuplicateChannelNameException();
 		}
@@ -56,14 +53,14 @@ public class BasicChannelService implements ChannelService {
 			readStatusRepository.save(readStatus);
 		}
 
-		return CreateChannelResponse.success(channel);
+		return ChannelCreateResponse.success(channel);
 	}
 
 	@Override
-	public CreateChannelResponse create(CreatePrivateChannelRequest request) {
-		List<UUID> participantIds = request.getParticipantIds().stream().distinct().toList();
+	public ChannelCreateResponse create(PrivateChannelCreateRequest request) {
+		List<java.util.UUID> participantIds = request.getParticipantIds().stream().distinct().toList();
 
-		for (UUID userId : participantIds) {
+		for (java.util.UUID userId : participantIds) {
 			if (userId == null) {
 				throw new IllegalArgumentException("참여자 ID는 null일 수 없습니다.");
 			}
@@ -75,35 +72,34 @@ public class BasicChannelService implements ChannelService {
 		Channel channel = new Channel(participantIds);
 		channelRepository.save(channel);
 
-		for (UUID userId : participantIds) {
+		for (java.util.UUID userId : participantIds) {
 			ReadStatus readStatus = new ReadStatus(userId, channel.getId());
 			readStatusRepository.save(readStatus);
 		}
 
-		return CreateChannelResponse.successWithMembers(channel, participantIds);
+		return ChannelCreateResponse.successWithMembers(channel, participantIds);
 	}
 
 	@Override
-	public ChannelResponse getChannelByName(GetChannelBychannelName request) {
-		Channel channel = channelRepository.findByName(request.getChannelName())
+	public ChannelResponse findByName(String channelName) {
+		Channel channel = channelRepository.findByName(channelName)
 			.orElseThrow(ChannelNotFoundException::new);
 
 		return createChannelByType(channel);
 	}
 
 	@Override
-	public ChannelResponse getChannelByUUID(GetChannelByChannelIdRequest request) {
-		Channel channel = channelRepository.findById(request.getId())
+	public ChannelResponse find(UUID channelId) {
+		Channel channel = channelRepository.findById(channelId)
 			.orElseThrow(ChannelNotFoundException::new);
 
 		return createChannelByType(channel);
 	}
 
 	@Override
-	public List<ChannelResponse> getChannelsByUserId(GetChannelsByUserRequest request) {
-		UUID userId = request.getUserId();
+	public List<ChannelResponse> findChannelsByUserId(UUID userId) {
 
-		List<UUID> myChannelIds = readStatusRepository.findByUserId(userId).stream()
+		List<java.util.UUID> myChannelIds = readStatusRepository.findByUserId(userId).stream()
 				.map(ReadStatus::getChannelId)
 				.toList();
 
@@ -116,8 +112,8 @@ public class BasicChannelService implements ChannelService {
 
 	// updateChannel 메서드
 	@Override
-	public ChannelResponse updateChannel(UpdateChannelRequest request) {
-		Channel channel = channelRepository.findById(request.getChannelId())
+	public ChannelResponse updateChannel(UUID channelId, ChannelUpdateRequest request) {
+		Channel channel = channelRepository.findById(channelId)
 			.orElseThrow(ChannelNotFoundException::new);
 
 		if (channel.getType().equals("PRIVATE")) {
@@ -137,7 +133,7 @@ public class BasicChannelService implements ChannelService {
 	}
 
 	@Override
-	public LeaveChannelResponse leaveChannel(LeaveChannelRequest request) {
+	public ChannelLeaveResponse leaveChannel(ChannelLeaveRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
 				.orElseThrow(ChannelNotFoundException::new);
 
@@ -159,30 +155,30 @@ public class BasicChannelService implements ChannelService {
 				.map(User::getDefaultNickname)
 				.orElseThrow(UserNotFoundException::new);
 
-		return LeaveChannelResponse.success(channel, request.getUserId(), nickname);
+		return ChannelLeaveResponse.success(channel, request.getUserId(), nickname);
 	}
 
 	@Override
-	public DeleteChannelResponse deleteChannel(DeleteChannelRequest request) {
+	public ChannelDeleteResponse deleteChannel(ChannelDeleteRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
 			.orElseThrow(ChannelNotFoundException::new);
 		messageRepository.deleteByChannelId(request.getChannelId());
 		channelRepository.deleteById(request.getChannelId());
-		return DeleteChannelResponse.success(channel);
+		return ChannelDeleteResponse.success(channel);
 	}
 
 	private ChannelResponse createChannelByType(Channel channel) {
 		Instant lastMessageTime = getLastMessageTime(channel.getId());
 
 		if ("PRIVATE".equals(channel.getType())) {
-			List<UUID> participantIds = getPrivateChannelParticipants(channel.getId());
+			List<java.util.UUID> participantIds = getPrivateChannelParticipants(channel.getId());
 			return ChannelResponse.fromPrivateChannel(channel, lastMessageTime, participantIds);
 		} else {
 			return ChannelResponse.fromPublicChannel(channel, lastMessageTime);
 		}
 	}
 
-	private Instant getLastMessageTime(UUID channelId) {
+	private Instant getLastMessageTime(java.util.UUID channelId) {
 		List<Message> messages = messageRepository.findByChannelId(channelId);
 		return messages.stream()
 			.map(Message::getCreatedAt)
@@ -190,7 +186,7 @@ public class BasicChannelService implements ChannelService {
 			.orElse(null);
 	}
 
-	private List<UUID> getPrivateChannelParticipants(UUID channelId) {
+	private List<java.util.UUID> getPrivateChannelParticipants(java.util.UUID channelId) {
 		return readStatusRepository.findByChannelId(channelId)
 			.stream()
 			.map(ReadStatus::getUserId)

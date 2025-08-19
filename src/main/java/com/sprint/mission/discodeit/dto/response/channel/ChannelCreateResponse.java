@@ -14,10 +14,10 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 @Builder
-public class CreateChannelResponse {
+public class ChannelCreateResponse {
 	private UUID id;
 	private Instant createdAt;
-	private String channelName;
+	private String name;
 	private String type; // PUBLIC or PRIVATE
 	private String description;
 	private boolean success;
@@ -26,22 +26,22 @@ public class CreateChannelResponse {
 	private List<UUID> memberIds;
 
 
-	private CreateChannelResponse(Channel channel) {
+	private ChannelCreateResponse(Channel channel) {
 		this.id = channel.getId();
 		this.createdAt = channel.getCreatedAt();
-		this.channelName = channel.getName();
+		this.name = channel.getName();
 		this.type = channel.getType();
 		this.description = channel.getDescription();
 		this.success = true;
 	}
 
-	public static CreateChannelResponse success(Channel channel) {
-		return new CreateChannelResponse(channel);
+	public static ChannelCreateResponse success(Channel channel) {
+		return new ChannelCreateResponse(channel);
 	}
 
-	public static CreateChannelResponse successWithMembers(Channel channel,
+	public static ChannelCreateResponse successWithMembers(Channel channel,
 														   List<UUID> memberIds) {
-		CreateChannelResponse response = new CreateChannelResponse(channel);
+		ChannelCreateResponse response = new ChannelCreateResponse(channel);
 		response.memberIds = memberIds;
 		return response;
 	}

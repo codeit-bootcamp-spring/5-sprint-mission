@@ -12,7 +12,7 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 @Builder
-public class DeleteUserResponse {
+public class UserDeleteResponse {
 	private UUID id;
 	private String username; // loginId 임
 	private String nickname; // defaultNickname 임
@@ -20,7 +20,7 @@ public class DeleteUserResponse {
 	private Instant createdAt;
 	private Instant updatedAt;
 
-	private DeleteUserResponse(User user) {
+	private UserDeleteResponse(User user) {
 		this.id = user.getId();
 		this.nickname = user.getDefaultNickname();
 		this.email = user.getEmail();
@@ -29,7 +29,7 @@ public class DeleteUserResponse {
 		this.username = user.getUsername(); // loginId는 username으로
 	}
 
-	public static DeleteUserResponse success(User user) {
-		return new DeleteUserResponse(user);
+	public static UserDeleteResponse success(User user) {
+		return new UserDeleteResponse(user);
 	}
 }

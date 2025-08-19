@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class GetMessagesByAuthorRequest {
+public class MessagesGetByAuthorRequest {
 	@NotBlank(message = "작성자 닉네임은 필수")
 	private String author;
 

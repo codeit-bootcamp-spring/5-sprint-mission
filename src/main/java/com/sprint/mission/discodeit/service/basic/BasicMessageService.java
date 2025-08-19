@@ -1,14 +1,12 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.sprint.mission.discodeit.dto.request.binaryContent.CreateBinaryContentRequest;
+import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.*;
 import com.sprint.mission.discodeit.dto.response.message.*;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -16,7 +14,6 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
-import com.sprint.mission.discodeit.exception.channel.NotChannelMemberException;
 import com.sprint.mission.discodeit.exception.message.UnauthorizedMessageAccessException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -36,7 +33,7 @@ public class BasicMessageService implements MessageService {
 
 
 	@Override
-	public MessageResponse createMessage(CreateMessageRequest request) {
+	public MessageResponse createMessage(MessageCreateRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
 				.orElseThrow(ChannelNotFoundException::new);
 
@@ -49,8 +46,8 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
-	public MessageResponse  getMessage(GetMessageRequest request) {
-		Message message = messageRepository.findById(request.getMessageId())
+	public MessageResponse findMessage(UUID messageId) {
+		Message message = messageRepository.findById(messageId)
 			.orElseThrow(MessageNotFoundException::new);
 		return MessageResponse.success(message);
 	}
@@ -61,7 +58,7 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
-	public List<MessageResponse> getMessageByAuthor(GetMessagesByAuthorRequest request) {
+	public List<MessageResponse> findMessageByAuthor(MessagesGetByAuthorRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
 				.orElseThrow(ChannelNotFoundException::new);
 
@@ -87,8 +84,8 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
-	public List<MessageResponse> getAllByChannelId(GetMessagesByChannelIdRequest request) {
-		List<Message> messages = messageRepository.findByChannelId(request.getChannelId());
+	public List<MessageResponse> findMessagesByChannelId(UUID channelId) {
+		List<Message> messages = messageRepository.findByChannelId(channelId);
 
 		return messages.stream()
 			.map(MessageResponse::success)
@@ -96,7 +93,7 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
-	public MessageResponse updateMessage(UpdateMessageRequest request) {
+	public MessageResponse updateMessage(MessageUpdateRequest request) {
 		Message message = messageRepository.findById(request.getMessageId())
 				.orElseThrow(MessageNotFoundException::new);
 
@@ -121,7 +118,7 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
-	public DeleteMessageResponse deleteMessage(DeleteMessageRequest request) {
+	public MessageDeleteResponse deleteMessage(MessageDeleteRequest request) {
 		Message message = messageRepository.findById(request.getMessageId())
 			.orElseThrow(MessageNotFoundException::new);
 
@@ -135,17 +132,17 @@ public class BasicMessageService implements MessageService {
 
 		messageRepository.deleteById(request.getMessageId());
 
-		return DeleteMessageResponse.success(message);
+		return MessageDeleteResponse.success(message);
 	}
 
-	private void addAttachments(Message message, List<CreateBinaryContentRequest> attachments) {
+	private void addAttachments(Message message, List<BinaryContentCreateRequest> attachments) {
 		if (attachments != null && !attachments.isEmpty()) {
-			for (CreateBinaryContentRequest attachment : attachments) {
+			for (BinaryContentCreateRequest attachment : attachments) {
 				BinaryContent binaryContent = new BinaryContent(
-					attachment.getFilename(),
+					attachment.getFileName(),
 					attachment.getContentType(),
 					attachment.getSize(),
-					attachment.getContent()
+					attachment.getBytes()
 				);
 				binaryContentRepository.save(binaryContent);
 

@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import java.util.List;
 
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -10,14 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sprint.mission.discodeit.dto.request.channel.CreatePrivateChannelRequest;
-import com.sprint.mission.discodeit.dto.request.channel.CreatePublicChannelRequest;
-import com.sprint.mission.discodeit.dto.request.channel.DeleteChannelRequest;
-import com.sprint.mission.discodeit.dto.request.channel.GetChannelsByUserRequest;
-import com.sprint.mission.discodeit.dto.request.channel.UpdateChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.channel.ChannelDeleteRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
-import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
-import com.sprint.mission.discodeit.dto.response.channel.DeleteChannelResponse;
+import com.sprint.mission.discodeit.dto.response.channel.ChannelCreateResponse;
+import com.sprint.mission.discodeit.dto.response.channel.ChannelDeleteResponse;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import lombok.RequiredArgsConstructor;
@@ -29,31 +28,31 @@ public class ChannelController {
 	private final ChannelService channelService;
 
 	@RequestMapping(path = "/public",method = RequestMethod.POST)
-	public ResponseEntity<CreateChannelResponse> createPublicChannel(@RequestBody CreatePublicChannelRequest request){
+	public ResponseEntity<ChannelCreateResponse> createPublicChannel(@RequestBody PublicChannelCreateRequest request){
 		return ResponseEntity.status(HttpStatus.CREATED).body(channelService.create(request));
 	}
 
 	@RequestMapping(path="/private",method = RequestMethod.POST)
-	public ResponseEntity<CreateChannelResponse> createPrivateChannel(@RequestBody CreatePrivateChannelRequest request){
+	public ResponseEntity<ChannelCreateResponse> createPrivateChannel(@RequestBody PrivateChannelCreateRequest request){
 		return ResponseEntity.status(HttpStatus.CREATED).body(channelService.create(request));
 	}
 
-	@RequestMapping(path= "/update", method = RequestMethod.PATCH)
-	public ResponseEntity<ChannelResponse> updateChannel(@RequestBody UpdateChannelRequest request) {
-		ChannelResponse response = channelService.updateChannel(request);
-		return ResponseEntity.ok(response);
-	}
+//	@RequestMapping(path= "/update", method = RequestMethod.PATCH)
+//	public ResponseEntity<ChannelResponse> updateChannel(@RequestBody UpdateChannelRequest request) {
+//		ChannelResponse response = channelService.updateChannel(request);
+//		return ResponseEntity.ok(response);
+//	}
 
 	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<List<ChannelResponse>> getChannels(@ModelAttribute GetChannelsByUserRequest request) {
-		List<ChannelResponse> channels = channelService.getChannelsByUserId(request);
+	public ResponseEntity<List<ChannelResponse>> getChannels(@ModelAttribute UUID userId) {
+		List<ChannelResponse> channels = channelService.findChannelsByUserId(userId);
 		return ResponseEntity.ok(channels);
 	}
 
 
 	@RequestMapping(path="/delete", method = RequestMethod.DELETE)
-	public ResponseEntity<DeleteChannelResponse> deleteChannel(@RequestBody DeleteChannelRequest request) {
-		DeleteChannelResponse response = channelService.deleteChannel(request);
+	public ResponseEntity<ChannelDeleteResponse> deleteChannel(@RequestBody ChannelDeleteRequest request) {
+		ChannelDeleteResponse response = channelService.deleteChannel(request);
 		return ResponseEntity.ok(response);
 	}
 }

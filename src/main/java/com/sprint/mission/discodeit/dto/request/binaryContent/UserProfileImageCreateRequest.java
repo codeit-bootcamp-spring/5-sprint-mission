@@ -12,13 +12,14 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 @Builder
-public class CreateBinaryContentRequest {
+public class UserProfileImageCreateRequest {
 	@NotBlank(message = "파일명은 필수")
-	private String filename;
+	private String fileName;
 
 	@NotBlank(message = "컨텐츠 타입은 필수")
 	private String contentType;
 
+	// 나중에 프로필 이미지는 크기 제한 걸수 도 있음!
 	@NotNull(message = "파일 크기는 필수")
 	@Positive(message = "파일 크기는 0보다 커야 합니다")
 	private Long size;
@@ -27,6 +28,6 @@ public class CreateBinaryContentRequest {
 	private byte[] content;
 
 	public BinaryContent toBinaryContent() {
-		return new BinaryContent(filename, contentType, size, content);
+		return new BinaryContent(fileName, contentType, size, content);
 	}
 }

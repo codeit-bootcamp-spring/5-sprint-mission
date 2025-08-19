@@ -1,32 +1,29 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileImageRequest;
+import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import java.util.List;
 import java.util.UUID;
 
-import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
-import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefaultNicknameRequest;
-import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
-import com.sprint.mission.discodeit.dto.request.user.UpdateUserProfileImageRequest;
-import com.sprint.mission.discodeit.dto.response.user.UserResponse;
-import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
-import com.sprint.mission.discodeit.dto.response.user.UpdateUserPasswordResponse;
-
 public interface UserService {
 	// 생성
-	UserResponse createUser(CreateUserRequest request);
+	UserResponse createUser(UserCreateRequest request);
 
 	// 읽기
-	UserResponse getUserById(GetUserByIdRequest request);
-	UserResponse getUserByLoginId(String loginId);
-	List<UserResponse> getAllUsers();
+	UserResponse findById(UUID userId);
+	UserResponse findByLoginId(String loginId);
+	List<UserResponse> findAll();
 	
 	// 수정
-	UpdateUserPasswordResponse updateUserPassword(UpdateUserPasswordRequest request);
-	UserResponse updateUserProfile(UpdateUserProfileImageRequest request);
-	UserResponse updateUserDefalutNickname(UpdateUserDefaultNicknameRequest request);
+	UserResponse updateUserPassword(UUID id, UserUpdatePasswordRequest request);
+	UserResponse updateUserProfile(UUID id, UserUpdateProfileImageRequest request);
+	UserResponse updateUserDefalutNickname(UUID userId, UserUpdateDefaultNicknameRequest request);
 	
 	// 삭제
-	DeleteUserResponse delete(UUID id);
-	DeleteUserResponse delete(String loginId);
+	UserDeleteResponse delete(UUID id);
+	UserDeleteResponse delete(String loginId);
 }

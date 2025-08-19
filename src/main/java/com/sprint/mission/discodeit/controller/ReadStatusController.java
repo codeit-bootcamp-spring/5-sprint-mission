@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sprint.mission.discodeit.dto.request.readStatus.CreateReadStatusRequest;
-import com.sprint.mission.discodeit.dto.request.readStatus.UpdateReadStatusRequest;
+import com.sprint.mission.discodeit.dto.request.readStatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.readStatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.readStatus.ReadStatusResponse;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 
@@ -27,7 +26,7 @@ public class ReadStatusController {
 	private final ReadStatusService readStatusService;
 
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<ReadStatusResponse> createReadStatus(@RequestBody CreateReadStatusRequest request) {
+	public ResponseEntity<ReadStatusResponse> createReadStatus(@RequestBody ReadStatusCreateRequest request) {
 		ReadStatusResponse response = readStatusService.create(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -38,9 +37,9 @@ public class ReadStatusController {
 		return ResponseEntity.ok(responses);
 	}
 
-	@RequestMapping(path = "/{id}}", method = RequestMethod.GET)
+	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<ReadStatusResponse> updateReadStatus(@RequestParam("readStatusId") UUID readStatusId,
-			@RequestBody UpdateReadStatusRequest request) {
+			@RequestBody ReadStatusUpdateRequest request) {
 		ReadStatusResponse response = readStatusService.updateById(readStatusId, request);
 		return ResponseEntity.ok(response);
 	}

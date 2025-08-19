@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.sprint.mission.discodeit.dto.request.readStatus.CreateReadStatusRequest;
-import com.sprint.mission.discodeit.dto.request.readStatus.UpdateReadStatusRequest;
+import com.sprint.mission.discodeit.dto.request.readStatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.readStatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.readStatus.ReadStatusResponse;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.exception.readstatus.AlreadyExistsReadStatusException;
@@ -26,7 +26,7 @@ public class BasicReadStatusService implements ReadStatusService {
 	private final ChannelRepository channelRepository;
 
 	@Override
-	public ReadStatusResponse create(CreateReadStatusRequest request) {
+	public ReadStatusResponse create(ReadStatusCreateRequest request) {
 		if(!userRepository.existsById(request.getUserId())
 		|| channelRepository.findById(request.getChannelId()).isEmpty()){
 			throw new ReadStatusNotFoundException();
@@ -68,24 +68,25 @@ public class BasicReadStatusService implements ReadStatusService {
 	}
 
 	@Override
-	public ReadStatusResponse updateById(UUID id, UpdateReadStatusRequest request) {
+	public ReadStatusResponse updateById(UUID id, ReadStatusUpdateRequest request) {
 		ReadStatus readStatus = readStatusRepository.findById(id)
 			.orElseThrow(ReadStatusNotFoundException::new);
 
-		readStatus.update(request.getNewlastReadAt());
+		readStatus.update(request.getNewLastReadAt());
 		readStatusRepository.save(readStatus);
 
 		return ReadStatusResponse.success(readStatus);
 	}
 
 	@Override
-	public ReadStatusResponse updateByChannelIdAndUserId(UUID channelId,UUID userId,UpdateReadStatusRequest request) {
+	public ReadStatusResponse updateByChannelIdAndUserId(UUID channelId,UUID userId,
+			ReadStatusUpdateRequest request) {
 		ReadStatus readStatus = readStatusRepository.findByChannelIdAndUserId(channelId, userId)
 			.stream()
 			.findFirst()
 			.orElseThrow(ReadStatusNotFoundException::new);
 
-		readStatus.update(request.getNewlastReadAt());
+		readStatus.update(request.getNewLastReadAt());
 		readStatusRepository.save(readStatus);
 
 		return ReadStatusResponse.success(readStatus);

@@ -16,11 +16,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.sprint.mission.discodeit.dto.UserDto;
-import com.sprint.mission.discodeit.dto.request.binaryContent.CreateUserProfileImageRequest;
-import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
-import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefaultNicknameRequest;
-import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
+import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
+import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -37,14 +36,14 @@ public class UserController {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<UserResponse>> getUserAll() {
 
-		List<UserResponse> userResponses = userService.getAllUsers();
+		List<UserResponse> userResponses = userService.findAll();
 
 		return ResponseEntity.ok(userResponses);
 	}
 
 	@RequestMapping(path = "/findAll", method = RequestMethod.GET)
 	public ResponseEntity<List<UserDto>> findAllUsers() {
-		List<UserResponse> userResponses = userService.getAllUsers();
+		List<UserResponse> userResponses = userService.findAll();
 
 		List<UserDto> userDtos = userResponses.stream()
 			.map(user -> new UserDto(
@@ -64,19 +63,16 @@ public class UserController {
 	// username(=loginId)로 조회
 	@RequestMapping(path = "/{username}", method = RequestMethod.GET)
 	public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
-		UserResponse userResponse = userService.getUserByLoginId(username);
+		UserResponse userResponse = userService.findByLoginId(username);
 		boolean online = userStatusService.isOnline(userResponse.getId());
 		userResponse.setOnline(online);
 		return ResponseEntity.ok(userResponse);
 	}
 
-	@RequestMapping(path = "/id/{id}", method = RequestMethod.GET)
-	public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
-		GetUserByIdRequest request = GetUserByIdRequest.builder()
-				.id(id)
-				.build();
-		UserResponse userResponse = userService.getUserById(request);
-		boolean online = userStatusService.isOnline(id);
+	@RequestMapping(path = "/{userId}", method = RequestMethod.GET)
+	public ResponseEntity<UserResponse> getUserById(@PathVariable UUID userId) {
+		UserResponse userResponse = userService.findById(userId);
+		boolean online = userStatusService.isOnline(userId);
 		userResponse.setOnline(online);
 
 		return ResponseEntity.ok(userResponse);
@@ -84,13 +80,13 @@ public class UserController {
 
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<UserResponse> createUser(
-		@RequestPart("user") CreateUserRequest request,
+		@RequestPart("userCreateRequest") UserCreateRequest request,
 		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage
 	) {
 		try {
 			if (profileImage != null && !profileImage.isEmpty()) {
-				CreateUserProfileImageRequest imageRequest = CreateUserProfileImageRequest.builder()
-					.filename(profileImage.getOriginalFilename())
+				UserProfileImageCreateRequest imageRequest = UserProfileImageCreateRequest.builder()
+					.fileName(profileImage.getOriginalFilename())
 					.contentType(profileImage.getContentType())
 					.size(profileImage.getSize())
 					.content(profileImage.getBytes())
@@ -105,24 +101,25 @@ public class UserController {
 		}
 	}
 
-	@RequestMapping(path = "/{id}", method = RequestMethod.PATCH)
+	@RequestMapping(path = "/{userId}", method = RequestMethod.PATCH)
 	public ResponseEntity<UserResponse> updateUserDefaultNickname(
-			UpdateUserDefaultNicknameRequest request) {
-		UserResponse userResponse = userService.updateUserDefalutNickname(request);
+			@PathVariable UUID userId,
+			UserUpdateDefaultNicknameRequest request) {
+		UserResponse userResponse = userService.updateUserDefalutNickname(userId,request);
 
 		return ResponseEntity.ok(userResponse);
 	}
 
-	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<DeleteUserResponse> deleteUserById(@PathVariable UUID id) {
-		DeleteUserResponse deleteUserResponse = userService.delete(id);
-		return ResponseEntity.ok(deleteUserResponse);
+	@RequestMapping(path = "/{userId}", method = RequestMethod.DELETE)
+	public ResponseEntity<UserDeleteResponse> deleteUserById(@PathVariable UUID userId) {
+		UserDeleteResponse userDeleteResponse = userService.delete(userId);
+		return ResponseEntity.ok(userDeleteResponse);
 	}
 
-	@RequestMapping(path = "/{id}/status", method = RequestMethod.GET)
-	public ResponseEntity<Boolean> getUserStatusById(@PathVariable UUID id) {
-		userStatusService.updateByUserId(id);
-		boolean online = userStatusService.isOnline(id);
+	@RequestMapping(path = "/{userId}/status", method = RequestMethod.GET)
+	public ResponseEntity<Boolean> getUserStatusById(@PathVariable UUID userId) {
+		userStatusService.updateByUserId(userId);
+		boolean online = userStatusService.isOnline(userId);
 		return ResponseEntity.ok(online);
 	}
 

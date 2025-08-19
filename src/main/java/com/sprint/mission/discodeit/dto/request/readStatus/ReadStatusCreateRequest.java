@@ -13,6 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class UpdateReadStatusRequest {
-	private Instant newlastReadAt;
+public class ReadStatusCreateRequest {
+	@NotNull(message = "사용자 ID는 필수")
+	private UUID userId;
+	@NotNull(message = "채널 ID는 필수")
+	private UUID channelId;
+	private Instant lastReadAt;
 }
