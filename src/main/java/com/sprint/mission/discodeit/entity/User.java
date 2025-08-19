@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.UserDto.Create;
+import com.sprint.mission.discodeit.dto.UserDto.Update;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.ToString;
@@ -28,7 +29,7 @@ public class User extends BaseEntity {
   }
 
 
-  public void update(UserDto.UpdateRequest request, UUID profileId) {
+  public void update(Update request, UUID profileId) {
     boolean anyValueUpdated = false;
 
     if (request.getUsername() != null && !request.getUsername().equals(this.name)) {
@@ -54,7 +55,7 @@ public class User extends BaseEntity {
   }
 
 
-  public static User of(UserDto.CreateRequest request, UUID profileId) {
+  public static User of(Create request, UUID profileId) {
     return new User(
         request.getUsername(),
         request.getEmail(),

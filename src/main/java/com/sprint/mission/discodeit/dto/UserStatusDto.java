@@ -10,7 +10,7 @@ public class UserStatusDto {
 
   @Getter
   @Builder
-  public static class CreateRequest {
+  public static class Create {
 
     private UUID userId;
   }

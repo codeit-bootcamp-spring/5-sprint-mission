@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.Create;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
@@ -22,16 +23,12 @@ public class BasicReadStatusService implements ReadStatusService {
   private final ReadStatusRepository readStatusRepository;
 
   @Override
-  public ReadStatusDto.DetailResponse create(ReadStatusDto.CreateRequest request) {
-    User user = userRepository.findById(request.getUserId()).orElse(null);
-    if (user == null) {
-      throw new IllegalArgumentException("Not Found User");
-    }
+  public ReadStatusDto.DetailResponse create(Create request) {
 
-    Channel channel = channelRepository.findById(request.getChannelId()).orElse(null);
-    if (channel == null) {
-      throw new IllegalArgumentException("Not Found Channel");
-    }
+    userRepository.findById(request.getUserId())
+        .orElseThrow(() -> new IllegalArgumentException("Not Found User"));
+    channelRepository.findById(request.getChannelId())
+        .orElseThrow(() -> new IllegalArgumentException("Not Found Channel"));
 
     if (readStatusRepository.findAllByUserId(request.getUserId()).stream()
         .anyMatch(rs -> rs.getChannelId().equals(request.getChannelId()))) {
@@ -41,43 +38,28 @@ public class BasicReadStatusService implements ReadStatusService {
     ReadStatus readStatus = new ReadStatus(request.getUserId(), request.getChannelId());
     readStatusRepository.save(readStatus);
 
-    return ReadStatusDto.DetailResponse.builder()
-        .id(readStatus.getId())
-        .channelId(readStatus.getChannelId())
-        .userId(readStatus.getUserId())
-        .lastReadAt(readStatus.getLastReadAt())
-        .build();
+    return ReadStatusDto.DetailResponse.builder().id(readStatus.getId())
+        .channelId(readStatus.getChannelId()).userId(readStatus.getUserId())
+        .lastReadAt(readStatus.getLastReadAt()).build();
   }
 
   @Override
   public ReadStatusDto.DetailResponse find(UUID id) {
-    ReadStatus readStatus = readStatusRepository.findById(id).orElse(null);
+    ReadStatus readStatus = readStatusRepository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Not Found Read Status"));
 
-    if (readStatus == null) {
-      return null;
-    }
-
-    return ReadStatusDto.DetailResponse.builder()
-        .id(readStatus.getId())
-        .channelId(readStatus.getChannelId())
-        .userId(readStatus.getUserId())
-        .lastReadAt(readStatus.getLastReadAt())
-        .build();
+    return ReadStatusDto.DetailResponse.builder().id(readStatus.getId())
+        .channelId(readStatus.getChannelId()).userId(readStatus.getUserId())
+        .lastReadAt(readStatus.getLastReadAt()).build();
   }
 
   @Override
   public List<ReadStatusDto.DetailResponse> findAllByUserId(UUID userId) {
     List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(userId);
 
-    return readStatuses.stream()
-        .map(rs ->
-            ReadStatusDto.DetailResponse.builder()
-                .id(rs.getId())
-                .channelId(rs.getChannelId())
-                .userId(rs.getUserId())
-                .lastReadAt(rs.getLastReadAt())
-                .build())
-        .toList();
+    return readStatuses.stream().map(
+        rs -> ReadStatusDto.DetailResponse.builder().id(rs.getId()).channelId(rs.getChannelId())
+            .userId(rs.getUserId()).lastReadAt(rs.getLastReadAt()).build()).toList();
   }
 
   @Override
@@ -93,20 +75,14 @@ public class BasicReadStatusService implements ReadStatusService {
   @Override
   public ReadStatusDto.DetailResponse update(UUID id) {
 
-    ReadStatus readStatus = readStatusRepository.findById(id).orElse(null);
-
-    if (readStatus == null) {
-      return null;
-    }
+    ReadStatus readStatus = readStatusRepository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Not Found Read Status"));
 
     readStatus.update();
     readStatusRepository.save(readStatus);
 
-    return ReadStatusDto.DetailResponse.builder()
-        .id(readStatus.getId())
-        .channelId(readStatus.getChannelId())
-        .userId(readStatus.getUserId())
-        .lastReadAt(readStatus.getLastReadAt())
-        .build();
+    return ReadStatusDto.DetailResponse.builder().id(readStatus.getId())
+        .channelId(readStatus.getChannelId()).userId(readStatus.getUserId())
+        .lastReadAt(readStatus.getLastReadAt()).build();
   }
 }

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.AuthDto;
+import com.sprint.mission.discodeit.dto.AuthDto.Request;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,8 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/login")
-  public ResponseEntity<UserDto.DetailResponse> login(@RequestBody AuthDto.LoginRequest request) {
+  public ResponseEntity<UserDto.DetailResponse> login(@RequestBody Request request) {
     // TODO 나중에 로그인 세션 처리
-    return ResponseEntity.ok(authService.login(request));
+    return ResponseEntity.ok(authService.login(request.toLogin()));
   }
 }

@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.UserDto.Create;
+import com.sprint.mission.discodeit.dto.UserDto.Update;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -23,23 +25,23 @@ public class BasicUserService implements UserService {
   private final UserStatusRepository userStatusRepository;
 
   @Override
-  public UserDto.DetailResponse create(UserDto.CreateRequest request) {
+  public UserDto.DetailResponse create(Create create) {
 
-    if (userRepository.existsByUsername(request.getUsername())) {
+    if (userRepository.existsByUsername(create.getUsername())) {
       throw new IllegalArgumentException("이미 사용 중인 username입니다.");
     }
 
-    if (userRepository.existsByEmail(request.getEmail())) {
+    if (userRepository.existsByEmail(create.getEmail())) {
       throw new IllegalArgumentException("이미 사용 중인 email입니다.");
     }
 
     BinaryContent profile = null;
-    if (request.getProfileImage() != null && !request.getProfileImage().isEmpty()) {
-      profile = BinaryContent.of(request.getProfileImage());
+    if (create.getProfileImage() != null && !create.getProfileImage().isEmpty()) {
+      profile = BinaryContent.of(create.getProfileImage());
       binaryContentRepository.save(profile);
     }
 
-    User user = User.of(request, profile != null ? profile.getId() : null);
+    User user = User.of(create, profile != null ? profile.getId() : null);
     userRepository.save(user);
 
     UserStatus status = UserStatus.of(user.getId());
@@ -58,6 +60,7 @@ public class BasicUserService implements UserService {
 
   @Override
   public UserDto.DetailResponse findById(UUID userId) {
+
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -77,6 +80,7 @@ public class BasicUserService implements UserService {
 
   @Override
   public List<UserDto.DetailResponse> findAll() {
+
     List<User> users = userRepository.findAll();
     List<UserStatus> status = userStatusRepository.findAll();
 
@@ -98,21 +102,22 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public UserDto.DetailResponse update(UserDto.UpdateRequest request) {
-    User user = userRepository.findById(request.getId())
+  public UserDto.DetailResponse update(Update update) {
+
+    User user = userRepository.findById(update.getId())
         .orElseThrow(() -> new RuntimeException("User not found"));
 
     UUID newProfileId = user.getProfileId();
-    if (request.getProfileImage() != null && !request.getProfileImage().isEmpty()) {
-      BinaryContent newProfile = BinaryContent.of(request.getProfileImage());
+    if (update.getProfileImage() != null && !update.getProfileImage().isEmpty()) {
+      BinaryContent newProfile = BinaryContent.of(update.getProfileImage());
       binaryContentRepository.save(newProfile);
       newProfileId = newProfile.getId();
     }
 
-    user.update(request, newProfileId);
+    user.update(update, newProfileId);
     userRepository.save(user);
 
-    UserStatus status = userStatusRepository.findByUserId(request.getId())
+    UserStatus status = userStatusRepository.findByUserId(update.getId())
         .orElse(null);
 
     return UserDto.DetailResponse.builder()
@@ -128,6 +133,7 @@ public class BasicUserService implements UserService {
 
   @Override
   public void delete(UUID userId) {
+
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
 

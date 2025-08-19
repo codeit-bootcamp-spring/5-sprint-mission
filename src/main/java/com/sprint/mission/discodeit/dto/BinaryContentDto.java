@@ -10,7 +10,7 @@ public class BinaryContentDto {
 
   @Getter
   @Builder
-  public static class CreateRequest {
+  public static class Create {
 
     // TODO 추후 요구 조건에 맞춰서 변경 필요할듯?
     MultipartFile file;

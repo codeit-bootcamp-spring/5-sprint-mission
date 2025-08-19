@@ -12,16 +12,25 @@ import org.springframework.web.multipart.MultipartFile;
 public class MessageDto {
 
   @Getter
-  public static class MessageCreateRequest {
+  public static class CreateRequest {
 
     UUID channelId;
     UUID authorId;
     String content;
+
+    public Create toCreate(List<MultipartFile> attachments) {
+      return Create.builder()
+          .channelId(this.channelId)
+          .authorId(this.authorId)
+          .content(this.content)
+          .attachments(attachments)
+          .build();
+    }
   }
 
   @Getter
   @Builder
-  public static class CreateRequest {
+  public static class Create {
 
     UUID channelId;
     UUID authorId;
@@ -30,12 +39,22 @@ public class MessageDto {
   }
 
   @Getter
-  @Builder
   public static class UpdateRequest {
+
+    String content;
+
+    public Update toUpdate(UUID id) {
+      return Update.builder().id(id).content(this.content).build();
+    }
+  }
+
+  @Getter
+  @Builder
+  public static class Update {
 
     @Setter
     UUID id;
-    String text;
+    String content;
   }
 
   @Getter

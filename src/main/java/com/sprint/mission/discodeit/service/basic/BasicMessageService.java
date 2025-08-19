@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.MessageDto;
+import com.sprint.mission.discodeit.dto.MessageDto.Create;
+import com.sprint.mission.discodeit.dto.MessageDto.Update;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -27,23 +29,22 @@ public class BasicMessageService implements MessageService {
   private final BinaryContentRepository binaryContentRepository;
 
   @Override
-  public MessageDto.DetailResponse create(MessageDto.CreateRequest request) {
-    User author = userRepository.findById(request.getAuthorId()).orElse(null);
-    Channel channel = channelRepository.findById(request.getChannelId()).orElse(null);
+  public MessageDto.DetailResponse create(Create create) {
 
-    if (author == null || channel == null) {
-      return null;
-    }
+    User author = userRepository.findById(create.getAuthorId())
+        .orElseThrow(() -> new RuntimeException("User not found"));
+    Channel channel = channelRepository.findById(create.getChannelId())
+        .orElseThrow(() -> new RuntimeException("Channel not found"));
 
     List<BinaryContent> contents = new ArrayList<>();
-    if (request.getAttachments() != null && !request.getAttachments().isEmpty()) {
-      contents.addAll(request.getAttachments().stream()
+    if (create.getAttachments() != null && !create.getAttachments().isEmpty()) {
+      contents.addAll(create.getAttachments().stream()
           .map(file -> binaryContentRepository.save(BinaryContent.of(file)))
           .toList());
     }
 
     Message message = messageRepository.save(
-        new Message(request.getContent(), request.getChannelId(), request.getAuthorId(),
+        new Message(create.getContent(), create.getChannelId(), create.getAuthorId(),
             contents.stream().map(BinaryContent::getId).toList()));
 
     channel.addMessage(message.getId());
@@ -63,20 +64,17 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
-  public MessageDto.DetailResponse update(MessageDto.UpdateRequest request) {
+  public MessageDto.DetailResponse update(Update update) {
 
-    Message message = messageRepository.findById(request.getId()).orElse(null);
-    if (message == null) {
-      return null;
-    }
+    Message message = messageRepository.findById(update.getId())
+        .orElseThrow(() -> new RuntimeException("Message not found"));
 
-    User author = userRepository.findById(message.getAuthorId()).orElse(null);
-    Channel channel = channelRepository.findById(message.getChannelId()).orElse(null);
-    if (author == null || channel == null) {
-      return null;
-    }
+    User author = userRepository.findById(message.getAuthorId())
+        .orElseThrow(() -> new RuntimeException("User not found"));
+    Channel channel = channelRepository.findById(message.getChannelId())
+        .orElseThrow(() -> new RuntimeException("Channel not found"));
 
-    message.update(request.getText());
+    message.update(update.getContent());
     return MessageDto.DetailResponse.builder()
         .id(message.getId())
         .channelId(message.getChannelId())
@@ -92,13 +90,14 @@ public class BasicMessageService implements MessageService {
 
   @Override
   public MessageDto.DetailResponse findById(UUID id) {
-    Message message = messageRepository.findById(id).orElse(null);
-    if (message == null) {
-      return null;
-    }
 
-    User author = userRepository.findById(message.getAuthorId()).orElse(null);
-    Channel channel = channelRepository.findById(message.getChannelId()).orElse(null);
+    Message message = messageRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Message not found"));
+
+    User author = userRepository.findById(message.getAuthorId())
+        .orElseThrow(() -> new RuntimeException("User not found"));
+    Channel channel = channelRepository.findById(message.getChannelId())
+        .orElseThrow(() -> new RuntimeException("Channel not found"));
 
     return MessageDto.DetailResponse.builder()
         .id(message.getId())
@@ -115,12 +114,12 @@ public class BasicMessageService implements MessageService {
 
   @Override
   public List<MessageDto.DetailResponse> findAllByChannelId(UUID channelId) {
+
     List<Message> messages = messageRepository.findAllByChannelId(channelId);
 
-    Channel channel = channelRepository.findById(channelId).orElse(null);
-    if (channel == null) {
-      return List.of();
-    }
+    Channel channel = channelRepository.findById(channelId)
+        .orElseThrow(() -> new RuntimeException("Channel not found"));
+
     List<User> users = messages.stream()
         .map(Message::getAuthorId)
         .distinct()
@@ -146,18 +145,20 @@ public class BasicMessageService implements MessageService {
 
   @Override
   public void delete(UUID id) {
-    Message message = messageRepository.findById(id).orElse(null);
 
-    if (message != null) {
-      messageRepository.delete(id);
-      if (!message.getAttachmentIds().isEmpty()) {
-        List<BinaryContent> contents = binaryContentRepository.findAllByIdIn(
-            message.getAttachmentIds());
+    Message message = messageRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Message not found"));
 
-        contents.forEach(c -> {
-          binaryContentRepository.delete(c.getId());
-        });
-      }
+    messageRepository.delete(id);
+
+    if (!message.getAttachmentIds().isEmpty()) {
+
+      List<BinaryContent> contents = binaryContentRepository.findAllByIdIn(
+          message.getAttachmentIds());
+
+      contents.forEach(c -> {
+        binaryContentRepository.delete(c.getId());
+      });
     }
   }
 

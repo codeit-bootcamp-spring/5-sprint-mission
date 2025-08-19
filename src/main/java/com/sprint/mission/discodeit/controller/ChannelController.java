@@ -28,33 +28,36 @@ public class ChannelController {
   @PostMapping("/public")
   public ResponseEntity<ChannelDto.DetailResponse> createPublicChannel(
       @RequestBody ChannelDto.CreateRequest request) {
-    request.setType(ChannelType.PUBLIC);
-    return ResponseEntity.ok(channelService.create(request));
+
+    return ResponseEntity.ok(channelService.create(request.toCreate(ChannelType.PUBLIC)));
   }
 
   @PostMapping("/private")
   public ResponseEntity<ChannelDto.DetailResponse> createPrivateChannel(
       @RequestBody ChannelDto.CreateRequest request) {
-    request.setType(ChannelType.PRIVATE);
-    return ResponseEntity.ok(channelService.create(request));
+
+    return ResponseEntity.ok(channelService.create(request.toCreate(ChannelType.PRIVATE)));
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<ChannelDto.DetailResponse> updateChannel(@PathVariable UUID id,
       @RequestBody ChannelDto.UpdateRequest request) {
-    request.setId(id);
-    return ResponseEntity.ok(channelService.update(request));
+
+    return ResponseEntity.ok(channelService.update(request.toUpdate(id)));
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteChannel(@PathVariable UUID id) {
+
     channelService.delete(id);
+
     return ResponseEntity.noContent().build();
   }
 
   @GetMapping
   public ResponseEntity<List<ChannelDto.DetailResponse>> findUserChannels(
       @RequestParam UUID userId) {
+
     return ResponseEntity.ok(channelService.findAllByUserId(userId));
   }
 }

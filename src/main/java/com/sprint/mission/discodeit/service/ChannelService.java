@@ -1,14 +1,16 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.ChannelDto.Create;
+import com.sprint.mission.discodeit.dto.ChannelDto.Update;
 import java.util.List;
 import java.util.UUID;
 
 public interface ChannelService {
 
-  ChannelDto.DetailResponse create(ChannelDto.CreateRequest request);
+  ChannelDto.DetailResponse create(Create create);
 
-  ChannelDto.DetailResponse update(ChannelDto.UpdateRequest request);
+  ChannelDto.DetailResponse update(Update update);
 
   ChannelDto.DetailResponse findById(UUID id);
 

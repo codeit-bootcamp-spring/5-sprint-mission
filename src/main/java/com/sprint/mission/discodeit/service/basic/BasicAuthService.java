@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.AuthDto;
+import com.sprint.mission.discodeit.dto.AuthDto.Login;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -18,10 +18,10 @@ public class BasicAuthService implements AuthService {
   private final UserStatusRepository userStatusRepository;
 
   @Override
-  public UserDto.DetailResponse login(AuthDto.LoginRequest request) {
+  public UserDto.DetailResponse login(Login login) {
 
-    String username = request.getUsername();
-    String password = request.getPassword();
+    String username = login.getUsername();
+    String password = login.getPassword();
 
     User user = userRepository.findByName(username).orElse(null);
 

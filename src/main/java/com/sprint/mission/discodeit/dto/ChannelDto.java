@@ -12,8 +12,25 @@ import lombok.ToString;
 public class ChannelDto {
 
   @Getter
-  @Builder
   public static class CreateRequest {
+
+    String name;
+    String description;
+    List<UUID> participantIds;
+
+    public Create toCreate(ChannelType type) {
+      return Create.builder()
+          .type(type)
+          .name(this.name)
+          .description(this.description)
+          .participantIds(this.participantIds)
+          .build();
+    }
+  }
+
+  @Getter
+  @Builder
+  public static class Create {
 
     @Setter
     ChannelType type;
@@ -27,7 +44,24 @@ public class ChannelDto {
   @Builder
   public static class UpdateRequest {
 
-    @Setter
+    String name;
+    String description;
+    List<UUID> participantIds;
+
+    public Update toUpdate(UUID id) {
+      return Update.builder()
+          .id(id)
+          .name(this.name)
+          .description(this.description)
+          .participantIds(this.participantIds)
+          .build();
+    }
+  }
+
+  @Getter
+  @Builder
+  public static class Update {
+
     UUID id;
     String name;
     String description;

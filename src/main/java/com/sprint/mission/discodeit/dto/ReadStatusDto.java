@@ -10,7 +10,7 @@ public class ReadStatusDto {
 
   @Getter
   @Builder
-  public static class CreateRequest {
+  public static class Create {
 
     UUID userId;
     UUID channelId;

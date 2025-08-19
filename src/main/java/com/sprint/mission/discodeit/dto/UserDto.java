@@ -12,7 +12,7 @@ public class UserDto {
 
   @Getter
   @Builder
-  public static class CreateRequest {
+  public static class Create {
 
     private String username;
     private String email;
@@ -21,16 +21,35 @@ public class UserDto {
   }
 
   @Getter
-  public static class UserRequest {
+  public static class Request {
 
     private String username;
     private String email;
     private String password;
+
+    public Create toCreate(MultipartFile profileImage) {
+      return Create.builder()
+          .username(this.username)
+          .email(this.email)
+          .password(this.password)
+          .profileImage(profileImage)
+          .build();
+    }
+
+    public Update toUpdate(UUID id, MultipartFile profileImage) {
+      return Update.builder()
+          .id(id)
+          .username(this.username)
+          .email(this.email)
+          .password(this.password)
+          .profileImage(profileImage)
+          .build();
+    }
   }
 
   @Getter
   @Builder
-  public static class UpdateRequest {
+  public static class Update {
 
     @Setter
     private UUID id;
@@ -38,15 +57,6 @@ public class UserDto {
     private String email;
     private String password;
     private MultipartFile profileImage;
-  }
-
-  @Getter
-  @Builder
-  public static class SummaryResponse {
-
-    private UUID id;
-    private String username;
-    private String email;
   }
 
   @Getter

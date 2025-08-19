@@ -28,30 +28,19 @@ public class UserController {
 
   @PostMapping
   public ResponseEntity<UserDto.DetailResponse> createUser(
-      @RequestPart("userCreateRequest") UserDto.UserRequest request,
+      @RequestPart("userCreateRequest") UserDto.Request request,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    return ResponseEntity.ok(userService.create(UserDto.CreateRequest.builder()
-        .email(request.getEmail())
-        .username(request.getUsername())
-        .password(request.getPassword())
-        .profileImage(profile)
-        .build()));
+    return ResponseEntity.ok(userService.create(request.toCreate(profile)));
   }
 
   @PatchMapping("/{id}")
   public ResponseEntity<UserDto.DetailResponse> updateUser(
       @PathVariable UUID id,
-      @RequestPart("userUpdateRequest") UserDto.UserRequest request,
+      @RequestPart("userUpdateRequest") UserDto.Request request,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    return ResponseEntity.ok(userService.update(UserDto.UpdateRequest.builder()
-        .id(id)
-        .email(request.getEmail())
-        .username(request.getUsername())
-        .password(request.getPassword())
-        .profileImage(profile)
-        .build()));
+    return ResponseEntity.ok(userService.update(request.toUpdate(id, profile)));
   }
 
   @DeleteMapping("/{id}")
