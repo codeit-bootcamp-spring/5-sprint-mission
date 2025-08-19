@@ -56,7 +56,7 @@ public class BasicChannelService implements ChannelService {
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
 
     for (UUID participantId : participantIds) {
-      readStatusRepository.save(new ReadStatus(participantId, channel.getId()));
+      readStatusRepository.save(new ReadStatus(participantId, channel.getId(), Instant.now()));
     }
 
     return channelRepository.save(channel);

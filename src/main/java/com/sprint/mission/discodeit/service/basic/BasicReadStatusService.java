@@ -36,7 +36,8 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     ReadStatus readStatus = new ReadStatus(readStatusCreateRequest.userId(),
-        readStatusCreateRequest.channelId());
+        readStatusCreateRequest.channelId(),
+        readStatusCreateRequest.lastReadAt());
     return readStatusRepository.save(readStatus);
   }
 
@@ -59,7 +60,7 @@ public class BasicReadStatusService implements ReadStatusService {
       @Valid ReadStatusUpdateRequest readStatusUpdateRequest) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new NoSuchElementException("update : ReadStatus를 찾을 수 없습니다."));
-    readStatus.update(readStatusUpdateRequest.read());
+    readStatus.update(readStatusUpdateRequest.newLastReadAt());
 
     return readStatusRepository.save(readStatus);
   }
