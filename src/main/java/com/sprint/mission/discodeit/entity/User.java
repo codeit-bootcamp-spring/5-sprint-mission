@@ -1,74 +1,56 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.text.SimpleDateFormat;
-import java.util.Objects;
+import lombok.Getter;
+
+import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
-public class User {
-    private UUID id;
-    private Long createdAt; // DB timestamp
-    private Long updatedAt;
+@Getter
+public class User implements Serializable {
 
-    // 내가 디스 코드에서 필요한 필드를 추가적으로 설계하는 자리
-    private String username;
-    private String password;
+  private static final long serialVersionUID = 1L;
 
-    // 권한, 이메일, 이후 필요한 정보들 더.. 선언해도 된다.
+  private UUID id;
+  private Instant createdAt;
+  private Instant updatedAt;
+  //
+  private String username;
+  private String email;
+  private String password;
+  private UUID profileId;     // BinaryContent
 
+  public User(String username, String email, String password, UUID profileId) {
+    this.id = UUID.randomUUID();
+    this.createdAt = Instant.now();
+    //
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.profileId = profileId;
+  }
 
-    public User(String username, String password) {
-        id = UUID.randomUUID();
-        this.username = username;
-        this.password = password;
-        createdAt = System.currentTimeMillis();
+  public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+    boolean anyValueUpdated = false;
+    if (newUsername != null && !newUsername.equals(this.username)) {
+      this.username = newUsername;
+      anyValueUpdated = true;
+    }
+    if (newEmail != null && !newEmail.equals(this.email)) {
+      this.email = newEmail;
+      anyValueUpdated = true;
+    }
+    if (newPassword != null && !newPassword.equals(this.password)) {
+      this.password = newPassword;
+      anyValueUpdated = true;
+    }
+    if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+      this.profileId = newProfileId;
+      anyValueUpdated = true;
     }
 
-    public UUID getId() {
-        return id;
+    if (anyValueUpdated) {
+      this.updatedAt = Instant.now();
     }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-    
-    public void update(String username, String password) {
-        this.username = username;
-        this.password = password;
-        this.updatedAt = System.currentTimeMillis();
-    }
-
-
-    @Override
-    public String toString() {
-        return "사용자{" +
-                "아이디=" + id +
-                ", 생성된 시간=" + createdAt +
-                ", 업데이트된 시간=" + updatedAt +
-                ", 닉네임='" + username + '\'' +
-                '}'+'\n';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(createdAt, user.createdAt) && Objects.equals(updatedAt, user.updatedAt) && Objects.equals(username, user.username) && Objects.equals(password, user.password);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, createdAt, updatedAt, username, password);
-    }
+  }
 }
