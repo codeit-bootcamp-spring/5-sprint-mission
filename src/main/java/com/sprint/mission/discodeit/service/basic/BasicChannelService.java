@@ -73,23 +73,22 @@ public class BasicChannelService implements ChannelService {
   public ChannelFindResponse findById(Channel channel) {
     UUID channelId = channel.getId();
 
-    Instant lastestMessageTime = messageRepository.findAll().stream()
+    Instant lastMessageAt = messageRepository.findAll().stream()
         .filter(m -> m.getChannelId().equals(channelId))
         .max(Comparator.comparingLong(m -> m.getCreatedAt().getEpochSecond()))
         .map(Message::getCreatedAt)
         .orElse(null);
 
     return ChannelFindResponse.builder()
+        .id(channelId)
         .name(channel.getName())
-        .userIds(channel.getType() != ChannelType.PRIVATE ?
+        .participantIds(channel.getType() != ChannelType.PRIVATE ?
             null : readStatusRepository.findByChannelId(channelId).stream()
             .map(ReadStatus::getUserId)
             .toList())
         .description(channel.getDescription())
         .type(channel.getType())
-        .createdAt(channel.getCreatedAt())
-        .updatedAt(channel.getUpdatedAt())
-        .lastestMessageTime(lastestMessageTime)
+        .lastMessageAt(lastMessageAt)
         .build();
   }
 
@@ -120,7 +119,8 @@ public class BasicChannelService implements ChannelService {
     if (channel.getType() == ChannelType.PRIVATE) {
       throw new IllegalArgumentException("update : Private 채널은 업데이트 할 수 없습니다.");
     }
-    channel.update(publicChannelUpdateRequest.name(), publicChannelUpdateRequest.description());
+    channel.update(publicChannelUpdateRequest.newName(),
+        publicChannelUpdateRequest.newDescription());
     return channelRepository.save(channel);
   }
 
