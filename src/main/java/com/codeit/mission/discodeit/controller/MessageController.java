@@ -5,6 +5,7 @@ import com.codeit.mission.discodeit.dto.request.MessageCreateRequest;
 import com.codeit.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.codeit.mission.discodeit.entity.Message;
 import com.codeit.mission.discodeit.service.MessageService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class MessageController {
     private final MessageService messageService;
 
     @PostMapping
+    @Operation(summary = "메세지 생성", description = "메세지를 생성합니다.")
     public ResponseEntity<Message> create(@RequestPart MessageCreateRequest messageCreateRequest,
         @RequestPart(required = false) MultipartFile[] attachments) throws IOException {
         if (!StringUtils.hasText(messageCreateRequest.content())) {
@@ -68,6 +70,7 @@ public class MessageController {
     }
 
     @PatchMapping("/{messageId}")
+    @Operation(summary = "메세지 수정", description = "해당 Id의 메세지를 수정합니다.")
     public ResponseEntity<Message> update(@PathVariable UUID messageId,
         @RequestBody MessageUpdateRequest request) {
         if (messageId == null) {
@@ -82,6 +85,7 @@ public class MessageController {
     }
 
     @DeleteMapping("/{messageId}")
+    @Operation(summary = "메세지 삭제", description = "해당 Id의 메세지를 삭제합니다.")
     public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
         if (messageId == null) {
             throw new IllegalArgumentException("messageId가 필요합니다.");
@@ -92,6 +96,7 @@ public class MessageController {
     }
 
     @GetMapping
+    @Operation(summary = "채널별 메세지 조회", description = "해당 channelId의 전체 메세지를 조회합니다.")
     public ResponseEntity<List<Message>> findAllByChannelId(
         @RequestParam("channelId") UUID channelId) {
         List<Message> allByChannelId = messageService.findAllByChannelId(channelId);
