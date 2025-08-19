@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -138,15 +138,15 @@ public class BasicUserService implements UserService {
 	}
 
 	@Override
-	public UserResponse updateUserProfile(UUID userId, UserUpdateProfileImageRequest request) {
+	public UserResponse updateUserProfile(UUID userId, UserProfileImageRequest request) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(UserNotFoundException::new);
 
 		UUID oldProfileId = user.getProfileId();
 
-		if (request.getNewUserProfileImage() != null) {
+		if (request != null) {
 			// 새로운 프로필 이미지 제공 - 업데이트 (기존과 같아도 새로 저장)
-			BinaryContent newProfileImage = request.getNewUserProfileImage().toBinaryContent();
+			BinaryContent newProfileImage = request.toBinaryContent();
 			binaryContentRepository.save(newProfileImage);
 
 			// 기존 프로필 이미지가 있으면 삭제

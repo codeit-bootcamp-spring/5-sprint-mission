@@ -19,8 +19,8 @@ public interface MessageService {
 	List<Message> getAllMessages();
 
 	// 수정
-	MessageResponse updateMessage(MessageUpdateRequest request);
+	MessageResponse updateMessage(UUID messageId, MessageUpdateRequest request);
 
 	// 삭제
-	MessageDeleteResponse deleteMessage(MessageDeleteRequest request);
+	MessageDeleteResponse deleteMessage(UUID messageId, UUID authorId);
 }

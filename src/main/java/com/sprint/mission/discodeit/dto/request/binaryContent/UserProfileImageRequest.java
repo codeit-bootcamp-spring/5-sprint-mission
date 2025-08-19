@@ -12,7 +12,7 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 @Builder
-public class UserProfileImageCreateRequest {
+public class UserProfileImageRequest {
 	@NotBlank(message = "파일명은 필수")
 	private String fileName;
 
@@ -25,9 +25,9 @@ public class UserProfileImageCreateRequest {
 	private Long size;
 
 	@NotNull(message = "파일 내용은 필수")
-	private byte[] content;
+	private byte[] bytes;
 
 	public BinaryContent toBinaryContent() {
-		return new BinaryContent(fileName, contentType, size, content);
+		return new BinaryContent(fileName, contentType, size, bytes);
 	}
 }

@@ -1,30 +1,30 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
+import com.sprint.mission.discodeit.dto.request.userStatus.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.UserStatusService;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.sprint.mission.discodeit.dto.UserDto;
-import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageCreateRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
-import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
-import com.sprint.mission.discodeit.dto.response.user.UserResponse;
-import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
-
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users")
@@ -61,7 +61,7 @@ public class UserController {
 	}
 
 	// username(=loginId)로 조회
-	@RequestMapping(path = "/{username}", method = RequestMethod.GET)
+	@RequestMapping(path = "/username/{username}", method = RequestMethod.GET)
 	public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
 		UserResponse userResponse = userService.findByLoginId(username);
 		boolean online = userStatusService.isOnline(userResponse.getId());
@@ -81,15 +81,15 @@ public class UserController {
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<UserResponse> createUser(
 		@RequestPart("userCreateRequest") UserCreateRequest request,
-		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+		@RequestPart(value = "profile", required = false) MultipartFile profile
 	) {
 		try {
-			if (profileImage != null && !profileImage.isEmpty()) {
-				UserProfileImageCreateRequest imageRequest = UserProfileImageCreateRequest.builder()
-					.fileName(profileImage.getOriginalFilename())
-					.contentType(profileImage.getContentType())
-					.size(profileImage.getSize())
-					.content(profileImage.getBytes())
+			if (profile != null && !profile.isEmpty()) {
+				UserProfileImageRequest imageRequest = UserProfileImageRequest.builder()
+					.fileName(profile.getOriginalFilename())
+					.contentType(profile.getContentType())
+					.size(profile.getSize())
+					.bytes(profile.getBytes())
 					.build();
 				request.setProfileImage(imageRequest);
 			}
@@ -101,12 +101,27 @@ public class UserController {
 		}
 	}
 
-	@RequestMapping(path = "/{userId}", method = RequestMethod.PATCH)
-	public ResponseEntity<UserResponse> updateUserDefaultNickname(
+	@RequestMapping(path = "/{userId}/nickname", method = RequestMethod.PATCH)
+	public ResponseEntity<UserResponse> updateUserNickname(
 			@PathVariable UUID userId,
-			UserUpdateDefaultNicknameRequest request) {
-		UserResponse userResponse = userService.updateUserDefalutNickname(userId,request);
+			@RequestBody UserUpdateDefaultNicknameRequest request) {
+		UserResponse userResponse = userService.updateUserDefalutNickname(userId, request);
+		return ResponseEntity.ok(userResponse);
+	}
 
+	@RequestMapping(path = "/{userId}/password", method = RequestMethod.PATCH)
+	public ResponseEntity<UserResponse> updateUserPassword(
+			@PathVariable UUID userId,
+			@RequestBody UserUpdatePasswordRequest request) {
+		UserResponse userResponse = userService.updateUserPassword(userId, request);
+		return ResponseEntity.ok(userResponse);
+	}
+
+	@RequestMapping(path = "/{userId}/profile", method = RequestMethod.PATCH)
+	public ResponseEntity<UserResponse> updateUserProfile(
+			@PathVariable UUID userId,
+			@RequestBody UserProfileImageRequest request) {
+		UserResponse userResponse = userService.updateUserProfile(userId, request);
 		return ResponseEntity.ok(userResponse);
 	}
 
@@ -116,9 +131,11 @@ public class UserController {
 		return ResponseEntity.ok(userDeleteResponse);
 	}
 
-	@RequestMapping(path = "/{userId}/status", method = RequestMethod.GET)
-	public ResponseEntity<Boolean> getUserStatusById(@PathVariable UUID userId) {
-		userStatusService.updateByUserId(userId);
+	@RequestMapping(path = "/{userId}/userStatus", method = RequestMethod.PATCH)
+	public ResponseEntity<Boolean> getUserStatusById(
+			@PathVariable UUID userId,
+			@RequestBody UserStatusUpdateRequest request) {
+		userStatusService.update(userId, request);
 		boolean online = userStatusService.isOnline(userId);
 		return ResponseEntity.ok(online);
 	}

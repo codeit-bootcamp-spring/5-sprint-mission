@@ -1,14 +1,13 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.channel.ChannelDeleteRequest;
 import com.sprint.mission.discodeit.dto.request.channel.ChannelLeaveRequest;
 import com.sprint.mission.discodeit.dto.request.channel.ChannelUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
+import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelCreateResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelLeaveResponse;
+import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -159,11 +158,13 @@ public class BasicChannelService implements ChannelService {
 	}
 
 	@Override
-	public ChannelDeleteResponse deleteChannel(ChannelDeleteRequest request) {
-		Channel channel = channelRepository.findById(request.getChannelId())
+	public ChannelDeleteResponse deleteChannel(UUID channelId) {
+		// userId는 나중에 admin 혹은 권한 체크를 위해서 남겨둠
+
+		Channel channel = channelRepository.findById(channelId)
 			.orElseThrow(ChannelNotFoundException::new);
-		messageRepository.deleteByChannelId(request.getChannelId());
-		channelRepository.deleteById(request.getChannelId());
+		messageRepository.deleteByChannelId(channelId);
+		channelRepository.deleteById(channelId);
 		return ChannelDeleteResponse.success(channel);
 	}
 

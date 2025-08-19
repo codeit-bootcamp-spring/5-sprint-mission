@@ -37,16 +37,17 @@ public class ReadStatusController {
 		return ResponseEntity.ok(responses);
 	}
 
-	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<ReadStatusResponse> updateReadStatus(@RequestParam("readStatusId") UUID readStatusId,
+	@RequestMapping(path = "/{readStatusId}", method = RequestMethod.PATCH)
+	public ResponseEntity<ReadStatusResponse> updateReadStatus(
+			@PathVariable UUID readStatusId,
 			@RequestBody ReadStatusUpdateRequest request) {
 		ReadStatusResponse response = readStatusService.updateById(readStatusId, request);
 		return ResponseEntity.ok(response);
 	}
 
-	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<ReadStatusResponse> deleteReadStatus(@PathVariable UUID id) {
-		ReadStatusResponse response = readStatusService.delete(id);
+	@RequestMapping(path = "/{readStatusId}", method = RequestMethod.DELETE)
+	public ResponseEntity<ReadStatusResponse> deleteReadStatus(@PathVariable UUID readStatusId) {
+		ReadStatusResponse response = readStatusService.delete(readStatusId);
 		return ResponseEntity.ok(response);
 	}
 }

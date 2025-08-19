@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import java.util.List;
@@ -20,7 +20,7 @@ public interface UserService {
 	
 	// 수정
 	UserResponse updateUserPassword(UUID id, UserUpdatePasswordRequest request);
-	UserResponse updateUserProfile(UUID id, UserUpdateProfileImageRequest request);
+	UserResponse updateUserProfile(UUID id, UserProfileImageRequest request);
 	UserResponse updateUserDefalutNickname(UUID userId, UserUpdateDefaultNicknameRequest request);
 	
 	// 삭제

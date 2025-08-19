@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.dto.request.user;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.entity.User;
 
 import jakarta.annotation.Nullable;
@@ -22,7 +22,7 @@ public class UserCreateRequest {
 	private String defaultNickname;
 	private String email;
 	@Nullable
-	private UserProfileImageCreateRequest profileImage;
+	private UserProfileImageRequest profileImage;
 
 	public User toUser() {
 		return toUserWithProfile(null);

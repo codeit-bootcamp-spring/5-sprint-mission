@@ -25,5 +25,5 @@ public interface ChannelService {
 	ChannelResponse updateChannel(UUID channelId, ChannelUpdateRequest request);
 
 	// 삭제
-	ChannelDeleteResponse deleteChannel(ChannelDeleteRequest request);
+	ChannelDeleteResponse deleteChannel(UUID channelId);
 }

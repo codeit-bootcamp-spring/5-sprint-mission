@@ -18,9 +18,6 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class MessageUpdateRequest {
-	@NotNull(message = "메시지 ID는 필수")
-	private UUID messageId;
-
 	@NotNull(message = "작성자 ID는 필수")
 	private UUID authorId;
 

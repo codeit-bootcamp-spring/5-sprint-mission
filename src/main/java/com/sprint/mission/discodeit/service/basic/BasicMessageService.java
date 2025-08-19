@@ -93,8 +93,8 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
-	public MessageResponse updateMessage(MessageUpdateRequest request) {
-		Message message = messageRepository.findById(request.getMessageId())
+	public MessageResponse updateMessage(UUID messageId, MessageUpdateRequest request) {
+		Message message = messageRepository.findById(messageId)
 				.orElseThrow(MessageNotFoundException::new);
 
 		if (!message.getAuthorId().equals(request.getAuthorId())) {
@@ -118,11 +118,11 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
-	public MessageDeleteResponse deleteMessage(MessageDeleteRequest request) {
-		Message message = messageRepository.findById(request.getMessageId())
+	public MessageDeleteResponse deleteMessage(UUID messageId, UUID authorId) {
+		Message message = messageRepository.findById(messageId)
 			.orElseThrow(MessageNotFoundException::new);
 
-		if (!message.getAuthorId().equals(request.getAuthorId())) {
+		if (!message.getAuthorId().equals(authorId)) {
 			throw new UnauthorizedMessageAccessException();
 		}
 
@@ -130,7 +130,7 @@ public class BasicMessageService implements MessageService {
 			binaryContentRepository.deleteById(attachmentId);
 		}
 
-		messageRepository.deleteById(request.getMessageId());
+		messageRepository.deleteById(messageId);
 
 		return MessageDeleteResponse.success(message);
 	}
