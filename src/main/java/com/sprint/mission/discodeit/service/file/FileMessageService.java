@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,8 +29,8 @@ public class FileMessageService implements MessageService {
     private final BinaryContentRepository binaryContentRepository; // 메세지 삭제시 첨부파일 삭제 위해 주입
 
     @Override
-    public void create(MessageCreateRequest request) {
-        
+    public Message create(MessageCreateRequest request, MultipartFile file) {
+
         //1. 보낸 유저가 존재하는지 확인
         Optional<User> sender = userService.findEntityById(request.getSender());
         if (sender.isEmpty()) {
@@ -46,8 +47,10 @@ public class FileMessageService implements MessageService {
         //3. 첨부파일이 있다면 추가
         if (request.getAttachmentIds() != null) {
             message.setAttachmentIds(request.getAttachmentIds());
+
         }
         repository.save(message);
+        return message;
     }
 
     @Override
@@ -70,7 +73,7 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public void update(MessageUpdateRequest request) {
+    public Message update(MessageUpdateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("수정 요청이 null입니다.");
         }
@@ -92,17 +95,15 @@ public class FileMessageService implements MessageService {
 
         // 저장
         repository.update(original);
+        return original;
     }
 
     @Override
-    public void delete(Message message) {
-        if (message == null) {
+    public void delete(UUID messageId) {
+        if (messageId == null) {
             throw new IllegalArgumentException("삭제할 메세지가 null입니다.");
         }
-        if (message.getId() == null) {
-            throw new IllegalArgumentException("삭제할 메세지 ID가 null입니다.");
-        }
-        Message original = repository.findById(message.getId());
+        Message original = repository.findById(messageId);
         if (original == null) {
             throw new IllegalArgumentException("삭제할 메세지가 존재하지 않습니다.");
         }
@@ -114,6 +115,6 @@ public class FileMessageService implements MessageService {
             }
         }
         //2. 메세지 삭제
-        repository.delete(original.getId());
+        repository.delete(messageId);
     }
 }

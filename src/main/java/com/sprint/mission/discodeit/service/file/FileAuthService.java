@@ -22,7 +22,7 @@ public class FileAuthService implements AuthService {
 
         // 2. 모든 유저를 가져옴
         return userRepository.findAll().stream()// 하나하나 검사하기
-                .filter(user -> user.getUserId().equals(loginRequest.getUsername())
+                .filter(user -> user.getUserId().equals(loginRequest.getUserId())
                         && user.getPassword().equals(loginRequest.getPassword())) // 아이디&비번 둘다 맞는 사람 필터
                 .findFirst() // 첫번째 유저 반환
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
