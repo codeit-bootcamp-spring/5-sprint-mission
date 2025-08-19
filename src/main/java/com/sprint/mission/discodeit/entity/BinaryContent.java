@@ -25,6 +25,7 @@ public class BinaryContent implements Serializable {
   private final String fileName;
   private final String contentType;
   private final byte[] bytes;
+  private final long size;
 
   public BinaryContent(String fileName, String contentType, byte[] bytes) {
     this.id = UUID.randomUUID();
@@ -33,6 +34,7 @@ public class BinaryContent implements Serializable {
     this.fileName = fileName;
     this.contentType = contentType;
     this.bytes = bytes;
+    this.size = bytes.length;
   }
 
   @Override
