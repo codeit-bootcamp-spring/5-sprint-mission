@@ -26,7 +26,7 @@ public class FileReadStatusService implements ReadStatusService {
 
 
     @Override
-    public void create(ReadStatusCreateRequest request) {
+    public ReadStatus create(ReadStatusCreateRequest request) {
 
         //1. 채널 존재 여부 확인
         Channel channel = channelRepository.findById(request.getChannelId());
@@ -59,6 +59,7 @@ public class FileReadStatusService implements ReadStatusService {
                 Instant.now()
         );
         readStatusRepository.save(readStatus);
+        return readStatus;
     }
 
 
@@ -79,7 +80,7 @@ public class FileReadStatusService implements ReadStatusService {
     }
 
     @Override
-    public void update(ReadStatusUpdateRequest request) {
+    public ReadStatus update(ReadStatusUpdateRequest request) {
         ReadStatus original = readStatusRepository.findById(request.getId());
         if (original == null) throw new IllegalArgumentException("수정할 ReadStatus가 존재하지 않습니다.");
 
@@ -91,6 +92,7 @@ public class FileReadStatusService implements ReadStatusService {
         );
 
         readStatusRepository.save(updated);
+        return original;
     }
 
     @Override
