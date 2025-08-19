@@ -11,6 +11,7 @@ public interface MessageService {
     Message create(MessageCreateRequest messageCreateRequest);
     Message find(UUID messageId);
     List<Message> findAll();
+    List<Message> findAllByChannelId(UUID channelId);
     Message update(UUID messageId, MessageUpdateRequest messageUpdateRequest);
     void delete(UUID messageId);
 }
