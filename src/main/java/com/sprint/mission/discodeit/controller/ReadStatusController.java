@@ -19,41 +19,41 @@ public class ReadStatusController {
     private final ReadStatusService readStatusService;
 
     // ✅ 특정 채널 메세지 수신 정보 생성
-    @PostMapping("/create")
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
     public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
         ReadStatus created = readStatusService.create(request);
         return ResponseEntity.status(201).body(created);
     }
 
     // ✅ 특정 채널 수신정보 수정
-    @PutMapping("/update")
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
     public ResponseEntity<ReadStatus> update(@RequestBody ReadStatusUpdateRequest request) {
         ReadStatus updated = readStatusService.update(request);
         return ResponseEntity.ok(updated);
     }
 
     // ✅ 특정 사용자 수신 정보 조회
-    @GetMapping("/{id}")
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<ReadStatus> findById(@PathVariable UUID id) {
         ReadStatus found = readStatusService.findById(id);
         return ResponseEntity.ok(found);
     }
 
     // ✅ 유저별 전체 읽음 상태 조회
-    @GetMapping("/findAllByUserId")
+    @RequestMapping(value = "/findAllByUserId", method = RequestMethod.GET)
     public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam("userId") UUID userId) {
         return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
     }
 
     // ✅ 채널 기반 삭제
-    @DeleteMapping("/channel/{channelId}")
+    @RequestMapping(value = "/channel/{channelId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteByChannelId(@PathVariable UUID channelId) {
         readStatusService.deleteByChannelId(channelId);
         return ResponseEntity.noContent().build();
     }
 
     // ✅ 단건 삭제
-    @DeleteMapping("/{id}")
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         readStatusService.delete(id);
         return ResponseEntity.noContent().build();
