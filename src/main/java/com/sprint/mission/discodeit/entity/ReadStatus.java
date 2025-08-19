@@ -11,34 +11,35 @@ import java.util.UUID;
 @Getter
 @ToString
 public class ReadStatus implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
 
-    private final UUID id;
-    private final UUID userId;
-    private final UUID channelId;
-    private final Instant createdAt;
-    private Instant updatedAt;
-    private boolean read;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-    public ReadStatus(UUID userId, UUID channelId) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.read = false;
+  private final UUID id;
+  private final UUID userId;
+  private final UUID channelId;
+  private final Instant createdAt;
+  private Instant updatedAt;
+  private boolean read;
 
-        this.userId = userId;
-        this.channelId = channelId;
+  public ReadStatus(UUID userId, UUID channelId) {
+    this.id = UUID.randomUUID();
+    this.createdAt = Instant.now();
+    this.read = false;
+
+    this.userId = userId;
+    this.channelId = channelId;
+  }
+
+  public void update(boolean read) {
+    boolean anyValueUpdated = false;
+    if (this.read != read) {
+      this.read = read;
+      anyValueUpdated = true;
     }
 
-    public void update(boolean read) {
-        boolean anyValueUpdated = false;
-        if (this.read != read) {
-            this.read = read;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            updatedAt = Instant.now();
-        }
+    if (anyValueUpdated) {
+      updatedAt = Instant.now();
     }
+  }
 }

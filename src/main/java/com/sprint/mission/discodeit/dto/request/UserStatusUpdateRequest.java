@@ -5,7 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record UserStatusUpdateRequest(
-        @NotNull UUID id,
-        boolean loginStatus
+    @NotNull UUID id,
+    boolean loginStatus
 ) {
+
 }

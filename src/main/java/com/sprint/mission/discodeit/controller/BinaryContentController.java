@@ -16,17 +16,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/binaryContent")
 public class BinaryContentController {
-    private final BasicBinaryContentService binaryContentService;
 
-    @RequestMapping(path = "/find",
-            method = RequestMethod.GET)
-    public ResponseEntity<byte[]> find(@RequestParam("binaryContentId") UUID binaryContentId) {
-        BinaryContent file = binaryContentService.findById(binaryContentId);
+  private final BasicBinaryContentService binaryContentService;
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .contentType(MediaType.parseMediaType(file.getContentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + file.getFileName() + "\"")
-                .body(file.getBytes());
-    }
+  @RequestMapping(path = "/find",
+      method = RequestMethod.GET)
+  public ResponseEntity<byte[]> find(@RequestParam("binaryContentId") UUID binaryContentId) {
+    BinaryContent file = binaryContentService.findById(binaryContentId);
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .contentType(MediaType.parseMediaType(file.getContentType()))
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+            "inline; filename=\"" + file.getFileName() + "\"")
+        .body(file.getBytes());
+  }
 }

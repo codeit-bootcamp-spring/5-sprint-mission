@@ -16,32 +16,33 @@ import java.util.UUID;
 
 @Getter
 public class BinaryContent implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
 
-    private final UUID id;
-    private final Instant createdAt;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-    private final String fileName;
-    private final String contentType;
-    private final byte[] bytes;
+  private final UUID id;
+  private final Instant createdAt;
 
-    public BinaryContent(String fileName, String contentType, byte[] bytes) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
+  private final String fileName;
+  private final String contentType;
+  private final byte[] bytes;
 
-        this.fileName = fileName;
-        this.contentType = contentType;
-        this.bytes = bytes;
-    }
+  public BinaryContent(String fileName, String contentType, byte[] bytes) {
+    this.id = UUID.randomUUID();
+    this.createdAt = Instant.now();
 
-    @Override
-    public String toString() {
-        return "BinaryContent{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", fileName='" + fileName + '\'' +
-                ", contentType='" + contentType + '\'' +
-                '}';
-    }
+    this.fileName = fileName;
+    this.contentType = contentType;
+    this.bytes = bytes;
+  }
+
+  @Override
+  public String toString() {
+    return "BinaryContent{" +
+        "id=" + id +
+        ", createdAt=" + createdAt +
+        ", fileName='" + fileName + '\'' +
+        ", contentType='" + contentType + '\'' +
+        '}';
+  }
 }

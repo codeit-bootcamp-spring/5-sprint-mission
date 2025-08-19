@@ -11,35 +11,35 @@ import java.util.*;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 public class JCFBinaryContentRepository implements BinaryContentRepository {
 
-    Map<UUID, BinaryContent> binaryContentMap;
+  Map<UUID, BinaryContent> binaryContentMap;
 
-    public JCFBinaryContentRepository() {
-        binaryContentMap = new HashMap<>();
-    }
+  public JCFBinaryContentRepository() {
+    binaryContentMap = new HashMap<>();
+  }
 
-    @Override
-    public BinaryContent save(BinaryContent binaryContent) {
-        binaryContentMap.put(binaryContent.getId(), binaryContent);
-        return binaryContent;
-    }
+  @Override
+  public BinaryContent save(BinaryContent binaryContent) {
+    binaryContentMap.put(binaryContent.getId(), binaryContent);
+    return binaryContent;
+  }
 
-    @Override
-    public Optional<BinaryContent> findById(UUID id) {
-        return Optional.ofNullable(binaryContentMap.get(id));
-    }
+  @Override
+  public Optional<BinaryContent> findById(UUID id) {
+    return Optional.ofNullable(binaryContentMap.get(id));
+  }
 
-    @Override
-    public List<BinaryContent> findAll() {
-        return new ArrayList<>(binaryContentMap.values());
-    }
+  @Override
+  public List<BinaryContent> findAll() {
+    return new ArrayList<>(binaryContentMap.values());
+  }
 
-    @Override
-    public boolean existsById(UUID id) {
-        return binaryContentMap.containsKey(id);
-    }
+  @Override
+  public boolean existsById(UUID id) {
+    return binaryContentMap.containsKey(id);
+  }
 
-    @Override
-    public void deleteById(UUID id) {
-        binaryContentMap.remove(id);
-    }
+  @Override
+  public void deleteById(UUID id) {
+    binaryContentMap.remove(id);
+  }
 }

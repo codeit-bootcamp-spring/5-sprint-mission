@@ -19,37 +19,43 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/channel")
 public class ChannelController {
-    private final ChannelService channelService;
 
-    @RequestMapping(value = {"/createPublic", "/create"}, method = RequestMethod.POST)
-    public ResponseEntity<Channel> createPublicChannel(@RequestPart PublicChannelCreateRequest publicChannelCreateRequest) {
-        Channel publicChannel = channelService.createPublic(publicChannelCreateRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(publicChannel);
-    }
+  private final ChannelService channelService;
 
-    @RequestMapping(value = "/createPrivate", method = RequestMethod.POST)
-    public ResponseEntity<Channel> createPrivateChannel(@RequestPart PrivateChannelCreateRequest privateChannelCreateRequest) {
-        Channel privateChannel = channelService.createPrivate(privateChannelCreateRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(privateChannel);
-    }
+  @RequestMapping(value = {"/createPublic", "/create"}, method = RequestMethod.POST)
+  public ResponseEntity<Channel> createPublicChannel(
+      @RequestPart PublicChannelCreateRequest publicChannelCreateRequest) {
+    Channel publicChannel = channelService.createPublic(publicChannelCreateRequest);
+    return ResponseEntity.status(HttpStatus.CREATED).body(publicChannel);
+  }
 
-    @RequestMapping(value = {"/updatePublic", "/update"}, method = RequestMethod.POST)
-    public ResponseEntity<Channel> updatePublicChannel(@RequestPart PublicChannelUpdateRequest publicChannelUpdateRequest) {
-        Channel updatedChannel = channelService.update(publicChannelUpdateRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedChannel);
-    }
+  @RequestMapping(value = "/createPrivate", method = RequestMethod.POST)
+  public ResponseEntity<Channel> createPrivateChannel(
+      @RequestPart PrivateChannelCreateRequest privateChannelCreateRequest) {
+    Channel privateChannel = channelService.createPrivate(privateChannelCreateRequest);
+    return ResponseEntity.status(HttpStatus.CREATED).body(privateChannel);
+  }
 
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Channel> deleteChannel(@PathVariable UUID id) {
-        channelService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+  @RequestMapping(value = {"/updatePublic", "/update"}, method = RequestMethod.POST)
+  public ResponseEntity<Channel> updatePublicChannel(
+      @RequestPart PublicChannelUpdateRequest publicChannelUpdateRequest) {
+    Channel updatedChannel = channelService.update(publicChannelUpdateRequest);
+    return ResponseEntity.status(HttpStatus.OK).body(updatedChannel);
+  }
 
-    @RequestMapping(value = {"/listForUser/{id}", "/listForUser", "/listPublic"}, method = RequestMethod.GET)
-    public ResponseEntity<List<ChannelFindResponse>> findAllByUserId(@PathVariable(value = "id", required = false) UUID id) {
-        List<ChannelFindResponse> channelFindResponseList = channelService.findAllByUserId(id);
-        return ResponseEntity.status(HttpStatus.OK).body(channelFindResponseList);
-    }
+  @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+  public ResponseEntity<Channel> deleteChannel(@PathVariable UUID id) {
+    channelService.delete(id);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
+
+  @RequestMapping(value = {"/listForUser/{id}", "/listForUser",
+      "/listPublic"}, method = RequestMethod.GET)
+  public ResponseEntity<List<ChannelFindResponse>> findAllByUserId(
+      @PathVariable(value = "id", required = false) UUID id) {
+    List<ChannelFindResponse> channelFindResponseList = channelService.findAllByUserId(id);
+    return ResponseEntity.status(HttpStatus.OK).body(channelFindResponseList);
+  }
 
 
 }

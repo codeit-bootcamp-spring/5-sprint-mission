@@ -13,12 +13,13 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
-    private final BasicAuthService authService;
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<User> login(@RequestPart UserLoginRequest userLoginRequest) {
-        User user = authService.login(userLoginRequest);
+  private final BasicAuthService authService;
 
-        return ResponseEntity.status(HttpStatus.OK).body(user);
-    }
+  @RequestMapping(value = "/login", method = RequestMethod.POST)
+  public ResponseEntity<User> login(@RequestPart UserLoginRequest userLoginRequest) {
+    User user = authService.login(userLoginRequest);
+
+    return ResponseEntity.status(HttpStatus.OK).body(user);
+  }
 }

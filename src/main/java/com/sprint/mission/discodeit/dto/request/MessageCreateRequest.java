@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.UUID;
 
 public record MessageCreateRequest(
-        String content,
-        @NotNull UUID channelId,
-        @NotNull UUID authorId
+    String content,
+    @NotNull UUID channelId,
+    @NotNull UUID authorId
 ) {
+
 }

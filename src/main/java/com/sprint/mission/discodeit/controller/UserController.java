@@ -27,62 +27,63 @@ import java.util.UUID;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private final BasicUserService userService;
-    private final BasicUserStatusService userStatusService;
+  private final BasicUserService userService;
+  private final BasicUserStatusService userStatusService;
 
-    @RequestMapping(path = "/create",
-            method = RequestMethod.POST,
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<User> create(
-            @RequestPart UserCreateRequest userCreateRequest,
-            @RequestPart(required = false) MultipartFile profileImage
-    ) throws IOException {
-        Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
-        if (profileImage != null && !profileImage.isEmpty()) {
-            binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profileImage.getOriginalFilename(),
-                    profileImage.getContentType(),
-                    profileImage.getBytes()
-            ));
-        }
-        User createdUser = userService.create(userCreateRequest, binaryContentCreateRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+  @RequestMapping(path = "/create",
+      method = RequestMethod.POST,
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<User> create(
+      @RequestPart UserCreateRequest userCreateRequest,
+      @RequestPart(required = false) MultipartFile profileImage
+  ) throws IOException {
+    Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
+    if (profileImage != null && !profileImage.isEmpty()) {
+      binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
+          profileImage.getOriginalFilename(),
+          profileImage.getContentType(),
+          profileImage.getBytes()
+      ));
     }
+    User createdUser = userService.create(userCreateRequest, binaryContentCreateRequest);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+  }
 
-    @RequestMapping(path = "/update",
-            method = RequestMethod.POST,
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<User> update(
-            @RequestPart UserUpdateRequest userUpdateRequest,
-            @RequestPart(required = false) MultipartFile profileImage
-    ) throws IOException {
-        Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
-        if (profileImage != null && !profileImage.isEmpty()) {
-            binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profileImage.getOriginalFilename(),
-                    profileImage.getContentType(),
-                    profileImage.getBytes()
-            ));
-        }
-        User updatedUser = userService.update(userUpdateRequest, binaryContentCreateRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+  @RequestMapping(path = "/update",
+      method = RequestMethod.POST,
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<User> update(
+      @RequestPart UserUpdateRequest userUpdateRequest,
+      @RequestPart(required = false) MultipartFile profileImage
+  ) throws IOException {
+    Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
+    if (profileImage != null && !profileImage.isEmpty()) {
+      binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
+          profileImage.getOriginalFilename(),
+          profileImage.getContentType(),
+          profileImage.getBytes()
+      ));
     }
+    User updatedUser = userService.update(userUpdateRequest, binaryContentCreateRequest);
+    return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+  }
 
-    @RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<User> delete(@PathVariable UUID id) {
-        userService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+  @RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE)
+  public ResponseEntity<User> delete(@PathVariable UUID id) {
+    userService.delete(id);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
 
-    @RequestMapping(path = {"/list", "/findAll"}, method = RequestMethod.GET)
-    public ResponseEntity<List<UserFindResponse>> list() {
-        List<UserFindResponse> users = userService.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(users);
-    }
+  @RequestMapping(path = {"/list", "/findAll"}, method = RequestMethod.GET)
+  public ResponseEntity<List<UserFindResponse>> list() {
+    List<UserFindResponse> users = userService.findAll();
+    return ResponseEntity.status(HttpStatus.OK).body(users);
+  }
 
-    @RequestMapping(path = "/updateUserStatus", method = RequestMethod.POST)
-    public ResponseEntity<UserStatus> updateUserStatus(@RequestPart UserStatusUpdateRequest userStatusUpdateRequest) {
-        UserStatus updatedStatus = userStatusService.updateByUserId(userStatusUpdateRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedStatus);
-    }
+  @RequestMapping(path = "/updateUserStatus", method = RequestMethod.POST)
+  public ResponseEntity<UserStatus> updateUserStatus(
+      @RequestPart UserStatusUpdateRequest userStatusUpdateRequest) {
+    UserStatus updatedStatus = userStatusService.updateByUserId(userStatusUpdateRequest);
+    return ResponseEntity.status(HttpStatus.OK).body(updatedStatus);
+  }
 }

@@ -9,13 +9,13 @@ import java.util.UUID;
 
 @Builder
 public record ChannelFindResponse(
-        Instant lastestMessageTime,
-        Instant createdAt,
-        Instant updatedAt,
-        ChannelType type,
-        String name,
-        String description,
-        List<UUID> userIds
+    Instant lastestMessageTime,
+    Instant createdAt,
+    Instant updatedAt,
+    ChannelType type,
+    String name,
+    String description,
+    List<UUID> userIds
 ) {
 
 }

@@ -1,43 +1,45 @@
 // API endpoints
 const API_BASE_URL = '/api';
 const ENDPOINTS = {
-    USERS: `${API_BASE_URL}/user/findAll`,
-    BINARY_CONTENT: `${API_BASE_URL}/binaryContent/find`
+  USERS: `${API_BASE_URL}/user/findAll`,
+  BINARY_CONTENT: `${API_BASE_URL}/binaryContent/find`
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchAndRenderUsers();
+  fetchAndRenderUsers();
 });
 
 async function fetchAndRenderUsers() {
-    try {
-        const response = await fetch(ENDPOINTS.USERS);
-        if (!response.ok) throw new Error('Failed to fetch users');
-        const users = await response.json();
-        renderUserList(users);
-    } catch (error) {
-        console.error('Error fetching users:', error);
+  try {
+    const response = await fetch(ENDPOINTS.USERS);
+    if (!response.ok) {
+      throw new Error('Failed to fetch users');
     }
+    const users = await response.json();
+    renderUserList(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+  }
 }
 
 // ✅ 프로필 이미지를 굳이 fetch로 받지 말고, src에 엔드포인트를 바로 사용
 function getProfileUrl(profileId) {
-    return `${ENDPOINTS.BINARY_CONTENT}?binaryContentId=${profileId}`;
+  return `${ENDPOINTS.BINARY_CONTENT}?binaryContentId=${profileId}`;
 }
 
 async function renderUserList(users) {
-    const userListElement = document.getElementById('userList');
-    userListElement.innerHTML = '';
+  const userListElement = document.getElementById('userList');
+  userListElement.innerHTML = '';
 
-    for (const user of users) {
-        const userElement = document.createElement('div');
-        userElement.className = 'user-item';
+  for (const user of users) {
+    const userElement = document.createElement('div');
+    userElement.className = 'user-item';
 
-        const profileUrl = user.profileId
-            ? getProfileUrl(user.profileId)
-            : '/default-avatar.png';
+    const profileUrl = user.profileId
+        ? getProfileUrl(user.profileId)
+        : '/default-avatar.png';
 
-        userElement.innerHTML = `
+    userElement.innerHTML = `
       <img src="${profileUrl}" alt="${user.username}" class="user-avatar"
            onerror="this.onerror=null; this.src='/default-avatar.png';">
       <div class="user-info">
@@ -49,6 +51,6 @@ async function renderUserList(users) {
       </div>
     `;
 
-        userListElement.appendChild(userElement);
-    }
+    userListElement.appendChild(userElement);
+  }
 }
