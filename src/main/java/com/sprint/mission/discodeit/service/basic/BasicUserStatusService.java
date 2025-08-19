@@ -54,9 +54,9 @@ public class BasicUserStatusService implements UserStatusService {
     }
 
     @Override
-    public UserStatusResponse updateByUserId(UpdateUserStatusByUserIdRequest request) {
-        UserStatus status = userStatusRepository.findByUserId(request.userId())
-                .orElseThrow(() -> new NotFoundException("User not found: " + request.userId()));
+    public UserStatusResponse updateByUserId(UUID userId) {
+        UserStatus status = userStatusRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("User not found: " + userId));
 
         status.isOnline();
         return toResponse(status);

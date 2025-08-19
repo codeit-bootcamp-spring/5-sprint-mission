@@ -12,11 +12,10 @@ import java.util.UUID;
 public interface ChannelService {
     /**
      * 새로운 채널을 생성합니다.
-     * @param accessibility  채널 접근성 (PUBLIC/PRIVATE)
-     * @param request        채널 생성 요청 정보
+     * @param request 채널 생성 요청 정보
      * @return 생성된 채널 응답 DTO
      */
-    ChannelResponse createChannel(ChannelAccessibility accessibility, CreateChannelRequest request);
+    ChannelResponse createChannel(CreateChannelRequest request);
 
     /**
      * 채널 ID로 채널을 조회합니다.

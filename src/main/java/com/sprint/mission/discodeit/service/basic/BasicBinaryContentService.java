@@ -26,12 +26,16 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     @Override
     public Optional<BinaryContentResponse> getById(UUID id) {
-        return binaryContentRepository.findById(id).map(this::toResponse);
+        return binaryContentRepository.findById(id)
+                .map(this::toResponse);
     }
 
     @Override
     public List<BinaryContentResponse> getAllByIdIn(List<UUID> ids) {
-        return List.of();
+        return binaryContentRepository.findAll().stream()
+                .filter(binaryContent -> ids.contains(binaryContent.getId()))
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override

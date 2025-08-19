@@ -28,8 +28,8 @@ public class BasicChannelService implements ChannelService {
     private final MessageRepository messageRepository;
 
     @Override
-    public ChannelResponse createChannel(ChannelAccessibility accessibility, CreateChannelRequest request) {
-        return switch(accessibility) {
+    public ChannelResponse createChannel(CreateChannelRequest request) {
+        return switch(request.accessibility()) {
             case PUBLIC -> handlePublic(request);
             case PRIVATE -> handlePrivate(request);
         };

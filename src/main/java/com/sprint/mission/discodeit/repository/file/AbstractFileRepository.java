@@ -9,14 +9,15 @@ public abstract class AbstractFileRepository<T extends BaseEntity> {
     private final String fileName;
     protected final Map<UUID, T> dataMap;
 
-    protected AbstractFileRepository(String fileName) {
-        this.fileName = fileName;
+    protected AbstractFileRepository(String filePath, String fileName) {
+        this.fileName = filePath + "/" + fileName;
         dataMap = loadFile();
     }
 
-    public void save(T entity) {
+    public T save(T entity) {
         dataMap.put(entity.getId(), entity);
         writeToFile();
+        return entity;
     }
 
     public Optional<T> findById(UUID id) {
@@ -39,7 +40,7 @@ public abstract class AbstractFileRepository<T extends BaseEntity> {
     }
 
     private Map<UUID, T> loadFile() {
-        File file = new File(fileName + ".dat");
+        File file = new File(fileName);
         if (!file.exists()) return new HashMap<>();
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {

@@ -10,7 +10,7 @@ public interface UserRepository {
     /**
      * 주어진 User 객체를 저장합니다.
      */
-    void save(User user);
+    User save(User user);
 
     /**
      * ID(UUID)로 사용자 정보를 조회합니다.

@@ -12,7 +12,7 @@ public interface ChannelRepository {
      *
      * @param channel 저장할 채널 객체
      */
-    void save(Channel channel);
+    Channel save(Channel channel);
 
     /**
      * ID(UUID)를 기준으로 채널을 조회합니다.

@@ -11,6 +11,8 @@ import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class BasicAuthService implements AuthService {
@@ -21,11 +23,13 @@ public class BasicAuthService implements AuthService {
     public UserResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByUserName(loginRequest.username())
                 .orElseThrow(() -> new AuthenticationException("아이디 혹은 비밀번호가 틀렸습니다."));
-        if (user.getPassword().equals(loginRequest.password())) {
+        if (!user.getPassword().equals(loginRequest.password())) {
             throw new AuthenticationException("아이디 혹은 비밀번호가 틀렸습니다.");
         }
 
-        UserStatus status = userStatusRepository.findByUserId(user.getId()).get();
+        Optional<UserStatus> optionalUserStatus = userStatusRepository.findByUserId(user.getId());
+        if (optionalUserStatus.isEmpty()) return null;
+        UserStatus status = optionalUserStatus.get();
         status.login();
 
         return new UserResponse(user.getId(), user.getProfileId(), user.getEmail(), user.getUserName(), user.getNickname(), user.getPhoneNumber(), status.isOnline(), status.getLastActiveAt());
