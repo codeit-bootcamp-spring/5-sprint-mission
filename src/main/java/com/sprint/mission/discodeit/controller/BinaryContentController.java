@@ -15,12 +15,6 @@ import java.util.List;
 import java.util.UUID;
 
 
-// 바이너리 파일 다운로드
-// * [ ] 바이너리 파일을 1개 또는 여러 개 조회할 수 있다.
-
-// 정적 리소스 서빙
-// [ ]  사용자 목록 조회, BinaryContent 파일 조회 API를 다음의 조건을 만족하도록 수정하세요.
-
 @RequiredArgsConstructor
 @Controller
 @ResponseBody
@@ -37,8 +31,10 @@ public class BinaryContentController {
     }
 
     @RequestMapping(path = "findAll", method = RequestMethod.GET)
-    public ResponseEntity<List<BinaryContent>> findAll(@RequestParam("binaryContentId")List<UUID> request){
-        List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(request);
-        return ResponseEntity.ok(binaryContents);
+    public ResponseEntity<List<BinaryContent>> findAll(@RequestParam("binaryContentIds")List<UUID> binaryContentIds){
+        List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(binaryContents);
     }
 }

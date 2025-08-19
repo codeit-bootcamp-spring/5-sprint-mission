@@ -11,37 +11,32 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-// 메시지 수신 정보 관리
-// * [ ] 특정 채널의 메시지 수신 정보를 생성할 수 있다.
-// * [ ] 특정 채널의 메시지 수신 정보를 수정할 수 있다.
-// * [ ] 특정 사용자의 메시지 수신 정보를 조회할 수 있다.
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/readStatus")
 public class ReadStatusController {
     private final ReadStatusService readStatusService;
 
-    @RequestMapping(path = "/", method = RequestMethod.POST)
-    public ResponseEntity<ReadStatus> createReadStatus(@RequestBody ReadStatusCreateRequest createRequest){
-        ReadStatus readStatus = readStatusService.create(createRequest);
+    @RequestMapping(path = "create", method = RequestMethod.POST)
+    public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request){
+        ReadStatus readStatus = readStatusService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(readStatus);
     }
 
-    @RequestMapping(path = "update/{readStatusId}", method = RequestMethod.PUT)
-    public ResponseEntity<ReadStatus> updateReadStatus(
-            @PathVariable UUID readStatusId,
-            @RequestBody ReadStatusUpdateRequest updateRequest
+    @RequestMapping(path = "update", method = RequestMethod.PATCH)
+    public ResponseEntity<ReadStatus> update(
+            @RequestParam("readStatusId") UUID readStatusId,
+            @RequestBody ReadStatusUpdateRequest request
     ){
-        ReadStatus updateReadStatus = readStatusService.update(readStatusId, updateRequest);
-        return ResponseEntity.ok(updateReadStatus);
+        ReadStatus updateReadStatus = readStatusService.update(readStatusId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(updateReadStatus);
 
     }
 
-    @RequestMapping(path = "{userId}", method = RequestMethod.GET)
-    public ResponseEntity<List<ReadStatus>> findByUserId(@PathVariable("userId") UUID userId){
+    @RequestMapping(path = "findAllByUserId", method = RequestMethod.GET)
+    public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam("userId") UUID userId){
         List<ReadStatus> readStatuses = readStatusService.findAllByUserId(userId);
-        return ResponseEntity.ok(readStatuses);
+        return ResponseEntity.status(HttpStatus.OK).body(readStatuses);
     }
 
 

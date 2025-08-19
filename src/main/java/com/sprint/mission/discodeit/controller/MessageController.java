@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-// * [ ] 메시지를 보낼 수 있다.
-// * [ ] 메시지를 수정할 수 있다.
-// * [ ] 메시지를 삭제할 수 있다.
-// * [ ] 특정 채널의 메시지 목록을 조회할 수 있다.
 
 @RestController
 @RequiredArgsConstructor
@@ -50,25 +47,25 @@ public class MessageController {
         }
 
         Message message = messageService.create(messageCreateRequest, binaryContents);
-        return ResponseEntity.status(201).body(message);
+        return ResponseEntity.status(HttpStatus.CREATED).body(message);
     }
 
-    @RequestMapping(path = "update", method = RequestMethod.POST)
+    @RequestMapping(path = "update", method = RequestMethod.PATCH)
     public ResponseEntity<Message> update(
-        @RequestParam UUID messageId,
-        @RequestBody MessageUpdateRequest messageUpdateRequest){
-        messageService.update(messageId, messageUpdateRequest);
-        return ResponseEntity.status(204).build();
+        @RequestParam("messageId") UUID messageId,
+        @RequestBody MessageUpdateRequest request){
+        Message message = messageService.update(messageId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(message);
     }
 
     @RequestMapping(path = "delete", method = RequestMethod.DELETE)
-    public ResponseEntity<Message> delete(UUID messageId){
+    public ResponseEntity<Message> delete(@RequestParam("messageId") UUID messageId){
             messageService.delete(messageId);
             return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(path = "findAll/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Message>> findAll(@PathVariable("id") UUID channelId){
+    @RequestMapping(path = "findAll/{channelId}", method = RequestMethod.GET)
+    public ResponseEntity<List<Message>> findAll(@PathVariable("channelId") UUID channelId){
             List<Message> findByChannelId = messageService.findAllByChannelId(channelId);
             return ResponseEntity.ok().body(findByChannelId);
     }
