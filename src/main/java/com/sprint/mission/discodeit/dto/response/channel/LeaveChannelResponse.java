@@ -20,7 +20,7 @@ public class LeaveChannelResponse {
 
 	private LeaveChannelResponse(Channel channel, UUID userId, String userNickname) {
 		this.channelId = channel.getId();
-		this.channelName = channel.getChannelName();
+		this.channelName = channel.getName();
 		this.userId = userId;
 		this.userNickname = userNickname;
 		this.success = true;

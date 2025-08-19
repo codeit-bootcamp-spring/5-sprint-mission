@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.entity;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -23,14 +22,14 @@ public class User implements Serializable {
 	private final Instant createdAt;
 	private Instant updatedAt;
 	private String email;
-	private String loginId;
+	private String username;
 	private String password;
 	private String defaultNickname;
 	@Nullable
 	private UUID profileId;
 
-	public User(String loginId, String password, String defaultNickname, String email, @Nullable UUID profileId) {
-		this.loginId = loginId;
+	public User(String username, String password, String defaultNickname, String email, @Nullable UUID profileId) {
+		this.username = username;
 		this.password = password;
 		this.defaultNickname = defaultNickname;
 		this.email = email;
@@ -38,7 +37,6 @@ public class User implements Serializable {
 
 		id = UUID.randomUUID();
 		createdAt = Instant.now();
-		updatedAt = createdAt;
 	}
 
 	// 복사용
@@ -48,7 +46,7 @@ public class User implements Serializable {
 		this.updatedAt = original.updatedAt;
 		this.email = original.email;
 		this.profileId = original.profileId;
-		this.loginId = original.loginId;
+		this.username = original.username;
 		this.password = original.password;
 		this.defaultNickname = original.defaultNickname;
 	}

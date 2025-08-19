@@ -19,7 +19,7 @@ import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.binaryContent.CreateUserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
 import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefalutNicknameRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefaultNicknameRequest;
 import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.service.UserService;
@@ -28,7 +28,7 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 	private final UserService userService;
@@ -106,7 +106,8 @@ public class UserController {
 	}
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.PATCH)
-	public ResponseEntity<UserResponse> updateUserDefalutNickname(UpdateUserDefalutNicknameRequest request) {
+	public ResponseEntity<UserResponse> updateUserDefaultNickname(
+			UpdateUserDefaultNicknameRequest request) {
 		UserResponse userResponse = userService.updateUserDefalutNickname(request);
 
 		return ResponseEntity.ok(userResponse);

@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.sprint.mission.discodeit.dto.request.channel.*;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
@@ -9,8 +8,6 @@ import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.DeleteChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.JoinChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.LeaveChannelResponse;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.User;
 
 public interface ChannelService {
 	// 생성
@@ -28,7 +25,7 @@ public interface ChannelService {
 
 	// 수정
 	ChannelResponse updateUserNickname(UpdateUserNicknameRequest request);
-	ChannelResponse updateChannelName(UpdateChannelnameRequest request);
+	ChannelResponse updateChannel(UpdateChannelRequest request);
 
 	// 삭제
 	DeleteChannelResponse deleteChannel(DeleteChannelRequest request);

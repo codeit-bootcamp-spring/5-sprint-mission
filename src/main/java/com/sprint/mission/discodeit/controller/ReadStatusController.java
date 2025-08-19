@@ -21,7 +21,7 @@ import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/readstatus")
+@RequestMapping("/api/readStatuses")
 @RequiredArgsConstructor
 public class ReadStatusController {
 	private final ReadStatusService readStatusService;
@@ -38,9 +38,10 @@ public class ReadStatusController {
 		return ResponseEntity.ok(responses);
 	}
 
-	@RequestMapping(path = "/update", method = RequestMethod.GET)
-	public ResponseEntity<ReadStatusResponse> updateReadStatus(@ModelAttribute UpdateReadStatusRequest request) {
-		ReadStatusResponse response = readStatusService.updateByChannelIdAndUserId(request);
+	@RequestMapping(path = "/{id}}", method = RequestMethod.GET)
+	public ResponseEntity<ReadStatusResponse> updateReadStatus(@RequestParam("readStatusId") UUID readStatusId,
+			@RequestBody UpdateReadStatusRequest request) {
+		ReadStatusResponse response = readStatusService.updateById(readStatusId, request);
 		return ResponseEntity.ok(response);
 	}
 

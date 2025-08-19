@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
 import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefalutNicknameRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefaultNicknameRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.response.user.DeleteUserResponse;
@@ -115,7 +115,7 @@ public class BasicUserService implements UserService {
 	}
 
 	@Override
-	public UserResponse updateUserDefalutNickname(UpdateUserDefalutNicknameRequest request) {
+	public UserResponse updateUserDefalutNickname(UpdateUserDefaultNicknameRequest request) {
 		User user = userRepository.findById(request.getId())
 			.orElseThrow(UserNotFoundException::new);
 

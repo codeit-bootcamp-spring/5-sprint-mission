@@ -19,7 +19,7 @@ public class DeleteChannelResponse {
 
 	private DeleteChannelResponse(Channel channel) {
 		this.channelId = channel.getId();
-		this.channelName = channel.getChannelName();
+		this.channelName = channel.getName();
 		this.type = channel.getType();
 		this.success = true;
 	}

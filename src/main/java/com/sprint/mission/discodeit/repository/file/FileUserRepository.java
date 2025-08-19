@@ -61,12 +61,12 @@ public class FileUserRepository implements UserRepository {
 
 		User existingUser = userMap.get(user.getId());
 		if (existingUser != null) {
-			loginIdToUUID.remove(existingUser.getLoginId());
+			loginIdToUUID.remove(existingUser.getUsername());
 			emailToUUID.remove(existingUser.getEmail());
 		}
 
 		userMap.put(user.getId(), user);
-		loginIdToUUID.put(user.getLoginId(), user.getId());
+		loginIdToUUID.put(user.getUsername(), user.getId());
 		emailToUUID.put(user.getEmail(), user.getId());
 
 		saveFile();
@@ -121,7 +121,7 @@ public class FileUserRepository implements UserRepository {
 
 		User user = userMap.get(id);
 		if (user != null) {
-			loginIdToUUID.remove(user.getLoginId());
+			loginIdToUUID.remove(user.getUsername());
 			userMap.remove(id);
 			emailToUUID.remove(user.getEmail());
 

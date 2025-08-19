@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.dto.response.channel;
 
-import java.time.Instant;
 import java.util.UUID;
 
 import com.sprint.mission.discodeit.entity.Channel;
@@ -21,7 +20,7 @@ public class JoinChannelResponse {
 
 	private JoinChannelResponse(Channel channel, UUID userId, String userNickname) {
 		this.channelId = channel.getId();
-		this.channelName = channel.getChannelName();
+		this.channelName = channel.getName();
 		this.userId = userId;
 		this.userNickname = userNickname;
 		this.success = true;

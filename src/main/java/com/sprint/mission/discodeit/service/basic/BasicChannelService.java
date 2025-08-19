@@ -15,7 +15,7 @@ import com.sprint.mission.discodeit.dto.request.channel.GetChannelBychannelName;
 import com.sprint.mission.discodeit.dto.request.channel.GetChannelsByUserRequest;
 import com.sprint.mission.discodeit.dto.request.channel.JoinChannelRequest;
 import com.sprint.mission.discodeit.dto.request.channel.LeaveChannelRequest;
-import com.sprint.mission.discodeit.dto.request.channel.UpdateChannelnameRequest;
+import com.sprint.mission.discodeit.dto.request.channel.UpdateChannelRequest;
 import com.sprint.mission.discodeit.dto.request.channel.UpdateUserNicknameRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
@@ -156,28 +156,29 @@ public class BasicChannelService implements ChannelService {
 	}
 
 
-	// 수정된 updateChannelName 메서드
+	// updateChannel 메서드
 	@Override
-	public ChannelResponse updateChannelName(UpdateChannelnameRequest request) {
+	public ChannelResponse updateChannel(UpdateChannelRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
 			.orElseThrow(ChannelNotFoundException::new);
-
-		if (channelRepository.existsByName(request.getChannelNewName())) {
-			throw new DuplicateChannelNameException();
-		}
 
 		if (channel.getType().equals("PRIVATE")) {
 			throw new PrivateChannelUpdateException();
 		}
 
-		channel.updateChannelName(request.getChannelNewName());
+		if (channelRepository.existsByName(request.getNewName())) {
+			throw new DuplicateChannelNameException();
+		}
+
+		channel.setName(request.getNewName());
+		channel.setDescription(request.getNewDescription());
 		channel.updateUpdatedAt();
 		channelRepository.save(channel);
 
 		return createChannelByType(channel);
 	}
 
-	// 수정된 updateUserNickname 메서드
+	// updateUserNickname 메서드
 	@Override
 	public ChannelResponse updateUserNickname(UpdateUserNicknameRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())

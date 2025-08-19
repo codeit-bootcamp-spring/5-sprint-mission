@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sprint.mission.discodeit.dto.request.user.CreateUserRequest;
-import com.sprint.mission.discodeit.dto.request.user.DeleteUserByIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.DeleteUserByLoingIdRequest;
 import com.sprint.mission.discodeit.dto.request.user.GetUserByIdRequest;
-import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefalutNicknameRequest;
+import com.sprint.mission.discodeit.dto.request.user.UpdateUserDefaultNicknameRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserPasswordRequest;
 import com.sprint.mission.discodeit.dto.request.user.UpdateUserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
@@ -26,7 +24,7 @@ public interface UserService {
 	// 수정
 	UpdateUserPasswordResponse updateUserPassword(UpdateUserPasswordRequest request);
 	UserResponse updateUserProfile(UpdateUserProfileImageRequest request);
-	UserResponse updateUserDefalutNickname(UpdateUserDefalutNicknameRequest request);
+	UserResponse updateUserDefalutNickname(UpdateUserDefaultNicknameRequest request);
 	
 	// 삭제
 	DeleteUserResponse delete(UUID id);

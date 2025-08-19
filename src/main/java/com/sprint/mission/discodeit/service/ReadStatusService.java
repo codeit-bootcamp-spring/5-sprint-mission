@@ -12,7 +12,7 @@ public interface ReadStatusService {
 	ReadStatusResponse getById(UUID id);
 	List<ReadStatusResponse> getAllByUserId(UUID userId);
 	List<ReadStatusResponse> getAllByChannelId(UUID channelId);
-	ReadStatusResponse updateByChannelIdAndUserId(UpdateReadStatusRequest request);
-	ReadStatusResponse updateById(UUID id);
+	ReadStatusResponse updateByChannelIdAndUserId(UUID channelId, UUID userId, UpdateReadStatusRequest request);
+	ReadStatusResponse updateById(UUID id, UpdateReadStatusRequest request);
 	ReadStatusResponse delete(UUID id);
 }

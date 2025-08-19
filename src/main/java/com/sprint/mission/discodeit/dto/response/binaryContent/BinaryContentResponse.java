@@ -24,10 +24,10 @@ public class BinaryContentResponse {
 	private BinaryContentResponse(BinaryContent binaryContent) {
 		this.id = binaryContent.getId();
 		this.createdAt = binaryContent.getCreatedAt();
-		this.filename = binaryContent.getFilename();
+		this.filename = binaryContent.getFileName();
 		this.contentType = binaryContent.getContentType();
 		this.size = binaryContent.getSize();
-		this.content = binaryContent.getContent();
+		this.content = binaryContent.getBytes();
 		this.success = true;
 	}
 

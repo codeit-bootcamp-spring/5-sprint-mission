@@ -26,7 +26,7 @@ public class DeleteUserResponse {
 		this.email = user.getEmail();
 		this.createdAt = user.getCreatedAt();
 		this.updatedAt = user.getUpdatedAt();
-		this.username = user.getLoginId(); // loginId는 username으로
+		this.username = user.getUsername(); // loginId는 username으로
 	}
 
 	public static DeleteUserResponse success(User user) {

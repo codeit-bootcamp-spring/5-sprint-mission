@@ -15,7 +15,7 @@ import com.sprint.mission.discodeit.dto.request.channel.CreatePublicChannelReque
 import com.sprint.mission.discodeit.dto.request.channel.DeleteChannelRequest;
 import com.sprint.mission.discodeit.dto.request.channel.GetChannelsByUserRequest;
 import com.sprint.mission.discodeit.dto.request.channel.JoinChannelRequest;
-import com.sprint.mission.discodeit.dto.request.channel.UpdateChannelnameRequest;
+import com.sprint.mission.discodeit.dto.request.channel.UpdateChannelRequest;
 import com.sprint.mission.discodeit.dto.request.channel.UpdateUserNicknameRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
@@ -26,7 +26,7 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/channel")
+@RequestMapping("/api/channels")
 @RequiredArgsConstructor
 public class ChannelController {
 	private final ChannelService channelService;
@@ -42,8 +42,8 @@ public class ChannelController {
 	}
 
 	@RequestMapping(path= "/update", method = RequestMethod.PATCH)
-	public ResponseEntity<ChannelResponse> updateChannel(@RequestBody UpdateChannelnameRequest request) {
-		ChannelResponse response = channelService.updateChannelName(request);
+	public ResponseEntity<ChannelResponse> updateChannel(@RequestBody UpdateChannelRequest request) {
+		ChannelResponse response = channelService.updateChannel(request);
 		return ResponseEntity.ok(response);
 	}
 

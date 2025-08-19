@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class UpdateUserDefalutNicknameRequest {
+public class UpdateUserDefaultNicknameRequest {
 	@NotNull
 	private UUID id;
 	@NotBlank(message = "닉네임 필수")

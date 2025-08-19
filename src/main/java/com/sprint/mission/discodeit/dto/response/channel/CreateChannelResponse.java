@@ -19,6 +19,7 @@ public class CreateChannelResponse {
 	private Instant createdAt;
 	private String channelName;
 	private String type; // PUBLIC or PRIVATE
+	private String description;
 	private boolean success;
 
 	@Nullable
@@ -28,8 +29,9 @@ public class CreateChannelResponse {
 	private CreateChannelResponse(Channel channel) {
 		this.id = channel.getId();
 		this.createdAt = channel.getCreatedAt();
-		this.channelName = channel.getChannelName();
+		this.channelName = channel.getName();
 		this.type = channel.getType();
+		this.description = channel.getDescription();
 		this.success = true;
 	}
 

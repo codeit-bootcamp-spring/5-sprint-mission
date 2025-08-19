@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto.response.channel;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -18,20 +19,26 @@ public class ChannelResponse {
 	private UUID id;
 	private Instant createdAt;
 	private Instant updatedAt;
+	@JsonProperty("name")
 	private String channelName;
+	private String description;
 	private String type; // PUBLIC or PRIVATE
 
-	@Nullable
-	private Instant lastMessageTime;
 
 	@Nullable
+	@JsonProperty("lastMessageAt")
+	private Instant lastMessageTime;
+
+
+	@Nullable
+	@JsonProperty("participantIds")
 	private List<UUID> memberIds;
 
 	private ChannelResponse(Channel channel, @Nullable Instant lastMessageTime, @Nullable List<UUID> participantIds) {
 		this.id = channel.getId();
 		this.createdAt = channel.getCreatedAt();
 		this.updatedAt = channel.getUpdatedAt();
-		this.channelName = channel.getChannelName();
+		this.channelName = channel.getName();
 		this.type = channel.getType();
 		this.lastMessageTime = lastMessageTime;
 		this.memberIds = participantIds;

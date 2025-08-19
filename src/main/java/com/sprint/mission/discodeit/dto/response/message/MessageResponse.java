@@ -29,7 +29,7 @@ public class MessageResponse {
 		this.updatedAt = message.getUpdatedAt();
 		this.authorId = message.getAuthorId();
 		this.channelId = message.getChannelId();
-		this.text = message.getText();
+		this.text = message.getContent();
 		this.attachmentIds = message.getAttachmentIds();
 		this.success = true;
 	}

@@ -16,19 +16,19 @@ import lombok.Data;
 public class Base64BinaryContentResponse {
 	private UUID id;
 	private Instant createdAt;
-	private String filename;
+	private String fileName;
 	private String contentType;
 	private Long size;
-	private String bytes; // base64Content -> bytes로 변경
+	private String bytes;
 	private boolean success;
 
 	private Base64BinaryContentResponse(BinaryContent binaryContent) {
 		this.id = binaryContent.getId();
 		this.createdAt = binaryContent.getCreatedAt();
-		this.filename = binaryContent.getFilename();
+		this.fileName = binaryContent.getFileName();
 		this.contentType = binaryContent.getContentType();
 		this.size = binaryContent.getSize();
-		this.bytes = Base64.getEncoder().encodeToString(binaryContent.getContent());
+		this.bytes = Base64.getEncoder().encodeToString(binaryContent.getBytes());
 		this.success = true;
 	}
 
@@ -40,7 +40,7 @@ public class Base64BinaryContentResponse {
 		return Base64BinaryContentResponse.builder()
 			.id(response.getId())
 			.createdAt(response.getCreatedAt())
-			.filename(response.getFilename())
+			.fileName(response.getFilename())
 			.contentType(response.getContentType())
 			.size(response.getSize())
 			.bytes(Base64.getEncoder().encodeToString(response.getContent()))

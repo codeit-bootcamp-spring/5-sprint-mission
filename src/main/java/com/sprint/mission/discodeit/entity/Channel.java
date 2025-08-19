@@ -26,14 +26,15 @@ public class Channel implements Serializable {
 	private final Instant createdAt;
 	private String type = "PUBLIC"; // 채널 타입, PUBLIC 또는 PRIVATE
 	private Instant updatedAt;
-	private String channelName;
+	private String name;
 	private final List<UUID> memberIds;
 	// userUUID
 	private final Map<UUID, String> userNicknames;
+	private String description;
 
 
-	public Channel(String channelName) {
-		this.channelName = Objects.requireNonNull(channelName, "채널 이름은 필수 입력값입니다.");
+	public Channel(String name) {
+		this.name = Objects.requireNonNull(name, "채널 이름은 필수 입력값입니다.");
 		memberIds = new ArrayList<>();
 		userNicknames = new ConcurrentHashMap<UUID, String>();
 
@@ -50,7 +51,7 @@ public class Channel implements Serializable {
 
 		id = UUID.randomUUID();
 		type = "PRIVATE";
-		channelName = "private-"+id;
+		name = "private-"+id;
 		createdAt = Instant.now();
 		updatedAt = createdAt;
 		this.memberIds.addAll(uniqueUserIds);
@@ -61,9 +62,10 @@ public class Channel implements Serializable {
 		this.createdAt = original.createdAt;
 		this.memberIds = new ArrayList<>(original.memberIds);
 		this.userNicknames = new HashMap<>(original.userNicknames);
-		this.channelName = original.channelName;
+		this.name = original.name;
 		this.updatedAt = original.updatedAt;
 		this.type = original.type;
+		this.description = original.description;
 	}
 
 	public String getUserNickname(UUID userUUID) {
@@ -74,14 +76,9 @@ public class Channel implements Serializable {
 		this.updatedAt = Instant.now();
 	}
 
-	public void updateChannelName(String channelName) {
-		this.channelName = channelName;
-	}
-
 	public void addUser(UUID userUUID) {
 		this.memberIds.add(userUUID);
 	}
-
 
 	public void addNickname(UUID userUUID, String nickname) {
 		this.userNicknames.put(userUUID, nickname);
@@ -90,7 +87,6 @@ public class Channel implements Serializable {
 	public void removeUser(UUID userUUID) {
 		this.memberIds.remove(userUUID);
 	}
-
 
 	public void removeNickname(UUID userUUID) {
 		this.userNicknames.remove(userUUID);

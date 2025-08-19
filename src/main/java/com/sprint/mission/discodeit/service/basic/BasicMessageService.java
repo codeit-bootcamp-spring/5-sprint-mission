@@ -104,7 +104,7 @@ public class BasicMessageService implements MessageService {
 			throw new UnauthorizedMessageAccessException();
 		}
 
-		message.updateText(request.getText());
+		message.setContent(request.getText());
 
 		if (!request.getAttachmentIdsToRemove().isEmpty()) {
 			for (UUID attachmentId : request.getAttachmentIdsToRemove()) {
@@ -139,7 +139,7 @@ public class BasicMessageService implements MessageService {
 	}
 
 	private void addAttachments(Message message, List<CreateBinaryContentRequest> attachments) {
-		if (!attachments.isEmpty()) {
+		if (attachments != null && !attachments.isEmpty()) {
 			for (CreateBinaryContentRequest attachment : attachments) {
 				BinaryContent binaryContent = new BinaryContent(
 					attachment.getFilename(),

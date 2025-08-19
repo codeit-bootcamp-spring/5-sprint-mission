@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -37,7 +36,7 @@ public class  CreateUserRequest {
 				.createdAt(now)
 				.updatedAt(now)
 				.profileId(profileId)
-				.loginId(username)
+				.username(username)
 				.password(password)
 				.defaultNickname(defaultNickname)
 				.email(email)
