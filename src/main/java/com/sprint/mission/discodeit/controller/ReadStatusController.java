@@ -19,10 +19,17 @@ public class ReadStatusController {
     private final ReadStatusService readStatusService;
 
     // ✅ 특정 채널 메세지 수신 정보 생성
-    @PostMapping
-    public ResponseEntity<Void> create(@RequestBody ReadStatusCreateRequest request) {
-        readStatusService.create(request);
-        return ResponseEntity.ok().build();
+    @PostMapping("/create")
+    public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
+        ReadStatus created = readStatusService.create(request);
+        return ResponseEntity.status(201).body(created);
+    }
+
+    // ✅ 특정 채널 수신정보 수정
+    @PutMapping("/update")
+    public ResponseEntity<ReadStatus> update(@RequestBody ReadStatusUpdateRequest request) {
+        ReadStatus updated = readStatusService.update(request);
+        return ResponseEntity.ok(updated);
     }
 
     // ✅ 특정 사용자 수신 정보 조회
@@ -33,16 +40,9 @@ public class ReadStatusController {
     }
 
     // ✅ 유저별 전체 읽음 상태 조회
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ReadStatus>> findAllByUserId(@PathVariable UUID userId) {
+    @GetMapping("/findAllByUserId")
+    public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam("userId") UUID userId) {
         return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
-    }
-
-    // ✅ 특정 채널 수신정보 수정
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> update(@PathVariable UUID id, @RequestBody ReadStatusUpdateRequest request) {
-        readStatusService.update(request);
-        return ResponseEntity.ok().build();
     }
 
     // ✅ 채널 기반 삭제
