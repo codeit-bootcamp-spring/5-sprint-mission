@@ -57,7 +57,7 @@ public class ChannelService {
     if (users.size() != ids.size()) {
       Set<UUID> found = users.stream().map(User::getId).collect(Collectors.toSet());
       UUID missing = ids.stream().filter(id -> !found.contains(id)).findFirst().orElse(null);
-      throw new NotFoundException("유저를 찾을 수 없습니다: " + missing);
+      throw new NotFoundException("User with id %s not found".formatted(missing));
     }
 
     Channel c = channelRepository.save(new Channel(ids));
@@ -71,7 +71,7 @@ public class ChannelService {
   @Transactional
   public void delete(UUID channelId) {
     if (!channelRepository.softDeleteById(channelId)) {
-      throw new NotFoundException("채널을(를) 찾을 수 없습니다: " + channelId);
+      throw new NotFoundException("Channel with id %s not found".formatted(channelId));
     }
   }
 

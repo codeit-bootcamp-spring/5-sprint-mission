@@ -20,7 +20,7 @@ public class FileBinaryContentRepository extends AbstractFileRepository<BinaryCo
 
   @Override
   protected String getEntityTypeName() {
-    return "바이너리 컨텐츠";
+    return "Binary Content";
   }
 
   @Override

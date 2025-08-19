@@ -58,15 +58,17 @@ public class FriendRequestService {
   @Transactional
   public FriendRequestResponse send(FriendRequestSendRequest body) {
     User sender = userRepository.findById(body.senderId())
-        .orElseThrow(() -> new NotFoundException("유저가 존재하지 않습니다: " + body.senderId()));
+        .orElseThrow(
+            () -> new NotFoundException("User with id %s not found".formatted(body.senderId())));
     User receiver = userRepository.findByUsername(body.receiverUsername())
-        .orElseThrow(() -> new NotFoundException("유저가 존재하지 않습니다."));
+        .orElseThrow(() -> new NotFoundException(
+            "User with username %s not found".formatted(body.receiverUsername())));
 
     if (sender.isFriend(receiver.getId())) {
-      throw new IllegalArgumentException("이미 친구입니다.");
+      throw new IllegalArgumentException("Already friends");
     }
     if (existsFriendRequestEitherWay(sender.getId(), receiver.getId())) {
-      throw new IllegalArgumentException("친구 요청이 이미 존재합니다.");
+      throw new IllegalArgumentException("Friend request already exists");
     }
 
     FriendRequest fr = friendRequestRepository.save(
@@ -139,7 +141,7 @@ public class FriendRequestService {
         .collect(Collectors.toMap(User::getId, Function.identity()));
     for (UUID id : set) {
       if (!map.containsKey(id)) {
-        throw new NotFoundException("유저가 존재하지 않습니다: " + id);
+        throw new NotFoundException("User with id %s not found".formatted(id));
       }
     }
     return map;

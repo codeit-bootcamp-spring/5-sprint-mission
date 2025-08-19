@@ -91,7 +91,7 @@ public class BinaryContentController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable("id") UUID id) {
     if (!binaryContentService.delete(id)) {
-      throw new NotFoundException("바이너리 컨텐츠를 찾을 수 없습니다: " + id);
+      throw new NotFoundException("BinaryContent with id %s not found".formatted(id));
     }
   }
 

@@ -7,8 +7,8 @@ import com.sprint.mission.discodeit.dto.request.user.UserUpdatePhoneNumberReques
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateUsernameRequest;
-import com.sprint.mission.discodeit.dto.response.user.UserCreateResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
 import com.sprint.mission.discodeit.service.binarycontent.BinaryContentService;
 import com.sprint.mission.discodeit.service.user.UserService;
 import com.sprint.mission.discodeit.support.FileNames;
@@ -60,11 +60,11 @@ public class UserController {
     if (u != null && e != null) {
       throw new IllegalArgumentException("username과 email은 동시에 포함될 수 없습니다.");
     }
-    if (u != null && u.length() < 2) {
-      throw new IllegalArgumentException("username은 2자 이상이어야 합니다.");
+    if (u != null && (u.length() < 2 || u.length() > 32)) {
+      throw new IllegalArgumentException("username은 크기가 2에서 32 사이여야 합니다.");
     }
-    if (e != null && e.length() < 6) {
-      throw new IllegalArgumentException("email은 6자 이상이어야 합니다.");
+    if (e != null && (e.length() < 6 || e.length() > 254)) {
+      throw new IllegalArgumentException("email은 크기가 6에서 254 사이여야 합니다.");
     }
     if (u != null) {
       return userService.findByUsername(u);
@@ -77,7 +77,7 @@ public class UserController {
 
   @PostMapping(path = {"", "/"}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  public UserCreateResponse create(
+  public UserSaveResponse create(
       @RequestPart("userCreateRequest") @Valid UserCreateRequest req,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) throws HttpMediaTypeNotSupportedException, IOException {

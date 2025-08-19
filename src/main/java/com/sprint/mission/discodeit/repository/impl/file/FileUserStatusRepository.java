@@ -48,7 +48,7 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
   public UserStatus getOrThrowByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
     return findByUserId(userId).orElseThrow(
-        () -> new NotFoundException("UserStatus not found: " + userId));
+        () -> new NotFoundException("UserStatus with id %s not found".formatted(userId)));
   }
 
   @Override

@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.domain.entity.User;
 import java.time.Instant;
 import java.util.UUID;
 
-public record UserCreateResponse(
+public record UserSaveResponse(
     UUID id,
     Instant createdAt,
     Instant updatedAt,
@@ -14,8 +14,8 @@ public record UserCreateResponse(
     UUID profileId
 ) {
 
-  public static UserCreateResponse from(User u) {
-    return new UserCreateResponse(
+  public static UserSaveResponse from(User u) {
+    return new UserSaveResponse(
         u.getId(),
         u.getCreatedAt(),
         u.getUpdatedAt(),

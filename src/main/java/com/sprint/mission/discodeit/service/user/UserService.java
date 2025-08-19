@@ -14,8 +14,8 @@ import com.sprint.mission.discodeit.dto.request.user.UserUpdatePhoneNumberReques
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileSettingsRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateUsernameRequest;
-import com.sprint.mission.discodeit.dto.response.user.UserCreateResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -99,7 +99,7 @@ public class UserService {
   }
 
   @Transactional
-  public UserCreateResponse create(UserCreateRequest req, MultipartFile profile)
+  public UserSaveResponse create(UserCreateRequest req, MultipartFile profile)
       throws IOException {
     String email = stripToLowerCase(req.email());
     if (userRepository.existsByEmail(email)) {
@@ -138,13 +138,13 @@ public class UserService {
     UserStatus userStatus = new UserStatus(saved.getId());
     userStatusRepository.save(userStatus);
 
-    return UserCreateResponse.from(saved);
+    return UserSaveResponse.from(saved);
   }
 
   public UserResponse find(UUID userId) {
     return userRepository.findById(userId)
         .map(this::toResponse)
-        .orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다: " + userId));
+        .orElseThrow(() -> new NotFoundException("User with id %s not found".formatted(userId)));
   }
 
   @Transactional
@@ -210,7 +210,7 @@ public class UserService {
       throw new IllegalArgumentException("기존과 동일한 이메일입니다.");
     }
     if (userRepository.existsByEmail(email)) {
-      throw new DuplicateResourceException("중복된 이메일이 존재합니다.");
+      throw new DuplicateResourceException("User with email %s already exists");
     }
     try {
       update(userId, u -> u.changeEmail(email));
@@ -267,7 +267,7 @@ public class UserService {
 
   public List<UserResponse> getFriends(UUID userId) {
     Set<UUID> ids = userRepository.findById(userId).orElseThrow(
-        () -> new NotFoundException("유저를 찾을 수 없습니다.")
+        () -> new NotFoundException("User with id %s not found".formatted(userId))
     ).getFriendIds();
     return userRepository.findAllByIds(ids).stream()
         .map(this::toResponse)

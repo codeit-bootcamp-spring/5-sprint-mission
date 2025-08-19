@@ -16,7 +16,6 @@ users_root:
           minLength: 2
           maxLength: 32
           pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
-        required: false
         description: username으로 사용자 검색 (서버에서 strip+lowercase 정규화)
       - in: query
         name: email
@@ -25,7 +24,6 @@ users_root:
           format: email
           minLength: 6
           maxLength: 254
-        required: false
         description: email로 사용자 검색 (서버에서 strip+lowercase 정규화)
     responses:
       '200':
@@ -103,17 +101,15 @@ users_root:
         content:
           application/json:
             schema:
-              $ref: '../schemas/user.yaml#/UserCreateResponse'
+              $ref: '../schemas/user.yaml#/UserSaveResponse'
             example:
-              {
-                "id": "e6681542-a6b1-43f3-b759-6dc9cfebcf41",
-                "createdAt": "2025-08-18T14:26:12.176736Z",
-                "updatedAt": "2025-08-18T14:26:12.176736Z",
-                "username": "test",
-                "email": "test@codeit.com",
-                "password": "$2a$10$dWaZkA5OoFmhdht9dizPvOGRoHd1vWjwib/U7ooQ.tLMdG3zSEORK",
-                "profileId": "d6703e18-89e6-4722-bfc1-cc253bb7046f"
-              }
+              id: "e6681542-a6b1-43f3-b759-6dc9cfebcf41"
+              createdAt: "2025-08-18T14:26:12.176736Z"
+              updatedAt: "2025-08-18T14:26:12.176736Z"
+              username: "test"
+              email: "test@codeit.com"
+              password: "$2a$10$dWaZkA5OoFmhdht9dizPvOGRoHd1vWjwib/U7ooQ.tLMdG3zSEORK"
+              profileId: "d6703e18-89e6-4722-bfc1-cc253bb7046f"
       '400':
         description: Field validation/JSON parsing 오류
         content:
@@ -197,239 +193,159 @@ users_root:
                   details:
                     - "Content-Type 'image/vnd.microsoft.icon' is not supported"
 user_by_id:
-  get:
-    tags:
-    summary: 사용자 단건 조회
-    description: ID(UUID)로 사용자를 조회합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-        description: 사용자 UUID
-    responses:
-      '200':
-        description: OK
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/user.yaml#/UserResponse'
-      '404':
-        $ref: '../responses/errors.yaml#/NotFound'
-
   delete:
     tags:
       - User
-    summary: 사용자 삭제 (소프트 삭제)
-    description: |
-      사용자 계정을 소프트 삭제합니다.
-      또한 사용자가 **owner**인 길드를 소프트 삭제하고,
-      해당 사용자가 보낸/받은 **친구 요청**도 함께 소프트 삭제합니다.
+    summary: User 삭제
+    operationId: delete
     parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-        description: 사용자 UUID
-    responses:
-      '204':
-        description: No Content
-      '404': { $ref: '../responses/errors.yaml#/NotFound' }
-
-user_profile_settings:
-  patch:
-    tags:
-      - User
-    summary: 프로필 설정 변경
-    description: globalName, bio를 수정합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserUpdateProfileSettingsRequest'
-          example:
-            globalName: Alice
-            bio: Hello, world!
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../responses/errors.yaml#/BadRequest' }
-      '404': { $ref: '../responses/errors.yaml#/NotFound' }
-
-user_profile_image:
-  put:
-    tags:
-      - User
-    summary: 프로필 이미지 변경
-    description: |
-      Binary Content로 업로드한 profileId를 업데이트합니다.
-      기존 이미지가 있다면 서버 정책에 따라 정리됩니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserUpdateProfileImageRequest'
-          example:
-            profileId: "b9a9a9c2-3d3b-4f0a-b5a1-1f2a4c6b7d8e"
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../responses/errors.yaml#/BadRequest' }
-      '404': { $ref: '../responses/errors.yaml#/NotFound' }
-
-  delete:
-    tags:
-      - User
-    summary: 프로필 이미지 제거
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../responses/errors.yaml#/BadRequest' }
-      '404': { $ref: '../responses/errors.yaml#/NotFound' }
-
-user_email:
-  put:
-    tags:
-      - User
-    summary: 이메일 변경
-    description: 이메일을 변경합니다. 중복 시 409를 반환합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserUpdateEmailRequest'
-          example:
-            email: "alice.new@example.com"
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../responses/errors.yaml#/BadRequest' }
-      '404': { $ref: '../responses/errors.yaml#/NotFound' }
-      '409': { $ref: '../responses/errors.yaml#/Conflict' }
-
-user_username:
-  put:
-    tags:
-      - User
-    summary: 사용자명 변경
-    description: 사용자명을 변경합니다. 중복 시 409를 반환합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserUpdateUsernameRequest'
-          example:
-            username: "alice.k"
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../responses/errors.yaml#/BadRequest' }
-      '404': { $ref: '../responses/errors.yaml#/NotFound' }
-      '409': { $ref: '../responses/errors.yaml#/Conflict' }
-
-user_password:
-  put:
-    tags:
-      - User
-    summary: 비밀번호 변경
-    description: 동일한 비밀번호로 변경 시 409를 반환합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserUpdatePasswordRequest'
-          example:
-            password: "N3wP@ssw0rd!"
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../responses/errors.yaml#/BadRequest' }
-      '404': { $ref: '../responses/errors.yaml#/NotFound' }
-      '409': { $ref: '../responses/errors.yaml#/Conflict' }
-
-user_phone_number:
-  put:
-    tags:
-      - User
-    summary: 전화번호 등록/변경
-    description: E.164 형식(`+`로 시작, 숫자 8~15자리)만 허용합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserUpdatePhoneNumberRequest'
-          examples:
-            e164:
-              summary: E.164 예시
-              value: { phoneNumber: "+821012345678" }
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../responses/errors.yaml#/BadRequest' }
-      '404': { $ref: '../responses/errors.yaml#/NotFound' }
-
-  delete:
-    tags:
-      - User
-    summary: 전화번호 제거
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    responses:
-      '204': { description: No Content }
-      '404': { $ref: '../responses/errors.yaml#/NotFound' }
-
-user_deactivation:
-  post:
-    tags:
-      - User
-    summary: 계정 비활성화
-    description: 계정을 비활성화합니다. (소프트 삭제와는 다름)
-    parameters:
-      - in: path
-        name: id
+      - name: userId
+        in: path
+        description: 삭제할 User ID
         required: true
         schema:
           type: string
           format: uuid
     responses:
       '204':
-        description: No Content
+        description: User가 성공적으로 삭제됨
       '404':
-        $ref: '../responses/errors.yaml#/NotFound'
+        description: User를 찾을 수 없음
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            example:
+              timestamp: "2025-08-17T15:30:02Z"
+              path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+              method: "DELETE"
+              status: 404
+              code: "NOT_FOUND"
+              message: "User with id 983ef160-4389-4d80-aadc-13a772525173 not found"
+  patch:
+    tags:
+      - User
+    summary: User 정보 수정
+    operationId: update
+    parameters:
+      - name: userId
+        in: path
+        description: 수정할 User ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              userUpdateRequest:
+                $ref: "../schemas/user.yaml#/UserUpdateRequest"
+              profile:
+                type: string
+                format: binary
+                description: 수정할 User 프로필 이미지
+            required:
+              - userUpdateRequest
+          encoding:
+            userCreateRequest:
+              contentType: application/json
+    responses:
+      '200':
+        description: User 정보가 성공적으로 수정됨
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/user.yaml#/UserResponse'
+            example:
+              id: "e6681542-a6b1-43f3-b759-6dc9cfebcf41"
+              createdAt: "2025-08-18T14:26:12.176736Z"
+              updatedAt: "2025-08-18T14:26:12.176736Z"
+              username: "test"
+              email: "test@codeit.com"
+              password: "$2a$10$dWaZkA5OoFmhdht9dizPvOGRoHd1vWjwib/U7ooQ.tLMdG3zSEORK"
+              profileId: "d6703e18-89e6-4722-bfc1-cc253bb7046f"
+      '400':
+        description: Field validation/JSON parsing 오류
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            examples:
+              invalidField:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+                  method: "PATCH"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "입력 값이 유효하지 않습니다."
+                  details:
+                    - "newEmail: 올바른 형식의 이메일 주소여야 합니다"
+                    - "newEmail: 크기가 6에서 254 사이여야 합니다"
+                    - "newUsername: 크기가 2에서 32 사이여야 합니다"
+                    - "newUsername: 공백일 수 없습니다"
+                    - "newUsername: \"^(?!.*\\.\\.)[A-Za-z0-9._]+$\"와 일치해야 합니다"
+                    - "newPassword: 크기가 8에서 72 사이여야 합니다"
+              invalidJSON:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+                  method: "PATCH"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  details:
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 1]"
+      '409':
+        description: 같은 email 또는 username를 사용하는 User가 이미 존재함
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              duplicateEmail:
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+                  method: "PATCH"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "User with email {email} already exists"
+              duplicateUsername:
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+                  method: "PATCH"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "User with username {username} already exists"
+      '415':
+        description: userCreateRequest가 application/json 형식이 아니거나, 이미지 파일의 타입이 지원되지 않음
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            examples:
+              invalidUserCreateRequest:
+                value:
+                  timestamp: "2025-08-19T07:13:02.116388Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 415
+                  code: "UNSUPPORTED_MEDIA_TYPE"
+                  message: "허용되지 않은 미디어 타입입니다. 지원되는 타입: application/json, application/yaml, application/*+json"
+                  details:
+                    - "Content-Type 'application/octet-stream' is not supported"
+              invalidProfile:
+                value:
+                  timestamp: "2025-08-19T07:13:02.116388Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 415
+                  code: "UNSUPPORTED_MEDIA_TYPE"
+                  message: "허용되지 않은 미디어 타입입니다. 지원되는 타입: application/octet-stream, image/png, image/jpeg, image/webp"
+                  details:
+                    - "Content-Type 'image/vnd.microsoft.icon' is not supported"

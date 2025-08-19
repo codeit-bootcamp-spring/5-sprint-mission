@@ -4,8 +4,9 @@ UserResponse:
     - id
     - createdAt
     - updatedAt
-    - email
     - username
+    - email
+    - profileId
     - online
   properties:
     id:
@@ -55,8 +56,15 @@ UserCreateRequest:
       maxLength: 72
       description: 서버에서 해시 저장됨
 
-UserCreateResponse:
+UserSaveResponse:
   type: object
+  required:
+    - id
+    - createdAt
+    - updatedAt
+    - username
+    - email
+    - online
   properties:
     id:
       type: string
@@ -79,65 +87,31 @@ UserCreateResponse:
       format: uuid
       nullable: true
 
-UserUpdateProfileSettingsRequest:
+UserUpdateRequest:
   type: object
+  description: 수정할 User 정보
+  anyOf:
+    - required:
+        - newUsername
+    - required:
+        - newEmail
+    - required:
+        - newPassword
   properties:
-    globalName:
-      type: string
-      maxLength: 32
-      description: 빈 문자열은 서버에서 null 처리
-    bio:
-      type: string
-      maxLength: 2000
-
-UserUpdateProfileImageRequest:
-  type: object
-  required:
-    - profileId
-  properties:
-    profileId:
-      type: string
-      format: uuid
-
-UserUpdateEmailRequest:
-  type: object
-  required: [ email ]
-  properties:
-    email:
-      type: string
-      format: email
-      minLength: 6
-      maxLength: 254
-      description: 서버에서 strip+lowercase 정규화됨
-
-UserUpdateUsernameRequest:
-  type: object
-  required: [ username ]
-  properties:
-    username:
+    newUsername:
       type: string
       minLength: 2
       maxLength: 32
       pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
       description: 서버에서 strip+lowercase 정규화됨
-
-UserUpdatePasswordRequest:
-  type: object
-  required: [ password ]
-  properties:
-    password:
+    newEmail:
+      type: string
+      format: email
+      minLength: 6
+      maxLength: 254
+      description: 서버에서 strip+lowercase 정규화됨
+    newPassword:
       type: string
       minLength: 8
       maxLength: 72
-
-UserUpdatePhoneNumberRequest:
-  type: object
-  required: [ phoneNumber ]
-  properties:
-    phoneNumber:
-      type: string
-      description:
-        "E.164 국제 표준. 예: +821012345678"
-      pattern: "^\\+[1-9]\\d{7,14}$"
-      minLength: 9
-      maxLength: 16
+      description: 서버에서 해시 저장됨

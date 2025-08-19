@@ -52,7 +52,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   protected String getEntityTypeName() {
-    return "엔티티";
+    return "entity";
   }
 
   protected Path getDirectory() {
@@ -148,7 +148,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   @Override
   public T getOrThrow(UUID id) {
     return findById(id).orElseThrow(() ->
-        new NotFoundException(getEntityTypeName() + "를 찾을 수 없습니다: " + id));
+        new NotFoundException("%s with id %s not found".formatted(getEntityTypeName(), id)));
   }
 
   @Override

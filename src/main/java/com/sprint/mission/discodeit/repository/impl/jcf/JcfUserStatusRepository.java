@@ -20,7 +20,7 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
 
   @Override
   protected String getEntityTypeName() {
-    return "유저 상태";
+    return "UserStatus";
   }
 
   @Override
@@ -43,7 +43,7 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
   public UserStatus getOrThrowByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
     return findByUserId(userId).orElseThrow(
-        () -> new NotFoundException("UserStatus not found: " + userId));
+        () -> new NotFoundException("UserStatus with id %s not found".formatted(userId)));
   }
 
   @Override

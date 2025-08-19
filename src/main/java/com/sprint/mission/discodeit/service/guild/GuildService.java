@@ -45,7 +45,7 @@ public class GuildService {
   // public GuildResponse find(UUID guildId) {
   //   return guildRepository.findById(guildId)
   //       .map(GuildMapper::toGuildResponse)
-  //       .orElseThrow(() -> new NotFoundException("서버를 찾을 수 없습니다: " + guildId));
+  //       .orElseThrow(() -> new NotFoundException("Guild with id %s not found".formatted(guildId)));
   // }
   //
   // public List<GuildResponse> findAll() {
