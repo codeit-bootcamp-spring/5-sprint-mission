@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.request.chnanel;
+package com.sprint.mission.discodeit.dto.request.channel;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 public record PublicChannelCreateRequest(
 
     @NotBlank
-    @Size(min = 1, max = 100)
+    @Size(max = 100)
     String name,
 
     @Size(max = 1024)

@@ -36,7 +36,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   protected static final String EXTENSION = ".ser";
 
   private final Class<T> entityType;
-  private final Path directory;
+  protected final Path directory;
 
   protected AbstractFileRepository(Class<T> entityType, AppStorageProperties storageProperties) {
     this.entityType = entityType;

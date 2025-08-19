@@ -4,18 +4,16 @@ BadRequest:
     application/json:
       schema:
         $ref: '../schemas/error.yaml#/ApiError'
-      examples:
-        invalidJson:
-          value:
-            timestamp: "2025-08-16T12:34:56Z"
-            path: "/api/*"
-            method: "POST"
-            status: 400
-            code: "BAD_REQUEST"
-            message: "요청이 올바르지 않습니다."
-            details:
-              - "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
-              - "Unrecognized token 'True': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false') at line 7, column 35"
+      example:
+        timestamp: "2025-08-16T12:34:56Z"
+        path: "/api/*"
+        method: "POST"
+        status: 400
+        code: "BAD_REQUEST"
+        message: "요청이 올바르지 않습니다."
+        details:
+          - "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+          - "Unrecognized token 'True': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false') at line 7, column 35"
 
 NotFound:
   description: Not Found
@@ -25,7 +23,7 @@ NotFound:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/*/6c1c5c7a-6d7d-4e9d-8a1f-bb2b3c4d5e6f"
+        path: "/api/*"
         method: "GET"
         status: 404
         code: "NOT_FOUND"
@@ -43,10 +41,16 @@ Conflict:
         method: "POST"
         status: 409
         code: "CONFLICT"
-        message: "User with email {email} already exists"
+        message: "User with email alice@example.com already exists"
 
 MethodNotAllowed:
   description: Method Not Allowed
+  headers:
+    Allow:
+      description: 허용되는 메서드 목록(콤마 구분)
+      schema:
+        type:string
+      example: "GET, POST"
   content:
     application/json:
       schema:
@@ -58,8 +62,6 @@ MethodNotAllowed:
         status: 405
         code: "METHOD_NOT_ALLOWED"
         message: "허용되지 않은 HTTP 메서드입니다."
-        details:
-          - "허용되는 메서드: POST, GET"
 
 UnsupportedMediaType:
   description: Unsupported Media Type

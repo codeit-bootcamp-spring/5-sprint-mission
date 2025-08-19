@@ -2,7 +2,9 @@ user_statuses_root:
   post:
     tags: [ UserStatuses ]
     summary: 사용자 상태 변경
-    description: ONLINE, IDLE, DND, INVISIBLE, OFFLINE 중 하나로 상태를 변경합니다.<br>쿼리스트링에 userId를 포함해야 합니다.
+    description: |
+      ONLINE, IDLE, DND, INVISIBLE, OFFLINE 중 하나로 상태를 변경합니다.
+      쿼리스트링에 userId를 포함해야 합니다.
     operationId: updateUserStatusByUserId
     parameters:
       - in: query
@@ -62,7 +64,9 @@ user_statuses_heartbeat:
   post:
     tags: [ UserStatuses ]
     summary: 사용자 상태 하트비트
-    description: 하트비트를 갱신하여 사용자의 온라인 상태를 유지합니다.<br>쿼리스트링에 userId를 포함해야 합니다.
+    description: |
+      하트비트를 갱신하여 사용자의 온라인 상태를 유지합니다.
+      쿼리스트링에 userId를 포함해야 합니다.
     operationId: heartbeatUserStatus
     parameters:
       - in: query

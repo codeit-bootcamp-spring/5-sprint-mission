@@ -2,6 +2,40 @@ ChannelResponse:
   type: object
   required:
     - id
+    - type
+    - name
+    - description
+    - participantIds
+    - lastMessageAt
+  properties:
+    id:
+      type: string
+      format: uuid
+    type:
+      type: string
+      enum:
+        - PUBLIC
+        - PRIVATE
+    name:
+      type: string
+      nullable: true
+    description:
+      type: string
+      nullable: true
+    participantIds:
+      type: array
+      items:
+        type: string
+        format: uuid
+    lastMessageAt:
+      type: string
+      format: date-time
+      nullable: true
+
+ChannelSaveResponse:
+  type: object
+  required:
+    - id
     - createdAt
     - updatedAt
     - type
@@ -57,12 +91,11 @@ PrivateChannelCreateRequest:
         format: uuid
       minItems: 2
       maxItems: 10
+      uniqueItems: true
 
 PublicChannelUpdateRequest:
   type: object
   description: 수정할 Channel 정보
-  required:
-    - name
   properties:
     newName:
       type: string
@@ -71,3 +104,8 @@ PublicChannelUpdateRequest:
     newDescription:
       type: string
       maxLength: 1024
+  anyOf:
+    - required:
+        - newName
+    - required:
+        - newDescription

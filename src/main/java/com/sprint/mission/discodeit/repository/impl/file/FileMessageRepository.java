@@ -3,10 +3,19 @@ package com.sprint.mission.discodeit.repository.impl.file;
 import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -46,6 +55,29 @@ public class FileMessageRepository extends AbstractFileRepository<Message> imple
         .limit(lim)
         .sorted(Comparator.comparing(Message::getCreatedAt))
         .toList();
+  }
+
+  @Override
+  public Map<UUID, Instant> findLastMessageAtByChannelIds(Set<UUID> channelIds) {
+    if (channelIds == null || channelIds.isEmpty()) {
+      return Map.of();
+    }
+
+    try (Stream<Path> s = streamSerializedFiles()) {
+      return s
+          .map(this::readObject)
+          .flatMap(Optional::stream)
+          .filter(m -> !m.isDeleted())
+          .filter(m -> channelIds.contains(m.getChannelId()))
+          .filter(m -> m.getCreatedAt() != null)
+          .collect(Collectors.toMap(
+              Message::getChannelId,
+              Message::getCreatedAt,
+              BinaryOperator.maxBy(Comparator.naturalOrder())
+          ));
+    } catch (IOException e) {
+      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+    }
   }
 
   @Override

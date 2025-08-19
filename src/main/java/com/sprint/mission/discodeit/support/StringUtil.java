@@ -16,7 +16,7 @@ public final class StringUtil {
     return (s == null) ? null : s.strip().toLowerCase();
   }
 
-  public static String stripOrNull(String s) {
+  public static String nullOrStrip(String s) {
     return (s == null) ? null : s.strip();
   }
 

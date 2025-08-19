@@ -5,12 +5,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
 import java.time.Instant;
-import java.util.Set;
 import java.util.UUID;
 
-public record ChannelResponse(
+public record ChannelSaveResponse(
 
     UUID id,
+
+    Instant createdAt,
+
+    Instant updatedAt,
 
     ChannelType type,
 
@@ -18,21 +21,17 @@ public record ChannelResponse(
     String name,
 
     @JsonInclude(Include.ALWAYS)
-    String description,
-
-    Set<UUID> participantIds,
-
-    Instant lastMessageAt
+    String description
 ) {
 
-  public static ChannelResponse from(Channel c, Instant lastMessageAt) {
-    return new ChannelResponse(
+  public static ChannelSaveResponse from(Channel c) {
+    return new ChannelSaveResponse(
         c.getId(),
+        c.getCreatedAt(),
+        c.getUpdatedAt(),
         c.getType(),
         c.getName(),
-        c.getDescription(),
-        c.getParticipantIds(),
-        lastMessageAt
+        c.getDescription()
     );
   }
 }

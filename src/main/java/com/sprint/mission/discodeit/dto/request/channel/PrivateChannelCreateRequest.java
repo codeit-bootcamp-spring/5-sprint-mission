@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.request.chnanel;
+package com.sprint.mission.discodeit.dto.request.channel;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

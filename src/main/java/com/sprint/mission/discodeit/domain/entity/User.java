@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.domain.entity;
 import static com.sprint.mission.discodeit.support.StringUtil.digitsOnlyOrNull;
 import static com.sprint.mission.discodeit.support.StringUtil.normalizeEmail;
 import static com.sprint.mission.discodeit.support.StringUtil.normalizeUsername;
-import static com.sprint.mission.discodeit.support.StringUtil.stripOrNull;
+import static com.sprint.mission.discodeit.support.StringUtil.nullOrStrip;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -83,7 +83,7 @@ public class User extends AbstractEntity {
   }
 
   public void changeBio(String bio) {
-    String v = stripOrNull(bio);
+    String v = nullOrStrip(bio);
     assignIfChanged(v, () -> this.bio, x -> this.bio = x);
   }
 

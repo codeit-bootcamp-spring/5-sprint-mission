@@ -1,3 +1,72 @@
+channels_root:
+  get:
+    tags:
+      - Channel
+    summary: User가 참여 중인 Channel 목록 조회
+    operationId: findAll
+    parameters:
+      - name: userId
+        in: query
+        description: 조회할 User ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: Channel 목록 조회 성공
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/channel.yaml#/ChannelResponse'
+            example:
+              [
+                {
+                  "id": "5b98cf49-38ba-48ab-a4fc-0c335dee6e2c",
+                  "type": "PRIVATE",
+                  "name": null,
+                  "description": null,
+                  "participantIds": [
+                    "f77609a6-ad81-425a-85a9-0e7f04dcb769",
+                    "f7243a72-3831-4a0d-896e-b889ee4693de",
+                    "983ef160-4389-4d80-aadc-13a772525173",
+                    "d6831c9f-d9c3-45d8-bfd3-6c5b0976077e"
+                  ],
+                  "lastMessageAt": null
+                }
+              ]
+      '400':
+        description: userId parameter가 없거나 유효하지 않음
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            example:
+              timestamp: "2025-08-16T12:34:56Z"
+              path: "/api/channels"
+              method: "GET"
+              status: 400
+              code: "BAD_REQUEST"
+              message: "요청이 올바르지 않습니다."
+              details:
+                - "Required request parameter 'userId' for method parameter type UUID is not present"
+                - "Method parameter 'userId': Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'; Invalid UUID string: id"
+      '404':
+        description: User를 찾을 수 없음
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            example:
+              timestamp: "2025-08-16T12:34:56Z"
+              path: "/api/channels"
+              method: "GET"
+              status: 404
+              code: "NOT_FOUND"
+              message: "유저를 찾을 수 없습니다: f77609a6-ad81-425a-85a9-0e7f04dcb761"
+
 channels_public:
   post:
     tags:
@@ -17,7 +86,7 @@ channels_public:
         content:
           application/json:
             schema:
-              $ref: '../schemas/channel.yaml#/ChannelResponse'
+              $ref: '../schemas/channel.yaml#/ChannelSaveResponse'
       '400':
         description: Field validation/JSON parsing 오류
         content:
@@ -73,7 +142,7 @@ channels_private:
         content:
           application/json:
             schema:
-              $ref: '../schemas/channel.yaml#/ChannelResponse'
+              $ref: '../schemas/channel.yaml#/ChannelSaveResponse'
             example:
               id: "9b80f2ab-838d-49b5-881f-344fe310acdb"
               createdAt: "2025-08-19T09:07:47.200570Z"
@@ -111,7 +180,7 @@ channels_private:
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 3, column: 1]"
       '404':
-        description: participantIds 중 존재하지 않는 User가 존재함
+        description: participantIds에 존재하지 않는 User가 포함됨
         content:
           application/json:
             schema:
@@ -140,9 +209,9 @@ channel_by_id:
           type: string
           format: uuid
     responses:
-      "204":
+      '204':
         description: Channel이 성공적으로 삭제됨
-      "404":
+      '404':
         description: Channel을 찾을 수 없음
         content:
           application/json:
@@ -169,22 +238,25 @@ channel_by_id:
           type: string
           format: uuid
     requestBody:
+      required: true
       content:
         application/json:
           schema:
             $ref: '../schemas/channel.yaml#/PublicChannelUpdateRequest'
-        example:
-          newName: "새 이름"
-          newDescription: "새 설명"
+          example:
+            newDescription: ""
     responses:
-      "200":
+      '200':
         description: Channel 정보가 성공적으로 수정됨
         content:
           application/json:
             schema:
-              $ref: '../schemas/channel.yaml#/ChannelResponse'
+              $ref: '../schemas/channel.yaml#/ChannelSaveResponse'
       '400':
-        description: Private Channel은 수정할 수 없음<br>또는 Field validation/JSON parsing 오류
+        description: |
+          Private Channel은 수정할 수 없음
+          newName 또는 newDescription 모두 빈 값임
+          Field validation/JSON parsing 오류
         content:
           application/json:
             schema:
@@ -209,6 +281,7 @@ channel_by_id:
                   code: "VALIDATION_ERROR"
                   message: "입력 값이 유효하지 않습니다."
                   details:
+                    - "any: newName 또는 newDescription 중 하나는 필수입니다."
                     - "newName: 공백일 수 없습니다"
                     - "newName: 크기가 1에서 100 사이여야 합니다"
                     - "newDescription: 크기가 0에서 1024 사이여야 합니다"
@@ -222,7 +295,7 @@ channel_by_id:
                   message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 1]"
-      "404":
+      '404':
         description: Channel을 찾을 수 없음
         content:
           application/json:

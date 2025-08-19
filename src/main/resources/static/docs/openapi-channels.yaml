@@ -6,6 +6,8 @@ info:
 servers:
   - url: /api/channels
 paths:
+  /:
+    $ref: "./paths/channels.yaml#/channels_root"
   /public:
     $ref: "./paths/channels.yaml#/channels_public"
   /private:
@@ -16,6 +18,8 @@ components:
   schemas:
     ChannelResponse:
       $ref: "./schemas/channel.yaml#/ChannelResponse"
+    ChannelSaveResponse:
+      $ref: "./schemas/channel.yaml#/ChannelSaveResponse"
     PublicChannelCreateRequest:
       $ref: "./schemas/channel.yaml#/PublicChannelCreateRequest"
     PrivateChannelCreateRequest:

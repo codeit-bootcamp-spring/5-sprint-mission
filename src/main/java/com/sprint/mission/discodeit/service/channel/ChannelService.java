@@ -1,16 +1,25 @@
 package com.sprint.mission.discodeit.service.channel;
 
 import com.sprint.mission.discodeit.domain.entity.Channel;
+import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
-import com.sprint.mission.discodeit.dto.request.chnanel.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.chnanel.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.chnanel.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
+import com.sprint.mission.discodeit.dto.response.channel.ChannelSaveResponse;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.support.StringUtil;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,21 +31,41 @@ public class ChannelService {
 
   private final ChannelRepository channelRepository;
   private final UserRepository userRepository;
+  private final MessageRepository messageRepository;
 
-  @Transactional
-  public ChannelResponse create(PublicChannelCreateRequest req) {
-    String name = StringUtil.stripOrNull(req.name());
-    String description = StringUtil.stripOrNull(req.description());
-    return ChannelResponse.from(channelRepository.save(new Channel(name, description)));
+  public List<ChannelResponse> findAll(UUID userId) {
+    User u = userRepository.getOrThrow(userId);
+    List<Channel> channels = channelRepository.findAllByIds(u.getChannelIds());
+    Set<UUID> ids = channels.stream().map(Channel::getId).collect(Collectors.toSet());
+    Map<UUID, Instant> lastMap = messageRepository.findLastMessageAtByChannelIds(ids);
+    return channels.stream()
+        .map(c -> ChannelResponse.from(c, lastMap.get(c.getId())))
+        .toList();
   }
 
   @Transactional
-  public ChannelResponse create(PrivateChannelCreateRequest req) {
-    for (UUID id : req.participantIds()) {
-      userRepository.getOrThrow(id);
+  public ChannelSaveResponse create(PublicChannelCreateRequest req) {
+    String name = StringUtil.nullOrStrip(req.name());
+    String description = StringUtil.nullOrStrip(req.description());
+    return ChannelSaveResponse.from(channelRepository.save(new Channel(name, description)));
+  }
+
+  @Transactional
+  public ChannelSaveResponse create(PrivateChannelCreateRequest req) {
+    Set<UUID> ids = req.participantIds();
+    List<User> users = userRepository.findAllByIds(ids);
+    if (users.size() != ids.size()) {
+      Set<UUID> found = users.stream().map(User::getId).collect(Collectors.toSet());
+      UUID missing = ids.stream().filter(id -> !found.contains(id)).findFirst().orElse(null);
+      throw new NotFoundException("유저를 찾을 수 없습니다: " + missing);
     }
 
-    return ChannelResponse.from(channelRepository.save(new Channel(req.participantIds())));
+    Channel c = channelRepository.save(new Channel(ids));
+
+    users.forEach(u -> u.joinChannel(c.getId()));
+    userRepository.saveAll(users);
+
+    return ChannelSaveResponse.from(c);
   }
 
   @Transactional
@@ -47,22 +76,40 @@ public class ChannelService {
   }
 
   @Transactional
-  public ChannelResponse update(UUID channelId, PublicChannelUpdateRequest req) {
+  public ChannelSaveResponse update(UUID channelId, PublicChannelUpdateRequest req) {
     Channel c = channelRepository.getOrThrow(channelId);
 
-    if (ChannelType.PRIVATE.equals(c.getType())) {
+    if (c.getType() == ChannelType.PRIVATE) {
       throw new IllegalArgumentException("Private channel cannot be updated");
     }
 
-    String newName = StringUtil.stripOrNull(req.newName());
-    String newDescription = StringUtil.stripOrNull(req.newDescription());
-    if (c.getName().equals(newName) && c.getDescription().equals(newDescription)) {
-      return ChannelResponse.from(c);
+    String targetName = c.getName();
+    if (req.newName() != null) {
+      String trimmed = req.newName().strip();
+      if (!trimmed.isBlank()) {
+        targetName = trimmed;
+      }
     }
 
-    c.changeName(newName);
-    c.changeDescription(newDescription);
+    String targetDescription = c.getDescription();
+    if (req.newDescription() != null) {
+      targetDescription = req.newDescription().strip();
+    }
 
-    return ChannelResponse.from(channelRepository.save(c));
+    boolean nameChanged = !Objects.equals(c.getName(), targetName);
+    boolean descChanged = !Objects.equals(c.getDescription(), targetDescription);
+
+    if (!nameChanged && !descChanged) {
+      return ChannelSaveResponse.from(c);
+    }
+
+    if (nameChanged) {
+      c.changeName(targetName);
+    }
+    if (descChanged) {
+      c.changeDescription(targetDescription);
+    }
+
+    return ChannelSaveResponse.from(channelRepository.save(c));
   }
 }

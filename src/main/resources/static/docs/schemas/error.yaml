@@ -18,15 +18,25 @@ ApiError:
     method:
       type: string
       description: 요청 method
-      enum: [ GET, POST, PUT, PATCH, DELETE ]
+      enum:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
     status:
       type: integer
       description: 리스폰스 상태 코드
+      minimum: 400
+      maximum: 599
     code:
       type: string
       description: 애플리케이션 오류 코드
       enum:
         - BAD_REQUEST
+        - VALIDATION_ERROR
+        - UNAUTHORIZED
+        - FORBIDDEN
         - NOT_FOUND
         - METHOD_NOT_ALLOWED
         - CONFLICT
@@ -35,7 +45,10 @@ ApiError:
     message:
       type: string
       description: 사용자 표시용 메시지
+      minLength: 1
     details:
       type: array
       description: 세부 오류 목록
-      items: { type: string }
+      items:
+        type: string
+        minLength: 1

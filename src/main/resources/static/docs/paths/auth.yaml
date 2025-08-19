@@ -2,7 +2,9 @@ login:
   post:
     tags: [ Auth ]
     summary: 로그인
-    description: 이메일/비밀번호로 로그인합니다.<br>성공 시 사용자 정보를 반환합니다.
+    description: |
+      이메일/비밀번호로 로그인합니다.
+      성공 시 사용자 정보를 반환합니다.
     operationId: login
     requestBody:
       required: true
@@ -75,7 +77,9 @@ logout:
   post:
     tags: [ Auth ]
     summary: 로그아웃
-    description: 사용자의 현재 세션/상태를 로그아웃 처리합니다.<br>`userId`를 body로 받습니다.
+    description: |
+      사용자의 현재 세션/상태를 로그아웃 처리합니다.
+      `userId`를 body로 받습니다.
     operationId: logout
     requestBody:
       required: true
