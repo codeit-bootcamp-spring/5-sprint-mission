@@ -23,47 +23,47 @@ public class UserStatusController {
     }
 
     // ✅ 상태 생성
-    @PostMapping
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<Void> create(@RequestBody UserStatusCreateRequest request) {
         userStatusService.create(request);
         return ResponseEntity.ok().build();
     }
 
     // ✅ ID로 상태 조회
-    @GetMapping("/{id}")
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<UserStatus> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(userStatusService.findById(id));
     }
 
     // ✅ 전체 조회
-    @GetMapping
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<UserStatus>> findAll() {
         return ResponseEntity.ok(userStatusService.findAll());
     }
 
     // ✅ 상태 수정 (id 기반)
-    @PutMapping
+    @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity<Void> update(@RequestBody UserStatusUpdateRequest request) {
         userStatusService.update(request);
         return ResponseEntity.ok().build();
     }
 
     // ✅ 상태 수정 (userId 기반)
-    @PatchMapping
+    @RequestMapping(method = RequestMethod.PATCH)
     public ResponseEntity<Void> updateByUserId(@RequestBody UserStatusUpdateRequest request) {
         userStatusService.updateByUserId(request);
         return ResponseEntity.ok().build();
     }
 
     // ✅ 상태 삭제
-    @DeleteMapping("/{id}")
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         userStatusService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     // ✅ 유저 상태 조회
-    @PutMapping("/online")
+    @RequestMapping(value = "/online", method = RequestMethod.PUT)
     public ResponseEntity<Void> updateOnlineStatus(@RequestBody UserStatusUpdateRequest request) {
         userStatusService.updateOnlineStatus(request);
         return ResponseEntity.ok().build();

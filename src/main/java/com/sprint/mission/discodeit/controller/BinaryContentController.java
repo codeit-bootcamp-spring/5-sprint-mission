@@ -18,7 +18,7 @@ public class BinaryContentController {
     private final BinaryContentService binaryContentService;
 
     // ✅ 파일 생성 (등록)
-    @PostMapping
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<UUID> create(@RequestBody BinaryContentCreateRequest request) {
         UUID id = binaryContentService.create(request);
         return ResponseEntity.ok(id);
@@ -26,7 +26,7 @@ public class BinaryContentController {
 
 
     // ✅ 파일 1개 조회
-    @GetMapping("/find")
+    @RequestMapping(value = "/find", method = RequestMethod.GET)
     public ResponseEntity<BinaryContent> findById(@RequestParam UUID binaryContentId) {
         BinaryContent file = binaryContentService.findById(binaryContentId);
         return ResponseEntity.ok(file);
@@ -34,7 +34,7 @@ public class BinaryContentController {
 
 
     // ✅ 파일 여러개 조회
-    @GetMapping("/findAllByIdIn")
+    @RequestMapping(value = "/findAllByIdIn", method = RequestMethod.GET)
     public ResponseEntity<List<BinaryContent>> findAllByIdIn(@RequestParam List<UUID> binaryContentIds) {
         List<BinaryContent> files = binaryContentService.findAllByIdIn(binaryContentIds);
         return ResponseEntity.ok(files);
@@ -42,7 +42,7 @@ public class BinaryContentController {
 
 
     // ✅ 파일 삭제
-    @DeleteMapping("/{id}")
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
         binaryContentService.deleteById(id);
         return ResponseEntity.noContent().build();

@@ -24,7 +24,7 @@ public class MessageController {
     }
 
     // ✅메시지 생성
-    @PostMapping("/create")
+    @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<Message> create(
             @RequestPart("messageCreateRequest") MessageCreateRequest request,
             @RequestPart(value = "file", required = false) MultipartFile file) {
@@ -34,21 +34,21 @@ public class MessageController {
 
 
     // ✅메시지 단건 조회
-    @GetMapping("/{id}")
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<Message> findById(@PathVariable UUID id) {
         Message found = messageService.findById(id);
         return ResponseEntity.ok(found);
     }
 
     // ✅채널 내 모든 메시지 조회
-    @GetMapping("/findAllByChannelId")
+    @RequestMapping(value = "/findAllByChannelId", method = RequestMethod.GET)
     public ResponseEntity<List<Message>> findAllByChannelId(@RequestParam UUID channelId) {
         List<Message> messages = messageService.findAllByChannelId(channelId);
         return ResponseEntity.ok(messages);
     }
 
     // ✅메시지 수정
-    @PutMapping("/update")
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
     public ResponseEntity<Message> update(@RequestBody MessageUpdateRequest request) {
         Message updated = messageService.update(request);
         return ResponseEntity.ok(updated);
@@ -56,7 +56,7 @@ public class MessageController {
 
 
     // ✅메시지 삭제
-    @DeleteMapping("/delete")
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@RequestParam UUID messageId) {
         messageService.delete(messageId);
         return ResponseEntity.noContent().build();
