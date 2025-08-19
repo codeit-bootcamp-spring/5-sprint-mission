@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
     // ✅ 모든 일반 예외 처리 (위에 안걸린 모든 Exception들)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenericException(Exception ex, WebRequest request) {
+        ex.printStackTrace();
         return buildErrorResponse("서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR); // 500 반환
     }
 

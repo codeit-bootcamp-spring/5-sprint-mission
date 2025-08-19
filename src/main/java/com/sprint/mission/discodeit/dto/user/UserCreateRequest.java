@@ -10,7 +10,6 @@ public class UserCreateRequest {
     private String userId;
     private String email;
     private String password;
-    private ProfileImageRequest profileImage;
 
     public UserCreateRequest() {
     }
@@ -21,11 +20,5 @@ public class UserCreateRequest {
         this.email = email;
         this.password = password;
     }
-
-    public UserCreateRequest(String userId, String email, String password, ProfileImageRequest profileImage) {
-        this.userId = userId;
-        this.email = email;
-        this.password = password;
-        this.profileImage = profileImage;
-    }
+    
 }

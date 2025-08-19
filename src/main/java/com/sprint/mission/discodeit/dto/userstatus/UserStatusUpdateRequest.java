@@ -12,6 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class UserStatusUpdateRequest {
     private UUID id;
+    private String userId;
     private Instant lastOnline;
 
 }

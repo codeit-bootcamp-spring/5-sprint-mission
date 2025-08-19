@@ -12,18 +12,6 @@ public class UserUpdateRequest {
     private String userId;
     private String email;
     private String password;
-    private ProfileImageRequest profileImage;
-
-    public UserUpdateRequest(UUID id, String userId, String email, String password, ProfileImageRequest profileImage) {
-        this.id = id;
-        this.userId = userId;
-        this.email = email;
-        this.password = password;
-        this.profileImage = profileImage;
-    }
-
-    public UserUpdateRequest() {
-    }
 
     public UserUpdateRequest(UUID id, String userId, String email, String password) {
         this.id = id;
@@ -31,4 +19,8 @@ public class UserUpdateRequest {
         this.email = email;
         this.password = password;
     }
+
+    public UserUpdateRequest() {
+    }
+    
 }

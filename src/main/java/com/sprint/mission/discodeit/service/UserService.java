@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,13 +19,14 @@ import java.util.UUID;
 public interface UserService {
     //약속
     //다중 구현 가능
-    void create(UserCreateRequest request);
+
+    User create(UserCreateRequest request, MultipartFile profileImage);
 
     UserResponse findById(UUID id); //조회
 
     List<UserResponse> findAll(); //리스트에 넣기
 
-    void update(UserUpdateRequest request) throws IOException;
+    User update(UserUpdateRequest request, MultipartFile profileImage) throws IOException;
 
     void delete(UUID id); //삭제
 

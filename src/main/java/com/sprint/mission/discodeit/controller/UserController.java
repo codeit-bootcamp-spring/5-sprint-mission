@@ -3,10 +3,14 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.UserStatusService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,17 +21,26 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final UserStatusService userStatusService;
 
     // 생성자 주입
-    public UserController(UserService userService) {
+    @Autowired
+    public UserController(UserService userService, UserStatusService userStatusService) {
         this.userService = userService;
+        this.userStatusService = userStatusService;
     }
 
     // 사용자 등록
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<Void> create(@RequestBody UserCreateRequest request) {
-        userService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @RequestMapping( // @RequestMapping 어노테이션은 하나하나 다 명시해줘야함
+            value = "/create",
+            method = RequestMethod.POST,
+            consumes = "multipart/form-data") // 클라이언트가 보내는 데이터 타입
+    public ResponseEntity<User> create(
+            //따옴표 안 : 클라이언트가 보내는 form-data key의 필드명
+            @RequestPart("userCreateRequest") UserCreateRequest request,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+        User createdUser = userService.create(request, profileImage);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     // 사용자 전체 조회
@@ -43,10 +56,15 @@ public class UserController {
     }
 
     // 사용자 수정
-    @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<Void> update(@RequestBody UserUpdateRequest request) throws IOException {
-        userService.update(request);
-        return ResponseEntity.ok().build();
+    @RequestMapping(value = "/update",
+            method = RequestMethod.PUT,
+            consumes = "multipart/form-data"
+    )
+    public ResponseEntity<User> update(
+            @RequestPart("userUpdateRequest") UserUpdateRequest request,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
+        User updatedUser = userService.update(request, profileImage);
+        return ResponseEntity.ok(updatedUser); // 또는 ok().body(updatedUser)
     }
 
     // 사용자 삭제
