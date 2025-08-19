@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository;
 import com.sprint.mission.discodeit.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository {
@@ -16,4 +17,12 @@ public interface UserRepository {
     void update(User user); // 수정
 
     void delete(UUID id); // 삭제
+
+    boolean existsByUserId(String userId);
+
+    boolean existsByEmail(String email);
+
+    Optional<User> findOptionalById(UUID id);
+
+
 }

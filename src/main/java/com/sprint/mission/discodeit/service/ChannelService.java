@@ -4,6 +4,8 @@ package com.sprint.mission.discodeit.service;
 //기능의 약속을 정의하며, 다중 구현이 가능
 //CRUD(생성,읽기,모두읽기,수정,삭제) 기능 구현하기
 
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 
 import java.util.List;
@@ -21,4 +23,10 @@ public interface ChannelService {
     void update(Channel channel); // 채널 수정
 
     void delete(UUID id); //UUID로 채널 삭제
+
+    void createPrivateChannel(PrivateChannelCreateRequest request);
+
+    void createPublicChannel(PublicChannelCreateRequest request); // 공개채널 생성
+
+
 }

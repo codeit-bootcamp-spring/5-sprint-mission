@@ -2,13 +2,12 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
+@Repository // FileUserRepository를 UsserRepository 빈으로 등록
 public class FileUserRepository implements UserRepository {
 
     private static final String FILE_PATH = "user.dat";
@@ -17,6 +16,7 @@ public class FileUserRepository implements UserRepository {
     @Override
     public void save(User user) {
         data.put(user.getId(), user);
+        saveToFile();
     }
 
     @Override
@@ -42,7 +42,26 @@ public class FileUserRepository implements UserRepository {
     public void delete(UUID id) {
         data.remove(id);
         saveToFile();
+
     }
+
+    @Override
+    public boolean existsByUserId(String userId) {
+        return data.values().stream()
+                .anyMatch(user -> user.getUserId().equals(userId));
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return data.values().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public Optional<User> findOptionalById(UUID id) {
+        return Optional.ofNullable(findById(id));
+    }
+
 
     //객체 -> 파일 직렬화
     private void saveToFile() {

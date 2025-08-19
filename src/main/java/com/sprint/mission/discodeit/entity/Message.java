@@ -1,27 +1,35 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
+import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 //엔티티
+@Getter
 public class Message implements Serializable {
-    
+
     //직렬화된 객체의 버전을 명시적으로 지정
+    @Serial
     private static final long serialVersionUID = 1L;
     //필드
-    private final UUID id; // 메시지 고유 id (내부 식별자)
-    private Long createdAt; // 생성시간
-    private Long updatedAt; // 수정시간
-    private String content; // 내용
-    private UUID channelId; // 채널 id
+    private final UUID id; // 메시지 고유 ID (내부 식별자)
+    private final Instant createdAt;
+    private Instant updatedAt;
+    private String content; //메세지 내용
+    private UUID channelId; // 채널 ID
     private UUID sender; // 채널 기준으로 누가 보냈는지
+    private List<UUID> attachmentIds; // Message가 가진 첨부파일 ID 리스트
 
 
     //기본생성자
     //매개변수X
     public Message() {
         this.id = UUID.randomUUID(); //생성자 내부 초기화
-        this.createdAt = System.currentTimeMillis(); //생성자 내부 초기화
+        this.createdAt = Instant.now(); //생성자 내부 초기화
         this.updatedAt = createdAt; //처음 생성시 수정시간을 생성시간으로 맞춰줌
     }
 
@@ -30,7 +38,7 @@ public class Message implements Serializable {
     //사용자로부터 받는 값
     public Message(String content, UUID sender, UUID channelId) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
+        this.createdAt = Instant.now();
         this.updatedAt = createdAt;
         this.content = content;
         this.channelId = channelId;
@@ -48,35 +56,19 @@ public class Message implements Serializable {
         this.sender = other.sender;
     }
 
-
-    //Getter
-    public UUID getId() {
-        return id;
-    }
-
-    public Long getCreateAt() {
-        return createdAt;
-    }
-
-    public Long getUpdateAt() {
-        return updatedAt;
-    }
-
     //메서드
     public void updateTime() {
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = Instant.now();
     }
 
-    public String getContent() {
-        return content;
+
+    public void setAttachmentIds(List<UUID> attachmentIds) {
+        this.attachmentIds = attachmentIds;
     }
 
-    public UUID getChannelId() {
-        return channelId;
-    }
 
-    public UUID getSender() {
-        return sender;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     //toString
