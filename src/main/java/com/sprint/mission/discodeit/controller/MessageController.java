@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.exception.ThrowableIOException;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestControllerAdvice
 @RequiredArgsConstructor
 @RequestMapping("/api/message")
+@Tag(name = "Message", description = "Message API")
 public class MessageController {
 
   private final BasicMessageService messageService;

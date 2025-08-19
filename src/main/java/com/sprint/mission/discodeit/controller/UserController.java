@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import com.sprint.mission.discodeit.service.basic.BasicUserStatusService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestControllerAdvice
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
+@Tag(name = "User", description = "User API")
 public class UserController {
 
   private final BasicUserService userService;
