@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.exception.ThrowableIOException;
-import com.sprint.mission.discodeit.service.basic.BasicMessageService;
+import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Message", description = "Message API")
 public class MessageController {
 
-  private final BasicMessageService messageService;
+  private final MessageService messageService;
 
   @Operation(summary = "Message 생성")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -58,8 +58,7 @@ public class MessageController {
                 }).toList())
             .orElse(List.of());
 
-    Message message = messageService.create(messageCreateRequest,
-        List.copyOf(binaryContentCreateRequests));
+    Message message = messageService.create(messageCreateRequest, binaryContentCreateRequests);
     return ResponseEntity.status(HttpStatus.CREATED).body(message);
   }
 

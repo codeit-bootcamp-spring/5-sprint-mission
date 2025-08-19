@@ -7,7 +7,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserFindResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.service.basic.BasicUserService;
+import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.basic.BasicUserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,7 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "User", description = "User API")
 public class UserController {
 
-  private final BasicUserService userService;
+  private final UserService userService;
   private final BasicUserStatusService userStatusService;
 
   @Operation(summary = "User 등록")

@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.service.basic.BasicReadStatusService;
+import com.sprint.mission.discodeit.service.ReadStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "ReadStatus", description = "Message 읽음 상태 API")
 public class ReadStatusController {
 
-  private final BasicReadStatusService readStatusService;
+  private final ReadStatusService readStatusService;
 
   @Operation(summary = "Message 읽음 상태 생성")
   @PostMapping

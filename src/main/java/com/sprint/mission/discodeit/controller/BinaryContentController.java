@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.service.basic.BasicBinaryContentService;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "BinaryContent", description = "첨부파일 API")
 public class BinaryContentController {
 
-  private final BasicBinaryContentService binaryContentService;
+  private final BinaryContentService binaryContentService;
 
   @Operation(summary = "첨부 파일 조회")
   @GetMapping("/{binaryContentId}")
