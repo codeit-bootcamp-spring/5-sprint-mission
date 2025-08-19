@@ -47,6 +47,7 @@ public class FileMessageService implements MessageService {
         //3. 첨부파일이 있다면 추가
         if (request.getAttachmentIds() != null) {
             message.setAttachmentIds(request.getAttachmentIds());
+
         }
         repository.save(message);
         return message;
