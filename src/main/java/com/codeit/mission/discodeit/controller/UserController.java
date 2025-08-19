@@ -9,30 +9,36 @@ import com.codeit.mission.discodeit.entity.User;
 import com.codeit.mission.discodeit.entity.UserStatus;
 import com.codeit.mission.discodeit.service.UserService;
 import com.codeit.mission.discodeit.service.UserStatusService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
     private final UserStatusService userStatusService;
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping
     public ResponseEntity<User> create(
-            @RequestPart UserCreateRequest userCreateRequest,
-            @RequestPart(required = false) MultipartFile profile
+        @RequestPart UserCreateRequest userCreateRequest,
+        @RequestPart(required = false) MultipartFile profile
     ) throws IOException {
         if (userCreateRequest == null) {
             throw new IllegalArgumentException("userCreateRequest가 필요합니다.");
@@ -50,9 +56,9 @@ public class UserController {
         Optional<BinaryContentCreateRequest> profileCreateRequest = Optional.empty();
         if (profile != null && !profile.isEmpty()) {
             profileCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profile.getOriginalFilename(),
-                    profile.getContentType(),
-                    profile.getBytes()
+                profile.getOriginalFilename(),
+                profile.getContentType(),
+                profile.getBytes()
             ));
         }
         User user = userService.create(userCreateRequest, profileCreateRequest);
@@ -60,11 +66,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
-    @RequestMapping(value = "/update/{userId}", method = RequestMethod.PUT, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping("/{userId}")
     public ResponseEntity<User> update(
-            @PathVariable UUID userId,
-            @RequestPart UserUpdateRequest userUpdateRequest,
-            @RequestPart(required = false) MultipartFile profile
+        @PathVariable UUID userId,
+        @RequestPart UserUpdateRequest userUpdateRequest,
+        @RequestPart(required = false) MultipartFile profile
     ) throws IOException {
         if (userId == null) {
             throw new IllegalArgumentException("userId가 필요합니다.");
@@ -72,19 +78,21 @@ public class UserController {
         if (userUpdateRequest == null) {
             throw new IllegalArgumentException("userUpdateRequest가 필요합니다.");
         }
-        if (userUpdateRequest.newUsername() != null && userUpdateRequest.newUsername().trim().isEmpty()) {
+        if (userUpdateRequest.newUsername() != null && userUpdateRequest.newUsername().trim()
+            .isEmpty()) {
             throw new IllegalArgumentException("newUsername이 필요합니다.");
         }
-        if (userUpdateRequest.newPassword() != null && userUpdateRequest.newPassword().trim().isEmpty()) {
+        if (userUpdateRequest.newPassword() != null && userUpdateRequest.newPassword().trim()
+            .isEmpty()) {
             throw new IllegalArgumentException("newPassword가 필요합니다.");
         }
 
         Optional<BinaryContentCreateRequest> profileCreateRequest = Optional.empty();
         if (profile != null && !profile.isEmpty()) {
             profileCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profile.getOriginalFilename(),
-                    profile.getContentType(),
-                    profile.getBytes()
+                profile.getOriginalFilename(),
+                profile.getContentType(),
+                profile.getBytes()
             ));
         }
         User user = userService.update(userId, userUpdateRequest, profileCreateRequest);
@@ -92,7 +100,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
-    @RequestMapping(value = "/delete/{userId}", method = RequestMethod.DELETE)
+    @DeleteMapping("/{userId}")
     public ResponseEntity<Void> delete(@PathVariable UUID userId) {
         if (userId == null) {
             throw new IllegalArgumentException("userId가 필요합니다.");
@@ -102,16 +110,16 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(value = "/findAll", method = RequestMethod.GET)
+    @GetMapping
     public ResponseEntity<List<UserDto>> findAll() {
         List<UserDto> users = userService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
-    @RequestMapping(value = "/{userId}/status", method = RequestMethod.PATCH)
-    public ResponseEntity<UserStatus> updateOnlineStatus(
-            @PathVariable UUID userId,
-            @RequestBody UserStatusUpdateRequest userStatusUpdateRequest
+    @PatchMapping("/{userId}/userStatus")
+    public ResponseEntity<UserStatus> updateUserStatusByUserId(
+        @PathVariable UUID userId,
+        @RequestBody UserStatusUpdateRequest userStatusUpdateRequest
     ) {
         if (userId == null) {
             throw new IllegalArgumentException("userId가 필요합니다.");

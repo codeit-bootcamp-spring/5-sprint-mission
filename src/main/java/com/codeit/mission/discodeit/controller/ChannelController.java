@@ -6,23 +6,30 @@ import com.codeit.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.codeit.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.codeit.mission.discodeit.entity.Channel;
 import com.codeit.mission.discodeit.service.ChannelService;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/channel")
+@RequestMapping("/api/channels")
 public class ChannelController {
 
     private final ChannelService channelService;
 
-    @RequestMapping(value = "/public", method = RequestMethod.POST)
+    @PostMapping("/public")
     public ResponseEntity<Channel> create(@RequestBody PublicChannelCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request가 필요합니다.");
@@ -36,7 +43,7 @@ public class ChannelController {
         return ResponseEntity.status(HttpStatus.CREATED).body(channel);
     }
 
-    @RequestMapping(value = "/private", method = RequestMethod.POST)
+    @PostMapping("/private")
     public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request가 필요합니다.");
@@ -50,9 +57,9 @@ public class ChannelController {
         return ResponseEntity.status(HttpStatus.CREATED).body(channel);
     }
 
-    @RequestMapping(value = "/update/{channelId}", method = RequestMethod.PUT)
+    @PatchMapping("/{channelId}")
     public ResponseEntity<Channel> update(@PathVariable UUID channelId,
-                                          @RequestBody PublicChannelUpdateRequest request) {
+        @RequestBody PublicChannelUpdateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request가 필요합니다.");
         }
@@ -62,7 +69,7 @@ public class ChannelController {
         return ResponseEntity.status(HttpStatus.OK).body(channel);
     }
 
-    @RequestMapping(value = "/delete/{channelId}", method = RequestMethod.DELETE)
+    @DeleteMapping("/{channelId}")
     public ResponseEntity<Void> delete(@PathVariable UUID channelId) {
         if (channelId == null) {
             throw new IllegalArgumentException("channelId가 필요합니다.");
@@ -72,12 +79,8 @@ public class ChannelController {
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(value = "{userId}", method = RequestMethod.GET)
-    public ResponseEntity<List<ChannelDto>> findAllByUserId(@PathVariable UUID userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException("userId가 필요합니다.");
-        }
-
+    @GetMapping
+    public ResponseEntity<List<ChannelDto>> findAll(@RequestParam("userId") UUID userId) {
         List<ChannelDto> allByUserId = channelService.findAllByUserId(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(allByUserId);
