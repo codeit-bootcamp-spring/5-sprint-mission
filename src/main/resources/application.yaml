@@ -1,8 +1,10 @@
 spring:
-  profiles:
-    active: prod
   application:
     name: discodeit
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
 
 discodeit:
   repository:
