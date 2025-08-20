@@ -40,7 +40,7 @@ public class UserController {
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(userService.create(request.toCreate(profile)).toDetailResponse());
+        .body(userService.create(request.toCommand(profile)).toResponse());
   }
 
   @Operation(summary = "User 수정")
@@ -49,7 +49,7 @@ public class UserController {
       @RequestPart("userUpdateRequest") UpdateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    return ResponseEntity.ok(userService.update(request.toUpdate(id, profile)).toDetailResponse());
+    return ResponseEntity.ok(userService.update(request.toCommand(id, profile)).toResponse());
   }
 
   @Operation(summary = "User 삭제")
@@ -65,13 +65,13 @@ public class UserController {
   @GetMapping
   public ResponseEntity<List<UserDto.DetailResponse>> findAllUsers() {
 
-    return ResponseEntity.ok(userService.findAll().stream().map(Detail::toDetailResponse).toList());
+    return ResponseEntity.ok(userService.findAll().stream().map(Detail::toResponse).toList());
   }
 
   @Operation(summary = "User Status 수정")
   @PatchMapping("/{id}/userStatus")
   public ResponseEntity<UserStatusDto.DetailResponse> updateUserStatus(@PathVariable UUID id) {
 
-    return ResponseEntity.ok(userStatusService.updateByUserId(id).toDetailResponse());
+    return ResponseEntity.ok(userStatusService.updateByUserId(id).toResponse());
   }
 }

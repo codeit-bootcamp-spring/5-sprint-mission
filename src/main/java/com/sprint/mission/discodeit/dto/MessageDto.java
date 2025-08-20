@@ -18,15 +18,15 @@ public class MessageDto {
     UUID authorId;
     String content;
 
-    public Create toCreate(List<MultipartFile> attachments) {
-      return Create.builder().channelId(this.channelId).authorId(this.authorId)
+    public CreateCommand toCommand(List<MultipartFile> attachments) {
+      return CreateCommand.builder().channelId(this.channelId).authorId(this.authorId)
           .content(this.content).attachments(attachments).build();
     }
   }
 
   @Getter
   @Builder
-  public static class Create {
+  public static class CreateCommand {
 
     UUID channelId;
     UUID authorId;
@@ -40,14 +40,14 @@ public class MessageDto {
 
     String content;
 
-    public Update toUpdate(UUID id) {
-      return Update.builder().id(id).content(this.content).build();
+    public UpdateCommand toCommand(UUID id) {
+      return UpdateCommand.builder().id(id).content(this.content).build();
     }
   }
 
   @Getter
   @Builder
-  public static class Update {
+  public static class UpdateCommand {
 
     UUID id;
     String content;
@@ -83,7 +83,7 @@ public class MessageDto {
     Instant createdAt;
     Instant updatedAt;
 
-    public DetailResponse toDetailResponse() {
+    public DetailResponse toResponse() {
       return DetailResponse.builder().channelId(channelId).authorId(authorId).id(id)
           .authorName(authorName).channelName(channelName).content(content)
           .attachmentIds(attachmentIds).createdAt(createdAt).updatedAt(updatedAt).build();

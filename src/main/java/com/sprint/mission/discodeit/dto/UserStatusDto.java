@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
 
 public class UserStatusDto {
 
@@ -33,7 +32,7 @@ public class UserStatusDto {
     private UUID userId;
     private Instant lastLogin;
 
-    public DetailResponse toDetailResponse() {
+    public DetailResponse toResponse() {
       return DetailResponse.builder()
           .id(id)
           .userId(userId)

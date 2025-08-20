@@ -32,7 +32,7 @@ public class ChannelController {
       @RequestBody ChannelDto.CreateRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(channelService.create(request.toCreate(ChannelType.PUBLIC)).toDetailResponse());
+        .body(channelService.create(request.toCommand(ChannelType.PUBLIC)).toResponse());
   }
 
   @Operation(summary = "Channel 생성(PRIVATE)")
@@ -41,7 +41,7 @@ public class ChannelController {
       @RequestBody ChannelDto.CreateRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(channelService.create(request.toCreate(ChannelType.PRIVATE)).toDetailResponse());
+        .body(channelService.create(request.toCommand(ChannelType.PRIVATE)).toResponse());
   }
 
   @Operation(summary = "Channel 생성(PUBLIC)")
@@ -49,7 +49,7 @@ public class ChannelController {
   public ResponseEntity<ChannelDto.DetailResponse> updateChannel(@PathVariable UUID id,
       @RequestBody ChannelDto.UpdateRequest request) {
 
-    return ResponseEntity.ok(channelService.update(request.toUpdate(id)).toDetailResponse());
+    return ResponseEntity.ok(channelService.update(request.toCommand(id)).toResponse());
   }
 
   @Operation(summary = "Channel 삭제")
@@ -67,7 +67,7 @@ public class ChannelController {
       @RequestParam UUID userId) {
 
     return ResponseEntity.ok(
-        channelService.findAllByUserId(userId).stream().map(ChannelDto.Detail::toDetailResponse)
+        channelService.findAllByUserId(userId).stream().map(ChannelDto.Detail::toResponse)
             .toList());
   }
 }

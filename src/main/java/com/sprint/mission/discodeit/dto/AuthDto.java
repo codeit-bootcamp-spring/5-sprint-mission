@@ -14,10 +14,7 @@ public class AuthDto {
     private String password;
 
     public Login toLogin() {
-      return Login.builder()
-          .username(this.username)
-          .password(this.password)
-          .build();
+      return Login.builder().username(this.username).password(this.password).build();
     }
   }
 

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.exception;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

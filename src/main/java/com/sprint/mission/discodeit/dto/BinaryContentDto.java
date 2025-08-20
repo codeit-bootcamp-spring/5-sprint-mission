@@ -41,15 +41,9 @@ public class BinaryContentDto {
     Instant createdAt;
     byte[] bytes;
 
-    public DetailResponse toDetailResponse() {
-      return DetailResponse.builder()
-          .id(id)
-          .name(name)
-          .contentType(contentType)
-          .size(size)
-          .createdAt(createdAt)
-          .bytes(bytes)
-          .build();
+    public DetailResponse toResponse() {
+      return DetailResponse.builder().id(id).name(name).contentType(contentType).size(size)
+          .createdAt(createdAt).bytes(bytes).build();
     }
   }
 }

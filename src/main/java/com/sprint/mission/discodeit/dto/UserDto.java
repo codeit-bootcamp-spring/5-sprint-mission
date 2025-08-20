@@ -17,19 +17,15 @@ public class UserDto {
     private String email;
     private String password;
 
-    public Create toCreate(MultipartFile profileImage) {
-      return Create.builder()
-          .username(this.username)
-          .email(this.email)
-          .password(this.password)
-          .profileImage(profileImage)
-          .build();
+    public CreateCommand toCommand(MultipartFile profileImage) {
+      return CreateCommand.builder().username(this.username).email(this.email)
+          .password(this.password).profileImage(profileImage).build();
     }
   }
 
   @Getter
   @Builder
-  public static class Create {
+  public static class CreateCommand {
 
     private String username;
     private String email;
@@ -45,20 +41,15 @@ public class UserDto {
     private String newEmail;
     private String newPassword;
 
-    public Update toUpdate(UUID id, MultipartFile profileImage) {
-      return Update.builder()
-          .id(id)
-          .username(this.newUsername)
-          .email(this.newEmail)
-          .password(this.newPassword)
-          .profileImage(profileImage)
-          .build();
+    public UpdateCommand toCommand(UUID id, MultipartFile profileImage) {
+      return UpdateCommand.builder().id(id).username(this.newUsername).email(this.newEmail)
+          .password(this.newPassword).profileImage(profileImage).build();
     }
   }
 
   @Getter
   @Builder
-  public static class Update {
+  public static class UpdateCommand {
 
     private UUID id;
     private String username;
@@ -92,16 +83,9 @@ public class UserDto {
     private Instant createdAt;
     private Instant updatedAt;
 
-    public DetailResponse toDetailResponse() {
-      return DetailResponse.builder()
-          .id(id)
-          .username(username)
-          .email(email)
-          .profileId(profileId)
-          .online(online)
-          .createdAt(createdAt)
-          .updatedAt(updatedAt)
-          .build();
+    public DetailResponse toResponse() {
+      return DetailResponse.builder().id(id).username(username).email(email).profileId(profileId)
+          .online(online).createdAt(createdAt).updatedAt(updatedAt).build();
     }
   }
 }

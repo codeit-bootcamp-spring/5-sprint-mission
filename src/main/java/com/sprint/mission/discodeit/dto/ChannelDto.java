@@ -18,19 +18,15 @@ public class ChannelDto {
     String description;
     List<UUID> participantIds;
 
-    public Create toCreate(ChannelType type) {
-      return Create.builder()
-          .type(type)
-          .name(this.name)
-          .description(this.description)
-          .participantIds(this.participantIds)
-          .build();
+    public CreateCommand toCommand(ChannelType type) {
+      return CreateCommand.builder().type(type).name(this.name).description(this.description)
+          .participantIds(this.participantIds).build();
     }
   }
 
   @Getter
   @Builder
-  public static class Create {
+  public static class CreateCommand {
 
     ChannelType type;
     String name;
@@ -48,19 +44,15 @@ public class ChannelDto {
     String description;
     List<UUID> participantIds;
 
-    public Update toUpdate(UUID id) {
-      return Update.builder()
-          .id(id)
-          .name(this.name)
-          .description(this.description)
-          .participantIds(this.participantIds)
-          .build();
+    public UpdateCommand toCommand(UUID id) {
+      return UpdateCommand.builder().id(id).name(this.name).description(this.description)
+          .participantIds(this.participantIds).build();
     }
   }
 
   @Getter
   @Builder
-  public static class Update {
+  public static class UpdateCommand {
 
     UUID id;
     String name;
@@ -92,15 +84,9 @@ public class ChannelDto {
     Instant lastMessageAt;
     List<UUID> participantIds;
 
-    public DetailResponse toDetailResponse() {
-      return DetailResponse.builder()
-          .id(id)
-          .type(type)
-          .name(name)
-          .description(description)
-          .lastMessageAt(lastMessageAt)
-          .participantIds(participantIds)
-          .build();
+    public DetailResponse toResponse() {
+      return DetailResponse.builder().id(id).type(type).name(name).description(description)
+          .lastMessageAt(lastMessageAt).participantIds(participantIds).build();
     }
   }
 }

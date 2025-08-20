@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.MessageDto;
-import com.sprint.mission.discodeit.dto.MessageDto.Create;
-import com.sprint.mission.discodeit.dto.MessageDto.Update;
+import com.sprint.mission.discodeit.dto.MessageDto.CreateCommand;
+import com.sprint.mission.discodeit.dto.MessageDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -29,7 +29,7 @@ public class BasicMessageService implements MessageService {
   private final BinaryContentRepository binaryContentRepository;
 
   @Override
-  public MessageDto.Detail create(Create create) {
+  public MessageDto.Detail create(CreateCommand create) {
 
     User author = userRepository.findById(create.getAuthorId())
         .orElseThrow(() -> new RuntimeException("User not found"));
@@ -57,7 +57,7 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
-  public MessageDto.Detail update(Update update) {
+  public MessageDto.Detail update(UpdateCommand update) {
 
     Message message = messageRepository.findById(update.getId())
         .orElseThrow(() -> new RuntimeException("Message not found"));

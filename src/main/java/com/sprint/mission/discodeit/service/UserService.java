@@ -1,16 +1,16 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.UserDto;
-import com.sprint.mission.discodeit.dto.UserDto.Create;
-import com.sprint.mission.discodeit.dto.UserDto.Update;
+import com.sprint.mission.discodeit.dto.UserDto.CreateCommand;
+import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
 
-  UserDto.Detail create(Create create);
+  UserDto.Detail create(CreateCommand create);
 
-  UserDto.Detail update(Update update);
+  UserDto.Detail update(UpdateCommand update);
 
   UserDto.Detail findById(UUID id);
 

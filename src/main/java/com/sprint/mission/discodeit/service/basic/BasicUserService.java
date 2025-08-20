@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.UserDto;
-import com.sprint.mission.discodeit.dto.UserDto.Create;
-import com.sprint.mission.discodeit.dto.UserDto.Update;
+import com.sprint.mission.discodeit.dto.UserDto.CreateCommand;
+import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -25,7 +25,7 @@ public class BasicUserService implements UserService {
   private final UserStatusRepository userStatusRepository;
 
   @Override
-  public UserDto.Detail create(Create create) {
+  public UserDto.Detail create(CreateCommand create) {
 
     if (userRepository.existsByUsername(create.getUsername())) {
       throw new IllegalArgumentException("이미 사용 중인 username입니다.");
@@ -83,7 +83,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public UserDto.Detail update(Update update) {
+  public UserDto.Detail update(UpdateCommand update) {
 
     User user = userRepository.findById(update.getId())
         .orElseThrow(() -> new RuntimeException("User not found"));

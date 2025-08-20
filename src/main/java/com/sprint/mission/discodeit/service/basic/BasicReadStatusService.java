@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
-import com.sprint.mission.discodeit.dto.ReadStatusDto.Create;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateCommand;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -21,7 +21,7 @@ public class BasicReadStatusService implements ReadStatusService {
   private final ReadStatusRepository readStatusRepository;
 
   @Override
-  public ReadStatusDto.Detail create(Create request) {
+  public ReadStatusDto.Detail create(CreateCommand request) {
 
     userRepository.findById(request.getUserId())
         .orElseThrow(() -> new RuntimeException("Not Found User"));

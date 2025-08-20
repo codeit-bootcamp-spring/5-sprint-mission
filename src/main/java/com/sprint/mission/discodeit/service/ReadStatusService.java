@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
-import com.sprint.mission.discodeit.dto.ReadStatusDto.Create;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateCommand;
 import java.util.List;
 import java.util.UUID;
 
 public interface ReadStatusService {
 
-  ReadStatusDto.Detail create(Create request);
+  ReadStatusDto.Detail create(CreateCommand request);
 
   ReadStatusDto.Detail find(UUID id);
 

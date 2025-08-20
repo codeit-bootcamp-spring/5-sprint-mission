@@ -39,7 +39,7 @@ public class MessageController {
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(messageService.create(request.toCreate(attachments)).toDetailResponse());
+        .body(messageService.create(request.toCommand(attachments)).toResponse());
   }
 
   @Operation(summary = "Message 수정")
@@ -47,7 +47,7 @@ public class MessageController {
   public ResponseEntity<MessageDto.DetailResponse> updateMessage(@PathVariable UUID id,
       @RequestBody UpdateRequest request) {
 
-    return ResponseEntity.ok(messageService.update(request.toUpdate(id)).toDetailResponse());
+    return ResponseEntity.ok(messageService.update(request.toCommand(id)).toResponse());
   }
 
   @Operation(summary = "Message 삭제")
@@ -65,7 +65,7 @@ public class MessageController {
       @RequestParam UUID channelId) {
 
     return ResponseEntity.ok(
-        messageService.findAllByChannelId(channelId).stream().map(Detail::toDetailResponse)
+        messageService.findAllByChannelId(channelId).stream().map(Detail::toResponse)
             .toList());
   }
 }

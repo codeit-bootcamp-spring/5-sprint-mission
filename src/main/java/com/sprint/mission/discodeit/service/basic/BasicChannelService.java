@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ChannelDto;
-import com.sprint.mission.discodeit.dto.ChannelDto.Create;
+import com.sprint.mission.discodeit.dto.ChannelDto.CreateCommand;
+import com.sprint.mission.discodeit.dto.ChannelDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -24,7 +25,7 @@ public class BasicChannelService implements ChannelService {
   private final ReadStatusRepository readStatusRepository;
   private final MessageRepository messageRepository;
 
-  public ChannelDto.Detail create(ChannelDto.Create create) {
+  public ChannelDto.Detail create(CreateCommand create) {
 
     Channel channel = null;
 
@@ -42,13 +43,13 @@ public class BasicChannelService implements ChannelService {
         .build();
   }
 
-  private Channel createPrivate(Create create) {
+  private Channel createPrivate(CreateCommand create) {
 
     return new Channel(ChannelType.PRIVATE, "", "", null,
         create.getParticipantIds() == null ? List.of() : create.getParticipantIds());
   }
 
-  private Channel createPublic(Create create) {
+  private Channel createPublic(CreateCommand create) {
 
     return new Channel(ChannelType.PUBLIC, create.getName(), create.getDescription(), null,
         create.getParticipantIds() == null ? List.of() : create.getParticipantIds());
@@ -97,7 +98,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Override
-  public ChannelDto.Detail update(ChannelDto.Update update) {
+  public ChannelDto.Detail update(UpdateCommand update) {
 
     Channel channel = channelRepository.findById(update.getId()).orElse(null);
 
