@@ -57,7 +57,8 @@ public class BasicUserService implements UserService {
   @Override
   public UserFindResponse findById(UUID userId) {
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("findById : 유저를 찾을 수 없습니다."));
+        .orElseThrow(
+            () -> new NoSuchElementException("findById : 유저를 찾을 수 없습니다. [" + userId + "]"));
 
     return UserFindResponse.builder()
         .id(user.getId())
@@ -67,7 +68,8 @@ public class BasicUserService implements UserService {
         .email(user.getEmail())
         .profileId(user.getProfileId())
         .online(userStatusRepository.findByUserId(user.getId())
-            .orElseThrow(() -> new NoSuchElementException("findById : UserStatus를 찾을 수 없습니다."))
+            .orElseThrow(() -> new NoSuchElementException(
+                "findById : UserStatus를 찾을 수 없습니다. [" + user.getId() + "]"))
             .isOnline())
         .build();
   }
@@ -77,7 +79,8 @@ public class BasicUserService implements UserService {
     List<UserFindResponse> userFindResponses = new ArrayList<>();
     for (User user : userRepository.findAll()) {
       UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-          .orElseThrow(() -> new NoSuchElementException("findAll : UserStatus를 찾을 수 없습니다."));
+          .orElseThrow(() -> new NoSuchElementException(
+              "findAll : UserStatus를 찾을 수 없습니다. [" + user.getId() + "]"));
       userFindResponses.add(UserFindResponse.builder()
           .id(user.getId())
           .createdAt(user.getCreatedAt())
@@ -99,7 +102,7 @@ public class BasicUserService implements UserService {
     String newEmail = userUpdateRequest.newEmail();
 
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다."));
+        .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다. [" + userId + "]"));
 
     if (!user.getUsername().equals(newUserName)) {
       validateUsername(newUserName);
@@ -127,7 +130,7 @@ public class BasicUserService implements UserService {
   @Override
   public void delete(UUID userId) {
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("delete : 유저를 찾을 수 없습니다."));
+        .orElseThrow(() -> new NoSuchElementException("delete : 유저를 찾을 수 없습니다. [" + userId + "]"));
 
     if (user.getProfileId() != null) {
       binaryContentRepository.deleteById(user.getProfileId());
@@ -141,13 +144,14 @@ public class BasicUserService implements UserService {
 
   private void validateUsername(String username) {
     if (userRepository.existsByUsername(username)) {
-      throw new IllegalArgumentException("validateUnique : 이미 존재하는 newUsername 입니다.");
+      throw new IllegalArgumentException(
+          "validateUnique : 이미 존재하는 username 입니다. [" + username + "]");
     }
   }
 
   private void validateEmail(String email) {
     if (userRepository.existsByEmail(email)) {
-      throw new IllegalArgumentException("validateUnique : 이미 존재하는 newEmail 입니다.");
+      throw new IllegalArgumentException("validateUnique : 이미 존재하는 email 입니다. [" + email + "]");
     }
   }
 }

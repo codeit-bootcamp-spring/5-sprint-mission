@@ -26,7 +26,8 @@ public class BasicUserStatusService implements UserStatusService {
   @Override
   public UserStatus create(@Valid UserStatusCreateRequest userStatusCreateRequest) {
     userRepository.findById(userStatusCreateRequest.userId())
-        .orElseThrow(() -> new NoSuchElementException("create : 유저를 찾을 수 없습니다."));
+        .orElseThrow(() -> new NoSuchElementException(
+            "create : 유저를 찾을 수 없습니다. [" + userStatusCreateRequest.userId() + "]"));
     UserStatus userStatus = userStatusRepository.findAll().stream()
         .filter(s -> s.getUserId().equals(userStatusCreateRequest.userId()))
         .findFirst()
@@ -41,13 +42,15 @@ public class BasicUserStatusService implements UserStatusService {
   @Override
   public UserStatus findById(UUID id) {
     return userStatusRepository.findById(id)
-        .orElseThrow(() -> new NoSuchElementException("findById : UserStatus를 찾을 수 없습니다."));
+        .orElseThrow(
+            () -> new NoSuchElementException("findById : UserStatus를 찾을 수 없습니다. [" + id + "]"));
   }
 
   @Override
   public UserStatus findByUserId(UUID userid) {
     return userStatusRepository.findByUserId(userid)
-        .orElseThrow(() -> new NoSuchElementException("findByUserId : UserStatus를 찾을 수 없습니다."));
+        .orElseThrow(() -> new NoSuchElementException(
+            "findByUserId : UserStatus를 찾을 수 없습니다. [" + userid + "]"));
   }
 
   @Override
@@ -59,7 +62,8 @@ public class BasicUserStatusService implements UserStatusService {
   public UserStatus update(UUID userStatusId,
       @Valid UserStatusUpdateRequest userStatusUpdateRequest) {
     UserStatus userStatus = userStatusRepository.findById(userStatusId)
-        .orElseThrow(() -> new NoSuchElementException("update : UserStatus를 찾을 수 없습니다."));
+        .orElseThrow(() -> new NoSuchElementException(
+            "update : UserStatus를 찾을 수 없습니다. [" + userStatusId + "]"));
     userStatus.update(userStatusUpdateRequest.newLastActiveAt());
 
     return userStatusRepository.save(userStatus);
@@ -69,7 +73,8 @@ public class BasicUserStatusService implements UserStatusService {
   public UserStatus updateByUserId(UUID userId,
       @Valid UserStatusUpdateRequest userStatusUpdateRequest) {
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
-        .orElseThrow(() -> new NoSuchElementException("updateByUserId : UserStatus를 찾을 수 없습니다."));
+        .orElseThrow(() -> new NoSuchElementException(
+            "updateByUserId : UserStatus를 찾을 수 없습니다. [" + userId + "]"));
     userStatus.update(userStatusUpdateRequest.newLastActiveAt());
 
     return userStatusRepository.save(userStatus);
@@ -78,7 +83,8 @@ public class BasicUserStatusService implements UserStatusService {
   @Override
   public void delete(UUID id) {
     UserStatus userStatus = userStatusRepository.findById(id)
-        .orElseThrow(() -> new NoSuchElementException("delete : UserStatus를 찾을 수 없습니다."));
+        .orElseThrow(
+            () -> new NoSuchElementException("delete : UserStatus를 찾을 수 없습니다. [" + id + "]"));
     userStatusRepository.deleteById(userStatus.getId());
   }
 }
