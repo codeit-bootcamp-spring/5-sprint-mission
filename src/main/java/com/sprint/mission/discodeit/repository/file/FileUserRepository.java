@@ -10,11 +10,15 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 @Repository
+@Profile("file")
 public class FileUserRepository implements UserRepository {
 
     private final Path DIRECTORY;
@@ -41,11 +45,16 @@ public class FileUserRepository implements UserRepository {
             user.setId(UUID.randomUUID());
         }
         Path path = resolvePath(user.getId());
-        try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
-        ) {
+        Path tempPath = DIRECTORY.resolve(UUID.randomUUID().toString() + EXTENSION + ".tmp"); // Temporary file
+
+        try {
+            FileOutputStream fos = new FileOutputStream(tempPath.toFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(user);
+            oos.flush(); // Explicitly flush
+            oos.close(); // Explicitly close
+            fos.close(); // Explicitly close
+            Files.move(tempPath, path, StandardCopyOption.REPLACE_EXISTING); // Atomically replace the original file
         } catch (IOException e) {
             throw new FileInitializationException("Failed to save user: " + user.getId(), e);
         }
@@ -88,6 +97,7 @@ public class FileUserRepository implements UserRepository {
         ) {
             return (User) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error reading user file: " + path + " - " + e.getMessage());
             throw new FileInitializationException("Failed to read user file: " + path, e);
         }
     }

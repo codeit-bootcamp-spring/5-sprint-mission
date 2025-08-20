@@ -13,6 +13,5 @@ import java.util.UUID;
 @Getter
 @Setter
 public class UserStatusUpdateByUserIdRequest {
-    private UUID userId;
     private Instant lastSeenAt;
 }

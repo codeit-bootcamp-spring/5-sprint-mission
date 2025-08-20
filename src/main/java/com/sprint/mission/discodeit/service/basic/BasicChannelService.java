@@ -33,16 +33,20 @@ public class BasicChannelService implements ChannelService {
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
+        if (channel.getId() == null) { // Generate ID if null
+            channel.setId(UUID.randomUUID());
+        }
         Channel savedChannel = channelRepository.save(channel);
 
         request.getUserIds().forEach(userId -> {
-            ReadStatus readStatus = ReadStatus.builder()
-                    .userId(userId)
-                    .channelId(savedChannel.getId())
-                    .lastReadAt(Instant.now())
-                    .createdAt(Instant.now())
-                    .updatedAt(Instant.now())
-                    .build();
+            ReadStatus readStatus = new ReadStatus(
+                    UUID.randomUUID(),
+                    Instant.now(),
+                    Instant.now(),
+                    userId,
+                    savedChannel.getId(),
+                    Instant.now()
+            );
             readStatusRepository.save(readStatus);
         });
 
@@ -64,6 +68,9 @@ public class BasicChannelService implements ChannelService {
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
+        if (channel.getId() == null) { // Generate ID if null
+            channel.setId(UUID.randomUUID());
+        }
         Channel savedChannel = channelRepository.save(channel);
         return toChannelResponse(savedChannel);
     }
@@ -88,7 +95,7 @@ public class BasicChannelService implements ChannelService {
                 .filter(channel -> {
                     if (channel.getChannelName() == null) { // Private channel
                         return readStatusRepository.findAllByUserId(userId).stream()
-                                .anyMatch(readStatus -> readStatus.getChannelId().equals(channel.getId()));
+                                .anyMatch(readStatus -> readStatus.getChannelId() != null && readStatus.getChannelId().equals(channel.getId()));
                     } else { // Public channel
                         return true;
                     }
@@ -145,8 +152,8 @@ public class BasicChannelService implements ChannelService {
                 .max(Instant::compareTo)
                 .orElse(null);
 
-        List<UUID> participantIds = readStatusRepository.findAllByUserId(null).stream() // TODO: Need to filter by channelId
-                .filter(readStatus -> readStatus.getChannelId().equals(channel.getId()))
+        List<UUID> participantIds = readStatusRepository.findAllByChannelId(channel.getId()).stream()
+                .filter(readStatus -> readStatus.getChannelId() != null && readStatus.getChannelId().equals(channel.getId()))
                 .map(ReadStatus::getUserId)
                 .collect(Collectors.toList());
 

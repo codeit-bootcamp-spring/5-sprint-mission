@@ -22,14 +22,15 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     @Override
     public BinaryContentResponse create(BinaryContentCreateRequest request) {
-        BinaryContent binaryContent = BinaryContent.builder()
-                .filename(request.getFilename())
-                .contentType(request.getContentType())
-                .size(request.getSize())
-                .data(request.getData())
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .build();
+        BinaryContent binaryContent = new BinaryContent(
+                UUID.randomUUID(),
+                Instant.now(),
+                Instant.now(),
+                request.getFilename(),
+                request.getContentType(),
+                request.getSize(),
+                request.getData()
+        );
         BinaryContent savedBinaryContent = binaryContentRepository.save(binaryContent);
         return toBinaryContentResponse(savedBinaryContent);
     }

@@ -37,13 +37,14 @@ public class FileChannelService implements ChannelService {
         Channel savedChannel = channelRepository.save(channel);
 
         request.getUserIds().forEach(userId -> {
-            ReadStatus readStatus = ReadStatus.builder()
-                    .userId(userId)
-                    .channelId(savedChannel.getId())
-                    .lastReadAt(Instant.now())
-                    .createdAt(Instant.now())
-                    .updatedAt(Instant.now())
-                    .build();
+            ReadStatus readStatus = new ReadStatus(
+                    UUID.randomUUID(),
+                    Instant.now(),
+                    Instant.now(),
+                    userId,
+                    savedChannel.getId(),
+                    Instant.now()
+            );
             readStatusRepository.save(readStatus);
         });
 

@@ -9,12 +9,18 @@ import java.util.UUID;
 import java.io.Serializable;
 
 @NoArgsConstructor(force = true)
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 public abstract class BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     protected UUID id;
     protected Instant createdAt;
     protected Instant updatedAt;
+
+    public BaseEntity(UUID id, Instant createdAt, Instant updatedAt) {
+        this.id = (id == null) ? UUID.randomUUID() : id;
+        this.createdAt = (createdAt == null) ? Instant.now() : createdAt;
+        this.updatedAt = (updatedAt == null) ? Instant.now() : updatedAt;
+    }
 
     
 

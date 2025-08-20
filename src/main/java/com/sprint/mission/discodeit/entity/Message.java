@@ -7,9 +7,7 @@ import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 public class Message extends BaseEntity implements java.io.Serializable {
@@ -19,14 +17,17 @@ public class Message extends BaseEntity implements java.io.Serializable {
     private UUID authorId;
     private List<UUID> attachmentIds = new ArrayList<>();
 
-    private Object readResolve() {
-        if (attachmentIds == null) {
-            attachmentIds = new ArrayList<>();
-        }
-        return this;
+    public Message() {
+        super();
     }
 
-    
+    public Message(UUID id, Instant createdAt, Instant updatedAt, String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+        super(id, createdAt, updatedAt);
+        this.content = content;
+        this.channelId = channelId;
+        this.authorId = authorId;
+        this.attachmentIds = attachmentIds;
+    }
 
     public void update(String content) {
         boolean anyValueUpdated = false;

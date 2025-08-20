@@ -4,21 +4,23 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.exception.FileInitializationException;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Profile;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption; // Added import
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Repository;
 import org.springframework.context.annotation.Primary;
 
 @Repository
 @Primary
+@Profile("file")
 public class FileReadStatusRepository implements ReadStatusRepository {
 
     private final Path DIRECTORY;
@@ -42,11 +44,14 @@ public class FileReadStatusRepository implements ReadStatusRepository {
     @Override
     public ReadStatus save(ReadStatus readStatus) {
         Path path = resolvePath(readStatus.getId());
+        Path tempPath = DIRECTORY.resolve(UUID.randomUUID().toString() + EXTENSION + ".tmp"); // Temporary file
+
         try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
+                FileOutputStream fos = new FileOutputStream(tempPath.toFile());
                 ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(readStatus);
+            Files.move(tempPath, path, StandardCopyOption.REPLACE_EXISTING); // Atomically replace the original file
         } catch (IOException e) {
             throw new FileInitializationException("Failed to save readStatus: " + readStatus.getId(), e);
         }
@@ -132,6 +137,13 @@ public class FileReadStatusRepository implements ReadStatusRepository {
     public List<ReadStatus> findAllByUserId(UUID userId) {
         return findAll().stream()
                 .filter(readStatus -> readStatus.getUserId().equals(userId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReadStatus> findAllByChannelId(UUID channelId) {
+        return findAll().stream()
+                .filter(readStatus -> readStatus.getChannelId().equals(channelId))
                 .collect(Collectors.toList());
     }
 }

@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Profile;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
@@ -10,8 +12,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Repository
+@Profile("test")
 public class JCFMessageRepository implements MessageRepository {
-    private final Map<UUID, Message> data = new ConcurrentHashMap<>();
+    private static final Map<UUID, Message> data = new ConcurrentHashMap<>();
 
     @Override
     public Message save(Message message) {

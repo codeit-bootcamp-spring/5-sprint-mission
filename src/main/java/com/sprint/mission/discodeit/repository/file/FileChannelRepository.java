@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Profile;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
+@Profile("file")
 public class FileChannelRepository implements ChannelRepository {
 
     private final Path DIRECTORY;
@@ -104,7 +106,7 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public Optional<Channel> findByChannelName(String channelName) {
         return findAll().stream()
-                .filter(channel -> channel.getChannelName().equals(channelName))
+                .filter(channel -> channel.getChannelName() != null && channel.getChannelName().equals(channelName))
                 .findFirst();
     }
 

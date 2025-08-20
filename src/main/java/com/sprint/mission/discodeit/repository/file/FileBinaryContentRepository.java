@@ -9,6 +9,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption; // Added import
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,11 +43,14 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     @Override
     public BinaryContent save(BinaryContent binaryContent) {
         Path path = resolvePath(binaryContent.getId());
+        Path tempPath = DIRECTORY.resolve(UUID.randomUUID().toString() + EXTENSION + ".tmp"); // Temporary file
+
         try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
+                FileOutputStream fos = new FileOutputStream(tempPath.toFile());
                 ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(binaryContent);
+            Files.move(tempPath, path, StandardCopyOption.REPLACE_EXISTING); // Atomically replace the original file
         } catch (IOException e) {
             throw new FileInitializationException("Failed to save binaryContent: " + binaryContent.getId(), e);
         }
@@ -97,9 +101,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
         try {
-            if (Files.exists(path)) {
-                Files.delete(path);
-            }
+            Files.deleteIfExists(path);
         } catch (IOException e) {
             throw new FileInitializationException("Failed to delete binaryContent by id: " + id, e);
         }
