@@ -1,14 +1,8 @@
-#spring.application.name=discodeit
-
-# application.yaml
 spring:
-  profiles:
-    active: jcf   # jcf | file
+  application:
+    name: discodeit
 
-#이 부분은 아직 잘 모르겠음.
 discodeit:
   repository:
-    type: jcf   # jcf | file
+    type: file   # jcf | file
     file-directory: .discodeit
-
-
