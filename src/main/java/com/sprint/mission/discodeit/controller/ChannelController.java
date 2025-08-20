@@ -53,7 +53,6 @@ public class ChannelController {
 
 	@RequestMapping(path = "/{channelId}/leave", method = RequestMethod.POST)
 	public ResponseEntity<ChannelLeaveResponse> leaveChannel(@PathVariable UUID channelId, @RequestBody ChannelLeaveRequest request) {
-		// PathVariable의 channelId와 RequestBody의 channelId 일치성 검증
 		if (!channelId.equals(request.getChannelId())) {
 			return ResponseEntity.badRequest().build();
 		}

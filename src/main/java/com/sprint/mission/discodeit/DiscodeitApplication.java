@@ -14,7 +14,9 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 public class DiscodeitApplication {
 	public static void main(String[] args) throws InterruptedException, IOException {
 		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
+
 		testing(context);
+
 	}
 
 	private static void testing(ConfigurableApplicationContext context) throws InterruptedException {
@@ -25,8 +27,10 @@ public class DiscodeitApplication {
 		System.out.println("서비스 테스트 시작\n");
 
 		UserStatusService userStatusService = context.getBean(UserStatusService.class);
+		UserRepository userRepository = context.getBean(UserRepository.class);
 		System.out.println();
 		System.out.println("유저 상태 정보 : " + userStatusService.getAll());
+		System.out.println("유저 정보 : " + userRepository.findAll());
 		System.out.println();
 
 		System.out.println("모든 서비스 테스트 완료");

@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class ChannelUpdateRequest {
-	@NotBlank(message = "채널 명은 필수")
 	private String newName;
 	private String newDescription;
 }

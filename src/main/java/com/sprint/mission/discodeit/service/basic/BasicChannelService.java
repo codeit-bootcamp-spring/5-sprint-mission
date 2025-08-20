@@ -119,13 +119,18 @@ public class BasicChannelService implements ChannelService {
 			throw new PrivateChannelUpdateException();
 		}
 
-		if (channelRepository.existsByName(request.getNewName())) {
+		if (request.getNewName() != null &&channelRepository.existsByName(request.getNewName())) {
 			throw new DuplicateChannelNameException();
 		}
 
-		channel.setName(request.getNewName());
-		channel.setDescription(request.getNewDescription());
-		channel.updateUpdatedAt();
+		if (request.getNewName() != null) {
+			channel.setName(request.getNewName());
+			channel.updateUpdatedAt();
+		}
+		if (request.getNewDescription() != null) {
+			channel.setDescription(request.getNewDescription());
+			channel.updateUpdatedAt();
+		}
 		channelRepository.save(channel);
 
 		return createChannelByType(channel);

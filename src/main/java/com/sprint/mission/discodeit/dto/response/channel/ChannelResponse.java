@@ -37,6 +37,7 @@ public class ChannelResponse {
 		this.createdAt = channel.getCreatedAt();
 		this.updatedAt = channel.getUpdatedAt();
 		this.name = channel.getName();
+		this.description = channel.getDescription();
 		this.type = channel.getType();
 		this.lastMessageAt = lastMessageAt;
 		this.participantIds = participantIds;
