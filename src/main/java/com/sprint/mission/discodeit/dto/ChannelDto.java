@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto;
 
 import com.sprint.mission.discodeit.entity.ChannelType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import lombok.Getter;
 public class ChannelDto {
 
   @Getter
+  @Schema(name = "ChannelCreateRequest")
   public static class CreateRequest {
 
     String name;
@@ -39,6 +41,7 @@ public class ChannelDto {
 
   @Getter
   @Builder
+  @Schema(name = "ChannelUpdateRequest")
   public static class UpdateRequest {
 
     String name;
@@ -67,6 +70,7 @@ public class ChannelDto {
 
   @Getter
   @Builder
+  @Schema(name = "ChannelDetailResponse")
   public static class DetailResponse {
 
     UUID id;

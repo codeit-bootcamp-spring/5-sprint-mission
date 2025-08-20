@@ -1,12 +1,14 @@
 package com.sprint.mission.discodeit.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
 public class AuthDto {
 
   @Getter
-  public static class Request {
+  @Schema(name = "LoginRequest")
+  public static class LoginRequest {
 
     private String username;
     private String password;

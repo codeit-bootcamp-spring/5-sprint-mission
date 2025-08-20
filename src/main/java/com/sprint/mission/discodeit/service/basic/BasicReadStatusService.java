@@ -2,9 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.Create;
-import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -23,7 +21,7 @@ public class BasicReadStatusService implements ReadStatusService {
   private final ReadStatusRepository readStatusRepository;
 
   @Override
-  public ReadStatusDto.DetailResponse create(Create request) {
+  public ReadStatusDto.Detail create(Create request) {
 
     userRepository.findById(request.getUserId())
         .orElseThrow(() -> new IllegalArgumentException("Not Found User"));
@@ -38,27 +36,27 @@ public class BasicReadStatusService implements ReadStatusService {
     ReadStatus readStatus = new ReadStatus(request.getUserId(), request.getChannelId());
     readStatusRepository.save(readStatus);
 
-    return ReadStatusDto.DetailResponse.builder().id(readStatus.getId())
+    return ReadStatusDto.Detail.builder().id(readStatus.getId())
         .channelId(readStatus.getChannelId()).userId(readStatus.getUserId())
         .lastReadAt(readStatus.getLastReadAt()).build();
   }
 
   @Override
-  public ReadStatusDto.DetailResponse find(UUID id) {
+  public ReadStatusDto.Detail find(UUID id) {
     ReadStatus readStatus = readStatusRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Not Found Read Status"));
 
-    return ReadStatusDto.DetailResponse.builder().id(readStatus.getId())
+    return ReadStatusDto.Detail.builder().id(readStatus.getId())
         .channelId(readStatus.getChannelId()).userId(readStatus.getUserId())
         .lastReadAt(readStatus.getLastReadAt()).build();
   }
 
   @Override
-  public List<ReadStatusDto.DetailResponse> findAllByUserId(UUID userId) {
+  public List<ReadStatusDto.Detail> findAllByUserId(UUID userId) {
     List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(userId);
 
     return readStatuses.stream().map(
-        rs -> ReadStatusDto.DetailResponse.builder().id(rs.getId()).channelId(rs.getChannelId())
+        rs -> ReadStatusDto.Detail.builder().id(rs.getId()).channelId(rs.getChannelId())
             .userId(rs.getUserId()).lastReadAt(rs.getLastReadAt()).build()).toList();
   }
 
@@ -73,7 +71,7 @@ public class BasicReadStatusService implements ReadStatusService {
   }
 
   @Override
-  public ReadStatusDto.DetailResponse update(UUID id) {
+  public ReadStatusDto.Detail update(UUID id) {
 
     ReadStatus readStatus = readStatusRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Not Found Read Status"));
@@ -81,7 +79,7 @@ public class BasicReadStatusService implements ReadStatusService {
     readStatus.update();
     readStatusRepository.save(readStatus);
 
-    return ReadStatusDto.DetailResponse.builder().id(readStatus.getId())
+    return ReadStatusDto.Detail.builder().id(readStatus.getId())
         .channelId(readStatus.getChannelId()).userId(readStatus.getUserId())
         .lastReadAt(readStatus.getLastReadAt()).build();
   }

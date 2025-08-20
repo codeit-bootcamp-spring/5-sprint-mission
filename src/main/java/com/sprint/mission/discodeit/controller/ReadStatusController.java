@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.Create;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateRequest;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.Detail;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import java.util.List;
@@ -27,9 +29,9 @@ public class ReadStatusController {
 
   @PostMapping
   public ResponseEntity<ReadStatusDto.DetailResponse> createReadStatus(
-      @RequestBody Create request) {
+      @RequestBody CreateRequest request) {
 
-    return ResponseEntity.ok(readStatusService.create(request));
+    return ResponseEntity.ok(readStatusService.create(request.toCreate()).toDetailResponse());
   }
 
   @PatchMapping("/{id}")
@@ -43,6 +45,7 @@ public class ReadStatusController {
   public ResponseEntity<List<ReadStatusDto.DetailResponse>> getReadStatusByUser(
       @RequestParam UUID userId) {
 
-    return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
+    return ResponseEntity.ok(
+        readStatusService.findAllByUserId(userId).stream().map(Detail::toDetailResponse).toList());
   }
 }

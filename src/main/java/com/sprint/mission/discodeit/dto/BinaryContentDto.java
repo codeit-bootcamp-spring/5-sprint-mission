@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Builder;
@@ -18,6 +19,7 @@ public class BinaryContentDto {
 
   @Getter
   @Builder
+  @Schema(name = "BinaryContentDetailResponse")
   public static class DetailResponse {
 
     UUID id;
@@ -26,5 +28,28 @@ public class BinaryContentDto {
     Long size;
     Instant createdAt;
     byte[] bytes;
+  }
+
+  @Getter
+  @Builder
+  public static class Detail {
+
+    UUID id;
+    String name;
+    String contentType;
+    Long size;
+    Instant createdAt;
+    byte[] bytes;
+
+    public DetailResponse toDetailResponse() {
+      return DetailResponse.builder()
+          .id(id)
+          .name(name)
+          .contentType(contentType)
+          .size(size)
+          .createdAt(createdAt)
+          .bytes(bytes)
+          .build();
+    }
   }
 }

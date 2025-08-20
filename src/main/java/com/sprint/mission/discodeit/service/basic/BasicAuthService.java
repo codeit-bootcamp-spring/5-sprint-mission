@@ -18,7 +18,7 @@ public class BasicAuthService implements AuthService {
   private final UserStatusRepository userStatusRepository;
 
   @Override
-  public UserDto.DetailResponse login(Login login) {
+  public UserDto.Detail login(Login login) {
 
     String username = login.getUsername();
     String password = login.getPassword();
@@ -37,7 +37,7 @@ public class BasicAuthService implements AuthService {
     userStatus.update();
     userStatusRepository.save(userStatus);
 
-    return UserDto.DetailResponse.builder().id(user.getId()).username(user.getName())
+    return UserDto.Detail.builder().id(user.getId()).username(user.getName())
         .email(user.getEmail()).profileId(user.getProfileId()).online(userStatus.isOnline())
         .createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
   }
