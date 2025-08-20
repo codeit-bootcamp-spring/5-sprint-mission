@@ -14,7 +14,7 @@ public class PrivateChannelCreateRequest {
     private List<String> membersId; // 초대한 멤버 목록
 
 
-    // ✅ DTO → Channel 변환 메서드
+    // DTO → Channel 변환 메서드
     public Channel toEntity() {
         return new Channel(
                 UUID.randomUUID(),
@@ -25,10 +25,10 @@ public class PrivateChannelCreateRequest {
         );
     }
 
-    // ✅ 고정된 UUID를 외부에서 주입받는 방식
+    //고정된 UUID를 외부에서 주입받는 방식
     public Channel toEntityWithId(UUID fixedId) {
         return new Channel(
-                fixedId, // ✅ 전달받은 UUID 사용
+                fixedId, // 전달받은 UUID 사용
                 "",
                 ownerId,
                 ChannelType.PRIVATE_CHANNEL,

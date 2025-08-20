@@ -24,16 +24,18 @@ public class ChannelController {
     // ✅ 공개 채널 생성
     @RequestMapping(value = "/createPublic", method = RequestMethod.POST)
     public ResponseEntity<Void> createPublic(@RequestBody PublicChannelCreateRequest request) {
-        channelService.createPublicChannel(request);
+        channelService.create(request.toEntity()); // Entity로 변환해서 넘김
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
 
     // ✅ 비공개 채널 생성
     @RequestMapping(value = "/createPrivate", method = RequestMethod.POST)
     public ResponseEntity<Void> createPrivate(@RequestBody PrivateChannelCreateRequest request) {
-        channelService.createPrivateChannel(request);
+        channelService.create(request.toEntity()); // Entity로 변환해서 넘김
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
 
     // ✅ 채널 단건 조회
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)

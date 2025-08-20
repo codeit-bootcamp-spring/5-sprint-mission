@@ -10,7 +10,11 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice // 전체 Controller의 예외를 처리하는 클래스
+/*Controller or Service : 문제 발생시 예외 던짐
+ * GlobalExceptionHandler : 던져진 예외를 받아 클라이언트에게 적절한 응답 반환
+ */
+
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
     // ✅ IllegalArgumentException 예외를 처리
@@ -19,7 +23,7 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST); // 400 반환
     }
 
-    // ✅ 모든 일반 예외 처리 (위에 안걸린 모든 Exception들)
+    // ✅ Exception.class (위에 안걸린 모든 Exception들 처리해줌)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenericException(Exception ex, WebRequest request) {
         ex.printStackTrace();

@@ -22,7 +22,7 @@ public interface UserRepository {
 
     boolean existsByEmail(String email);
 
-    Optional<User> findOptionalById(UUID id);
+    Optional<User> findByUserIdAndPassword(String userId, String password);
 
 
 }

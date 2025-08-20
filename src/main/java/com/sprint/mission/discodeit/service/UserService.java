@@ -17,10 +17,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+//약속
+//다중 구현 가능
 public interface UserService {
-    //약속
-    //다중 구현 가능
-
     User create(UserCreateRequest request, MultipartFile profileImage);
 
     UserResponse findById(UUID id); //조회
