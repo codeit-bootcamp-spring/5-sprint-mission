@@ -92,10 +92,10 @@ public class BasicMessageService implements MessageService {
   }
 
   private void validateExist(UUID authorId, UUID channelId) {
-    if (userRepository.existsById(authorId)) {
+    if (!userRepository.existsById(authorId)) {
       throw new NoSuchElementException("validateExist : 유저를 찾을 수 없습니다. [" + authorId + "]");
     }
-    if (channelRepository.existsById(channelId)) {
+    if (!channelRepository.existsById(channelId)) {
       throw new NoSuchElementException("validateExist : 채널을 찾을 수 없습니다. [" + channelId + "]");
     }
   }
