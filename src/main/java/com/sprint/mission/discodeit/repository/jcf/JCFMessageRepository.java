@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository("jcfMessageRepository")
 public class JCFMessageRepository implements MessageRepository {
@@ -30,6 +31,11 @@ public class JCFMessageRepository implements MessageRepository {
     @Override
     public List<Message> findAll() {
         return this.data.values().stream().toList();
+    }
+
+    @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return data.values().stream().filter(m -> m.getChannelId().equals(channelId)).collect(Collectors.toList());
     }
 
     @Override

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -44,6 +43,14 @@ public class BasicMessageService implements MessageService {
     public Message find(UUID messageId) {
         return messageRepository.findById(messageId)
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+    }
+
+    @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        if (!channelRepository.existsById(channelId)) {
+            throw new NoSuchElementException("채널 Id가 존재하지 않습니다.");
+        }
+        return messageRepository.findAllByChannelId(channelId);
     }
 
     @Override
