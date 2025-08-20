@@ -70,7 +70,6 @@ public class FileUserStatusRepository implements UserStatusRepository {
                 .findFirst();
     }
 
-
     @Override
     public List<UserStatus> findAll() {
         try {

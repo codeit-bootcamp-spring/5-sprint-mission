@@ -21,19 +21,20 @@ public class UserStatus implements Serializable {
     private final UUID userId;
     private Instant lastLogin;
 
-    public UserStatus(UUID userId){
+    public UserStatus(UUID userId, Instant lastLogin) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         //
         this.userId = userId;
+        this.lastLogin = lastLogin;
     }
 
-    public void updateLastLogin(){
-        this.updatedAt = Instant.now();
-        this.lastLogin = Instant.now();
+    public void updateLastLogin(Instant time) {
+        this.updatedAt = time;
+        this.lastLogin = time;
     }
 
-    public boolean isLogin(){
+    public boolean isLogin() {
         return lastLogin.isBefore(Instant.now().minus(Duration.ofMinutes(5)));
     }
 }

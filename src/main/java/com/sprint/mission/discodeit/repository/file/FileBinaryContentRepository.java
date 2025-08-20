@@ -64,7 +64,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     }
 
     @Override
-    public List<BinaryContent> findAll() {
+    public List<BinaryContent> findAllByInIds(List<UUID> ids) {
         try {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
@@ -78,6 +78,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
                             throw new RuntimeException(e);
                         }
                     })
+                    .filter(binaryContent -> ids.contains(binaryContent.getId()))
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);

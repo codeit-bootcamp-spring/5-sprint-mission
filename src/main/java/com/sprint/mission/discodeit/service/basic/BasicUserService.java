@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -42,13 +43,12 @@ public class BasicUserService implements UserService {
         User user = new User(userCreateRequest.username(), userCreateRequest.email(), userCreateRequest.password());
 
         if (binaryContentCreateRequest != null) {
-            BinaryContent profile = new BinaryContent(binaryContentCreateRequest.fileName(), binaryContentCreateRequest.contentType(),
-                    binaryContentCreateRequest.size(), binaryContentCreateRequest.binaryContent());
+            BinaryContent profile = new BinaryContent(binaryContentCreateRequest.fileName(), binaryContentCreateRequest.contentType(), binaryContentCreateRequest.binaryContent());
             user.updateProfile(profile.getId());
             binaryContentRepository.save(profile);
         }
 
-        UserStatus userStatus = new UserStatus(user.getId());
+        UserStatus userStatus = new UserStatus(user.getId(), Instant.MIN);
 
         userRepository.save(user);
         userStatusRepository.save(userStatus);
@@ -75,8 +75,8 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
         if (binaryContentCreateRequest != null) {
-            BinaryContent profile = new BinaryContent(binaryContentCreateRequest.fileName(), binaryContentCreateRequest.contentType(),
-                    binaryContentCreateRequest.size(), binaryContentCreateRequest.binaryContent());
+            BinaryContent profile = new BinaryContent(binaryContentCreateRequest.fileName(), binaryContentCreateRequest.contentType()
+                    , binaryContentCreateRequest.binaryContent());
             user.updateProfile(profile.getId());
             binaryContentRepository.save(profile);
         }
