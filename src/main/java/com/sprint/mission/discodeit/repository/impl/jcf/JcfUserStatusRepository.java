@@ -3,8 +3,6 @@ package com.sprint.mission.discodeit.repository.impl.jcf;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,13 +29,12 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
   }
 
   @Override
-  public List<UserStatus> findAllByUserIds(Collection<UUID> userIds) {
+  public List<UserStatus> findAllByUserId(Set<UUID> userIds) {
     Objects.requireNonNull(userIds, "userIds must not be null");
     if (userIds.isEmpty()) {
       return List.of();
     }
-    Set<UUID> set = userIds instanceof java.util.Set<UUID> s ? s : new HashSet<>(userIds);
-    return findAll().stream().filter(us -> set.contains(us.getUserId())).toList();
+    return data.values().stream().filter(us -> userIds.contains(us.getUserId())).toList();
   }
 
   @Override

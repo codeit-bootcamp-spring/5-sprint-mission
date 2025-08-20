@@ -131,7 +131,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
 
   @Override
   public Optional<T> findById(UUID id) {
-    return readObject(resolvePath(id)).filter(e -> !e.isDeleted());
+    return readObject(resolvePath(id)).filter(AbstractEntity::isNotDeleted);
   }
 
   @Override
@@ -149,7 +149,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   public List<T> findAll() {
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
-          .filter(e -> !e.isDeleted())
+          .filter(AbstractEntity::isNotDeleted)
           .toList();
     } catch (IOException e) {
       log.warn("저장 파일 나열 실패: {}", directory, e);
@@ -180,19 +180,20 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public List<T> findAllByIds(Set<UUID> ids) {
+  public List<T> findAllById(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
+
     return ids.stream()
         .map(this::resolvePath)
         .map(this::readObject).flatMap(Optional::stream)
-        .filter(e -> !e.isDeleted())
+        .filter(AbstractEntity::isNotDeleted)
         .toList();
   }
 
   @Override
-  public List<T> findAllByIdsIncludingDeleted(Set<UUID> ids) {
+  public List<T> findAllByIdIncludingDeleted(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
@@ -204,11 +205,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
 
   @Override
   public boolean existsById(UUID id) {
-    Path p = resolvePath(id);
-    if (!Files.exists(p)) {
-      return false;
-    }
-    return readObject(p).map(e -> !e.isDeleted()).orElse(false);
+    return readObject(resolvePath(id)).map(AbstractEntity::isNotDeleted).orElse(false);
   }
 
   @Override

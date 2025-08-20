@@ -47,11 +47,11 @@ public class UserStatusService {
         .toList();
   }
 
-  public List<UserStatusResponse> findAllByUserIds(Set<UUID> userIds) {
+  public List<UserStatusResponse> findAllByUserId(Set<UUID> userIds) {
     if (userIds == null || userIds.isEmpty()) {
       return List.of();
     }
-    return userStatusRepository.findAllByUserIds(userIds).stream()
+    return userStatusRepository.findAllByUserId(userIds).stream()
         .map(UserStatusResponse::from)
         .toList();
   }

@@ -6,7 +6,7 @@ usersRoot:
     operationId: findAll
     description: |-
       모든 사용자를 조회하거나 **username** 또는 **email** 조건으로 검색합니다.
-
+      
       - **username**과 **email**은 동시에 전달할 수 없습니다. 동시에 전달되면 400(BAD_REQUEST)을 반환합니다.
       - 입력 값은 서버에서 strip 후 소문자로 정규화됩니다.
       - 결과는 항상 배열로 반환됩니다(0개/1개여도 배열).
@@ -53,7 +53,7 @@ usersRoot:
                   method: "GET"
                   status: 400
                   code: "INVALID_PARAMETER_NUMBER"
-                  message: "Multiple query parameters not allowed"
+                  message: "Multiple parameters not allowed"
                   details:
                     - "username, email: 하나만 포함하여야 합니다"
               invalidParameterValues:
@@ -182,9 +182,9 @@ usersRoot:
                   method: "POST"
                   status: 415
                   code: "UNSUPPORTED_MEDIA_TYPE"
-                  message: "허용되지 않은 미디어 타입입니다. 지원되는 타입: application/json, application/yaml, application/*+json"
+                  message: "Media type not allowed. Supported types: application/json, application/yaml, application/*+json"
                   details:
-                    - "Content-Type 'application/octet-stream' is not supported"
+                    - "Content-Type 'application/octet-stream' not supported"
               invalidProfile:
                 value:
                   timestamp: "2025-08-19T07:13:02.116388Z"
@@ -192,9 +192,9 @@ usersRoot:
                   method: "POST"
                   status: 415
                   code: "UNSUPPORTED_MEDIA_TYPE"
-                  message: "허용되지 않은 미디어 타입입니다. 지원되는 타입: application/octet-stream, image/png, image/jpeg, image/webp"
+                  message: "Media type not allowed. Supported types: application/octet-stream, image/png, image/jpeg, image/webp"
                   details:
-                    - "Content-Type 'image/vnd.microsoft.icon' is not supported"
+                    - "Content-Type 'image/vnd.microsoft.icon' not supported"
 userById:
   delete:
     tags:
@@ -291,7 +291,9 @@ userById:
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 1]"
       '409':
-        description: 같은 email 또는 username를 사용하는 User가 이미 존재함
+        description: |
+          같은 email을 사용하는 User가 이미 존재함
+          username를 사용하는 User가 이미 존재함
         content:
           application/json:
             schema:
@@ -329,9 +331,9 @@ userById:
                   method: "PATCH"
                   status: 415
                   code: "UNSUPPORTED_MEDIA_TYPE"
-                  message: "허용되지 않은 미디어 타입입니다. 지원되는 타입: application/json, application/yaml, application/*+json"
+                  message: "Media type not allowed. Supported types: application/json, application/yaml, application/*+json"
                   details:
-                    - "Content-Type 'application/octet-stream' is not supported"
+                    - "Content-Type 'application/octet-stream' not supported"
               invalidProfile:
                 value:
                   timestamp: "2025-08-19T07:13:02.116388Z"
@@ -339,6 +341,6 @@ userById:
                   method: "PATCH"
                   status: 415
                   code: "UNSUPPORTED_MEDIA_TYPE"
-                  message: "허용되지 않은 미디어 타입입니다. 지원되는 타입: application/octet-stream, image/png, image/jpeg, image/webp"
+                  message: "Media type not allowed. Supported types: application/octet-stream, image/png, image/jpeg, image/webp"
                   details:
-                    - "Content-Type 'image/vnd.microsoft.icon' is not supported"
+                    - "Content-Type 'image/vnd.microsoft.icon' not supported"

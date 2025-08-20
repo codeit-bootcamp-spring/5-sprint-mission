@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.exception.ParameterNumberNotValidException;
-import com.sprint.mission.discodeit.exception.ValidatorsValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -34,11 +33,11 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ApiError handleNotReadable(HttpMessageNotReadableException e, HttpServletRequest req) {
+  public ApiError handleInvalidJson(HttpMessageNotReadableException e, HttpServletRequest req) {
     e.getMostSpecificCause();
     String causeMsg = e.getMostSpecificCause().getMessage();
-    log.warn("400(NOT_READABLE) {} {} -> {}", req.getMethod(), req.getRequestURI(), causeMsg);
-    return ApiError.from(req, HttpStatus.BAD_REQUEST, "JSON_PARSE_ERROR",
+    log.warn("400(INVALID_JSON) {} {} -> {}", req.getMethod(), req.getRequestURI(), causeMsg);
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "INVALID_JSON",
         "Unable to read request body, please check JSON format and field type",
         listOfNullable(causeMsg));
   }
@@ -48,8 +47,9 @@ public class GlobalExceptionHandler {
   public ApiError handleConstraintViolation(ConstraintViolationException e,
       HttpServletRequest req) {
     List<String> details = constraintErrors(e.getConstraintViolations());
-    log.warn("400(CONSTRAINT) {} {} -> {}", req.getMethod(), req.getRequestURI(), details);
-    return ApiError.from(req, HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+    log.warn("400(INVALID_PARAMETER_VALUE) {} {} -> {}", req.getMethod(), req.getRequestURI(),
+        details);
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "INVALID_PARAMETER_VALUE",
         "Request parameter value not valid", details);
   }
 
@@ -59,8 +59,8 @@ public class GlobalExceptionHandler {
     List<String> details = e.getBindingResult().getFieldErrors().stream()
         .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
         .toList();
-    log.warn("400(VALIDATION) {} {} -> {}", req.getMethod(), req.getRequestURI(), details);
-    return ApiError.from(req, HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+    log.warn("400(INVALID_BODY_VALUE) {} {} -> {}", req.getMethod(), req.getRequestURI(), details);
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "INVALID_BODY_VALUE",
         "Request body value not valid", details);
   }
 
@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
       HttpServletRequest req) {
     String msg = (e.getMessage() != null && !e.getMessage().isBlank())
         ? e.getMessage()
-        : "Multiple query parameters not allowed";
+        : "Multiple parameters not allowed";
 
     List<String> params = e.getReceivedParameters();
     List<String> details = (params != null && !params.isEmpty())
@@ -83,7 +83,6 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler({
-      ValidatorsValidationException.class,
       IllegalArgumentException.class,
       MethodArgumentTypeMismatchException.class,
       MissingServletRequestParameterException.class
@@ -152,10 +151,11 @@ public class GlobalExceptionHandler {
   public ApiError handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException e,
       HttpServletRequest req) {
     String supported = !e.getSupportedMediaTypes().isEmpty()
-        ? " 지원되는 타입: " + e.getSupportedMediaTypes().stream().map(Object::toString)
+        ? " Supported types: " + e.getSupportedMediaTypes().stream()
+        .map(Object::toString)
         .collect(Collectors.joining(", "))
         : "";
-    String msg = "허용되지 않은 미디어 타입입니다." + supported;
+    String msg = "Media type not allowed." + supported;
     log.warn("415(UNSUPPORTED_MEDIA_TYPE) {} {} -> {}", req.getMethod(), req.getRequestURI(),
         e.getMessage());
     return ApiError.from(req, HttpStatus.UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED_MEDIA_TYPE", msg,

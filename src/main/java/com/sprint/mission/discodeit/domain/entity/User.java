@@ -143,8 +143,8 @@ public class User extends AbstractEntity {
 
   @Override
   public String toString() {
-    return "User[id=%s, email=%s, username=%s]"
-        .formatted(getId(), email, username);
+    return "User[id=%s, username=%s, email=%s]"
+        .formatted(getId(), username, email);
   }
 
   private <T> void assignIfChanged(T newValue, Supplier<T> getter, Consumer<T> writer) {

@@ -112,7 +112,7 @@ channels_public:
                   path: "/api/channels/public"
                   method: "POST"
                   status: 400
-                  code: "JSON_PARSE_ERROR"
+                  code: "INVALID_JSON"
                   message: "Unable to read request body, please check JSON format and field type"
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 1]"
@@ -175,7 +175,7 @@ channels_private:
                   path: "/api/channels/private"
                   method: "POST"
                   status: 400
-                  code: "JSON_PARSE_ERROR"
+                  code: "INVALID_JSON"
                   message: "Unable to read request body, please check JSON format and field type"
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 3, column: 1]"
@@ -291,7 +291,7 @@ channel_by_id:
                   path: "/api/channels/{channelId}"
                   method: "PATCH"
                   status: 400
-                  code: "JSON_PARSE_ERROR"
+                  code: "INVALID_JSON"
                   message: "Unable to read request body, please check JSON format and field type"
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 1]"

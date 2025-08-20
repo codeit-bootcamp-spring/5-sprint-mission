@@ -37,11 +37,11 @@ public class BinaryContentService {
         .toList();
   }
 
-  public List<BinaryContentResponse> findAllByIds(Set<UUID> ids) {
+  public List<BinaryContentResponse> findAllById(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
-    return binaryContentRepository.findAllByIds(ids).stream()
+    return binaryContentRepository.findAllById(ids).stream()
         .map(BinaryContentResponse::from)
         .toList();
   }

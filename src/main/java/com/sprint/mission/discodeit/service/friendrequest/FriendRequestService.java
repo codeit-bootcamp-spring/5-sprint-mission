@@ -137,7 +137,7 @@ public class FriendRequestService {
 
   private Map<UUID, User> loadUsers(UUID... ids) {
     Set<UUID> set = new HashSet<>(Arrays.asList(ids));
-    Map<UUID, User> map = userRepository.findAllByIds(set).stream()
+    Map<UUID, User> map = userRepository.findAllById(set).stream()
         .collect(Collectors.toMap(User::getId, Function.identity()));
     for (UUID id : set) {
       if (!map.containsKey(id)) {

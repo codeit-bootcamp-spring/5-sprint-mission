@@ -10,7 +10,6 @@ import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
-import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
@@ -49,24 +48,6 @@ public class UserService {
     return UserResponse.from(user, userStatus.getType());
   }
 
-  public List<UserResponse> findAll() {
-    List<User> users = userRepository.findAll();
-    if (users.isEmpty()) {
-      return List.of();
-    }
-    Set<UUID> ids = users.stream().map(User::getId).collect(Collectors.toSet());
-
-    Map<UUID, UserStatusType> statusMap = userStatusRepository.findAllByUserIds(ids).stream()
-        .collect(Collectors.toMap(
-            UserStatus::getUserId,
-            UserStatus::getType
-        ));
-
-    return users.stream()
-        .map(u -> UserResponse.from(u, statusMap.get(u.getId())))
-        .toList();
-  }
-
   public List<UserResponse> findByUsername(String username) {
     return userRepository.findByUsername(username)
         .map(this::toResponse)
@@ -79,6 +60,24 @@ public class UserService {
         .map(this::toResponse)
         .map(List::of)
         .orElse(List.of());
+  }
+
+  public List<UserResponse> findAll() {
+    List<User> users = userRepository.findAll();
+    if (users.isEmpty()) {
+      return List.of();
+    }
+    Set<UUID> ids = users.stream().map(User::getId).collect(Collectors.toSet());
+
+    Map<UUID, UserStatusType> statusMap = userStatusRepository.findAllByUserId(ids).stream()
+        .collect(Collectors.toMap(
+            UserStatus::getUserId,
+            UserStatus::getType
+        ));
+
+    return users.stream()
+        .map(u -> UserResponse.from(u, statusMap.get(u.getId())))
+        .toList();
   }
 
   @Transactional
@@ -125,9 +124,7 @@ public class UserService {
   }
 
   public UserResponse find(UUID userId) {
-    return userRepository.findById(userId)
-        .map(this::toResponse)
-        .orElseThrow(() -> new NotFoundException("User with id %s not found".formatted(userId)));
+    return toResponse(userRepository.getOrThrow(userId));
   }
 
   @Transactional

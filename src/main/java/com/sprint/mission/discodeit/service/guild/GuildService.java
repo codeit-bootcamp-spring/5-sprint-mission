@@ -56,7 +56,7 @@ public class GuildService {
   //
   // public List<GuildResponse> findGuildsJoinedByUser(UUID userId) {
   //   Set<UUID> ids = userRepository.getOrThrow(userId).getGuildIds();
-  //   return guildRepository.findAllByIds(ids).stream()
+  //   return guildRepository.findAllById(ids).stream()
   //       .map(GuildMapper::toGuildResponse)
   //       .toList();
   // }
@@ -99,7 +99,7 @@ public class GuildService {
 
   public List<Channel> getChannels(UUID guildId) {
     Set<UUID> ids = guildRepository.getOrThrow(guildId).getChannelIds();
-    return channelRepository.findAllByIds(ids);
+    return channelRepository.findAllById(ids);
   }
 
   public void addMember(UUID guildId, UUID userId) {

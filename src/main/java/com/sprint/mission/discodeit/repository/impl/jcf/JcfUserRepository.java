@@ -49,8 +49,8 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
       return Optional.empty();
     }
     final String key = email.strip();
-    return findAll().stream()
-        .filter(u -> u.getEmail() != null && u.getEmail().equalsIgnoreCase(key))
+    return data.values().stream()
+        .filter(u -> email.equalsIgnoreCase(u.getEmail()))
         .findFirst();
   }
 
@@ -59,9 +59,8 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
     if (username == null || username.isBlank()) {
       return Optional.empty();
     }
-    final String key = username.strip();
-    return findAll().stream()
-        .filter(u -> u.getUsername() != null && u.getUsername().equalsIgnoreCase(key))
+    return data.values().stream()
+        .filter(u -> username.equalsIgnoreCase(u.getUsername()))
         .findFirst();
   }
 

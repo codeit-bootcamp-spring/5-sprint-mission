@@ -3,13 +3,18 @@ package com.sprint.mission.discodeit.repository.impl.file;
 import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @Profile("dev")
 public class FileUserRepository extends AbstractFileRepository<User> implements UserRepository {
@@ -51,9 +56,14 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     if (email == null || email.isBlank()) {
       return Optional.empty();
     }
-    return findAll().stream()
-        .filter(u -> u.getEmail() != null && u.getEmail().equalsIgnoreCase(email))
-        .findFirst();
+    try (Stream<Path> s = streamSerializedFiles()) {
+      return s.map(this::readObject).flatMap(Optional::stream)
+          .filter(u -> !u.isDeleted() && email.equalsIgnoreCase(u.getEmail()))
+          .findFirst();
+    } catch (IOException e) {
+      log.warn("저장 파일 나열 실패: {}", directory, e);
+      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+    }
   }
 
   @Override
@@ -61,9 +71,14 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     if (username == null || username.isBlank()) {
       return Optional.empty();
     }
-    return findAll().stream()
-        .filter(u -> u.getUsername() != null && u.getUsername().equalsIgnoreCase(username))
-        .findFirst();
+    try (Stream<Path> s = streamSerializedFiles()) {
+      return s.map(this::readObject).flatMap(Optional::stream)
+          .filter(u -> !u.isDeleted() && username.equalsIgnoreCase(u.getUsername()))
+          .findFirst();
+    } catch (IOException e) {
+      log.warn("저장 파일 나열 실패: {}", directory, e);
+      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+    }
   }
 
   @Override

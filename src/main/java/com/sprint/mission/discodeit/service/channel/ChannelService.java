@@ -35,7 +35,7 @@ public class ChannelService {
 
   public List<ChannelResponse> findAll(UUID userId) {
     User u = userRepository.getOrThrow(userId);
-    List<Channel> channels = channelRepository.findAllByIds(u.getChannelIds());
+    List<Channel> channels = channelRepository.findAllById(u.getChannelIds());
     Set<UUID> ids = channels.stream().map(Channel::getId).collect(Collectors.toSet());
     Map<UUID, Instant> lastMap = messageRepository.findLastMessageAtByChannelIds(ids);
     return channels.stream()
@@ -53,7 +53,7 @@ public class ChannelService {
   @Transactional
   public ChannelSaveResponse create(PrivateChannelCreateRequest req) {
     Set<UUID> ids = req.participantIds();
-    List<User> users = userRepository.findAllByIds(ids);
+    List<User> users = userRepository.findAllById(ids);
     if (users.size() != ids.size()) {
       Set<UUID> found = users.stream().map(User::getId).collect(Collectors.toSet());
       UUID missing = ids.stream().filter(id -> !found.contains(id)).findFirst().orElse(null);

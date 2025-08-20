@@ -74,6 +74,10 @@ public abstract class AbstractEntity implements Serializable {
     this(null);
   }
 
+  public boolean isNotDeleted() {
+    return !deleted;
+  }
+
   public void delete() {
     applyDelete(null);
   }

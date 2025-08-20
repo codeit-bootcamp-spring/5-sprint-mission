@@ -51,7 +51,7 @@ user_statuses_root:
                   path: "/api/user-statuses?userId=6c1c5c7a-6d7d-4e9d-8a1f-bb2b3c4d5e6f"
                   method: "POST"
                   status: 400
-                  code: "VALIDATION_ERROR"
+                  code: "INVALID_BODY_VALUE"
                   message: "입력 값이 유효하지 않습니다."
                   details: [ "userStatusType: 널이어서는 안됩니다" ]
       '404':

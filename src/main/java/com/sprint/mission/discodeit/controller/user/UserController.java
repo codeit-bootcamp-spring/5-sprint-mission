@@ -41,7 +41,6 @@ public class UserController {
   private final UserService userService;
 
   @GetMapping(path = {"", "/"})
-  @ResponseStatus(HttpStatus.OK)
   public List<UserResponse> findAll(
 
       @RequestParam(required = false)
@@ -80,7 +79,7 @@ public class UserController {
       String ct = FileNames.normalizeContentType(profile.getContentType());
       if (!SUPPORTED_IMAGE_TYPE.contains(ct)) {
         throw new HttpMediaTypeNotSupportedException(
-            "Content-Type '%s' is not supported".formatted(ct),
+            "Content-Type '%s' not supported".formatted(ct),
             SUPPORTED_IMAGE_TYPE.stream().map(MediaType::valueOf).toList()
         );
       }
@@ -90,7 +89,6 @@ public class UserController {
   }
 
   @GetMapping(path = "/{userId}")
-  @ResponseStatus(HttpStatus.OK)
   public UserResponse find(@PathVariable("userId") UUID id) {
     return userService.find(id);
   }
@@ -102,7 +100,6 @@ public class UserController {
   }
 
   // @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  // @ResponseStatus(HttpStatus.OK)
   // public UserSaveResponse update(
   //     @PathVariable("userId") UUID userId,
   //     @RequestPart("userUpdateRequest") @Valid UserUpdateRequest req,
@@ -113,7 +110,7 @@ public class UserController {
   //     String ct = FileNames.normalizeContentType(profile.getContentType());
   //     if (!SUPPORTED.contains(ct)) {
   //       throw new HttpMediaTypeNotSupportedException(
-  //           "Content-Type '%s' is not supported".formatted(ct),
+  //           "Content-Type '%s' not supported".formatted(ct),
   //           SUPPORTED.stream().map(MediaType::valueOf).toList()
   //       );
   //     }

@@ -37,8 +37,9 @@ ApiError:
       type: string
       enum:
         - BAD_REQUEST
-        - VALIDATION_ERROR
-        - JSON_PARSE_ERROR
+        - INVALID_JSON
+        - INVALID_BODY_VALUE
+        - INVALID_PARAMETER_VALUE
         - INVALID_PARAMETER_NUMBER
         - INVALID_PARAMETER_VALUES
         - UNAUTHORIZED

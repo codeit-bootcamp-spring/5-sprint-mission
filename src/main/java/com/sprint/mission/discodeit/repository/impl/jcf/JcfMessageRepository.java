@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.repository.impl.jcf;
 
+import com.sprint.mission.discodeit.domain.entity.AbstractEntity;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import java.time.Instant;
@@ -53,7 +54,7 @@ public class JcfMessageRepository extends AbstractJcfRepository<Message> impleme
       return Map.of();
     }
     return data.values().stream()
-        .filter(m -> !m.isDeleted())
+        .filter(AbstractEntity::isNotDeleted)
         .filter(m -> channelIds.contains(m.getChannelId()))
         .filter(m -> m.getCreatedAt() != null)
         .collect(Collectors.toMap(

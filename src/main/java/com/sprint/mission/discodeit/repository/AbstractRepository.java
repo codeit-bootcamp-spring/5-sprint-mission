@@ -28,9 +28,9 @@ public interface AbstractRepository<T extends AbstractEntity> {
 
   List<T> findAllDeleted();
 
-  List<T> findAllByIds(Set<UUID> ids);
+  List<T> findAllById(Set<UUID> ids);
 
-  List<T> findAllByIdsIncludingDeleted(Set<UUID> ids);
+  List<T> findAllByIdIncludingDeleted(Set<UUID> ids);
 
   boolean softDeleteById(UUID id);
 

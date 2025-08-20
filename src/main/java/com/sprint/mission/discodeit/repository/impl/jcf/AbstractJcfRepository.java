@@ -41,8 +41,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
 
   @Override
   public Optional<T> findById(UUID id) {
-    T e = data.get(id);
-    return !e.isDeleted() ? Optional.of(e) : Optional.empty();
+    return Optional.ofNullable(data.get(id)).filter(AbstractEntity::isNotDeleted);
   }
 
   @Override
@@ -58,7 +57,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
 
   @Override
   public List<T> findAll() {
-    return data.values().stream().filter(e -> !e.isDeleted()).toList();
+    return data.values().stream().filter(AbstractEntity::isNotDeleted).toList();
   }
 
   @Override
@@ -72,18 +71,18 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public List<T> findAllByIds(Set<UUID> ids) {
+  public List<T> findAllById(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
     return ids.stream()
         .map(data::get)
-        .filter(e -> !e.isDeleted())
+        .filter(AbstractEntity::isNotDeleted)
         .toList();
   }
 
   @Override
-  public List<T> findAllByIdsIncludingDeleted(Set<UUID> ids) {
+  public List<T> findAllByIdIncludingDeleted(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
@@ -182,7 +181,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
 
   @Override
   public long count() {
-    return data.values().stream().filter(e -> !e.isDeleted()).count();
+    return data.values().stream().filter(AbstractEntity::isNotDeleted).count();
   }
 
   @Override
