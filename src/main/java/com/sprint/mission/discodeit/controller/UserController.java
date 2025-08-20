@@ -104,7 +104,7 @@ public class UserController {
   })
   @Parameter(name = "userId", description = "삭제할 User ID")
   @DeleteMapping("/{userId}")
-  public ResponseEntity<User> delete(@PathVariable UUID userId) {
+  public ResponseEntity<Void> delete(@PathVariable UUID userId) {
     userService.delete(userId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }

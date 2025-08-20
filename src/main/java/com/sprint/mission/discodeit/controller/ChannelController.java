@@ -83,9 +83,9 @@ public class ChannelController {
   })
   @Parameter(name = "channelId", description = "삭제할 Channel ID")
   @DeleteMapping("/{channelId}")
-  public ResponseEntity<String> delete(@PathVariable UUID channelId) {
+  public ResponseEntity<Void> delete(@PathVariable UUID channelId) {
     channelService.delete(channelId);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Channel이 성공적으로 삭제됨");
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   @Operation(summary = "User가 참여 중인 Channel 목록 조회", operationId = "findAll_1")
@@ -99,6 +99,4 @@ public class ChannelController {
     List<ChannelFindResponse> channelFindResponseList = channelService.findAllByUserId(userId);
     return ResponseEntity.status(HttpStatus.OK).body(channelFindResponseList);
   }
-
-
 }

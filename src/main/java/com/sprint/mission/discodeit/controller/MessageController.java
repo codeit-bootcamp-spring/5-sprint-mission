@@ -96,9 +96,9 @@ public class MessageController {
   })
   @Parameter(name = "messageId", description = "삭제할 Message ID")
   @DeleteMapping("/{messageId}")
-  public ResponseEntity<String> delete(@PathVariable UUID messageId) {
+  public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
     messageService.delete(messageId);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Message가 성공적으로 삭제됨");
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   @Operation(summary = "Channel의 Message 목록 조회")
