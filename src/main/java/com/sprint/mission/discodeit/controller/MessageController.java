@@ -59,4 +59,10 @@ public class MessageController {
         messageService.delete(id);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResult.ok("메시지 " + id + "가 삭제되었습니다"));
     }
+
+    @RequestMapping(value = "/find/{channelId}", method = RequestMethod.GET)
+    public ResponseEntity<ApiResult<List<Message>>> messageFindByChannelId(@PathVariable("channelId") UUID id){
+        List<Message> messages = messageService.findAllByChannelId(id);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResult.ok(messages));
+    }
 }
