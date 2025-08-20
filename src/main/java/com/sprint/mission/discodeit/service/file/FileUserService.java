@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.file;
 
+import com.sprint.mission.discodeit.dto.binarycontent.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
@@ -94,7 +95,7 @@ public class FileUserService implements UserService {
             isOnline = lastOnline != null && Instant.now().minusSeconds(300).isBefore(lastOnline);
         }
 
-        return new UserResponse(
+        return new UserResponse( //UserResponse 클래스 안 생성자의 파라미터 순서 및 타입과 정확히 일치해야 함
                 user.getId(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
@@ -107,9 +108,17 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public List<User> findAll() {
-        List<User> users = repository.findAll();
-        return repository.findAll();
+    public List<UserDto> findAll() {
+        return repository.findAll().stream()
+                .map(user -> {
+                    UserStatus status = statusRepository.findByUserId(user.getUserId());
+                    boolean isOnline = false;
+                    if (status != null && status.getLastOnline() != null) {
+                        isOnline = Instant.now().minusSeconds(300).isBefore(status.getLastOnline());
+                    }
+                    return UserDto.fromEntity(user, isOnline);
+                })
+                .toList();
     }
 
 
