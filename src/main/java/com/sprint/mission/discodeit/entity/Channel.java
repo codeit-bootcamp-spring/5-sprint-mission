@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -7,6 +8,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Channel implements Serializable {
     private static final long serialVersionUID = 1L;
     private UUID id;
