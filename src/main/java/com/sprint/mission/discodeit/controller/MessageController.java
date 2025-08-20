@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.message.MessageDeleteResponse;
@@ -35,10 +35,10 @@ public class MessageController {
 	) {
 		try {
 			if (files != null && !files.isEmpty()) {
-				List<BinaryContentCreateRequest> attachments = new ArrayList<>();
+				List<UserProfileImageRequest> attachments = new ArrayList<>();
 				for (MultipartFile file : files) {
 					if (!file.isEmpty()) {
-						BinaryContentCreateRequest attachment = BinaryContentCreateRequest.builder()
+						UserProfileImageRequest attachment = UserProfileImageRequest.builder()
 							.fileName(file.getOriginalFilename())
 							.contentType(file.getContentType())
 							.size(file.getSize())
@@ -71,10 +71,10 @@ public class MessageController {
 	) {
 		try {
 			if (files != null && !files.isEmpty()) {
-				List<BinaryContentCreateRequest> attachments = new ArrayList<>();
+				List<UserProfileImageRequest> attachments = new ArrayList<>();
 				for (MultipartFile file : files) {
 					if (!file.isEmpty()) {
-						BinaryContentCreateRequest attachment = BinaryContentCreateRequest.builder()
+						UserProfileImageRequest attachment = UserProfileImageRequest.builder()
 							.fileName(file.getOriginalFilename())
 							.contentType(file.getContentType())
 							.size(file.getSize())

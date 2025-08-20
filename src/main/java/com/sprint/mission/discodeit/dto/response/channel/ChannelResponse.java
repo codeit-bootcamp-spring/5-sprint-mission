@@ -10,8 +10,10 @@ import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Builder
 public class ChannelResponse {
@@ -28,7 +30,7 @@ public class ChannelResponse {
 
 
 	@Nullable
-	private List<UUID> memberIds;
+	private List<UUID> participantIds;
 
 	private ChannelResponse(Channel channel, @Nullable Instant lastMessageAt, @Nullable List<UUID> participantIds) {
 		this.id = channel.getId();
@@ -37,7 +39,7 @@ public class ChannelResponse {
 		this.name = channel.getName();
 		this.type = channel.getType();
 		this.lastMessageAt = lastMessageAt;
-		this.memberIds = participantIds;
+		this.participantIds = participantIds;
 	}
 
 	public static ChannelResponse fromPublicChannel(Channel channel,

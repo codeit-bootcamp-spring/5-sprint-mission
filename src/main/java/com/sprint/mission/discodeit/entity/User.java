@@ -55,6 +55,11 @@ public class User implements Serializable {
 		this.updatedAt = Instant.now();
 	}
 
+	public void updateUsername(String username) {
+		updateUpdatedAt();
+		this.username = Objects.requireNonNull(username, "사용자 이름은 필수 입력값입니다.");
+	}
+
 	public void updateEmail(String email) {
 		updateUpdatedAt();
 		this.email = Objects.requireNonNull(email, "이메일은 필수 입력값입니다.");

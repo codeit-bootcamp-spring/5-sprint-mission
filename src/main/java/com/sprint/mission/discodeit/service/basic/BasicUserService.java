@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -22,6 +24,7 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -82,7 +85,9 @@ public class BasicUserService implements UserService {
 		User user = userRepository.findById(userId)
 			.orElseThrow(UserNotFoundException::new);
 
-		return UserResponse.success(user);
+		UserResponse userResponse = UserResponse.success(user);
+		updateOnlineStatus(userResponse);
+		return userResponse;
 	}
 
 	@Override
@@ -90,7 +95,9 @@ public class BasicUserService implements UserService {
 		User user = userRepository.findByLoginId(loginId)
 			.orElseThrow(UserNotFoundException::new);
 
-		return UserResponse.success(user);
+		UserResponse userResponse = UserResponse.success(user);
+		updateOnlineStatus(userResponse);
+		return userResponse;
 	}
 
 
@@ -100,11 +107,59 @@ public class BasicUserService implements UserService {
 		List<UserResponse> userResponseList = new ArrayList<>();
 
 		for (User user : users) {
-
-			userResponseList.add(UserResponse.success(user));
+			UserResponse userResponse = UserResponse.success(user);
+			updateOnlineStatus(userResponse);
+			userResponseList.add(userResponse);
 		}
 
 		return userResponseList;
+	}
+
+	@Override
+	public UserResponse update(UUID id, UserUpdateRequest request,
+			UserProfileImageRequest profileImageRequest) {
+
+		User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+
+		String newUsername = request.getNewUsername();
+		String newEmail = request.getNewEmail();
+
+		if (request.getNewUsername() != null && userRepository.existsByLoginId(newUsername)) {
+			throw new DuplicateLoginIdException();
+		}
+		if (request.getNewEmail() != null && userRepository.existsByEmail(newEmail)) {
+			throw new DuplicateEmailException();
+		}
+
+		if (request.getNewUsername() != null) {
+			user.updateUsername(request.getNewUsername());
+		}
+		if (request.getNewEmail() != null) {
+			user.updateEmail(request.getNewEmail());
+		}
+		if (request.getNewPassword() != null) {
+			user.updatePassword(request.getNewPassword());
+		}
+
+		if (profileImageRequest != null) {
+			BinaryContent newProfileImage = profileImageRequest.toBinaryContent();
+			binaryContentRepository.save(newProfileImage);
+
+			if (user.getProfileId() != null) {
+				binaryContentRepository.deleteById(user.getProfileId());
+			}
+
+			user.updateProfileId(newProfileImage.getId());
+		} else {
+			if (user.getProfileId() != null) {
+				binaryContentRepository.deleteById(user.getProfileId());
+				user.removeProfile();
+			}
+		}
+
+		userRepository.save(user);
+
+		return UserResponse.success(user);
 	}
 
 	@Override
@@ -201,5 +256,19 @@ public class BasicUserService implements UserService {
 		userRepository.deleteById(user.getId());
 
 		return UserDeleteResponse.success(user);
+	}
+
+	private void updateOnlineStatus(UserResponse userResponse) {
+		boolean online = userStatusRepository.findByUserId(userResponse.getId())
+				.map(userStatus -> {
+					Instant lastActiveAt = userStatus.getLastActiveAt();
+					if (lastActiveAt == null) {
+						return false;
+					}
+					return lastActiveAt.isAfter(Instant.now().minusSeconds(300));
+				})
+				.orElse(false);
+
+		userResponse.setOnline(online);
 	}
 }

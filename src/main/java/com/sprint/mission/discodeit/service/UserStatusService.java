@@ -12,7 +12,7 @@ public interface UserStatusService {
 	UserStatusResponse getById(UUID id);
 	List<UserStatusResponse> getAll();
 	UserStatusResponse update(UUID userStatusId, UserStatusUpdateRequest request);
-	UserStatusResponse updateByUserId(UUID userId);
+	UserStatusResponse updateByUserId(UUID userId, UserStatusUpdateRequest request);
 	UserStatusResponse delete(UUID id);
 	boolean isOnline(UUID userId);
 }

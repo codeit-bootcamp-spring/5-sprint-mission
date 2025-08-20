@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,7 +25,7 @@ public class MessageUpdateRequest {
 	private String content;
 
 	@Builder.Default
-	private List<BinaryContentCreateRequest> attachmentsToAdd = new ArrayList<>();
+	private List<UserProfileImageRequest> attachmentsToAdd = new ArrayList<>();
 
 	@Builder.Default
 	private List<UUID> attachmentIdsToRemove = new ArrayList<>();

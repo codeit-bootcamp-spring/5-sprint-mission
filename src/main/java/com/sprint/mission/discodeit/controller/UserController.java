@@ -5,9 +5,11 @@ import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRe
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.userStatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.dto.response.userStatus.UserStatusResponse;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import java.io.IOException;
@@ -101,6 +103,32 @@ public class UserController {
 		}
 	}
 
+	@RequestMapping(path = "/{userId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<UserResponse> updateUser(
+			@PathVariable UUID userId,
+			@RequestPart("userUpdateRequest") UserUpdateRequest request,
+			@RequestPart(value = "profile", required = false) MultipartFile profile) {
+
+		try{
+			UserProfileImageRequest imageRequest = null;
+
+			if (profile != null && !profile.isEmpty()) {
+				imageRequest = UserProfileImageRequest.builder()
+					.fileName(profile.getOriginalFilename())
+					.contentType(profile.getContentType())
+					.size(profile.getSize())
+					.bytes(profile.getBytes())
+					.build();
+			}
+
+			UserResponse userResponse = userService.update(userId, request, imageRequest);
+			return ResponseEntity.ok(userResponse);
+
+		} catch (IOException e) {
+			return ResponseEntity.badRequest().build();
+		}
+	}
+
 	@RequestMapping(path = "/{userId}/nickname", method = RequestMethod.PATCH)
 	public ResponseEntity<UserResponse> updateUserNickname(
 			@PathVariable UUID userId,
@@ -132,12 +160,12 @@ public class UserController {
 	}
 
 	@RequestMapping(path = "/{userId}/userStatus", method = RequestMethod.PATCH)
-	public ResponseEntity<Boolean> getUserStatusById(
+	public ResponseEntity<UserStatusResponse> getUserStatusById(
 			@PathVariable UUID userId,
 			@RequestBody UserStatusUpdateRequest request) {
-		userStatusService.update(userId, request);
-		boolean online = userStatusService.isOnline(userId);
-		return ResponseEntity.ok(online);
+		userStatusService.isOnline(userId);
+		UserStatusResponse updatedUserStatus = userStatusService.updateByUserId(userId, request);
+		return ResponseEntity.ok(updatedUserStatus);
 	}
 
 	@RequestMapping(path = "/list", method = RequestMethod.GET)

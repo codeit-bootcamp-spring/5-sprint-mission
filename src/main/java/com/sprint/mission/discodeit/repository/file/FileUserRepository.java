@@ -110,7 +110,7 @@ public class FileUserRepository implements UserRepository {
 		for (User user : userMap.values()) {
 			userList.add(user.copy());
 		}
-		return userList.stream().sorted(Comparator.comparing(User::getDefaultNickname)).toList();
+		return userList.stream().toList();
 	}
 
 	@Override

@@ -64,7 +64,7 @@ public class JCFUserRepository implements UserRepository {
 		for (User user : userMap.values()) {
 			userList.add(user.copy());
 		}
-		userList.sort((u1, u2) -> u1.getDefaultNickname().compareTo(u2.getDefaultNickname()));
+
 		return userList;
 	}
 

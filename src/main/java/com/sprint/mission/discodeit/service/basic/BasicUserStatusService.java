@@ -64,18 +64,18 @@ public class BasicUserStatusService implements UserStatusService {
 		UserStatus userStatus = userStatusRepository.findById(userStatusId)
 			.orElseThrow(UserStatusNotFoundException::new);
 
-		userStatus.updateUpdatedAt();
+		userStatus.updateLastActiveAt(request.getNewLastActiveAt());
 		userStatusRepository.save(userStatus);
 
 		return UserStatusResponse.success(userStatus);
 	}
 
 	@Override
-	public UserStatusResponse updateByUserId(UUID userId) {
+	public UserStatusResponse updateByUserId(UUID userId, UserStatusUpdateRequest request) {
 		UserStatus userStatus = userStatusRepository.findByUserId(userId)
 			.orElseThrow(UserStatusNotFoundException::new);
 
-		userStatus.updateUpdatedAt();
+		userStatus.updateLastActiveAt(request.getNewLastActiveAt());
 		userStatusRepository.save(userStatus);
 
 		return UserStatusResponse.success(userStatus);
@@ -96,6 +96,12 @@ public class BasicUserStatusService implements UserStatusService {
 		UserStatus userStatus = userStatusRepository.findByUserId(userId)
 			.orElseThrow(UserStatusNotFoundException::new);
 
-		return userStatus.getUpdatedAt().isAfter(Instant.now().minusSeconds(300));
+		Instant lastActiveAt = userStatus.getLastActiveAt();
+
+		if (lastActiveAt == null) {
+			return false;
+		}
+
+		return lastActiveAt.isAfter(Instant.now().minusSeconds(300));
 	}
 }
