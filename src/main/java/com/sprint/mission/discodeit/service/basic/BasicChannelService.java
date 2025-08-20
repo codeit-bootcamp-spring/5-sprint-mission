@@ -67,11 +67,8 @@ public class BasicChannelService implements ChannelService {
 
   public ChannelDto.Detail findById(UUID id) {
 
-    Channel channel = channelRepository.findById(id).orElse(null);
-
-    if (channel == null) {
-      return null;
-    }
+    Channel channel = channelRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Not Found"));
 
     return ChannelDto.Detail.builder().id(channel.getId()).type(channel.getType())
         .name(channel.getName()).description(channel.getDescription())
@@ -105,7 +102,7 @@ public class BasicChannelService implements ChannelService {
     Channel channel = channelRepository.findById(update.getId()).orElse(null);
 
     if (channel == null || channel.getType().equals(ChannelType.PRIVATE)) {
-      return null;
+      throw new RuntimeException("Not Found");
     }
 
     if (update.getName() != null && update.getDescription() != null) {
@@ -133,7 +130,8 @@ public class BasicChannelService implements ChannelService {
   @Override
   public void delete(UUID id) {
 
-    Channel channel = channelRepository.findById(id).orElse(null);
+    Channel channel = channelRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Not Found"));
 
     if (channel != null) {
       channelRepository.delete(id);

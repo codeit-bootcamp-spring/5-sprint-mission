@@ -22,7 +22,7 @@ public class BasicUserStatusService implements UserStatusService {
   @Override
   public UserStatusDto.Detail create(Create request) {
     User user = userRepository.findById(request.getUserId())
-        .orElseThrow(() -> new IllegalArgumentException("Not Found User"));
+        .orElseThrow(() -> new RuntimeException("Not Found User"));
 
     UserStatus userStatus = userStatusRepository.findByUserId(request.getUserId()).orElse(null);
     if (userStatus != null) {
@@ -38,7 +38,7 @@ public class BasicUserStatusService implements UserStatusService {
   @Override
   public UserStatusDto.Detail find(UUID id) {
     UserStatus userStatus = userStatusRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("Not Found User Status"));
+        .orElseThrow(() -> new RuntimeException("Not Found User Status"));
 
     return UserStatusDto.Detail.builder().id(userStatus.getId())
         .userId(userStatus.getUserId()).lastLogin(userStatus.getLastLogin()).build();
@@ -57,7 +57,7 @@ public class BasicUserStatusService implements UserStatusService {
   public UserStatusDto.Detail update(UUID id) {
 
     UserStatus userStatus = userStatusRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("Not Found User Status"));
+        .orElseThrow(() -> new RuntimeException("Not Found User Status"));
 
     userStatus.update();
 
@@ -71,7 +71,7 @@ public class BasicUserStatusService implements UserStatusService {
   public UserStatusDto.Detail updateByUserId(UUID userId) {
 
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
-        .orElseThrow(() -> new IllegalArgumentException("Not Found User Status"));
+        .orElseThrow(() -> new RuntimeException("Not Found User Status"));
 
     userStatus.update();
     userStatusRepository.save(userStatus);
