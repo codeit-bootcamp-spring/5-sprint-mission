@@ -112,8 +112,8 @@ channels_public:
                   path: "/api/channels/public"
                   method: "POST"
                   status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  code: "JSON_PARSE_ERROR"
+                  message: "Unable to read request body, please check JSON format and field type"
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 1]"
 
@@ -167,7 +167,7 @@ channels_private:
                   message: "입력 값이 유효하지 않습니다."
                   details:
                     - "participantIds: 참여자 ID 목록은 필수입니다."
-                    - "participantIds: 비공개 채널은 2명~10명 사이여야 합니다."
+                    - "participantIds: 비공개 채널은 2명~10명 사이여야 합니다"
                     - "participantIds[]: 널이어서는 안됩니다"
               invalidJSON:
                 value:
@@ -175,8 +175,8 @@ channels_private:
                   path: "/api/channels/private"
                   method: "POST"
                   status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  code: "JSON_PARSE_ERROR"
+                  message: "Unable to read request body, please check JSON format and field type"
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 3, column: 1]"
       '404':
@@ -291,8 +291,8 @@ channel_by_id:
                   path: "/api/channels/{channelId}"
                   method: "PATCH"
                   status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  code: "JSON_PARSE_ERROR"
+                  message: "Unable to read request body, please check JSON format and field type"
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 1]"
       '404':

@@ -16,9 +16,8 @@ import org.springframework.stereotype.Repository;
 public class JcfReadStatusRepository extends AbstractJcfRepository<ReadStatus> implements
     ReadStatusRepository {
 
-  @Override
-  protected String getEntityTypeName() {
-    return "읽음 상태";
+  public JcfReadStatusRepository() {
+    super(ReadStatus.class);
   }
 
   @Override

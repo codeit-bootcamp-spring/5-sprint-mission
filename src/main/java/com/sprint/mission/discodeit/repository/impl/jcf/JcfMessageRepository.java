@@ -19,9 +19,8 @@ import org.springframework.stereotype.Repository;
 public class JcfMessageRepository extends AbstractJcfRepository<Message> implements
     MessageRepository {
 
-  @Override
-  protected String getEntityTypeName() {
-    return "메시지";
+  public JcfMessageRepository() {
+    super(Message.class);
   }
 
   @Override

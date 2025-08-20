@@ -19,9 +19,8 @@ import org.springframework.stereotype.Repository;
 public class JcfGuildPermissionsRepository extends
     AbstractJcfRepository<GuildPermissions> implements GuildPermissionsRepository {
 
-  @Override
-  protected String getEntityTypeName() {
-    return "서버 권한 목록";
+  public JcfGuildPermissionsRepository() {
+    super(GuildPermissions.class);
   }
 
   @Override

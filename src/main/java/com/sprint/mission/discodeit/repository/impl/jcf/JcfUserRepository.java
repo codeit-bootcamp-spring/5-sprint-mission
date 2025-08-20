@@ -13,13 +13,14 @@ import org.springframework.stereotype.Repository;
 @Profile("test")
 public class JcfUserRepository extends AbstractJcfRepository<User> implements UserRepository {
 
+  public JcfUserRepository() {
+    super(User.class);
+  }
+
   private static final Comparator<User> BY_EMAIL =
       Comparator.comparing(User::getEmail, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
   private static final Comparator<User> BY_USERNAME =
       Comparator.comparing(User::getUsername, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
-  private static final Comparator<User> BY_GLOBAL_NAME =
-      Comparator.comparing(User::getGlobalName,
-          Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
   private static boolean startsWithIgnoreCase(String value, String prefix) {
     if (value == null || prefix == null) {
@@ -40,11 +41,6 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
       return true;
     }
     return value.toLowerCase().contains(needle.toLowerCase());
-  }
-
-  @Override
-  protected String getEntityTypeName() {
-    return "유저";
   }
 
   @Override
@@ -120,11 +116,6 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
   }
 
   @Override
-  public List<User> searchByGlobalNamePrefix(String globalNamePrefix) {
-    return searchByPrefix(User::getGlobalName, globalNamePrefix, BY_GLOBAL_NAME);
-  }
-
-  @Override
   public List<User> searchByEmailKeyword(String keyword) {
     return searchByContains(User::getEmail, keyword, BY_EMAIL);
   }
@@ -132,10 +123,5 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
   @Override
   public List<User> searchByUsernameKeyword(String keyword) {
     return searchByContains(User::getUsername, keyword, BY_USERNAME);
-  }
-
-  @Override
-  public List<User> searchByGlobalNameKeyword(String keyword) {
-    return searchByContains(User::getGlobalName, keyword, BY_GLOBAL_NAME);
   }
 }

@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface AbstractRepository<T extends AbstractEntity> {
@@ -27,21 +28,21 @@ public interface AbstractRepository<T extends AbstractEntity> {
 
   List<T> findAllDeleted();
 
-  List<T> findAllByIds(Collection<UUID> ids);
+  List<T> findAllByIds(Set<UUID> ids);
 
-  List<T> findAllByIdsIncludingDeleted(Collection<UUID> ids);
+  List<T> findAllByIdsIncludingDeleted(Set<UUID> ids);
 
   boolean softDeleteById(UUID id);
 
-  int softDeleteAllByIds(Collection<UUID> ids);
+  int softDeleteAllByIds(Set<UUID> ids);
 
   boolean restoreById(UUID id);
 
-  int restoreAllByIds(Collection<UUID> ids);
+  int restoreAllByIds(Set<UUID> ids);
 
   boolean hardDeleteById(UUID id);
 
-  int hardDeleteAllByIds(Collection<UUID> ids);
+  int hardDeleteAllByIds(Set<UUID> ids);
 
   int hardDeleteAllExpired(Instant now);
 

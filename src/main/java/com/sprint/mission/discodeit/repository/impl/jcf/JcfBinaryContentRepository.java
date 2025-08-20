@@ -13,11 +13,10 @@ import org.springframework.stereotype.Repository;
 public class JcfBinaryContentRepository extends AbstractJcfRepository<BinaryContent> implements
     BinaryContentRepository {
 
-  @Override
-  protected String getEntityTypeName() {
-    return "바이너리 컨텐츠";
+  public JcfBinaryContentRepository() {
+    super(BinaryContent.class);
   }
-
+  
   @Override
   public Optional<BinaryContent> findBySha256(String sha256) {
     Objects.requireNonNull(sha256, "sha256 must not be null");

@@ -29,7 +29,7 @@ public class ChannelController {
 
   private final ChannelService channelService;
 
-  @GetMapping({"", "/"})
+  @GetMapping(path = {"", "/"})
   @ResponseStatus(HttpStatus.OK)
   public List<ChannelResponse> findAll(@RequestParam("userId") UUID userId) {
     return channelService.findAll(userId);
@@ -47,7 +47,7 @@ public class ChannelController {
     return channelService.create(req);
   }
 
-  @DeleteMapping("/{channelId}")
+  @DeleteMapping(path = "/{channelId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable("channelId") UUID channelId) {
     channelService.delete(channelId);

@@ -14,10 +14,4 @@ public class FileChannelRepository extends AbstractFileRepository<Channel> imple
   public FileChannelRepository(AppProperties appProperties) {
     super(Channel.class, appProperties.storage());
   }
-
-  @Override
-  protected String getEntityTypeName() {
-    return "채널";
-  }
-
 }

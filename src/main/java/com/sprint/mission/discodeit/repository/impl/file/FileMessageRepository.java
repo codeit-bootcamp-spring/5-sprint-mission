@@ -29,11 +29,6 @@ public class FileMessageRepository extends AbstractFileRepository<Message> imple
   }
 
   @Override
-  protected String getEntityTypeName() {
-    return "메시지";
-  }
-
-  @Override
   public List<Message> findAllByChannelId(UUID channelId) {
     Objects.requireNonNull(channelId, "channelId must not be null");
     return findAll().stream()

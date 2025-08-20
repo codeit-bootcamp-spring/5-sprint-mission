@@ -12,7 +12,7 @@ public record PublicChannelUpdateRequest(
     String newDescription
 ) {
 
-  @AssertTrue(message = "newName 또는 newDescription 중 하나는 필수입니다.")
+  @AssertTrue(message = "newName 또는 newDescription 중 하나는 필수입니다")
   public boolean hasAny() {
     return newName != null || newDescription != null;
   }

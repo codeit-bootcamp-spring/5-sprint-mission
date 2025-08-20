@@ -22,11 +22,6 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
   }
 
   @Override
-  protected String getEntityTypeName() {
-    return "읽음 상태";
-  }
-
-  @Override
   public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
     Objects.requireNonNull(userId, "userId must not be null");
     Objects.requireNonNull(channelId, "channelId must not be null");

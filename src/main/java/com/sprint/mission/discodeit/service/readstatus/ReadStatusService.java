@@ -56,7 +56,7 @@ public class ReadStatusService {
     userRepository.getOrThrow(userId);
     channelRepository.getOrThrow(channelId);
     ReadStatus rs = readStatusRepository.findByUserIdAndChannelId(userId, channelId)
-        .orElseThrow(() -> new IllegalArgumentException("해당 정보가 없습니다."));
+        .orElseThrow(() -> new IllegalArgumentException("해당 정보가 없습니다"));
     return ReadStatusResponse.from(rs);
   }
 }

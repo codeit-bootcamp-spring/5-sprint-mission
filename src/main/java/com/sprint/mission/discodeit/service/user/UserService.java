@@ -1,19 +1,12 @@
 package com.sprint.mission.discodeit.service.user;
 
-import static com.sprint.mission.discodeit.support.StringUtil.stripToLowerCase;
+import static com.sprint.mission.discodeit.support.StringUtil.nullOrStripAndLowerCase;
 
-import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 import com.sprint.mission.discodeit.dto.request.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateEmailRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdatePhoneNumberRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileImageRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileSettingsRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateUsernameRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
@@ -25,16 +18,13 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.binarycontent.BinaryContentService;
 import com.sprint.mission.discodeit.support.FileNames;
-import com.sprint.mission.discodeit.support.PhoneNumbers;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,13 +47,6 @@ public class UserService {
   private UserResponse toResponse(User user) {
     UserStatus userStatus = userStatusRepository.getOrThrowByUserId(user.getId());
     return UserResponse.from(user, userStatus.getType());
-  }
-
-  @Transactional
-  protected void update(UUID id, Consumer<User> updater) {
-    User entity = userRepository.getOrThrow(id);
-    updater.accept(entity);
-    userRepository.save(entity);
   }
 
   public List<UserResponse> findAll() {
@@ -101,11 +84,11 @@ public class UserService {
   @Transactional
   public UserSaveResponse create(UserCreateRequest req, MultipartFile profile)
       throws IOException {
-    String email = stripToLowerCase(req.email());
+    String email = nullOrStripAndLowerCase(req.email());
     if (userRepository.existsByEmail(email)) {
       throw new DuplicateResourceException("User with email %s already exists".formatted(email));
     }
-    String username = stripToLowerCase(req.username());
+    String username = nullOrStripAndLowerCase(req.username());
     if (userRepository.existsByUsername(username)) {
       throw new DuplicateResourceException(
           "User with username %s already exists".formatted(username));
@@ -148,11 +131,6 @@ public class UserService {
   }
 
   @Transactional
-  public void deactivateAccount(UUID userId) {
-    update(userId, User::deactivate);
-  }
-
-  @Transactional
   public void deleteAccount(UUID userId) {
     User user = userRepository.getOrThrow(userId);
 
@@ -170,149 +148,94 @@ public class UserService {
     userRepository.softDeleteById(user.getId());
   }
 
-  @Transactional
-  public void updateProfileSettings(UUID userId, UserUpdateProfileSettingsRequest req) {
-    update(userId, u -> {
-      u.changeGlobalName(req.globalName());
-      u.changeBio(req.bio());
-    });
-  }
-
-  @Transactional
-  public void updateProfileImage(UUID userId, UserUpdateProfileImageRequest req) {
-    binaryContentRepository.getOrThrow(req.profileId());
-    update(userId, u -> {
-      UUID old = u.getProfileId();
-      u.changeProfileId(req.profileId());
-      if (old != null && !old.equals(req.profileId())) {
-        binaryContentRepository.softDeleteById(old);
-      }
-    });
-  }
-
-  @Transactional
-  public void clearProfileImage(UUID userId) {
-    User user = userRepository.getOrThrow(userId);
-    if (user.getProfileId() == null) {
-      return;
-    }
-    binaryContentRepository.softDeleteById(user.getProfileId());
-    user.clearProfileId();
-    userRepository.save(user);
-  }
-
-  @Transactional
-  public void updateEmail(UUID userId, UserUpdateEmailRequest req) {
-    String email = stripToLowerCase(req.email());
-    User user = userRepository.getOrThrow(userId);
-
-    if (user.getEmail().equals(email)) {
-      throw new IllegalArgumentException("기존과 동일한 이메일입니다.");
-    }
-    if (userRepository.existsByEmail(email)) {
-      throw new DuplicateResourceException("User with email %s already exists");
-    }
-    try {
-      update(userId, u -> u.changeEmail(email));
-    } catch (DataIntegrityViolationException e) {
-      throw new DuplicateResourceException("중복된 이메일이 존재합니다.");
-    }
-  }
-
-  @Transactional
-  public void updateUsername(UUID userId, UserUpdateUsernameRequest req) {
-    String username = stripToLowerCase(req.username());
-    User user = userRepository.getOrThrow(userId);
-
-    if (user.getUsername().equals(username)) {
-      throw new IllegalArgumentException("기존과 동일한 사용자명입니다.");
-    }
-
-    if (userRepository.existsByUsername(username)) {
-      throw new DuplicateResourceException("중복된 사용자명이 존재합니다.");
-    }
-
-    try {
-      update(userId, u -> u.changeUsername(username));
-    } catch (DataIntegrityViolationException e) {
-      throw new DuplicateResourceException("중복된 사용자명이 존재합니다.");
-    }
-  }
-
-  @Transactional
-  public void updatePassword(UUID userId, UserUpdatePasswordRequest req) {
-    String password = req.password().strip();
-    User user = userRepository.getOrThrow(userId);
-    if (passwordEncoder.matches(password, user.getPassword())) {
-      throw new DuplicateResourceException("동일한 비밀번호입니다.");
-    }
-    update(userId, u -> u.changePassword(passwordEncoder.encode(password)));
-  }
-
-  @Transactional
-  public void updatePhoneNumber(UUID userId, UserUpdatePhoneNumberRequest req) {
-    String v = PhoneNumbers.normalizeToE164(req.phoneNumber());
-    update(userId, u -> u.changePhoneNumber(v));
-  }
-
-  @Transactional
-  public void clearPhoneNumber(UUID userId) {
-    User user = userRepository.getOrThrow(userId);
-    if (user.getPhoneNumber() == null) {
-      return;
-    }
-    user.clearPhoneNumber();
-    userRepository.save(user);
-  }
-
-  public List<UserResponse> getFriends(UUID userId) {
-    Set<UUID> ids = userRepository.findById(userId).orElseThrow(
-        () -> new NotFoundException("User with id %s not found".formatted(userId))
-    ).getFriendIds();
-    return userRepository.findAllByIds(ids).stream()
-        .map(this::toResponse)
-        .toList();
-  }
-
-  @Transactional
-  public void removeFriend(UUID userId, UUID friendId) {
-    userRepository.getOrThrow(userId);
-    userRepository.getOrThrow(friendId);
-    update(userId, u -> u.removeFriend(friendId));
-    update(friendId, u -> u.removeFriend(userId));
-  }
-
-  public List<Guild> getGuilds(UUID userId) {
-    Set<UUID> ids = userRepository.getOrThrow(userId).getGuildIds();
-    return guildRepository.findAllByIds(ids);
-  }
-
-  @Transactional
-  public void joinGuild(UUID userId, UUID guildId) {
-    Guild guild = guildRepository.getOrThrow(guildId);
-    update(userId, u -> u.joinGuild(guildId));
-    guild.addUser(userId);
-    guildRepository.save(guild);
-  }
-
-  @Transactional
-  public void leaveGuild(UUID userId, UUID guildId) {
-    Guild guild = guildRepository.getOrThrow(guildId);
-    if (guild.isOwner(userId)) {
-      throw new IllegalArgumentException("Cannot leave the guild. Transfer ownership first.");
-    }
-    update(userId, u -> u.leaveGuild(guildId));
-    guild.removeUser(userId);
-    guildRepository.save(guild);
-  }
-
-  @Transactional
-  public void joinChannel(UUID userId, UUID channelId) {
-    update(userId, u -> u.joinChannel(channelId));
-  }
-
-  @Transactional
-  public void leaveChannel(UUID userId, UUID channelId) {
-    update(userId, u -> u.leaveChannel(channelId));
-  }
+  // @Transactional
+  // public UserSaveResponse update(UUID userId, UserUpdateRequest req, MultipartFile profile)
+  //     throws IOException {
+  //   User u = userRepository.getOrThrow(userId);
+  //   String email;
+  //   if (req.newEmail() != null && !req.newEmail().equals(u.getEmail())) {
+  //     email = null;
+  //   } else {
+  //     email = nullOrStripAndLowerCase(req.newEmail());
+  //   }
+  //   String email = nullOrStripAndLowerCase(req.newEmail());
+  //   if (userRepository.existsByEmail(email)) {
+  //     throw new DuplicateResourceException("User with email %s already exists".formatted(email));
+  //   }
+  //   String username = nullOrStripAndLowerCase(req.username());
+  //   if (userRepository.existsByUsername(username)) {
+  //     throw new DuplicateResourceException(
+  //         "User with username %s already exists".formatted(username));
+  //   }
+  //
+  //   UUID profileId = null;
+  //
+  //   if (profile != null && !profile.isEmpty()) {
+  //     String ct = FileNames.normalizeContentType(profile.getContentType());
+  //     String original = profile.getOriginalFilename();
+  //     String fileName = FileNames.buildStoredName(original, ct);
+  //
+  //     try {
+  //       profileId = binaryContentService.create(
+  //           new BinaryContentCreateRequest(fileName, ct, profile.getBytes())).id();
+  //     } catch (IOException e) {
+  //       throw new IOException("Failed to read profile image", e);
+  //     }
+  //   }
+  //
+  //   User saved = userRepository.save(user);
+  //
+  //   UserStatus userStatus = new UserStatus(saved.getId());
+  //   userStatusRepository.save(userStatus);
+  //
+  //   return UserSaveResponse.from(saved);
+  // }
+  //
+  // @Transactional
+  // public void updateEmail(UUID userId, UserUpdateEmailRequest req) {
+  //   String email = nullOrStripAndLowerCase(req.email());
+  //   User user = userRepository.getOrThrow(userId);
+  //
+  //   if (user.getEmail().equals(email)) {
+  //     throw new IllegalArgumentException("기존과 동일한 이메일입니다");
+  //   }
+  //   if (userRepository.existsByEmail(email)) {
+  //     throw new DuplicateResourceException("User with email %s already exists");
+  //   }
+  //   try {
+  //     update(userId, u -> u.changeEmail(email));
+  //   } catch (DataIntegrityViolationException e) {
+  //     throw new DuplicateResourceException("중복된 이메일이 존재합니다.");
+  //   }
+  // }
+  //
+  // @Transactional
+  // public void updateUsername(UUID userId, UserUpdateUsernameRequest req) {
+  //   String username = nullOrStripAndLowerCase(req.username());
+  //   User user = userRepository.getOrThrow(userId);
+  //
+  //   if (user.getUsername().equals(username)) {
+  //     throw new IllegalArgumentException("기존과 동일한 사용자명입니다.");
+  //   }
+  //
+  //   if (userRepository.existsByUsername(username)) {
+  //     throw new DuplicateResourceException("중복된 사용자명이 존재합니다.");
+  //   }
+  //
+  //   try {
+  //     update(userId, u -> u.changeUsername(username));
+  //   } catch (DataIntegrityViolationException e) {
+  //     throw new DuplicateResourceException("중복된 사용자명이 존재합니다.");
+  //   }
+  // }
+  //
+  // @Transactional
+  // public void updatePassword(UUID userId, UserUpdatePasswordRequest req) {
+  //   String password = req.password().strip();
+  //   User user = userRepository.getOrThrow(userId);
+  //   if (passwordEncoder.matches(password, user.getPassword())) {
+  //     throw new DuplicateResourceException("동일한 비밀번호입니다.");
+  //   }
+  //   update(userId, u -> u.changePassword(passwordEncoder.encode(password)));
+  // }
 }

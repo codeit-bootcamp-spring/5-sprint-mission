@@ -11,11 +11,9 @@ public record FriendRequestResponse(
     UUID senderId,
     UUID senderProfileId,
     String senderUsername,
-    String senderGlobalName,
     UUID receiverId,
     UUID receiverProfileId,
-    String receiverUsername,
-    String receiverGlobalName
+    String receiverUsername
 ) {
 
   public static FriendRequestResponse from(FriendRequest fr, User sender, User receiver) {
@@ -25,11 +23,9 @@ public record FriendRequestResponse(
         sender.getId(),
         sender.getProfileId(),
         sender.getUsername(),
-        sender.getGlobalName(),
         receiver.getId(),
         receiver.getProfileId(),
-        receiver.getUsername(),
-        receiver.getGlobalName()
+        receiver.getUsername()
     );
   }
 }

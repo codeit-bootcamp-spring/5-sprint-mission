@@ -14,7 +14,7 @@ public class FriendRequest extends AbstractEntity {
     this.senderId = Objects.requireNonNull(senderId, "senderId must not be null.");
     this.receiverId = Objects.requireNonNull(receiverId, "receiverId must not be null.");
     if (senderId.equals(receiverId)) {
-      throw new IllegalArgumentException("자기 자신에게 보낼 수 없습니다.");
+      throw new IllegalArgumentException("자기 자신에게 보낼 수 없습니다");
     }
   }
 

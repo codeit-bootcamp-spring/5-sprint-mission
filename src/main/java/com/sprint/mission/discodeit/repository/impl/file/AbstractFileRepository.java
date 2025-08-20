@@ -24,18 +24,23 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractFileRepository<T extends AbstractEntity> implements
     AbstractRepository<T> {
 
-  protected static final String EXTENSION = ".ser";
+  private static final String EXTENSION = ".ser";
 
   private final Class<T> entityType;
+
+  @Getter(AccessLevel.PROTECTED)
   protected final Path directory;
 
   protected AbstractFileRepository(Class<T> entityType, AppStorageProperties storageProperties) {
@@ -43,20 +48,11 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     this.directory = Paths.get(System.getProperty("user.dir"), storageProperties.rootDir(),
         entityType.getSimpleName());
     try {
-      if (Files.notExists(directory)) {
-        Files.createDirectories(directory);
-      }
+      Files.createDirectories(directory);
     } catch (IOException e) {
+      log.warn("디렉토리 생성 실패: {}", directory, e);
       throw new RuntimeException("디렉토리 생성 실패: " + directory, e);
     }
-  }
-
-  protected String getEntityTypeName() {
-    return "entity";
-  }
-
-  protected Path getDirectory() {
-    return directory;
   }
 
   protected Path resolvePath(UUID id) {
@@ -70,6 +66,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(directory, "*" + EXTENSION)) {
       return StreamSupport.stream(ds.spliterator(), false).toList();
     } catch (IOException e) {
+      log.warn("저장 파일 나열 실패: {}", directory, e);
       throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
     }
   }
@@ -80,27 +77,24 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
       try {
         ds.close();
       } catch (IOException e) {
+        log.warn("저장 파일 스트림 나열 실패: {}", directory, e);
         throw new RuntimeException("저장 파일 스트림 나열 실패: " + directory, e);
       }
     });
   }
 
-  @SuppressWarnings("checkstyle:Indentation")
   protected Optional<T> readObject(Path path) {
-    try {
-      if (path == null || !Files.exists(path)) {
-        return Optional.empty();
-      }
-      try (BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(path));
-          ObjectInputStream ois = new ObjectInputStream(bis)) {
-        return Optional.of(entityType.cast(ois.readObject()));
-      }
+    if (path == null || !Files.exists(path)) {
+      return Optional.empty();
+    }
+    try (BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(path));
+        ObjectInputStream ois = new ObjectInputStream(bis)) {
+      return Optional.of(entityType.cast(ois.readObject()));
     } catch (IOException | ClassNotFoundException e) {
       throw new RuntimeException("엔티티 로드 실패: " + path, e);
     }
   }
 
-  @SuppressWarnings("checkstyle:Indentation")
   protected void writeObject(T entity) {
     Path target = resolvePath(entity.getId());
     Path tmp = target.resolveSibling(entity.getId() + EXTENSION + ".tmp");
@@ -114,7 +108,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
       try {
         Files.deleteIfExists(tmp);
       } catch (IOException e2) {
-        throw new RuntimeException("엔티티 삭제 실패: " + entity.getId(), e2);
+        e.addSuppressed(e2);
       }
       throw new RuntimeException("엔티티 저장 실패: " + entity.getId(), e);
     }
@@ -148,7 +142,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   @Override
   public T getOrThrow(UUID id) {
     return findById(id).orElseThrow(() ->
-        new NotFoundException("%s with id %s not found".formatted(getEntityTypeName(), id)));
+        new NotFoundException("%s with id %s not found".formatted(entityType.getSimpleName(), id)));
   }
 
   @Override
@@ -158,6 +152,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
           .filter(e -> !e.isDeleted())
           .toList();
     } catch (IOException e) {
+      log.warn("저장 파일 나열 실패: {}", directory, e);
       throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
     }
   }
@@ -167,6 +162,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream).toList();
     } catch (IOException e) {
+      log.warn("저장 파일 나열 실패: {}", directory, e);
       throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
     }
   }
@@ -178,12 +174,13 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
           .filter(AbstractEntity::isDeleted)
           .toList();
     } catch (IOException e) {
+      log.warn("저장 파일 나열 실패: {}", directory, e);
       throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
     }
   }
 
   @Override
-  public List<T> findAllByIds(Collection<UUID> ids) {
+  public List<T> findAllByIds(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
@@ -195,7 +192,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public List<T> findAllByIdsIncludingDeleted(Collection<UUID> ids) {
+  public List<T> findAllByIdsIncludingDeleted(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
@@ -227,7 +224,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public int softDeleteAllByIds(Collection<UUID> ids) {
+  public int softDeleteAllByIds(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }
@@ -253,7 +250,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public int restoreAllByIds(Collection<UUID> ids) {
+  public int restoreAllByIds(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }
@@ -277,7 +274,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public int hardDeleteAllByIds(Collection<UUID> ids) {
+  public int hardDeleteAllByIds(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }

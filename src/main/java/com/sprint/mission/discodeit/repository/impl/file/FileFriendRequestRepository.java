@@ -23,11 +23,6 @@ public class FileFriendRequestRepository extends AbstractFileRepository<FriendRe
   }
 
   @Override
-  protected String getEntityTypeName() {
-    return "친구 요청";
-  }
-
-  @Override
   public boolean existsBySenderIdAndReceiverId(UUID senderId, UUID receiverId) {
     Objects.requireNonNull(senderId, "senderId must not be null");
     Objects.requireNonNull(receiverId, "receiverId must not be null");

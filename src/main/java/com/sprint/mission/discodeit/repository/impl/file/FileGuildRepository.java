@@ -18,11 +18,6 @@ public class FileGuildRepository extends AbstractFileRepository<Guild> implement
   }
 
   @Override
-  protected String getEntityTypeName() {
-    return "서버";
-  }
-
-  @Override
   public List<Guild> findDiscoverableGuilds() {
     return findAll().stream()
         .filter(Guild::isDiscoverable)

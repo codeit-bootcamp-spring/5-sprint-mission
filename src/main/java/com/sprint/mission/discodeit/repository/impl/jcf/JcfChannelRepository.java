@@ -10,9 +10,7 @@ import org.springframework.stereotype.Repository;
 public class JcfChannelRepository extends AbstractJcfRepository<Channel> implements
     ChannelRepository {
 
-  @Override
-  protected String getEntityTypeName() {
-    return "채널";
+  public JcfChannelRepository() {
+    super(Channel.class);
   }
-
 }

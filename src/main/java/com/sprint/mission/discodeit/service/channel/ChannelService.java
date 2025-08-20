@@ -85,9 +85,9 @@ public class ChannelService {
 
     String targetName = c.getName();
     if (req.newName() != null) {
-      String trimmed = req.newName().strip();
-      if (!trimmed.isBlank()) {
-        targetName = trimmed;
+      String stripped = req.newName().strip();
+      if (!stripped.isBlank()) {
+        targetName = stripped;
       }
     }
 

@@ -64,7 +64,7 @@ public class GuildService {
   public void deleteGuild(UUID guildId, UUID ownerId) {
     Guild guild = guildRepository.getOrThrow(guildId);
     if (!guild.isOwner(ownerId)) {
-      throw new IllegalArgumentException("삭제할 권한이 없습니다.");
+      throw new IllegalArgumentException("삭제할 권한이 없습니다");
     }
     for (UUID uid : new HashSet<>(guild.getUserIds())) {
       User user = userRepository.getOrThrow(uid);
@@ -87,10 +87,10 @@ public class GuildService {
     userRepository.getOrThrow(newOwnerId);
     Guild guild = guildRepository.getOrThrow(guildId);
     if (!guild.isOwner(oldOwnerId)) {
-      throw new IllegalArgumentException("서버 주인 변경 권한이 없습니다.");
+      throw new IllegalArgumentException("서버 주인 변경 권한이 없습니다");
     }
     if (guild.isNotMember(newOwnerId)) {
-      throw new IllegalArgumentException("해당 유저는 이 서버의 멤버가 아닙니다.");
+      throw new IllegalArgumentException("해당 유저는 이 서버의 멤버가 아닙니다");
     }
     guild.setOwnerId(newOwnerId);
     guildRepository.save(guild);
@@ -116,7 +116,7 @@ public class GuildService {
   public void removeMember(UUID guildId, UUID userId) {
     Guild guild = guildRepository.getOrThrow(guildId);
     if (guild.isOwner(userId)) {
-      throw new IllegalArgumentException("서버 주인 변경 후 퇴장이 가능합니다.");
+      throw new IllegalArgumentException("서버 주인 변경 후 퇴장이 가능합니다");
     }
     User user = userRepository.getOrThrow(userId);
     user.leaveGuild(guildId);

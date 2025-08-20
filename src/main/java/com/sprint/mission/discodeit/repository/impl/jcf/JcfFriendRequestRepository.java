@@ -17,9 +17,8 @@ import org.springframework.stereotype.Repository;
 public class JcfFriendRequestRepository extends AbstractJcfRepository<FriendRequest> implements
     FriendRequestRepository {
 
-  @Override
-  protected String getEntityTypeName() {
-    return "친구 요청";
+  public JcfFriendRequestRepository() {
+    super(FriendRequest.class);
   }
 
   @Override

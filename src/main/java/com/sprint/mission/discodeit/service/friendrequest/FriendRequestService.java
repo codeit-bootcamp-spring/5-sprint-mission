@@ -79,7 +79,7 @@ public class FriendRequestService {
   @Transactional
   public void accept(UUID requestId, UUID actingUserId) {
     FriendRequest fr = friendRequestRepository.findById(requestId)
-        .orElseThrow(() -> new NotFoundException("이미 처리된 요청입니다."));
+        .orElseThrow(() -> new NotFoundException("이미 처리된 요청입니다"));
 
     UUID senderId = fr.getSenderId();
     UUID receiverId = fr.getReceiverId();

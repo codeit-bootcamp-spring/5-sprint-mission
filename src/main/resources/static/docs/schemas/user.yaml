@@ -43,18 +43,18 @@ UserCreateRequest:
       minLength: 2
       maxLength: 32
       pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
-      description: 서버에서 strip+lowercase 정규화됨
+      description: 입력 값은 서버에서 **strip** 후 소문자로 정규화됨
     email:
       type: string
       format: email
       minLength: 6
       maxLength: 254
-      description: 서버에서 strip+lowercase 정규화됨
+      description: 입력 값은 서버에서 **strip** 후 소문자로 정규화됨
     password:
       type: string
       minLength: 8
       maxLength: 72
-      description: 서버에서 해시 저장됨
+      description: 입력 값은 서버에서 **strip** 후 해시로 인코딩됨
 
 UserSaveResponse:
   type: object
@@ -64,7 +64,8 @@ UserSaveResponse:
     - updatedAt
     - username
     - email
-    - online
+    - password
+    - profileId
   properties:
     id:
       type: string
@@ -90,28 +91,24 @@ UserSaveResponse:
 UserUpdateRequest:
   type: object
   description: 수정할 User 정보
-  anyOf:
-    - required:
-        - newUsername
-    - required:
-        - newEmail
-    - required:
-        - newPassword
   properties:
     newUsername:
       type: string
+      nullable: true
       minLength: 2
       maxLength: 32
       pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
-      description: 서버에서 strip+lowercase 정규화됨
+      description: 입력 값은 서버에서 **strip** 후 소문자로 정규화됨
     newEmail:
       type: string
+      nullable: true
       format: email
       minLength: 6
       maxLength: 254
-      description: 서버에서 strip+lowercase 정규화됨
+      description: 입력 값은 서버에서 **strip** 후 소문자로 정규화됨
     newPassword:
       type: string
+      nullable: true
       minLength: 8
       maxLength: 72
-      description: 서버에서 해시 저장됨
+      description: 입력 값은 서버에서 **strip** 후 해시로 인코딩됨

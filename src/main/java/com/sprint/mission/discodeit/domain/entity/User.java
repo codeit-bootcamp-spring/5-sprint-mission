@@ -1,11 +1,7 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import static com.sprint.mission.discodeit.support.StringUtil.digitsOnlyOrNull;
-import static com.sprint.mission.discodeit.support.StringUtil.normalizeEmail;
-import static com.sprint.mission.discodeit.support.StringUtil.normalizeUsername;
-import static com.sprint.mission.discodeit.support.StringUtil.nullOrStrip;
+import static com.sprint.mission.discodeit.support.StringUtil.nullOrStripAndLowerCase;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -25,16 +21,6 @@ public class User extends AbstractEntity {
   private String email;
   private String username;
   private String password;
-  private LocalDate birthDate;
-  private boolean subscribedToNewsletter;
-  private String globalName;
-  private String bio;
-  private String phoneNumber;
-
-  private boolean verified;
-  private boolean deactivated;
-  private boolean banned;
-
   private UUID profileId;
 
   private final Set<UUID> friendIds = new HashSet<>();
@@ -47,20 +33,21 @@ public class User extends AbstractEntity {
       String password,
       UUID profileId
   ) {
-    this.email = normalizeEmail(Objects.requireNonNull(email, "email must not be null"));
-    this.username = normalizeUsername(
+    this.email = nullOrStripAndLowerCase(Objects.requireNonNull(email, "email must not be null"));
+    this.username = nullOrStripAndLowerCase(
         Objects.requireNonNull(username, "username must not be null"));
     this.password = Objects.requireNonNull(password, "password must not be null");
     this.profileId = profileId;
   }
 
   public void changeEmail(String email) {
-    String v = normalizeEmail(Objects.requireNonNull(email, "email must not be null"));
+    String v = nullOrStripAndLowerCase(Objects.requireNonNull(email, "email must not be null"));
     assignIfChanged(v, () -> this.email, x -> this.email = x);
   }
 
   public void changeUsername(String username) {
-    String v = normalizeUsername(Objects.requireNonNull(username, "username must not be null"));
+    String v = nullOrStripAndLowerCase(
+        Objects.requireNonNull(username, "username must not be null"));
     assignIfChanged(v, () -> this.username, x -> this.username = x);
   }
 
@@ -73,36 +60,6 @@ public class User extends AbstractEntity {
     return encoder.matches(raw, this.password);
   }
 
-  public void changeGlobalName(String globalName) {
-    String v = (globalName == null || globalName.isBlank()) ? null : globalName.strip();
-    assignIfChanged(v, () -> this.globalName, x -> this.globalName = x);
-  }
-
-  public void changeBirthDate(LocalDate birthDate) {
-    assignIfChanged(birthDate, () -> this.birthDate, x -> this.birthDate = x);
-  }
-
-  public void changeBio(String bio) {
-    String v = nullOrStrip(bio);
-    assignIfChanged(v, () -> this.bio, x -> this.bio = x);
-  }
-
-  public void changePhoneNumber(String phoneNumber) {
-    String v = digitsOnlyOrNull(phoneNumber);
-    assignIfChanged(v, () -> this.phoneNumber, x -> this.phoneNumber = x);
-  }
-
-  public void clearPhoneNumber() {
-    clearIfPresent(() -> this.phoneNumber, () -> this.phoneNumber = null);
-  }
-
-  public void setSubscribedToNewsletter(boolean subscribed) {
-    if (this.subscribedToNewsletter != subscribed) {
-      this.subscribedToNewsletter = subscribed;
-      touch();
-    }
-  }
-
   public void changeProfileId(UUID profileId) {
     UUID v = Objects.requireNonNull(profileId, "profileId must not be null");
     assignIfChanged(v, () -> this.profileId, x -> this.profileId = x);
@@ -110,34 +67,6 @@ public class User extends AbstractEntity {
 
   public void clearProfileId() {
     clearIfPresent(() -> this.profileId, () -> this.profileId = null);
-  }
-
-  public void verify() {
-    setFlagIfNeeded(true, () -> this.verified, x -> this.verified = x);
-  }
-
-  public void unverify() {
-    setFlagIfNeeded(false, () -> this.verified, x -> this.verified = x);
-  }
-
-  public void deactivate() {
-    setFlagIfNeeded(true, () -> this.deactivated, x -> this.deactivated = x);
-  }
-
-  public void activate() {
-    setFlagIfNeeded(false, () -> this.deactivated, x -> this.deactivated = x);
-  }
-
-  public void ban() {
-    setFlagIfNeeded(true, () -> this.banned, x -> this.banned = x);
-  }
-
-  public void unban() {
-    setFlagIfNeeded(false, () -> this.banned, x -> this.banned = x);
-  }
-
-  public boolean isActive() {
-    return !(deactivated || banned || isDeleted());
   }
 
   public Set<UUID> getFriendIds() {
@@ -214,8 +143,8 @@ public class User extends AbstractEntity {
 
   @Override
   public String toString() {
-    return "User[id=%s, email=%s, username=%s, globalName=%s, active=%s]"
-        .formatted(getId(), email, username, globalName, isActive());
+    return "User[id=%s, email=%s, username=%s]"
+        .formatted(getId(), email, username);
   }
 
   private <T> void assignIfChanged(T newValue, Supplier<T> getter, Consumer<T> writer) {

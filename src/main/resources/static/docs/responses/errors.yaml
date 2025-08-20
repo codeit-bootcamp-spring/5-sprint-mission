@@ -6,13 +6,13 @@ BadRequest:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/*"
+        path: "/api/users"
         method: "POST"
         status: 400
         code: "BAD_REQUEST"
         message: "요청이 올바르지 않습니다."
         details:
-          - "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+          - "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요"
           - "Unrecognized token 'True': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false') at line 7, column 35"
 
 NotFound:
@@ -23,11 +23,11 @@ NotFound:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/*"
+        path: "/api/users/2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
         method: "GET"
         status: 404
         code: "NOT_FOUND"
-        message: "리소스를 찾을 수 없습니다: <UUID>"
+        message: "User with id 2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11 not found"
 
 Conflict:
   description: Conflict
@@ -37,7 +37,7 @@ Conflict:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/*"
+        path: "/api/users"
         method: "POST"
         status: 409
         code: "CONFLICT"
@@ -57,7 +57,7 @@ MethodNotAllowed:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/*"
+        path: "/api/users"
         method: "PATCH"
         status: 405
         code: "METHOD_NOT_ALLOWED"
@@ -71,7 +71,7 @@ UnsupportedMediaType:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/*"
+        path: "/api/users"
         method: "POST"
         status: 415
         code: "UNSUPPORTED_MEDIA_TYPE"
@@ -87,7 +87,7 @@ InternalError:
         $ref: '../schemas/error.yaml#/ApiError'
       example:
         timestamp: "2025-08-16T12:34:56Z"
-        path: "/api/*"
+        path: "/api/users"
         method: "POST"
         status: 500
         code: "INTERNAL_ERROR"

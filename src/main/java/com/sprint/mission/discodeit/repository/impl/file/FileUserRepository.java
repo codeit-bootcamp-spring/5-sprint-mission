@@ -18,9 +18,6 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
       Comparator.comparing(User::getEmail, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
   private static final Comparator<User> BY_USERNAME =
       Comparator.comparing(User::getUsername, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
-  private static final Comparator<User> BY_GLOBAL_NAME =
-      Comparator.comparing(User::getGlobalName,
-          Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
   public FileUserRepository(AppProperties appProperties) {
     super(User.class, appProperties.storage());
@@ -47,11 +44,6 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     final String v = value.toLowerCase();
     final String n = needle.toLowerCase();
     return v.contains(n);
-  }
-
-  @Override
-  protected String getEntityTypeName() {
-    return "유저";
   }
 
   @Override
@@ -125,11 +117,6 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
   }
 
   @Override
-  public List<User> searchByGlobalNameKeyword(String keyword) {
-    return searchByContains(User::getGlobalName, keyword, BY_GLOBAL_NAME);
-  }
-
-  @Override
   public List<User> searchByEmailPrefix(String prefix) {
     return searchByPrefix(User::getEmail, prefix, BY_EMAIL);
   }
@@ -137,11 +124,5 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
   @Override
   public List<User> searchByUsernamePrefix(String prefix) {
     return searchByPrefix(User::getUsername, prefix, BY_USERNAME);
-  }
-
-
-  @Override
-  public List<User> searchByGlobalNamePrefix(String prefix) {
-    return searchByPrefix(User::getGlobalName, prefix, BY_GLOBAL_NAME);
   }
 }

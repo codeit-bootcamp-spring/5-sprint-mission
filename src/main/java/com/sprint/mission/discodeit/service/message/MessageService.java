@@ -52,7 +52,7 @@ public class MessageService {
   public void update(UUID messageId, MessageUpdateRequest req) {
     Message m = messageRepository.getOrThrow(messageId);
     if (!m.getAuthorId().equals(req.senderId())) {
-      throw new IllegalStateException("작성자만 메시지를 수정할 수 있습니다.");
+      throw new IllegalStateException("작성자만 메시지를 수정할 수 있습니다");
     }
     if (req.content() != null) {
       m.setContent(req.content());
@@ -67,7 +67,7 @@ public class MessageService {
   public void delete(UUID messageId, UUID actorId) {
     Message m = messageRepository.getOrThrow(messageId);
     if (!m.getAuthorId().equals(Objects.requireNonNull(actorId, "actorId must not be null"))) {
-      throw new IllegalStateException("작성자만 메시지를 삭제할 수 있습니다.");
+      throw new IllegalStateException("작성자만 메시지를 삭제할 수 있습니다");
     }
     messageRepository.softDeleteById(messageId);
   }

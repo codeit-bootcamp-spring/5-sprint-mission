@@ -19,11 +19,6 @@ public class FileBinaryContentRepository extends AbstractFileRepository<BinaryCo
   }
 
   @Override
-  protected String getEntityTypeName() {
-    return "Binary Content";
-  }
-
-  @Override
   public Optional<BinaryContent> findBySha256(String sha256) {
     Objects.requireNonNull(sha256, "sha256 must not be null");
     return findAll().stream()

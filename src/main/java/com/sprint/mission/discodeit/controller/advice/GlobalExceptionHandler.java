@@ -3,11 +3,11 @@ package com.sprint.mission.discodeit.controller.advice;
 import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.exception.ParameterNumberNotValidException;
 import com.sprint.mission.discodeit.exception.ValidatorsValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -38,8 +38,8 @@ public class GlobalExceptionHandler {
     e.getMostSpecificCause();
     String causeMsg = e.getMostSpecificCause().getMessage();
     log.warn("400(NOT_READABLE) {} {} -> {}", req.getMethod(), req.getRequestURI(), causeMsg);
-    return error(req, HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
-        "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요.",
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "JSON_PARSE_ERROR",
+        "Unable to read request body, please check JSON format and field type",
         listOfNullable(causeMsg));
   }
 
@@ -49,8 +49,8 @@ public class GlobalExceptionHandler {
       HttpServletRequest req) {
     List<String> details = constraintErrors(e.getConstraintViolations());
     log.warn("400(CONSTRAINT) {} {} -> {}", req.getMethod(), req.getRequestURI(), details);
-    return error(req, HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
-        "입력 값이 유효하지 않습니다.", details);
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+        "Request parameter value not valid", details);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -60,8 +60,26 @@ public class GlobalExceptionHandler {
         .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
         .toList();
     log.warn("400(VALIDATION) {} {} -> {}", req.getMethod(), req.getRequestURI(), details);
-    return error(req, HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
-        "입력 값이 유효하지 않습니다.", details);
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+        "Request body value not valid", details);
+  }
+
+  @ExceptionHandler(ParameterNumberNotValidException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ApiError handleParameterNumberValidation(ParameterNumberNotValidException e,
+      HttpServletRequest req) {
+    String msg = (e.getMessage() != null && !e.getMessage().isBlank())
+        ? e.getMessage()
+        : "Multiple query parameters not allowed";
+
+    List<String> params = e.getReceivedParameters();
+    List<String> details = (params != null && !params.isEmpty())
+        ? List.of(String.join(", ", params) + ": 하나만 포함하여아 합니다")
+        : List.of();
+
+    log.warn("400(INVALID_PARAMETER_NUMBER) {} {} -> {}", req.getMethod(), req.getRequestURI(),
+        msg);
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "INVALID_NUMBER_OF_PARAMETERS", msg, details);
   }
 
   @ExceptionHandler({
@@ -74,8 +92,8 @@ public class GlobalExceptionHandler {
   public ApiError handleBadRequest(Exception e, HttpServletRequest req) {
     String reason = (e.getMessage() != null) ? e.getMessage() : "요청이 올바르지 않습니다.";
     log.warn("400(BAD_REQUEST) {} {} -> {}", req.getMethod(), req.getRequestURI(), reason);
-    return error(req, HttpStatus.BAD_REQUEST, "BAD_REQUEST",
-        "요청이 올바르지 않습니다.", List.of(reason));
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "BAD_REQUEST",
+        "요청이 올바르지 않습니다", List.of(reason));
   }
 
   @ExceptionHandler(AccessDeniedException.class)
@@ -83,7 +101,7 @@ public class GlobalExceptionHandler {
   public ApiError handleForbidden(AccessDeniedException e, HttpServletRequest req) {
     String msg = (e.getMessage() != null) ? e.getMessage() : "접근이 거부되었습니다.";
     log.warn("403(FORBIDDEN) {} {} -> {}", req.getMethod(), req.getRequestURI(), msg);
-    return error(req, HttpStatus.FORBIDDEN, "FORBIDDEN", msg, List.of());
+    return ApiError.from(req, HttpStatus.FORBIDDEN, "FORBIDDEN", msg, List.of());
   }
 
   @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
@@ -91,7 +109,7 @@ public class GlobalExceptionHandler {
   public ApiError handleNoHandler(Exception e, HttpServletRequest req) {
     log.warn("404(NOT_FOUND_ENDPOINT) {} {} -> {}", req.getMethod(), req.getRequestURI(),
         e.getMessage());
-    return error(req, HttpStatus.NOT_FOUND, "NOT_FOUND",
+    return ApiError.from(req, HttpStatus.NOT_FOUND, "NOT_FOUND",
         "요청한 엔드포인트를 찾을 수 없습니다.", List.of());
   }
 
@@ -100,7 +118,7 @@ public class GlobalExceptionHandler {
   public ApiError handleNotFound(NotFoundException e, HttpServletRequest req) {
     String msg = (e.getMessage() != null) ? e.getMessage() : "리소스를 찾을 수 없습니다.";
     log.warn("404(NOT_FOUND) {} {} -> {}", req.getMethod(), req.getRequestURI(), msg);
-    return error(req, HttpStatus.NOT_FOUND, "NOT_FOUND", msg, List.of());
+    return ApiError.from(req, HttpStatus.NOT_FOUND, "NOT_FOUND", msg, List.of());
   }
 
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -113,7 +131,7 @@ public class GlobalExceptionHandler {
             .collect(Collectors.joining(", "));
     log.warn("405(METHOD_NOT_ALLOWED) {} {} -> allowed: {}", req.getMethod(), req.getRequestURI(),
         allowed);
-    return error(req, HttpStatus.METHOD_NOT_ALLOWED, "METHOD_NOT_ALLOWED",
+    return ApiError.from(req, HttpStatus.METHOD_NOT_ALLOWED, "METHOD_NOT_ALLOWED",
         "허용되지 않은 HTTP 메서드입니다.",
         allowed.isBlank() ? List.of() : List.of("허용되는 메서드: " + allowed));
   }
@@ -126,7 +144,7 @@ public class GlobalExceptionHandler {
         ? e.getMessage()
         : "리소스 충돌이 발생했습니다.";
     log.warn("409(CONFLICT) {} {} -> {}", req.getMethod(), req.getRequestURI(), e.getMessage());
-    return error(req, HttpStatus.CONFLICT, "CONFLICT", msg, List.of());
+    return ApiError.from(req, HttpStatus.CONFLICT, "CONFLICT", msg, List.of());
   }
 
   @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -140,7 +158,7 @@ public class GlobalExceptionHandler {
     String msg = "허용되지 않은 미디어 타입입니다." + supported;
     log.warn("415(UNSUPPORTED_MEDIA_TYPE) {} {} -> {}", req.getMethod(), req.getRequestURI(),
         e.getMessage());
-    return error(req, HttpStatus.UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED_MEDIA_TYPE", msg,
+    return ApiError.from(req, HttpStatus.UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED_MEDIA_TYPE", msg,
         listOfNullable(e.getMessage()));
   }
 
@@ -149,21 +167,8 @@ public class GlobalExceptionHandler {
   public ApiError handleAny(Exception e, HttpServletRequest req) {
     log.error("500(INTERNAL_ERROR) {} {} -> {}", req.getMethod(), req.getRequestURI(), e.toString(),
         e);
-    return error(req, HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR",
+    return ApiError.from(req, HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR",
         "예상치 못한 오류가 발생했습니다.", List.of());
-  }
-
-  private ApiError error(HttpServletRequest req, HttpStatus status, String code, String message,
-      List<String> details) {
-    return new ApiError(
-        Instant.now(),
-        req.getRequestURI(),
-        req.getMethod(),
-        status.value(),
-        code,
-        message,
-        details == null ? List.of() : List.copyOf(details)
-    );
   }
 
   private static List<String> constraintErrors(Set<ConstraintViolation<?>> violations) {

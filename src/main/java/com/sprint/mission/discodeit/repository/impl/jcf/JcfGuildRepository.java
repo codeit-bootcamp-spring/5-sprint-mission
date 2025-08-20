@@ -12,9 +12,8 @@ import org.springframework.stereotype.Repository;
 @Profile("test")
 public class JcfGuildRepository extends AbstractJcfRepository<Guild> implements GuildRepository {
 
-  @Override
-  protected String getEntityTypeName() {
-    return "서버";
+  public JcfGuildRepository() {
+    super(Guild.class);
   }
 
   @Override

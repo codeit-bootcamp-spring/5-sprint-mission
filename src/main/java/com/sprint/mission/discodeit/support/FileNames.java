@@ -36,7 +36,7 @@ public final class FileNames {
     if (originalFilename == null || originalFilename.isBlank()) {
       return null;
     }
-    String name = Paths.get(originalFilename).getFileName().toString().trim();
+    String name = Paths.get(originalFilename).getFileName().toString().strip();
     int dot = name.lastIndexOf('.');
     if (dot < 0 || dot == name.length() - 1) {
       return null;
@@ -88,7 +88,7 @@ public final class FileNames {
       return MediaType.APPLICATION_OCTET_STREAM_VALUE;
     }
     int semi = ct.indexOf(';');
-    return (semi >= 0 ? ct.substring(0, semi) : ct).trim().toLowerCase();
+    return (semi >= 0 ? ct.substring(0, semi) : ct).strip().toLowerCase();
   }
 
   public static String buildStoredName(String original, String contentType) {

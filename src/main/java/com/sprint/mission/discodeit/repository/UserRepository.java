@@ -18,11 +18,7 @@ public interface UserRepository extends AbstractRepository<User> {
 
   List<User> searchByUsernameKeyword(String keyword);
 
-  List<User> searchByGlobalNameKeyword(String keyword);
-
   List<User> searchByEmailPrefix(String prefix);
 
   List<User> searchByUsernamePrefix(String prefix);
-
-  List<User> searchByGlobalNamePrefix(String prefix);
 }

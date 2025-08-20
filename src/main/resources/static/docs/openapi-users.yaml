@@ -7,10 +7,36 @@ servers:
   - url: /api/users
 paths:
   /:
-    $ref: "./paths/users.yaml#/users_root"
-  /{id}:
-    $ref: "./paths/users.yaml#/user_by_id"
+    $ref: "./paths/users.yaml#/usersRoot"
+  /{userId}:
+    $ref: "./paths/users.yaml#/userById"
 components:
+  parameters:
+    UserId:
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Username:
+      in: query
+      name: username
+      schema:
+        type: string
+        minLength: 2
+        maxLength: 32
+        pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
+      description: username으로 사용자 검색 (서버에서 strip 후 소문자로 정규화됨)
+    Email:
+      in: query
+      name: email
+      schema:
+        type: string
+        format: email
+        minLength: 6
+        maxLength: 254
+      description: email로 사용자 검색 (서버에서 strip 후 소문자로 정규화됨)
   schemas:
     UserResponse:
       $ref: "./schemas/user.yaml#/UserResponse"

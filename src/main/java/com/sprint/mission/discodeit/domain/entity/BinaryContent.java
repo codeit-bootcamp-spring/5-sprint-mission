@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.domain.entity;
 
+import static com.sprint.mission.discodeit.support.StringUtil.nullOrStripAndLowerCase;
+
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.time.Instant;
@@ -129,7 +131,7 @@ public class BinaryContent extends AbstractEntity {
         .filter(c -> c >= 32)
         .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
         .toString()
-        .trim();
+        .strip();
     if (name.isEmpty()) {
       throw new IllegalArgumentException("filename must not be blank after normalization");
     }
@@ -140,7 +142,7 @@ public class BinaryContent extends AbstractEntity {
   }
 
   private static String normalizeContentType(String ct) {
-    return ct.trim().toLowerCase();
+    return nullOrStripAndLowerCase(ct);
   }
 
   private static String guessContentType(String contentType, String filename) {

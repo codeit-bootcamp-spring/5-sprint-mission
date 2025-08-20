@@ -8,17 +8,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class AbstractJcfRepository<T extends AbstractEntity> implements AbstractRepository<T> {
 
   protected final ConcurrentMap<UUID, T> data = new ConcurrentHashMap<>();
 
-  private static <E extends AbstractEntity> boolean isActive(E e) {
-    return e != null && !e.isDeleted();
-  }
+  private final Class<T> entityType;
 
   @Override
   public T save(T entity) {
@@ -41,7 +42,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   @Override
   public Optional<T> findById(UUID id) {
     T e = data.get(id);
-    return isActive(e) ? Optional.of(e) : Optional.empty();
+    return !e.isDeleted() ? Optional.of(e) : Optional.empty();
   }
 
   @Override
@@ -52,12 +53,12 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   @Override
   public T getOrThrow(UUID id) {
     return findById(id).orElseThrow(() ->
-        new NotFoundException("%s with id %s not found".formatted(getEntityTypeName(), id)));
+        new NotFoundException("%s with id %s not found".formatted(entityType.getSimpleName(), id)));
   }
 
   @Override
   public List<T> findAll() {
-    return data.values().stream().filter(AbstractJcfRepository::isActive).toList();
+    return data.values().stream().filter(e -> !e.isDeleted()).toList();
   }
 
   @Override
@@ -71,18 +72,18 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public List<T> findAllByIds(Collection<UUID> ids) {
+  public List<T> findAllByIds(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
     return ids.stream()
         .map(data::get)
-        .filter(AbstractJcfRepository::isActive)
+        .filter(e -> !e.isDeleted())
         .toList();
   }
 
   @Override
-  public List<T> findAllByIdsIncludingDeleted(Collection<UUID> ids) {
+  public List<T> findAllByIdsIncludingDeleted(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
@@ -95,13 +96,13 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   @Override
   public boolean existsById(UUID id) {
     T e = data.get(id);
-    return isActive(e);
+    return !e.isDeleted();
   }
 
   @Override
   public boolean softDeleteById(UUID id) {
     T entity = data.get(id);
-    if (isActive(entity)) {
+    if (!entity.isDeleted()) {
       entity.delete();
       return true;
     }
@@ -109,7 +110,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public int softDeleteAllByIds(Collection<UUID> ids) {
+  public int softDeleteAllByIds(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }
@@ -133,7 +134,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public int restoreAllByIds(Collection<UUID> ids) {
+  public int restoreAllByIds(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }
@@ -152,7 +153,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public int hardDeleteAllByIds(Collection<UUID> ids) {
+  public int hardDeleteAllByIds(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }
@@ -181,15 +182,11 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
 
   @Override
   public long count() {
-    return data.values().stream().filter(AbstractJcfRepository::isActive).count();
+    return data.values().stream().filter(e -> !e.isDeleted()).count();
   }
 
   @Override
   public long countIncludingDeleted() {
     return data.size();
-  }
-
-  protected String getEntityTypeName() {
-    return "엔티티";
   }
 }

@@ -25,11 +25,6 @@ public class FileGuildPermissionsRepository extends
   }
 
   @Override
-  protected String getEntityTypeName() {
-    return "서버 권한 목록";
-  }
-
-  @Override
   public boolean existsByGuildIdAndUserId(UUID guildId, UUID userId) {
     Objects.requireNonNull(guildId, "guildId must not be null");
     Objects.requireNonNull(userId, "userId must not be null");

@@ -56,7 +56,7 @@ login:
                   method: "POST"
                   status: 400
                   code: "VALIDATION_ERROR"
-                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요"
                   details:
                     - "Unexpected character ('\"' (code 34)): was expecting a colon to separate field name and value"
       '403':

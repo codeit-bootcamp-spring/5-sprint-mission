@@ -18,15 +18,16 @@ import org.springframework.stereotype.Repository;
 public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> implements
     UserStatusRepository {
 
-  @Override
-  protected String getEntityTypeName() {
-    return "UserStatus";
+  public JcfUserStatusRepository() {
+    super(UserStatus.class);
   }
 
   @Override
   public Optional<UserStatus> findByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
-    return findAll().stream().filter(us -> userId.equals(us.getUserId())).findFirst();
+    return data.values().stream()
+        .filter(us -> !us.isDeleted() && userId.equals(us.getUserId()))
+        .findFirst();
   }
 
   @Override

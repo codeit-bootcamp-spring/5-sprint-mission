@@ -90,7 +90,7 @@ messages_root:
                   code: "VALIDATION_ERROR"
                   message: "입력 값이 유효하지 않습니다."
                   details:
-                    - "content: 크기가 0에서 2000 사이여야 합니다."
+                    - "content: 크기가 0에서 2000 사이여야 합니다"
               invalidJSON:
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
@@ -98,7 +98,7 @@ messages_root:
                   method: "POST"
                   status: 400
                   code: "VALIDATION_ERROR"
-                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요"
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 1]"
       '404':
