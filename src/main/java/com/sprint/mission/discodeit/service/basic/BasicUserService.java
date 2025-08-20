@@ -47,15 +47,9 @@ public class BasicUserService implements UserService {
     UserStatus status = UserStatus.of(user.getId());
     userStatusRepository.save(status);
 
-    return UserDto.Detail.builder()
-        .id(user.getId())
-        .username(user.getName())
-        .email(user.getEmail())
-        .profileId(user.getProfileId())
-        .online(status.isOnline())
-        .createdAt(user.getCreatedAt())
-        .updatedAt(user.getUpdatedAt())
-        .build();
+    return UserDto.Detail.builder().id(user.getId()).username(user.getName()).email(user.getEmail())
+        .profileId(user.getProfileId()).online(status.isOnline()).createdAt(user.getCreatedAt())
+        .updatedAt(user.getUpdatedAt()).build();
   }
 
   @Override
@@ -64,18 +58,11 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
-    UserStatus status = userStatusRepository.findByUserId(userId)
-        .orElse(null);
+    UserStatus status = userStatusRepository.findByUserId(userId).orElse(null);
 
-    return UserDto.Detail.builder()
-        .id(user.getId())
-        .username(user.getName())
-        .email(user.getEmail())
-        .profileId(user.getProfileId())
-        .online(status != null && status.isOnline())
-        .createdAt(user.getCreatedAt())
-        .updatedAt(user.getUpdatedAt())
-        .build();
+    return UserDto.Detail.builder().id(user.getId()).username(user.getName()).email(user.getEmail())
+        .profileId(user.getProfileId()).online(status != null && status.isOnline())
+        .createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
   }
 
   @Override
@@ -85,18 +72,12 @@ public class BasicUserService implements UserService {
     List<UserStatus> status = userStatusRepository.findAll();
 
     return users.stream().map(u -> {
-      UserStatus s = status.stream().filter(t -> t.getUserId().equals(u.getId()))
-          .findFirst().orElse(null);
+      UserStatus s = status.stream().filter(t -> t.getUserId().equals(u.getId())).findFirst()
+          .orElse(null);
 
-      return UserDto.Detail.builder()
-          .id(u.getId())
-          .username(u.getName())
-          .email(u.getEmail())
-          .profileId(u.getProfileId())
-          .online(s != null && s.isOnline())
-          .createdAt(u.getCreatedAt())
-          .updatedAt(u.getUpdatedAt())
-          .build();
+      return UserDto.Detail.builder().id(u.getId()).username(u.getName()).email(u.getEmail())
+          .profileId(u.getProfileId()).online(s != null && s.isOnline()).createdAt(u.getCreatedAt())
+          .updatedAt(u.getUpdatedAt()).build();
 
     }).collect(Collectors.toList());
   }
@@ -117,18 +98,11 @@ public class BasicUserService implements UserService {
     user.update(update, newProfileId);
     userRepository.save(user);
 
-    UserStatus status = userStatusRepository.findByUserId(update.getId())
-        .orElse(null);
+    UserStatus status = userStatusRepository.findByUserId(update.getId()).orElse(null);
 
-    return UserDto.Detail.builder()
-        .id(user.getId())
-        .username(user.getName())
-        .email(user.getEmail())
-        .profileId(user.getProfileId())
-        .online(status != null && status.isOnline())
-        .createdAt(user.getCreatedAt())
-        .updatedAt(user.getUpdatedAt())
-        .build();
+    return UserDto.Detail.builder().id(user.getId()).username(user.getName()).email(user.getEmail())
+        .profileId(user.getProfileId()).online(status != null && status.isOnline())
+        .createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
   }
 
   @Override

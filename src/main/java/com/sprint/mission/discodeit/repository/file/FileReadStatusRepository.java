@@ -22,8 +22,7 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
   @Override
   public List<ReadStatus> findAllByUserId(UUID userId) {
 
-    return data.values().stream()
-        .filter(readStatus -> readStatus.getUserId().equals(userId))
+    return data.values().stream().filter(readStatus -> readStatus.getUserId().equals(userId))
         .collect(Collectors.toList());
   }
 }

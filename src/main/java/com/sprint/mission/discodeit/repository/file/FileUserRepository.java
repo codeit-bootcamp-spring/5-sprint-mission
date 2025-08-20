@@ -19,20 +19,16 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
   @Override
   public Optional<User> findByName(String username) {
 
-    return data.values().stream()
-        .filter(u -> u.getName().equals(username))
-        .findFirst();
+    return data.values().stream().filter(u -> u.getName().equals(username)).findFirst();
   }
 
   @Override
   public boolean existsByUsername(String username) {
-    return data.values().stream()
-        .anyMatch(u -> u.getName().equals(username));
+    return data.values().stream().anyMatch(u -> u.getName().equals(username));
   }
 
   @Override
   public boolean existsByEmail(String email) {
-    return data.values().stream()
-        .anyMatch(u -> u.getEmail().equals(email));
+    return data.values().stream().anyMatch(u -> u.getEmail().equals(email));
   }
 }

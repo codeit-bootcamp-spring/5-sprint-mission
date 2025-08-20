@@ -24,13 +24,10 @@ public class FileChannelRepository extends AbstractFileRepository<Channel> imple
 
     List<Channel> channels = new ArrayList<>();
 
-    channels.addAll(data.values().stream()
-        .filter(c -> c.getType().equals(ChannelType.PUBLIC))
-        .toList());
-    channels.addAll(data.values().stream()
-        .filter(c -> c.getType().equals(ChannelType.PRIVATE))
-        .filter(c -> c.getUserIds().contains(userId))
-        .toList());
+    channels.addAll(
+        data.values().stream().filter(c -> c.getType().equals(ChannelType.PUBLIC)).toList());
+    channels.addAll(data.values().stream().filter(c -> c.getType().equals(ChannelType.PRIVATE))
+        .filter(c -> c.getUserIds().contains(userId)).toList());
 
     return channels;
   }
