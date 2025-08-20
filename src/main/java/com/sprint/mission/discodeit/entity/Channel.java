@@ -6,7 +6,6 @@ import lombok.Getter;
 public class Channel extends Base {
 
     private String name;
-    private String topic;
     private ChannelType type;
     private String description;
 
@@ -15,9 +14,8 @@ public class Channel extends Base {
         this.name = name;
     }
 
-    public Channel(String name, ChannelType type, String topic, String description) {
+    public Channel(String name, ChannelType type, String description) {
         this(name, type);
-        this.topic = topic;
         this.description = description;
     }
 
@@ -26,10 +24,6 @@ public class Channel extends Base {
         updateTimestamp();
     }
 
-    public void updateTopic(String topic) {
-        this.topic = topic;
-        updateTimestamp();
-    }
 
     public void updateType(ChannelType newType) {
         this.type = newType;
@@ -44,8 +38,8 @@ public class Channel extends Base {
     @Override
     public String toString() {
         return String.format(
-                "아이디: %-10s  채널명: %-10s  타입: %-10s  주제: %-10s 설명: %-10s 생성시간: %-10s, 업데이트: %-10s \n",
-                getId(), getName(), getType(), getTopic(), getDescription(), getCreatedAtFormatted(), getUpdatedAtFormatted()
+                "아이디: %-10s  채널명: %-10s  타입: %-10s  설명: %-10s 생성시간: %-10s, 업데이트: %-10s \n",
+                getId(), getName(), getType(), getDescription(), getCreatedAtFormatted(), getUpdatedAtFormatted()
         );
     }
 }

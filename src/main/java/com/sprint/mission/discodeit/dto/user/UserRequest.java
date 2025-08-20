@@ -11,7 +11,7 @@ public class UserRequest {
 
     public record Create(
             @NotBlank(message = "이름을 입력해주세요")
-            String name,
+            String username,
 
             @NotBlank(message = "이메일을 입력해주세요")
             String email,
@@ -23,7 +23,7 @@ public class UserRequest {
     public record update(
             @NotNull(message = "아이디를 입력해주세요")
             UUID id,
-            @Nullable String name,
+            @Nullable String username,
             @Nullable String email,
             @Nullable MultipartFile profileImage
     ) {}

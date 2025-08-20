@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ReadStatusDto;
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,25 +20,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BasicReadStatusService implements ReadStatusService {
 
+    private final UserRepository userRepository;
+    private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
 
     @Override
-    public ReadStatusDto.response updateLastReadAt(ReadStatusDto.create dto) {
+    public ReadStatus updateLastReadAt(UUID userId, UUID channelId, Instant lastReadAt) {
 
-        Message message = messageRepository.findById(dto.messageId())
-                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾지 못했습니다."));
-
-        // 메시지 - 채널 일치하는지 확인
-        if(!message.getChannelId().equals(dto.channelId())){
-            throw new IllegalArgumentException("지정한 채널에 속하지 않는 메시지입니다.");
-        }
+        userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다."));
+        channelRepository.findById(channelId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
         // 읽음 상태가 존재하면 없데이트, 없다면 새로 생성
-        ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(dto.userId(), dto.channelId())
-                .orElseGet(() -> new ReadStatus(dto.userId(), dto.channelId()));
+        ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(userId, channelId)
+                .orElseGet(() -> new ReadStatus(userId, channelId, lastReadAt));
 
-        Instant lastReadAt = message.getCreatedAt(); // 마지막으로 읽은 시간
 
         // 과거로 돌아감 방지
         Instant oldReadAt = readStatus.getLastReadAt(); // null일 수도 있음
@@ -47,11 +43,7 @@ public class BasicReadStatusService implements ReadStatusService {
             readStatus.updateLastReadAt(lastReadAt);
             readStatusRepository.save(readStatus);
         }
-        return ReadStatusDto.response.builder()
-                .userId(dto.userId())
-                .channelId(dto.channelId())
-                .readAt(readStatus.getLastReadAtFormatted())
-                .build();
+        return readStatus;
     }
 
     @Override
@@ -89,6 +81,16 @@ public class BasicReadStatusService implements ReadStatusService {
                     return new ReadStatusDto.unread(channelId, hasUnread);
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 특정 채널에 있는 모든 사용자
+     * 채널 참여자
+     */
+    @Override
+    public List<UUID> findAllUsers(UUID channelId) {
+        List<ReadStatus> readStatusList = readStatusRepository.findAllByChannelId(channelId);
+        return readStatusList.stream().map(ReadStatus::getUserId).toList();
     }
 
     /**

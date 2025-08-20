@@ -20,7 +20,5 @@ public interface ChannelRepository {
 
     Optional<Channel> updateName(UUID id, String name);
 
-    Optional<Channel> updateTopic(UUID id, String topic);
-
     boolean delete(UUID id);
 }

@@ -11,7 +11,7 @@ public class UserResponse {
     @Builder
     public record detail(
             UUID id,
-            String name,
+            String username,
             String email,
             @Nullable UUID profileId,
             @Nullable String imageUrl,
@@ -22,10 +22,10 @@ public class UserResponse {
         public static detail from (User user, boolean online) {
             return detail.builder()
                     .id(user.getId())
-                    .name(user.getName())
+                    .username(user.getName())
                     .email(user.getEmail())
                     .profileId(user.getProfileId())
-                    .imageUrl(user.getProfileId() != null ? "/api/binary/" + user.getProfileId() : null)
+                    .imageUrl(user.getProfileId() != null ? "/api/binaryContents/" + user.getProfileId() : null)
                     .createdAt(user.getCreatedAtFormatted())
                     .updatedAt(user.getUpdatedAtFormatted())
                     .online(online)
@@ -36,19 +36,19 @@ public class UserResponse {
     @Builder
     public record summary(
             UUID id,
-            String name,
+            String username,
             String email,
-            @Nullable UUID imageId,
+            @Nullable UUID profileId,
             @Nullable String imageUrl,
             Boolean online
     ) {
         public static summary from (User user, boolean online) {
             return summary.builder()
                     .id(user.getId())
-                    .name(user.getName())
+                    .username(user.getName())
                     .email(user.getEmail())
-                    .imageId(user.getProfileId())
-                    .imageUrl(user.getProfileId() != null ? "/api/binary/" + user.getProfileId() : null)
+                    .profileId(user.getProfileId())
+                    .imageUrl(user.getProfileId() != null ? "/api/binaryContents/" + user.getProfileId() : null)
                     .online(online)
                     .build();
         }

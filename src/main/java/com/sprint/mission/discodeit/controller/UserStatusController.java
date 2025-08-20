@@ -28,14 +28,4 @@ public class UserStatusController {
         return ResponseEntity.ok(online ? "온라인" : "오프라인");
     }
 
-    /**
-     * 현재 온라인 상태 조회
-     */
-    @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<UserStatusDto.response> getStatus(@PathVariable("userId") UUID userId) {
-        boolean online = userStatusService.isOnline(userId);
-        Instant last = userStatusService.findByUserId(userId).map(UserStatus::getLastAccessedAt).orElse(null);
-
-        return ResponseEntity.ok(new UserStatusDto.response(userId, online, last));
-    }
 }

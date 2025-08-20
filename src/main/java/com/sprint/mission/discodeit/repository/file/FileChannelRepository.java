@@ -64,17 +64,6 @@ public class FileChannelRepository extends FileStore<Channel> implements Channel
     }
 
     @Override
-    public Optional<Channel> updateTopic(UUID id, String topic) {
-        Channel channel = channelMap.get(id);
-        if (channel != null) {
-            channel.updateTopic(topic);
-            saveToFile(channelMap);
-            return Optional.of(channel);
-        }
-        return Optional.empty();
-    }
-
-    @Override
     public boolean delete(UUID id) {
         if (channelMap.containsKey(id)) {
             channelMap.remove(id);

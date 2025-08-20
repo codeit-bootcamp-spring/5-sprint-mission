@@ -36,7 +36,7 @@ public class UserController {
             @RequestPart(value = "profile", required = false) MultipartFile profile
     ) throws IOException {
 
-        UserDto userDto = new UserDto(req.name(), req.email(), req.password());
+        UserDto userDto = new UserDto(req.username(), req.email(), req.password());
         FileDto fileDto = null;
 
         if(profile != null) {
@@ -61,7 +61,7 @@ public class UserController {
             fileDto = new FileDto(UUID.randomUUID().toString(), req.profileImage().getContentType(), req.profileImage().getBytes());
         }
 
-        User user = userService.update(req.id(), req.name(), fileDto);
+        User user = userService.update(req.id(), req.username(), fileDto);
         boolean online = userStatusService.isOnline(user.getId());
 
         return ResponseEntity.ok(UserResponse.detail.from(user, online));

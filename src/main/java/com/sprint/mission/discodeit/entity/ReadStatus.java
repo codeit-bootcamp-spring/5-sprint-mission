@@ -20,10 +20,10 @@ public class ReadStatus extends Base {
     private final UUID channelId;
     private Instant lastReadAt;
 
-    public ReadStatus(UUID userId, UUID channelId) {
+    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
         this.userId = userId;
         this.channelId = channelId;
-        this.lastReadAt = null; // 아직 읽은 메시지 없음
+        this.lastReadAt = lastReadAt; // 아직 읽은 메시지 없음
     }
 
     /**

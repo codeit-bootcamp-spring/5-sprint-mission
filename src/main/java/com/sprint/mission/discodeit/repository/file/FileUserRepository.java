@@ -48,10 +48,10 @@ public class FileUserRepository extends FileStore<User> implements UserRepositor
     }
 
     @Override
-    public List<User> findByName(String name) {
+    public Optional<User> findByName(String name) {
         return userMap.values().stream()
-                .filter(user -> user.getEmail().equals(name))
-                .collect(Collectors.toList());
+                .filter(user -> user.getName().equals(name))
+                .findFirst();
     }
 
 

@@ -9,19 +9,19 @@ import java.util.UUID;
 
 public interface ChannelService {
 
-    ChannelResponse.detail create(ChannelRequest.create dto);
+    Channel create(String name, String description);
 
-    ChannelResponse.detail update(ChannelRequest.update dto);
+    Channel createPrivate(List<UUID> participantIds);
 
-    ChannelResponse.detail createPrivate(ChannelRequest.createPrivate dto);
+    Channel update(UUID channelId, String name, String description);
 
     List<Channel> findAll();
 
     Channel findById(UUID id);
 
-    ChannelResponse.join join(UUID userId, UUID channelId);
+    Channel join(UUID userId, UUID channelId);
 
-    List<ChannelResponse.summary> findByUser(UUID userId);
+    List<Channel> findByUser(UUID userId);
 
     List<Channel> findByName(String name);
 

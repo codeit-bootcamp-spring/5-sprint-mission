@@ -55,16 +55,6 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public Optional<Channel> updateTopic(UUID id, String topic) {
-        Channel channel = data.get(id);
-        if (channel != null) {
-            channel.updateTopic(topic);
-            return Optional.of(channel);
-        }
-        return Optional.empty();
-    }
-
-    @Override
     public boolean delete(UUID id) {
         return data.remove(id) != null;
     }
