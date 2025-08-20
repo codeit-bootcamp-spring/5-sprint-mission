@@ -20,7 +20,7 @@ public class BasicUserStatusService implements UserStatusService {
   private final UserStatusRepository userStatusRepository;
 
   @Override
-  public UserStatusDto.DetailResponse create(Create request) {
+  public UserStatusDto.Detail create(Create request) {
     User user = userRepository.findById(request.getUserId())
         .orElseThrow(() -> new IllegalArgumentException("Not Found User"));
 
@@ -31,30 +31,30 @@ public class BasicUserStatusService implements UserStatusService {
 
     userStatus = userStatusRepository.save(UserStatus.of(request.getUserId()));
 
-    return UserStatusDto.DetailResponse.builder().id(userStatus.getId())
+    return UserStatusDto.Detail.builder().id(userStatus.getId())
         .userId(userStatus.getUserId()).lastLogin(userStatus.getLastLogin()).build();
   }
 
   @Override
-  public UserStatusDto.DetailResponse find(UUID id) {
+  public UserStatusDto.Detail find(UUID id) {
     UserStatus userStatus = userStatusRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Not Found User Status"));
 
-    return UserStatusDto.DetailResponse.builder().id(userStatus.getId())
+    return UserStatusDto.Detail.builder().id(userStatus.getId())
         .userId(userStatus.getUserId()).lastLogin(userStatus.getLastLogin()).build();
   }
 
   @Override
-  public List<UserStatusDto.DetailResponse> findAll() {
+  public List<UserStatusDto.Detail> findAll() {
     List<UserStatus> userStatuses = userStatusRepository.findAll();
 
     return userStatuses.stream().map(
-        us -> UserStatusDto.DetailResponse.builder().id(us.getId()).userId(us.getUserId())
+        us -> UserStatusDto.Detail.builder().id(us.getId()).userId(us.getUserId())
             .lastLogin(us.getLastLogin()).build()).toList();
   }
 
   @Override
-  public UserStatusDto.DetailResponse update(UUID id) {
+  public UserStatusDto.Detail update(UUID id) {
 
     UserStatus userStatus = userStatusRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Not Found User Status"));
@@ -63,12 +63,12 @@ public class BasicUserStatusService implements UserStatusService {
 
     userStatusRepository.save(userStatus);
 
-    return UserStatusDto.DetailResponse.builder().id(userStatus.getId())
+    return UserStatusDto.Detail.builder().id(userStatus.getId())
         .userId(userStatus.getUserId()).lastLogin(userStatus.getLastLogin()).build();
   }
 
   @Override
-  public UserStatusDto.DetailResponse updateByUserId(UUID userId) {
+  public UserStatusDto.Detail updateByUserId(UUID userId) {
 
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("Not Found User Status"));
@@ -76,7 +76,7 @@ public class BasicUserStatusService implements UserStatusService {
     userStatus.update();
     userStatusRepository.save(userStatus);
 
-    return UserStatusDto.DetailResponse.builder().id(userStatus.getId())
+    return UserStatusDto.Detail.builder().id(userStatus.getId())
         .userId(userStatus.getUserId()).lastLogin(userStatus.getLastLogin()).build();
   }
 

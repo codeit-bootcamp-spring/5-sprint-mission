@@ -17,11 +17,11 @@ public class BasicBinaryContentService implements BinaryContentService {
   private final BinaryContentRepository binaryContentRepository;
 
   @Override
-  public BinaryContentDto.DetailResponse create(Create request) {
+  public BinaryContentDto.Detail create(Create request) {
     BinaryContent binaryContent = binaryContentRepository.save(BinaryContent.of(request.getFile()));
     binaryContentRepository.save(binaryContent);
 
-    return BinaryContentDto.DetailResponse.builder()
+    return BinaryContentDto.Detail.builder()
         .id(binaryContent.getId())
         .bytes(binaryContent.getContent())
         .contentType(binaryContent.getContentType())
@@ -32,13 +32,13 @@ public class BasicBinaryContentService implements BinaryContentService {
   }
 
   @Override
-  public BinaryContentDto.DetailResponse find(UUID id) {
+  public BinaryContentDto.Detail find(UUID id) {
     BinaryContent binaryContent = binaryContentRepository.findById(id).orElse(null);
     if (binaryContent == null) {
       return null;
     }
 
-    return BinaryContentDto.DetailResponse.builder()
+    return BinaryContentDto.Detail.builder()
         .id(binaryContent.getId())
         .bytes(binaryContent.getContent())
         .contentType(binaryContent.getContentType())
@@ -49,11 +49,11 @@ public class BasicBinaryContentService implements BinaryContentService {
   }
 
   @Override
-  public List<BinaryContentDto.DetailResponse> findAllByIdIn(List<UUID> ids) {
+  public List<BinaryContentDto.Detail> findAllByIdIn(List<UUID> ids) {
     List<BinaryContent> binaryContents = binaryContentRepository.findAllByIdIn(ids);
 
     return binaryContents.stream()
-        .map(bc -> BinaryContentDto.DetailResponse.builder()
+        .map(bc -> BinaryContentDto.Detail.builder()
             .id(bc.getId())
             .bytes(bc.getContent())
             .contentType(bc.getContentType())

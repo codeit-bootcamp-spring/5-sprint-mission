@@ -7,13 +7,13 @@ import java.util.UUID;
 
 public interface ReadStatusService {
 
-  ReadStatusDto.DetailResponse create(Create request);
+  ReadStatusDto.Detail create(Create request);
 
-  ReadStatusDto.DetailResponse find(UUID id);
+  ReadStatusDto.Detail find(UUID id);
 
-  ReadStatusDto.DetailResponse update(UUID id);
+  ReadStatusDto.Detail update(UUID id);
 
-  List<ReadStatusDto.DetailResponse> findAllByUserId(UUID userId);
+  List<ReadStatusDto.Detail> findAllByUserId(UUID userId);
 
   void delete(UUID id);
 

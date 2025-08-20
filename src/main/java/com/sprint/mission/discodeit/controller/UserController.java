@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.UserDto.CreateRequest;
 import com.sprint.mission.discodeit.dto.UserDto.Detail;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateRequest;
+import com.sprint.mission.discodeit.dto.UserStatusDto;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import java.util.List;
@@ -60,10 +61,10 @@ public class UserController {
   }
 
   @PatchMapping("/{id}/userStatus")
-  public ResponseEntity<Void> updateUserStatus(@PathVariable UUID id) {
+  public ResponseEntity<UserStatusDto.DetailResponse> updateUserStatus(@PathVariable UUID id) {
 
-    userStatusService.updateByUserId(id);
+    ;
 
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(userStatusService.updateByUserId(id).toDetailResponse());
   }
 }

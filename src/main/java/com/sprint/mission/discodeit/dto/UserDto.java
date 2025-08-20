@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserDto {
 
   @Getter
+  @Schema(name = "UserCreateRequest")
   public static class CreateRequest {
 
     private String username;
@@ -36,6 +38,7 @@ public class UserDto {
   }
 
   @Getter
+  @Schema(name = "UserUpdateRequest")
   public static class UpdateRequest {
 
     private String newUsername;
@@ -66,6 +69,7 @@ public class UserDto {
 
   @Getter
   @Builder
+  @Schema(name = "UserDetailResponse")
   public static class DetailResponse {
 
     private UUID id;
