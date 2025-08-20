@@ -61,7 +61,7 @@ public class MessageController {
     }
 
     @RequestMapping(value = "/find/{channelId}", method = RequestMethod.GET)
-    public ResponseEntity<ApiResult<List<Message>>> messageFindByChannelId(@PathVariable("channelId") UUID id){
+    public ResponseEntity<ApiResult<List<Message>>> messageFindByChannelId(@PathVariable("channelId") UUID id) {
         List<Message> messages = messageService.findAllByChannelId(id);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResult.ok(messages));
     }
