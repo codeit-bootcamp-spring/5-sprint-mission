@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.ChannelRequest;
-import com.sprint.mission.discodeit.dto.ChannelResponse;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public interface ChannelService {
 
     Channel join(UUID userId, UUID channelId);
 
-    List<Channel> findByUser(UUID userId);
+    List<ChannelDto> findByUser(UUID userId);
 
     List<Channel> findByName(String name);
 

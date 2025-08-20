@@ -29,4 +29,9 @@ public interface ReadStatusRepository {
      * 특정 채널의 모든 사용자 읽음 상태 조회
      */
     List<ReadStatus> findAllByChannelId(UUID channelId);
+
+    /**
+     * 특정 채널의 읽음 상태
+     */
+    Optional<ReadStatus> findByChannelId(UUID channelId);
 }

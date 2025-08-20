@@ -74,5 +74,12 @@ public class FileReadStatusRepository extends FileStore<ReadStatus> implements R
         return result;
     }
 
+    @Override
+    public Optional<ReadStatus> findByChannelId(UUID channelId) {
+        return data.values().stream()
+                .filter(rs -> rs.getChannelId().equals(channelId))
+                .findFirst();
+    }
+
 
 }

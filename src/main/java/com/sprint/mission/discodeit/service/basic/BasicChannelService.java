@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ChannelRequest;
-import com.sprint.mission.discodeit.dto.ChannelResponse;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
+import com.sprint.mission.discodeit.dto.channel.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,14 +25,17 @@ public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
+    private final MessageRepository messageRepository;
 
     @Override
     public Channel create(String name, String description) {
+
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("채널 이름은 필수입니다.");
         }
 
         Channel channel = new Channel(name, ChannelType.PUBLIC, description);
+
         channelRepository.save(channel);
 
         return channel;
@@ -99,17 +102,47 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public List<Channel> findByUser(UUID userId) {
+    public List<ChannelDto> findByUser(UUID userId) {
 
-        // 유저가 참여한 채널 아이디 리스트
+        userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        // 사용자가 참여중인 모든 채널의 아이디
         List<UUID> channelIds = readStatusRepository.findAllByUserId(userId).stream()
                 .map(ReadStatus::getChannelId)
                 .distinct()
                 .toList();
 
-        if (channelIds.isEmpty()) return List.of(); // 없으면 빈 리스트 반환
+        List<Channel> channels = channelRepository.findAll().stream()
+                .filter(channel ->
+                        channel.getType().equals(ChannelType.PUBLIC) ||
+                                (channel.getType().equals(ChannelType.PRIVATE) && channelIds.contains(channel.getId()))
+                )
+                .toList();
 
-        return channelRepository.findAllById(channelIds);
+        List<UUID> participantIds = channels.stream()
+                .flatMap(channel ->
+                        readStatusRepository.findAllByChannelId(channel.getId()).stream()
+                                .map(ReadStatus::getUserId)
+                )
+                .toList();
+
+
+
+        return channels.stream()
+                .map(channel -> {
+                    ReadStatus readStatus = readStatusRepository.findByChannelId(channel.getId())
+                            .orElse(null);
+
+                    return ChannelDto.builder()
+                            .id(channel.getId())
+                            .name(channel.getName())
+                            .description(channel.getDescription())
+                            .type(channel.getType())
+                            .participantIds(participantIds)
+                            .lastMessageAt(readStatus != null ? readStatus.getLastReadAt() : null)
+                            .build();
+                }).toList();
     }
 
     @Override

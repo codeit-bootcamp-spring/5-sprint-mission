@@ -52,4 +52,11 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
         }
         return result;
     }
+
+    @Override
+    public Optional<ReadStatus> findByChannelId(UUID channelId) {
+        return data.values().stream()
+                .filter(rs -> rs.getChannelId().equals(channelId))
+                .findFirst();
+    }
 }
