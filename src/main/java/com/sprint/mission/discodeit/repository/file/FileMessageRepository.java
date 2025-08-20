@@ -22,6 +22,6 @@ public class FileMessageRepository extends AbstractFileRepository<Message> imple
   @Override
   public List<Message> findAllByChannelId(UUID channelId) {
     return data.values().stream().filter(m -> m.getChannelId().equals(channelId))
-        .collect(Collectors.toList());
+        .toList();
   }
 }

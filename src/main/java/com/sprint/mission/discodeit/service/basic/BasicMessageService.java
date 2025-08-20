@@ -108,7 +108,7 @@ public class BasicMessageService implements MessageService {
                     users.stream().filter(u -> u.getId().equals(m.getAuthorId())).findFirst()
                         .orElse(null).getName()).content(m.getText()).createdAt(m.getCreatedAt())
                 .updatedAt(m.getUpdatedAt()).attachmentIds(m.getAttachmentIds()).build())
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override

@@ -84,7 +84,7 @@ public class BasicChannelService implements ChannelService {
     return channels.stream().map(
         c -> ChannelDto.Detail.builder().id(c.getId()).type(c.getType()).name(c.getName())
             .description(c.getDescription()).lastMessageAt(getLastMessageCreateAt(c.getId()))
-            .participantIds(c.getUserIds()).build()).collect(Collectors.toList());
+            .participantIds(c.getUserIds()).build()).toList();
   }
 
   public List<ChannelDto.Detail> findAllByUserId(UUID userId) {
@@ -94,7 +94,7 @@ public class BasicChannelService implements ChannelService {
     return channels.stream().map(
         c -> ChannelDto.Detail.builder().id(c.getId()).type(c.getType()).name(c.getName())
             .description(c.getDescription()).lastMessageAt(getLastMessageCreateAt(c.getId()))
-            .participantIds(c.getUserIds()).build()).collect(Collectors.toList());
+            .participantIds(c.getUserIds()).build()).toList();
   }
 
   @Override

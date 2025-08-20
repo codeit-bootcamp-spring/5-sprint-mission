@@ -15,6 +15,6 @@ public class JCFMessageRepository extends AbstractJCFRepository<Message> impleme
   public List<Message> findAllByChannelId(UUID channelId) {
     return data.values().stream()
         .filter(m -> m.getChannelId().equals(channelId))
-        .collect(Collectors.toList());
+        .toList();
   }
 }

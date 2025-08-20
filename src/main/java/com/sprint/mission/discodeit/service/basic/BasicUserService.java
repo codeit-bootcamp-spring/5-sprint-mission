@@ -78,8 +78,7 @@ public class BasicUserService implements UserService {
       return UserDto.Detail.builder().id(u.getId()).username(u.getName()).email(u.getEmail())
           .profileId(u.getProfileId()).online(s != null && s.isOnline()).createdAt(u.getCreatedAt())
           .updatedAt(u.getUpdatedAt()).build();
-
-    }).collect(Collectors.toList());
+    }).toList();
   }
 
   @Override
