@@ -24,7 +24,6 @@ public class ChannelController {
 
   private final ChannelService channelService;
 
-  // request param 따라 private/public 생성이라... 필요하면 private/public api 분리
   @PostMapping("/public")
   public ResponseEntity<ChannelDto.DetailResponse> createPublicChannel(
       @RequestBody ChannelDto.CreateRequest request) {
