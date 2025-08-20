@@ -17,8 +17,18 @@ public class AuthController {
 
     private final AuthService authService;
 
+       /* Controller : 요청 자체가 null인지 확인
+           Service : 요청 내용이 올바른지 판단 */
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<User> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<User> login(@RequestBody(required = false) LoginRequest request) {
+
+        //값 자체가 NULL인지 확인
+        if (request == null) {
+            return ResponseEntity.badRequest().body(null); // or .build();
+        }
+
+        //서비스 호출
         User user = authService.login(request);
         return ResponseEntity.ok(user);
     }

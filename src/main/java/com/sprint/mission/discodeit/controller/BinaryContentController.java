@@ -18,7 +18,7 @@ public class BinaryContentController {
     private final BinaryContentService binaryContentService;
 
     // ✅ 파일 생성 (등록)
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
     public ResponseEntity<UUID> create(@RequestBody BinaryContentCreateRequest request) {
         UUID id = binaryContentService.create(request);
         return ResponseEntity.ok(id);
@@ -30,6 +30,17 @@ public class BinaryContentController {
     public ResponseEntity<BinaryContent> findById(@RequestParam UUID binaryContentId) {
         BinaryContent file = binaryContentService.findById(binaryContentId);
         return ResponseEntity.ok(file);
+    }
+
+    // ✅ 바이너리 파일 다운로드용 API
+    @RequestMapping(value = "/download", method = RequestMethod.GET)
+    public ResponseEntity<byte[]> downloadFile(@RequestParam UUID binaryContentId) {
+        BinaryContent file = binaryContentService.findById(binaryContentId);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"" + file.getFileName() + "\"")
+                .header("Content-Type", file.getContentType())
+                .body(file.getBytes());
     }
 
 

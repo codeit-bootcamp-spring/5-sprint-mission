@@ -21,7 +21,7 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public User findById(UUID id) {
-        User found = data.get(id);
+        User found = data.get(id); //UUID 키로 Map에서 유저 조회
         if (found == null) {
             return null;
         }
@@ -29,7 +29,7 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public List<User> findAll() {
+    public List<User> findAll() {//저장된 전체 유저 조회
         return List.copyOf(data.values()); // 불변 리스트로 반환
     }
 
@@ -46,22 +46,24 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public boolean existsByUserId(String userId) {
+    public boolean existsByUserId(String userId) { //같은 userId를 가진 유저가 있는지 검사
         return data.values().stream()
                 .anyMatch(user -> user.getUserId().equals(userId));
     }
 
     @Override
-    public boolean existsByEmail(String email) {
+    public boolean existsByEmail(String email) { ////같은 email를 가진 유저가 있는지 검사
         return data.values().stream()
                 .anyMatch(user -> user.getEmail().equals(email));
     }
 
     @Override
-    public Optional<User> findOptionalById(UUID id) {
-        return Optional.ofNullable(findById(id));
+    public Optional<User> findByUserIdAndPassword(String userId, String password) {
+        return data.values().stream()
+                .filter(user -> user.getUserId().equals(userId) && user.getPassword().equals(password))
+                .findFirst()
+                .map(User::new); // 복사본 리턴
     }
-
 
     //객체 -> 파일 직렬화
     private void saveToFile() {
@@ -84,4 +86,3 @@ public class FileUserRepository implements UserRepository {
         }
     }
 }
-
