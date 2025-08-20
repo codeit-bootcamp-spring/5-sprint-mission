@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateRequest;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.Detail;
 import com.sprint.mission.discodeit.service.ReadStatusService;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class ReadStatusController {
   // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
   private final ReadStatusService readStatusService;
 
+  @Operation(summary = "Read Status 생성")
   @PostMapping
   public ResponseEntity<ReadStatusDto.DetailResponse> createReadStatus(
       @RequestBody CreateRequest request) {
@@ -34,6 +36,7 @@ public class ReadStatusController {
         .body(readStatusService.create(request.toCreate()).toDetailResponse());
   }
 
+  @Operation(summary = "Read Status 수정")
   @PatchMapping("/{id}")
   public ResponseEntity<Void> updateReadStatus(@PathVariable UUID id) {
 
@@ -41,6 +44,7 @@ public class ReadStatusController {
     return ResponseEntity.ok().build();
   }
 
+  @Operation(summary = "Read Status 유저 별 조회")
   @GetMapping
   public ResponseEntity<List<ReadStatusDto.DetailResponse>> getReadStatusByUser(
       @RequestParam UUID userId) {

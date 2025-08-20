@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class ChannelController {
 
   private final ChannelService channelService;
 
+  @Operation(summary = "Channel 생성(PUBLIC)")
   @PostMapping("/public")
   public ResponseEntity<ChannelDto.DetailResponse> createPublicChannel(
       @RequestBody ChannelDto.CreateRequest request) {
@@ -33,6 +35,7 @@ public class ChannelController {
         .body(channelService.create(request.toCreate(ChannelType.PUBLIC)).toDetailResponse());
   }
 
+  @Operation(summary = "Channel 생성(PRIVATE)")
   @PostMapping("/private")
   public ResponseEntity<ChannelDto.DetailResponse> createPrivateChannel(
       @RequestBody ChannelDto.CreateRequest request) {
@@ -41,6 +44,7 @@ public class ChannelController {
         .body(channelService.create(request.toCreate(ChannelType.PRIVATE)).toDetailResponse());
   }
 
+  @Operation(summary = "Channel 생성(PUBLIC)")
   @PutMapping("/{id}")
   public ResponseEntity<ChannelDto.DetailResponse> updateChannel(@PathVariable UUID id,
       @RequestBody ChannelDto.UpdateRequest request) {
@@ -48,6 +52,7 @@ public class ChannelController {
     return ResponseEntity.ok(channelService.update(request.toUpdate(id)).toDetailResponse());
   }
 
+  @Operation(summary = "Channel 삭제")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteChannel(@PathVariable UUID id) {
 
@@ -56,6 +61,7 @@ public class ChannelController {
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(summary = "Channel 유저 별 조회")
   @GetMapping
   public ResponseEntity<List<ChannelDto.DetailResponse>> findUserChannels(
       @RequestParam UUID userId) {

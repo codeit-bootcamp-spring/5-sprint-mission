@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.MessageDto.CreateRequest;
 import com.sprint.mission.discodeit.dto.MessageDto.Detail;
 import com.sprint.mission.discodeit.dto.MessageDto.UpdateRequest;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class MessageController {
   // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
   private final MessageService messageService;
 
+  @Operation(summary = "Message 생성")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto.DetailResponse> create(
       @RequestPart("messageCreateRequest") CreateRequest request,
@@ -40,6 +42,7 @@ public class MessageController {
         .body(messageService.create(request.toCreate(attachments)).toDetailResponse());
   }
 
+  @Operation(summary = "Message 수정")
   @PatchMapping("/{id}")
   public ResponseEntity<MessageDto.DetailResponse> updateMessage(@PathVariable UUID id,
       @RequestBody UpdateRequest request) {
@@ -47,6 +50,7 @@ public class MessageController {
     return ResponseEntity.ok(messageService.update(request.toUpdate(id)).toDetailResponse());
   }
 
+  @Operation(summary = "Message 삭제")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteMessage(@PathVariable UUID id) {
 
@@ -55,6 +59,7 @@ public class MessageController {
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(summary = "Message 채널 별 조회")
   @GetMapping
   public ResponseEntity<List<MessageDto.DetailResponse>> getMessagesByChannel(
       @RequestParam UUID channelId) {
