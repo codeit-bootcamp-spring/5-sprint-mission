@@ -1,22 +1,17 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.binary.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.service.dto.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.service.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface MessageService {
-    // 신규 권장 API
-    Message create(MessageCreateRequest req);
-    Message update(MessageUpdateRequest req);
+    Message create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests);
+    Message find(UUID messageId);
     List<Message> findAllByChannelId(UUID channelId);
+    Message update(UUID messageId, MessageUpdateRequest request);
     void delete(UUID messageId);
-
-    // 기존 호환 API (변경 없음)
-    @Deprecated Message create(String content, UUID channelId, UUID authorId);
-    @Deprecated Message find(UUID messageId);
-    @Deprecated List<Message> findAll();
-    @Deprecated Message update(UUID messageId, String newContent);
 }

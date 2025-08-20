@@ -13,14 +13,14 @@ import java.util.UUID;
  */
 public interface BinaryContentRepository { // BinaryContent 저장소 계약 정의 시작
 
-    BinaryContent save(BinaryContent entity); // 신규 BinaryContent 저장(불변이므로 갱신 개념 없음)
+    BinaryContent save(BinaryContent binaryContent); // 신규 BinaryContent 저장(불변이므로 갱신 개념 없음)
 
     Optional<BinaryContent> findById(UUID id); // 식별자로 단건 조회
 
-    List<BinaryContent> findAllById(Collection<UUID> ids); // 다건 식별자 기반 일괄 조회(첨부파일 목록 조회에 유용)
-
-    void deleteById(UUID id); // 식별자로 삭제(파일 정리 등)
+    List<BinaryContent> findAllByIdIn(List<UUID> ids); // 다건 식별자 기반 일괄 조회(첨부파일 목록 조회에 유용)
 
     boolean existsById(UUID id);
+
+    void deleteById(UUID id); // 식별자로 삭제(파일 정리 등)
 
 }

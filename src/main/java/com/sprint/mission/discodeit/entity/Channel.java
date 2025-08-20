@@ -26,30 +26,6 @@ public class Channel implements Serializable {
         this.description = description;
     }
 
-//    public UUID getId() {
-//        return id;
-//    }
-//
-//    public Long getCreatedAt() {
-//        return createdAt;
-//    }
-//
-//    public Long getUpdatedAt() {
-//        return updatedAt;
-//    }
-//
-//    public ChannelType getType() {
-//        return type;
-//    }
-//
-//    public String getName() {
-//        return name;
-//    }
-//
-//    public String getDescription() {
-//        return description;
-//    }
-
     public void update(String newName, String newDescription) {
         boolean anyValueUpdated = false;
         if(newName != null && !newName.equals(this.name)) {

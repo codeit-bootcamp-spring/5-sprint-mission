@@ -1,17 +1,18 @@
-package com.sprint.mission.discodeit.service; // 서비스 패키지
+package com.sprint.mission.discodeit.service;
 
 import java.util.List; // List 임포트
 import java.util.UUID; // UUID 임포트
-import com.sprint.mission.discodeit.service.dto.channel.CreatePublicChannelRequest; // DTO 임포트
-import com.sprint.mission.discodeit.service.dto.channel.CreatePrivateChannelRequest; // DTO 임포트
-import com.sprint.mission.discodeit.service.dto.channel.UpdateChannelRequest; // DTO 임포트
-import com.sprint.mission.discodeit.service.dto.channel.ChannelView; // DTO 임포트
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest; // DTO 임포트
+import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.entity.Channel;
 
-public interface ChannelService { // 인터페이스 선언
-    ChannelView createPublic(CreatePublicChannelRequest request); // PUBLIC 채널 생성
-    ChannelView createPrivate(CreatePrivateChannelRequest request); // PRIVATE 채널 생성
-    ChannelView find(UUID channelId); // 단건 조회(최신 메시지, PRIVATE 참여자 포함)
-    List<ChannelView> findAllByUserId(UUID userId); // 사용자 기준 조회(PUBLIC 전부 + PRIVATE 내가 포함된 것)
-    ChannelView update(UpdateChannelRequest request); // 채널 수정(PUBLIC만)
-    void delete(UUID channelId); // 삭제(Message/ReadStatus 연쇄 삭제)
+public interface ChannelService {
+    Channel create(PublicChannelCreateRequest request); // 오버로드 방식으로 매개변수만 다르게함
+    Channel create(PrivateChannelCreateRequest request); // 오버로드 방식으로 매개변수만 다르게함
+    ChannelDto find(UUID channelId); // 반환 타입이 ChannelDto: 외부 응답에 적합한 형태(엔티티 노출 방지)
+    List<ChannelDto> findAllByUserId(UUID userId); // 특정 사용자에게 연관된 채널 목록 조회
+    Channel update(UUID channelId, PublicChannelUpdateRequest request); // 채널 수정. 지금은 공개 채널 수정 DTO만 받음
+    void delete(UUID channelId); // 채널 삭제
 }
