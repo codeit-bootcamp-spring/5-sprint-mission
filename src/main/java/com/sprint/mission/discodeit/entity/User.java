@@ -1,38 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
-    private final UUID id;
-    private final Instant createdAt;
+    private UUID id;
+    private Instant createdAt;
     private Instant updatedAt;
     //
     private String username;
     private String email;
-    private String password;
-    //
-    private UUID profiledId;
 
-    public User(String username, String email, String password) {
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;        //비밀번호 노출 안함
+
+    private UUID profileId;     // BinaryContent
+
+    public User(String username, String email, String password, UUID profileId) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         //
         this.username = username;
         this.email = email;
         this.password = password;
-        this.profiledId = null;
+        this.profileId = profileId;
     }
 
-    public void update(String newUsername, String newEmail, String newPassword) {
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
         boolean anyValueUpdated = false;
         if (newUsername != null && !newUsername.equals(this.username)) {
             this.username = newUsername;
@@ -46,20 +49,12 @@ public class User implements Serializable {
             this.password = newPassword;
             anyValueUpdated = true;
         }
+        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+            this.profileId = newProfileId;
+            anyValueUpdated = true;
+        }
 
         if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
-    }
-
-    public void updateProfile(UUID profiledId){
-        boolean successUpdate = false;
-        if (profiledId != null && !this.profiledId.equals(profiledId)) {
-            this.profiledId = profiledId;
-            successUpdate = true;
-        }
-
-        if (successUpdate) {
             this.updatedAt = Instant.now();
         }
     }

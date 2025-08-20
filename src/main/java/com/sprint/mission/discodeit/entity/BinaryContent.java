@@ -1,29 +1,31 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BinaryContent implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
-
-    private final UUID id;
-    private final Instant createdAt;
+    private UUID id;
+    private Instant createdAt;
     //
-    private final String fileName;
-    private final String contentType;
-    private final byte[] binaryContent;
+    private String fileName;
+    private Long size;
+    private String contentType;
+    private byte[] bytes;
 
-    public BinaryContent(String fileName, String contentType, byte[] binaryContent){
+    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
+        //
         this.fileName = fileName;
+        this.size = size;
         this.contentType = contentType;
-        this.binaryContent = binaryContent;
+        this.bytes = bytes;
     }
 }

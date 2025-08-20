@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
-import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -18,31 +18,33 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.*;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
+    //
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
 
     @Override
-    public Channel create(PublicChannelCreateRequest publicChannelCreateRequest) {
-        String name = publicChannelCreateRequest.name();
-        String description = publicChannelCreateRequest.description();
-
+    public Channel create(PublicChannelCreateRequest request) {
+        String name = request.name();
+        String description = request.description();
         Channel channel = new Channel(ChannelType.PUBLIC, name, description);
+
         return channelRepository.save(channel);
     }
 
     @Override
-    public Channel create(PrivateChannelCreateRequest privateChannelCreateRequest) {
+    public Channel create(PrivateChannelCreateRequest request) {
         Channel channel = new Channel(ChannelType.PRIVATE, null, null);
-        Channel createChannel = channelRepository.save(channel);
+        Channel createdChannel = channelRepository.save(channel);
 
-        privateChannelCreateRequest.participantIds().stream()
-                .map(userId -> new ReadStatus(userId, channel.getId(), Instant.MIN))
+        request.participantIds().stream()
+                .map(userId -> new ReadStatus(userId, createdChannel.getId(), Instant.MIN))
                 .forEach(readStatusRepository::save);
-        return createChannel;
+
+        return createdChannel;
     }
 
     @Override
@@ -53,38 +55,29 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public List<ChannelDto> findAll() {
-        return channelRepository.findAll()
-                .stream()
-                .map(this::toDto)
-                .toList();
-    }
-
-    @Override
     public List<ChannelDto> findAllByUserId(UUID userId) {
-        List<UUID> mySubscribedChannelIds = readStatusRepository.findByUserId(userId).stream()
+        List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
                 .map(ReadStatus::getChannelId)
                 .toList();
 
         return channelRepository.findAll().stream()
                 .filter(channel ->
-                        channel.getType() == ChannelType.PRIVATE || mySubscribedChannelIds.contains(channel.getId()))
+                        channel.getType().equals(ChannelType.PUBLIC)
+                                || mySubscribedChannelIds.contains(channel.getId())
+                )
                 .map(this::toDto)
                 .toList();
     }
 
     @Override
-    public Channel update(UUID channelId, ChannelUpdateRequest channelUpdateRequest) {
+    public Channel update(UUID channelId, PublicChannelUpdateRequest request) {
+        String newName = request.newName();
+        String newDescription = request.newDescription();
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
-
-        if (channel.getType() == ChannelType.PRIVATE) {
-            throw new IllegalArgumentException("private channel cannot be updated");
+        if (channel.getType().equals(ChannelType.PRIVATE)) {
+            throw new IllegalArgumentException("Private channel cannot be updated");
         }
-
-        String newName = channelUpdateRequest.newName();
-        String newDescription = channelUpdateRequest.newDescription();
-
         channel.update(newName, newDescription);
         return channelRepository.save(channel);
     }
@@ -110,8 +103,8 @@ public class BasicChannelService implements ChannelService {
                 .orElse(Instant.MIN);
 
         List<UUID> participantIds = new ArrayList<>();
-        if (channel.getType() == ChannelType.PRIVATE) {
-            readStatusRepository.findByChannelId(channel.getId())
+        if (channel.getType().equals(ChannelType.PRIVATE)) {
+            readStatusRepository.findAllByChannelId(channel.getId())
                     .stream()
                     .map(ReadStatus::getUserId)
                     .forEach(participantIds::add);

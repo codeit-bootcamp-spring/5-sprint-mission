@@ -1,23 +1,22 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReadStatus implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
-
-    private final UUID id;
-    private final Instant createdAt;
+    private UUID id;
+    private Instant createdAt;
     private Instant updatedAt;
     //
-    private final UUID userId;
-    private final UUID channelId;
+    private UUID userId;
+    private UUID channelId;
     private Instant lastReadAt;
 
     public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
@@ -29,8 +28,15 @@ public class ReadStatus implements Serializable {
         this.lastReadAt = lastReadAt;
     }
 
-    public void updateReadStatus(Instant readTime){
-        this.updatedAt = readTime;
-        this.lastReadAt = readTime;
+    public void update(Instant newLastReadAt) {
+        boolean anyValueUpdated = false;
+        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+            this.lastReadAt = newLastReadAt;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }

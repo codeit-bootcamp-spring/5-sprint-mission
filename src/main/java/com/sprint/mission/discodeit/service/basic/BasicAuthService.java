@@ -4,11 +4,15 @@ import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 
+@RequiredArgsConstructor
+@Service
 public class BasicAuthService implements AuthService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public User login(LoginRequest loginRequest) {
@@ -16,11 +20,12 @@ public class BasicAuthService implements AuthService {
         String password = loginRequest.password();
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException(username + "를 찾을 수 없습니다"));
+                .orElseThrow(() -> new NoSuchElementException("User with username " + username + " not found"));
 
         if (!user.getPassword().equals(password)) {
-            throw new NoSuchElementException("비밀번호가 틀렸습니다");
+            throw new IllegalArgumentException("Wrong password");
         }
+
         return user;
     }
 }

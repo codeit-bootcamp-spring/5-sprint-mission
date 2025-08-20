@@ -14,64 +14,66 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class BasicUserStatusService implements UserStatusService {
     private final UserStatusRepository userStatusRepository;
     private final UserRepository userRepository;
 
     @Override
-    public UserStatus create(UserStatusCreateRequest userStatusCreateRequest) {
-        UUID userId = userStatusCreateRequest.userId();
+    public UserStatus create(UserStatusCreateRequest request) {
+        UUID userId = request.userId();
 
         if (!userRepository.existsById(userId)) {
-            throw new NoSuchElementException("User not found with id " + userId);
+            throw new NoSuchElementException("User with id " + userId + " does not exist");
         }
-        userStatusRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("userStatus has been already exists"));
+        if (userStatusRepository.findByUserId(userId).isPresent()) {
+            throw new IllegalArgumentException("UserStatus with id " + userId + " already exists");
+        }
 
-        Instant lastActiveAt = Instant.now();
-        UserStatus readStatus = new UserStatus(userId, lastActiveAt);
-        return userStatusRepository.save(readStatus);
+        Instant lastActiveAt = request.lastActiveAt();
+        UserStatus userStatus = new UserStatus(userId, lastActiveAt);
+        return userStatusRepository.save(userStatus);
     }
 
     @Override
     public UserStatus find(UUID userStatusId) {
         return userStatusRepository.findById(userStatusId)
-                .orElseThrow(() -> new NoSuchElementException("ReadStatus not found with id " + userStatusId));
+                .orElseThrow(() -> new NoSuchElementException("UserStatus with id " + userStatusId + " not found"));
     }
 
     @Override
     public List<UserStatus> findAll() {
-        return userStatusRepository.findAll();
+        return userStatusRepository.findAll().stream()
+                .toList();
     }
 
     @Override
-    public UserStatus update(UUID userStatusId, UserStatusUpdateRequest userStatusUpdateRequest) {
-        Instant newLastActiveAt = userStatusUpdateRequest.newLastActiveAt();
+    public UserStatus update(UUID userStatusId, UserStatusUpdateRequest request) {
+        Instant newLastActiveAt = request.newLastActiveAt();
 
         UserStatus userStatus = userStatusRepository.findById(userStatusId)
-                .orElseThrow(() -> new NoSuchElementException("UserStatus not found with id " + userStatusId));
+                .orElseThrow(() -> new NoSuchElementException("UserStatus with id " + userStatusId + " not found"));
+        userStatus.update(newLastActiveAt);
 
-        userStatus.updateLastLogin(newLastActiveAt);
         return userStatusRepository.save(userStatus);
     }
 
     @Override
-    public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest userStatusUpdateRequest) {
-        Instant newLastActiveAt = userStatusUpdateRequest.newLastActiveAt();
+    public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest request) {
+        Instant newLastActiveAt = request.newLastActiveAt();
 
         UserStatus userStatus = userStatusRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoSuchElementException("UserStatus not found with userId " + userId));
+                .orElseThrow(() -> new NoSuchElementException("UserStatus with userId " + userId + " not found"));
+        userStatus.update(newLastActiveAt);
 
-        userStatus.updateLastLogin(newLastActiveAt);
         return userStatusRepository.save(userStatus);
     }
 
     @Override
     public void delete(UUID userStatusId) {
         if (!userStatusRepository.existsById(userStatusId)) {
-            throw new NoSuchElementException("USerStatus not found with id " + userStatusId);
+            throw new NoSuchElementException("UserStatus with id " + userStatusId + " not found");
         }
         userStatusRepository.deleteById(userStatusId);
     }

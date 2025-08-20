@@ -1,21 +1,21 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Channel implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
-    private final UUID id;
-    private final Instant createdAt;
+    private UUID id;
+    private Instant createdAt;
     private Instant updatedAt;
     //
-    private final ChannelType type;
+    private ChannelType type;
     private String name;
     private String description;
 

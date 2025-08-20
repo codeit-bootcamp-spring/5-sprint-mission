@@ -1,40 +1,47 @@
 package com.sprint.mission.discodeit.entity;
 
-
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserStatus implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
-
-    private final UUID id;
-    private final Instant createdAt;
+    private UUID id;
+    private Instant createdAt;
     private Instant updatedAt;
     //
-    private final UUID userId;
-    private Instant lastLogin;
+    private UUID userId;
+    private Instant lastActiveAt;
 
-    public UserStatus(UUID userId, Instant lastLogin) {
+    public UserStatus(UUID userId, Instant lastActiveAt) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         //
         this.userId = userId;
-        this.lastLogin = lastLogin;
+        this.lastActiveAt = lastActiveAt;
     }
 
-    public void updateLastLogin(Instant time) {
-        this.updatedAt = time;
-        this.lastLogin = time;
+    public void update(Instant lastActiveAt) {
+        boolean anyValueUpdated = false;
+        if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+            this.lastActiveAt = lastActiveAt;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 
-    public boolean isLogin() {
-        return lastLogin.isBefore(Instant.now().minus(Duration.ofMinutes(5)));
+    public Boolean isOnline() {
+        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
+
+        return lastActiveAt.isAfter(instantFiveMinutesAgo);
     }
 }
