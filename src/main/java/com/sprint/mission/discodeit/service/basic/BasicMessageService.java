@@ -55,13 +55,14 @@ public class BasicMessageService implements MessageService {
   @Override
   public Message findById(UUID messageId) {
     return messageRepository.findById(messageId)
-        .orElseThrow(() -> new NoSuchElementException("findById : 메세지를 찾을 수 없습니다"));
+        .orElseThrow(
+            () -> new NoSuchElementException("findById : 메세지를 찾을 수 없습니다. [" + messageId + "]"));
   }
 
   @Override
   public List<Message> findAllByChannelId(UUID channelId) {
     if (!channelRepository.existsById(channelId)) {
-      throw new NoSuchElementException("findAllByChannelId : 채널을 찾을 수 없습니다");
+      throw new NoSuchElementException("findAllByChannelId : 채널을 찾을 수 없습니다. [" + channelId + "]");
     }
     return messageRepository.findAll().stream()
         .filter(m -> m.getChannelId().equals(channelId))
@@ -71,7 +72,8 @@ public class BasicMessageService implements MessageService {
   @Override
   public Message update(UUID messageId, @Valid MessageUpdateRequest messageUpdateRequest) {
     Message message = messageRepository.findById(messageId)
-        .orElseThrow(() -> new NoSuchElementException("update : 메세지를 찾을 수 없습니다"));
+        .orElseThrow(
+            () -> new NoSuchElementException("update : 메세지를 찾을 수 없습니다. [" + messageId + "]"));
     message.update(messageUpdateRequest.newContent());
 
     return messageRepository.save(message);
@@ -80,7 +82,8 @@ public class BasicMessageService implements MessageService {
   @Override
   public void delete(UUID messageId) {
     Message message = messageRepository.findById(messageId)
-        .orElseThrow(() -> new NoSuchElementException("delete : 메세지를 찾을 수 없습니다"));
+        .orElseThrow(
+            () -> new NoSuchElementException("delete : 메세지를 찾을 수 없습니다. [" + messageId + "]"));
 
     for (UUID binaryContentId : message.getAttachmentIds()) {
       binaryContentRepository.deleteById(binaryContentId);
@@ -89,8 +92,11 @@ public class BasicMessageService implements MessageService {
   }
 
   private void validateExist(UUID authorId, UUID channelId) {
-    if (!userRepository.existsById(authorId) || !channelRepository.existsById(channelId)) {
-      throw new NoSuchElementException("validateExist : 해당 유저 또는 채널을 찾을 수 없습니다.");
+    if (userRepository.existsById(authorId)) {
+      throw new NoSuchElementException("validateExist : 유저를 찾을 수 없습니다. [" + authorId + "]");
+    }
+    if (channelRepository.existsById(channelId)) {
+      throw new NoSuchElementException("validateExist : 채널을 찾을 수 없습니다. [" + channelId + "]");
     }
   }
 }
