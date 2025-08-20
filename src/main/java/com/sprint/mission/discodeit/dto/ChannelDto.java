@@ -19,8 +19,12 @@ public class ChannelDto {
     List<UUID> participantIds;
 
     public CreateCommand toCommand(ChannelType type) {
-      return CreateCommand.builder().type(type).name(this.name).description(this.description)
-          .participantIds(this.participantIds).build();
+      return CreateCommand.builder()
+                          .type(type)
+                          .name(this.name)
+                          .description(this.description)
+                          .participantIds(this.participantIds)
+                          .build();
     }
   }
 
@@ -45,8 +49,12 @@ public class ChannelDto {
     List<UUID> participantIds;
 
     public UpdateCommand toCommand(UUID id) {
-      return UpdateCommand.builder().id(id).name(this.name).description(this.description)
-          .participantIds(this.participantIds).build();
+      return UpdateCommand.builder()
+                          .id(id)
+                          .name(this.name)
+                          .description(this.description)
+                          .participantIds(this.participantIds)
+                          .build();
     }
   }
 
@@ -85,8 +93,14 @@ public class ChannelDto {
     List<UUID> participantIds;
 
     public DetailResponse toResponse() {
-      return DetailResponse.builder().id(id).type(type).name(name).description(description)
-          .lastMessageAt(lastMessageAt).participantIds(participantIds).build();
+      return DetailResponse.builder()
+                           .id(id)
+                           .type(type)
+                           .name(name)
+                           .description(description)
+                           .lastMessageAt(lastMessageAt)
+                           .participantIds(participantIds)
+                           .build();
     }
   }
 }

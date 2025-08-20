@@ -22,62 +22,82 @@ public class BasicUserStatusService implements UserStatusService {
   @Override
   public UserStatusDto.Detail create(Create request) {
     User user = userRepository.findById(request.getUserId())
-        .orElseThrow(() -> new RuntimeException("Not Found User"));
+                              .orElseThrow(() -> new RuntimeException("Not Found User"));
 
-    UserStatus userStatus = userStatusRepository.findByUserId(request.getUserId()).orElse(null);
+    UserStatus userStatus = userStatusRepository.findByUserId(request.getUserId())
+                                                .orElse(null);
     if (userStatus != null) {
       throw new IllegalArgumentException("Already Registered User Status");
     }
 
     userStatus = userStatusRepository.save(UserStatus.of(request.getUserId()));
 
-    return UserStatusDto.Detail.builder().id(userStatus.getId())
-        .userId(userStatus.getUserId()).lastLogin(userStatus.getLastLogin()).build();
+    return UserStatusDto.Detail.builder()
+                               .id(userStatus.getId())
+                               .userId(userStatus.getUserId())
+                               .lastLogin(userStatus.getLastLogin())
+                               .build();
   }
 
   @Override
   public UserStatusDto.Detail find(UUID id) {
     UserStatus userStatus = userStatusRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Not Found User Status"));
+                                                .orElseThrow(() -> new RuntimeException(
+                                                    "Not Found User Status"));
 
-    return UserStatusDto.Detail.builder().id(userStatus.getId())
-        .userId(userStatus.getUserId()).lastLogin(userStatus.getLastLogin()).build();
+    return UserStatusDto.Detail.builder()
+                               .id(userStatus.getId())
+                               .userId(userStatus.getUserId())
+                               .lastLogin(userStatus.getLastLogin())
+                               .build();
   }
 
   @Override
   public List<UserStatusDto.Detail> findAll() {
     List<UserStatus> userStatuses = userStatusRepository.findAll();
 
-    return userStatuses.stream().map(
-        us -> UserStatusDto.Detail.builder().id(us.getId()).userId(us.getUserId())
-            .lastLogin(us.getLastLogin()).build()).toList();
+    return userStatuses.stream()
+                       .map(us -> UserStatusDto.Detail.builder()
+                                                      .id(us.getId())
+                                                      .userId(us.getUserId())
+                                                      .lastLogin(us.getLastLogin())
+                                                      .build())
+                       .toList();
   }
 
   @Override
   public UserStatusDto.Detail update(UUID id) {
 
     UserStatus userStatus = userStatusRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Not Found User Status"));
+                                                .orElseThrow(() -> new RuntimeException(
+                                                    "Not Found User Status"));
 
     userStatus.update();
 
     userStatusRepository.save(userStatus);
 
-    return UserStatusDto.Detail.builder().id(userStatus.getId())
-        .userId(userStatus.getUserId()).lastLogin(userStatus.getLastLogin()).build();
+    return UserStatusDto.Detail.builder()
+                               .id(userStatus.getId())
+                               .userId(userStatus.getUserId())
+                               .lastLogin(userStatus.getLastLogin())
+                               .build();
   }
 
   @Override
   public UserStatusDto.Detail updateByUserId(UUID userId) {
 
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
-        .orElseThrow(() -> new RuntimeException("Not Found User Status"));
+                                                .orElseThrow(() -> new RuntimeException(
+                                                    "Not Found User Status"));
 
     userStatus.update();
     userStatusRepository.save(userStatus);
 
-    return UserStatusDto.Detail.builder().id(userStatus.getId())
-        .userId(userStatus.getUserId()).lastLogin(userStatus.getLastLogin()).build();
+    return UserStatusDto.Detail.builder()
+                               .id(userStatus.getId())
+                               .userId(userStatus.getUserId())
+                               .lastLogin(userStatus.getLastLogin())
+                               .build();
   }
 
   @Override

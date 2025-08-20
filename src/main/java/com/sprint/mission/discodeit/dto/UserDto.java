@@ -18,8 +18,12 @@ public class UserDto {
     private String password;
 
     public CreateCommand toCommand(MultipartFile profileImage) {
-      return CreateCommand.builder().username(this.username).email(this.email)
-          .password(this.password).profileImage(profileImage).build();
+      return CreateCommand.builder()
+                          .username(this.username)
+                          .email(this.email)
+                          .password(this.password)
+                          .profileImage(profileImage)
+                          .build();
     }
   }
 
@@ -42,8 +46,13 @@ public class UserDto {
     private String newPassword;
 
     public UpdateCommand toCommand(UUID id, MultipartFile profileImage) {
-      return UpdateCommand.builder().id(id).username(this.newUsername).email(this.newEmail)
-          .password(this.newPassword).profileImage(profileImage).build();
+      return UpdateCommand.builder()
+                          .id(id)
+                          .username(this.newUsername)
+                          .email(this.newEmail)
+                          .password(this.newPassword)
+                          .profileImage(profileImage)
+                          .build();
     }
   }
 
@@ -84,8 +93,15 @@ public class UserDto {
     private Instant updatedAt;
 
     public DetailResponse toResponse() {
-      return DetailResponse.builder().id(id).username(username).email(email).profileId(profileId)
-          .online(online).createdAt(createdAt).updatedAt(updatedAt).build();
+      return DetailResponse.builder()
+                           .id(id)
+                           .username(username)
+                           .email(email)
+                           .profileId(profileId)
+                           .online(online)
+                           .createdAt(createdAt)
+                           .updatedAt(updatedAt)
+                           .build();
     }
   }
 }

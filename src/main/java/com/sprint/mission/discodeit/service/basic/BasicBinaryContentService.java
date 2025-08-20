@@ -21,33 +21,48 @@ public class BasicBinaryContentService implements BinaryContentService {
     BinaryContent binaryContent = binaryContentRepository.save(BinaryContent.of(request.getFile()));
     binaryContentRepository.save(binaryContent);
 
-    return BinaryContentDto.Detail.builder().id(binaryContent.getId())
-        .bytes(binaryContent.getContent()).contentType(binaryContent.getContentType())
-        .createdAt(binaryContent.getCreatedAt()).name(binaryContent.getFileName())
-        .size(binaryContent.getFileSize()).build();
+    return BinaryContentDto.Detail.builder()
+                                  .id(binaryContent.getId())
+                                  .bytes(binaryContent.getContent())
+                                  .contentType(binaryContent.getContentType())
+                                  .createdAt(binaryContent.getCreatedAt())
+                                  .name(binaryContent.getFileName())
+                                  .size(binaryContent.getFileSize())
+                                  .build();
   }
 
   @Override
   public BinaryContentDto.Detail find(UUID id) {
-    BinaryContent binaryContent = binaryContentRepository.findById(id).orElse(null);
+    BinaryContent binaryContent = binaryContentRepository.findById(id)
+                                                         .orElse(null);
     if (binaryContent == null) {
       return null;
     }
 
-    return BinaryContentDto.Detail.builder().id(binaryContent.getId())
-        .bytes(binaryContent.getContent()).contentType(binaryContent.getContentType())
-        .createdAt(binaryContent.getCreatedAt()).name(binaryContent.getFileName())
-        .size(binaryContent.getFileSize()).build();
+    return BinaryContentDto.Detail.builder()
+                                  .id(binaryContent.getId())
+                                  .bytes(binaryContent.getContent())
+                                  .contentType(binaryContent.getContentType())
+                                  .createdAt(binaryContent.getCreatedAt())
+                                  .name(binaryContent.getFileName())
+                                  .size(binaryContent.getFileSize())
+                                  .build();
   }
 
   @Override
   public List<BinaryContentDto.Detail> findAllByIdIn(List<UUID> ids) {
     List<BinaryContent> binaryContents = binaryContentRepository.findAllByIdIn(ids);
 
-    return binaryContents.stream().map(
-        bc -> BinaryContentDto.Detail.builder().id(bc.getId()).bytes(bc.getContent())
-            .contentType(bc.getContentType()).createdAt(bc.getCreatedAt()).name(bc.getFileName())
-            .size(bc.getFileSize()).build()).toList();
+    return binaryContents.stream()
+                         .map(bc -> BinaryContentDto.Detail.builder()
+                                                           .id(bc.getId())
+                                                           .bytes(bc.getContent())
+                                                           .contentType(bc.getContentType())
+                                                           .createdAt(bc.getCreatedAt())
+                                                           .name(bc.getFileName())
+                                                           .size(bc.getFileSize())
+                                                           .build())
+                         .toList();
   }
 
   @Override

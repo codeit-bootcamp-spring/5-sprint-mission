@@ -12,8 +12,9 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex) {
     // TODO 나중에 예외 종류 별 세부처리
-    return new ResponseEntity<>(
-        ExceptionResponse.builder().code(500).message(ex.getMessage()).build(),
-        HttpStatus.INTERNAL_SERVER_ERROR);
+    return new ResponseEntity<>(ExceptionResponse.builder()
+                                                 .code(500)
+                                                 .message(ex.getMessage())
+                                                 .build(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

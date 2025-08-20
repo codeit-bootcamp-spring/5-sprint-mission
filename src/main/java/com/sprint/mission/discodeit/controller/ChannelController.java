@@ -32,7 +32,8 @@ public class ChannelController {
       @RequestBody ChannelDto.CreateRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(channelService.create(request.toCommand(ChannelType.PUBLIC)).toResponse());
+                         .body(channelService.create(request.toCommand(ChannelType.PUBLIC))
+                                             .toResponse());
   }
 
   @Operation(summary = "Channel 생성(PRIVATE)")
@@ -41,7 +42,8 @@ public class ChannelController {
       @RequestBody ChannelDto.CreateRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(channelService.create(request.toCommand(ChannelType.PRIVATE)).toResponse());
+                         .body(channelService.create(request.toCommand(ChannelType.PRIVATE))
+                                             .toResponse());
   }
 
   @Operation(summary = "Channel 생성(PUBLIC)")
@@ -49,7 +51,8 @@ public class ChannelController {
   public ResponseEntity<ChannelDto.DetailResponse> updateChannel(@PathVariable UUID id,
       @RequestBody ChannelDto.UpdateRequest request) {
 
-    return ResponseEntity.ok(channelService.update(request.toCommand(id)).toResponse());
+    return ResponseEntity.ok(channelService.update(request.toCommand(id))
+                                           .toResponse());
   }
 
   @Operation(summary = "Channel 삭제")
@@ -58,7 +61,8 @@ public class ChannelController {
 
     channelService.delete(id);
 
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.noContent()
+                         .build();
   }
 
   @Operation(summary = "Channel 유저 별 조회")
@@ -66,8 +70,9 @@ public class ChannelController {
   public ResponseEntity<List<ChannelDto.DetailResponse>> findUserChannels(
       @RequestParam UUID userId) {
 
-    return ResponseEntity.ok(
-        channelService.findAllByUserId(userId).stream().map(ChannelDto.Detail::toResponse)
-            .toList());
+    return ResponseEntity.ok(channelService.findAllByUserId(userId)
+                                           .stream()
+                                           .map(ChannelDto.Detail::toResponse)
+                                           .toList());
   }
 }

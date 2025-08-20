@@ -33,7 +33,8 @@ public class ReadStatusController {
       @RequestBody CreateRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(readStatusService.create(request.toCommand()).toResponse());
+                         .body(readStatusService.create(request.toCommand())
+                                                .toResponse());
   }
 
   @Operation(summary = "Read Status 수정")
@@ -41,7 +42,8 @@ public class ReadStatusController {
   public ResponseEntity<Void> updateReadStatus(@PathVariable UUID id) {
 
     readStatusService.update(id);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok()
+                         .build();
   }
 
   @Operation(summary = "Read Status 유저 별 조회")
@@ -49,7 +51,9 @@ public class ReadStatusController {
   public ResponseEntity<List<ReadStatusDto.DetailResponse>> getReadStatusByUser(
       @RequestParam UUID userId) {
 
-    return ResponseEntity.ok(
-        readStatusService.findAllByUserId(userId).stream().map(Detail::toResponse).toList());
+    return ResponseEntity.ok(readStatusService.findAllByUserId(userId)
+                                              .stream()
+                                              .map(Detail::toResponse)
+                                              .toList());
   }
 }

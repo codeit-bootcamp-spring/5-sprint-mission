@@ -23,13 +23,16 @@ public class BasicAuthService implements AuthService {
     String username = login.getUsername();
     String password = login.getPassword();
 
-    User user = userRepository.findByName(username).orElse(null);
+    User user = userRepository.findByName(username)
+                              .orElse(null);
 
-    if (user == null || user.getPassword() == null || !user.getPassword().equals(password)) {
+    if (user == null || user.getPassword() == null || !user.getPassword()
+                                                           .equals(password)) {
       throw new IllegalArgumentException("로그인 실패");
     }
 
-    UserStatus userStatus = userStatusRepository.findByUserId(user.getId()).orElse(null);
+    UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
+                                                .orElse(null);
     if (userStatus == null) {
       throw new IllegalArgumentException("비정상 유저");
     }
@@ -37,8 +40,14 @@ public class BasicAuthService implements AuthService {
     userStatus.update();
     userStatusRepository.save(userStatus);
 
-    return UserDto.Detail.builder().id(user.getId()).username(user.getName())
-        .email(user.getEmail()).profileId(user.getProfileId()).online(userStatus.isOnline())
-        .createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
+    return UserDto.Detail.builder()
+                         .id(user.getId())
+                         .username(user.getName())
+                         .email(user.getEmail())
+                         .profileId(user.getProfileId())
+                         .online(userStatus.isOnline())
+                         .createdAt(user.getCreatedAt())
+                         .updatedAt(user.getUpdatedAt())
+                         .build();
   }
 }

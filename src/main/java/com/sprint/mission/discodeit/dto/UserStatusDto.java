@@ -34,10 +34,10 @@ public class UserStatusDto {
 
     public DetailResponse toResponse() {
       return DetailResponse.builder()
-          .id(id)
-          .userId(userId)
-          .lastLogin(lastLogin)
-          .build();
+                           .id(id)
+                           .userId(userId)
+                           .lastLogin(lastLogin)
+                           .build();
     }
   }
 }

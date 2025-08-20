@@ -12,7 +12,6 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +35,8 @@ public class BasicUserService implements UserService {
     }
 
     BinaryContent profile = null;
-    if (create.getProfileImage() != null && !create.getProfileImage().isEmpty()) {
+    if (create.getProfileImage() != null && !create.getProfileImage()
+                                                   .isEmpty()) {
       profile = BinaryContent.of(create.getProfileImage());
       binaryContentRepository.save(profile);
     }
@@ -47,22 +47,35 @@ public class BasicUserService implements UserService {
     UserStatus status = UserStatus.of(user.getId());
     userStatusRepository.save(status);
 
-    return UserDto.Detail.builder().id(user.getId()).username(user.getName()).email(user.getEmail())
-        .profileId(user.getProfileId()).online(status.isOnline()).createdAt(user.getCreatedAt())
-        .updatedAt(user.getUpdatedAt()).build();
+    return UserDto.Detail.builder()
+                         .id(user.getId())
+                         .username(user.getName())
+                         .email(user.getEmail())
+                         .profileId(user.getProfileId())
+                         .online(status.isOnline())
+                         .createdAt(user.getCreatedAt())
+                         .updatedAt(user.getUpdatedAt())
+                         .build();
   }
 
   @Override
   public UserDto.Detail findById(UUID userId) {
 
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+                              .orElseThrow(() -> new RuntimeException("User not found"));
 
-    UserStatus status = userStatusRepository.findByUserId(userId).orElse(null);
+    UserStatus status = userStatusRepository.findByUserId(userId)
+                                            .orElse(null);
 
-    return UserDto.Detail.builder().id(user.getId()).username(user.getName()).email(user.getEmail())
-        .profileId(user.getProfileId()).online(status != null && status.isOnline())
-        .createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
+    return UserDto.Detail.builder()
+                         .id(user.getId())
+                         .username(user.getName())
+                         .email(user.getEmail())
+                         .profileId(user.getProfileId())
+                         .online(status != null && status.isOnline())
+                         .createdAt(user.getCreatedAt())
+                         .updatedAt(user.getUpdatedAt())
+                         .build();
   }
 
   @Override
@@ -71,24 +84,36 @@ public class BasicUserService implements UserService {
     List<User> users = userRepository.findAll();
     List<UserStatus> status = userStatusRepository.findAll();
 
-    return users.stream().map(u -> {
-      UserStatus s = status.stream().filter(t -> t.getUserId().equals(u.getId())).findFirst()
-          .orElse(null);
+    return users.stream()
+                .map(u -> {
+                  UserStatus s = status.stream()
+                                       .filter(t -> t.getUserId()
+                                                     .equals(u.getId()))
+                                       .findFirst()
+                                       .orElse(null);
 
-      return UserDto.Detail.builder().id(u.getId()).username(u.getName()).email(u.getEmail())
-          .profileId(u.getProfileId()).online(s != null && s.isOnline()).createdAt(u.getCreatedAt())
-          .updatedAt(u.getUpdatedAt()).build();
-    }).toList();
+                  return UserDto.Detail.builder()
+                                       .id(u.getId())
+                                       .username(u.getName())
+                                       .email(u.getEmail())
+                                       .profileId(u.getProfileId())
+                                       .online(s != null && s.isOnline())
+                                       .createdAt(u.getCreatedAt())
+                                       .updatedAt(u.getUpdatedAt())
+                                       .build();
+                })
+                .toList();
   }
 
   @Override
   public UserDto.Detail update(UpdateCommand update) {
 
     User user = userRepository.findById(update.getId())
-        .orElseThrow(() -> new RuntimeException("User not found"));
+                              .orElseThrow(() -> new RuntimeException("User not found"));
 
     UUID newProfileId = user.getProfileId();
-    if (update.getProfileImage() != null && !update.getProfileImage().isEmpty()) {
+    if (update.getProfileImage() != null && !update.getProfileImage()
+                                                   .isEmpty()) {
       BinaryContent newProfile = BinaryContent.of(update.getProfileImage());
       binaryContentRepository.save(newProfile);
       newProfileId = newProfile.getId();
@@ -97,18 +122,25 @@ public class BasicUserService implements UserService {
     user.update(update, newProfileId);
     userRepository.save(user);
 
-    UserStatus status = userStatusRepository.findByUserId(update.getId()).orElse(null);
+    UserStatus status = userStatusRepository.findByUserId(update.getId())
+                                            .orElse(null);
 
-    return UserDto.Detail.builder().id(user.getId()).username(user.getName()).email(user.getEmail())
-        .profileId(user.getProfileId()).online(status != null && status.isOnline())
-        .createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
+    return UserDto.Detail.builder()
+                         .id(user.getId())
+                         .username(user.getName())
+                         .email(user.getEmail())
+                         .profileId(user.getProfileId())
+                         .online(status != null && status.isOnline())
+                         .createdAt(user.getCreatedAt())
+                         .updatedAt(user.getUpdatedAt())
+                         .build();
   }
 
   @Override
   public void delete(UUID userId) {
 
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+                              .orElseThrow(() -> new RuntimeException("User not found"));
 
     userStatusRepository.delete(userId);
     if (user.getProfileId() != null) {

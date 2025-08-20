@@ -24,40 +24,54 @@ public class BasicReadStatusService implements ReadStatusService {
   public ReadStatusDto.Detail create(CreateCommand request) {
 
     userRepository.findById(request.getUserId())
-        .orElseThrow(() -> new RuntimeException("Not Found User"));
+                  .orElseThrow(() -> new RuntimeException("Not Found User"));
     channelRepository.findById(request.getChannelId())
-        .orElseThrow(() -> new RuntimeException("Not Found Channel"));
+                     .orElseThrow(() -> new RuntimeException("Not Found Channel"));
 
-    if (readStatusRepository.findAllByUserId(request.getUserId()).stream()
-        .anyMatch(rs -> rs.getChannelId().equals(request.getChannelId()))) {
+    if (readStatusRepository.findAllByUserId(request.getUserId())
+                            .stream()
+                            .anyMatch(rs -> rs.getChannelId()
+                                              .equals(request.getChannelId()))) {
       throw new IllegalArgumentException("Already Registered Read Status");
     }
 
     ReadStatus readStatus = new ReadStatus(request.getUserId(), request.getChannelId());
     readStatusRepository.save(readStatus);
 
-    return ReadStatusDto.Detail.builder().id(readStatus.getId())
-        .channelId(readStatus.getChannelId()).userId(readStatus.getUserId())
-        .lastReadAt(readStatus.getLastReadAt()).build();
+    return ReadStatusDto.Detail.builder()
+                               .id(readStatus.getId())
+                               .channelId(readStatus.getChannelId())
+                               .userId(readStatus.getUserId())
+                               .lastReadAt(readStatus.getLastReadAt())
+                               .build();
   }
 
   @Override
   public ReadStatusDto.Detail find(UUID id) {
     ReadStatus readStatus = readStatusRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Not Found Read Status"));
+                                                .orElseThrow(() -> new RuntimeException(
+                                                    "Not Found Read Status"));
 
-    return ReadStatusDto.Detail.builder().id(readStatus.getId())
-        .channelId(readStatus.getChannelId()).userId(readStatus.getUserId())
-        .lastReadAt(readStatus.getLastReadAt()).build();
+    return ReadStatusDto.Detail.builder()
+                               .id(readStatus.getId())
+                               .channelId(readStatus.getChannelId())
+                               .userId(readStatus.getUserId())
+                               .lastReadAt(readStatus.getLastReadAt())
+                               .build();
   }
 
   @Override
   public List<ReadStatusDto.Detail> findAllByUserId(UUID userId) {
     List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(userId);
 
-    return readStatuses.stream().map(
-        rs -> ReadStatusDto.Detail.builder().id(rs.getId()).channelId(rs.getChannelId())
-            .userId(rs.getUserId()).lastReadAt(rs.getLastReadAt()).build()).toList();
+    return readStatuses.stream()
+                       .map(rs -> ReadStatusDto.Detail.builder()
+                                                      .id(rs.getId())
+                                                      .channelId(rs.getChannelId())
+                                                      .userId(rs.getUserId())
+                                                      .lastReadAt(rs.getLastReadAt())
+                                                      .build())
+                       .toList();
   }
 
   @Override
@@ -74,13 +88,17 @@ public class BasicReadStatusService implements ReadStatusService {
   public ReadStatusDto.Detail update(UUID id) {
 
     ReadStatus readStatus = readStatusRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Not Found Read Status"));
+                                                .orElseThrow(() -> new RuntimeException(
+                                                    "Not Found Read Status"));
 
     readStatus.update();
     readStatusRepository.save(readStatus);
 
-    return ReadStatusDto.Detail.builder().id(readStatus.getId())
-        .channelId(readStatus.getChannelId()).userId(readStatus.getUserId())
-        .lastReadAt(readStatus.getLastReadAt()).build();
+    return ReadStatusDto.Detail.builder()
+                               .id(readStatus.getId())
+                               .channelId(readStatus.getChannelId())
+                               .userId(readStatus.getUserId())
+                               .lastReadAt(readStatus.getLastReadAt())
+                               .build();
   }
 }

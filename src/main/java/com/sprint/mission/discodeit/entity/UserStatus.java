@@ -18,7 +18,8 @@ public class UserStatus extends BaseEntity {
   }
 
   public boolean isOnline() {
-    return lastLogin.isAfter(Instant.now().minus(Duration.ofMinutes(5)));
+    return lastLogin.isAfter(Instant.now()
+                                    .minus(Duration.ofMinutes(5)));
   }
 
   public static UserStatus of(UUID userId) {

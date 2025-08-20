@@ -32,15 +32,18 @@ public class User extends BaseEntity {
   public void update(UpdateCommand update, UUID profileId) {
     boolean anyValueUpdated = false;
 
-    if (update.getUsername() != null && !update.getUsername().equals(this.name)) {
+    if (update.getUsername() != null && !update.getUsername()
+                                               .equals(this.name)) {
       this.name = update.getUsername();
       anyValueUpdated = true;
     }
-    if (update.getEmail() != null && !update.getEmail().equals(this.email)) {
+    if (update.getEmail() != null && !update.getEmail()
+                                            .equals(this.email)) {
       this.email = update.getEmail();
       anyValueUpdated = true;
     }
-    if (update.getPassword() != null && !update.getPassword().equals(this.password)) {
+    if (update.getPassword() != null && !update.getPassword()
+                                               .equals(this.password)) {
       this.password = update.getPassword();
       anyValueUpdated = true;
     }
@@ -56,11 +59,6 @@ public class User extends BaseEntity {
 
 
   public static User of(CreateCommand request, UUID profileId) {
-    return new User(
-        request.getUsername(),
-        request.getEmail(),
-        request.getPassword(),
-        profileId
-    );
+    return new User(request.getUsername(), request.getEmail(), request.getPassword(), profileId);
   }
 }

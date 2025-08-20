@@ -40,7 +40,8 @@ public class UserController {
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(userService.create(request.toCommand(profile)).toResponse());
+                         .body(userService.create(request.toCommand(profile))
+                                          .toResponse());
   }
 
   @Operation(summary = "User 수정")
@@ -49,7 +50,8 @@ public class UserController {
       @RequestPart("userUpdateRequest") UpdateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    return ResponseEntity.ok(userService.update(request.toCommand(id, profile)).toResponse());
+    return ResponseEntity.ok(userService.update(request.toCommand(id, profile))
+                                        .toResponse());
   }
 
   @Operation(summary = "User 삭제")
@@ -58,20 +60,25 @@ public class UserController {
 
     userService.delete(id);
 
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.noContent()
+                         .build();
   }
 
   @Operation(summary = "User 전체 조회")
   @GetMapping
   public ResponseEntity<List<UserDto.DetailResponse>> findAllUsers() {
 
-    return ResponseEntity.ok(userService.findAll().stream().map(Detail::toResponse).toList());
+    return ResponseEntity.ok(userService.findAll()
+                                        .stream()
+                                        .map(Detail::toResponse)
+                                        .toList());
   }
 
   @Operation(summary = "User Status 수정")
   @PatchMapping("/{id}/userStatus")
   public ResponseEntity<UserStatusDto.DetailResponse> updateUserStatus(@PathVariable UUID id) {
 
-    return ResponseEntity.ok(userStatusService.updateByUserId(id).toResponse());
+    return ResponseEntity.ok(userStatusService.updateByUserId(id)
+                                              .toResponse());
   }
 }

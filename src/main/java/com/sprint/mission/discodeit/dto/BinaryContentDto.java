@@ -42,8 +42,14 @@ public class BinaryContentDto {
     byte[] bytes;
 
     public DetailResponse toResponse() {
-      return DetailResponse.builder().id(id).name(name).contentType(contentType).size(size)
-          .createdAt(createdAt).bytes(bytes).build();
+      return DetailResponse.builder()
+                           .id(id)
+                           .name(name)
+                           .contentType(contentType)
+                           .size(size)
+                           .createdAt(createdAt)
+                           .bytes(bytes)
+                           .build();
     }
   }
 }

@@ -22,6 +22,7 @@ public class AuthController {
   @PostMapping("/login")
   public ResponseEntity<UserDto.DetailResponse> login(@RequestBody LoginRequest request) {
     // TODO 나중에 로그인 세션 처리
-    return ResponseEntity.ok(authService.login(request.toLogin()).toResponse());
+    return ResponseEntity.ok(authService.login(request.toLogin())
+                                        .toResponse());
   }
 }

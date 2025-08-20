@@ -19,8 +19,12 @@ public class MessageDto {
     String content;
 
     public CreateCommand toCommand(List<MultipartFile> attachments) {
-      return CreateCommand.builder().channelId(this.channelId).authorId(this.authorId)
-          .content(this.content).attachments(attachments).build();
+      return CreateCommand.builder()
+                          .channelId(this.channelId)
+                          .authorId(this.authorId)
+                          .content(this.content)
+                          .attachments(attachments)
+                          .build();
     }
   }
 
@@ -41,7 +45,10 @@ public class MessageDto {
     String content;
 
     public UpdateCommand toCommand(UUID id) {
-      return UpdateCommand.builder().id(id).content(this.content).build();
+      return UpdateCommand.builder()
+                          .id(id)
+                          .content(this.content)
+                          .build();
     }
   }
 
@@ -84,9 +91,17 @@ public class MessageDto {
     Instant updatedAt;
 
     public DetailResponse toResponse() {
-      return DetailResponse.builder().channelId(channelId).authorId(authorId).id(id)
-          .authorName(authorName).channelName(channelName).content(content)
-          .attachmentIds(attachmentIds).createdAt(createdAt).updatedAt(updatedAt).build();
+      return DetailResponse.builder()
+                           .channelId(channelId)
+                           .authorId(authorId)
+                           .id(id)
+                           .authorName(authorName)
+                           .channelName(channelName)
+                           .content(content)
+                           .attachmentIds(attachmentIds)
+                           .createdAt(createdAt)
+                           .updatedAt(updatedAt)
+                           .build();
     }
   }
 }

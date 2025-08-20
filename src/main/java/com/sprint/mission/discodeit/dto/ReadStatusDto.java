@@ -16,7 +16,10 @@ public class ReadStatusDto {
     UUID channelId;
 
     public CreateCommand toCommand() {
-      return CreateCommand.builder().userId(this.userId).channelId(this.channelId).build();
+      return CreateCommand.builder()
+                          .userId(this.userId)
+                          .channelId(this.channelId)
+                          .build();
     }
   }
 
@@ -48,8 +51,12 @@ public class ReadStatusDto {
     Instant lastReadAt;
 
     public DetailResponse toResponse() {
-      return DetailResponse.builder().id(id).userId(userId).channelId(channelId)
-          .lastReadAt(lastReadAt).build();
+      return DetailResponse.builder()
+                           .id(id)
+                           .userId(userId)
+                           .channelId(channelId)
+                           .lastReadAt(lastReadAt)
+                           .build();
     }
   }
 }

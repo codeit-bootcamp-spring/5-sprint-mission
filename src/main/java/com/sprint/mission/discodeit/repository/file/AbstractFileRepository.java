@@ -63,7 +63,8 @@ public abstract class AbstractFileRepository<T extends BaseEntity> {
   private void writeToFile() {
     File file = new File(filename);
     try {
-      file.getParentFile().mkdirs();
+      file.getParentFile()
+          .mkdirs();
       try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
         oos.writeObject(data);
       }
