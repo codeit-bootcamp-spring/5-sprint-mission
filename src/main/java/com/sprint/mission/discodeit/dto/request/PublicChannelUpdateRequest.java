@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "수정할 Channel 정보")
 public record PublicChannelUpdateRequest(
-    @NotBlank String newName,
-    String newDescription
+    /*@NotBlank*/ String newName,
+                  String newDescription
 ) {
 
 }

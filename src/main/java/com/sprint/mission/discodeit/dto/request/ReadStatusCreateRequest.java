@@ -7,9 +7,9 @@ import java.util.UUID;
 
 @Schema(description = "Message 읽음 상태 생성 정보")
 public record ReadStatusCreateRequest(
-    @NotNull UUID userId,
-    @NotNull UUID channelId,
-    Instant lastReadAt
+    /*@NotNull*/ UUID userId,
+    /*@NotNull*/ UUID channelId,
+                 Instant lastReadAt
 ) {
 
 }

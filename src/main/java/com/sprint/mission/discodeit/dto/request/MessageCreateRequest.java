@@ -7,8 +7,8 @@ import java.util.UUID;
 @Schema(description = "Message 생성 정보")
 public record MessageCreateRequest(
     String content,
-    @NotNull UUID channelId,
-    @NotNull UUID authorId
+    /*@NotNull*/ UUID channelId,
+    /*@NotNull*/ UUID authorId
 ) {
 
 }

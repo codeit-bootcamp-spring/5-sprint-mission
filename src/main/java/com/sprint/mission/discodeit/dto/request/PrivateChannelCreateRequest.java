@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Schema(description = "Private Channel 생성 정보")
 public record PrivateChannelCreateRequest(
-    @NotNull @NotEmpty List<UUID> participantIds
+    /*@NotNull @NotEmpty*/ List<UUID> participantIds
 ) {
 
 }
