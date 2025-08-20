@@ -44,6 +44,7 @@ public class BasicChannelService implements ChannelService {
 
         return ChannelDto.DetailResponse.builder()
             .id(channel.getId())
+            .type(channel.getType())
             .name(channel.getName())
             .description(channel.getDescription())
             .lastMessageCreatedAt(getLastMessageCreateAt(channel.getId()))
@@ -65,7 +66,8 @@ public class BasicChannelService implements ChannelService {
         return new Channel(ChannelType.PUBLIC
             , request.getName()
             , request.getDescription()
-            , request.getAdminUserId());
+            , request.getAdminUserId()
+            , new ArrayList<>(List.of(request.getAdminUserId())));
     }
 
     private Instant getLastMessageCreateAt(UUID channelId) {
@@ -89,23 +91,13 @@ public class BasicChannelService implements ChannelService {
             return null;
         }
 
-        if (channel.getType().equals(ChannelType.PRIVATE)) {
-
-            return ChannelDto.DetailResponse.builder()
-                .id(channel.getId())
-                .name(channel.getName())
-                .description(channel.getDescription())
-                .lastMessageCreatedAt(getLastMessageCreateAt(channel.getId()))
-                .userIds(channel.getUserIds())
-                .build();
-        }
-
         return ChannelDto.DetailResponse.builder()
             .id(channel.getId())
+            .type(channel.getType())
             .name(channel.getName())
             .description(channel.getDescription())
             .lastMessageCreatedAt(getLastMessageCreateAt(channel.getId()))
-            .userIds(null)
+            .userIds(channel.getUserIds())
             .build();
     }
 
@@ -115,10 +107,11 @@ public class BasicChannelService implements ChannelService {
         return channels.stream().map(c ->
             ChannelDto.DetailResponse.builder()
                 .id(c.getId())
+                .type(c.getType())
                 .name(c.getName())
                 .description(c.getDescription())
                 .lastMessageCreatedAt(getLastMessageCreateAt(c.getId()))
-                .userIds(c.getType().equals(ChannelType.PRIVATE) ? c.getUserIds() : null)
+                .userIds(c.getUserIds())
                 .build())
             .collect(Collectors.toList());
     }
@@ -130,10 +123,11 @@ public class BasicChannelService implements ChannelService {
         return channels.stream().map(c ->
             ChannelDto.DetailResponse.builder()
                 .id(c.getId())
+                .type(c.getType())
                 .name(c.getName())
                 .description(c.getDescription())
                 .lastMessageCreatedAt(getLastMessageCreateAt(c.getId()))
-                .userIds(c.getType().equals(ChannelType.PRIVATE) ? c.getUserIds() : null)
+                .userIds(c.getUserIds())
                 .build())
             .collect(Collectors.toList());
     }
@@ -158,6 +152,7 @@ public class BasicChannelService implements ChannelService {
 
         return ChannelDto.DetailResponse.builder()
             .id(channel.getId())
+            .type(channel.getType())
             .name(channel.getName())
             .description(channel.getDescription())
             .lastMessageCreatedAt(getLastMessageCreateAt(channel.getId()))

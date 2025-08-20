@@ -33,6 +33,7 @@ public class ChannelDto {
     @ToString
     public static class DetailResponse {
         UUID id;
+        ChannelType type;
         String name;
         String description;
         Instant lastMessageCreatedAt;

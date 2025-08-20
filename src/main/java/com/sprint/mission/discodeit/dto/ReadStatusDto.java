@@ -14,7 +14,6 @@ public class ReadStatusDto
     public static class CreateRequest {
         UUID userId;
         UUID channelId;
-        Instant readAt;
     }
 
     @Getter

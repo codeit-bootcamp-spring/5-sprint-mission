@@ -91,7 +91,8 @@ public class BasicReadStatusService implements ReadStatusService {
         readStatusRepository.deleteAll();
     }
 
-    public ReadStatus update(UUID id) {
+    @Override
+    public ReadStatusDto.DetailResponse update(UUID id) {
 
         ReadStatus readStatus = readStatusRepository.findById(id).orElse(null);
 
@@ -100,7 +101,13 @@ public class BasicReadStatusService implements ReadStatusService {
         }
 
         readStatus.update();
+        readStatusRepository.save(readStatus);
 
-        return readStatusRepository.save(readStatus);
+        return ReadStatusDto.DetailResponse.builder()
+            .id(readStatus.getId())
+            .channelId(readStatus.getChannelId())
+            .userId(readStatus.getUserId())
+            .lastReadAt(readStatus.getLastReadAt())
+            .build();
     }
 }

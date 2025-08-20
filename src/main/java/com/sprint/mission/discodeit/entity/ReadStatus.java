@@ -7,15 +7,15 @@ import java.util.UUID;
 
 @Getter
 public class ReadStatus extends BaseEntity {
-    private UUID userId;
-    private UUID channelId;
+    private final UUID userId;
+    private final UUID channelId;
     private Instant lastReadAt;
 
     public ReadStatus(UUID userId, UUID channelId) {
         super();
         this.userId = userId;
         this.channelId = channelId;
-        this.lastReadAt = null;
+        this.lastReadAt = Instant.now();
     }
 
     public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {

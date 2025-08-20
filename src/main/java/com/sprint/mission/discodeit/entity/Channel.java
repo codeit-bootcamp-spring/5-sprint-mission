@@ -14,7 +14,7 @@ public class Channel extends BaseEntity {
     private ChannelType type;
     private String name;
     private String description;
-    private UUID adminUserId;
+    private final UUID adminUserId;
     private List<UUID> userIds;
     private List<UUID> messageIds;
 

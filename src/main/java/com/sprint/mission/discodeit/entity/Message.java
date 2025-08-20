@@ -11,7 +11,7 @@ import java.util.UUID;
 @ToString
 public class Message extends BaseEntity {
     private String text;
-    private UUID channelId;
+    private final UUID channelId;
     private final UUID authorId;
     private final List<UUID> attachmentIds;
 

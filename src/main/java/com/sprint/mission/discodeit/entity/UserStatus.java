@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 public class UserStatus extends BaseEntity{
-    private UUID userId;
+    private final UUID userId;
     private Instant lastLogin;
 
     public UserStatus(UUID userId, Instant lastSeenAt) {
