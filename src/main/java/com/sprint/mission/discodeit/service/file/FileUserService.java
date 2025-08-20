@@ -107,29 +107,9 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public List<UserResponse> findAll() {
+    public List<User> findAll() {
         List<User> users = repository.findAll();
-
-        return users.stream().map(user -> {
-            UserStatus status = statusRepository.findByUserId(user.getUserId());
-            boolean isOnline = false;
-            Instant lastOnline = null;
-            if (status != null) {
-                lastOnline = status.getLastOnline();
-                isOnline = lastOnline != null && Instant.now().minusSeconds(300).isBefore(lastOnline);
-            }
-
-            return new UserResponse(
-                    user.getId(),            // 1
-                    user.getCreatedAt(),     // 2
-                    user.getUpdatedAt(),     // 3
-                    user.getProfileId(),     // 4
-                    user.getUserId(),        // 5
-                    user.getEmail(),         // 6
-                    isOnline,                // 7
-                    lastOnline               // 8
-            );
-        }).toList();
+        return repository.findAll();
     }
 
 

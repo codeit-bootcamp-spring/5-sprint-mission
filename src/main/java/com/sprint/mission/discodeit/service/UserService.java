@@ -24,7 +24,7 @@ public interface UserService {
 
     UserResponse findById(UUID id); //조회
 
-    List<UserResponse> findAll(); //리스트에 넣기
+    List<User> findAll(); //리스트에 넣기
 
     User update(UserUpdateRequest request, MultipartFile profileImage) throws IOException;
 

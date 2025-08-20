@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -9,6 +11,8 @@ import java.util.UUID;
 
 //엔티티
 @Data
+@AllArgsConstructor
+@Getter
 public class User implements Serializable {
 
     //직렬화된 객체의 버전을 명시적으로 지정
@@ -24,6 +28,8 @@ public class User implements Serializable {
     private String email;
     private String password;// 사용자 PW (로그인용 외부식별자)
     private UUID profileId; // User가 가진 프로필 이미지ID
+    private UserStatus status; // User 상태
+
 
     //기본 생성자
     //매개변수X

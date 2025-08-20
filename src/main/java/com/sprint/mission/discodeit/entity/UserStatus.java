@@ -21,6 +21,7 @@ public class UserStatus implements Serializable {
     private Instant updatedAt;
     private Instant lastOnline; // 마지막 접속시간
 
+
     public UserStatus(UUID id, Instant createdAt, UUID userId, Instant updatedAt, Instant lastOnline) {
         this.id = id;
         this.createdAt = createdAt;
