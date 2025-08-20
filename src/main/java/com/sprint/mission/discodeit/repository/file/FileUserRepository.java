@@ -2,125 +2,120 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class FileUserRepository implements UserRepository {
-    private final String DIRECTORY;
-    private final String EXTENSION;
+    private final Path DIRECTORY;
+    private final String EXTENSION = ".ser";
 
-    public FileUserRepository(){
-        DIRECTORY ="USER";
-        EXTENSION =".ser";
-        Path path = Paths.get(DIRECTORY);
-        if(!path.toFile().exists()) {
+    public FileUserRepository() {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", User.class.getSimpleName());
+        if (Files.notExists(DIRECTORY)) {
             try {
-                Files.createDirectory(path);
-            } catch (Exception e) {
-                e.printStackTrace();
+                Files.createDirectories(DIRECTORY);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }
+
+    private Path resolvePath(UUID id) {
+        return DIRECTORY.resolve(id + EXTENSION);
+    }
+
     @Override
     public User save(User user) {
-        Path path = new File(DIRECTORY,user.getId()+EXTENSION).toPath();
-        try (FileOutputStream fos = new FileOutputStream(path.toFile());
-             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+        Path path = resolvePath(user.getId());
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
             oos.writeObject(user);
-            return user;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+        return user;
     }
 
     @Override
     public Optional<User> findById(UUID id) {
-        User user = null;
-        Path path = Paths.get(DIRECTORY, id + EXTENSION);
-        try(FileInputStream fis = new FileInputStream(path.toFile());
-            ObjectInputStream ois = new ObjectInputStream(fis);) {
-            user=(User)ois.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Optional.empty();
+        User userNullable = null;
+        Path path = resolvePath(id);
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                userNullable = (User) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
-        return Optional.ofNullable(user);
+        return Optional.ofNullable(userNullable);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return this.findAll().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
     }
 
     @Override
     public List<User> findAll() {
-        List<User> userList = new ArrayList<>();
-        File file = new File(DIRECTORY);
-        File[] folder = file.listFiles((dir, name)->name.endsWith(EXTENSION));
-
-        if(folder==null){return userList;}
-
-        for(File f:folder){
-            try (FileInputStream fis = new FileInputStream(f);
-            ObjectInputStream ois = new ObjectInputStream(fis)) {
-                userList.add((User)ois.readObject());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            return Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (User) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return userList;
-
-    }
-
-    @Override
-    public long count() {
-        File folder =  new File(DIRECTORY);
-        File[] files = folder.listFiles((dir,name)->name.endsWith(EXTENSION));
-        if(files==null) return 0;
-        ;
-        return files.length;
-    }
-
-    @Override
-    public boolean delete(UUID id) {
-        File file =new File(DIRECTORY, id + EXTENSION);
-        return file.delete();
     }
 
     @Override
     public boolean existsById(UUID id) {
-        File file = new File(DIRECTORY, id + EXTENSION);
-        return file.isFile();
+        Path path = resolvePath(id);
+        return Files.exists(path);
     }
 
     @Override
-    public boolean update(UUID UserId, String username, String password) {
-        File file = new File(DIRECTORY, UserId + EXTENSION);
-        User user;
-        try (FileInputStream fis = new FileInputStream(file);
-        ObjectInputStream ois = new ObjectInputStream(fis);
-        ) {
-            user = (User)ois.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    public void deleteById(UUID id) {
+        Path path = resolvePath(id);
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        if(user.getUsername().equals(username) && user.getPassword().equals(password)){
-            System.out.println("수정 전과 일치합니다.");
-            return false;
-        }else {
-            user.update(username, password);
-        }
-        try (FileOutputStream fos = new FileOutputStream(file);
-             ObjectOutputStream oos = new ObjectOutputStream(fos);){
-            oos.writeObject(user);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return this.findAll().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return this.findAll().stream()
+                .anyMatch(user -> user.getUsername().equals(username));
     }
 }

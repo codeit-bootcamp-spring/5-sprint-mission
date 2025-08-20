@@ -2,128 +2,108 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class FileMessageRepository implements MessageRepository {
-    private final String DIRECTORY;
-    private final String EXTENSION;
+    private final Path DIRECTORY;
+    private final String EXTENSION = ".ser";
 
-    public FileMessageRepository(){
-        DIRECTORY = "MESSAGE";
-        EXTENSION = ".ser";
-        Path path = Paths.get(DIRECTORY);
-        if(!path.toFile().exists()){
+    public FileMessageRepository() {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", Message.class.getSimpleName());
+        if (Files.notExists(DIRECTORY)) {
             try {
-                Files.createDirectory(path);
-            } catch (Exception e) {
-                e.printStackTrace();
+                Files.createDirectories(DIRECTORY);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }
+
+    private Path resolvePath(UUID id) {
+        return DIRECTORY.resolve(id + EXTENSION);
+    }
+
     @Override
     public Message save(Message message) {
-        Path path = new File(DIRECTORY,message.getId()+EXTENSION).toPath();
-        try (FileOutputStream fos = new FileOutputStream(path.toFile());
-        ObjectOutputStream oos = new ObjectOutputStream(fos)){
+        Path path = resolvePath(message.getId());
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
             oos.writeObject(message);
-            return message;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+        return message;
     }
 
     @Override
     public Optional<Message> findById(UUID id) {
-        Path path = Paths.get(DIRECTORY,id+EXTENSION);
-        Optional<Message> message = Optional.empty();
-        try (FileInputStream fis = new FileInputStream(path.toFile());
-             ObjectInputStream ois = new ObjectInputStream(fis);) {
-            message = Optional.of((Message)ois.readObject());
-            return message;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public List<Message> findAll() {
-        List<Message> messageList = new ArrayList<>();
-        File file = new File(DIRECTORY);
-        File[] folder = file.listFiles((dir,name)->name.endsWith(EXTENSION));
-        if(folder==null){return messageList;}
-        for(File f:folder) {
-            try (FileInputStream fis = new FileInputStream(f);
-                 ObjectInputStream ois = new ObjectInputStream(fis)) {
-                messageList.add((Message)ois.readObject());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-
+        Message messageNullable = null;
+        Path path = resolvePath(id);
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                messageNullable = (Message) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
         }
-        return messageList;
+        return Optional.ofNullable(messageNullable);
     }
 
     @Override
-    public long count() {
-        File folder = new File(DIRECTORY);
-        File[] file = folder.listFiles((dir,name)-> name.endsWith(EXTENSION));
-        if(file== null) return 0;
-
-        return file.length;
-
-    }
-
-    @Override
-    public boolean delete(UUID id) {
-        File file = new File(DIRECTORY,id+EXTENSION);
-        return file.delete();
+    public List<Message> findAllByChannelId(UUID channelId) {
+        try {
+            return Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (Message) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .filter(message -> message.getChannelId().equals(channelId))
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public boolean existsById(UUID id) {
-        Path path = Paths.get(DIRECTORY,id+EXTENSION);
+        Path path = resolvePath(id);
         return Files.exists(path);
     }
 
     @Override
-    public boolean update(UUID messageId,String content) {
-        File file = new File(DIRECTORY, messageId + EXTENSION);
-        Message message;
-        try (FileInputStream fis = new FileInputStream(file);
-             ObjectInputStream ois = new ObjectInputStream(fis);
-        ) {
-            message = (Message)ois.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        if(message.getContent().equals(content)){
-            System.out.println("수정 전과 일치합니다.");
-            return false;
-        }else{
-            message.update(content);
-        }
-
-        try (FileOutputStream fos = new FileOutputStream(file);
-             ObjectOutputStream oos = new ObjectOutputStream(fos);){
-            oos.writeObject(message);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    public void deleteById(UUID id) {
+        Path path = resolvePath(id);
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
+    @Override
+    public void deleteAllByChannelId(UUID channelId) {
+        this.findAllByChannelId(channelId)
+                .forEach(message -> this.deleteById(message.getId()));
+    }
 }

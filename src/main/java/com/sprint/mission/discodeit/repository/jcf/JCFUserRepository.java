@@ -6,51 +6,53 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.*;
 
 public class JCFUserRepository implements UserRepository {
-    final Map<UUID, User> data;
+    private final Map<UUID, User> data;
+
     public JCFUserRepository() {
-        data = new HashMap<>();
+        this.data = new HashMap<>();
     }
 
     @Override
     public User save(User user) {
-        data.put(user.getId(), user);
-        return user;
+        return this.data.put(user.getId(), user);
     }
 
     @Override
     public Optional<User> findById(UUID id) {
-        return Optional.ofNullable(data.get(id));
+        return Optional.ofNullable(this.data.get(id));
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return this.findAll().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
     }
 
     @Override
     public List<User> findAll() {
-        return new ArrayList<>(data.values());
-    }
-
-    @Override
-    public long count() {
-        return data.size();
-    }
-
-    @Override
-    public boolean delete(UUID id) {
-        return  data.remove(id) != null;
+        return this.data.values().stream().toList();
     }
 
     @Override
     public boolean existsById(UUID id) {
-        return data.containsKey(id);
+        return this.data.containsKey(id);
     }
 
     @Override
-    public boolean update(UUID id, String username, String password) {
-        User user = data.get(id);
-        if(user.getUsername().equals(username) && user.getPassword().equals(password)){
-            System.out.println("수정 전과 일치합니다.");
-            return false;
-        }
+    public void deleteById(UUID id) {
+        this.data.remove(id);
+    }
 
-        user.update(username, password);
-        return true;
+    @Override
+    public boolean existsByEmail(String email) {
+        return this.findAll().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return this.findAll().stream()
+                .anyMatch(user ->user.getUsername().equals(username));
     }
 }
