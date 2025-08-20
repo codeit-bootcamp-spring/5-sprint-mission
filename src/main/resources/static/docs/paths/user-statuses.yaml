@@ -1,0 +1,90 @@
+user_statuses_root:
+  post:
+    tags: [ UserStatuses ]
+    summary: 사용자 상태 변경
+    description: ONLINE, IDLE, DND, INVISIBLE, OFFLINE 중 하나로 상태를 변경합니다.<br>쿼리스트링에 userId를 포함해야 합니다.
+    operationId: updateUserStatusByUserId
+    parameters:
+      - in: query
+        name: userId
+        required: true
+        schema: { type: string, format: uuid }
+        description: 상태를 변경할 사용자 ID
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/user-status.yaml#/UserStatusUpdateRequest"
+          example:
+            userStatusType: "IDLE"
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/user-status.yaml#/UserStatusUpdateResponse"
+            example:
+              userId: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
+              displayName: "방해 금지"
+      '400':
+        description: Bad Request (userId 누락/JSON 유효성 오류)
+        content:
+          application/json:
+            schema: { $ref: "../schemas/error.yaml#/ApiError" }
+            examples:
+              missingUserId:
+                value:
+                  timestamp: "2025-08-18T12:00:00Z"
+                  path: "/api/user-statuses"
+                  method: "POST"
+                  status: 400
+                  code: "BAD_REQUEST"
+                  message: "요청이 올바르지 않습니다."
+                  details: [ "Required request parameter 'userId' for method parameter type UUID is not present" ]
+              invalidBody:
+                value:
+                  timestamp: "2025-08-18T12:00:02Z"
+                  path: "/api/user-statuses?userId=6c1c5c7a-6d7d-4e9d-8a1f-bb2b3c4d5e6f"
+                  method: "POST"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "입력 값이 유효하지 않습니다."
+                  details: [ "userStatusType: 널이어서는 안됩니다" ]
+      '404':
+        description: Not Found (유저를 찾지 못함)
+        content:
+          application/json:
+            schema: { $ref: "../schemas/error.yaml#/ApiError" }
+
+user_statuses_heartbeat:
+  post:
+    tags: [ UserStatuses ]
+    summary: 사용자 상태 하트비트
+    description: 하트비트를 갱신하여 사용자의 온라인 상태를 유지합니다.<br>쿼리스트링에 userId를 포함해야 합니다.
+    operationId: heartbeatUserStatus
+    parameters:
+      - in: query
+        name: userId
+        required: true
+        schema: { type: string, format: uuid }
+        description: 하트비트를 갱신할 사용자 ID
+    responses:
+      '204':
+        description: No Content
+      '400':
+        description: Bad Request (필수 파라미터 누락/형식 오류)
+        content:
+          application/json:
+            schema: { $ref: "../schemas/error.yaml#/ApiError" }
+            examples:
+              missingUserId:
+                value:
+                  timestamp: "2025-08-18T12:00:00Z"
+                  path: "/api/user-statuses/heartbeat"
+                  method: "POST"
+                  status: 400
+                  code: "BAD_REQUEST"
+                  message: "요청이 올바르지 않습니다."
+                  details: [ "Required request parameter 'userId' for method parameter type UUID is not present" ]

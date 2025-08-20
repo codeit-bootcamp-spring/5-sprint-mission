@@ -5,9 +5,5 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 @ConfigurationProperties(prefix = "app")
 public record AppProperties(
-        String name,
-        String version,
-        @NestedConfigurationProperty AppServerProperties server,
-        @NestedConfigurationProperty AppMetadataProperties metadata,
         @NestedConfigurationProperty AppStorageProperties storage) {
 }

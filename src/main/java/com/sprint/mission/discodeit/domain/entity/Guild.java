@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.domain.entity;
 
 import com.sprint.mission.discodeit.domain.enums.Permission;
-import com.sprint.mission.discodeit.util.Validators;
 import lombok.Getter;
 
 import java.util.Collections;
@@ -13,7 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Getter
-public class Guild extends BaseEntity {
+public class Guild extends AbstractEntity {
 
     private static final Set<Permission> DEFAULT_PERMISSIONS =
             Collections.unmodifiableSet(EnumSet.of(Permission.READ_MESSAGES, Permission.SEND_MESSAGES));
@@ -36,9 +35,8 @@ public class Guild extends BaseEntity {
     }
 
     public void setName(String name) {
-        String v = Validators.validateGuildName(name);
-        if (!Objects.equals(this.name, v)) {
-            this.name = v;
+        if (!Objects.equals(this.name, name)) {
+            this.name = name;
             touch();
         }
     }
@@ -55,14 +53,17 @@ public class Guild extends BaseEntity {
         if (isBanned(userId)) throw new IllegalStateException("Banned user cannot be the owner.");
         if (isNotMember(userId)) throw new IllegalArgumentException("User is not a member of this guild.");
 
-        setPermissions(userId, Set.of(Permission.ADMINISTRATOR));
+        if (Objects.equals(this.ownerId, userId)) return;
 
         UUID prev = this.ownerId;
-        if (!userId.equals(prev)) {
-            this.ownerId = userId;
-            permissions.removeIf(p -> p.getUserId().equals(prev));
-            touch();
+
+        setPermissions(userId, Set.of(Permission.ADMINISTRATOR));
+
+        if (prev != null && userIds.contains(prev)) {
+            setPermissions(prev, DEFAULT_PERMISSIONS);
         }
+
+        this.ownerId = userId;
     }
 
     public Set<UUID> getChannelIds() {
@@ -128,15 +129,22 @@ public class Guild extends BaseEntity {
     public void setPermissions(UUID userId, Set<Permission> newPermissions) {
         Objects.requireNonNull(userId, "userId must not be null.");
         if (isNotMember(userId)) throw new IllegalArgumentException("User is not a member of this guild.");
-
-        permissions.removeIf(p -> p.getUserId().equals(userId));
+        if (isBanned(userId)) throw new IllegalStateException("Banned user cannot have permissions.");
 
         Set<Permission> granted = (newPermissions == null || newPermissions.isEmpty())
-                ? DEFAULT_PERMISSIONS
+                ? EnumSet.copyOf(DEFAULT_PERMISSIONS)
                 : EnumSet.copyOf(newPermissions);
 
-        permissions.add(new GuildPermissions(getId(), userId, granted));
-        touch();
+        if (isOwner(userId)) {
+            granted.add(Permission.ADMINISTRATOR);
+        }
+
+        granted = Collections.unmodifiableSet(granted);
+
+        boolean changed = permissions.removeIf(p -> p.getUserId().equals(userId));
+        changed |= permissions.add(new GuildPermissions(getId(), userId, granted));
+
+        if (changed) touch();
     }
 
     public Set<UUID> getBannedUserIds() {

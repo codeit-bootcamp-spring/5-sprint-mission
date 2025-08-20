@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UserStatusRepository extends BaseRepository<UserStatus> {
+public interface UserStatusRepository extends AbstractRepository<UserStatus> {
 
     Optional<UserStatus> findByUserId(UUID userId);
 

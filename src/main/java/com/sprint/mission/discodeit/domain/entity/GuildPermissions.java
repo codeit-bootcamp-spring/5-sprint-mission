@@ -13,11 +13,11 @@ import java.util.UUID;
 
 @Getter
 @EqualsAndHashCode(of = "guildPermissionsId", callSuper = false)
-public class GuildPermissions extends BaseEntity {
+public class GuildPermissions extends AbstractEntity {
 
     private final GuildPermissionsId guildPermissionsId;
 
-    private final Set<Permission> permissions;
+    private final EnumSet<Permission> permissions;
 
     public GuildPermissions(UUID guildId, UUID userId, Set<Permission> permissions) {
         this.guildPermissionsId = new GuildPermissionsId(
@@ -45,13 +45,36 @@ public class GuildPermissions extends BaseEntity {
     }
 
     public void setPermissions(Set<Permission> newPermissions) {
-        Set<Permission> copy = validateAndCopy(newPermissions);
-        if (this.permissions.equals(copy)) return;
-        this.permissions.clear();
-        this.permissions.addAll(copy);
+        EnumSet<Permission> copy = validateAndCopy(newPermissions);
+        if (!this.permissions.equals(copy)) {
+            this.permissions.clear();
+            this.permissions.addAll(copy);
+            touch();
+        }
     }
 
-    private static Set<Permission> validateAndCopy(Set<Permission> source) {
+    public void grant(Permission... perms) {
+        Objects.requireNonNull(perms, "perms must not be null");
+        boolean changed = false;
+        for (Permission p : perms) {
+            changed |= permissions.add(Objects.requireNonNull(p, "permission must not be null"));
+        }
+        if (changed) touch();
+    }
+
+    public void revoke(Permission... perms) {
+        Objects.requireNonNull(perms, "perms must not be null");
+        boolean changed = false;
+        for (Permission p : perms) {
+            changed |= permissions.remove(Objects.requireNonNull(p, "permission must not be null"));
+        }
+        if (permissions.isEmpty()) {
+            throw new IllegalStateException("permissions must not become empty");
+        }
+        if (changed) touch();
+    }
+
+    private static EnumSet<Permission> validateAndCopy(Set<Permission> source) {
         if (source == null || source.isEmpty()) {
             throw new IllegalArgumentException("permissions must not be null or empty");
         }

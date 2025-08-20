@@ -1,0 +1,138 @@
+UserResponse:
+  type: object
+  required: [ id, createdAt, updatedAt, email, username, globalName, userStatusType ]
+  properties:
+    id: { type: string, format: uuid }
+    createdAt: { type: string, format: date-time }
+    updatedAt: { type: string, format: date-time }
+    email: { type: string, format: email, maxLength: 254 }
+    username: { type: string, maxLength: 32 }
+    globalName: { type:
+                    string, nullable:
+                    true, maxLength: 32 }
+    bio: { type: string, nullable: true, maxLength: 2000 }
+    profileId: { type: string, format: uuid, nullable: true }
+    userStatusType:
+      $ref: './user-status.yaml#/UserStatusType'
+
+UserRegisterRequest:
+  type: object
+  required:
+    - email
+    - username
+    - password
+    - birthDate
+  properties:
+    email:
+      type: string
+      format: email
+      minLength: 6
+      maxLength: 254
+      description: 서버에서 strip+lowercase 정규화됨
+    globalName:
+      type: string
+      nullable: true
+      maxLength: 32
+      description: 빈 문자열은 서버에서 null로 처리됨
+    username:
+      type: string
+      minLength: 2
+      maxLength: 32
+      pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
+      description: 서버에서 strip+lowercase 정규화됨
+    password:
+      type: string
+      minLength: 8
+      maxLength: 72
+      description: 서버에서 해시 저장됨
+    birthDate:
+      type: string
+      format: date
+      description: 생년월일(YYYY-MM-DD)
+    subscribedToNewsletter:
+      type: boolean
+      default: false
+      description: 광고성 이메일 수신 여부
+
+UserRegisterResponse:
+  type: object
+  required:
+    - id
+    - email
+    - username
+    - globalName
+  properties:
+    id:
+      type: string
+      format: uuid
+    email:
+      - type: string
+      - format: email
+    username:
+      - type: string
+    globalName:
+      - type: string
+      - nullable: true
+
+UserUpdateProfileSettingsRequest:
+  type: object
+  required: [ ]
+  properties:
+    globalName:
+      type: string
+      nullable: true
+      maxLength: 32
+      description: 빈 문자열은 서버에서 null 처리
+    bio:
+      type: string
+      nullable: true
+      maxLength: 2000
+
+UserUpdateProfileImageRequest:
+  type: object
+  required: [ profileId ]
+  properties:
+    profileId: { type: string, format: uuid }
+
+UserUpdateEmailRequest:
+  type: object
+  required: [ email ]
+  properties:
+    email:
+      type: string
+      format: email
+      minLength: 6
+      maxLength: 254
+      description: 서버에서 strip+lowercase 정규화됨
+
+UserUpdateUsernameRequest:
+  type: object
+  required: [ username ]
+  properties:
+    username:
+      type: string
+      minLength: 2
+      maxLength: 32
+      pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
+      description: 서버에서 strip+lowercase 정규화됨
+
+UserUpdatePasswordRequest:
+  type: object
+  required: [ password ]
+  properties:
+    password:
+      type: string
+      minLength: 8
+      maxLength: 72
+
+UserUpdatePhoneNumberRequest:
+  type: object
+  required: [ phoneNumber ]
+  properties:
+    phoneNumber:
+      type: string
+      description:
+        "E.164 국제 표준. 예: +821012345678"
+      pattern: "^\\+[1-9]\\d{7,14}$"
+      minLength: 9
+      maxLength: 16

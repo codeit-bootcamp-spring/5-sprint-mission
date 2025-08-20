@@ -1,0 +1,17 @@
+openapi: 3.0.3
+info:
+  title: Discodeit API
+  version: "1.0.0"
+servers:
+  - url: /api/binary-contents
+
+paths:
+  /:
+    $ref: "./paths/binary-contents.yaml#/binary_contents_root"
+  /{id}:
+    $ref: "./paths/binary-contents.yaml#/binary_content_by_id"
+
+components:
+  schemas:
+    UserResponse:
+      $ref: "./schemas/binary-content.yaml#/BinaryContentResponse"

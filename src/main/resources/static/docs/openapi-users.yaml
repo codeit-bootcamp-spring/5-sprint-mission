@@ -1,0 +1,49 @@
+openapi: 3.0.3
+info:
+  title: Discodeit API
+  version: "1.0.0"
+servers:
+  - url: /api/users
+
+paths:
+  /:
+    $ref: "./paths/users.yaml#/users_root"
+  /{id}:
+    $ref: "./paths/users.yaml#/user"
+  /{id}/profile-settings:
+    $ref: "./paths/users.yaml#/user_profile_settings"
+  /{id}/profile-image:
+    $ref: "./paths/users.yaml#/user_profile_image"
+  /{id}/email:
+    $ref: "./paths/users.yaml#/user_email"
+  /{id}/username:
+    $ref: "./paths/users.yaml#/user_username"
+  /{id}/password:
+    $ref: "./paths/users.yaml#/user_password"
+  /{id}/phone-number:
+    $ref: "./paths/users.yaml#/user_phone_number"
+  /{id}/deactivation:
+    $ref: "./paths/users.yaml#/user_deactivation"
+
+components:
+  schemas:
+    UserResponse:
+      $ref: "./schemas/user.yaml#/UserResponse"
+    UserRegisterRequest:
+      $ref: "./schemas/user.yaml#/UserRegisterRequest"
+    UserRegisterResponse:
+      $ref: "./schemas/user.yaml#/UserRegisterResponse"
+    UserUpdateProfileSettingsRequest:
+      $ref: "./schemas/user.yaml#/UserUpdateProfileSettingsRequest"
+    UserUpdateProfileImageRequest:
+      $ref: "./schemas/user.yaml#/UserUpdateProfileImageRequest"
+    UserUpdateEmailRequest:
+      $ref: "./schemas/user.yaml#/UserUpdateEmailRequest"
+    UserUpdateUsernameRequest:
+      $ref: "./schemas/user.yaml#/UserUpdateUsernameRequest"
+    UserUpdatePasswordRequest:
+      $ref: "./schemas/user.yaml#/UserUpdatePasswordRequest"
+    UserUpdatePhoneNumberRequest:
+      $ref: "./schemas/user.yaml#/UserUpdatePhoneNumberRequest"
+    ApiError:
+      $ref: "./schemas/error.yaml#/ApiError"

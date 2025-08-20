@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface GuildPermissionsRepository extends BaseRepository<GuildPermissions> {
+public interface GuildPermissionsRepository extends AbstractRepository<GuildPermissions> {
 
     boolean existsByGuildIdAndUserId(UUID guildId, UUID userId);
 

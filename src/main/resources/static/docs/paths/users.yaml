@@ -1,0 +1,361 @@
+users_root:
+  post:
+    tags: [ Users ]
+    summary: 회원가입
+    description: 새 사용자를 등록합니다.<br>성공 시 201과 함께 생성된 사용자 정보를 반환합니다.<br>이 엔드포인트는 인증이 필요하지 않습니다.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/user.yaml#/UserRegisterRequest'
+          example:
+            email: "alice@example.com"
+            username: "alice.k"
+            globalName: "Alice Kim"
+            password: "P@ssw0rd123!"
+            birthDate: "2001-05-10"
+            subscribedToNewsletter: true
+    responses:
+      '201':
+        description: Created
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/user.yaml#/UserRegisterResponse'
+            example:
+              id: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
+              email: "alice@example.com"
+              username: "alice.k"
+              globalName: "Alice Kim"
+      '400':
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            examples:
+              invalidField:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "입력 값이 유효하지 않습니다."
+                  details:
+                    - "username: 공백일 수 없습니다."
+                    - "password: 크기가 8에서 72 사이여야 합니다"
+                    - "email: 크기가 6에서 254 사이여야 합니다"
+                    - "email: 올바른 형식의 이메일 주소여야 합니다"
+              invalidJSON:
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 400
+                  code: "VALIDATION_ERROR"
+                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  details:
+                    - "Unrecognized token 'True': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false') at line: 7, column: 35"
+
+      '409':
+        description: Conflict (이메일/사용자명 중복)
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              duplicateEmail:
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "이미 사용 중인 이메일입니다."
+              duplicateUsername:
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "이미 사용 중인 사용자명입니다."
+
+  get:
+    tags: [ Users ]
+    summary: 사용자 목록/검색
+    description: |
+      모든 사용자를 조회하거나 `username` 또는 `email` 조건으로 검색합니다.<br>
+      `username`과 `email`을 동시에 전달하면 400을 반환합니다.<br>
+      조회된 사용자가 1명이어도 array로 반환합니다.
+    parameters:
+      - in: query
+        name: username
+        schema:
+          type: string
+          minLength: 2
+          maxLength: 32
+          pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
+        required: false
+        description: username으로 사용자 검색 (서버에서 strip+lowercase 정규화)
+      - in: query
+        name: email
+        schema:
+          type: string
+          format: email
+          minLength: 6
+          maxLength: 254
+        required: false
+        description: email로 사용자 검색 (서버에서 strip+lowercase 정규화)
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/user.yaml#/UserResponse'
+      '400':
+        description: Bad Request (이메일/사용자명 동시 포함)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            example:
+              timestamp: "2025-08-17T15:30:02Z"
+              path: "/api/users"
+              method: "GET"
+              status: 400
+              code: "BAD_REQUEST"
+              message: "요청이 올바르지 않습니다."
+              details:
+                - "username과 email은 동시에 포함될 수 없습니다."
+
+user:
+  get:
+    tags: [ Users ]
+    summary: 사용자 단건 조회
+    description: ID(UUID)로 사용자를 조회합니다.
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+        description: 사용자 UUID
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/user.yaml#/UserResponse'
+      '404':
+        $ref: '../response/errors.yaml#/NotFound'
+
+  delete:
+    tags: [ Users ]
+    summary: 사용자 삭제 (소프트 삭제)
+    description: |
+      사용자 계정을 소프트 삭제합니다.<br>
+      또한 사용자가 **owner**인 길드를 소프트 삭제하고,<br>
+      해당 사용자가 보낸/받은 **친구 요청**도 함께 소프트 삭제합니다.
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+        description: 사용자 UUID
+    responses:
+      '204':
+        description: No Content
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+
+user_profile_settings:
+  patch:
+    tags: [ Users ]
+    summary: 프로필 설정 변경
+    description: globalName, bio를 수정합니다.
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/user.yaml#/UserUpdateProfileSettingsRequest'
+          example:
+            globalName: Alice
+            bio: Hello, world!
+    responses:
+      '204': { description: No Content }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+
+user_profile_image:
+  put:
+    tags: [ Users ]
+    summary: 프로필 이미지 변경
+    description: Binary Content로 업로드한 profileId를 업데이트합니다.<br>기존 이미지가 있다면 서버 정책에 따라 정리됩니다.
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/user.yaml#/UserUpdateProfileImageRequest'
+          example:
+            profileId: "b9a9a9c2-3d3b-4f0a-b5a1-1f2a4c6b7d8e"
+    responses:
+      '204': { description: No Content }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+
+  delete:
+    tags: [ Users ]
+    summary: 프로필 이미지 제거
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    responses:
+      '204': { description: No Content }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+
+user_email:
+  put:
+    tags: [ Users ]
+    summary: 이메일 변경
+    description: 이메일을 변경합니다. 중복 시 409를 반환합니다.
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/user.yaml#/UserUpdateEmailRequest'
+          example:
+            email: "alice.new@example.com"
+    responses:
+      '204': { description: No Content }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '409': { $ref: '../response/errors.yaml#/Conflict' }
+
+user_username:
+  put:
+    tags: [ Users ]
+    summary: 사용자명 변경
+    description: 사용자명을 변경합니다. 중복 시 409를 반환합니다.
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/user.yaml#/UserUpdateUsernameRequest'
+          example:
+            username: "alice.k"
+    responses:
+      '204': { description: No Content }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '409': { $ref: '../response/errors.yaml#/Conflict' }
+
+user_password:
+  put:
+    tags: [ Users ]
+    summary: 비밀번호 변경
+    description: 동일한 비밀번호로 변경 시 409를 반환합니다.
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/user.yaml#/UserUpdatePasswordRequest'
+          example:
+            password: "N3wP@ssw0rd!"
+    responses:
+      '204': { description: No Content }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '409': { $ref: '../response/errors.yaml#/Conflict' }
+
+user_phone_number:
+  put:
+    tags: [ Users ]
+    summary: 전화번호 등록/변경
+    description: E.164 형식(`+`로 시작, 숫자 8~15자리)만 허용합니다.
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/user.yaml#/UserUpdatePhoneNumberRequest'
+          examples:
+            e164:
+              summary: E.164 예시
+              value: { phoneNumber: "+821012345678" }
+    responses:
+      '204': { description: No Content }
+      '400': { $ref: '../response/errors.yaml#/BadRequest' }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+
+  delete:
+    tags: [ Users ]
+    summary: 전화번호 제거
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    responses:
+      '204': { description: No Content }
+      '404': { $ref: '../response/errors.yaml#/NotFound' }
+
+user_deactivation:
+  post:
+    tags: [ Users ]
+    summary: 계정 비활성화
+    description: 계정을 비활성화합니다. (소프트 삭제와는 다름)
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '204':
+        description: No Content
+      '404':
+        $ref: '../response/errors.yaml#/NotFound'

@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public interface ChannelRepository extends BaseRepository<Channel> {
+public interface ChannelRepository extends AbstractRepository<Channel> {
 
     List<Channel> findAllByGuildId(UUID guildId);
 

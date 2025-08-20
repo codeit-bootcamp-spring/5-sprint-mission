@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.entity;
 
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
-import com.sprint.mission.discodeit.util.Validators;
+import com.sprint.mission.discodeit.support.Validators;
 import lombok.Getter;
 
 import java.util.Collection;
@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Getter
-public class Channel extends BaseEntity {
+public class Channel extends AbstractEntity {
 
     private static final int DM_MIN = 2;
     private static final int DM_MAX = 10;
@@ -26,12 +26,12 @@ public class Channel extends BaseEntity {
     private final Boolean isSecret;
 
     private final Set<UUID> memberIds = new HashSet<>();
-
+    private final Set<UUID> messageIds = new LinkedHashSet<>();
     private final Set<UUID> activeParticipantIds = new LinkedHashSet<>();
 
     private Channel(UUID guildId, boolean isPrivate, Boolean isSecret, String name, ChannelType type, Set<UUID> initialMembers) {
         this.isPrivate = isPrivate;
-        this.guildId = isPrivate ? null : Objects.requireNonNull(guildId, "Guild id must not be null for guild channel.");
+        this.guildId = isPrivate ? null : Objects.requireNonNull(guildId, "guildId must not be null for guild channel.");
         this.isSecret = isPrivate ? null : normalizeSecret(isSecret);
         setName(name);
         setType(type);
@@ -39,7 +39,6 @@ public class Channel extends BaseEntity {
             addMembers(initialMembers);
         }
         validateInvariants();
-        touch();
     }
 
     public static Channel createDm(String name, ChannelType type, Set<UUID> participants) {
@@ -118,8 +117,10 @@ public class Channel extends BaseEntity {
 
     public void removeMember(UUID userId) {
         assertMembershipAllowed("removeMember");
-        boolean removed = memberIds.remove(requireUserId(userId));
-        if (removed) {
+        UUID uid = requireUserId(userId);
+        boolean removed = memberIds.remove(uid);
+        boolean removedActive = activeParticipantIds.remove(uid);
+        if (removed || removedActive) {
             if (isPrivate) assertDmCardinality();
             touch();
         }
@@ -136,6 +137,36 @@ public class Channel extends BaseEntity {
             if (isPrivate) assertDmCardinality();
             touch();
         }
+    }
+
+    public void addMessage(UUID messageId) {
+        if (memberIds.add(requireMessageId(messageId))) {
+            touch();
+        }
+    }
+
+    public void addMessages(Collection<UUID> messageIds) {
+        Objects.requireNonNull(messageIds, "messageIds must not be null");
+        boolean changed = false;
+        for (UUID id : messageIds) {
+            if (memberIds.add(requireUserId(id))) changed = true;
+        }
+        if (changed) touch();
+    }
+
+    public void removeMessage(UUID messageId) {
+        if (memberIds.remove(requireMessageId(messageId))) {
+            touch();
+        }
+    }
+
+    public void removeMessages(Collection<UUID> messageIds) {
+        Objects.requireNonNull(messageIds, "messageIds must not be null");
+        boolean changed = false;
+        for (UUID id : messageIds) {
+            if (memberIds.remove(requireUserId(id))) changed = true;
+        }
+        if (changed) touch();
     }
 
     public Set<UUID> getActiveParticipantIds() {
@@ -216,6 +247,10 @@ public class Channel extends BaseEntity {
 
     private static UUID requireUserId(UUID userId) {
         return Objects.requireNonNull(userId, "User id must not be null");
+    }
+
+    private static UUID requireMessageId(UUID messageId) {
+        return Objects.requireNonNull(messageId, "Message id must not be null");
     }
 
     public String membersFingerprint() {
