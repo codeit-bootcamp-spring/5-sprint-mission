@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 
 public class FileChannelRepository extends AbstractFileRepository<Channel> implements ChannelRepository {
 
-    public FileChannelRepository() {
-        super("channels");
+    public FileChannelRepository(String filePath) {
+        super(filePath, "channels");
     }
 
     @Override
     public List<Channel> findByName(String channelName) {
-        return dataList.stream()
+        return dataMap.values().stream()
                 .filter(channel -> channel.getChannelName().contains(channelName))
                 .collect(Collectors.toList());
     }

@@ -1,51 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.dto.channel.UpdateChannelRequest;
+import lombok.Getter;
+
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-
+@Getter
 public class Channel extends BaseEntity {
     private String channelName;
     private String channelDescription;
+    private ChannelAccessibility accessibility;
+    private List<UUID> userIdList;
+    private List<Message> messageList;
 
-    public Channel(String channelName, String channelDescription) {
-        this(UUID.randomUUID(), channelName, channelDescription, Instant.now().getEpochSecond());
+    public static Channel createPublic(String channelName, String channelDescription, List<UUID> userIdList) {
+        return new Channel(UUID.randomUUID(), channelName, channelDescription, ChannelAccessibility.PUBLIC, userIdList, Instant.now());
     }
-  
-    public Channel(UUID id, String channelName, String channelDescription, Long createAt) {
+
+    public static Channel createPrivate(List<UUID> userIdList) {
+        return new Channel(UUID.randomUUID(), null, null, ChannelAccessibility.PRIVATE, userIdList, Instant.now());
+    }
+
+    private Channel(UUID id, String channelName, String channelDescription, ChannelAccessibility accessibility, List<UUID> userIdList, Instant createAt) {
         super(id, createAt);
         this.channelName = channelName;
         this.channelDescription = channelDescription;
-        this.createAt = createAt;
+        this.accessibility = accessibility;
+        this.userIdList = userIdList;
+        messageList = new ArrayList<>();
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public String getChannelDescription() {
-        return channelDescription;
-    }
-
-    public void updateChannel(String channelName, String channelDescription, Long updateAt) {
-        this.channelName = channelName;
-        this.channelDescription = channelDescription;
-        super.updateTimeStamp();
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("채널 아이디: ").append(id).append("\n")
-                .append("채널 이름: ").append(this.channelName).append("\n")
-                .append("채널 설명: ").append(this.channelDescription).append("\n")
-                .append("채널 생성일: ").append(this.createAt).append("\n")
-                .append("채널 변경일: ").append(this.updateAt).append("\n");
-
-        return sb.toString();
+    public void update(UpdateChannelRequest request) {
+        if (request.name() != null) this.channelName = request.name();
+        if (request.description() != null) this.channelDescription = request.description();
+        updateTimeStamp();
     }
 }

@@ -1,52 +1,51 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.dto.user.CreateUserRequest;
+import com.sprint.mission.discodeit.dto.CreateFile;
+import com.sprint.mission.discodeit.dto.user.UpdateUserRequest;
+import com.sprint.mission.discodeit.dto.user.UserResponse;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
     /**
-     * 새로운 사용자를 등록합니다.
+     * 신규 사용자를 등록합니다.
      *
-     * @param email 사용자 이메일 (고유)
-     * @param userName 사용자 이름 (고유)
-     * @param nickname 사용자 닉네임
-     * @param password 사용자 비밀번호
-     * @param phoneNumber 사용자 전화번호
-     * @return 등록 성공 여부 (이메일 또는 이름 중복 시 false)
+     * @param userRequest  신규 사용자 정보
+     * @param profileImage 프로필 이미지 (null = 기본 이미지 사용)
+     * @return 등록된 사용자 정보, 실패 시 null
      */
-    boolean register(
-            String email,
-            String userName,
-            String nickname,
-            String password,
-            String phoneNumber
+    UserResponse register(
+            CreateUserRequest userRequest,
+            @Nullable CreateFile profileImage
     );
 
     /**
-     * 사용자 ID(UUID)로 사용자를 조회합니다.
+     * 사용자 ID로 조회합니다.
      *
-     * @param id 사용자 ID
-     * @return UUID의 사용자, 없으면 null
+     * @param id 사용자 UUID
+     * @return 해당 사용자 정보 (없으면 Optional.empty)
      */
-    User getById(UUID id);
+    Optional<UserResponse> getById(UUID id);
 
     /**
-     * 이메일로 사용자를 조회합니다.
+     * 이메일로 조회합니다.
      *
-     * @param email 조회할 이메일
-     * @return 이메일의 사용자, 없으면 null
+     * @param email 사용자 이메일
+     * @return 해당 사용자 정보 (없으면 Optional.empty)
      */
-    User getByEmail(String email);
+    Optional<UserResponse> getByEmail(String email);
 
     /**
-     * 사용자 이름으로 사용자 조회합니다.
+     * 사용자명으로 조회합니다.
      *
-     * @param userName 사용자 이름
-     * @return 사용자명에 해당하는 사용자, 없으면 null
+     * @param userName 사용자명
+     * @return 해당 사용자 정보 (없으면 Optional.empty)
      */
-    User getByUserName(String userName);
+    Optional<UserResponse> getByUserName(String userName);
 
     /**
      * 닉네임으로 사용자 리스트를 검색합니다.
@@ -54,64 +53,32 @@ public interface UserService {
      * @param nickname 검색할 닉네임
      * @return 닉네임이 일치하는 사용자 목록 (부분 일치 가능)
      */
-    List<User> searchByNickname(String nickname);
+    List<UserResponse> searchByNickname(String nickname);
 
     /**
      * 모든 사용자 목록을 조회합니다.
      *
      * @return 전체 사용자 목록
      */
-    List<User> getAll();
+    List<UserResponse> getAll();
 
     /**
-     * 이메일로 사용자를 찾아 정보를 수정합니다.
+     * 사용자 정보를 수정합니다.
      *
-     * @param email 대상 이메일
-     * @param userName 새 사용자명
-     * @param nickname 새 닉네임
-     * @param password 새 비밀번호
-     * @param phoneNumber 새 전화번호
-     * @return 수정 성공 여부
+     * @param userRequest  수정할 사용자 정보
+     * @param profileImage 변경할 프로필 이미지 (null 변경 없음)
+     * @return 수정된 사용자 정보
      */
-    boolean updateByEmail(
-            String email,
-            String userName,
-            String nickname,
-            String password,
-            String phoneNumber
+    UserResponse update(
+            UpdateUserRequest userRequest,
+            @Nullable CreateFile profileImage
     );
 
     /**
-     * 사용자명으로 사용자를 찾아 정보를 수정합니다.
+     * 유저를 삭제합니다.
      *
-     * @param userName 대상 사용자명
-     * @param email 새 이메일
-     * @param nickname 새 닉네임
-     * @param password 새 비밀번호
-     * @param phoneNumber 새 전화번호
-     * @return 수정 성공 여부
-     */
-    boolean updateByUserName(
-            String userName,
-            String email,
-            String nickname,
-            String password,
-            String phoneNumber
-    );
-
-    /**
-     * 이메일로 사용자를 삭제합니다.
-     *
-     * @param email 삭제할 사용자 이메일
+     * @param userId 삭제할 사용자 ID
      * @return 삭제 성공 여부
      */
-    boolean removeByEmail(String email);
-
-    /**
-     * 사용자명으로 사용자를 삭제합니다.
-     *
-     * @param userName 삭제할 사용자명
-     * @return 삭제 성공 여부
-     */
-    boolean removeByUserName(String userName);
+    boolean remove(UUID userId);
 }

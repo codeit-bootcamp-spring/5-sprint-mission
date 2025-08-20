@@ -3,7 +3,9 @@ package com.sprint.mission.discodeit.repository;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageRepository {
@@ -12,7 +14,11 @@ public interface MessageRepository {
      * 메시지를 저장합니다.
      * @param message 저장할 메시지 객체
      */
-    void save(Message message);
+    Message save(Message message);
+
+    Optional<Message> findById(UUID messageId);
+
+    Optional<Message> findById(UUID messageId);
 
     /**
      * 특정 사용자가 작성한 메시지를 조회합니다.
@@ -35,16 +41,11 @@ public interface MessageRepository {
     List<Message> findAll();
 
     /**
-     * 메시지를 수정합니다.
-     * @param id 수정할 메세지의 ID
-     * @param message 수정할 메시지 객체
-     */
-    void update(UUID id, Message message);
-
-    /**
      * 메시지를 삭제합니다.
      * @param id 삭제할 메시지의 ID
      * @return 삭제 성공 여부
      */
     boolean delete(UUID id);
+
+    void deleteByChannelId(UUID channelId);
 }

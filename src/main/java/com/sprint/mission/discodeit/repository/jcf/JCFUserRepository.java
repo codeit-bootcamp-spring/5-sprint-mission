@@ -2,81 +2,55 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Primary
+@Repository
 public class JCFUserRepository implements UserRepository {
-    private final List<User> userList = new ArrayList<>();
+    private final Map<UUID, User> userMap = new HashMap<>();
 
     @Override
     public void save(User user) {
-        userList.add(user);
+        userMap.put(user.getId(), user);
     }
 
     @Override
-    public User findById(UUID id) {
-        return userList.stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(userMap.get(id));
     }
 
     @Override
-    public User findByEmail(String email) {
-        return userList.stream()
+    public Optional<User> findByEmail(String email) {
+        return userMap.values().stream()
                 .filter(user -> user.getEmail().equals(email))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     @Override
-    public User findByUserName(String userName) {
-        return userList.stream()
+    public Optional<User> findByUserName(String userName) {
+        return userMap.values().stream()
                 .filter(user -> user.getUserName().equals(userName))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     @Override
     public List<User> findByNickName(String nickname) {
-        return userList.stream()
-                .filter(user -> user.getNickname().equals(nickname))
+        return userMap.values().stream()
+                .filter(user -> user.getNickname().contains(nickname))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<User> findAll() {
-        return userList;
+        return userMap.values().stream().toList();
     }
 
     @Override
-    public boolean updateByEmail(String email, String userName, String nickname, String password, String phoneNumber) {
-        User user = findByEmail(email);
-        if (user == null) return false;
-
-        user.updateUser(email, userName, nickname, password, phoneNumber);
-        return true;
-    }
-
-    @Override
-    public boolean updateByUserName(String userName, String email, String nickname, String password, String phoneNumber) {
-        User user = findByUserName(userName);
-        if (user == null) return false;
-
-        user.updateUser(email, userName, nickname, password, phoneNumber);
-        return true;
-    }
-
-    @Override
-    public boolean deleteByEmail(String email) {
-        return userList.remove(findByEmail(email));
-    }
-
-    @Override
-    public boolean deleteByUserName(String userName) {
-        return userList.remove(findByUserName(userName));
+    public boolean delete(UUID id) {
+        return userMap.remove(id) != null;
     }
 }
