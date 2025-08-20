@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -12,15 +13,16 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.Objects;
+import java.util.stream.Stream;
 
-@Repository("fileBinaryContentRepository")
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
+@Repository
 public class FileBinaryContentRepository implements BinaryContentRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
 
     public FileBinaryContentRepository(@Value("${discodeit.repository.file-directory}") String fileDirectory) {
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", "BinaryContent");
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, "BinaryContent");
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -68,8 +70,8 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
-        try {
-            return Files.list(DIRECTORY)
+        try (Stream<Path> paths = Files.list(DIRECTORY)) {
+            return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (
@@ -87,51 +89,6 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
             throw new RuntimeException(e);
         }
     }
-
-    @Override
-    public List<BinaryContent> findAllByMessageId(UUID messageId) {
-        try {
-            return Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
-                    .map(path -> {
-                        try (FileInputStream fis = new FileInputStream(path.toFile());
-                             ObjectInputStream ois = new ObjectInputStream(fis)) {
-                            return (BinaryContent) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .filter(bc -> Objects.equals(bc.getMessageId(), messageId))
-                    .toList();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public void deleteByMessageId(UUID messageId) {
-        if (messageId == null) {
-            return;
-        }
-
-        try {
-            Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
-                    .forEach(path -> {
-                        try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
-                            BinaryContent bc = (BinaryContent) ois.readObject();
-                            if (bc != null && Objects.equals(bc.getMessageId(), messageId)) {
-                                Files.deleteIfExists(path);
-                            }
-                        } catch (IOException | ClassNotFoundException e) {
-                        }
-                    });
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
 
     @Override
     public boolean existsById(UUID id) {

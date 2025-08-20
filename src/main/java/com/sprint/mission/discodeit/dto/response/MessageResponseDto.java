@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.dto.response;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,7 +8,5 @@ public record MessageResponseDto (
         String content,
         UUID channelId,
         UUID authorId,
-        List<UUID> attachmentIds,
-        Instant createdAt,
-        Instant updatedAt
+        List<UUID> attachmentIds
 ){}

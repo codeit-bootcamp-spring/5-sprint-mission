@@ -16,25 +16,18 @@ public class BinaryContent implements Serializable {
     private static final long serialVersionUID = 1L;
     private final UUID id;
     private final Instant createdAt;
-    private final String fileName;
-    private final String contentType;
-    private final Long size;
-    private final byte[] bytes;
-    private final UUID userId;
-    private UUID messageId;
 
-    public BinaryContent(UUID id, UUID userId, byte[] bytes, String fileName, String contentType, Long size, UUID messageId) {
-        this.id = id;
+    private final String fileName;
+    private final Long size;
+    private final String contentType;
+    private final byte[] bytes;
+
+    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
+        this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.fileName = fileName;
-        this.contentType = contentType;
         this.size = size;
+        this.contentType = contentType;
         this.bytes = bytes;
-        this.userId = userId;
-        this.messageId = messageId;
-    }
-
-    public void setMessageId(UUID MessageId) {
-        this.messageId = MessageId;
     }
 }

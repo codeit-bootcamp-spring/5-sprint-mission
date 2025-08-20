@@ -8,19 +8,21 @@ import java.util.UUID;
 
 public record UserResponseDto(
         UUID id,
-        String username,
-        String email,
         Instant createdAt,
         Instant updatedAt,
-        boolean online
+        String username,
+        String email,
+        UUID profileId,
+        Boolean online
 ) {
     public static UserResponseDto fromEntity(User user, UserStatus status) {
         return new UserResponseDto(
                 user.getId(),
-                user.getUsername(),
-                user.getEmail(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getProfileId(),
                 status != null && status.isOnline()
         );
     }
