@@ -24,7 +24,7 @@ public class BasicChannelService implements ChannelService {
   private final ReadStatusRepository readStatusRepository;
   private final MessageRepository messageRepository;
 
-  public ChannelDto.DetailResponse create(ChannelDto.Create create) {
+  public ChannelDto.Detail create(ChannelDto.Create create) {
 
     Channel channel = null;
 
@@ -36,7 +36,7 @@ public class BasicChannelService implements ChannelService {
 
     channelRepository.save(channel);
 
-    return ChannelDto.DetailResponse.builder().id(channel.getId()).type(channel.getType())
+    return ChannelDto.Detail.builder().id(channel.getId()).type(channel.getType())
         .name(channel.getName()).description(channel.getDescription())
         .lastMessageAt(getLastMessageCreateAt(channel.getId())).participantIds(channel.getUserIds())
         .build();
@@ -65,7 +65,7 @@ public class BasicChannelService implements ChannelService {
     return messages.stream().map(Message::getCreatedAt).max(Instant::compareTo).orElse(null);
   }
 
-  public ChannelDto.DetailResponse findById(UUID id) {
+  public ChannelDto.Detail findById(UUID id) {
 
     Channel channel = channelRepository.findById(id).orElse(null);
 
@@ -73,34 +73,34 @@ public class BasicChannelService implements ChannelService {
       return null;
     }
 
-    return ChannelDto.DetailResponse.builder().id(channel.getId()).type(channel.getType())
+    return ChannelDto.Detail.builder().id(channel.getId()).type(channel.getType())
         .name(channel.getName()).description(channel.getDescription())
         .lastMessageAt(getLastMessageCreateAt(channel.getId())).participantIds(channel.getUserIds())
         .build();
   }
 
-  public List<ChannelDto.DetailResponse> findAll() {
+  public List<ChannelDto.Detail> findAll() {
 
     List<Channel> channels = channelRepository.findAll();
 
     return channels.stream().map(
-        c -> ChannelDto.DetailResponse.builder().id(c.getId()).type(c.getType()).name(c.getName())
+        c -> ChannelDto.Detail.builder().id(c.getId()).type(c.getType()).name(c.getName())
             .description(c.getDescription()).lastMessageAt(getLastMessageCreateAt(c.getId()))
             .participantIds(c.getUserIds()).build()).collect(Collectors.toList());
   }
 
-  public List<ChannelDto.DetailResponse> findAllByUserId(UUID userId) {
+  public List<ChannelDto.Detail> findAllByUserId(UUID userId) {
 
     List<Channel> channels = channelRepository.findAllByUserId(userId);
 
     return channels.stream().map(
-        c -> ChannelDto.DetailResponse.builder().id(c.getId()).type(c.getType()).name(c.getName())
+        c -> ChannelDto.Detail.builder().id(c.getId()).type(c.getType()).name(c.getName())
             .description(c.getDescription()).lastMessageAt(getLastMessageCreateAt(c.getId()))
             .participantIds(c.getUserIds()).build()).collect(Collectors.toList());
   }
 
   @Override
-  public ChannelDto.DetailResponse update(ChannelDto.Update update) {
+  public ChannelDto.Detail update(ChannelDto.Update update) {
 
     Channel channel = channelRepository.findById(update.getId()).orElse(null);
 
@@ -124,7 +124,7 @@ public class BasicChannelService implements ChannelService {
 
     channelRepository.save(channel);
 
-    return ChannelDto.DetailResponse.builder().id(channel.getId()).type(channel.getType())
+    return ChannelDto.Detail.builder().id(channel.getId()).type(channel.getType())
         .name(channel.getName()).description(channel.getDescription())
         .lastMessageAt(getLastMessageCreateAt(channel.getId())).participantIds(channel.getUserIds())
         .build();
@@ -132,7 +132,7 @@ public class BasicChannelService implements ChannelService {
 
   @Override
   public void delete(UUID id) {
-    
+
     Channel channel = channelRepository.findById(id).orElse(null);
 
     if (channel != null) {

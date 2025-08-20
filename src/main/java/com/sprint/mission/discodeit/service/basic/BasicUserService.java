@@ -25,7 +25,7 @@ public class BasicUserService implements UserService {
   private final UserStatusRepository userStatusRepository;
 
   @Override
-  public UserDto.DetailResponse create(Create create) {
+  public UserDto.Detail create(Create create) {
 
     if (userRepository.existsByUsername(create.getUsername())) {
       throw new IllegalArgumentException("이미 사용 중인 username입니다.");
@@ -47,7 +47,7 @@ public class BasicUserService implements UserService {
     UserStatus status = UserStatus.of(user.getId());
     userStatusRepository.save(status);
 
-    return UserDto.DetailResponse.builder()
+    return UserDto.Detail.builder()
         .id(user.getId())
         .username(user.getName())
         .email(user.getEmail())
@@ -59,7 +59,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public UserDto.DetailResponse findById(UUID userId) {
+  public UserDto.Detail findById(UUID userId) {
 
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
@@ -67,7 +67,7 @@ public class BasicUserService implements UserService {
     UserStatus status = userStatusRepository.findByUserId(userId)
         .orElse(null);
 
-    return UserDto.DetailResponse.builder()
+    return UserDto.Detail.builder()
         .id(user.getId())
         .username(user.getName())
         .email(user.getEmail())
@@ -79,7 +79,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public List<UserDto.DetailResponse> findAll() {
+  public List<UserDto.Detail> findAll() {
 
     List<User> users = userRepository.findAll();
     List<UserStatus> status = userStatusRepository.findAll();
@@ -88,7 +88,7 @@ public class BasicUserService implements UserService {
       UserStatus s = status.stream().filter(t -> t.getUserId().equals(u.getId()))
           .findFirst().orElse(null);
 
-      return UserDto.DetailResponse.builder()
+      return UserDto.Detail.builder()
           .id(u.getId())
           .username(u.getName())
           .email(u.getEmail())
@@ -102,7 +102,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public UserDto.DetailResponse update(Update update) {
+  public UserDto.Detail update(Update update) {
 
     User user = userRepository.findById(update.getId())
         .orElseThrow(() -> new RuntimeException("User not found"));
@@ -120,7 +120,7 @@ public class BasicUserService implements UserService {
     UserStatus status = userStatusRepository.findByUserId(update.getId())
         .orElse(null);
 
-    return UserDto.DetailResponse.builder()
+    return UserDto.Detail.builder()
         .id(user.getId())
         .username(user.getName())
         .email(user.getEmail())

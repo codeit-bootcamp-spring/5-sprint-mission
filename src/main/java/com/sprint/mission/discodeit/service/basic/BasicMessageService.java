@@ -29,7 +29,7 @@ public class BasicMessageService implements MessageService {
   private final BinaryContentRepository binaryContentRepository;
 
   @Override
-  public MessageDto.DetailResponse create(Create create) {
+  public MessageDto.Detail create(Create create) {
 
     User author = userRepository.findById(create.getAuthorId())
         .orElseThrow(() -> new RuntimeException("User not found"));
@@ -39,8 +39,7 @@ public class BasicMessageService implements MessageService {
     List<BinaryContent> contents = new ArrayList<>();
     if (create.getAttachments() != null && !create.getAttachments().isEmpty()) {
       contents.addAll(create.getAttachments().stream()
-          .map(file -> binaryContentRepository.save(BinaryContent.of(file)))
-          .toList());
+          .map(file -> binaryContentRepository.save(BinaryContent.of(file))).toList());
     }
 
     Message message = messageRepository.save(
@@ -50,21 +49,15 @@ public class BasicMessageService implements MessageService {
     channel.addMessage(message.getId());
     channelRepository.save(channel);
 
-    return MessageDto.DetailResponse.builder()
-        .id(message.getId())
-        .channelId(message.getChannelId())
-        .authorId(message.getAuthorId())
-        .channelName(channel.getName())
-        .authorName(author.getName())
-        .content(message.getText())
-        .createdAt(message.getCreatedAt())
+    return MessageDto.Detail.builder().id(message.getId()).channelId(message.getChannelId())
+        .authorId(message.getAuthorId()).channelName(channel.getName()).authorName(author.getName())
+        .content(message.getText()).createdAt(message.getCreatedAt())
         .updatedAt(message.getUpdatedAt())
-        .attachmentIds(contents.stream().map(BinaryContent::getId).toList())
-        .build();
+        .attachmentIds(contents.stream().map(BinaryContent::getId).toList()).build();
   }
 
   @Override
-  public MessageDto.DetailResponse update(Update update) {
+  public MessageDto.Detail update(Update update) {
 
     Message message = messageRepository.findById(update.getId())
         .orElseThrow(() -> new RuntimeException("Message not found"));
@@ -75,21 +68,14 @@ public class BasicMessageService implements MessageService {
         .orElseThrow(() -> new RuntimeException("Channel not found"));
 
     message.update(update.getContent());
-    return MessageDto.DetailResponse.builder()
-        .id(message.getId())
-        .channelId(message.getChannelId())
-        .authorId(message.getAuthorId())
-        .channelName(channel.getName())
-        .authorName(author.getName())
-        .content(message.getText())
-        .createdAt(message.getCreatedAt())
-        .updatedAt(message.getUpdatedAt())
-        .attachmentIds(message.getAttachmentIds())
-        .build();
+    return MessageDto.Detail.builder().id(message.getId()).channelId(message.getChannelId())
+        .authorId(message.getAuthorId()).channelName(channel.getName()).authorName(author.getName())
+        .content(message.getText()).createdAt(message.getCreatedAt())
+        .updatedAt(message.getUpdatedAt()).attachmentIds(message.getAttachmentIds()).build();
   }
 
   @Override
-  public MessageDto.DetailResponse findById(UUID id) {
+  public MessageDto.Detail findById(UUID id) {
 
     Message message = messageRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("Message not found"));
@@ -99,47 +85,29 @@ public class BasicMessageService implements MessageService {
     Channel channel = channelRepository.findById(message.getChannelId())
         .orElseThrow(() -> new RuntimeException("Channel not found"));
 
-    return MessageDto.DetailResponse.builder()
-        .id(message.getId())
-        .channelId(message.getChannelId())
-        .authorId(message.getAuthorId())
-        .channelName(channel.getName())
-        .authorName(author.getName())
-        .content(message.getText())
-        .createdAt(message.getCreatedAt())
-        .updatedAt(message.getUpdatedAt())
-        .attachmentIds(message.getAttachmentIds())
-        .build();
+    return MessageDto.Detail.builder().id(message.getId()).channelId(message.getChannelId())
+        .authorId(message.getAuthorId()).channelName(channel.getName()).authorName(author.getName())
+        .content(message.getText()).createdAt(message.getCreatedAt())
+        .updatedAt(message.getUpdatedAt()).attachmentIds(message.getAttachmentIds()).build();
   }
 
   @Override
-  public List<MessageDto.DetailResponse> findAllByChannelId(UUID channelId) {
+  public List<MessageDto.Detail> findAllByChannelId(UUID channelId) {
 
     List<Message> messages = messageRepository.findAllByChannelId(channelId);
 
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> new RuntimeException("Channel not found"));
 
-    List<User> users = messages.stream()
-        .map(Message::getAuthorId)
-        .distinct()
-        .map(id -> userRepository.findById(id).orElse(null))
-        .toList();
+    List<User> users = messages.stream().map(Message::getAuthorId).distinct()
+        .map(id -> userRepository.findById(id).orElse(null)).toList();
 
-    return messages.stream().map(m ->
-            MessageDto.DetailResponse.builder()
-                .id(m.getId())
-                .channelId(m.getChannelId())
-                .authorId(m.getAuthorId())
-                .channelName(channel.getName())
-                .authorName(users.stream()
-                    .filter(u -> u.getId().equals(m.getAuthorId()))
-                    .findFirst().orElse(null).getName())
-                .content(m.getText())
-                .createdAt(m.getCreatedAt())
-                .updatedAt(m.getUpdatedAt())
-                .attachmentIds(m.getAttachmentIds())
-                .build())
+    return messages.stream().map(
+            m -> MessageDto.Detail.builder().id(m.getId()).channelId(m.getChannelId())
+                .authorId(m.getAuthorId()).channelName(channel.getName()).authorName(
+                    users.stream().filter(u -> u.getId().equals(m.getAuthorId())).findFirst()
+                        .orElse(null).getName()).content(m.getText()).createdAt(m.getCreatedAt())
+                .updatedAt(m.getUpdatedAt()).attachmentIds(m.getAttachmentIds()).build())
         .collect(Collectors.toList());
   }
 
@@ -156,9 +124,7 @@ public class BasicMessageService implements MessageService {
       List<BinaryContent> contents = binaryContentRepository.findAllByIdIn(
           message.getAttachmentIds());
 
-      contents.forEach(c -> {
-        binaryContentRepository.delete(c.getId());
-      });
+      contents.forEach(c -> binaryContentRepository.delete(c.getId()));
     }
   }
 

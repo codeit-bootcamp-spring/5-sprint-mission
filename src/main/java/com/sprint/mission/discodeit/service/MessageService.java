@@ -8,13 +8,13 @@ import java.util.UUID;
 
 public interface MessageService {
 
-  MessageDto.DetailResponse create(Create create);
+  MessageDto.Detail create(Create create);
 
-  MessageDto.DetailResponse update(Update update);
+  MessageDto.Detail update(Update update);
 
-  MessageDto.DetailResponse findById(UUID id);
+  MessageDto.Detail findById(UUID id);
 
-  List<MessageDto.DetailResponse> findAllByChannelId(UUID channelId);
+  List<MessageDto.Detail> findAllByChannelId(UUID channelId);
 
   void delete(UUID id);
 

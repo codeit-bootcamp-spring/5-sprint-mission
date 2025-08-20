@@ -29,19 +29,19 @@ public class User extends BaseEntity {
   }
 
 
-  public void update(Update request, UUID profileId) {
+  public void update(Update update, UUID profileId) {
     boolean anyValueUpdated = false;
 
-    if (request.getUsername() != null && !request.getUsername().equals(this.name)) {
-      this.name = request.getUsername();
+    if (update.getUsername() != null && !update.getUsername().equals(this.name)) {
+      this.name = update.getUsername();
       anyValueUpdated = true;
     }
-    if (request.getEmail() != null && !request.getEmail().equals(this.email)) {
-      this.email = request.getEmail();
+    if (update.getEmail() != null && !update.getEmail().equals(this.email)) {
+      this.email = update.getEmail();
       anyValueUpdated = true;
     }
-    if (request.getPassword() != null && !request.getPassword().equals(this.password)) {
-      this.password = request.getPassword();
+    if (update.getPassword() != null && !update.getPassword().equals(this.password)) {
+      this.password = update.getPassword();
       anyValueUpdated = true;
     }
     if (profileId != null && !profileId.equals(this.profileId)) {

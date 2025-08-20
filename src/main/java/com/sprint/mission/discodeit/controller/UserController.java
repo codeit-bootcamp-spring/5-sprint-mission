@@ -2,6 +2,9 @@ package com.sprint.mission.discodeit.controller;
 
 
 import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.UserDto.CreateRequest;
+import com.sprint.mission.discodeit.dto.UserDto.Detail;
+import com.sprint.mission.discodeit.dto.UserDto.UpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import java.util.List;
@@ -28,19 +31,18 @@ public class UserController {
 
   @PostMapping
   public ResponseEntity<UserDto.DetailResponse> createUser(
-      @RequestPart("userCreateRequest") UserDto.Request request,
+      @RequestPart("userCreateRequest") CreateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    return ResponseEntity.ok(userService.create(request.toCreate(profile)));
+    return ResponseEntity.ok(userService.create(request.toCreate(profile)).toDetailResponse());
   }
 
   @PatchMapping("/{id}")
-  public ResponseEntity<UserDto.DetailResponse> updateUser(
-      @PathVariable UUID id,
-      @RequestPart("userUpdateRequest") UserDto.Request request,
+  public ResponseEntity<UserDto.DetailResponse> updateUser(@PathVariable UUID id,
+      @RequestPart("userUpdateRequest") UpdateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    return ResponseEntity.ok(userService.update(request.toUpdate(id, profile)));
+    return ResponseEntity.ok(userService.update(request.toUpdate(id, profile)).toDetailResponse());
   }
 
   @DeleteMapping("/{id}")
@@ -54,7 +56,7 @@ public class UserController {
   @GetMapping
   public ResponseEntity<List<UserDto.DetailResponse>> findAllUsers() {
 
-    return ResponseEntity.ok(userService.findAll());
+    return ResponseEntity.ok(userService.findAll().stream().map(Detail::toDetailResponse).toList());
   }
 
   @PatchMapping("/{id}/userStatus")

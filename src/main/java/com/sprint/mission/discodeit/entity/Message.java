@@ -15,14 +15,6 @@ public class Message extends BaseEntity {
   private final UUID authorId;
   private final List<UUID> attachmentIds;
 
-  public Message(String text, UUID channelId, UUID authorId) {
-    super();
-    this.text = text;
-    this.channelId = channelId;
-    this.authorId = authorId;
-    this.attachmentIds = new ArrayList<>();
-  }
-
   public Message(String text, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
     super();
     this.text = text;

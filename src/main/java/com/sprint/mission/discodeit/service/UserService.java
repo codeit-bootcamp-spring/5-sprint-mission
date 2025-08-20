@@ -8,13 +8,13 @@ import java.util.UUID;
 
 public interface UserService {
 
-  UserDto.DetailResponse create(Create create);
+  UserDto.Detail create(Create create);
 
-  UserDto.DetailResponse update(Update update);
+  UserDto.Detail update(Update update);
 
-  UserDto.DetailResponse findById(UUID id);
+  UserDto.Detail findById(UUID id);
 
-  List<UserDto.DetailResponse> findAll();
+  List<UserDto.Detail> findAll();
 
   void delete(UUID id);
 

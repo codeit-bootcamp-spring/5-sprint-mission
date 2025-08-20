@@ -4,24 +4,12 @@ import java.time.Instant;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
 public class UserDto {
 
   @Getter
-  @Builder
-  public static class Create {
-
-    private String username;
-    private String email;
-    private String password;
-    private MultipartFile profileImage;
-  }
-
-  @Getter
-  public static class Request {
+  public static class CreateRequest {
 
     private String username;
     private String email;
@@ -35,13 +23,31 @@ public class UserDto {
           .profileImage(profileImage)
           .build();
     }
+  }
+
+  @Getter
+  @Builder
+  public static class Create {
+
+    private String username;
+    private String email;
+    private String password;
+    private MultipartFile profileImage;
+  }
+
+  @Getter
+  public static class UpdateRequest {
+
+    private String newUsername;
+    private String newEmail;
+    private String newPassword;
 
     public Update toUpdate(UUID id, MultipartFile profileImage) {
       return Update.builder()
           .id(id)
-          .username(this.username)
-          .email(this.email)
-          .password(this.password)
+          .username(this.newUsername)
+          .email(this.newEmail)
+          .password(this.newPassword)
           .profileImage(profileImage)
           .build();
     }
@@ -51,7 +57,6 @@ public class UserDto {
   @Builder
   public static class Update {
 
-    @Setter
     private UUID id;
     private String username;
     private String email;
@@ -61,7 +66,6 @@ public class UserDto {
 
   @Getter
   @Builder
-  @ToString
   public static class DetailResponse {
 
     private UUID id;
@@ -71,5 +75,29 @@ public class UserDto {
     private Boolean online;
     private Instant createdAt;
     private Instant updatedAt;
+  }
+
+  @Builder
+  public static class Detail {
+
+    private UUID id;
+    private String username;
+    private String email;
+    private UUID profileId;
+    private Boolean online;
+    private Instant createdAt;
+    private Instant updatedAt;
+
+    public DetailResponse toDetailResponse() {
+      return DetailResponse.builder()
+          .id(id)
+          .username(username)
+          .email(email)
+          .profileId(profileId)
+          .online(online)
+          .createdAt(createdAt)
+          .updatedAt(updatedAt)
+          .build();
+    }
   }
 }

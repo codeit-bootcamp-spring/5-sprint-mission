@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
 public class MessageDto {
@@ -19,12 +17,8 @@ public class MessageDto {
     String content;
 
     public Create toCreate(List<MultipartFile> attachments) {
-      return Create.builder()
-          .channelId(this.channelId)
-          .authorId(this.authorId)
-          .content(this.content)
-          .attachments(attachments)
-          .build();
+      return Create.builder().channelId(this.channelId).authorId(this.authorId)
+          .content(this.content).attachments(attachments).build();
     }
   }
 
@@ -52,14 +46,12 @@ public class MessageDto {
   @Builder
   public static class Update {
 
-    @Setter
     UUID id;
     String content;
   }
 
   @Getter
   @Builder
-  @ToString
   public static class DetailResponse {
 
     UUID channelId;
@@ -71,5 +63,26 @@ public class MessageDto {
     List<UUID> attachmentIds;
     Instant createdAt;
     Instant updatedAt;
+  }
+
+  @Getter
+  @Builder
+  public static class Detail {
+
+    UUID channelId;
+    UUID authorId;
+    UUID id;
+    String authorName;
+    String channelName;
+    String content;
+    List<UUID> attachmentIds;
+    Instant createdAt;
+    Instant updatedAt;
+
+    public DetailResponse toDetailResponse() {
+      return DetailResponse.builder().channelId(channelId).authorId(authorId).id(id)
+          .authorName(authorName).channelName(channelName).content(content)
+          .attachmentIds(attachmentIds).createdAt(createdAt).updatedAt(updatedAt).build();
+    }
   }
 }

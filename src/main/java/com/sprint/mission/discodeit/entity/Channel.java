@@ -17,16 +17,6 @@ public class Channel extends BaseEntity {
   private List<UUID> userIds;
   private List<UUID> messageIds;
 
-  public Channel(ChannelType type, String name, String description, UUID adminUserId) {
-    super();
-    this.type = type == null ? ChannelType.PUBLIC : type;
-    this.name = name;
-    this.description = description;
-    this.adminUserId = adminUserId;
-    this.userIds = new ArrayList<>(List.of());
-    this.messageIds = new ArrayList<>();
-  }
-
   public Channel(ChannelType type, String name, String description, UUID adminUserId,
       List<UUID> userIds) {
     super();
@@ -36,17 +26,6 @@ public class Channel extends BaseEntity {
     this.adminUserId = adminUserId;
     this.userIds = userIds == null ? new ArrayList<>(List.of()) : userIds;
     this.messageIds = new ArrayList<>(List.of());
-  }
-
-  public Channel(ChannelType type, String name, String description, UUID adminUserId,
-      List<UUID> userIds, List<UUID> messageIds) {
-    super();
-    this.type = type == null ? ChannelType.PUBLIC : type;
-    this.name = name;
-    this.description = description;
-    this.adminUserId = adminUserId;
-    this.userIds = userIds == null ? new ArrayList<>(List.of()) : userIds;
-    this.messageIds = messageIds == null ? new ArrayList<>(List.of()) : messageIds;
   }
 
   public void update(String newName, String newDescription) {

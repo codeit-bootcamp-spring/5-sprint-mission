@@ -8,15 +8,15 @@ import java.util.UUID;
 
 public interface ChannelService {
 
-  ChannelDto.DetailResponse create(Create create);
+  ChannelDto.Detail create(Create create);
 
-  ChannelDto.DetailResponse update(Update update);
+  ChannelDto.Detail update(Update update);
 
-  ChannelDto.DetailResponse findById(UUID id);
+  ChannelDto.Detail findById(UUID id);
 
-  List<ChannelDto.DetailResponse> findAll();
+  List<ChannelDto.Detail> findAll();
 
-  List<ChannelDto.DetailResponse> findAllByUserId(UUID userId);
+  List<ChannelDto.Detail> findAllByUserId(UUID userId);
 
   void delete(UUID id);
 

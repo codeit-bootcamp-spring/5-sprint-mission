@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 public class ChannelDto {
 
@@ -32,7 +30,6 @@ public class ChannelDto {
   @Builder
   public static class Create {
 
-    @Setter
     ChannelType type;
     String name;
     String description;
@@ -70,7 +67,6 @@ public class ChannelDto {
 
   @Getter
   @Builder
-  @ToString
   public static class DetailResponse {
 
     UUID id;
@@ -79,5 +75,28 @@ public class ChannelDto {
     String description;
     Instant lastMessageAt;
     List<UUID> participantIds;
+  }
+
+  @Getter
+  @Builder
+  public static class Detail {
+
+    UUID id;
+    ChannelType type;
+    String name;
+    String description;
+    Instant lastMessageAt;
+    List<UUID> participantIds;
+
+    public DetailResponse toDetailResponse() {
+      return DetailResponse.builder()
+          .id(id)
+          .type(type)
+          .name(name)
+          .description(description)
+          .lastMessageAt(lastMessageAt)
+          .participantIds(participantIds)
+          .build();
+    }
   }
 }
