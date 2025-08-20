@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,11 +48,10 @@ public class MessageController {
       @ApiResponse(responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
           content = @Content(examples = @ExampleObject(value = "Channel | Author with id {channelId | authorId} not found")))
   })
-  @Parameter(name = "attachments", description = "Message 첨부 파일들")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<Message> create(
       @RequestPart MessageCreateRequest messageCreateRequest,
-      @RequestPart(required = false) List<MultipartFile> attachments
+      @RequestPart(required = false) @Schema(description = "Message 첨부 파일들") List<MultipartFile> attachments
   ) {
     List<BinaryContentCreateRequest> binaryContentCreateRequests =
         Optional.ofNullable(attachments)

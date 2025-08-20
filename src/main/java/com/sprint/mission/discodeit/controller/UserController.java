@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,11 +51,10 @@ public class UserController {
       @ApiResponse(responseCode = "400", description = "같은 email 또는 username를 사용하는 User가 이미 존재함",
           content = @Content(examples = @ExampleObject(value = "User with email {email} already exists")))
   })
-  @Parameter(name = "profile", description = "User 프로필 이미지")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<User> create(
       @RequestPart UserCreateRequest userCreateRequest,
-      @RequestPart(required = false) MultipartFile profile
+      @RequestPart(required = false) @Schema(description = "User 프로필 이미지") MultipartFile profile
   ) throws IOException {
     Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
     if (profile != null && !profile.isEmpty()) {
@@ -77,12 +77,11 @@ public class UserController {
           content = @Content(examples = @ExampleObject(value = "User with id {userId} not found")))
   })
   @Parameter(name = "userId", description = "수정할 User ID")
-  @Parameter(name = "profile", description = "수정할 User 프로필 이미지")
   @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<User> update(
       @PathVariable UUID userId,
       @RequestPart UserUpdateRequest userUpdateRequest,
-      @RequestPart(required = false) MultipartFile profile
+      @RequestPart(required = false) @Schema(description = "수정할 User 프로필 이미지") MultipartFile profile
   ) throws IOException {
     Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
     if (profile != null && !profile.isEmpty()) {
