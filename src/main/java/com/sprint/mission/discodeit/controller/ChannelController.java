@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,16 +29,16 @@ public class ChannelController {
   public ResponseEntity<ChannelDto.DetailResponse> createPublicChannel(
       @RequestBody ChannelDto.CreateRequest request) {
 
-    return ResponseEntity.ok(
-        channelService.create(request.toCreate(ChannelType.PUBLIC)).toDetailResponse());
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(channelService.create(request.toCreate(ChannelType.PUBLIC)).toDetailResponse());
   }
 
   @PostMapping("/private")
   public ResponseEntity<ChannelDto.DetailResponse> createPrivateChannel(
       @RequestBody ChannelDto.CreateRequest request) {
 
-    return ResponseEntity.ok(
-        channelService.create(request.toCreate(ChannelType.PRIVATE)).toDetailResponse());
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(channelService.create(request.toCreate(ChannelType.PRIVATE)).toDetailResponse());
   }
 
   @PutMapping("/{id}")

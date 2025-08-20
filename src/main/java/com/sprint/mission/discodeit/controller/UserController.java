@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +36,8 @@ public class UserController {
       @RequestPart("userCreateRequest") CreateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    return ResponseEntity.ok(userService.create(request.toCreate(profile)).toDetailResponse());
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(userService.create(request.toCreate(profile)).toDetailResponse());
   }
 
   @PatchMapping("/{id}")
@@ -62,8 +64,6 @@ public class UserController {
 
   @PatchMapping("/{id}/userStatus")
   public ResponseEntity<UserStatusDto.DetailResponse> updateUserStatus(@PathVariable UUID id) {
-
-    ;
 
     return ResponseEntity.ok(userStatusService.updateByUserId(id).toDetailResponse());
   }

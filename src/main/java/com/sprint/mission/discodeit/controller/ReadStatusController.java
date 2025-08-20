@@ -1,14 +1,13 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
-import com.sprint.mission.discodeit.dto.ReadStatusDto.Create;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateRequest;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.Detail;
-import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -31,7 +30,8 @@ public class ReadStatusController {
   public ResponseEntity<ReadStatusDto.DetailResponse> createReadStatus(
       @RequestBody CreateRequest request) {
 
-    return ResponseEntity.ok(readStatusService.create(request.toCreate()).toDetailResponse());
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(readStatusService.create(request.toCreate()).toDetailResponse());
   }
 
   @PatchMapping("/{id}")

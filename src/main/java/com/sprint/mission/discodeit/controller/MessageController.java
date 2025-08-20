@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,8 +36,8 @@ public class MessageController {
       @RequestPart("messageCreateRequest") CreateRequest request,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
 
-    return ResponseEntity.ok(
-        messageService.create(request.toCreate(attachments)).toDetailResponse());
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(messageService.create(request.toCreate(attachments)).toDetailResponse());
   }
 
   @PatchMapping("/{id}")
