@@ -138,6 +138,8 @@ public class FileUserRepository implements UserRepository {
 
 	@Override
 	public Optional<User> findByEmail(String email) {
+		System.out.println("???");
+		findAll().forEach(System.out::println);
 		return findAll().stream().filter(user -> user.getEmail().equals(email)).findFirst();
 	}
 }

@@ -18,10 +18,6 @@ public class ChannelUser {
 		this.isActive = false; // 기본값으로 활성화 상태로 설정
 	}
 
-	public boolean isActive() {
-		return isActive;
-	}
-
 	@Override
 	public String toString() {
 		return
