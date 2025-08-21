@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto.request.message;
 
+import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,5 +29,5 @@ public class MessageCreateRequest {
 	private String content;
 
 	@Builder.Default
-	private List<UserProfileImageRequest> attachments = new ArrayList<>();
+	private List<BinaryContentCreateRequest> attachments = new ArrayList<>();
 }

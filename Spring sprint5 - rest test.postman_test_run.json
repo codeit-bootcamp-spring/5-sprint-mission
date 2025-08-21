@@ -1,0 +1,516 @@
+{
+	"id": "ec352e97-3004-40ca-ab06-cf38d0ae1be8",
+	"name": "Spring sprint5 - rest test",
+	"timestamp": "2025-08-20T08:29:07.563Z",
+	"collection_id": "43159763-3236a906-9d53-4647-8ef6-818e204af8ca",
+	"folder_id": 0,
+	"environment_id": "43159763-51e284a3-4ea8-4ba9-91ef-754ced944881",
+	"totalPass": 6,
+	"delay": "100",
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-08-20T08:29:01.342Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "570b6f68-c102-49b9-8e5c-a8cf4b9ae57c",
+			"name": "00.post user signup",
+			"url": "localhost:8080/api/users",
+			"time": 617,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Save user id": true
+			},
+			"testPassFailCounts": {
+				"Save user id": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				617
+			],
+			"allTests": [
+				{
+					"Save user id": true
+				}
+			]
+		},
+		{
+			"id": "0bf01cd4-b669-4bb5-abd3-796b9369dbb6",
+			"name": "01.get user all",
+			"url": "localhost:8080/api/users",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				14
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "29bc49b6-c9b3-4626-a904-3c021817b351",
+			"name": "02.post auth userLogin",
+			"url": "localhost:8080/api/auth/login",
+			"time": 25,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				25
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "0438229f-c585-4e59-ad8b-ccbba5b9a14c",
+			"name": "03.get user statusUpdate",
+			"url": "localhost:8080/api/users/656f4722-b27b-4441-aca4-dbb50c3c3c9e/userStatus",
+			"time": 28,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				28
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "72a1f0b5-c0ba-4a4f-89b8-75d99d069bff",
+			"name": "04.patch user update",
+			"url": "localhost:8080/api/users/656f4722-b27b-4441-aca4-dbb50c3c3c9e",
+			"time": 27,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				27
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "4430c634-07df-4168-845b-24b05656e437",
+			"name": "05.get user byId",
+			"url": "localhost:8080/api/users/656f4722-b27b-4441-aca4-dbb50c3c3c9e",
+			"time": 5,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				5
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "6bb4668b-d58d-4efc-a3bc-90263c1085d9",
+			"name": "10.post channel create public",
+			"url": "localhost:8080/api/channels/public",
+			"time": 43,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Save channel id": true
+			},
+			"testPassFailCounts": {
+				"Save channel id": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				43
+			],
+			"allTests": [
+				{
+					"Save channel id": true
+				}
+			]
+		},
+		{
+			"id": "30b130a8-0dc7-450e-9f0f-f647b28806b4",
+			"name": "11.patch channel name public Copy",
+			"url": "localhost:8080/api/channels/2d9a9d1b-15e0-4e61-b0c8-03cb28dec021",
+			"time": 32,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Save channel id": true
+			},
+			"testPassFailCounts": {
+				"Save channel id": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				32
+			],
+			"allTests": [
+				{
+					"Save channel id": true
+				}
+			]
+		},
+		{
+			"id": "549aa30d-8d74-4407-8ce0-1293d0a5037e",
+			"name": "12-0.post private channel create member Copy",
+			"url": "localhost:8080/api/users",
+			"time": 112,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Save user id": true
+			},
+			"testPassFailCounts": {
+				"Save user id": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				112
+			],
+			"allTests": [
+				{
+					"Save user id": true
+				}
+			]
+		},
+		{
+			"id": "d7a02be8-986f-49da-8ae5-7f4293a64d7c",
+			"name": "12.post channel create private Copy",
+			"url": "localhost:8080/api/channels/private",
+			"time": 49,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				49
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "7dba80cf-fc1d-4c97-9262-25b37dcaed3d",
+			"name": "13.get channel byUserId",
+			"url": "localhost:8080/api/channels?userId=656f4722-b27b-4441-aca4-dbb50c3c3c9e",
+			"time": 10,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				10
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "7343ab34-5e36-4ac2-a4e7-9bc1be83ba6a",
+			"name": "20.post message create",
+			"url": "localhost:8080/api/messages",
+			"time": 76,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Save message id and attachment ids": true
+			},
+			"testPassFailCounts": {
+				"Save message id and attachment ids": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				76
+			],
+			"allTests": [
+				{
+					"Save message id and attachment ids": true
+				}
+			]
+		},
+		{
+			"id": "040cfe5f-8f39-4c02-acfe-e4e1e8c72d1c",
+			"name": "21.get message byChannelId Copy",
+			"url": "localhost:8080/api/messages?channelId=2d9a9d1b-15e0-4e61-b0c8-03cb28dec021",
+			"time": 5,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				5
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "48d3904c-89fa-4a11-969c-bfe6026eddd9",
+			"name": "30.get binaryContent fine Copy",
+			"url": "localhost:8080/api/binaryContents/03ab49f1-78ae-451a-bd3e-7f5de88ce70c",
+			"time": 8,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				8
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "a3d922f9-f489-4557-af26-58adf6d513e6",
+			"name": "31.get binaryContent fine Contents",
+			"url": "localhost:8080/api/binaryContents/findContents?binaryContentIds=03ab49f1-78ae-451a-bd3e-7f5de88ce70c,6d90a126-9535-45ee-90a5-b81d07be6ff3",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				16
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "fe8eaf97-d65e-4a7b-b01b-5203e2dcbdcc",
+			"name": "40 get readStatus byUserId",
+			"url": "localhost:8080/api/readStatuses?userId=656f4722-b27b-4441-aca4-dbb50c3c3c9e",
+			"time": 7,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"readStatusId": true
+			},
+			"testPassFailCounts": {
+				"readStatusId": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"readStatusId": true
+				}
+			]
+		},
+		{
+			"id": "2db0996d-aca7-414e-bbf5-df5e4db43af9",
+			"name": "-00.delete message by message, userId",
+			"url": "localhost:8080/api/messages/5ab3f3f8-6bfd-48a0-b155-8a0b4b189f3f?authorId=656f4722-b27b-4441-aca4-dbb50c3c3c9e",
+			"time": 59,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				59
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "49f04415-0f34-4742-a150-2a5a70b705b0",
+			"name": "-01. delete readstatus byId",
+			"url": "localhost:8080/api/readStatuses/b8a46b29-4e7f-47db-9db9-421c2866c10b",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				16
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "64b6708d-a808-42e3-8f6e-8a80cfe05b2e",
+			"name": "-02.delete user id",
+			"url": "localhost:8080/api/users/656f4722-b27b-4441-aca4-dbb50c3c3c9e",
+			"time": 21,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				21
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "6b148d8a-b337-4bb1-ac63-e0b349dc5f96",
+			"name": "-03.delete channel byChannel,userID",
+			"url": "localhost:8080/api/channels/2d9a9d1b-15e0-4e61-b0c8-03cb28dec021",
+			"time": 20,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				20
+			],
+			"allTests": [
+				{}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 1190,
+	"collection": {
+		"requests": [
+			{
+				"id": "570b6f68-c102-49b9-8e5c-a8cf4b9ae57c",
+				"method": "POST"
+			},
+			{
+				"id": "0bf01cd4-b669-4bb5-abd3-796b9369dbb6",
+				"method": "GET"
+			},
+			{
+				"id": "29bc49b6-c9b3-4626-a904-3c021817b351",
+				"method": "POST"
+			},
+			{
+				"id": "0438229f-c585-4e59-ad8b-ccbba5b9a14c",
+				"method": "PATCH"
+			},
+			{
+				"id": "72a1f0b5-c0ba-4a4f-89b8-75d99d069bff",
+				"method": "PATCH"
+			},
+			{
+				"id": "4430c634-07df-4168-845b-24b05656e437",
+				"method": "GET"
+			},
+			{
+				"id": "6bb4668b-d58d-4efc-a3bc-90263c1085d9",
+				"method": "POST"
+			},
+			{
+				"id": "30b130a8-0dc7-450e-9f0f-f647b28806b4",
+				"method": "PATCH"
+			},
+			{
+				"id": "549aa30d-8d74-4407-8ce0-1293d0a5037e",
+				"method": "POST"
+			},
+			{
+				"id": "d7a02be8-986f-49da-8ae5-7f4293a64d7c",
+				"method": "POST"
+			},
+			{
+				"id": "7dba80cf-fc1d-4c97-9262-25b37dcaed3d",
+				"method": "GET"
+			},
+			{
+				"id": "7343ab34-5e36-4ac2-a4e7-9bc1be83ba6a",
+				"method": "POST"
+			},
+			{
+				"id": "040cfe5f-8f39-4c02-acfe-e4e1e8c72d1c",
+				"method": "GET"
+			},
+			{
+				"id": "48d3904c-89fa-4a11-969c-bfe6026eddd9",
+				"method": "GET"
+			},
+			{
+				"id": "a3d922f9-f489-4557-af26-58adf6d513e6",
+				"method": "GET"
+			},
+			{
+				"id": "fe8eaf97-d65e-4a7b-b01b-5203e2dcbdcc",
+				"method": "GET"
+			},
+			{
+				"id": "2db0996d-aca7-414e-bbf5-df5e4db43af9",
+				"method": "DELETE"
+			},
+			{
+				"id": "49f04415-0f34-4742-a150-2a5a70b705b0",
+				"method": "DELETE"
+			},
+			{
+				"id": "64b6708d-a808-42e3-8f6e-8a80cfe05b2e",
+				"method": "DELETE"
+			},
+			{
+				"id": "6b148d8a-b337-4bb1-ac63-e0b349dc5f96",
+				"method": "DELETE"
+			}
+		]
+	}
+}

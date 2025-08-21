@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
@@ -13,6 +12,7 @@ import com.sprint.mission.discodeit.dto.response.userStatus.UserStatusResponse;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -37,29 +37,9 @@ public class UserController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<UserResponse>> getUserAll() {
-
 		List<UserResponse> userResponses = userService.findAll();
 
 		return ResponseEntity.ok(userResponses);
-	}
-
-	@RequestMapping(path = "/findAll", method = RequestMethod.GET)
-	public ResponseEntity<List<UserDto>> findAllUsers() {
-		List<UserResponse> userResponses = userService.findAll();
-
-		List<UserDto> userDtos = userResponses.stream()
-			.map(user -> new UserDto(
-				user.getId(),
-				user.getCreatedAt(),
-				user.getUpdatedAt(),
-				user.getNickname(), // 보여줄 username -> nickname
-				user.getEmail(),
-				user.getProfileId(),
-				userStatusService.isOnline(user.getId())
-			))
-			.toList();
-
-		return ResponseEntity.ok(userDtos);
 	}
 
 	// username(=loginId)로 조회
@@ -82,22 +62,21 @@ public class UserController {
 
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<UserResponse> createUser(
-		@RequestPart("userCreateRequest") UserCreateRequest request,
-		@RequestPart(value = "profile", required = false) MultipartFile profile
+			@RequestPart("userCreateRequest") UserCreateRequest request,
+			@RequestPart(value = "profile", required = false) MultipartFile profile
 	) {
 		try {
-			if (profile != null && !profile.isEmpty()) {
-				UserProfileImageRequest imageRequest = UserProfileImageRequest.builder()
-					.fileName(profile.getOriginalFilename())
-					.contentType(profile.getContentType())
-					.size(profile.getSize())
-					.bytes(profile.getBytes())
-					.build();
+			UserProfileImageRequest imageRequest = convertFile(profile);
+			if (imageRequest != null) {
 				request.setProfileImage(imageRequest);
 			}
 
 			UserResponse response = userService.createUser(request);
-			return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+			URI location = URI.create("/api/users/" + response.getId());
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.location(location)
+					.body(response);
 		} catch (IOException e) {
 			return ResponseEntity.badRequest().build();
 		}
@@ -108,22 +87,10 @@ public class UserController {
 			@PathVariable UUID userId,
 			@RequestPart("userUpdateRequest") UserUpdateRequest request,
 			@RequestPart(value = "profile", required = false) MultipartFile profile) {
-
-		try{
-			UserProfileImageRequest imageRequest = null;
-
-			if (profile != null && !profile.isEmpty()) {
-				imageRequest = UserProfileImageRequest.builder()
-					.fileName(profile.getOriginalFilename())
-					.contentType(profile.getContentType())
-					.size(profile.getSize())
-					.bytes(profile.getBytes())
-					.build();
-			}
-
+		try {
+			UserProfileImageRequest imageRequest = convertFile(profile);
 			UserResponse userResponse = userService.update(userId, request, imageRequest);
 			return ResponseEntity.ok(userResponse);
-
 		} catch (IOException e) {
 			return ResponseEntity.badRequest().build();
 		}
@@ -171,5 +138,18 @@ public class UserController {
 	@RequestMapping(path = "/list", method = RequestMethod.GET)
 	public ModelAndView userListPage() {
 		return new ModelAndView("redirect:/user-list.html");
+	}
+
+	private UserProfileImageRequest convertFile(MultipartFile file) throws IOException {
+		if (file == null || file.isEmpty()) {
+			return null;
+		}
+
+		return UserProfileImageRequest.builder()
+				.fileName(file.getOriginalFilename())
+				.contentType(file.getContentType())
+				.size(file.getSize())
+				.bytes(file.getBytes())
+				.build();
 	}
 }

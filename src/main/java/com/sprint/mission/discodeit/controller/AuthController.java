@@ -19,13 +19,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthController {
 
-	private final AuthService authService;
+  private final AuthService authService;
 
-	@RequestMapping(path = "/login",method = RequestMethod.POST)
-	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-		LoginResponse login = authService.login(loginRequest);
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.body(login);
-	}
+  @RequestMapping(path = "/login", method = RequestMethod.POST)
+  public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+    try {
+      LoginResponse login = authService.login(loginRequest);
+      return ResponseEntity
+          .status(HttpStatus.OK)
+          .body(login);
+    } catch (Exception e) {
+      return ResponseEntity
+          .status(HttpStatus.UNAUTHORIZED)
+          .build();
+    }
+  }
 }
