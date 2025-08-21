@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,8 +57,8 @@ public class MessageController {
         .body(createdMessage);
   }
 
-  @RequestMapping(path = "update")
-  public ResponseEntity<Message> update(@RequestParam("messageId") UUID messageId,
+  @PatchMapping("/{messageId}")
+  public ResponseEntity<Message> update(@PathVariable UUID messageId,
       @RequestBody MessageUpdateRequest request) {
     Message updatedMessage = messageService.update(messageId, request);
     return ResponseEntity
