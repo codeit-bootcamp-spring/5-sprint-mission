@@ -6,27 +6,25 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.UUID;
-
+@RestController
 @RequiredArgsConstructor
-@Controller
-@ResponseBody
-@RequestMapping("/api/channel")
+@RequestMapping("/api/channels")
 public class ChannelController {
 
   private final ChannelService channelService;
 
-  @RequestMapping(path = "createPublic")
+  @PostMapping("/public")
   public ResponseEntity<Channel> create(@RequestBody PublicChannelCreateRequest request) {
     Channel createdChannel = channelService.create(request);
     return ResponseEntity
@@ -34,7 +32,7 @@ public class ChannelController {
         .body(createdChannel);
   }
 
-  @RequestMapping(path = "createPrivate")
+  @PostMapping("/private")
   public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
     Channel createdChannel = channelService.create(request);
     return ResponseEntity
