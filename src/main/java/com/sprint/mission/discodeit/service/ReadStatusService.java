@@ -12,8 +12,9 @@ public interface ReadStatusService {
      * 사용자가 채널에서 마지막으로 읽은 시각을 갱신
      * - 새로운 메시지를 읽었거나 채널을 열었을 때 호출
      */
-    ReadStatus updateLastReadAt(UUID userId, UUID channelId, Instant lastReadAt);
+    ReadStatus create(UUID userId, UUID channelId, Instant lastReadAt);
 
+    ReadStatus findById(UUID readStatusId, Instant newLastReadAt);
 
     /**
      * 사용자가 채널에서 마지막으로 읽은 시각을 조회
@@ -21,6 +22,7 @@ public interface ReadStatusService {
      */
     ReadStatus findByUserIdAndChannelId(UUID userId, UUID channelId);
 
+    List<ReadStatus> findByUserId(UUID userId);
 
     /**
      * 사용자가 속한 모든 채널에 대해 읽지 않은 메시지가 있는지 여부를 반환

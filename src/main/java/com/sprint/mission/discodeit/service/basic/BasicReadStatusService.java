@@ -26,7 +26,7 @@ public class BasicReadStatusService implements ReadStatusService {
     private final MessageRepository messageRepository;
 
     @Override
-    public ReadStatus updateLastReadAt(UUID userId, UUID channelId, Instant lastReadAt) {
+    public ReadStatus create(UUID userId, UUID channelId, Instant lastReadAt) {
 
         userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다."));
         channelRepository.findById(channelId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
@@ -44,6 +44,16 @@ public class BasicReadStatusService implements ReadStatusService {
             readStatusRepository.save(readStatus);
         }
         return readStatus;
+    }
+
+    @Override
+    public ReadStatus findById(UUID readStatusId, Instant newLastReadAt) {
+        return readStatusRepository.findById(readStatusId);
+    }
+
+    @Override
+    public List<ReadStatus> findByUserId(UUID userId) {
+        return readStatusRepository.findByUserId(userId);
     }
 
     @Override

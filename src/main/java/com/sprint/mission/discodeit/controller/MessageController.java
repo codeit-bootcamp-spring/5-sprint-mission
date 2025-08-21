@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,24 +27,24 @@ public class MessageController {
     // 메시지를 보낼 수 있다
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<MessageResponse.Detail> create(
-            @Valid @ModelAttribute("messageCreateRequest") MessageRequest.Create req
-    ) throws IOException {
-        List<FileDto> fileList = new ArrayList<>();
+        @Valid
+        @RequestPart("messageCreateRequest") MessageRequest.Create req) throws IOException {
+            List<FileDto> fileList = new ArrayList<>();
 
-        if (req.attachments() != null && !req.attachments().isEmpty()) {
+            if (req.attachments() != null && !req.attachments().isEmpty()) {
 
-            fileList = req.attachments().stream().map(file -> {
-                        try {
-                            return new FileDto(UUID.randomUUID().toString(), file.getContentType(), file.getBytes()
-                            );
-                        } catch (IOException e) {
-                            throw new RuntimeException("파일 변환 실패", e);
-                        }
-                    }).toList();
-        }
-        Message message = messageService.create(req.authorId(), req.channelId(), req.content(), fileList);
+                fileList = req.attachments().stream().map(file -> {
+                            try {
+                                return new FileDto(UUID.randomUUID().toString(), file.getContentType(), file.getBytes()
+                                );
+                            } catch (IOException e) {
+                                throw new RuntimeException("파일 변환 실패", e);
+                            }
+                        }).toList();
+            }
+            Message message = messageService.create(req.authorId(), req.channelId(), req.content(), fileList);
 
-        return ResponseEntity.ok(MessageResponse.Detail.of(message));
+            return ResponseEntity.ok(MessageResponse.Detail.of(message));
     }
 
     // 메시지를 수정할 수 있다
@@ -68,9 +67,9 @@ public class MessageController {
     /**
      * [API 요구사항] 특정 채널의 메시지 목록을 조회할 수 있다
      */
-    @RequestMapping(value = "find/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Message>> findByChannel(@PathVariable UUID id) {
-        List<Message> messageList = messageService.findByChannel(id);
+    @GetMapping(params = "channelId")
+    public ResponseEntity<List<Message>> findByChannel(@RequestParam UUID channelId) {
+        List<Message> messageList = messageService.findByChannel(channelId);
 
         return ResponseEntity.ok(messageList);
     }

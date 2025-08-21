@@ -10,4 +10,8 @@ public class ReadStatusRequest {
         UUID channelId,
         Instant lastReadAt
     ) {}
+
+    public record Update(
+            Instant newLastReadAt
+    ) {}
 }
