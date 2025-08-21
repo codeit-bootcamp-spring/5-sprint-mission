@@ -1,14 +1,14 @@
 LoginRequest:
   type: object
   required:
-    - email
+    - username
     - password
   properties:
-    email:
+    username:
       type: string
-      format: email
-      minLength: 6
-      maxLength: 254
+      minLength: 2
+      maxLength: 32
+      pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
       description: 입력 값은 서버에서 **strip** 후 소문자로 정규화됨
     password:
       type: string

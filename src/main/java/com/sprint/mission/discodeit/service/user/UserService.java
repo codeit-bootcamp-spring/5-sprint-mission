@@ -192,7 +192,7 @@ public class UserService {
     String password;
     if (req != null
         && req.newPassword() != null
-        && !u.matchesPassword(req.newPassword(), passwordEncoder)
+        && !passwordEncoder.matches(req.newPassword().strip(), u.getPassword())
     ) {
       password = passwordEncoder.encode(req.newPassword().strip());
     } else {

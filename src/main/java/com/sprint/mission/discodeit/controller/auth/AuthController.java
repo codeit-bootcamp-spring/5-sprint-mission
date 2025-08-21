@@ -22,13 +22,13 @@ public class AuthController {
 
   @PostMapping(path = "/login")
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse login(@RequestBody AuthLoginRequest body) {
+  public UserResponse login(@RequestBody @Valid AuthLoginRequest body) {
     return authService.login(body);
   }
 
   @PostMapping(path = "/logout")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void logout(@Valid @RequestBody AuthLogoutRequest body) {
+  public void logout(@RequestBody @Valid AuthLogoutRequest body) {
     authService.logout(body.userId());
   }
 }

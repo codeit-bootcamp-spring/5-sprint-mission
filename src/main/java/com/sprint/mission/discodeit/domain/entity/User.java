@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -60,10 +59,6 @@ public class User extends AbstractEntity {
     if (changed) {
       touch();
     }
-  }
-
-  public boolean matchesPassword(String raw, PasswordEncoder encoder) {
-    return encoder.matches(raw, this.password);
   }
 
   public void clearProfileId() {

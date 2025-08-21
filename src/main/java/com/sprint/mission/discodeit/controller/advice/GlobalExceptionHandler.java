@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.exception.ParameterNumberNotValidException;
+import com.sprint.mission.discodeit.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -134,6 +135,14 @@ public class GlobalExceptionHandler {
     return ApiError.from(req, HttpStatus.BAD_REQUEST, "MISSING_PART",
         "Required part missing",
         List.of(detail));
+  }
+
+  @ExceptionHandler(UnauthorizedException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public ApiError handleUnauthorized(UnauthorizedException e, HttpServletRequest req) {
+    String msg = (e.getMessage() != null) ? e.getMessage() : "Invalid credentials";
+    log.warn("400(UNAUTHORIZED) {} {} -> {}", req.getMethod(), req.getRequestURI(), msg);
+    return ApiError.from(req, HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", msg, List.of());
   }
 
   @ExceptionHandler(AccessDeniedException.class)
