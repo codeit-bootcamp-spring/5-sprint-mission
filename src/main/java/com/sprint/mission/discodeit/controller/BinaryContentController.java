@@ -28,7 +28,7 @@ public class BinaryContentController {
         .body(binaryContent);
   }
 
-  @RequestMapping(path = "findAllByIdIn")
+  @GetMapping
   public ResponseEntity<List<BinaryContent>> findAllByIdIn(
       @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
     List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
