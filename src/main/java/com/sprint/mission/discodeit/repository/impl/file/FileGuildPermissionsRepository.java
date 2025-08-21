@@ -82,22 +82,22 @@ public class FileGuildPermissionsRepository extends
   }
 
   @Override
-  public int softDeleteAllByGuildId(UUID guildId) {
+  public void softDeleteAllByGuildId(UUID guildId) {
     Objects.requireNonNull(guildId, "guildId must not be null");
     Set<UUID> ids = findAll().stream()
         .filter(gp -> guildId.equals(gp.getGuildId()))
         .map(GuildPermissions::getId)
         .collect(Collectors.toSet());
-    return softDeleteAllByIds(ids);
+    softDeleteAllById(ids);
   }
 
   @Override
-  public int softDeleteAllByUserId(UUID userId) {
+  public void softDeleteAllByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
     Set<UUID> ids = findAll().stream()
         .filter(gp -> userId.equals(gp.getUserId()))
         .map(GuildPermissions::getId)
         .collect(Collectors.toSet());
-    return softDeleteAllByIds(ids);
+    softDeleteAllById(ids);
   }
 }

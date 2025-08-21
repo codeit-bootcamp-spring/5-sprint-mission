@@ -69,7 +69,7 @@ friend_requests_root:
               path: "/api/friend-requests"
               method: "POST"
               status: 404
-              code: "NOT_FOUND"
+              code: "RESOURCE_NOT_FOUND"
               message: "유저가 존재하지 않습니다."
 
 friend_request_by_id:
@@ -161,7 +161,7 @@ friend_request_by_id:
               path: "/api/*/6c1c5c7a-6d7d-4e9d-8a1f-bb2b3c4d5e6f"
               method: "GET"
               status: 404
-              code: "NOT_FOUND"
+              code: "RESOURCE_NOT_FOUND"
               message: "이미 처리된 요청입니다."
 
 friend_requests_sent:

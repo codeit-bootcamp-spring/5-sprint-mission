@@ -23,7 +23,7 @@ public interface GuildPermissionsRepository extends AbstractRepository<GuildPerm
 
   boolean softDeleteByGuildIdAndUserId(UUID guildId, UUID userId);
 
-  int softDeleteAllByGuildId(UUID guildId);
+  void softDeleteAllByGuildId(UUID guildId);
 
-  int softDeleteAllByUserId(UUID userId);
+  void softDeleteAllByUserId(UUID userId);
 }

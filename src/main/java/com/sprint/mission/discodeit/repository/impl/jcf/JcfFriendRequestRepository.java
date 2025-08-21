@@ -3,11 +3,9 @@ package com.sprint.mission.discodeit.repository.impl.jcf;
 import com.sprint.mission.discodeit.domain.entity.FriendRequest;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -64,13 +62,13 @@ public class JcfFriendRequestRepository extends AbstractJcfRepository<FriendRequ
   }
 
   @Override
-  public int softDeleteAllByUserId(UUID userId) {
+  public void softDeleteAllByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
-    Set<UUID> ids = new HashSet<>();
-    findAll().stream()
+
+    data.values().stream()
+        .filter(FriendRequest::isNotDeleted)
         .filter(fr -> userId.equals(fr.getSenderId()) || userId.equals(fr.getReceiverId()))
-        .forEach(fr -> ids.add(fr.getId()));
-    return softDeleteAllByIds(ids);
+        .forEach(FriendRequest::delete);
   }
 
   @Override

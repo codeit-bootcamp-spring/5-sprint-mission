@@ -33,7 +33,7 @@ messages_root:
               path: "/api/messages?channelId=2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
               method: "POST"
               status: 404
-              code: "NOT_FOUND"
+              code: "RESOURCE_NOT_FOUND"
               message: "채널을(를) 찾을 수 없습니다: 2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
   post:
     tags: [ Messages ]
@@ -112,7 +112,7 @@ messages_root:
               path: "/api/messages"
               method: "POST"
               status: 404
-              code: "NOT_FOUND"
+              code: "RESOURCE_NOT_FOUND"
               message: "Channel | Author with id {channelId | authorId} not found"
       '415':
         $ref: '../responses/errors.yaml#/UnsupportedMediaType'

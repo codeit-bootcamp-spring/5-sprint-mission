@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.dto.request.channel;
 
+import static com.sprint.mission.discodeit.support.Constants.MAX_CHANNEL_PARTICIPANTS;
+import static com.sprint.mission.discodeit.support.Constants.MIN_CHANNEL_PARTICIPANTS;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.Set;
@@ -7,8 +10,8 @@ import java.util.UUID;
 
 public record PrivateChannelCreateRequest(
 
-    @NotNull(message = "참여자 ID 목록은 필수입니다")
-    @Size(min = 2, max = 10, message = "비공개 채널은 2명~10명 사이여야 합니다")
+    @NotNull
+    @Size(min = MIN_CHANNEL_PARTICIPANTS, max = MAX_CHANNEL_PARTICIPANTS)
     Set<@NotNull UUID> participantIds
 ) {
 

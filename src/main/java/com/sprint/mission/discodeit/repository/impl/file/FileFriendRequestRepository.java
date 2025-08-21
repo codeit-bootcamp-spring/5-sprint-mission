@@ -3,16 +3,19 @@ package com.sprint.mission.discodeit.repository.impl.file;
 import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.FriendRequest;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @Profile("dev")
 public class FileFriendRequestRepository extends AbstractFileRepository<FriendRequest> implements
@@ -65,13 +68,18 @@ public class FileFriendRequestRepository extends AbstractFileRepository<FriendRe
   }
 
   @Override
-  public int softDeleteAllByUserId(UUID userId) {
+  public void softDeleteAllByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
-    Set<UUID> ids = new HashSet<>();
-    findAll().stream()
-        .filter(fr -> userId.equals(fr.getSenderId()) || userId.equals(fr.getReceiverId()))
-        .forEach(fr -> ids.add(fr.getId()));
-    return softDeleteAllByIds(ids);
+
+    try (Stream<Path> s = streamSerializedFiles()) {
+      s.map(this::readObject).flatMap(Optional::stream)
+          .filter(FriendRequest::isNotDeleted)
+          .filter(fr -> userId.equals(fr.getSenderId()) || userId.equals(fr.getReceiverId()))
+          .forEach(FriendRequest::delete);
+    } catch (IOException e) {
+      log.warn("저장 파일 나열 실패: {}", directory, e);
+      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+    }
   }
 
   @Override

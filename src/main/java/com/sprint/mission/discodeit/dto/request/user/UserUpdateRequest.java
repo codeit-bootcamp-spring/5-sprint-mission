@@ -1,26 +1,28 @@
 package com.sprint.mission.discodeit.dto.request.user;
 
-import jakarta.validation.constraints.AssertTrue;
+import static com.sprint.mission.discodeit.support.Constants.MAX_EMAIL_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.MAX_PASSWORD_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.MAX_USERNAME_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.MIN_EMAIL_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.MIN_PASSWORD_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.MIN_USERNAME_LENGTH;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record UserUpdateRequest(
 
-    @Size(min = 2, max = 32)
+    @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH)
     @Pattern(regexp = "^(?!.*\\.\\.)[A-Za-z0-9._]+$")
     String newUsername,
 
-    @Size(min = 6, max = 254)
+    @Size(min = MIN_EMAIL_LENGTH, max = MAX_EMAIL_LENGTH)
     @Email
     String newEmail,
 
-    @Size(min = 8, max = 72)
+    @Size(min = MIN_PASSWORD_LENGTH, max = MAX_PASSWORD_LENGTH)
     String newPassword
 ) {
 
-  @AssertTrue(message = "newUsername, newEmail, newPassword 중 하나는 필수입니다")
-  public boolean hasAny() {
-    return newUsername != null || newEmail != null || newPassword != null;
-  }
 }

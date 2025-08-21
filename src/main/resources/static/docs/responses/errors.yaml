@@ -10,9 +10,9 @@ BadRequest:
         method: "POST"
         status: 400
         code: "BAD_REQUEST"
-        message: "요청이 올바르지 않습니다."
+        message: "Unable to read request body, please check JSON format and field type"
         details:
-          - "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요"
+          - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 7, column: 1]"
           - "Unrecognized token 'True': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false') at line 7, column 35"
 
 NotFound:
@@ -26,7 +26,7 @@ NotFound:
         path: "/api/users/2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
         method: "GET"
         status: 404
-        code: "NOT_FOUND"
+        code: "RESOURCE_NOT_FOUND"
         message: "User with id 2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11 not found"
 
 Conflict:
@@ -49,7 +49,7 @@ MethodNotAllowed:
     Allow:
       description: 허용되는 메서드 목록(콤마 구분)
       schema:
-        type:string
+        type: string
       example: "GET, POST"
   content:
     application/json:
@@ -61,7 +61,7 @@ MethodNotAllowed:
         method: "PATCH"
         status: 405
         code: "METHOD_NOT_ALLOWED"
-        message: "허용되지 않은 HTTP 메서드입니다."
+        message: "HTTP method PATCH not allowed"
 
 UnsupportedMediaType:
   description: Unsupported Media Type
@@ -91,4 +91,4 @@ InternalError:
         method: "POST"
         status: 500
         code: "INTERNAL_ERROR"
-        message: "예상치 못한 오류가 발생했습니다."
+        message: "Unexpected error occurred"

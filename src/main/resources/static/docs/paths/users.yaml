@@ -38,15 +38,13 @@ usersRoot:
                 profileId: "4454f06b-2dc9-4473-92ac-f16532cab09e"
                 online: false
       '400':
-        description: |
-          username, email 동시에 포함
-          매개변수 값이 유효하지 않음
         content:
           application/json:
             schema:
               $ref: '../schemas/error.yaml#/ApiError'
             examples:
               invalidParameterNumber:
+                description: username, email을 동시에 포함
                 value:
                   timestamp: "2025-08-17T15:30:02Z"
                   path: "/api/users"
@@ -57,6 +55,7 @@ usersRoot:
                   details:
                     - "username, email: 하나만 포함하여야 합니다"
               invalidParameterValues:
+                description: 매개변수 값이 유효하지 않음
                 value:
                   timestamp: "2025-08-17T15:30:02Z"
                   path: "/api/users"
@@ -108,74 +107,83 @@ usersRoot:
               password: "$2a$10$dWaZkA5OoFmhdht9dizPvOGRoHd1vWjwib/U7ooQ.tLMdG3zSEORK"
               profileId: "d6703e18-89e6-4722-bfc1-cc253bb7046f"
       '400':
-        description: |
-          userCreateRequest Field 값이 유효하지 않음
-          JSON parsing 실패
         content:
           application/json:
             schema:
               $ref: '../schemas/error.yaml#/ApiError'
             examples:
               invalidField:
+                description: userCreateRequest Field 값이 유효하지 않음
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/users"
                   method: "POST"
                   status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "입력 값이 유효하지 않습니다."
+                  code: "INVALID_BODY_VALUE"
+                  message: "Request body value not valid"
                   details:
-                    - "email: 올바른 형식의 이메일 주소여야 합니다"
-                    - "email: 크기가 6에서 254 사이여야 합니다"
                     - "username: 크기가 2에서 32 사이여야 합니다"
                     - "username: 공백일 수 없습니다"
                     - "username: \"^(?!.*\\.\\.)[A-Za-z0-9._]+$\"와 일치해야 합니다"
+                    - "email: 올바른 형식의 이메일 주소여야 합니다"
+                    - "email: 크기가 6에서 254 사이여야 합니다"
+                    - "email: 공백일 수 없습니다"
                     - "password: 크기가 8에서 72 사이여야 합니다"
-              invalidJSON:
+                    - "password: 공백일 수 없습니다"
+              invalidJson:
+                description: JSON parsing 실패
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/users"
                   method: "POST"
                   status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요"
+                  code: "INVALID_JSON"
+                  message: "Unable to read request body, please check JSON format and field type"
                   details:
-                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 1]"
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 7, column: 1]"
+              missingUserCreateRequest:
+                description: userCreateRequest 없음
+                value:
+                  timestamp: "2025-08-21T14:48:06.656981Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 400
+                  code: "MISSING_PART"
+                  message: "Required part missing"
+                  details:
+                    - "missing part: userCreateRequest"
       '409':
-        description: |
-          같은 email을 사용하는 User가 이미 존재함
-          같은 username을 사용하는 User가 이미 존재함
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
-              duplicateEmail:
-                value:
-                  timestamp: "2025-08-17T15:30:02Z"
-                  path: "/api/users"
-                  method: "POST"
-                  status: 409
-                  code: "CONFLICT"
-                  message: "User with email {email} already exists"
               duplicateUsername:
+                description: 같은 username을 사용하는 User가 이미 존재함
                 value:
                   timestamp: "2025-08-17T15:30:02Z"
                   path: "/api/users"
                   method: "POST"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with username {username} already exists"
+                  message: "User with username test already exists"
+              duplicateEmail:
+                description: 같은 email을 사용하는 User가 이미 존재함
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "User with email test@codeit.com already exists"
       '415':
-        description: |
-          userCreateRequest가 application/json 형식이 아님
-          프로필 이미지의 타입이 지원되지 않음
         content:
           application/json:
             schema:
               $ref: '../schemas/error.yaml#/ApiError'
             examples:
               invalidUserCreateRequest:
+                description: userCreateRequest가 application/json 형식이 아님
                 value:
                   timestamp: "2025-08-19T07:13:02.116388Z"
                   path: "/api/users"
@@ -186,6 +194,7 @@ usersRoot:
                   details:
                     - "Content-Type 'application/octet-stream' not supported"
               invalidProfile:
+                description: 프로필 이미지의 타입이 지원되지 않음
                 value:
                   timestamp: "2025-08-19T07:13:02.116388Z"
                   path: "/api/users"
@@ -206,6 +215,21 @@ userById:
     responses:
       '204':
         description: User가 성공적으로 삭제됨
+      '400':
+        description: parameter(userId) 타입이 UUID가 아님
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/error.yaml#/ApiError'
+            example:
+              timestamp: "2025-08-21T14:42:21.048570Z"
+              path: "/api/users/not-uuid"
+              method: "DELETE"
+              status: 400
+              code: "INVALID_PARAMETER_TYPE"
+              message: "Request parameter type not valid"
+              details:
+                - "parameter=userId, value=not-uuid, expectedType=UUID"
       '404':
         description: User를 찾을 수 없음
         content:
@@ -217,7 +241,7 @@ userById:
               path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
               method: "DELETE"
               status: 404
-              code: "NOT_FOUND"
+              code: "RESOURCE_NOT_FOUND"
               message: "User with id 983ef160-4389-4d80-aadc-13a772525173 not found"
   patch:
     tags:
@@ -238,8 +262,6 @@ userById:
                 type: string
                 format: binary
                 description: 수정할 User 프로필 이미지
-            required:
-              - userUpdateRequest
           encoding:
             userUpdateRequest:
               contentType: application/json
@@ -259,55 +281,56 @@ userById:
               password: "$2a$10$dWaZkA5OoFmhdht9dizPvOGRoHd1vWjwib/U7ooQ.tLMdG3zSEORK"
               profileId: "d6703e18-89e6-4722-bfc1-cc253bb7046f"
       '400':
-        description: Field validation/JSON parsing 오류
         content:
           application/json:
             schema:
               $ref: '../schemas/error.yaml#/ApiError'
             examples:
               invalidField:
+                description: userUpdateRequest Field 값이 유효하지 않음
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
                   method: "PATCH"
                   status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "입력 값이 유효하지 않습니다."
+                  code: "INVALID_BODY_VALUE"
+                  message: "Request body value not valid"
                   details:
+                    - "newUsername: 크기가 2에서 32 사이여야 합니다"
+                    - "newUsername: \"^(?!.*\\.\\.)[A-Za-z0-9._]+$\"와 일치해야 합니다"
                     - "newEmail: 올바른 형식의 이메일 주소여야 합니다"
                     - "newEmail: 크기가 6에서 254 사이여야 합니다"
-                    - "newUsername: 크기가 2에서 32 사이여야 합니다"
-                    - "newUsername: 공백일 수 없습니다"
-                    - "newUsername: \"^(?!.*\\.\\.)[A-Za-z0-9._]+$\"와 일치해야 합니다"
                     - "newPassword: 크기가 8에서 72 사이여야 합니다"
-              invalidJSON:
+              invalidJson:
+                description: JSON parsing 실패
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
                   method: "PATCH"
                   status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  code: "INVALID_JSON"
+                  message: "Unable to read request body, please check JSON format and field type"
                   details:
-                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 1]"
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 7, column: 1]"
+              invalidParameterType:
+                description: parameter(userId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/users/not-uuid"
+                  method: "PATCH"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=userId, value=not-uuid, expectedType=UUID"
       '409':
-        description: |
-          같은 email을 사용하는 User가 이미 존재함
-          username를 사용하는 User가 이미 존재함
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
-              duplicateEmail:
-                value:
-                  timestamp: "2025-08-17T15:30:02Z"
-                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
-                  method: "PATCH"
-                  status: 409
-                  code: "CONFLICT"
-                  message: "User with email {email} already exists"
               duplicateUsername:
+                description: username를 사용하는 User가 이미 존재함
                 value:
                   timestamp: "2025-08-17T15:30:02Z"
                   path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
@@ -315,16 +338,23 @@ userById:
                   status: 409
                   code: "CONFLICT"
                   message: "User with username {username} already exists"
+              duplicateEmail:
+                description: 같은 email을 사용하는 User가 이미 존재함
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+                  method: "PATCH"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "User with email {email} already exists"
       '415':
-        description: |
-          userUpdateRequest가 application/json 형식이 아님
-          이미지 파일의 타입이 지원되지 않음
         content:
           application/json:
             schema:
               $ref: '../schemas/error.yaml#/ApiError'
             examples:
-              invalidUserCreateRequest:
+              invalidUserUpdateRequest:
+                description: userUpdateRequest가 application/json 형식이 아님
                 value:
                   timestamp: "2025-08-19T07:13:02.116388Z"
                   path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
@@ -335,6 +365,7 @@ userById:
                   details:
                     - "Content-Type 'application/octet-stream' not supported"
               invalidProfile:
+                description: 이미지 파일의 타입이 지원되지 않음
                 value:
                   timestamp: "2025-08-19T07:13:02.116388Z"
                   path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"

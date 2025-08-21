@@ -1,8 +1,13 @@
 package com.sprint.mission.discodeit.controller.user;
 
+import static com.sprint.mission.discodeit.support.Constants.MAX_EMAIL_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.MAX_USERNAME_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.MIN_EMAIL_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.MIN_USERNAME_LENGTH;
 import static com.sprint.mission.discodeit.support.Constants.SUPPORTED_IMAGE_TYPE;
 
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
 import com.sprint.mission.discodeit.exception.ParameterNumberNotValidException;
@@ -23,6 +28,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,13 +50,13 @@ public class UserController {
   public List<UserResponse> findAll(
 
       @RequestParam(required = false)
-      @Size(min = 2, max = 32)
+      @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH)
       @Pattern(regexp = "^(?!.*\\.\\.)[A-Za-z0-9._]+$")
       String username,
 
       @RequestParam(required = false)
       @Email
-      @Size(min = 6, max = 254)
+      @Size(min = MIN_EMAIL_LENGTH, max = MAX_EMAIL_LENGTH)
       String email
   ) {
     String u = StringUtil.nullOrStripAndLowerCase(username);
@@ -99,23 +105,23 @@ public class UserController {
     userService.deleteAccount(id);
   }
 
-  // @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  // public UserSaveResponse update(
-  //     @PathVariable("userId") UUID userId,
-  //     @RequestPart("userUpdateRequest") @Valid UserUpdateRequest req,
-  //     @RequestPart(value = "profile", required = false) MultipartFile profile
-  // ) throws HttpMediaTypeNotSupportedException, IOException {
-  //
-  //   if (profile != null && !profile.isEmpty()) {
-  //     String ct = FileNames.normalizeContentType(profile.getContentType());
-  //     if (!SUPPORTED.contains(ct)) {
-  //       throw new HttpMediaTypeNotSupportedException(
-  //           "Content-Type '%s' not supported".formatted(ct),
-  //           SUPPORTED.stream().map(MediaType::valueOf).toList()
-  //       );
-  //     }
-  //   }
-  //
-  //   return userService.update(userId, req, profile);
-  // }
+  @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public UserSaveResponse update(
+      @PathVariable("userId") UUID userId,
+      @RequestPart(value = "userUpdateRequest", required = false) @Valid UserUpdateRequest req,
+      @RequestPart(value = "profile", required = false) MultipartFile profile
+  ) throws HttpMediaTypeNotSupportedException, IOException {
+
+    if (profile != null && !profile.isEmpty()) {
+      String ct = FileNames.normalizeContentType(profile.getContentType());
+      if (!SUPPORTED_IMAGE_TYPE.contains(ct)) {
+        throw new HttpMediaTypeNotSupportedException(
+            "Content-Type '%s' not supported".formatted(ct),
+            SUPPORTED_IMAGE_TYPE.stream().map(MediaType::valueOf).toList()
+        );
+      }
+    }
+
+    return userService.update(userId, req, profile);
+  }
 }

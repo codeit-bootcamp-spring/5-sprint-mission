@@ -22,12 +22,6 @@ public class JcfGuildRepository extends AbstractJcfRepository<Guild> implements 
   }
 
   @Override
-  public List<Guild> findGuildsOwnedByUser(UUID userId) {
-    Objects.requireNonNull(userId, "userId must not be null");
-    return findAll().stream().filter(g -> userId.equals(g.getOwnerId())).toList();
-  }
-
-  @Override
   public List<Guild> findGuildsByMember(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
     return findAll().stream().filter(g -> g.getUserIds().contains(userId)).toList();

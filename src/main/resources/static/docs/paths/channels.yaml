@@ -64,7 +64,7 @@ channels_root:
               path: "/api/channels"
               method: "GET"
               status: 404
-              code: "NOT_FOUND"
+              code: "RESOURCE_NOT_FOUND"
               message: "유저를 찾을 수 없습니다: f77609a6-ad81-425a-85a9-0e7f04dcb761"
 
 channels_public:
@@ -190,7 +190,7 @@ channels_private:
               path: "/api/channels/private"
               method: "POST"
               status: 404
-              code: "NOT_FOUND"
+              code: "RESOURCE_NOT_FOUND"
               message: "유저를 찾을 수 없습니다: f77609a6-ad81-425a-85a9-0e7f04dcb761"
 
 channel_by_id:
@@ -222,7 +222,7 @@ channel_by_id:
               path: "/api/channels/{channelId}"
               method: "DELETE"
               status: 404
-              code: "NOT_FOUND"
+              code: "RESOURCE_NOT_FOUND"
               message: "채널을(를) 찾을 수 없습니다: 2cf7f12f-e0f9-4736-a5b8-2e7b51404eac"
   patch:
     tags:
@@ -306,5 +306,5 @@ channel_by_id:
               path: "/api/channels/{channelId}"
               method: "PATCH"
               status: 404
-              code: "NOT_FOUND"
+              code: "RESOURCE_NOT_FOUND"
               message: "채널을(를) 찾을 수 없습니다: 2cf7f12f-e0f9-4736-a5b8-2e7b51404eac"

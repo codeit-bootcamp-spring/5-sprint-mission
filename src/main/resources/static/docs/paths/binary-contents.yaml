@@ -2,7 +2,7 @@ binary_contents_root:
   post:
     tags: [ BinaryContents ]
     summary: 바이너리 콘텐츠 업로드
-    description: |
+    description: |-
       요청 본문에 **바이너리 데이터**를 담아 업로드합니다.
       파일명은 `Content-Disposition` 헤더의 `filename` 파라미터를 우선 사용하며, 없으면 서버에서 확장자를 포함해 랜덤 생성합니다.
     operationId: uploadBinaryContent
@@ -18,7 +18,7 @@ binary_contents_root:
       - in: header
         name: Content-Disposition
         required: false
-        description: |
+        description: |-
           파일명 지정 시 사용합니다. 예) `attachment; filename="avatar.png"`
         schema:
           type: string

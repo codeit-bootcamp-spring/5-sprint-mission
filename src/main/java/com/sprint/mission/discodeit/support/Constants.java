@@ -15,6 +15,23 @@ public final class Constants {
       "image/webp"
   );
 
+  public static final int MIN_USERNAME_LENGTH = 2;
+  public static final int MAX_USERNAME_LENGTH = 32;
+
+  public static final int MIN_EMAIL_LENGTH = 6;
+  public static final int MAX_EMAIL_LENGTH = 254;
+
+  public static final int MIN_PASSWORD_LENGTH = 8;
+  public static final int MAX_PASSWORD_LENGTH = 72;
+
+  public static final int MIN_CHANNEL_NAME_LENGTH = 1;
+  public static final int MAX_CHANNEL_NAME_LENGTH = 100;
+
+  public static final int MIN_CHANNEL_PARTICIPANTS = 2;
+  public static final int MAX_CHANNEL_PARTICIPANTS = 10;
+
+  public static final int MIN_MESSAGE_CONTENT_LENGTH = 1;
+
   public static final int MAX_MESSAGE_CONTENT_LENGTH = 2000;
 
   public static final int MAX_BIO_LENGTH = 190;
@@ -24,5 +41,4 @@ public final class Constants {
 
   public static final int MIN_PHONE_DIGITS = 10;
   public static final int MAX_PHONE_DIGITS = 13;
-
 }

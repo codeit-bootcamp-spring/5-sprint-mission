@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -83,26 +85,61 @@ public class GlobalExceptionHandler {
         msg
     );
 
-    return ApiError.from(req, HttpStatus.BAD_REQUEST, "INVALID_NUMBER_OF_PARAMETERS", msg, details);
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "INVALID_PARAMETER_NUMBER", msg, details);
   }
 
-  @ExceptionHandler({
-      IllegalArgumentException.class,
-      MethodArgumentTypeMismatchException.class,
-      MissingServletRequestParameterException.class
-  })
+  @ExceptionHandler(IllegalArgumentException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ApiError handleBadRequest(Exception e, HttpServletRequest req) {
-    String reason = (e.getMessage() != null) ? e.getMessage() : "요청이 올바르지 않습니다.";
-    log.warn("400(BAD_REQUEST) {} {} -> {}", req.getMethod(), req.getRequestURI(), reason);
-    return ApiError.from(req, HttpStatus.BAD_REQUEST, "BAD_REQUEST",
-        "요청이 올바르지 않습니다", List.of(reason));
+  public ApiError handleIllegalArgument(IllegalArgumentException e, HttpServletRequest req) {
+    log.warn("400(ILLEGAL_ARGUMENT) {} {} -> {}", req.getMethod(), req.getRequestURI(),
+        e.getMessage());
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "ILLEGAL_ARGUMENT", e.getMessage(),
+        List.of());
+  }
+
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ApiError handleParameterTypeValidation(MethodArgumentTypeMismatchException e,
+      HttpServletRequest req) {
+    String detail = "parameter=%s, value=%s, expectedType=%s".formatted(
+        e.getName(),
+        e.getValue(),
+        (e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "unknown")
+    );
+    log.warn("400(INVALID_PARAMETER_TYPE): {}", detail);
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "INVALID_PARAMETER_TYPE",
+        "Request parameter type not valid",
+        List.of(detail));
+  }
+
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ApiError handleMissingParameter(MissingServletRequestParameterException e,
+      HttpServletRequest req) {
+    String detail = "missing parameter: %s (required type: %s)".formatted(
+        e.getParameterName(),
+        e.getParameterType()
+    );
+    log.warn("400(MISSING_PARAMETER): {}", detail);
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "MISSING_PARAMETER",
+        "Required parameter missing",
+        List.of(detail));
+  }
+
+  @ExceptionHandler(MissingServletRequestPartException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ApiError handleMissingPart(MissingServletRequestPartException e, HttpServletRequest req) {
+    String detail = "missing part: " + e.getRequestPartName();
+    log.warn("400(MISSING_PART): {}", detail);
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "MISSING_PART",
+        "Required part missing",
+        List.of(detail));
   }
 
   @ExceptionHandler(AccessDeniedException.class)
   @ResponseStatus(HttpStatus.FORBIDDEN)
   public ApiError handleForbidden(AccessDeniedException e, HttpServletRequest req) {
-    String msg = (e.getMessage() != null) ? e.getMessage() : "접근이 거부되었습니다.";
+    String msg = (e.getMessage() != null) ? e.getMessage() : "Access denied";
     log.warn("403(FORBIDDEN) {} {} -> {}", req.getMethod(), req.getRequestURI(), msg);
     return ApiError.from(req, HttpStatus.FORBIDDEN, "FORBIDDEN", msg, List.of());
   }
@@ -110,23 +147,22 @@ public class GlobalExceptionHandler {
   @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ApiError handleNoHandler(Exception e, HttpServletRequest req) {
-    log.warn("404(NOT_FOUND_ENDPOINT) {} {} -> {}", req.getMethod(), req.getRequestURI(),
+    log.warn("404(ENDPOINT_NOT_FOUND) {} {} -> {}", req.getMethod(), req.getRequestURI(),
         e.getMessage());
-    return ApiError.from(req, HttpStatus.NOT_FOUND, "NOT_FOUND",
-        "요청한 엔드포인트를 찾을 수 없습니다.", List.of());
+    return ApiError.from(req, HttpStatus.NOT_FOUND, "ENDPOINT_NOT_FOUND",
+        "Endpoint not found", List.of());
   }
 
   @ExceptionHandler(NotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ApiError handleNotFound(NotFoundException e, HttpServletRequest req) {
-    String msg = (e.getMessage() != null) ? e.getMessage() : "리소스를 찾을 수 없습니다.";
-    log.warn("404(NOT_FOUND) {} {} -> {}", req.getMethod(), req.getRequestURI(), msg);
-    return ApiError.from(req, HttpStatus.NOT_FOUND, "NOT_FOUND", msg, List.of());
+    String msg = (e.getMessage() != null) ? e.getMessage() : "Resource not found";
+    log.warn("404(RESOURCE_NOT_FOUND) {} {} -> {}", req.getMethod(), req.getRequestURI(), msg);
+    return ApiError.from(req, HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", msg, List.of());
   }
 
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-  @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-  public ApiError handleMethodNotAllowed(HttpRequestMethodNotSupportedException e,
+  public ResponseEntity<ApiError> handleMethodNotAllowed(HttpRequestMethodNotSupportedException e,
       HttpServletRequest req) {
     String allowed = (e.getSupportedHttpMethods() == null || e.getSupportedHttpMethods().isEmpty())
         ? ""
@@ -134,9 +170,21 @@ public class GlobalExceptionHandler {
             .collect(Collectors.joining(", "));
     log.warn("405(METHOD_NOT_ALLOWED) {} {} -> allowed: {}", req.getMethod(), req.getRequestURI(),
         allowed);
-    return ApiError.from(req, HttpStatus.METHOD_NOT_ALLOWED, "METHOD_NOT_ALLOWED",
-        "허용되지 않은 HTTP 메서드입니다.",
-        allowed.isBlank() ? List.of() : List.of("허용되는 메서드: " + allowed));
+
+    ApiError body = ApiError.from(
+        req,
+        HttpStatus.METHOD_NOT_ALLOWED,
+        "METHOD_NOT_ALLOWED",
+        "HTTP method %s not allowed".formatted(e.getMethod()),
+        List.of()
+    );
+
+    ResponseEntity.BodyBuilder builder = ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED);
+    if (!allowed.isBlank()) {
+      builder.header("Allow", allowed);
+    }
+
+    return builder.body(body);
   }
 
   @ExceptionHandler({DuplicateResourceException.class, DataIntegrityViolationException.class,
@@ -145,7 +193,7 @@ public class GlobalExceptionHandler {
   public ApiError handleConflict(Exception e, HttpServletRequest req) {
     String msg = (e instanceof DuplicateResourceException && e.getMessage() != null)
         ? e.getMessage()
-        : "리소스 충돌이 발생했습니다.";
+        : "Resource already exists";
     log.warn("409(CONFLICT) {} {} -> {}", req.getMethod(), req.getRequestURI(), e.getMessage());
     return ApiError.from(req, HttpStatus.CONFLICT, "CONFLICT", msg, List.of());
   }
@@ -172,7 +220,7 @@ public class GlobalExceptionHandler {
     log.error("500(INTERNAL_ERROR) {} {} -> {}", req.getMethod(), req.getRequestURI(), e.toString(),
         e);
     return ApiError.from(req, HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR",
-        "예상치 못한 오류가 발생했습니다.", List.of());
+        "Unexpected error occurred", List.of());
   }
 
   private static List<String> constraintErrors(Set<ConstraintViolation<?>> violations) {

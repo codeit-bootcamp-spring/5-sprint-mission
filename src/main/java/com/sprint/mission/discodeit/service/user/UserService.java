@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 import com.sprint.mission.discodeit.dto.request.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
@@ -44,8 +45,10 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
 
   private UserResponse toResponse(User user) {
-    UserStatus userStatus = userStatusRepository.getOrThrowByUserId(user.getId());
-    return UserResponse.from(user, userStatus.getType());
+    UserStatusType userStatusType = userStatusRepository.findByUserId(user.getId())
+        .map(UserStatus::getType)
+        .orElse(UserStatusType.OFFLINE);
+    return UserResponse.from(user, userStatusType);
   }
 
   public List<UserResponse> findByUsername(String username) {
@@ -89,16 +92,16 @@ public class UserService {
   @Transactional
   public UserSaveResponse create(UserCreateRequest req, MultipartFile profile)
       throws IOException {
-    String email = nullOrStripAndLowerCase(req.email());
-    if (userRepository.existsByEmail(email)) {
-      throw new DuplicateResourceException("User with email %s already exists".formatted(email));
-    }
     String username = nullOrStripAndLowerCase(req.username());
     if (userRepository.existsByUsername(username)) {
       throw new DuplicateResourceException(
           "User with username %s already exists".formatted(username));
     }
 
+    String email = nullOrStripAndLowerCase(req.email());
+    if (userRepository.existsByEmail(email)) {
+      throw new DuplicateResourceException("User with email %s already exists".formatted(email));
+    }
     UUID profileId = null;
 
     if (profile != null && !profile.isEmpty()) {
@@ -137,8 +140,7 @@ public class UserService {
   public void deleteAccount(UUID userId) {
     User user = userRepository.getOrThrow(userId);
 
-    guildRepository.findGuildsOwnedByUser(user.getId())
-        .forEach(g -> guildRepository.softDeleteById(g.getId()));
+    guildRepository.softDeleteAllById(user.getGuildIds());
 
     friendRequestRepository.softDeleteAllByUserId(user.getId());
 
@@ -151,94 +153,65 @@ public class UserService {
     userRepository.softDeleteById(user.getId());
   }
 
-  // @Transactional
-  // public UserSaveResponse update(UUID userId, UserUpdateRequest req, MultipartFile profile)
-  //     throws IOException {
-  //   User u = userRepository.getOrThrow(userId);
-  //   String email;
-  //   if (req.newEmail() != null && !req.newEmail().equals(u.getEmail())) {
-  //     email = null;
-  //   } else {
-  //     email = nullOrStripAndLowerCase(req.newEmail());
-  //   }
-  //   String email = nullOrStripAndLowerCase(req.newEmail());
-  //   if (userRepository.existsByEmail(email)) {
-  //     throw new DuplicateResourceException("User with email %s already exists".formatted(email));
-  //   }
-  //   String username = nullOrStripAndLowerCase(req.username());
-  //   if (userRepository.existsByUsername(username)) {
-  //     throw new DuplicateResourceException(
-  //         "User with username %s already exists".formatted(username));
-  //   }
-  //
-  //   UUID profileId = null;
-  //
-  //   if (profile != null && !profile.isEmpty()) {
-  //     String ct = FileNames.normalizeContentType(profile.getContentType());
-  //     String original = profile.getOriginalFilename();
-  //     String fileName = FileNames.buildStoredName(original, ct);
-  //
-  //     try {
-  //       profileId = binaryContentService.create(
-  //           new BinaryContentCreateRequest(fileName, ct, profile.getBytes())).id();
-  //     } catch (IOException e) {
-  //       throw new IOException("Failed to read profile image", e);
-  //     }
-  //   }
-  //
-  //   User saved = userRepository.save(user);
-  //
-  //   UserStatus userStatus = new UserStatus(saved.getId());
-  //   userStatusRepository.save(userStatus);
-  //
-  //   return UserSaveResponse.from(saved);
-  // }
-  //
-  // @Transactional
-  // public void updateEmail(UUID userId, UserUpdateEmailRequest req) {
-  //   String email = nullOrStripAndLowerCase(req.email());
-  //   User user = userRepository.getOrThrow(userId);
-  //
-  //   if (user.getEmail().equals(email)) {
-  //     throw new IllegalArgumentException("기존과 동일한 이메일입니다");
-  //   }
-  //   if (userRepository.existsByEmail(email)) {
-  //     throw new DuplicateResourceException("User with email %s already exists");
-  //   }
-  //   try {
-  //     update(userId, u -> u.changeEmail(email));
-  //   } catch (DataIntegrityViolationException e) {
-  //     throw new DuplicateResourceException("중복된 이메일이 존재합니다.");
-  //   }
-  // }
-  //
-  // @Transactional
-  // public void updateUsername(UUID userId, UserUpdateUsernameRequest req) {
-  //   String username = nullOrStripAndLowerCase(req.username());
-  //   User user = userRepository.getOrThrow(userId);
-  //
-  //   if (user.getUsername().equals(username)) {
-  //     throw new IllegalArgumentException("기존과 동일한 사용자명입니다.");
-  //   }
-  //
-  //   if (userRepository.existsByUsername(username)) {
-  //     throw new DuplicateResourceException("중복된 사용자명이 존재합니다.");
-  //   }
-  //
-  //   try {
-  //     update(userId, u -> u.changeUsername(username));
-  //   } catch (DataIntegrityViolationException e) {
-  //     throw new DuplicateResourceException("중복된 사용자명이 존재합니다.");
-  //   }
-  // }
-  //
-  // @Transactional
-  // public void updatePassword(UUID userId, UserUpdatePasswordRequest req) {
-  //   String password = req.password().strip();
-  //   User user = userRepository.getOrThrow(userId);
-  //   if (passwordEncoder.matches(password, user.getPassword())) {
-  //     throw new DuplicateResourceException("동일한 비밀번호입니다.");
-  //   }
-  //   update(userId, u -> u.changePassword(passwordEncoder.encode(password)));
-  // }
+  @Transactional
+  public UserSaveResponse update(UUID userId, UserUpdateRequest req, MultipartFile profile)
+      throws IOException {
+    User u = userRepository.getOrThrow(userId);
+
+    String username;
+    if (req != null
+        && req.newUsername() != null
+        && !req.newUsername().equals(u.getUsername())
+    ) {
+      username = nullOrStripAndLowerCase(req.newUsername());
+    } else {
+      username = null;
+    }
+
+    if (username != null && userRepository.existsByUsername(username)) {
+      throw new DuplicateResourceException(
+          "User with username %s already exists".formatted(username));
+    }
+
+    String email;
+    if (req != null
+        && req.newEmail() != null
+        && !req.newEmail().equals(u.getEmail())
+    ) {
+      email = nullOrStripAndLowerCase(req.newEmail());
+    } else {
+      email = null;
+    }
+    if (req != null
+        && email != null
+        && userRepository.existsByEmail(email)
+    ) {
+      throw new DuplicateResourceException("User with email %s already exists".formatted(email));
+    }
+
+    String password;
+    if (req != null
+        && req.newPassword() != null
+        && !u.matchesPassword(req.newPassword(), passwordEncoder)
+    ) {
+      password = passwordEncoder.encode(req.newPassword().strip());
+    } else {
+      password = null;
+    }
+
+    UUID profileId;
+    if (profile != null && !profile.isEmpty()) {
+      String ct = FileNames.normalizeContentType(profile.getContentType());
+      String original = profile.getOriginalFilename();
+      String fileName = FileNames.buildStoredName(original, ct);
+      profileId = binaryContentService.create(
+          new BinaryContentCreateRequest(fileName, ct, profile.getBytes())).id();
+    } else {
+      profileId = null;
+    }
+
+    u.update(username, email, password, profileId);
+
+    return UserSaveResponse.from(userRepository.save(u));
+  }
 }

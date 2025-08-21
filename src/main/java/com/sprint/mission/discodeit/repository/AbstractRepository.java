@@ -34,15 +34,15 @@ public interface AbstractRepository<T extends AbstractEntity> {
 
   boolean softDeleteById(UUID id);
 
-  int softDeleteAllByIds(Set<UUID> ids);
+  void softDeleteAllById(Set<UUID> ids);
 
   boolean restoreById(UUID id);
 
-  int restoreAllByIds(Set<UUID> ids);
+  int restoreAllById(Set<UUID> ids);
 
   boolean hardDeleteById(UUID id);
 
-  int hardDeleteAllByIds(Set<UUID> ids);
+  int hardDeleteAllById(Set<UUID> ids);
 
   int hardDeleteAllExpired(Instant now);
 

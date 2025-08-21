@@ -66,22 +66,22 @@ public class JcfReadStatusRepository extends AbstractJcfRepository<ReadStatus> i
   }
 
   @Override
-  public int softDeleteAllByUserId(UUID userId) {
+  public void softDeleteAllByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
     Set<UUID> ids = findAll().stream()
         .filter(rs -> userId.equals(rs.getUserId()))
         .map(ReadStatus::getId)
         .collect(Collectors.toSet());
-    return softDeleteAllByIds(ids);
+    softDeleteAllById(ids);
   }
 
   @Override
-  public int softDeleteAllByChannelId(UUID channelId) {
+  public void softDeleteAllByChannelId(UUID channelId) {
     Objects.requireNonNull(channelId, "channelId must not be null");
     Set<UUID> ids = findAll().stream()
         .filter(rs -> channelId.equals(rs.getChannelId()))
         .map(ReadStatus::getId)
         .collect(Collectors.toSet());
-    return softDeleteAllByIds(ids);
+    softDeleteAllById(ids);
   }
 }

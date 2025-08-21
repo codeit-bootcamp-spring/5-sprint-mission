@@ -112,23 +112,23 @@ public class FileMessageRepository extends AbstractFileRepository<Message> imple
   }
 
   @Override
-  public int softDeleteAllByChannelId(UUID channelId) {
+  public void softDeleteAllByChannelId(UUID channelId) {
     Objects.requireNonNull(channelId, "channelId must not be null");
     var ids = findAll().stream()
         .filter(m -> channelId.equals(m.getChannelId()))
         .map(Message::getId)
         .collect(java.util.stream.Collectors.toSet());
-    return softDeleteAllByIds(ids);
+    softDeleteAllById(ids);
   }
 
   @Override
-  public int softDeleteAllByAuthorId(UUID authorId) {
+  public void softDeleteAllByAuthorId(UUID authorId) {
     Objects.requireNonNull(authorId, "authorId must not be null");
     var ids = findAll().stream()
         .filter(m -> authorId.equals(m.getAuthorId()))
         .map(Message::getId)
         .collect(java.util.stream.Collectors.toSet());
-    return softDeleteAllByIds(ids);
+    softDeleteAllById(ids);
   }
 
   @Override

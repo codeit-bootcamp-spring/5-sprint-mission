@@ -17,7 +17,7 @@ public interface ReadStatusRepository extends AbstractRepository<ReadStatus> {
 
   long countUnreadByUserId(UUID userId);
 
-  int softDeleteAllByUserId(UUID userId);
+  void softDeleteAllByUserId(UUID userId);
 
-  int softDeleteAllByChannelId(UUID channelId);
+  void softDeleteAllByChannelId(UUID channelId);
 }

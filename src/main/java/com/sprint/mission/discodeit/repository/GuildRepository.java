@@ -8,8 +8,6 @@ public interface GuildRepository extends AbstractRepository<Guild> {
 
   List<Guild> findDiscoverableGuilds();
 
-  List<Guild> findGuildsOwnedByUser(UUID userId);
-
   List<Guild> findGuildsByMember(UUID userId);
 
   List<Guild> searchGuilds(String keyword);

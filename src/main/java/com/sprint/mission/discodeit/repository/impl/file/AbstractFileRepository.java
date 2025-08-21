@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -150,6 +151,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
           .filter(AbstractEntity::isNotDeleted)
+          .sorted(Comparator.comparing(AbstractEntity::getCreatedAt).reversed())
           .toList();
     } catch (IOException e) {
       log.warn("저장 파일 나열 실패: {}", directory, e);
@@ -221,17 +223,11 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public int softDeleteAllByIds(Set<UUID> ids) {
+  public void softDeleteAllById(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
-      return 0;
+      return;
     }
-    int count = 0;
-    for (UUID id : ids) {
-      if (softDeleteById(id)) {
-        count++;
-      }
-    }
-    return count;
+    ids.forEach(this::softDeleteById);
   }
 
   @Override
@@ -247,7 +243,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public int restoreAllByIds(Set<UUID> ids) {
+  public int restoreAllById(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }
@@ -271,7 +267,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public int hardDeleteAllByIds(Set<UUID> ids) {
+  public int hardDeleteAllById(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }

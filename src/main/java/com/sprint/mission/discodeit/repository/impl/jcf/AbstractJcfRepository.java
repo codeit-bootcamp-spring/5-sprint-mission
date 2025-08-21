@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.AbstractRepository;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -57,7 +58,10 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
 
   @Override
   public List<T> findAll() {
-    return data.values().stream().filter(AbstractEntity::isNotDeleted).toList();
+    return data.values().stream()
+        .filter(AbstractEntity::isNotDeleted)
+        .sorted(Comparator.comparing(AbstractEntity::getCreatedAt).reversed())
+        .toList();
   }
 
   @Override
@@ -109,17 +113,11 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public int softDeleteAllByIds(Set<UUID> ids) {
+  public void softDeleteAllById(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
-      return 0;
+      return;
     }
-    int count = 0;
-    for (UUID id : ids) {
-      if (softDeleteById(id)) {
-        count++;
-      }
-    }
-    return count;
+    ids.forEach(this::softDeleteById);
   }
 
   @Override
@@ -133,7 +131,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public int restoreAllByIds(Set<UUID> ids) {
+  public int restoreAllById(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }
@@ -152,7 +150,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public int hardDeleteAllByIds(Set<UUID> ids) {
+  public int hardDeleteAllById(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }

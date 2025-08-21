@@ -14,7 +14,7 @@ public interface FriendRequestRepository extends AbstractRepository<FriendReques
 
   boolean existsBetween(UUID userA, UUID userB);
 
-  int softDeleteAllByUserId(UUID userId);
+  void softDeleteAllByUserId(UUID userId);
 
   boolean softDeleteBySenderAndReceiver(UUID senderId, UUID receiverId);
 

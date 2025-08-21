@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -40,29 +39,31 @@ public class User extends AbstractEntity {
     this.profileId = profileId;
   }
 
-  public void changeEmail(String email) {
-    String v = nullOrStripAndLowerCase(Objects.requireNonNull(email, "email must not be null"));
-    assignIfChanged(v, () -> this.email, x -> this.email = x);
-  }
-
-  public void changeUsername(String username) {
-    String v = nullOrStripAndLowerCase(
-        Objects.requireNonNull(username, "username must not be null"));
-    assignIfChanged(v, () -> this.username, x -> this.username = x);
-  }
-
-  public void changePassword(String password) {
-    String v = Objects.requireNonNull(password, "password must not be null");
-    assignIfChanged(v, () -> this.password, x -> this.password = x);
+  public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+    boolean changed = false;
+    if (newUsername != null && !newUsername.equals(this.username)) {
+      this.username = newUsername;
+      changed = true;
+    }
+    if (newEmail != null && !newEmail.equals(this.email)) {
+      this.email = newEmail;
+      changed = true;
+    }
+    if (newPassword != null && !newPassword.equals(this.password)) {
+      this.password = newPassword;
+      changed = true;
+    }
+    if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+      this.profileId = newProfileId;
+      changed = true;
+    }
+    if (changed) {
+      touch();
+    }
   }
 
   public boolean matchesPassword(String raw, PasswordEncoder encoder) {
     return encoder.matches(raw, this.password);
-  }
-
-  public void changeProfileId(UUID profileId) {
-    UUID v = Objects.requireNonNull(profileId, "profileId must not be null");
-    assignIfChanged(v, () -> this.profileId, x -> this.profileId = x);
   }
 
   public void clearProfileId() {
@@ -147,25 +148,9 @@ public class User extends AbstractEntity {
         .formatted(getId(), username, email);
   }
 
-  private <T> void assignIfChanged(T newValue, Supplier<T> getter, Consumer<T> writer) {
-    T current = getter.get();
-    if (!Objects.equals(current, newValue)) {
-      writer.accept(newValue);
-      touch();
-    }
-  }
-
   private void clearIfPresent(Supplier<?> getter, Runnable clearer) {
     if (getter.get() != null) {
       clearer.run();
-      touch();
-    }
-  }
-
-  private void setFlagIfNeeded(boolean desired, Supplier<Boolean> getter,
-      Consumer<Boolean> setter) {
-    if (getter.get() != desired) {
-      setter.accept(desired);
       touch();
     }
   }

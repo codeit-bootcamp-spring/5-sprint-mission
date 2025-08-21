@@ -27,9 +27,9 @@ public interface MessageRepository extends AbstractRepository<Message> {
 
   List<Message> searchInChannel(UUID channelId, String keyword);
 
-  int softDeleteAllByChannelId(UUID channelId);
+  void softDeleteAllByChannelId(UUID channelId);
 
-  int softDeleteAllByAuthorId(UUID authorId);
+  void softDeleteAllByAuthorId(UUID authorId);
 
   long countByChannelId(UUID channelId);
 
