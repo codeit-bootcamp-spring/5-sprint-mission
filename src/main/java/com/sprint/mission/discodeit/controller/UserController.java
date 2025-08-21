@@ -19,7 +19,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,12 +63,11 @@ public class UserController {
         .body(createdUser);
   }
 
-  @RequestMapping(
-      path = "update",
+  @PatchMapping(path = "/{userId}",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
   )
   public ResponseEntity<User> update(
-      @RequestParam("userId") UUID userId,
+      @PathVariable UUID userId,
       @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
@@ -77,24 +79,16 @@ public class UserController {
         .body(updatedUser);
   }
 
-  @RequestMapping(path = "delete")
-  public ResponseEntity<Void> delete(@RequestParam("userId") UUID userId) {
+  @DeleteMapping("/{userId}")
+  public ResponseEntity<Void> delete(@PathVariable UUID userId) {
     userService.delete(userId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)
         .build();
   }
 
-//  @RequestMapping(path = "findAll")
-//  public ResponseEntity<List<UserDto>> findAll() {
-//    List<UserDto> users = userService.findAll();
-//    return ResponseEntity
-//        .status(HttpStatus.OK)
-//        .body(users);
-//  }
-
-  @RequestMapping(path = "updateUserStatusByUserId")
-  public ResponseEntity<UserStatus> updateUserStatusByUserId(@RequestParam("userId") UUID userId,
+  @PatchMapping("/{userId}/userStatus")
+  public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable UUID userId,
       @RequestBody UserStatusUpdateRequest request) {
     UserStatus updatedUserStatus = userStatusService.updateByUserId(userId, request);
     return ResponseEntity
