@@ -42,15 +42,15 @@ public class User implements Serializable {
   private boolean checkUpdated(String username, String email, String password, UUID profileId) {
     boolean anyValueUpdated = false;
 
-    if (!username.equals(this.username)) {
+    if (username != null && !username.equals(this.username)) {
       this.username = username;
       anyValueUpdated = true;
     }
-    if (!email.equals(this.email)) {
+    if (email != null && !email.equals(this.email)) {
       this.email = email;
       anyValueUpdated = true;
     }
-    if (!password.equals(this.password)) {
+    if (password != null && !password.equals(this.password)) {
       this.password = password;
       anyValueUpdated = true;
     }
