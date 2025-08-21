@@ -6,4 +6,4 @@ COPY . .
 
 RUN ./gradlew build -x test
 
-CMD ["java", "-jar", "build/libs/your-app-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "build/libs/discodeit-0.0.1-SNAPSHOT.jar"]
