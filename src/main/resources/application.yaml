@@ -4,5 +4,21 @@ spring:
 
 discodeit:
   repository:
-    type: file   # jcf | file
+    type: file        # 선택: jcf | file
     file-directory: .discodeit
+
+logging:
+  level:
+    org.springdoc: DEBUG
+    org.springdoc.webmvc.api.OpenApiResource: DEBUG
+    org.springframework.web: DEBUG
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+  info:
+    title: Discodeit API 문서
+    description: 스프린트 미션 #4에서 설계한 RESTful API 문서입니다.
+    version: v1.0.0

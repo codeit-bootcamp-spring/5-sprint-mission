@@ -7,13 +7,12 @@ import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -69,14 +68,21 @@ public class BasicUserStatusService implements UserStatusService {
     @Override
     public UserStatusResponseDto updateByUserId(UUID userId, UserStatusUpdateRequest request) {
         Instant newLastActiveAt = request.newLastActiveAt();
-        UserStatus status = userStatusRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoSuchElementException("UserStatus not found for user " + userId));
 
+        UserStatus status = userStatusRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    // UserStatus 없으면 새로 생성
+                    return new UserStatus(userId, newLastActiveAt);
+                });
+
+        // 업데이트
         status.update(newLastActiveAt);
+
         UserStatus updated = userStatusRepository.save(status);
 
         return UserStatusResponseDto.fromEntity(updated);
     }
+
 
     @Override
     public void delete(UUID id) {
