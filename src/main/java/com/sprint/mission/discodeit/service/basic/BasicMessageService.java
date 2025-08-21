@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import java.util.List;
 import java.util.UUID;
@@ -135,9 +136,9 @@ public class BasicMessageService implements MessageService {
 		return MessageDeleteResponse.success(message);
 	}
 
-	private void addAttachments(Message message, List<UserProfileImageRequest> attachments) {
+	private void addAttachments(Message message, List<BinaryContentCreateRequest> attachments) {
 		if (attachments != null && !attachments.isEmpty()) {
-			for (UserProfileImageRequest attachment : attachments) {
+			for (BinaryContentCreateRequest attachment : attachments) {
 				BinaryContent binaryContent = new BinaryContent(
 					attachment.getFileName(),
 					attachment.getContentType(),
