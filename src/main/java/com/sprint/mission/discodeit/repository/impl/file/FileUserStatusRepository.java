@@ -1,17 +1,16 @@
 package com.sprint.mission.discodeit.repository.impl.file;
 
 import com.sprint.mission.discodeit.config.AppProperties;
-import com.sprint.mission.discodeit.domain.entity.AbstractEntity;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -42,16 +41,16 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
   }
 
   @Override
-  public List<UserStatus> findAllByUserId(Set<UUID> userIds) {
+  public Set<UserStatus> findAllByUserId(Set<UUID> userIds) {
     if (userIds == null || userIds.isEmpty()) {
-      return List.of();
+      return Set.of();
     }
 
     return userIds.stream()
         .map(this::resolvePath)
         .map(this::readObject).flatMap(Optional::stream)
-        .filter(AbstractEntity::isNotDeleted)
-        .toList();
+        .filter(UserStatus::isNotDeleted)
+        .collect(Collectors.toSet());
   }
 
   @Override
@@ -67,7 +66,7 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
           .filter(us -> userId.equals(us.getUserId()))
-          .map(AbstractEntity::isDeleted)
+          .map(UserStatus::isNotDeleted)
           .findFirst()
           .orElse(false);
     } catch (IOException e) {

@@ -67,7 +67,10 @@ public class UserService {
     if (users.isEmpty()) {
       return List.of();
     }
-    Set<UUID> ids = users.stream().map(User::getId).collect(Collectors.toSet());
+    Set<UUID> ids = users.stream()
+        .map(User::getId)
+        .collect(Collectors.toSet()
+        );
 
     Map<UUID, UserStatusType> statusMap = userStatusRepository.findAllByUserId(ids).stream()
         .collect(Collectors.toMap(
@@ -76,7 +79,10 @@ public class UserService {
         ));
 
     return users.stream()
-        .map(u -> UserResponse.from(u, statusMap.get(u.getId())))
+        .map(u -> {
+          UserStatusType type = statusMap.getOrDefault(u.getId(), UserStatusType.OFFLINE);
+          return UserResponse.from(u, type);
+        })
         .toList();
   }
 

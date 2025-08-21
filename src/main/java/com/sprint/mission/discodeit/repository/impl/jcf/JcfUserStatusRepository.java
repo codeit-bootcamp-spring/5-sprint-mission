@@ -3,11 +3,11 @@ package com.sprint.mission.discodeit.repository.impl.jcf;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -29,12 +29,16 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
   }
 
   @Override
-  public List<UserStatus> findAllByUserId(Set<UUID> userIds) {
+  public Set<UserStatus> findAllByUserId(Set<UUID> userIds) {
     Objects.requireNonNull(userIds, "userIds must not be null");
     if (userIds.isEmpty()) {
-      return List.of();
+      return Set.of();
     }
-    return data.values().stream().filter(us -> userIds.contains(us.getUserId())).toList();
+    return userIds.stream()
+        .map(data::get)
+        .filter(Objects::nonNull)
+        .filter(UserStatus::isNotDeleted)
+        .collect(Collectors.toSet());
   }
 
   @Override
@@ -53,14 +57,12 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
   @Override
   public boolean softDeleteByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
-    var found = findByUserId(userId);
-    return found.map(v -> softDeleteById(v.getId())).orElse(false);
+    return findByUserId(userId).map(us -> softDeleteById(us.getId())).orElse(false);
   }
 
   @Override
   public boolean hardDeleteByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
-    var found = findByUserId(userId);
-    return found.map(v -> hardDeleteById(v.getId())).orElse(false);
+    return findByUserId(userId).map(us -> hardDeleteById(us.getId())).orElse(false);
   }
 }

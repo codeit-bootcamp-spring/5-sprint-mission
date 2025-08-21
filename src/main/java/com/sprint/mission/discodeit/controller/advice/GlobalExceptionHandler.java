@@ -77,8 +77,12 @@ public class GlobalExceptionHandler {
         ? List.of(String.join(", ", params) + ": 하나만 포함하여아 합니다")
         : List.of();
 
-    log.warn("400(INVALID_PARAMETER_NUMBER) {} {} -> {}", req.getMethod(), req.getRequestURI(),
-        msg);
+    log.warn("400(INVALID_PARAMETER_NUMBER) {} {} -> {}",
+        req.getMethod(),
+        req.getRequestURI(),
+        msg
+    );
+
     return ApiError.from(req, HttpStatus.BAD_REQUEST, "INVALID_NUMBER_OF_PARAMETERS", msg, details);
   }
 

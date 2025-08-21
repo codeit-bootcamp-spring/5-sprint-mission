@@ -46,7 +46,7 @@ usersRoot:
             schema:
               $ref: '../schemas/error.yaml#/ApiError'
             examples:
-              multipleQueryParameters:
+              invalidParameterNumber:
                 value:
                   timestamp: "2025-08-17T15:30:02Z"
                   path: "/api/users"
