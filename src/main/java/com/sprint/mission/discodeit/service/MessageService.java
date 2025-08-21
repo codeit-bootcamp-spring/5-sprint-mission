@@ -7,23 +7,20 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface MessageService {
 
-    //약속
-    Message create(MessageCreateRequest request, MultipartFile file);
-    //생성
+  Message create(MessageCreateRequest request, List<MultipartFile> attachments);
 
-    Message findById(UUID id); //하나만 찾기
+  Message findById(UUID messageId); //하나만 찾기
 
-    List<Message> findAllByChannelId(UUID channelId);
+  List<Message> findAllByChannelId(UUID channelId);
 
-    Message update(MessageUpdateRequest request); // 수정
+  Message update(UUID massageId, MessageUpdateRequest request); // 수정
 
-    void delete(UUID message); //삭제
+  void delete(UUID message); //삭제
 
 }

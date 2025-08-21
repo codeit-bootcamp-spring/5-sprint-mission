@@ -14,7 +14,7 @@ import java.util.Map;
  * GlobalExceptionHandler : 던져진 예외를 받아 클라이언트에게 적절한 응답 반환
  */
 
-@ControllerAdvice
+@ControllerAdvice // 모든 컨트롤러에서 발생하는 예외 가로채는 역할
 public class GlobalExceptionHandler {
 
     // ✅ IllegalArgumentException 예외를 처리
@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
         return buildErrorResponse("서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR); // 500 반환
     }
 
-    // ✅ 응답을 JSON 형태로 만들어주는 메서드
+    // ✅ 에러 정보를 구조화된 JSON 형태로 리턴
     private ResponseEntity<Object> buildErrorResponse(String message, HttpStatus status) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", Instant.now()); // 현재 시간
