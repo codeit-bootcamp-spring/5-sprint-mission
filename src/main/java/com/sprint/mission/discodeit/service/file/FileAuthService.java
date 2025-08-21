@@ -11,17 +11,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FileAuthService implements AuthService {
 
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    @Override
-    public User login(LoginRequest loginRequest) {
-        if (loginRequest.getUserId() == null || loginRequest.getPassword() == null) {
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 누락되었습니다.");
-        }
-        return userRepository.findByUserIdAndPassword(
-                loginRequest.getUserId(),
-                loginRequest.getPassword()
-        ).orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+  @Override
+  public User login(LoginRequest loginRequest) {
+    if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
+      throw new IllegalArgumentException("아이디 또는 비밀번호가 누락되었습니다.");
     }
+    return userRepository.findByUserIdAndPassword(
+        loginRequest.getUsername(),
+        loginRequest.getPassword()
+    ).orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+  }
 }
 

@@ -56,7 +56,7 @@ public class FileUserRepository implements UserRepository {
   @Override
   public boolean existsByUserId(String userId) { //같은 userId를 가진 유저가 있는지 검사
     return data.values().stream()
-        .anyMatch(user -> user.getUserId().equals(userId));
+        .anyMatch(user -> user.getUsername().equals(userId));
   }
 
   @Override
@@ -68,7 +68,7 @@ public class FileUserRepository implements UserRepository {
   @Override
   public Optional<User> findByUserIdAndPassword(String userId, String password) {
     return data.values().stream()
-        .filter(user -> user.getUserId().equals(userId) && user.getPassword().equals(password))
+        .filter(user -> user.getUsername().equals(userId) && user.getPassword().equals(password))
         .findFirst()
         .map(User::new); // 복사본 리턴
   }

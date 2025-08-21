@@ -5,9 +5,8 @@ package com.sprint.mission.discodeit.service;
 //CRUD(생성,읽기,모두읽기,수정,삭제) 기능 구현하기
 
 
-import com.sprint.mission.discodeit.dto.binarycontent.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import java.io.IOException;
@@ -22,7 +21,7 @@ public interface UserService {
 
   User create(UserCreateRequest request, MultipartFile profile);
 
-  UserResponse findById(UUID userId); //조회
+  UserDto findById(UUID userId); //조회
 
   List<UserDto> findAll(); //리스트에 넣기
 

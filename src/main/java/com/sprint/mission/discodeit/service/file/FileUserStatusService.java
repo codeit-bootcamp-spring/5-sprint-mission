@@ -27,7 +27,7 @@ public class FileUserStatusService implements UserStatusService {
         .orElseThrow(() -> new IllegalArgumentException("해당 유저 상태 정보 없음"));
 
     status.setUpdatedAt(Instant.now());
-    status.setLastOnline(request.getLastOnline());
+    status.setLastOnline(request.getNewLastActiveAt());
 
     userStatusRepository.update(status);
   }

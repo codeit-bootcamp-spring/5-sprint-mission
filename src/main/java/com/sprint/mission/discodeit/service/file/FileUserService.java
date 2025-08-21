@@ -1,8 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
-import com.sprint.mission.discodeit.dto.binarycontent.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
@@ -38,7 +37,7 @@ public class FileUserService implements UserService {
     }
 
     // 🔒 username, email 중복 확인
-    if (repository.existsByUserId(request.getUserId())) {
+    if (repository.existsByUserId(request.getUsername())) {
       throw new IllegalArgumentException("이미 존재하는 username입니다.");
     }
     if (repository.existsByEmail(request.getEmail())) {
@@ -46,7 +45,7 @@ public class FileUserService implements UserService {
     }
 
     //User 엔티티로 변환
-    User user = new User(request.getUserId(), request.getPassword(), request.getEmail());
+    User user = new User(request.getUsername(), request.getPassword(), request.getEmail());
 
     //1. Optional 프로필 이미지 처리(BinaryContent 연동시 추가)
     if (profile != null && !profile.isEmpty()) {
@@ -79,7 +78,7 @@ public class FileUserService implements UserService {
   }
 
   @Override
-  public UserResponse findById(UUID userId) {
+  public UserDto findById(UUID userId) {
     if (userId == null) {
       throw new IllegalArgumentException("조회할 유저 ID가 null입니다.");
     }
@@ -90,7 +89,7 @@ public class FileUserService implements UserService {
     }
 
     // isOnline 판단
-    UserStatus status = statusRepository.findByUserId(user.getUserId());
+    UserStatus status = statusRepository.findByUserId(user.getUsername());
     boolean isOnline = false;
     Instant lastOnline = null;
     if (status != null) {
@@ -98,15 +97,14 @@ public class FileUserService implements UserService {
       isOnline = lastOnline != null && Instant.now().minusSeconds(300).isBefore(lastOnline);
     }
 
-    return new UserResponse( //UserResponse 클래스 안 생성자의 파라미터 순서 및 타입과 정확히 일치해야 함
+    return new UserDto( //UserResponse 클래스 안 생성자의 파라미터 순서 및 타입과 정확히 일치해야 함
         user.getId(),
         user.getCreatedAt(),
         user.getUpdatedAt(),
-        user.getProfileId(),
-        user.getUserId(),
+        user.getUsername(),
         user.getEmail(),
-        isOnline,
-        lastOnline
+        user.getProfileId(),
+        isOnline
     );
   }
 
@@ -114,7 +112,7 @@ public class FileUserService implements UserService {
   public List<UserDto> findAll() {
     return repository.findAll().stream()
         .map(user -> {
-          UserStatus status = statusRepository.findByUserId(user.getUserId());
+          UserStatus status = statusRepository.findByUserId(user.getUsername());
           boolean isOnline = false;
           if (status != null && status.getLastOnline() != null) {
             isOnline = Instant.now().minusSeconds(300).isBefore(status.getLastOnline());
@@ -133,15 +131,15 @@ public class FileUserService implements UserService {
     }
 
     //1. 기존 유저 조회
-    User user = repository.findById(request.getId());
+    User user = repository.findById(userId);
     if (user == null) {
       throw new IllegalArgumentException("해당 ID를 가진 유저가 존재하지 않습니다.");
     }
 
     //2. 변경값 적용
-    user.setUserId(request.getUserId());
-    user.setEmail(request.getEmail());
-    user.setPassword(request.getPassword());
+    user.setUsername(request.getNewUsername());
+    user.setEmail(request.getNewEmail());
+    user.setPassword(request.getNewPassword());
     repository.update(user);
 
     //3. 프로필 이미지 대체 처리 (optional)
@@ -162,7 +160,7 @@ public class FileUserService implements UserService {
     }
 
     //4. UserStatus 갱신 (lastOnline 시간 갱신)
-    UserStatus status = statusRepository.findByUserId(user.getUserId());
+    UserStatus status = statusRepository.findByUserId(user.getUsername());
     if (status != null) {
       status.setLastOnline(Instant.now());
       statusRepository.update(status);
@@ -187,7 +185,7 @@ public class FileUserService implements UserService {
     // ✅ UserStatus 함께 삭제 (있으면)
     User user = repository.findById(userId);
     if (user != null) {
-      UserStatus status = statusRepository.findByUserId(user.getUserId());
+      UserStatus status = statusRepository.findByUserId(user.getUsername());
       if (status != null) {
         statusRepository.delete(status.getId());
       }
