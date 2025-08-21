@@ -26,10 +26,16 @@ public class BasicReadStatusService implements ReadStatusService {
 
   @Override
   public ReadStatus create(@Valid ReadStatusCreateRequest readStatusCreateRequest) {
-    if (userRepository.findById(readStatusCreateRequest.userId()).isEmpty()
-        || channelRepository.findById(readStatusCreateRequest.channelId()).isEmpty()) {
-      throw new NoSuchElementException("create : 관련된 채널 또는 유저가 존재하지 않습니다.");
+    if (!userRepository.existsById(readStatusCreateRequest.userId())) {
+      throw new NoSuchElementException(
+          "create : 유저를 찾을 수 없습니다. [" + readStatusCreateRequest.userId() + "]");
     }
+
+    if (!channelRepository.existsById(readStatusCreateRequest.channelId())) {
+      throw new NoSuchElementException(
+          "create : 채널을 찾을 수 없습니다. [" + readStatusCreateRequest.channelId() + "]");
+    }
+
     if (readStatusRepository.findByUserId(readStatusCreateRequest.userId()).stream()
         .anyMatch(status -> status.getChannelId().equals(readStatusCreateRequest.channelId()))) {
       throw new IllegalArgumentException("create : 이미 존재하는 ReadStatus 입니다.");
@@ -44,13 +50,14 @@ public class BasicReadStatusService implements ReadStatusService {
   @Override
   public ReadStatus findById(UUID id) {
     return readStatusRepository.findById(id)
-        .orElseThrow(() -> new NoSuchElementException("findById : ReadStatus를 찾을 수 없습니다."));
+        .orElseThrow(
+            () -> new NoSuchElementException("findById : ReadStatus를 찾을 수 없습니다. [" + id + "]"));
   }
 
   @Override
   public List<ReadStatus> findAllByUserId(UUID userId) {
     if (!userRepository.existsById(userId)) {
-      throw new NoSuchElementException("findAllByUserId : 유저를 찾을 수 없습니다.");
+      throw new NoSuchElementException("findAllByUserId : 유저를 찾을 수 없습니다. [" + userId + "]");
     }
     return readStatusRepository.findByUserId(userId);
   }
@@ -59,7 +66,8 @@ public class BasicReadStatusService implements ReadStatusService {
   public ReadStatus update(UUID readStatusId,
       @Valid ReadStatusUpdateRequest readStatusUpdateRequest) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-        .orElseThrow(() -> new NoSuchElementException("update : ReadStatus를 찾을 수 없습니다."));
+        .orElseThrow(() -> new NoSuchElementException(
+            "update : ReadStatus를 찾을 수 없습니다. [" + readStatusId + "]"));
     readStatus.update(readStatusUpdateRequest.newLastReadAt());
 
     return readStatusRepository.save(readStatus);
@@ -68,7 +76,7 @@ public class BasicReadStatusService implements ReadStatusService {
   @Override
   public void delete(UUID id) {
     if (!readStatusRepository.existsById(id)) {
-      throw new NoSuchElementException("delete : ReadStatus를 찾을 수 없습니다.");
+      throw new NoSuchElementException("delete : ReadStatus를 찾을 수 없습니다. [" + id + "]");
     }
     readStatusRepository.deleteById(id);
   }

@@ -49,7 +49,7 @@ public class BasicChannelService implements ChannelService {
 
     for (UUID participantId : participantIds) {
       if (!userRepository.existsById(participantId)) {
-        throw new NoSuchElementException("존재하지 않는 유저입니다 : " + participantId);
+        throw new NoSuchElementException("create : 존재하지 않는 유저입니다 [" + participantId + "]");
       }
     }
 
@@ -64,7 +64,8 @@ public class BasicChannelService implements ChannelService {
 
   public ChannelFindResponse findById(UUID channelId) {
     Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(() -> new NoSuchElementException("findById : 채널을 찾을 수 없습니다."));
+        .orElseThrow(
+            () -> new NoSuchElementException("findById : 채널을 찾을 수 없습니다. [" + channelId + "]"));
 
     return findById(channel);
   }
@@ -115,9 +116,10 @@ public class BasicChannelService implements ChannelService {
   public Channel update(UUID channelId,
       @Valid PublicChannelUpdateRequest publicChannelUpdateRequest) {
     Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(() -> new NoSuchElementException("update : 채널을 찾을 수 없습니다."));
+        .orElseThrow(
+            () -> new NoSuchElementException("update : 채널을 찾을 수 없습니다. [" + channelId + "]"));
     if (channel.getType() == ChannelType.PRIVATE) {
-      throw new IllegalArgumentException("update : Private 채널은 업데이트 할 수 없습니다.");
+      throw new IllegalArgumentException("update : Private 채널은 업데이트 할 수 없습니다. [" + channelId + "]");
     }
     channel.update(publicChannelUpdateRequest.newName(),
         publicChannelUpdateRequest.newDescription());
@@ -127,7 +129,7 @@ public class BasicChannelService implements ChannelService {
   @Override
   public void delete(UUID channelId) {
     if (!channelRepository.existsById(channelId)) {
-      throw new NoSuchElementException("delete : 채널을 찾을 수 없습니다.");
+      throw new NoSuchElementException("delete : 채널을 찾을 수 없습니다. [" + channelId + "]");
     }
 
     readStatusRepository.findByChannelId(channelId)
