@@ -2,103 +2,106 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-
-import java.util.*;
-
 
 
 @Repository
 @ConditionalOnProperty(
-        name = "discodeit.repository.type",
-        havingValue = "jcf",
-        matchIfMissing = true
+    name = "discodeit.repository.type",
+    havingValue = "jcf",
+    matchIfMissing = true
 )
 public class JCFReadStatusRepository implements ReadStatusRepository {
-    Map<UUID, ReadStatus> data = new HashMap<>();
 
-    @Override
-    public void deleteById(UUID id) {
-        data.remove(id);
+  Map<UUID, ReadStatus> data = new HashMap<>();
+
+  @Override
+  public void deleteById(UUID id) {
+    data.remove(id);
+  }
+
+  @Override
+  public List<ReadStatus> findAll() {
+    return new ArrayList<>(data.values());
+  }
+
+  @Override
+  public Optional<ReadStatus> save(ReadStatus readStatus) {
+    if (readStatus == null) {
+      return Optional.empty();
     }
+    data.put(readStatus.getId(), readStatus);
+    return Optional.of(readStatus);
+  }
 
-    @Override
-    public List<ReadStatus> findAll() {
-        return new ArrayList<>(data.values());
+  @Override
+  public Optional<ReadStatus> findById(UUID readStatusId) {
+    if (data.containsKey(readStatusId)) {
+      return Optional.of(data.get(readStatusId));
     }
+    return Optional.empty();
+  }
 
-    @Override
-    public Optional<ReadStatus> save(ReadStatus readStatus) {
-        if(readStatus == null){
-            return Optional.empty();
-        }
-        data.put(readStatus.getId(), readStatus);
-        return Optional.of(readStatus);
-    }
+  @Override
+  public void deleteAll() {
+    data.clear();
+  }
 
-    @Override
-    public Optional<ReadStatus> findById(UUID readStatusId) {
-        if(data.containsKey(readStatusId)){
-            return Optional.of(data.get(readStatusId));
-        }
-        return Optional.empty();
-    }
+  @Override
+  public List<UUID> findUsersIdByChannelId(UUID channelId) {
+    List<UUID> resultList = new ArrayList<>();
 
-    @Override
-    public void deleteAll(){
-        data.clear();
-    }
+    data.forEach((k, v) -> {
+      if (v.getChannelId().equals(channelId)) {
+        resultList.add(v.getUserId());
+      }
+    });
 
-    @Override
-    public List<UUID> findUsersIdByChannelId(UUID channelId) {
-        List<UUID> resultList = new ArrayList<>();
+    return resultList;
+  }
 
-        data.forEach((k,v) -> {
-            if(v.getChannelId().equals(channelId)){
-                resultList.add(v.getUserId());
-            }
-        });
+  @Override
+  public List<UUID> findChannelsIdByUserId(UUID userId) {
+    List<UUID> resultList = new ArrayList<>();
 
-        return resultList;
-    }
+    data.forEach((k, v) -> {
+      if (v.getUserId().equals(userId)) {
+        resultList.add(v.getChannelId());
+      }
+    });
 
-    @Override
-    public List<UUID> findChannelsIdByUserId(UUID userId) {
-        List<UUID> resultList = new ArrayList<>();
+    return resultList;
+  }
 
-        data.forEach((k,v) -> {
-            if(v.getUserId().equals(userId)){
-                resultList.add(v.getChannelId());
-            }
-        });
+  @Override
+  public void deleteByChannelId(UUID channelId) {
+    data.entrySet().removeIf(
+        entry
+            -> entry
+            .getValue()
+            .getChannelId()
+            .equals(channelId)
+    );
+  }
 
-        return resultList;
-    }
+  @Override
+  public List<ReadStatus> findAllByUserId(UUID userId) {
+    List<ReadStatus> resultList = new ArrayList<>();
 
-    @Override
-    public void deleteByChannelId(UUID channelId) {
-        data.entrySet().removeIf(
-                entry
-                        -> entry
-                        .getValue()
-                        .getChannelId()
-                        .equals(channelId)
-        );
-    }
+    data.forEach((k, v) -> {
+      if (v.getUserId().equals(userId)) {
+        resultList.add(v);
+      }
+    });
 
-    @Override
-    public List<ReadStatus> findAllByUserId(UUID userId) {
-        List<ReadStatus> resultList = new ArrayList<>();
+    return resultList;
 
-        data.forEach((k,v) -> {
-            if(v.getUserId().equals(userId)){
-                resultList.add(v);
-            }
-        });
-
-        return resultList;
-
-    }
+  }
 }

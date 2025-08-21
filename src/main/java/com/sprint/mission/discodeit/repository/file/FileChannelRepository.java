@@ -4,10 +4,6 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Repository;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,108 +11,113 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @ConditionalOnProperty(
-        name = "discodeit.repository.type",
-        havingValue = "file"
+    name = "discodeit.repository.type",
+    havingValue = "file"
 )
 public class FileChannelRepository implements ChannelRepository {
 
-    private final Path directoryPath;
+  private final Path directoryPath;
 
-    public FileChannelRepository(
-            @Value("${discodeit.repository.file-directory:.discodeit}")
-            String rootDir
-    ) {
-        this.directoryPath = Paths.get(rootDir).toAbsolutePath().resolve("channels");
+  public FileChannelRepository(
+      @Value("${discodeit.repository.file-directory:.discodeit}")
+      String rootDir
+  ) {
+    this.directoryPath = Paths.get(rootDir).toAbsolutePath().resolve("channels");
+  }
+
+  @Override
+  public Optional<Channel> save(Channel channel) {
+    if (channel == null) {
+      return Optional.empty();
     }
 
-    @Override
-    public Optional<Channel> save(Channel channel) {
-        if (channel == null) {
-            return Optional.empty();
-        }
+    Path filePath = Path.of(
+        directoryPath.toAbsolutePath() + "/" + channel.getId() + FileUtil.getExtension());
+    FileUtil.saveEntity(filePath, channel);
 
-        Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + channel.getId() + FileUtil.getExtension());
-        FileUtil.saveEntity(filePath, channel);
+    return Optional.of(channel);
+  }
 
-        return Optional.of(channel);
+  @Override
+  public Optional<Channel> findById(UUID channelId) {
+    if (channelId == null) {
+      return Optional.empty();
     }
 
-    @Override
-    public Optional<Channel> findById(UUID channelId) {
-        if(channelId == null){
-            return Optional.empty();
-        }
+    Path filePath = Path.of(
+        directoryPath.toAbsolutePath() + "/" + channelId + FileUtil.getExtension());
+    return FileUtil.loadEntity(filePath, Channel.class);
+  }
 
-        Path filePath = Path.of(directoryPath.toAbsolutePath() + "/" + channelId + FileUtil.getExtension());
-        return FileUtil.loadEntity(filePath, Channel.class);
+  @Override
+  public List<Channel> findAll() {
+    File directory = new File(directoryPath.toAbsolutePath() + "/");
+
+    if (!directory.exists() || !directory.isDirectory()) {
+      return List.of();
     }
 
-    @Override
-    public List<Channel> findAll() {
-        File directory = new File(directoryPath.toAbsolutePath() + "/");
+    File[] files = directory.listFiles();
+    List<Channel> channels = new ArrayList<>();
 
-        if(!directory.exists() || !directory.isDirectory()){
-            return List.of();
-        }
+    if (files == null) {
+      return channels;
+    }
+    for (File file : files) {
+      if (file.isFile() && file.getName().endsWith(FileUtil.getExtension())) {
+        channels.add(FileUtil.loadEntity(file.toPath(), Channel.class).orElseThrow());
+      }
+    }
+    return channels;
+  }
 
-        File[] files = directory.listFiles();
-        List<Channel> channels = new ArrayList<>();
-
-        if(files == null){
-            return channels;
-        }
-        for(File file : files){
-            if(file.isFile() && file.getName().endsWith(FileUtil.getExtension())){
-                channels.add(FileUtil.loadEntity(file.toPath(), Channel.class).orElseThrow());
-            }
-        }
-        return channels;
+  @Override
+  public void delete(UUID channelId) {
+    if (channelId == null) {
+      return;
     }
 
-    @Override
-    public void delete(UUID channelId) {
-        if(channelId == null){
-            return;
-        }
+    Path path = Path.of(directoryPath.toAbsolutePath() + "/" + channelId + FileUtil.getExtension());
 
-        Path path = Path.of(directoryPath.toAbsolutePath() + "/" + channelId + FileUtil.getExtension());
+    path.toFile().delete();
+  }
 
-        path.toFile().delete();
+  @Override
+  public void deleteAll() {
+    File directory = new File(directoryPath.toAbsolutePath() + "/");
+
+    File[] files = directory.listFiles();
+    if (files != null) {
+      for (File file : files) {
+        file.delete();
+      }
+    }
+  }
+
+  @Override
+  public List<Channel> findPublicChannel() {
+    List<Channel> returnChannel = new ArrayList<>();
+
+    File directory = new File(directoryPath.toAbsolutePath() + "/");
+    File[] files = directory.listFiles();
+
+    if (files == null) {
+      return returnChannel;
     }
 
-    @Override
-    public void deleteAll() {
-        File directory = new File(directoryPath.toAbsolutePath() + "/");
-
-        File[] files = directory.listFiles();
-        if(files != null){
-            for(File file : files){
-                file.delete();
-            }
-        }
+    for (File file : files) {
+      Path filePath = file.toPath();
+      Optional<Channel> channelOpt = FileUtil.loadEntity(filePath, Channel.class);
+      if (channelOpt.isPresent() && channelOpt.get().getChannelType().equals(ChannelType.PUBLIC)) {
+        returnChannel.add(channelOpt.get());
+      }
     }
-
-    @Override
-    public List<Channel> findPublicChannel() {
-        List<Channel> returnChannel = new ArrayList<>();
-
-        File directory = new File(directoryPath.toAbsolutePath() + "/");
-        File[] files = directory.listFiles();
-
-        if(files == null) {
-            return returnChannel;
-        }
-
-        for(File file : files){
-            Path filePath = file.toPath();
-            Optional<Channel> channelOpt = FileUtil.loadEntity(filePath, Channel.class);
-            if (channelOpt.isPresent() && channelOpt.get().getChannelType().equals(ChannelType.PUBLIC)){
-                returnChannel.add(channelOpt.get());
-            }
-        }
-        return returnChannel;
-    }
+    return returnChannel;
+  }
 }

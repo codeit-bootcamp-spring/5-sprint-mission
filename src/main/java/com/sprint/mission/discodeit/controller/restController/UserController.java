@@ -7,50 +7,54 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
 public class UserController {
 
-    private final UserService userService;
-    private final UserStatusService userStatusService;
+  private final UserService userService;
+  private final UserStatusService userStatusService;
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<User> registerUser(@RequestBody AddUserRequest addUserRequest) {
-        User user = userService.addUser(addUserRequest);
-        return ResponseEntity.ok(user);
-    }
+  @RequestMapping(method = RequestMethod.POST)
+  public ResponseEntity<User> registerUser(@RequestBody AddUserRequest addUserRequest) {
+    User user = userService.addUser(addUserRequest);
+    return ResponseEntity.ok(user);
+  }
 
-    @RequestMapping(path="/findAll",method = RequestMethod.GET)
-    public ResponseEntity<List<GetUserResponse>> getAllUsers() {
-        List<GetUserResponse> allUser = userService.getAllUser();
-        return ResponseEntity.ok(allUser);
-    }
 
-    @RequestMapping(path = "/{userId}",method = RequestMethod.POST)
-    public ResponseEntity<User> updateUser(
-            @PathVariable UUID userId,
-            @RequestBody AddUserRequest addUserRequest) {
-        User user = userService.updateUser(userId, addUserRequest);
-        return ResponseEntity.ok(user);
-    }
+  @RequestMapping(path = "/findAll", method = RequestMethod.GET)
+  public ResponseEntity<List<GetUserResponse>> getAllUsers() {
+    List<GetUserResponse> allUser = userService.getAllUser();
+    return ResponseEntity.ok(allUser);
+  }
 
-    @RequestMapping(path="/{userId}", method=RequestMethod.DELETE)
-    public void deleteUser(@RequestBody UUID userId) {
-        userService.deleteUser(userId);
-    }
+  @RequestMapping(path = "/{userId}", method = RequestMethod.POST)
+  public ResponseEntity<User> updateUser(
+      @PathVariable UUID userId,
+      @RequestBody AddUserRequest addUserRequest) {
+    User user = userService.updateUser(userId, addUserRequest);
+    return ResponseEntity.ok(user);
+  }
 
-    @RequestMapping(path= "/{userId}/update", method=RequestMethod.POST)
-    public UpdateStatusUserResponse updateStatusUser(@PathVariable UUID userId) {
-        UserStatus userStatus = userStatusService.updateUserStatusByUserId(userId);
-        return new UpdateStatusUserResponse(userId, userStatus.isOnline());
-    }
+  @RequestMapping(path = "/{userId}", method = RequestMethod.DELETE)
+  public void deleteUser(@RequestBody UUID userId) {
+    userService.deleteUser(userId);
+  }
+
+  @RequestMapping(path = "/{userId}/update", method = RequestMethod.POST)
+  public UpdateStatusUserResponse updateStatusUser(@PathVariable UUID userId) {
+    UserStatus userStatus = userStatusService.updateUserStatusByUserId(userId);
+    return new UpdateStatusUserResponse(userId, userStatus.isOnline());
+  }
 
 }

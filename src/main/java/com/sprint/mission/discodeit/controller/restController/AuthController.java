@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/login")
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 
-    @RequestMapping(method = RequestMethod.GET)
-    public LoginResponse login(
-            @RequestBody LoginRequest loginRequest
-    ){
-        return authService.login(loginRequest);
-    }
+  @RequestMapping(method = RequestMethod.GET)
+  public LoginResponse login(
+      @RequestBody LoginRequest loginRequest
+  ) {
+    return authService.login(loginRequest);
+  }
 
 
 }
