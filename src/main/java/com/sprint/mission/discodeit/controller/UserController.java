@@ -23,13 +23,18 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@Controller
-@ResponseBody
-@RequestMapping("/api/user")
+@RestController
+@RequestMapping("/api/users")
 public class UserController {
 
   private final UserService userService;
   private final UserStatusService userStatusService;
+
+  // 전체조회
+  @GetMapping
+  public ResponseEntity<List<UserDto>> findAll() {
+    return ResponseEntity.ok(userService.findAll());
+  }
 
   @RequestMapping(
       path = "create",
@@ -72,13 +77,13 @@ public class UserController {
         .build();
   }
 
-  @RequestMapping(path = "findAll")
-  public ResponseEntity<List<UserDto>> findAll() {
-    List<UserDto> users = userService.findAll();
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(users);
-  }
+//  @RequestMapping(path = "findAll")
+//  public ResponseEntity<List<UserDto>> findAll() {
+//    List<UserDto> users = userService.findAll();
+//    return ResponseEntity
+//        .status(HttpStatus.OK)
+//        .body(users);
+//  }
 
   @RequestMapping(path = "updateUserStatusByUserId")
   public ResponseEntity<UserStatus> updateUserStatusByUserId(@RequestParam("userId") UUID userId,
