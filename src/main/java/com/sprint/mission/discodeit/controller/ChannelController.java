@@ -50,7 +50,7 @@ public class ChannelController {
 
     return ResponseEntity.status(HttpStatus.CREATED)
         .location(location)
-        .body(channelService.create(request));
+        .body(response);
   }
 
   @RequestMapping(path = "/{channelId}", method = RequestMethod.PATCH)
