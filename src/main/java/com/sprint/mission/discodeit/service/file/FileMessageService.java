@@ -2,12 +2,16 @@ package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,7 +35,7 @@ public class FileMessageService implements MessageService {
   public Message create(MessageCreateRequest request, List<MultipartFile> attachments) {
 
     //1. 보낸 유저가 존재하는지 확인
-    Optional<User> sender = userService.findEntityById(request.getSender());
+    Optional<User> sender = userService.findEntityById(request.getAuthorId());
     if (sender.isEmpty()) {
       throw new IllegalArgumentException("보낸 유저가 존재하지 않습니다.");
     }
@@ -39,15 +43,35 @@ public class FileMessageService implements MessageService {
     //2. Message 객체 생성
     Message message = new Message(
         request.getContent(),
-        request.getSender(),
+        request.getAuthorId(),
         request.getChannelId()
     );
 
-    //3. 첨부파일이 있다면 추가
-    if (request.getAttachmentIds() != null) {
-      message.setAttachmentIds(request.getAttachmentIds());
+    //3. 첨부파일 로직 추가
+    if (attachments != null && !attachments.isEmpty()) {
+      List<UUID> attachmentIds = new ArrayList<>();
 
+      for (MultipartFile file : attachments) {
+        try {
+          BinaryContent content = new BinaryContent(
+              UUID.randomUUID(),
+              Instant.now(),
+              message.getId(), // message가 첨부파일의 소유자
+              file.getOriginalFilename(),
+              file.getContentType(),
+              file.getSize(),
+              file.getBytes()
+          );
+          binaryContentRepository.save(content);
+          attachmentIds.add(content.getId());
+        } catch (IOException e) {
+          throw new RuntimeException("첨부파일 저장 중 오류 발생", e);
+        }
+      }
+
+      message.setAttachmentIds(attachmentIds);
     }
+
     repository.save(message);
     return message;
   }
@@ -85,7 +109,7 @@ public class FileMessageService implements MessageService {
       throw new IllegalArgumentException("해당 ID의 메시지가 존재하지 않습니다.");
     }
     // 내용 수정
-    original.setContent(request.getContent());
+    original.setContent(request.getNewContent());
 
     // 수정 시간 업데이트
     original.updateTime();

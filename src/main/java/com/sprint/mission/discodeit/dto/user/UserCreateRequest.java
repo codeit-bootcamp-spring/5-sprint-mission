@@ -9,8 +9,8 @@ import lombok.ToString;
 @NoArgsConstructor
 public class UserCreateRequest {
 
-    private String userId;
-    private String email;
-    private String password;
+  private String username;
+  private String email;
+  private String password;
 
 }

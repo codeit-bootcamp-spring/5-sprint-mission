@@ -1,8 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.binarycontent.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
@@ -50,7 +49,7 @@ public class UserController {
 
   // 사용자 단건 조회
   @GetMapping("/{userId}")
-  public ResponseEntity<UserResponse> findById(@PathVariable UUID userId) {
+  public ResponseEntity<UserDto> findById(@PathVariable UUID userId) {
     return ResponseEntity.ok(userService.findById(userId));
   }
 
