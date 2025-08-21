@@ -29,14 +29,12 @@ import java.util.Optional;
 @SpringBootApplication
 public class DiscodeitApplication {
 
-	public static void main(String[] args) {
+  public static void main(String[] args) {
 
-		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
-		//
-		// UserService userService = context.getBean(UserService.class);
-		// ChannelService channelService = context.getBean(ChannelService.class);
-		// MessageService messageService = context.getBean(MessageService.class);
-		System.out.println("http://localhost:8080/");
+    ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class,
+        args);
+    System.out.println("http://localhost:8080/");
+    System.out.println("http://localhost:8080/swagger-ui/index.html#/");
 
-	}
+  }
 }
