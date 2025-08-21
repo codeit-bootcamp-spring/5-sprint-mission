@@ -18,6 +18,8 @@ public record UserDto(
         UUID profileId,
         Boolean online
 ) {
+
+    //조희 응답은 Entity 기반으로 만들어지는거니 DTO에서
     public static UserDto fromEntity(User user, boolean online) {
         return new UserDto(
                 user.getId(),
