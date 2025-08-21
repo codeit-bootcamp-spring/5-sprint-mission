@@ -2,131 +2,122 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import com.sprint.mission.discodeit.util.FileUtil;
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
-@ConditionalOnProperty(
-    name = "discodeit.repository.type",
-    havingValue = "file"
-)
 public class FileUserStatusRepository implements UserStatusRepository {
 
-  private final Path directoryPath;
+  private final Path DIRECTORY;
+  private final String EXTENSION = ".ser";
 
   public FileUserStatusRepository(
-      @Value("${discodeit.repository.file-directory:.discodeit}")
-      String rootDir
+      @Value("${discodeit.repository.file-directory:data}") String fileDirectory
   ) {
-    this.directoryPath = Paths.get(rootDir).toAbsolutePath().resolve("userStatus");
-  }
-
-  @Override
-  public Optional<UserStatus> save(UserStatus userStatus) {
-    if (userStatus == null) {
-      return Optional.empty();
-    }
-
-    Path path = Path.of(
-        directoryPath.toAbsolutePath() + "/" + userStatus.getId() + FileUtil.getExtension());
-    FileUtil.saveEntity(path, userStatus);
-
-    return Optional.of(userStatus);
-  }
-
-  @Override
-  public Optional<UserStatus> findById(UUID userStatusId) {
-    Path path = Path.of(
-        directoryPath.toAbsolutePath() + "/" + userStatusId + FileUtil.getExtension());
-    return FileUtil.loadEntity(path, UserStatus.class);
-  }
-
-  @Override
-  public List<UserStatus> findAll() {
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-
-    if (!directory.exists() || !directory.isDirectory()) {
-      return List.of();
-    }
-
-    File[] files = directory.listFiles();
-    List<UserStatus> status = new ArrayList<>();
-
-    if (files == null) {
-      return status;
-    }
-
-    for (File file : files) {
-      if (file.isFile() && file.getName().endsWith(FileUtil.getExtension())) {
-        status.add(FileUtil.loadEntity(file.toPath(), UserStatus.class).orElseThrow());
+    this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory,
+        UserStatus.class.getSimpleName());
+    if (Files.notExists(DIRECTORY)) {
+      try {
+        Files.createDirectories(DIRECTORY);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
       }
     }
-    return status;
+  }
+
+  private Path resolvePath(UUID id) {
+    return DIRECTORY.resolve(id + EXTENSION);
+  }
+
+  @Override
+  public UserStatus save(UserStatus userStatus) {
+    Path path = resolvePath(userStatus.getId());
+    try (
+        FileOutputStream fos = new FileOutputStream(path.toFile());
+        ObjectOutputStream oos = new ObjectOutputStream(fos)
+    ) {
+      oos.writeObject(userStatus);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return userStatus;
+  }
+
+  @Override
+  public Optional<UserStatus> findById(UUID id) {
+    UserStatus userStatusNullable = null;
+    Path path = resolvePath(id);
+    if (Files.exists(path)) {
+      try (
+          FileInputStream fis = new FileInputStream(path.toFile());
+          ObjectInputStream ois = new ObjectInputStream(fis)
+      ) {
+        userStatusNullable = (UserStatus) ois.readObject();
+      } catch (IOException | ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return Optional.ofNullable(userStatusNullable);
   }
 
   @Override
   public Optional<UserStatus> findByUserId(UUID userId) {
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-    File[] files = directory.listFiles();
+    return findAll().stream()
+        .filter(userStatus -> userStatus.getUserId().equals(userId))
+        .findFirst();
+  }
 
-    if (files == null) {
-      return Optional.empty();
+  @Override
+  public List<UserStatus> findAll() {
+    try (Stream<Path> paths = Files.list(DIRECTORY)) {
+      return paths
+          .filter(path -> path.toString().endsWith(EXTENSION))
+          .map(path -> {
+            try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+              return (UserStatus) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+              throw new RuntimeException(e);
+            }
+          })
+          .toList();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    for (File file : files) {
-      Path filePath = file.toPath();
-      Optional<UserStatus> userStatusOpt = FileUtil.loadEntity(filePath, UserStatus.class);
-      if (userStatusOpt.isPresent() && userId.equals(userStatusOpt.get().getUserId())) {
-        return userStatusOpt;
-      }
-    }
-
-    return Optional.empty();
+  @Override
+  public boolean existsById(UUID id) {
+    Path path = resolvePath(id);
+    return Files.exists(path);
   }
 
   @Override
   public void deleteById(UUID id) {
-    Path path = Path.of(directoryPath.toAbsolutePath() + "/" + id + FileUtil.getExtension());
-
-    path.toFile().delete();
+    Path path = resolvePath(id);
+    try {
+      Files.delete(path);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public void deleteByUserId(UUID userId) {
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-    File[] files = directory.listFiles();
-
-    if (files == null) {
-      throw new IllegalArgumentException("FileUserStatusRepository: No files found in directory");
-    }
-
-    for (File file : files) {
-      Path filePath = file.toPath();
-      Optional<UserStatus> userStatusOpt = FileUtil.loadEntity(filePath, UserStatus.class);
-      if (userStatusOpt.isPresent() && userId.equals(userStatusOpt.get().getUserId())) {
-        file.delete();
-      }
-    }
-  }
-
-  @Override
-  public void deleteAll() {
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-
-    File[] files = directory.listFiles();
-    if (files != null) {
-      for (File file : files) {
-        file.delete();
-      }
-    }
+    this.findByUserId(userId)
+        .ifPresent(userStatus -> this.deleteById(userStatus.getId()));
   }
 }

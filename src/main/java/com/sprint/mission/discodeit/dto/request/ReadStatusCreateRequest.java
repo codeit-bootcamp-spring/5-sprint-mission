@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.dto.request;
 
+import java.time.Instant;
 import java.util.UUID;
 
-public record AddMessageRequest(
-    String messageContent,
+public record ReadStatusCreateRequest(
     UUID userId,
     UUID channelId,
-    UUID... attachmentIds
+    Instant lastReadAt
 ) {
 
 }

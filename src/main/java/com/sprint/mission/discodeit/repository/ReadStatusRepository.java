@@ -1,28 +1,24 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface ReadStatusRepository {
 
-  List<ReadStatus> findAll();
+  ReadStatus save(ReadStatus readStatus);
 
-  Optional<ReadStatus> findById(UUID readStatusId);
+  Optional<ReadStatus> findById(UUID id);
 
   List<ReadStatus> findAllByUserId(UUID userId);
 
-  Optional<ReadStatus> save(ReadStatus readStatus);
+  List<ReadStatus> findAllByChannelId(UUID channelId);
+
+  boolean existsById(UUID id);
 
   void deleteById(UUID id);
 
-  void deleteAll();
-
-  List<UUID> findUsersIdByChannelId(UUID channelId);
-
-  List<UUID> findChannelsIdByUserId(UUID userId);
-
-  void deleteByChannelId(UUID channelId);
+  void deleteAllByChannelId(UUID channelId);
 }
-

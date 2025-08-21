@@ -2,143 +2,116 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.util.FileUtil;
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
-@ConditionalOnProperty(
-    name = "discodeit.repository.type",
-    havingValue = "file"
-)
 public class FileMessageRepository implements MessageRepository {
 
-  private final Path directoryPath;
+  private final Path DIRECTORY;
+  private final String EXTENSION = ".ser";
 
   public FileMessageRepository(
-      @Value("${discodeit.repository.file-directory:.discodeit}")
-      String rootDir
+      @Value("${discodeit.repository.file-directory:data}") String fileDirectory
   ) {
-    this.directoryPath = Paths.get(rootDir).toAbsolutePath().resolve("messages");
-  }
-
-  @Override
-  public Optional<Message> save(Message message) {
-    if (message == null) {
-      return Optional.empty();
-    }
-
-    Path filePath = Path.of(
-        directoryPath.toAbsolutePath() + "/" + message.getId() + FileUtil.getExtension());
-    FileUtil.saveEntity(filePath, message);
-    return Optional.of(message);
-  }
-
-  @Override
-  public Optional<Message> findById(UUID messageId) {
-    if (messageId == null) {
-      return Optional.empty();
-    }
-
-    Path filePath = Path.of(
-        directoryPath.toAbsolutePath() + "/" + messageId + FileUtil.getExtension());
-    return FileUtil.loadEntity(filePath, Message.class);
-  }
-
-  @Override
-  public List<Message> findAll() {
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-
-    if (!directory.exists() || !directory.isDirectory()) {
-      return List.of();
-    }
-
-    File[] files = directory.listFiles();
-    ArrayList<Message> messages = new ArrayList<>();
-
-    if (files == null) {
-      return messages;
-    }
-
-    for (File file : files) {
-      if (file.isFile() && file.getName().endsWith(FileUtil.getExtension())) {
-        messages.add(FileUtil.loadEntity(file.toPath(), Message.class).orElseThrow());
+    this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory,
+        Message.class.getSimpleName());
+    if (Files.notExists(DIRECTORY)) {
+      try {
+        Files.createDirectories(DIRECTORY);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
       }
     }
-    return messages;
+  }
+
+  private Path resolvePath(UUID id) {
+    return DIRECTORY.resolve(id + EXTENSION);
   }
 
   @Override
-  public void delete(UUID messageId) {
-    if (messageId == null) {
-      return;
+  public Message save(Message message) {
+    Path path = resolvePath(message.getId());
+    try (
+        FileOutputStream fos = new FileOutputStream(path.toFile());
+        ObjectOutputStream oos = new ObjectOutputStream(fos)
+    ) {
+      oos.writeObject(message);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
-
-    Path path = Path.of(directoryPath.toAbsolutePath() + "/" + messageId + FileUtil.getExtension());
-
-    path.toFile().delete();
+    return message;
   }
 
   @Override
-  public void deleteAll() {
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-
-    File[] files = directory.listFiles();
-    if (files != null) {
-      for (File file : files) {
-        file.delete();
+  public Optional<Message> findById(UUID id) {
+    Message messageNullable = null;
+    Path path = resolvePath(id);
+    if (Files.exists(path)) {
+      try (
+          FileInputStream fis = new FileInputStream(path.toFile());
+          ObjectInputStream ois = new ObjectInputStream(fis)
+      ) {
+        messageNullable = (Message) ois.readObject();
+      } catch (IOException | ClassNotFoundException e) {
+        throw new RuntimeException(e);
       }
     }
+    return Optional.ofNullable(messageNullable);
   }
 
   @Override
   public List<Message> findAllByChannelId(UUID channelId) {
-    if (channelId == null) {
-      return List.of();
+    try (Stream<Path> paths = Files.list(DIRECTORY)) {
+      return paths
+          .filter(path -> path.toString().endsWith(EXTENSION))
+          .map(path -> {
+            try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+              return (Message) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+              throw new RuntimeException(e);
+            }
+          })
+          .filter(message -> message.getChannelId().equals(channelId))
+          .toList();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
-
-    List<Message> returnMessages = new ArrayList<>();
-
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-    File[] files = directory.listFiles();
-
-    if (files != null) {
-      for (File file : files) {
-        Path filePath = file.toPath();
-        Optional<Message> msgOpt = FileUtil.loadEntity(filePath, Message.class);
-        if (msgOpt.isPresent() && channelId.equals(msgOpt.get().getChannelId())) {
-          returnMessages.add(msgOpt.get());
-        }
-      }
-    }
-    return returnMessages;
   }
 
   @Override
-  public void deleteByChannelId(UUID channelId) {
-    if (channelId == null) {
-      return;
-    }
+  public boolean existsById(UUID id) {
+    Path path = resolvePath(id);
+    return Files.exists(path);
+  }
 
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-    File[] files = directory.listFiles();
-
-    if (files != null) {
-      for (File file : files) {
-        Path filePath = file.toPath();
-        Optional<Message> msgOpt = FileUtil.loadEntity(filePath, Message.class);
-        if (msgOpt.isPresent() && channelId.equals(msgOpt.get().getChannelId())) {
-          file.delete();
-        }
-      }
+  @Override
+  public void deleteById(UUID id) {
+    Path path = resolvePath(id);
+    try {
+      Files.delete(path);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public void deleteAllByChannelId(UUID channelId) {
+    this.findAllByChannelId(channelId)
+        .forEach(message -> this.deleteById(message.getId()));
   }
 }

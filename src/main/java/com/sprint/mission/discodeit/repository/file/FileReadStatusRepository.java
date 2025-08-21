@@ -2,198 +2,138 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.util.FileUtil;
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
-@ConditionalOnProperty(
-    name = "discodeit.repository.type",
-    havingValue = "file"
-)
 public class FileReadStatusRepository implements ReadStatusRepository {
 
-  private final Path directoryPath;
+  private final Path DIRECTORY;
+  private final String EXTENSION = ".ser";
 
   public FileReadStatusRepository(
-      @Value("${discodeit.repository.file-directory:.discodeit}")
-      String rootDir
+      @Value("${discodeit.repository.file-directory:data}") String fileDirectory
   ) {
-    this.directoryPath = Paths.get(rootDir).toAbsolutePath().resolve("readStatus");
-  }
-
-  @Override
-  public List<ReadStatus> findAll() {
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-
-    if (!directory.exists() || !directory.isDirectory()) {
-      return List.of();
-    }
-    File[] files = directory.listFiles();
-    List<ReadStatus> readStatuses = new ArrayList<>();
-    if (files == null) {
-      return readStatuses;
-    }
-    for (File file : files) {
-      if (file.isFile() && file.getName().endsWith(FileUtil.getExtension())) {
-        readStatuses.add(FileUtil.loadEntity(file.toPath(), ReadStatus.class).orElseThrow());
+    this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory,
+        ReadStatus.class.getSimpleName());
+    if (Files.notExists(DIRECTORY)) {
+      try {
+        Files.createDirectories(DIRECTORY);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
       }
     }
-    return readStatuses;
+  }
 
+  private Path resolvePath(UUID id) {
+    return DIRECTORY.resolve(id + EXTENSION);
   }
 
   @Override
-  public Optional<ReadStatus> save(ReadStatus readStatus) {
-    if (readStatus == null) {
-      return Optional.empty();
+  public ReadStatus save(ReadStatus readStatus) {
+    Path path = resolvePath(readStatus.getId());
+    try (
+        FileOutputStream fos = new FileOutputStream(path.toFile());
+        ObjectOutputStream oos = new ObjectOutputStream(fos)
+    ) {
+      oos.writeObject(readStatus);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
-
-    Path path = Path.of(
-        directoryPath.toAbsolutePath() + "/" + readStatus.getId() + FileUtil.getExtension());
-    FileUtil.saveEntity(path, readStatus);
-
-    return Optional.of(readStatus);
+    return readStatus;
   }
 
   @Override
-  public Optional<ReadStatus> findById(UUID readStatusId) {
-    if (readStatusId == null) {
-      return Optional.empty();
-    }
-
-    Path path = Path.of(
-        directoryPath.toAbsolutePath() + "/" + readStatusId + FileUtil.getExtension());
-    return FileUtil.loadEntity(path, ReadStatus.class);
-  }
-
-  @Override
-  public List<UUID> findUsersIdByChannelId(UUID channelId) {
-    if (channelId == null) {
-      return List.of();
-    }
-
-    List<UUID> returnUserUUIDs = new ArrayList<>();
-
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-    File[] files = directory.listFiles();
-
-    if (files == null) {
-      return returnUserUUIDs;
-    }
-
-    for (File file : files) {
-      Path filePath = file.toPath();
-      Optional<ReadStatus> readStatusOpt = FileUtil.loadEntity(filePath, ReadStatus.class);
-      if (readStatusOpt.isPresent() && channelId.equals(readStatusOpt.get().getChannelId())) {
-        returnUserUUIDs.add(readStatusOpt.get().getUserId());
+  public Optional<ReadStatus> findById(UUID id) {
+    ReadStatus readStatusNullable = null;
+    Path path = resolvePath(id);
+    if (Files.exists(path)) {
+      try (
+          FileInputStream fis = new FileInputStream(path.toFile());
+          ObjectInputStream ois = new ObjectInputStream(fis)
+      ) {
+        readStatusNullable = (ReadStatus) ois.readObject();
+      } catch (IOException | ClassNotFoundException e) {
+        throw new RuntimeException(e);
       }
     }
-
-    return returnUserUUIDs;
-  }
-
-  @Override
-  public List<UUID> findChannelsIdByUserId(UUID userId) {
-    if (userId == null) {
-      return List.of();
-    }
-
-    List<UUID> returnChannelsUUIDs = new ArrayList<>();
-
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-    File[] files = directory.listFiles();
-
-    if (files == null) {
-      return returnChannelsUUIDs;
-    }
-
-    for (File file : files) {
-      Path filePath = file.toPath();
-      Optional<ReadStatus> readStatusOpt = FileUtil.loadEntity(filePath, ReadStatus.class);
-      if (readStatusOpt.isPresent() && userId.equals(readStatusOpt.get().getUserId())) {
-        returnChannelsUUIDs.add(readStatusOpt.get().getChannelId());
-      }
-    }
-
-    return returnChannelsUUIDs;
+    return Optional.ofNullable(readStatusNullable);
   }
 
   @Override
   public List<ReadStatus> findAllByUserId(UUID userId) {
-    if (userId == null) {
-      return List.of();
+    try (Stream<Path> paths = Files.list(DIRECTORY)) {
+      return paths
+          .filter(path -> path.toString().endsWith(EXTENSION))
+          .map(path -> {
+            try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+              return (ReadStatus) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+              throw new RuntimeException(e);
+            }
+          })
+          .filter(readStatus -> readStatus.getUserId().equals(userId))
+          .toList();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    List<ReadStatus> returnReadStatuses = new ArrayList<>();
-
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-    File[] files = directory.listFiles();
-
-    if (files == null) {
-      return returnReadStatuses;
+  @Override
+  public List<ReadStatus> findAllByChannelId(UUID channelId) {
+    try (Stream<Path> paths = Files.list(DIRECTORY)) {
+      return paths
+          .filter(path -> path.toString().endsWith(EXTENSION))
+          .map(path -> {
+            try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+              return (ReadStatus) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+              throw new RuntimeException(e);
+            }
+          })
+          .filter(readStatus -> readStatus.getChannelId().equals(channelId))
+          .toList();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    for (File file : files) {
-      Path filePath = file.toPath();
-      Optional<ReadStatus> readStatusOpt = FileUtil.loadEntity(filePath, ReadStatus.class);
-      if (readStatusOpt.isPresent() && userId.equals(readStatusOpt.get().getUserId())) {
-        returnReadStatuses.add(readStatusOpt.get());
-      }
-    }
-
-    return returnReadStatuses;
+  @Override
+  public boolean existsById(UUID id) {
+    Path path = resolvePath(id);
+    return Files.exists(path);
   }
 
   @Override
   public void deleteById(UUID id) {
-    if (id == null) {
-      return;
-    }
-
-    Path path = Path.of(directoryPath.toAbsolutePath() + "/" + id + FileUtil.getExtension());
-    path.toFile().delete();
-  }
-
-  @Override
-  public void deleteByChannelId(UUID channelId) {
-    if (channelId == null) {
-      return;
-    }
-
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-    File[] files = directory.listFiles();
-
-    if (files == null) {
-      return;
-    }
-
-    for (File file : files) {
-      Path filePath = file.toPath();
-      Optional<ReadStatus> statusOpt = FileUtil.loadEntity(filePath, ReadStatus.class);
-      if (statusOpt.isPresent() && channelId.equals(statusOpt.get().getChannelId())) {
-        file.delete();
-      }
+    Path path = resolvePath(id);
+    try {
+      Files.delete(path);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
   @Override
-  public void deleteAll() {
-    File directory = new File(directoryPath.toAbsolutePath() + "/");
-
-    File[] files = directory.listFiles();
-    if (files != null) {
-      for (File file : files) {
-        file.delete();
-      }
-    }
+  public void deleteAllByChannelId(UUID channelId) {
+    this.findAllByChannelId(channelId)
+        .forEach(readStatus -> this.deleteById(readStatus.getId()));
   }
 }

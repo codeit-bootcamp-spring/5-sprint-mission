@@ -1,22 +1,35 @@
 package com.sprint.mission.discodeit.exception;
 
-import java.io.IOException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import java.util.NoSuchElementException;
 
+@ControllerAdvice
+@ResponseBody
 public class GlobalExceptionHandler {
 
-  public static void handleException(Exception e) {
-    if (e instanceof IllegalArgumentException) {
-      System.out.println("IllegalArgumentException 발생");
-    } else if (e instanceof IOException) {
-      System.out.println("IOException 발생");
-    } else if (e instanceof NoSuchElementException) {
-      System.out.println("NoSuchElementException 발생");
-    } else {
-      System.out.println("other exception");
-    }
-    System.out.println(e.getMessage());
-    e.printStackTrace();
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<String> handleException(IllegalArgumentException e) {
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(e.getMessage());
+  }
+
+  @ExceptionHandler(NoSuchElementException.class)
+  public ResponseEntity<String> handleException(NoSuchElementException e) {
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body(e.getMessage());
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<String> handleException(Exception e) {
+    return ResponseEntity
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(e.getMessage());
   }
 }
-

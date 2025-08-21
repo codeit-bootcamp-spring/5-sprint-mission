@@ -1,80 +1,52 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
+import java.util.*;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
-@ConditionalOnProperty(
-    name = "discodeit.repository.type",
-    havingValue = "jcf",
-    matchIfMissing = true
-)
-public class JCFMessageRepository implements
-    com.sprint.mission.discodeit.repository.MessageRepository {
+public class JCFMessageRepository implements MessageRepository {
 
-  private final Map<UUID, Message> data = new HashMap<>();
+  private final Map<UUID, Message> data;
 
   public JCFMessageRepository() {
+    this.data = new HashMap<>();
   }
 
   @Override
-  public Optional<Message> save(Message message) {
-    if (message == null) {
-      return Optional.empty();
-    }
-
-    data.put(message.getId(), message);
-    return Optional.of(message);
+  public Message save(Message message) {
+    this.data.put(message.getId(), message);
+    return message;
   }
 
   @Override
-  public Optional<Message> findById(UUID messageId) {
-    if (data.containsKey(messageId)) {
-      return Optional.of(data.get(messageId));
-    }
-    return Optional.empty();
-  }
-
-  @Override
-  public List<Message> findAll() {
-    return new ArrayList<>(data.values());
-  }
-
-  @Override
-  public void delete(UUID messageId) {
-    data.remove(messageId);
-  }
-
-  @Override
-  public void deleteAll() {
-    data.clear();
+  public Optional<Message> findById(UUID id) {
+    return Optional.ofNullable(this.data.get(id));
   }
 
   @Override
   public List<Message> findAllByChannelId(UUID channelId) {
-    List<Message> resultList = new ArrayList<>();
-
-    for (Message message : data.values()) {
-      if (message.getChannelId().equals(channelId)) {
-        resultList.add(message);
-      }
-    }
-
-    return resultList;
+    return this.data.values().stream().filter(message -> message.getChannelId().equals(channelId))
+        .toList();
   }
 
   @Override
-  public void deleteByChannelId(UUID channelId) {
-    data.entrySet().removeIf(entry ->
-        entry.getValue().getChannelId().equals(channelId)
-    );
+  public boolean existsById(UUID id) {
+    return this.data.containsKey(id);
+  }
+
+  @Override
+  public void deleteById(UUID id) {
+    this.data.remove(id);
+  }
+
+  @Override
+  public void deleteAllByChannelId(UUID channelId) {
+    this.findAllByChannelId(channelId)
+        .forEach(message -> this.deleteById(message.getId()));
   }
 }
