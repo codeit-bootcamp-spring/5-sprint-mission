@@ -1,67 +1,61 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
+@Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
 
-    private final UUID id;                //고유 아이디
-    private String password;        //비밀번호
-    private String name;            //이름
-    private final Long createdAt;          //생성 시간
-    private Long updatedAt;          //수정 시간
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
+    private String username;
+    private String email;
 
-    public User() {
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;        //비밀번호 노출 안함
+
+    private UUID profileId;     // BinaryContent
+
+    public User(String username, String email, String password, UUID profileId) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-    };
-
-    public User(String password, String name) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
+        this.createdAt = Instant.now();
+        //
+        this.username = username;
+        this.email = email;
         this.password = password;
-        this.name = name;
+        this.profileId = profileId;
     }
 
-    public UUID getId() {
-        return id;
-    }
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+            this.profileId = newProfileId;
+            anyValueUpdated = true;
+        }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    @Override
-    public String toString() {
-        return "사용자 { " +
-                "아이디 = " + id +
-                ", 비밀번호 = '" + password + '\'' +
-                ", 이름 = '" + name + '\'' +
-                ", 생성 시간 = " + createdAt +
-                ", 수정 시간 = " + updatedAt +
-                " }";
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
