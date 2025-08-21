@@ -141,16 +141,14 @@ public class BasicChannelService implements ChannelService {
 		Channel channel = channelRepository.findById(request.getChannelId())
 				.orElseThrow(ChannelNotFoundException::new);
 
-		List<ReadStatus> readStatuses = readStatusRepository.findByChannelIdAndUserId(
+		ReadStatus readStatus = readStatusRepository.findByChannelIdAndUserId(
 				request.getChannelId(), request.getUserId());
 
-		if (readStatuses.isEmpty()) {
+		if (readStatus == null) {
 			throw new NotChannelMemberException();
 		}
 
-		for (ReadStatus readStatus : readStatuses) {
-			readStatusRepository.deleteById(readStatus.getId());
-		}
+		readStatusRepository.deleteById(readStatus.getId());
 
 		channel.updateUpdatedAt();
 		channelRepository.save(channel);
