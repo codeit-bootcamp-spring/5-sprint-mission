@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.common.ApiResult;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
@@ -60,7 +59,6 @@ public class UserController {
         .status(HttpStatus.CREATED)
         .body(createdUser);
   }
-
 
   @RequestMapping(
       path = "update",
