@@ -56,6 +56,7 @@ public class BasicChannelService implements ChannelService {
 		Channel channel = new Channel(request.getChannelName());
 		channelRepository.save(channel);
 
+
 		return CreateChannelResponse.success(channel);
 	}
 
