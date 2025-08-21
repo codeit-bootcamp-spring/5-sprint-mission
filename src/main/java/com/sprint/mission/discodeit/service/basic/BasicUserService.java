@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.neutral.UserCommand;
 import com.sprint.mission.discodeit.dto.response.UserFindResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
@@ -16,7 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,15 +29,14 @@ public class BasicUserService implements UserService {
   private final UserStatusRepository userStatusRepository;
 
   @Override
-  public User create(@Valid UserCreateRequest userCreateRequest,
-      @Valid Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
-    String username = userCreateRequest.username();
-    String password = userCreateRequest.password();
-    String email = userCreateRequest.email();
+  public User create(@Valid UserCommand userCommand) {
+    String username = userCommand.username();
+    String password = userCommand.password();
+    String email = userCommand.email();
     validateUsername(username);
     validateEmail(email);
 
-    UUID profileId = binaryContentCreateRequest
+    UUID profileId = userCommand.profile()
         .map(request -> {
           BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(),
               request.bytes());
@@ -95,11 +91,10 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public User update(UUID userId, @Valid UserUpdateRequest userUpdateRequest,
-      @Valid Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
-    String newUserName = userUpdateRequest.newUsername();
-    String newPassword = userUpdateRequest.newPassword();
-    String newEmail = userUpdateRequest.newEmail();
+  public User update(UUID userId, @Valid UserCommand userCommand) {
+    String newUserName = userCommand.username();
+    String newPassword = userCommand.password();
+    String newEmail = userCommand.email();
 
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다. [" + userId + "]"));
@@ -111,7 +106,7 @@ public class BasicUserService implements UserService {
       validateEmail(newEmail);
     }
 
-    UUID newProfileId = binaryContentCreateRequest
+    UUID newProfileId = userCommand.profile()
         .map(request -> {
           BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(),
               request.bytes());

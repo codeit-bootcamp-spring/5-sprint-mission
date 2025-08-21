@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.neutral.MessageCreateCommand;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.exception.ThrowableIOException;
+import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
 import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -41,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MessageController {
 
   private final MessageService messageService;
+  private final MultipartFileMapper multipartFileMapper;
 
   @Operation(summary = "Message 생성")
   @ApiResponses(value = {
@@ -52,24 +52,16 @@ public class MessageController {
   public ResponseEntity<Message> create(
       @RequestPart MessageCreateRequest messageCreateRequest,
       @RequestPart(required = false) @Schema(description = "Message 첨부 파일들") List<MultipartFile> attachments
-  ) {
-    List<BinaryContentCreateRequest> binaryContentCreateRequests =
-        Optional.ofNullable(attachments)
-            .map(files -> files.stream()
-                .map(file -> {
-                  try {
-                    return new BinaryContentCreateRequest(
-                        file.getOriginalFilename(),
-                        file.getContentType(),
-                        file.getBytes()
-                    );
-                  } catch (IOException e) {
-                    throw new ThrowableIOException("메세지 생성 중 파일 불러오기 실패", e);
-                  }
-                }).toList())
-            .orElse(List.of());
+  ) throws IOException {
 
-    Message message = messageService.create(messageCreateRequest, binaryContentCreateRequests);
+    MessageCreateCommand messageCreateCommand = new MessageCreateCommand(
+        messageCreateRequest.channelId(),
+        messageCreateRequest.authorId(),
+        messageCreateRequest.content(),
+        multipartFileMapper.toNewBinaryContentList(attachments)
+    );
+
+    Message message = messageService.create(messageCreateCommand);
     return ResponseEntity.status(HttpStatus.CREATED).body(message);
   }
 

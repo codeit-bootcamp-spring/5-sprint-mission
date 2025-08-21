@@ -1,26 +1,21 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.neutral.UserCommand;
 import com.sprint.mission.discodeit.dto.response.UserFindResponse;
 import com.sprint.mission.discodeit.entity.User;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
 
-  User create(@Valid UserCreateRequest userCreateRequest,
-      @Valid Optional<BinaryContentCreateRequest> binaryContentCreateRequest);
+  User create(@Valid UserCommand userCommand);
 
   UserFindResponse findById(UUID userId);
 
   List<UserFindResponse> findAll();
 
-  User update(UUID userId, @Valid UserUpdateRequest userUpdateRequest,
-      @Valid Optional<BinaryContentCreateRequest> binaryContentCreateRequest);
+  User update(UUID userId, @Valid UserCommand userCommand);
 
   void delete(UUID userId);
 }

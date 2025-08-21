@@ -1,14 +1,15 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.neutral.UserCommand;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserFindResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.basic.BasicUserStatusService;
+import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,7 +20,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -43,7 +43,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
   private final UserService userService;
-  private final BasicUserStatusService userStatusService;
+  private final UserStatusService userStatusService;
+  private final MultipartFileMapper multipartFileMapper;
 
   @Operation(summary = "User 등록")
   @ApiResponses(value = {
@@ -56,15 +57,14 @@ public class UserController {
       @RequestPart UserCreateRequest userCreateRequest,
       @RequestPart(required = false) @Schema(description = "User 프로필 이미지") MultipartFile profile
   ) throws IOException {
-    Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
-    if (profile != null && !profile.isEmpty()) {
-      binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-          profile.getOriginalFilename(),
-          profile.getContentType(),
-          profile.getBytes()
-      ));
-    }
-    User createdUser = userService.create(userCreateRequest, binaryContentCreateRequest);
+
+    UserCommand userCommand = new UserCommand(
+        userCreateRequest.username(),
+        userCreateRequest.email(),
+        userCreateRequest.password(),
+        multipartFileMapper.toNewBinaryContent(profile));
+
+    User createdUser = userService.create(userCommand);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
   }
 
@@ -83,15 +83,16 @@ public class UserController {
       @RequestPart UserUpdateRequest userUpdateRequest,
       @RequestPart(required = false) @Schema(description = "수정할 User 프로필 이미지") MultipartFile profile
   ) throws IOException {
-    Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
-    if (profile != null && !profile.isEmpty()) {
-      binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-          profile.getOriginalFilename(),
-          profile.getContentType(),
-          profile.getBytes()
-      ));
-    }
-    User updatedUser = userService.update(userId, userUpdateRequest, binaryContentCreateRequest);
+
+    UserCommand userCommand = new UserCommand(
+        userUpdateRequest.newUsername(),
+        userUpdateRequest.newEmail(),
+        userUpdateRequest.newPassword(),
+        multipartFileMapper.toNewBinaryContent(profile)
+    );
+
+    User updatedUser = userService.update(userId, userCommand);
+
     return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
   }
 

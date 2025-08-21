@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.neutral.MessageCreateCommand;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
@@ -31,14 +30,13 @@ public class BasicMessageService implements MessageService {
   private final BinaryContentRepository binaryContentRepository;
 
   @Override
-  public Message create(@Valid MessageCreateRequest messageCreateRequest,
-      @Valid List<BinaryContentCreateRequest> binaryContentCreateRequests) {
-    String content = messageCreateRequest.content();
-    UUID authorId = messageCreateRequest.authorId();
-    UUID channelId = messageCreateRequest.channelId();
+  public Message create(@Valid MessageCreateCommand messageCreateCommand) {
+    String content = messageCreateCommand.content();
+    UUID authorId = messageCreateCommand.authorId();
+    UUID channelId = messageCreateCommand.channelId();
     validateExist(authorId, channelId);
 
-    List<UUID> attachmentIds = binaryContentCreateRequests.stream()
+    List<UUID> attachmentIds = messageCreateCommand.attachments().stream()
         .map(request -> {
           BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(),
               request.bytes());
