@@ -15,7 +15,6 @@ import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.response.CreateMessageResponse;
 import com.sprint.mission.discodeit.domain.response.MessageResponse;
-import com.sprint.mission.discodeit.domain.response.MessagesInChannelResponse;
 import com.sprint.mission.discodeit.domain.response.UpdateMessageResponse;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -172,19 +171,16 @@ public class BasicMessageService implements MessageService {
 		  .build();
 	}
 
-	public static MessagesInChannelResponse toMessagesInChannelResponse(List<Message> messages) {
-		return new MessagesInChannelResponse(
-		  messages.stream().map(message ->
-			new MessageResponse(
-			  message.getId(),
-			  message.getCreatedAt(),
-			  message.getUpdatedAt(),
-			  message.getContent(),
-			  message.getAuthorId(),
-			  message.getChannelId(),
-			  message.getAttachmentIds()
-			)
-		  ).toList()
-		);
+	public static List<MessageResponse> toMessagesInChannelResponse(List<Message> messages) {
+		return messages.stream().map(message ->
+			MessageResponse.builder()
+			  .id(message.getId())
+			  .createdAt(message.getCreatedAt())
+			  .updatedAt(message.getUpdatedAt())
+			  .content(message.getContent())
+			  .authorId(message.getAuthorId())
+			  .channelId(message.getChannelId())
+			  .attachmentIds(message.getAttachmentIds()).build())
+		  .toList();
 	}
 }

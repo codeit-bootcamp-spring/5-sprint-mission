@@ -54,10 +54,10 @@ public class BasicChannelService implements ChannelService {
 
 		Channel newChannel = new Channel(PRIVATE);
 
-		dto.getUserIds().forEach(
-		  id -> readStatusRepository.save(
-			new ReadStatus(id, newChannel.getId(), null))
-		);
+		// dto.getUserIds().forEach(
+		//   id -> readStatusRepository.save(
+		// 	new ReadStatus(id, newChannel.getId(), null))
+		// );
 
 		Channel savedChannel = channelRepository.save(newChannel);
 

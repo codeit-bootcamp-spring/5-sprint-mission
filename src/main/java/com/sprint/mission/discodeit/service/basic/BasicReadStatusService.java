@@ -90,6 +90,8 @@ public class BasicReadStatusService implements ReadStatusService {
 		  .userId(readStatus.getUserId())
 		  .channelId(readStatus.getChannelId())
 		  .lastReadAt(readStatus.getLastReadAt())
+		  .createdAt(readStatus.getCreatedAt())
+		  .updatedAt(readStatus.getUpdatedAt())
 		  .build();
 	}
 
@@ -99,6 +101,8 @@ public class BasicReadStatusService implements ReadStatusService {
 		  .userId(readStatus.getUserId())
 		  .channelId(readStatus.getChannelId())
 		  .lastReadAt(readStatus.getLastReadAt())
+		  .createdAt(readStatus.getCreatedAt())
+		  .updatedAt(readStatus.getUpdatedAt())
 		  .build();
 	}
 
@@ -109,6 +113,8 @@ public class BasicReadStatusService implements ReadStatusService {
 			.userId(rs.getUserId())
 			.channelId(rs.getChannelId())
 			.lastReadAt(rs.getLastReadAt())
+			.createdAt(rs.getCreatedAt())
+			.updatedAt(rs.getUpdatedAt())
 			.build())
 		  .toList();
 

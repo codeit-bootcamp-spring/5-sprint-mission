@@ -42,3 +42,22 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+tasks.register("dockerBuildxMultiPlatform", Exec) {
+    dependsOn bootJar
+
+    group = "docker"
+    description = "Build and push multi-platform docker image using buildx"
+
+    def imageName = "gyural/spring-mission-5:latest"
+
+    commandLine "docker", "buildx", "build",
+            "--platform", "linux/amd64,linux/arm64",
+            "-t", imageName,
+            "--push",
+            "."
+
+    doFirst {
+        println "Building multi-platform Docker image: ${imageName}"
+    }
+}
