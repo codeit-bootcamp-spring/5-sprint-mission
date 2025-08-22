@@ -2,7 +2,21 @@ spring:
   application:
     name: discodeit
 
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs          # 스펙 JSON 경로
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html      # UI 진입 경로
+    display-request-duration: true
+    persist-authorization: true # 새로고침 후 토큰 유지
+
+
 discodeit:
   repository:
     type: file   # jcf | file
     file-directory: .discodeit
+
+
