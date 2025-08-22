@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto.channel;
 
+
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import java.util.List;
@@ -10,9 +11,10 @@ import lombok.Data;
 public class PrivateChannelCreateRequest {
 
   private List<UUID> participantIds;
-  
-  private String ownerId; // 채널 생성자 Id
+
   private String name; // 채널 이름
+  private String ownerId; // 채널 생성자 Id
+  private String description; //채널 설명
   private List<String> membersId; // 초대한 멤버 목록
 
 
@@ -20,8 +22,9 @@ public class PrivateChannelCreateRequest {
   public Channel toEntity() {
     return new Channel(
         UUID.randomUUID(),
-        "",
+        name,
         ownerId,
+        description,
         ChannelType.PRIVATE_CHANNEL,
         membersId
     );
@@ -30,12 +33,14 @@ public class PrivateChannelCreateRequest {
   //고정된 UUID를 외부에서 주입받는 방식
   public Channel toEntityWithId(UUID fixedId) {
     return new Channel(
-        fixedId, // 전달받은 UUID 사용
-        "",
+        fixedId,
+        name,
         ownerId,
+        description,
         ChannelType.PRIVATE_CHANNEL,
         membersId
     );
   }
 }
+
 

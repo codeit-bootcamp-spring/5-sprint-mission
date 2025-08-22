@@ -37,7 +37,7 @@ public class FileUserService implements UserService {
     }
 
     // 🔒 username, email 중복 확인
-    if (repository.existsByUserId(request.getUsername())) {
+    if (repository.existsByUsername(request.getUsername())) {
       throw new IllegalArgumentException("이미 존재하는 username입니다.");
     }
     if (repository.existsByEmail(request.getEmail())) {
@@ -197,8 +197,8 @@ public class FileUserService implements UserService {
 
 
   @Override
-  public boolean existsByUsername(String userId) {
-    return repository.existsByUserId(userId);
+  public boolean existsByUsername(String username) {
+    return repository.existsByUsername(username);
   }
 
   @Override

@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,9 +28,10 @@ public class ChannelController {
 
   // ✅ 공개 채널 생성: dto 객체로 넘기는 것으루 수정하기
   @PostMapping("/api/channels/public")
-  public ResponseEntity<Void> createPublic(@RequestBody PublicChannelCreateRequest request) {
-    channelService.create(request.toEntity()); // Entity로 변환해서 넘김
-    return ResponseEntity.status(HttpStatus.CREATED).build();
+  public ResponseEntity<UUID> createPublic(@RequestBody PublicChannelCreateRequest request) {
+    Channel channel = request.toEntity(); // 💡 엔티티 생성
+    channelService.create(channel); // 저장
+    return ResponseEntity.status(HttpStatus.CREATED).body(channel.getId());
   }
 
 
@@ -51,15 +52,16 @@ public class ChannelController {
 
   // ✅ 전체 채널 조회
   @GetMapping("/api/channels")
-  public ResponseEntity<List<Channel>> findAll(@RequestParam UUID userId) {
-    return ResponseEntity.ok(channelService.findAll(userId));
+  public ResponseEntity<List<Channel>> findAll() {
+    return ResponseEntity.ok(channelService.findAll());
   }
 
 
   // ✅ 채널 수정
   @PatchMapping("/api/channels/{channelId}")
-  public ResponseEntity<Void> update(@PathVariable UUID channelId, @RequestBody Channel updated) {
-    channelService.update(channelId, updated);
+  public ResponseEntity<Void> update(@PathVariable UUID channelId,
+      @RequestBody PublicChannelUpdateRequest request) {
+    channelService.update(channelId, request);
     return ResponseEntity.ok().build();
   }
 

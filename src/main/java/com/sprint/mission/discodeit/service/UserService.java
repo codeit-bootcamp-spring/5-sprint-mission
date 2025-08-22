@@ -30,7 +30,7 @@ public interface UserService {
 
   void delete(UUID userId); //삭제
 
-  boolean existsByUsername(String userId); // username 중복 확인
+  boolean existsByUsername(String username); // username 중복 확인
 
   boolean existsByEmail(String email);       // email 중복 확인
 

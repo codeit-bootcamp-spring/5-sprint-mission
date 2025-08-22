@@ -5,17 +5,21 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 //엔티티
 @Getter
+@Setter
+@AllArgsConstructor
 public class Channel implements Serializable {
 
   //직렬화된 객체의 버전을 명시적으로 지정
   @Serial
   private static final long serialVersionUID = 1L;
   //필드
-  private final UUID id; // 채널id (내부 식별자)
+  private final UUID id; // = channelId, (내부 식별자)
   private final Instant createdAt; // 생성시간
   private Instant updatedAt; // 수정시간
   private String title; // 채널 이름
@@ -27,7 +31,8 @@ public class Channel implements Serializable {
 
   //기본 생성자
   //매개변수X
-  public Channel() {
+  public Channel(UUID id, String name, String ownerId, ChannelType privateChannel,
+      List<String> membersId) {
     this.id = UUID.randomUUID();
     this.createdAt = Instant.now();
     this.updatedAt = createdAt;
@@ -43,11 +48,12 @@ public class Channel implements Serializable {
     this.channelType = channelType;
   }
 
-  public Channel(UUID id, String name, String ownerId, ChannelType channelType,
+  public Channel(UUID id, String name, String ownerId, String description, ChannelType channelType,
       List<String> membersId) {
     this.id = id;
     this.title = name;
     this.ownerId = ownerId;
+    this.description = description;
     this.channelType = channelType;
     this.createdAt = Instant.now();
     this.updatedAt = createdAt;
@@ -63,6 +69,7 @@ public class Channel implements Serializable {
     this.title = other.title;
     this.channelType = other.channelType;
   }
+
 
   //메서드
   public void updateTime() {

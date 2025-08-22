@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
@@ -54,10 +55,11 @@ public class FileUserRepository implements UserRepository {
   }
 
   @Override
-  public boolean existsByUserId(String userId) { //같은 userId를 가진 유저가 있는지 검사
+  public boolean existsByUsername(String username) { // 같은 userName을 가진 유저가 있는지 검사
     return data.values().stream()
-        .anyMatch(user -> user.getUsername().equals(userId));
+        .anyMatch(user -> Objects.equals(user.getUsername(), username));
   }
+
 
   @Override
   public boolean existsByEmail(String email) { ////같은 email를 가진 유저가 있는지 검사
