@@ -92,19 +92,19 @@ public class FileUtils {
         }
     }
 
-    public static <T> void deleteAll(Path subDir) {
+    public static void deleteAll(Path subDir) {
         Path directory = BASE_PATH.resolve(subDir);
-        File folder = new File(directory.toString());
 
-        if (folder.exists()) {
-            File[] files = folder.listFiles();
-            if (files == null) {
-                return;
-            }
-
-            for (int i = files.length - 1; i >= 0; i--) {
-                files[i].delete();
-            }
+        try (Stream<Path> stream = Files.list(directory)) {
+            stream.forEach(path -> {
+                try {
+                    Files.delete(path);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to delete file: " + path);
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to list files deletion in " + directory);
         }
     }
 }
