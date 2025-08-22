@@ -11,7 +11,7 @@ public class PublicChannelCreateRequest { // 공개채널 DTO
 
   private String name;
   private String description;
-  
+
   private String ownerId; // 추후 삭제 예정
 
   //DTO -> Channel 변환 메서드
@@ -20,6 +20,7 @@ public class PublicChannelCreateRequest { // 공개채널 DTO
         UUID.randomUUID(),
         name,
         ownerId,
+        description,
         ChannelType.PUBLIC_CHANNEL,
         new ArrayList<>() // 공개 채널은 멤버 없음
     );

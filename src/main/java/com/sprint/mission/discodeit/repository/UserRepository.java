@@ -17,7 +17,7 @@ public interface UserRepository {
 
   void delete(UUID userId); // 삭제
 
-  boolean existsByUserId(String userId);
+  boolean existsByUsername(String username); // 의미 명확히!
 
   boolean existsByEmail(String email);
 

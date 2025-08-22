@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -49,21 +50,21 @@ public class FileChannelService implements ChannelService {
   }
 
   @Override
-  public List<Channel> findAll(UUID userId) {
+  public List<Channel> findAll() {
     return channelRepository.findAll();
   }
 
   @Override
-  public void update(UUID channelId, Channel channel) {
+  public void update(UUID channelId, PublicChannelUpdateRequest request) {
+    Channel channel = channelRepository.findById(channelId);
     if (channel == null) {
-      throw new IllegalArgumentException("채널이 null값입니다.");
+      throw new IllegalArgumentException("해당 채널이 존재하지 않습니다.");
     }
-    if (channel.getTitle() == null || channel.getTitle().isEmpty()) {
-      throw new IllegalArgumentException("채널 이름이 빈칸입니다.");
-    }
-    if (channel.getDescription() == null || channel.getDescription().isEmpty()) {
-      throw new IllegalArgumentException("채널 설명이 빈칸입니다.");
-    }
+
+    channel.setTitle(request.newName());
+    channel.setDescription(request.newDescription());
+    channel.updateTime();
+
     channelRepository.update(channel);
   }
 
