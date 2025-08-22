@@ -13,6 +13,8 @@ public interface BinaryContentService {
 
     List<BinaryContent> findAll();
 
+    List<BinaryContent> findAllById(List<UUID> ids);
+
     BinaryContent findById(UUID id);
 
     BinaryContent convertMultipartFile(MultipartFile file);

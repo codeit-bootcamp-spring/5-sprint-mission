@@ -46,6 +46,13 @@ public class BasicBinaryContentService implements BinaryContentService {
     }
 
     @Override
+    public List<BinaryContent> findAllById(List<UUID> ids) {
+        return binaryContentRepository.findAll().stream()
+                .filter(bc -> ids.contains(bc.getId()))
+                .toList();
+    }
+
+    @Override
     public BinaryContent convertMultipartFile(MultipartFile file) {
         try {
             return new BinaryContent(
