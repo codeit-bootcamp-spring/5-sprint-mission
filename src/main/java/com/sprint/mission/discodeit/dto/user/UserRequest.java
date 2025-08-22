@@ -20,12 +20,10 @@ public class UserRequest {
             String password
     ) {}
 
-    public record update(
-            @NotNull(message = "아이디를 입력해주세요")
-            UUID id,
-            @Nullable String username,
-            @Nullable String email,
-            @Nullable MultipartFile profileImage
+    public record Update(
+            @Nullable String newUsername,
+            @Nullable String newEmail,
+            @Nullable String newPassword
     ) {}
 
     public record passwordReset(

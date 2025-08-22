@@ -27,22 +27,27 @@ public class BasicReadStatusService implements ReadStatusService {
 
     @Override
     public ReadStatus create(UUID userId, UUID channelId, Instant lastReadAt) {
-
         userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다."));
         channelRepository.findById(channelId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
-        // 읽음 상태가 존재하면 없데이트, 없다면 새로 생성
-        ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(userId, channelId)
-                .orElseGet(() -> new ReadStatus(userId, channelId, lastReadAt));
+        Optional<ReadStatus> existing = readStatusRepository.findByUserIdAndChannelId(userId, channelId);
 
+        ReadStatus readStatus;
+        if (existing.isPresent()) {
+            // 기존 데이터가 있으면 업데이트
+            readStatus = existing.get();
+            Instant oldReadAt = readStatus.getLastReadAt();
 
-        // 과거로 돌아감 방지
-        Instant oldReadAt = readStatus.getLastReadAt(); // null일 수도 있음
-
-        if(oldReadAt == null || lastReadAt.isAfter(oldReadAt)){
-            readStatus.updateLastReadAt(lastReadAt);
+            if (oldReadAt == null || lastReadAt.isAfter(oldReadAt)) {
+                readStatus.updateLastReadAt(lastReadAt);
+                readStatusRepository.save(readStatus); // 저장
+            }
+        } else {
+            // 없으면 새로 생성 → 무조건 저장
+            readStatus = new ReadStatus(userId, channelId, lastReadAt);
             readStatusRepository.save(readStatus);
         }
+
         return readStatus;
     }
 

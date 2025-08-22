@@ -29,8 +29,7 @@ public class ReadStatusController {
      * */
     @PostMapping
     public ResponseEntity<ReadStatusResponse> create(@Valid @RequestBody ReadStatusRequest.Create req) {
-        Instant lastReadAt = Instant.now();
-        ReadStatus readStatus = readStatusService.create(req.userId(), req.channelId(), lastReadAt);
+        ReadStatus readStatus = readStatusService.create(req.userId(), req.channelId(), req.lastReadAt());
         return ResponseEntity.ok(ReadStatusResponse.of(readStatus));
     }
 

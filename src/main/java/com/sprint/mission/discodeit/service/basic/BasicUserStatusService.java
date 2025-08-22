@@ -35,6 +35,7 @@ public class BasicUserStatusService implements UserStatusService {
         UserStatus userStatus = new UserStatus(user.getId());
         userStatus.updateLastAccessedAt();
 
+
         //상태 저장
         userStatusRepository.save(userStatus);
     }

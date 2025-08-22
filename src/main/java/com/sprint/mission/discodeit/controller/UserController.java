@@ -51,17 +51,20 @@ public class UserController {
     }
 
     // 사용자 정보 수정 // 이름, 이메일
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponse.detail> update(@Valid @ModelAttribute UserRequest.update req) throws IOException {
+    @PatchMapping("/{userId}")
+    public ResponseEntity<UserResponse.detail> update(
+            @PathVariable UUID userId,
+            @RequestPart("userUpdateRequest") UserRequest.Update req,
+            @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException {
         FileDto fileDto = null;
 
-        if(req.profileImage() != null) {
-            if(req.profileImage().isEmpty()) throw new IllegalArgumentException("이미지 파일이 비어있습니다.");
+        if(profile != null) {
+            if(profile.isEmpty()) throw new IllegalArgumentException("이미지 파일이 비어있습니다.");
 
-            fileDto = new FileDto(UUID.randomUUID().toString(), req.profileImage().getContentType(), req.profileImage().getBytes());
+            fileDto = new FileDto(UUID.randomUUID().toString(), profile.getContentType(), profile.getBytes());
         }
 
-        User user = userService.update(req.id(), req.username(), fileDto);
+        User user = userService.update(userId, req.newUsername(), fileDto);
         boolean online = userStatusService.isOnline(user.getId());
 
         return ResponseEntity.ok(UserResponse.detail.from(user, online));
