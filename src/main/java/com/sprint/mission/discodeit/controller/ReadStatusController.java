@@ -1,67 +1,117 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.controller; // 컨트롤러 패키지 선언
 
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateResponse;
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateResponse;
-import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.global.api.ApiResponse;
-import com.sprint.mission.discodeit.global.error.ApiException;
-import com.sprint.mission.discodeit.global.error.ErrorCode;
-import com.sprint.mission.discodeit.service.ReadStatusService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest; // 생성 요청 DTO 임포트
+import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest; // 수정 요청 DTO 임포트
+import com.sprint.mission.discodeit.entity.ReadStatus; // ReadStatus 엔티티 임포트
+import com.sprint.mission.discodeit.service.ReadStatusService; // 서비스 임포트
+import lombok.RequiredArgsConstructor; // Lombok RequiredArgsConstructor 임포트
+import org.springframework.http.HttpStatus; // 상태코드 상수 임포트
+import org.springframework.http.ResponseEntity; // 응답 엔벨로프 임포트
+import org.springframework.web.bind.annotation.*; // REST 애너테이션 임포트
 
-import java.util.List;
-import java.util.UUID;
+import java.util.List; // 리스트 컬렉션 임포트
+import java.util.UUID; // UUID 타입 임포트
 
-@RequiredArgsConstructor
-@Validated
-@RestController
-@RequestMapping("/api/v1")
-public class ReadStatusController {
+// -------------------- Swagger(OpenAPI) 임포트(간단 버전) --------------------
+import io.swagger.v3.oas.annotations.Operation; // 엔드포인트 요약/설명
+import io.swagger.v3.oas.annotations.media.Content; // 응답 Content
+import io.swagger.v3.oas.annotations.media.Schema; // 스키마 정의
+import io.swagger.v3.oas.annotations.media.ArraySchema; // 배열 스키마
+import io.swagger.v3.oas.annotations.responses.ApiResponse; // 단일 응답
+import io.swagger.v3.oas.annotations.responses.ApiResponses; // 복수 응답
+import io.swagger.v3.oas.annotations.tags.Tag; // 컨트롤러 태그
+// ---------------------------------------------------------------------------
 
-    private final ReadStatusService readStatusService;
+@RequiredArgsConstructor // final 필드 생성자를 자동 생성
+@RestController // @Controller + @ResponseBody 대체: REST 응답 전용 컨트롤러
+@RequestMapping("/api/readStatuses") // 베이스 경로는 기존 그대로 유지
+@Tag(name = "ReadStatus", description = "읽음 상태(ReadStatus) 생성/수정/조회 API") // 컨트롤러 태그
+public class ReadStatusController { // 컨트롤러 클래스 시작
 
-    // 특정 채널의 메시지 수신 정보 생성
-    @PostMapping("/channels/{channelId}/receipts")
-    public ResponseEntity<ApiResponse<ReadStatusCreateResponse>> createForChannel(
-            @PathVariable UUID channelId,
-            @Valid @RequestBody ReadStatusCreateRequest request) {
+    private final ReadStatusService readStatusService; // 비즈니스 로직 서비스 의존성
 
-        if (request.channelId() != null && !request.channelId().equals(channelId)) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, "경로 채널ID와 요청 채널ID가 다릅니다.");
-        }
-
-        ReadStatus created = readStatusService.create(request);
-        ReadStatusCreateResponse response = new ReadStatusCreateResponse(
-                request.userId(),
-                request.channelId(),
-                request.lastReadAt()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response));
+    @PostMapping( // 생성은 POST 메서드로 명시
+        path = "/create", // 기존 서브 경로 유지: /api/readStatuses/create
+        consumes = "application/json", // 요청 본문 타입(JSON) 명시
+        produces = "application/json" // 응답 본문 타입(JSON) 명시
+    )
+    @Operation( // 생성 API 문서(간단 요약/설명만)
+        summary = "읽음 상태 생성",
+        description = "요청 본문(JSON)의 필드로 읽음 상태를 생성합니다."
+        , operationId = "createReadStatus"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "201",
+            description = "생성 성공",
+            content = @Content(schema = @Schema(implementation = ReadStatus.class))
+        ),
+        @ApiResponse(responseCode = "400", description = "요청 값 검증 실패 또는 형식 오류"),
+        @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    public ResponseEntity<ReadStatus> create( // 생성 엔드포인트
+        @RequestBody ReadStatusCreateRequest request // 요청 본문을 DTO로 바인딩
+    ) {
+        ReadStatus createdReadStatus = readStatusService.create(request); // 서비스에 생성 위임
+        return ResponseEntity
+            .status(HttpStatus.CREATED) // 201 Created
+            .body(createdReadStatus); // 생성된 리소스 반환
     }
 
-    // 특정 채널의 메시지 수신 정보 수정 (id 기반)
-    @PutMapping("/receipts/{readStatusId}")
-    public ResponseEntity<ApiResponse<ReadStatusUpdateResponse>> update(
-            @PathVariable UUID readStatusId,
-            @Valid @RequestBody ReadStatusUpdateRequest request) {
-        ReadStatus updated = readStatusService.update(readStatusId, request);
-        ReadStatusUpdateResponse response = new ReadStatusUpdateResponse(
-                request.newLastReadAt()
-        );
-        return ResponseEntity.ok(ApiResponse.ok(response));
+    @PutMapping( // 수정은 PUT 메서드로 명시
+        path = "/update/{readStatusId}", // 기존 경로명 유지 + PathVariable 적용
+        consumes = "application/json", // 요청 본문 타입(JSON)
+        produces = "application/json" // 응답 본문 타입(JSON)
+    )
+    @Operation( // 수정 API 문서(간단 요약/설명만)
+        summary = "읽음 상태 수정",
+        description = "readStatusId로 대상을 지정하여 요청 본문(JSON) 값으로 읽음 상태를 수정합니다."
+        , operationId = "updateReadStatus"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "수정 성공",
+            content = @Content(schema = @Schema(implementation = ReadStatus.class))
+        ),
+        @ApiResponse(responseCode = "404", description = "대상 리소스를 찾을 수 없음"),
+        @ApiResponse(responseCode = "400", description = "요청 값 검증 실패 또는 형식 오류"),
+        @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    public ResponseEntity<ReadStatus> update( // 수정 엔드포인트
+        @PathVariable("readStatusId") UUID readStatusId, // PathVariable로 대상 지정
+        @RequestBody ReadStatusUpdateRequest request // 수정 값 바인딩
+    ) {
+        ReadStatus updatedReadStatus = readStatusService.update(readStatusId, request); // 서비스에 수정 위임
+        return ResponseEntity
+            .status(HttpStatus.OK) // 200 OK
+            .body(updatedReadStatus); // 수정 결과 반환
     }
 
-    // 특정 사용자의 메시지 수신 정보 조회
-    @GetMapping("/users/{userId}/receipts")
-    public ResponseEntity<ApiResponse<List<ReadStatus>>> listByUser(@PathVariable UUID userId) {
-        List<ReadStatus> list = readStatusService.findAllByUserId(userId);
-        return ResponseEntity.ok(ApiResponse.ok(list));
+    @GetMapping( // 조회는 GET 메서드로 명시
+        path = "/findAllByUserId/{userId}", // 기존 서브 경로 유지
+        produces = "application/json" // 응답 본문 타입(JSON)
+    )
+    @Operation( // 조회 API 문서(간단 요약/설명만)
+        summary = "사용자별 읽음 상태 목록 조회",
+        description = "userId로 지정한 사용자의 전체 읽음 상태 목록을 조회합니다."
+        , operationId = "findAllReadStatusesByUserId"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "조회 성공",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ReadStatus.class)))
+        ),
+        @ApiResponse(responseCode = "400", description = "요청 파라미터 형식 오류(예: UUID 파싱 실패)"),
+        @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    public ResponseEntity<List<ReadStatus>> findAllByUserId( // 사용자별 목록 조회 엔드포인트
+        @PathVariable("userId") UUID userId // PathVariable로 사용자 지정
+    ) {
+        List<ReadStatus> readStatuses = readStatusService.findAllByUserId(userId); // 서비스에 조회 위임
+        return ResponseEntity
+            .status(HttpStatus.OK) // 200 OK
+            .body(readStatuses); // 조회 결과 리스트 반환
     }
 }

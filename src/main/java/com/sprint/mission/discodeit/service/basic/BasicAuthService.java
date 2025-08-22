@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
-import com.sprint.mission.discodeit.dto.auth.LoginRequest;
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

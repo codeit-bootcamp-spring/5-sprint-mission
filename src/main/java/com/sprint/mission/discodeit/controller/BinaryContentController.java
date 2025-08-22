@@ -1,43 +1,63 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.controller; // 컨트롤러가 속한 패키지 선언
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.global.api.ApiResponse;
-import com.sprint.mission.discodeit.service.BinaryContentService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import com.sprint.mission.discodeit.entity.BinaryContent; // 바이너리 컨텐츠 엔티티 임포트
+import com.sprint.mission.discodeit.service.BinaryContentService; // 바이너리 컨텐츠 서비스 임포트
+import lombok.RequiredArgsConstructor; // final 필드 생성자 자동 생성(Lombok)
+import org.springframework.http.ResponseEntity; // 응답을 감싸는 ResponseEntity
+import org.springframework.web.bind.annotation.*; // REST 컨트롤러 관련 애너테이션 임포트
 
-import java.util.List;
-import java.util.UUID;
+import java.util.List; // 리스트 컬렉션
+import java.util.UUID; // UUID 타입
+
+// --- Swagger(OpenAPI) 임포트 ---
+import io.swagger.v3.oas.annotations.Operation; // 엔드포인트 요약/설명
+import io.swagger.v3.oas.annotations.media.Content; // 요청/응답 콘텐츠
+import io.swagger.v3.oas.annotations.media.Schema; // 스키마 정의
+import io.swagger.v3.oas.annotations.media.ArraySchema; // 배열 스키마
+import io.swagger.v3.oas.annotations.responses.ApiResponse; // 응답 코드 정의
+import io.swagger.v3.oas.annotations.responses.ApiResponses; // 복수 응답 정의
+import io.swagger.v3.oas.annotations.tags.Tag; // 컨트롤러 태그
+// ------------------------------
 
 @RequiredArgsConstructor
-@Validated
 @RestController
-@RequestMapping("/api/v1/files")
+@RequestMapping("/api/binaryContents")
+@Tag(name = "BinaryContent", description = "바이너리 컨텐츠 조회 API")
 public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;
 
-    // 1개 조회
-    @GetMapping("/{fileId}")
-    public ResponseEntity<ApiResponse<BinaryContent>> find(@PathVariable("fileId") UUID binaryContentId) {
-        BinaryContent bc = binaryContentService.find(binaryContentId);
-        return ResponseEntity.ok(ApiResponse.ok(bc));
+    @GetMapping("/find/{binaryContentId}")
+    @Operation(summary = "바이너리 컨텐츠 단건 조회", description = "경로의 binaryContentId로 특정 바이너리 컨텐츠를 조회합니다.", operationId = "findBinaryContent")
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "조회 성공",
+            content = @Content(schema = @Schema(implementation = BinaryContent.class))
+        ),
+        @ApiResponse(responseCode = "404", description = "대상 리소스를 찾을 수 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    public ResponseEntity<BinaryContent> find(@PathVariable("binaryContentId") UUID binaryContentId) {
+        BinaryContent binaryContent = binaryContentService.find(binaryContentId);
+        return ResponseEntity.ok(binaryContent);
     }
 
-    // 여러 개 조회
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<BinaryContent>>> findAll(@RequestParam("ids") List<UUID> ids) {
-        List<BinaryContent> list = binaryContentService.findAllByIdIn(ids);
-        return ResponseEntity.ok(ApiResponse.ok(list));
-    }
-
-    // (옵션) 삭제
-    @DeleteMapping("/{fileId}")
-    public ResponseEntity<Void> delete(@PathVariable("fileId") UUID binaryContentId) {
-        binaryContentService.delete(binaryContentId);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/findAllByIdIn")
+    @Operation(summary = "바이너리 컨텐츠 복수 조회", description = "쿼리 파라미터의 binaryContentIds 목록으로 여러 컨텐츠를 조회합니다.", operationId = "findBinaryContentsByIdIn")
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "조회 성공",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = BinaryContent.class)))
+        ),
+        @ApiResponse(responseCode = "400", description = "요청 파라미터 형식 오류(예: UUID 파싱 실패)"),
+        @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    public ResponseEntity<List<BinaryContent>> findAllByIdIn(
+        @RequestParam("binaryContentIds") List<UUID> binaryContentIds
+    ) {
+        List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
+        return ResponseEntity.ok(binaryContents);
     }
 }
-

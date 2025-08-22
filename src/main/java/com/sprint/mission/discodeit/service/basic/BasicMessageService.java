@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.binary.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -8,14 +8,13 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
