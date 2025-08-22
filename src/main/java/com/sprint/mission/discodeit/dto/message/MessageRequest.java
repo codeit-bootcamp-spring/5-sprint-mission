@@ -15,8 +15,7 @@ public class MessageRequest {
             @NotNull(message = "채널아이디를 입력해주세요")
             UUID channelId,
             @NotBlank(message = "메시지 내용을 입력해주세요")
-            String content,
-            List<MultipartFile> attachments
+            String content
     ) {}
 
     public record update(

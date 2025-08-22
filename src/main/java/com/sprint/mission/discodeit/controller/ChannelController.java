@@ -38,37 +38,22 @@ public class ChannelController {
         return ResponseEntity.ok(ChannelResponse.Detail.from(channel));
     }
 
-    @PatchMapping(params = "channelId")
-    public ResponseEntity<ChannelResponse.Detail> updateChannel(
-            @RequestParam UUID channelId,
-            @Valid
-            @RequestBody ChannelRequest.Update req) {
-        Channel channel = channelService.update(channelId, req.newName(), req.newDescription());
-        return ResponseEntity.ok(ChannelResponse.Detail.from(channel));
-    }
-
     @GetMapping(params = "userId")
     public ResponseEntity<List<ChannelDto>> findByUser(@RequestParam UUID userId) {
         return ResponseEntity.ok(channelService.findByUser(userId));
     }
 
-    @RequestMapping(value = "/join", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<String> joinChannel(@ModelAttribute ChannelRequest.join dto) {
-        Channel channel = channelService.join(dto.userId(), dto.channelId());
-        return ResponseEntity.ok(dto.userId() + " 님이 " + channel.getName() + "에 참여합니다.");
+    @PatchMapping("/{channelId}")
+    public ResponseEntity<ChannelResponse.Detail> updateChannel(
+            @PathVariable UUID channelId,
+            @Valid @RequestBody ChannelRequest.Update req) {
+        Channel channel = channelService.update(channelId, req.newName(), req.newDescription());
+        return ResponseEntity.ok(ChannelResponse.Detail.from(channel));
     }
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public ResponseEntity<List<Channel>> findAll() {
-        return ResponseEntity.ok(channelService.findAll());
-    }
-
-
-
-
-    @RequestMapping(value = "delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Map<String,String>> delete(@PathVariable UUID id) {
-        boolean deleted = channelService.delete(id);
+    @DeleteMapping("/{channelId}")
+    public ResponseEntity<Map<String,String>> delete(@PathVariable UUID channelId) {
+        boolean deleted = channelService.delete(channelId);
         return deleted
                 ? ResponseEntity.ok(Map.of("message", "채널이 삭제되었습니다."))
                 : ResponseEntity.status(HttpStatus.NOT_FOUND)

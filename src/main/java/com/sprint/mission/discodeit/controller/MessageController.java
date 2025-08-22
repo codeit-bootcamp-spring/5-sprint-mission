@@ -5,18 +5,21 @@ import com.sprint.mission.discodeit.dto.message.MessageRequest;
 import com.sprint.mission.discodeit.dto.message.MessageResponse;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,13 +32,12 @@ public class MessageController {
     // 메시지를 보낼 수 있다
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<MessageResponse.Detail> create(
-        @Valid
-        @RequestPart("messageCreateRequest") MessageRequest.Create req) throws IOException {
+        @Valid @RequestPart("messageCreateRequest") MessageRequest.Create req,
+        @RequestPart(value = "attachments", required = false) List<MultipartFile> files)  throws IOException {
             List<FileDto> fileList = new ArrayList<>();
 
-            if (req.attachments() != null && !req.attachments().isEmpty()) {
-
-                fileList = req.attachments().stream().map(file -> {
+            if (files!= null && !files.isEmpty()) {
+                fileList = files.stream().map(file -> {
                             try {
                                 return new FileDto(UUID.randomUUID().toString(), file.getContentType(), file.getBytes()
                                 );
@@ -66,14 +68,12 @@ public class MessageController {
                 .body(Map.of("message", "메시지를 찾을 수 없습니다."));
     }
 
-    /**
-     * [API 요구사항] 특정 채널의 메시지 목록을 조회할 수 있다
-     */
-    @GetMapping(params = "channelId")
-    public ResponseEntity<List<Message>> findByChannel(@RequestParam UUID channelId) {
+    @Operation(summary = "채널의 메시지 목록 조회")
+    @GetMapping()
+    public ResponseEntity<List<MessageResponse.Detail>> findByChannel(@RequestParam UUID channelId) {
         List<Message> messageList = messageService.findByChannel(channelId);
-
-        return ResponseEntity.ok(messageList);
+        List<MessageResponse.Detail> response = messageList.stream().map(MessageResponse.Detail::of).toList();
+        return ResponseEntity.ok(response);
     }
 
 }
