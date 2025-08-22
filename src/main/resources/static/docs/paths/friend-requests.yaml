@@ -118,7 +118,7 @@ friend_request_by_id:
       content:
         application/json:
           schema:
-            $ref: '../schemas/friend-request.yaml#/FriendRequestHandleRequest'
+            $ref: "../schemas/friend-request.yaml#/FriendRequestHandleRequest"
     responses:
       '204':
         description: No Content
@@ -155,7 +155,7 @@ friend_request_by_id:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             example:
               timestamp: "2025-08-16T12:34:56Z"
               path: "/api/*/6c1c5c7a-6d7d-4e9d-8a1f-bb2b3c4d5e6f"

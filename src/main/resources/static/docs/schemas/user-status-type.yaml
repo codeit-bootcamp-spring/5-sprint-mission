@@ -6,7 +6,7 @@ UserStatusType:
     - ONLINE → "온라인"
     - DO_NOT_DISTURB → "방해 금지"
     - IDLE → "자리 비움"
-    - OFFLINE → "오프라인 표시"
+    - OFFLINE → "오프라인"
   enum:
     - ONLINE
     - DO_NOT_DISTURB
@@ -20,4 +20,4 @@ UserStatusTypeDisplayName:
     - 온라인
     - 방해 금지
     - 자리 비움
-    - 오프라인 표시
+    - 오프라인

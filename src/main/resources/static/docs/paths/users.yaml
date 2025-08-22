@@ -210,7 +210,7 @@ userById:
     summary: User 삭제
     operationId: delete
     parameters:
-      - $ref: "../openapi-users.yaml#/components/parameters/UserId"
+      - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"
     responses:
       '204':
         description: User가 성공적으로 삭제됨
@@ -252,7 +252,7 @@ userById:
     summary: User 정보 수정
     operationId: update
     parameters:
-      - $ref: "../openapi-users.yaml#/components/parameters/UserId"
+      - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"
     requestBody:
       content:
         multipart/form-data:
@@ -404,7 +404,7 @@ userStatus:
       - 사전 로그인이 필요합니다.
     operationId: updateUserStatusByUserId
     parameters:
-      - $ref: "../openapi-users.yaml#/components/parameters/UserId"
+      - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"
     requestBody:
       required: true
       content:
@@ -495,7 +495,7 @@ heartbeat:
       - 사전 로그인이 필요합니다.
     operationId: heartbeat
     parameters:
-      - $ref: "../openapi-users.yaml#/components/parameters/UserId"
+      - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"
     responses:
       '204':
         description: 성공적으로 하트비트됨

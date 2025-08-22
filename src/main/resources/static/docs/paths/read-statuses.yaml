@@ -20,13 +20,13 @@ read_statuses_root:
             schema:
               type: array
               items:
-                $ref: '../schemas/read-status.yaml#/ReadStatusResponse'
+                $ref: "../schemas/read-status.yaml#/ReadStatusResponse"
       '404':
         description: User를 찾을 수 없음
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             example:
               timestamp: "2025-08-18T12:00:00Z"
               path: "/api/read-statuses?userId=2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
@@ -44,7 +44,7 @@ read_statuses_root:
       content:
         application/json:
           schema:
-            $ref: '../schemas/read-status.yaml#/ReadStatusCreateRequest'
+            $ref: "../schemas/read-status.yaml#/ReadStatusCreateRequest"
           example:
             userId: 2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11
             channelId: 6c1c5c7a-6d7d-4e9d-8a1f-bb2b3c4d5e6f
@@ -55,7 +55,7 @@ read_statuses_root:
         content:
           'application/json':
             schema:
-              $ref: '../schemas/read-status.yaml#/ReadStatusResponse'
+              $ref: "../schemas/read-status.yaml#/ReadStatusResponse"
             example:
               id: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
               createdAt: "2025-08-17T15:30:00Z"
@@ -68,7 +68,7 @@ read_statuses_root:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             example:
               timestamp: "2025-08-18T12:00:00Z"
               path: "/api/read-statuses"

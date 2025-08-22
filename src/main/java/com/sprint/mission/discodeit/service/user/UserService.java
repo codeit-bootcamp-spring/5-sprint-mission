@@ -77,11 +77,7 @@ public class UserService {
         .collect(Collectors.toSet()
         );
 
-    Map<UUID, UserStatusType> statusMap = userStatusRepository.findAllByUserId(ids).stream()
-        .collect(Collectors.toMap(
-            UserStatus::getUserId,
-            UserStatus::getType
-        ));
+    Map<UUID, UserStatusType> statusMap = userStatusRepository.findAllTypesByUserIds(ids);
 
     return users.stream()
         .map(u -> {

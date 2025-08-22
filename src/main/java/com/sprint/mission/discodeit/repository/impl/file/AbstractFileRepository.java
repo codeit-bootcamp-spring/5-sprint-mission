@@ -170,6 +170,21 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
+  public List<UUID> findAllIds() {
+    try (Stream<Path> s = streamSerializedFiles()) {
+      return s.map(this::readObject).flatMap(Optional::stream)
+          .filter(AbstractEntity::isNotDeleted)
+          .sorted(Comparator.comparing(AbstractEntity::getCreatedAt).reversed())
+          .map(AbstractEntity::getId)
+          .toList();
+    } catch (IOException e) {
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
+    }
+  }
+
+
+  @Override
   public List<T> findAllById(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();

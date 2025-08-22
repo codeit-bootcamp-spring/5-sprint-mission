@@ -16,8 +16,15 @@ paths:
     $ref: "./paths/users.yaml#/heartbeat"
 components:
   parameters:
-    UserId:
+    UserIdInPath:
       in: path
+      name: userId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    UserIdInQuery:
+      in: query
       name: userId
       required: true
       schema:

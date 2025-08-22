@@ -20,13 +20,13 @@ messages_root:
             schema:
               type: array
               items:
-                $ref: '../schemas/message.yaml#/MessageResponse'
+                $ref: "../schemas/message.yaml#/MessageResponse"
       '404':
         description: Channel을 찾을 수 없음
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             example:
               timestamp: "2025-08-18T12:00:00Z"
               path: "/api/messages?channelId=2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
@@ -63,7 +63,7 @@ messages_root:
         content:
           application/json:
             schema:
-              $ref: '../schemas/message.yaml#/MessageCreateResponse'
+              $ref: "../schemas/message.yaml#/MessageCreateResponse"
             example:
               id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
               createdAt: "2025-08-17T15:30:02Z"
@@ -78,7 +78,7 @@ messages_root:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidField:
                 value:
@@ -105,7 +105,7 @@ messages_root:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             example:
               timestamp: "2025-08-17T15:30:02Z"
               path: "/api/messages"

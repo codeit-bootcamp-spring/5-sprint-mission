@@ -7,7 +7,7 @@ public enum UserStatusType {
   ONLINE("온라인"),
   DO_NOT_DISTURB("방해 금지"),
   IDLE("자리 비움"),
-  OFFLINE("오프라인 표시");
+  OFFLINE("오프라인");
 
   private final String displayName;
 

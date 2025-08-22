@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.repository.impl.file;
 
 import com.sprint.mission.discodeit.config.AppProperties;
-import com.sprint.mission.discodeit.domain.entity.AbstractEntity;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import java.io.IOException;
@@ -64,9 +63,10 @@ public class FileMessageRepository extends AbstractFileRepository<Message> imple
       return s
           .map(this::readObject)
           .flatMap(Optional::stream)
-          .filter(AbstractEntity::isNotDeleted)
-          .filter(m -> channelIds.contains(m.getChannelId()))
-          .filter(m -> m.getCreatedAt() != null)
+          .filter(m -> !m.isDeleted()
+              && channelIds.contains(m.getChannelId())
+              && m.getCreatedAt() != null
+          )
           .collect(Collectors.toMap(
               Message::getChannelId,
               Message::getCreatedAt,

@@ -96,11 +96,6 @@ PrivateChannelCreateRequest:
 PublicChannelUpdateRequest:
   type: object
   description: 수정할 Channel 정보
-  anyOf:
-    - required:
-        - newName
-    - required:
-        - newDescription
   properties:
     newName:
       type: string

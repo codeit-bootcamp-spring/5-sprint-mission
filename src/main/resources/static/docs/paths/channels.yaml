@@ -1,17 +1,11 @@
-channels_root:
+channelsRoot:
   get:
     tags:
       - Channel
     summary: User가 참여 중인 Channel 목록 조회
     operationId: findAll
     parameters:
-      - name: userId
-        in: query
-        description: 조회할 User ID
-        required: true
-        schema:
-          type: string
-          format: uuid
+      - $ref: "../openapi-users.yaml#/components/parameters/UserIdInQuery"
     responses:
       '200':
         description: Channel 목록 조회 성공
@@ -20,54 +14,70 @@ channels_root:
             schema:
               type: array
               items:
-                $ref: '../schemas/channel.yaml#/ChannelResponse'
+                $ref: "../schemas/channel.yaml#/ChannelResponse"
             example:
-              [
-                {
-                  "id": "5b98cf49-38ba-48ab-a4fc-0c335dee6e2c",
-                  "type": "PRIVATE",
-                  "name": null,
-                  "description": null,
-                  "participantIds": [
-                    "f77609a6-ad81-425a-85a9-0e7f04dcb769",
-                    "f7243a72-3831-4a0d-896e-b889ee4693de",
-                    "983ef160-4389-4d80-aadc-13a772525173",
-                    "d6831c9f-d9c3-45d8-bfd3-6c5b0976077e"
-                  ],
-                  "lastMessageAt": null
-                }
-              ]
+              - id: "5b98cf49-38ba-48ab-a4fc-0c335dee6e2c"
+                type: "PRIVATE"
+                name: null
+                description: null
+                participantIds:
+                  - "f77609a6-ad81-425a-85a9-0e7f04dcb769"
+                  - "f7243a72-3831-4a0d-896e-b889ee4693de"
+                  - "983ef160-4389-4d80-aadc-13a772525173"
+                  - "d6831c9f-d9c3-45d8-bfd3-6c5b0976077e"
+                lastMessageAt: null
+              - id: "4c12dg11-31aa-21ca-h2qm-1d429efj1m2n"
+                type: "PRIVATE"
+                name: null
+                description: null
+                participantIds:
+                  - "f77609a6-ad81-425a-85a9-0e7f04dcb769"
+                  - "f7243a72-3831-4a0d-896e-b889ee4693de"
+                lastMessageAt: "2025-08-22T05:34:45.029098Z"
       '400':
         description: userId parameter가 없거나 유효하지 않음
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
-            example:
-              timestamp: "2025-08-16T12:34:56Z"
-              path: "/api/channels"
-              method: "GET"
-              status: 400
-              code: "BAD_REQUEST"
-              message: "요청이 올바르지 않습니다."
-              details:
-                - "Required request parameter 'userId' for method parameter type UUID is not present"
-                - "Method parameter 'userId': Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'; Invalid UUID string: id"
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidParameterType:
+                description: parameter(userId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/channels?userId=not-uuid"
+                  method: "GET"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=userId, value=not-uuid, expectedType=UUID"
+              missingParameter:
+                description: parameter(userId)가 포함되지 않음
+                value:
+                  timestamp: "2025-08-22T14:00:41.625908Z"
+                  path: "/api/channels"
+                  method: "GET"
+                  status: 400
+                  code: "MISSING_PARAMETER"
+                  message: "Required parameter missing"
+                  details:
+                    - "missing parameter: userId (required type: UUID)"
       '404':
         description: User를 찾을 수 없음
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             example:
-              timestamp: "2025-08-16T12:34:56Z"
-              path: "/api/channels"
+              timestamp: "2025-08-17T15:30:02Z"
+              path: "/api/channels?userId=e6681542-a6b1-43f3-b759-6dc9cfebcf41"
               method: "GET"
               status: 404
               code: "RESOURCE_NOT_FOUND"
-              message: "유저를 찾을 수 없습니다: f77609a6-ad81-425a-85a9-0e7f04dcb761"
+              message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"
 
-channels_public:
+publicChannels:
   post:
     tags:
       - Channel
@@ -79,20 +89,20 @@ channels_public:
       content:
         application/json:
           schema:
-            $ref: '../schemas/channel.yaml#/PublicChannelCreateRequest'
+            $ref: "../schemas/channel.yaml#/PublicChannelCreateRequest"
     responses:
       '201':
         description: Public Channel이 성공적으로 생성됨
         content:
           application/json:
             schema:
-              $ref: '../schemas/channel.yaml#/ChannelSaveResponse'
+              $ref: "../schemas/channel.yaml#/ChannelSaveResponse"
       '400':
         description: Field validation/JSON parsing 오류
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidField:
                 value:
@@ -117,7 +127,7 @@ channels_public:
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 1]"
 
-channels_private:
+privateChannels:
   post:
     tags:
       - Channel
@@ -129,7 +139,7 @@ channels_private:
       content:
         application/json:
           schema:
-            $ref: '../schemas/channel.yaml#/PrivateChannelCreateRequest'
+            $ref: "../schemas/channel.yaml#/PrivateChannelCreateRequest"
           example:
             participantIds:
               - "f77609a6-ad81-425a-85a9-0e7f04dcb769"
@@ -142,7 +152,7 @@ channels_private:
         content:
           application/json:
             schema:
-              $ref: '../schemas/channel.yaml#/ChannelSaveResponse'
+              $ref: "../schemas/channel.yaml#/ChannelSaveResponse"
             example:
               id: "9b80f2ab-838d-49b5-881f-344fe310acdb"
               createdAt: "2025-08-19T09:07:47.200570Z"
@@ -155,7 +165,7 @@ channels_private:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidField:
                 value:
@@ -184,7 +194,7 @@ channels_private:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             example:
               timestamp: "2025-08-16T12:34:56Z"
               path: "/api/channels/private"
@@ -193,7 +203,7 @@ channels_private:
               code: "RESOURCE_NOT_FOUND"
               message: "유저를 찾을 수 없습니다: f77609a6-ad81-425a-85a9-0e7f04dcb761"
 
-channel_by_id:
+channelById:
   delete:
     tags:
       - Channel
@@ -216,7 +226,7 @@ channel_by_id:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             example:
               timestamp: "2025-08-16T12:34:56Z"
               path: "/api/channels/{channelId}"
@@ -242,7 +252,7 @@ channel_by_id:
       content:
         application/json:
           schema:
-            $ref: '../schemas/channel.yaml#/PublicChannelUpdateRequest'
+            $ref: "../schemas/channel.yaml#/PublicChannelUpdateRequest"
           example:
             newDescription: ""
     responses:
@@ -251,7 +261,7 @@ channel_by_id:
         content:
           application/json:
             schema:
-              $ref: '../schemas/channel.yaml#/ChannelSaveResponse'
+              $ref: "../schemas/channel.yaml#/ChannelSaveResponse"
       '400':
         description: |
           Private Channel은 수정할 수 없음
@@ -260,7 +270,7 @@ channel_by_id:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidChannelType:
                 value:
@@ -300,7 +310,7 @@ channel_by_id:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             example:
               timestamp: "2025-08-16T12:34:56Z"
               path: "/api/channels/{channelId}"
