@@ -35,25 +35,6 @@ ApiError:
       description: HTTP 상태 코드
     code:
       type: string
-      enum:
-        - BAD_REQUEST
-        - INVALID_JSON
-        - INVALID_BODY_VALUE
-        - INVALID_PARAMETER_TYPE
-        - INVALID_PARAMETER_NUMBER
-        - INVALID_PARAMETER_VALUES
-        - INVALID_JSON
-        - MISSING_PART
-        - UNAUTHORIZED
-        - FORBIDDEN
-        - ENDPOINT_NOT_FOUND
-        - RESOURCE_NOT_FOUND
-        - METHOD_NOT_ALLOWED
-        - NOT_ACCEPTABLE
-        - CONFLICT
-        - UNSUPPORTED_MEDIA_TYPE
-        - TOO_MANY_REQUESTS
-        - INTERNAL_ERROR
       description: 애플리케이션 오류 코드
     message:
       type: string

@@ -46,7 +46,7 @@ public class UserController {
 
   private final UserService userService;
 
-  @GetMapping(path = {"", "/"})
+  @GetMapping
   public List<UserResponse> findAll(
 
       @RequestParam(required = false)
@@ -74,7 +74,7 @@ public class UserController {
     return userService.findAll();
   }
 
-  @PostMapping(path = {"", "/"}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   public UserSaveResponse create(
       @RequestPart("userCreateRequest") @Valid UserCreateRequest req,

@@ -114,5 +114,3 @@ messages_root:
               status: 404
               code: "RESOURCE_NOT_FOUND"
               message: "Channel | Author with id {channelId | authorId} not found"
-      '415':
-        $ref: '../responses/errors.yaml#/UnsupportedMediaType'

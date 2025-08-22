@@ -18,6 +18,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -37,7 +38,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(HttpMessageNotReadableException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ApiError handleInvalidJson(HttpMessageNotReadableException e, HttpServletRequest req) {
-    e.getMostSpecificCause();
     String causeMsg = e.getMostSpecificCause().getMessage();
     log.warn("400(INVALID_JSON) {} {} -> {}", req.getMethod(), req.getRequestURI(), causeMsg);
     return ApiError.from(req, HttpStatus.BAD_REQUEST, "INVALID_JSON",
@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
 
     List<String> params = e.getReceivedParameters();
     List<String> details = (params != null && !params.isEmpty())
-        ? List.of(String.join(", ", params) + ": 하나만 포함하여아 합니다")
+        ? List.of(String.join(", ", params) + ": 하나만 포함하여야 합니다")
         : List.of();
 
     log.warn("400(INVALID_PARAMETER_NUMBER) {} {} -> {}",
@@ -141,7 +141,7 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public ApiError handleUnauthorized(UnauthorizedException e, HttpServletRequest req) {
     String msg = (e.getMessage() != null) ? e.getMessage() : "Invalid credentials";
-    log.warn("400(UNAUTHORIZED) {} {} -> {}", req.getMethod(), req.getRequestURI(), msg);
+    log.warn("401(UNAUTHORIZED) {} {} -> {}", req.getMethod(), req.getRequestURI(), msg);
     return ApiError.from(req, HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", msg, List.of());
   }
 
@@ -194,6 +194,20 @@ public class GlobalExceptionHandler {
     }
 
     return builder.body(body);
+  }
+
+  @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+  @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+  public ApiError handleNotAcceptable(HttpMediaTypeNotAcceptableException e,
+      HttpServletRequest req) {
+    String supported = !e.getSupportedMediaTypes().isEmpty()
+        ? " Supported types: " + e.getSupportedMediaTypes().stream()
+        .map(Object::toString)
+        .collect(Collectors.joining(", "))
+        : "";
+    String msg = "Media type not acceptable." + supported;
+    log.warn("406(NOT_ACCEPTABLE) {} {} -> {}", req.getMethod(), req.getRequestURI(), msg);
+    return ApiError.from(req, HttpStatus.NOT_ACCEPTABLE, "NOT_ACCEPTABLE", msg, List.of());
   }
 
   @ExceptionHandler({DuplicateResourceException.class, DataIntegrityViolationException.class,

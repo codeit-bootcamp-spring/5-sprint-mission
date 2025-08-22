@@ -27,14 +27,14 @@ public class ReadStatusController {
 
   private final ReadStatusService readStatusService;
 
-  @GetMapping({"", "/"})
+  @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public List<ReadStatusResponse> findAllByUserId(
       @RequestParam("userId") UUID userId) {
     return readStatusService.findAllByUserId(userId);
   }
 
-  @PostMapping({"", "/"})
+  @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public ReadStatusResponse create(
       @Valid @RequestBody ReadStatusCreateRequest body) {

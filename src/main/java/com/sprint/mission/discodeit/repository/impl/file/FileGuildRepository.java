@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import org.springframework.context.annotation.Profile;
@@ -35,7 +36,7 @@ public class FileGuildRepository extends AbstractFileRepository<Guild> implement
   @Override
   public List<Guild> searchGuilds(String keyword) {
     Objects.requireNonNull(keyword, "keyword must not be null");
-    String k = keyword.strip().toLowerCase();
+    String k = keyword.strip().toLowerCase(Locale.ROOT);
     if (k.isEmpty()) {
       return List.of();
     }
@@ -43,7 +44,7 @@ public class FileGuildRepository extends AbstractFileRepository<Guild> implement
         .filter(Guild::isDiscoverable)
         .filter(g -> {
           String name = g.getName();
-          return name != null && name.toLowerCase().contains(k);
+          return name != null && name.toLowerCase(Locale.ROOT).contains(k);
         })
         .toList();
   }

@@ -4,11 +4,11 @@ info:
   version: "1.0.0"
   description: 사용자(User) 관련 API 문서
 servers:
-  - url: /api/users
+  - url: /api
 paths:
-  /:
+  /users:
     $ref: "./paths/users.yaml#/usersRoot"
-  /{userId}:
+  /users/{userId}:
     $ref: "./paths/users.yaml#/userById"
 components:
   parameters:
@@ -27,7 +27,11 @@ components:
         minLength: 2
         maxLength: 32
         pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
-      description: username으로 사용자 검색 (서버에서 strip 후 소문자로 정규화됨)
+      description: |-
+        **username**과 일치하는 사용자를 검색합니다.
+        
+        - 요청 시 대소문자 모두 허용되지만,
+        - 서버에서 strip 후 소문자로 정규화하여 처리됩니다.
     Email:
       in: query
       name: email
@@ -36,7 +40,11 @@ components:
         format: email
         minLength: 6
         maxLength: 254
-      description: email로 사용자 검색 (서버에서 strip 후 소문자로 정규화됨)
+      description: |-
+        **email**과 일치하는 사용자를 검색합니다.
+        
+        - 요청 시 대소문자 모두 허용되지만,
+        - 서버에서 strip 후 소문자로 정규화하여 처리됩니다.
   schemas:
     UserResponse:
       $ref: "./schemas/user.yaml#/UserResponse"

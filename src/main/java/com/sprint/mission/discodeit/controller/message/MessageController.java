@@ -39,13 +39,13 @@ public class MessageController {
   private final MessageService messageService;
   private final BinaryContentService binaryContentService;
 
-  @GetMapping({"", "/"})
+  @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public List<MessageResponse> findAllByChannelId(@RequestParam("channelId") UUID channelId) {
     return messageService.findAllByChannelId(channelId);
   }
 
-  @PostMapping(path = {"", "/"}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   public MessageResponse create(
       @RequestPart("messageCreateRequest") @Valid MessageCreateRequest req,

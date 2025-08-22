@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -12,7 +13,7 @@ public interface MessageRepository extends AbstractRepository<Message> {
 
   static String normalizeKeyword(String keyword) {
     Objects.requireNonNull(keyword, "keyword must not be null");
-    return keyword.strip().toLowerCase();
+    return keyword.strip().toLowerCase(Locale.ROOT);
   }
 
   List<Message> findAllByChannelId(UUID channelId);

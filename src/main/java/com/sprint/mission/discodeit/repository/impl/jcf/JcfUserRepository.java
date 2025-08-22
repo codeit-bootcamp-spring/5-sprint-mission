@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 import org.springframework.context.annotation.Profile;
@@ -40,7 +41,7 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
     if (needle.isEmpty()) {
       return true;
     }
-    return value.toLowerCase().contains(needle.toLowerCase());
+    return value.toLowerCase(Locale.ROOT).contains(needle.toLowerCase(Locale.ROOT));
   }
 
   @Override

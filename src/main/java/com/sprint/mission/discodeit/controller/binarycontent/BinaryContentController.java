@@ -36,7 +36,7 @@ public class BinaryContentController {
       "image.webp"
   );
 
-  @PostMapping(path = {"", "/"}, consumes = {
+  @PostMapping(consumes = {
       MediaType.APPLICATION_OCTET_STREAM_VALUE,
       MediaType.IMAGE_PNG_VALUE,
       MediaType.IMAGE_JPEG_VALUE})
@@ -81,7 +81,7 @@ public class BinaryContentController {
     return binaryContentService.findById(id);
   }
 
-  @GetMapping({"", "/"})
+  @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public List<BinaryContentResponse> findAll() {
     return binaryContentService.findAll();

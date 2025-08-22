@@ -8,11 +8,10 @@ usersRoot:
       모든 사용자를 조회하거나 **username** 또는 **email** 조건으로 검색합니다.
       
       - **username**과 **email**은 동시에 전달할 수 없습니다. 동시에 전달되면 400(BAD_REQUEST)을 반환합니다.
-      - 입력 값은 서버에서 strip 후 소문자로 정규화됩니다.
       - 결과는 항상 배열로 반환됩니다(0개/1개여도 배열).
     parameters:
-      - $ref: '../openapi-users.yaml#/components/parameters/Username'
-      - $ref: '../openapi-users.yaml#/components/parameters/Email'
+      - $ref: "../openapi-users.yaml#/components/parameters/Username"
+      - $ref: "../openapi-users.yaml#/components/parameters/Email"
     responses:
       '200':
         description: User 목록 조회 성공
@@ -21,7 +20,7 @@ usersRoot:
             schema:
               type: array
               items:
-                $ref: '../schemas/user.yaml#/UserResponse'
+                $ref: "../schemas/user.yaml#/UserResponse"
             example:
               - id: "983ef160-4389-4d80-aadc-13a772525173"
                 createdAt: "2025-08-18T09:00:09.791282Z"
@@ -41,7 +40,7 @@ usersRoot:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidParameterNumber:
                 description: username, email을 동시에 포함
@@ -61,7 +60,7 @@ usersRoot:
                   path: "/api/users"
                   method: "GET"
                   status: 400
-                  code: "INVALID_PARAMETER_VALUES"
+                  code: "INVALID_PARAMETER_VALUE"
                   message: "매개변수 값이 유효하지 않습니다."
                   details:
                     - "username: 크기가 2에서 32 사이여야 합니다"
@@ -97,7 +96,7 @@ usersRoot:
         content:
           application/json:
             schema:
-              $ref: '../schemas/user.yaml#/UserSaveResponse'
+              $ref: "../schemas/user.yaml#/UserSaveResponse"
             example:
               id: "e6681542-a6b1-43f3-b759-6dc9cfebcf41"
               createdAt: "2025-08-18T14:26:12.176736Z"
@@ -110,7 +109,7 @@ usersRoot:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidField:
                 description: userCreateRequest Field 값이 유효하지 않음
@@ -166,7 +165,7 @@ usersRoot:
                   method: "POST"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with username test already exists"
+                  message: "User with username alice.k already exists"
               duplicateEmail:
                 description: 같은 email을 사용하는 User가 이미 존재함
                 value:
@@ -175,12 +174,12 @@ usersRoot:
                   method: "POST"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with email test@codeit.com already exists"
+                  message: "User with email alice@example.com already exists"
       '415':
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidUserCreateRequest:
                 description: userCreateRequest가 application/json 형식이 아님
@@ -211,45 +210,49 @@ userById:
     summary: User 삭제
     operationId: delete
     parameters:
-      - $ref: '../openapi-users.yaml#/components/parameters/UserId'
+      - $ref: "../openapi-users.yaml#/components/parameters/UserId"
     responses:
       '204':
         description: User가 성공적으로 삭제됨
       '400':
-        description: parameter(userId) 타입이 UUID가 아님
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
-            example:
-              timestamp: "2025-08-21T14:42:21.048570Z"
-              path: "/api/users/not-uuid"
-              method: "DELETE"
-              status: 400
-              code: "INVALID_PARAMETER_TYPE"
-              message: "Request parameter type not valid"
-              details:
-                - "parameter=userId, value=not-uuid, expectedType=UUID"
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidParameterType:
+                description: 매개변수(userId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/users/not-uuid"
+                  method: "DELETE"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=userId, value=not-uuid, expectedType=UUID"
       '404':
-        description: User를 찾을 수 없음
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
-            example:
-              timestamp: "2025-08-17T15:30:02Z"
-              path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
-              method: "DELETE"
-              status: 404
-              code: "RESOURCE_NOT_FOUND"
-              message: "User with id 983ef160-4389-4d80-aadc-13a772525173 not found"
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              userNotFound:
+                description: User를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users/e6681542-a6b1-43f3-b759-6dc9cfebcf41"
+                  method: "DELETE"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"
   patch:
     tags:
       - User
     summary: User 정보 수정
     operationId: update
     parameters:
-      - $ref: '../openapi-users.yaml#/components/parameters/UserId'
+      - $ref: "../openapi-users.yaml#/components/parameters/UserId"
     requestBody:
       content:
         multipart/form-data:
@@ -271,7 +274,7 @@ userById:
         content:
           application/json:
             schema:
-              $ref: '../schemas/user.yaml#/UserSaveResponse'
+              $ref: "../schemas/user.yaml#/UserSaveResponse"
             example:
               id: "e6681542-a6b1-43f3-b759-6dc9cfebcf41"
               createdAt: "2025-08-18T14:26:12.176736Z"
@@ -284,7 +287,7 @@ userById:
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidField:
                 description: userUpdateRequest Field 값이 유효하지 않음
@@ -337,7 +340,7 @@ userById:
                   method: "PATCH"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with username {username} already exists"
+                  message: "User with username alice.k already exists"
               duplicateEmail:
                 description: 같은 email을 사용하는 User가 이미 존재함
                 value:
@@ -346,12 +349,12 @@ userById:
                   method: "PATCH"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with email {email} already exists"
+                  message: "User with email alice@example.com already exists"
       '415':
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidUserUpdateRequest:
                 description: userUpdateRequest가 application/json 형식이 아님

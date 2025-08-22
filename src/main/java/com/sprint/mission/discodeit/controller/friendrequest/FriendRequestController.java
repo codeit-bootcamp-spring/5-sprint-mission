@@ -28,7 +28,7 @@ public class FriendRequestController {
 
   private final FriendRequestService friendRequestService;
 
-  @GetMapping({"", "/"})
+  @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public List<FriendRequestResponse> findAll() {
     return friendRequestService.findAll();
@@ -53,7 +53,7 @@ public class FriendRequestController {
     return friendRequestService.findAllByReceiverId(userId);
   }
 
-  @PostMapping({"", "/"})
+  @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public FriendRequestResponse send(@Valid @RequestBody FriendRequestSendRequest body) {
     return friendRequestService.send(body);

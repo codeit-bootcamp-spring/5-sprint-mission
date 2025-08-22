@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -105,7 +106,7 @@ public class FileMessageRepository extends AbstractFileRepository<Message> imple
         .filter(m -> channelId.equals(m.getChannelId()))
         .filter(m -> {
           String c = m.getContent();
-          return c != null && c.toLowerCase().contains(k);
+          return c != null && c.toLowerCase(Locale.ROOT).contains(k);
         })
         .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
         .toList();

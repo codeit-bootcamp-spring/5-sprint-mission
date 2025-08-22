@@ -88,7 +88,7 @@ public final class FileNames {
       return MediaType.APPLICATION_OCTET_STREAM_VALUE;
     }
     int semi = ct.indexOf(';');
-    return (semi >= 0 ? ct.substring(0, semi) : ct).strip().toLowerCase();
+    return (semi >= 0 ? ct.substring(0, semi) : ct).strip().toLowerCase(Locale.ROOT);
   }
 
   public static String buildStoredName(String original, String contentType) {

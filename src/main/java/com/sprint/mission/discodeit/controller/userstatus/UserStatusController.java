@@ -23,7 +23,7 @@ public class UserStatusController {
   private final UserService userService;
   private final UserStatusService userStatusService;
 
-  @PostMapping({"", "/"})
+  @PostMapping
   @ResponseStatus(HttpStatus.OK)
   public UserStatusResponse updateStatus(@RequestParam UUID userId,
       @Valid @RequestBody UserStatusUpdateRequest body) {

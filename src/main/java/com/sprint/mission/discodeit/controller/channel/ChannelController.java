@@ -29,7 +29,7 @@ public class ChannelController {
 
   private final ChannelService channelService;
 
-  @GetMapping(path = {"", "/"})
+  @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public List<ChannelResponse> findAll(@RequestParam("userId") UUID userId) {
     return channelService.findAll(userId);

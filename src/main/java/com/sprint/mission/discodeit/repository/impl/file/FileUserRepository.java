@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -46,8 +47,8 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     if (needle.isEmpty()) {
       return true;
     }
-    final String v = value.toLowerCase();
-    final String n = needle.toLowerCase();
+    final String v = value.toLowerCase(Locale.ROOT);
+    final String n = needle.toLowerCase(Locale.ROOT);
     return v.contains(n);
   }
 

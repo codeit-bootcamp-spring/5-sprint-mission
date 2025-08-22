@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.HexFormat;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.Getter;
@@ -149,7 +150,7 @@ public class BinaryContent extends AbstractEntity {
     if (contentType != null && !contentType.isBlank()) {
       return normalizeContentType(contentType);
     }
-    String lower = filename.toLowerCase();
+    String lower = filename.toLowerCase(Locale.ROOT);
     if (lower.endsWith(".png")) {
       return IMAGE_PNG;
     }
