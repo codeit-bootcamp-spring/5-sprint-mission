@@ -1,11 +1,12 @@
 package com.sprint.mission.discodeit.service.user;
 
+import static com.sprint.mission.discodeit.support.StringUtil.nullOrStrip;
 import static com.sprint.mission.discodeit.support.StringUtil.nullOrStripAndLowerCase;
 
+import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
-import com.sprint.mission.discodeit.dto.request.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
@@ -16,7 +17,6 @@ import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import com.sprint.mission.discodeit.service.binarycontent.BinaryContentService;
 import com.sprint.mission.discodeit.support.FileNames;
 import java.io.IOException;
 import java.util.List;
@@ -36,7 +36,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserService {
 
   private final UserRepository userRepository;
-  private final BinaryContentService binaryContentService;
   private final UserStatusRepository userStatusRepository;
   private final FriendRequestRepository friendRequestRepository;
   private final GuildRepository guildRepository;
@@ -90,8 +89,7 @@ public class UserService {
   }
 
   @Transactional
-  public UserSaveResponse create(UserCreateRequest req, MultipartFile profile)
-      throws IOException {
+  public UserSaveResponse create(UserCreateRequest req, MultipartFile profile) {
     String username = nullOrStripAndLowerCase(req.username());
     if (userRepository.existsByUsername(username)) {
       throw new DuplicateResourceException(
@@ -102,19 +100,21 @@ public class UserService {
     if (userRepository.existsByEmail(email)) {
       throw new DuplicateResourceException("User with email %s already exists".formatted(email));
     }
-    UUID profileId = null;
 
+    UUID profileId;
     if (profile != null && !profile.isEmpty()) {
       String ct = FileNames.normalizeContentType(profile.getContentType());
       String original = profile.getOriginalFilename();
       String fileName = FileNames.buildStoredName(original, ct);
 
       try {
-        profileId = binaryContentService.create(
-            new BinaryContentCreateRequest(fileName, ct, profile.getBytes())).id();
-      } catch (IOException e) {
-        throw new IOException("Failed to read profile image", e);
+        profileId = binaryContentRepository.save(
+            new BinaryContent(fileName, ct, profile.getBytes())).getId();
+      } catch (IOException ignore) {
+        profileId = null;
       }
+    } else {
+      profileId = null;
     }
 
     User user = new User(
@@ -154,64 +154,59 @@ public class UserService {
   }
 
   @Transactional
-  public UserSaveResponse update(UUID userId, UserUpdateRequest req, MultipartFile profile)
-      throws IOException {
+  public UserSaveResponse update(UUID userId, UserUpdateRequest req, MultipartFile profile) {
     User u = userRepository.getOrThrow(userId);
 
-    String username;
-    if (req != null
-        && req.newUsername() != null
-        && !req.newUsername().equals(u.getUsername())
-    ) {
-      username = nullOrStripAndLowerCase(req.newUsername());
-    } else {
-      username = null;
-    }
-
+    String newUsername = req != null ? nullOrStripAndLowerCase(req.newUsername()) : null;
+    String username =
+        (newUsername != null && !newUsername.equals(u.getUsername())) ? newUsername : null;
     if (username != null && userRepository.existsByUsername(username)) {
       throw new DuplicateResourceException(
           "User with username %s already exists".formatted(username));
     }
 
-    String email;
-    if (req != null
-        && req.newEmail() != null
-        && !req.newEmail().equals(u.getEmail())
-    ) {
-      email = nullOrStripAndLowerCase(req.newEmail());
-    } else {
-      email = null;
-    }
-    if (req != null
-        && email != null
-        && userRepository.existsByEmail(email)
-    ) {
+    String newEmail = req != null ? nullOrStripAndLowerCase(req.newEmail()) : null;
+    String email = (newEmail != null && !newEmail.equals(u.getEmail())) ? newEmail : null;
+    if (email != null && userRepository.existsByEmail(email)) {
       throw new DuplicateResourceException("User with email %s already exists".formatted(email));
     }
 
-    String password;
-    if (req != null
-        && req.newPassword() != null
-        && !passwordEncoder.matches(req.newPassword().strip(), u.getPassword())
-    ) {
-      password = passwordEncoder.encode(req.newPassword().strip());
-    } else {
-      password = null;
-    }
+    String newPassword = req != null ? nullOrStrip(req.newPassword()) : null;
+    String password =
+        (newPassword != null && !passwordEncoder.matches(newPassword, u.getPassword()))
+            ? passwordEncoder.encode(newPassword) : null;
 
     UUID profileId;
     if (profile != null && !profile.isEmpty()) {
       String ct = FileNames.normalizeContentType(profile.getContentType());
       String original = profile.getOriginalFilename();
       String fileName = FileNames.buildStoredName(original, ct);
-      profileId = binaryContentService.create(
-          new BinaryContentCreateRequest(fileName, ct, profile.getBytes())).id();
+
+      try {
+        profileId = binaryContentRepository.save(
+            new BinaryContent(fileName, ct, profile.getBytes())).getId();
+      } catch (IOException ignore) {
+        profileId = null;
+      }
     } else {
       profileId = null;
     }
 
-    u.update(username, email, password, profileId);
+    boolean noOp = username == null
+        && email == null
+        && password == null
+        && (profile == null || profile.isEmpty());
+    if (noOp) {
+      return UserSaveResponse.from(u);
+    }
 
-    return UserSaveResponse.from(userRepository.save(u));
+    u.update(username, email, password, profileId);
+    User saved = userRepository.save(u);
+
+    if (profileId != null && u.getProfileId() != null && !profileId.equals(u.getProfileId())) {
+      binaryContentRepository.softDeleteById(u.getProfileId());
+    }
+
+    return UserSaveResponse.from(u);
   }
 }

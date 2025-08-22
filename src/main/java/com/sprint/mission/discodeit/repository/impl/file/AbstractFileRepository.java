@@ -15,6 +15,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,8 +52,8 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     try {
       Files.createDirectories(directory);
     } catch (IOException e) {
-      log.warn("디렉토리 생성 실패: {}", directory, e);
-      throw new RuntimeException("디렉토리 생성 실패: " + directory, e);
+      log.warn("Failed to create directory: {}", directory, e);
+      throw new RuntimeException("Failed to create directory: " + directory, e);
     }
   }
 
@@ -67,8 +68,8 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(directory, "*" + EXTENSION)) {
       return StreamSupport.stream(ds.spliterator(), false).toList();
     } catch (IOException e) {
-      log.warn("저장 파일 나열 실패: {}", directory, e);
-      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
   }
 
@@ -78,8 +79,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
       try {
         ds.close();
       } catch (IOException e) {
-        log.warn("저장 파일 스트림 나열 실패: {}", directory, e);
-        throw new RuntimeException("저장 파일 스트림 나열 실패: " + directory, e);
+        log.warn("Failed to list save file streams: {}", directory, e);
       }
     });
   }
@@ -104,14 +104,18 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
         ObjectOutputStream oos = new ObjectOutputStream(bos)) {
       oos.writeObject(entity);
       oos.flush();
-      Files.move(tmp, target, ATOMIC_MOVE, REPLACE_EXISTING);
+      try {
+        Files.move(tmp, target, ATOMIC_MOVE, REPLACE_EXISTING);
+      } catch (AtomicMoveNotSupportedException ex) {
+        Files.move(tmp, target, REPLACE_EXISTING);
+      }
     } catch (IOException e) {
       try {
         Files.deleteIfExists(tmp);
       } catch (IOException e2) {
         e.addSuppressed(e2);
       }
-      throw new RuntimeException("엔티티 저장 실패: " + entity.getId(), e);
+      throw new RuntimeException("Failed to save entity: " + entity.getId(), e);
     }
   }
 
@@ -131,22 +135,6 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public Optional<T> findById(UUID id) {
-    return readObject(resolvePath(id)).filter(AbstractEntity::isNotDeleted);
-  }
-
-  @Override
-  public Optional<T> findByIdIncludingDeleted(UUID id) {
-    return readObject(resolvePath(id));
-  }
-
-  @Override
-  public T getOrThrow(UUID id) {
-    return findById(id).orElseThrow(() ->
-        new NotFoundException("%s with id %s not found".formatted(entityType.getSimpleName(), id)));
-  }
-
-  @Override
   public List<T> findAll() {
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
@@ -154,8 +142,8 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
           .sorted(Comparator.comparing(AbstractEntity::getCreatedAt).reversed())
           .toList();
     } catch (IOException e) {
-      log.warn("저장 파일 나열 실패: {}", directory, e);
-      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
   }
 
@@ -164,8 +152,8 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream).toList();
     } catch (IOException e) {
-      log.warn("저장 파일 나열 실패: {}", directory, e);
-      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
   }
 
@@ -176,8 +164,8 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
           .filter(AbstractEntity::isDeleted)
           .toList();
     } catch (IOException e) {
-      log.warn("저장 파일 나열 실패: {}", directory, e);
-      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
   }
 
@@ -203,6 +191,22 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
         .map(this::resolvePath)
         .map(this::readObject).flatMap(Optional::stream)
         .toList();
+  }
+
+  @Override
+  public Optional<T> findById(UUID id) {
+    return readObject(resolvePath(id)).filter(AbstractEntity::isNotDeleted);
+  }
+
+  @Override
+  public Optional<T> findByIdIncludingDeleted(UUID id) {
+    return readObject(resolvePath(id));
+  }
+
+  @Override
+  public T getOrThrow(UUID id) {
+    return findById(id).orElseThrow(() ->
+        new NotFoundException("%s with id %s not found".formatted(entityType.getSimpleName(), id)));
   }
 
   @Override
@@ -261,7 +265,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     try {
       return Files.deleteIfExists(resolvePath(id));
     } catch (IOException e) {
-      log.warn("hard delete 실패({}): {}", entityType.getSimpleName(), id, e);
+      log.warn("Failed to hard-delete({}): {}", entityType.getSimpleName(), id, e);
       return false;
     }
   }
@@ -283,7 +287,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
       }
     }
     if (failed > 0) {
-      log.warn("hard delete in batch 실패({}): {}건 실패", entityType.getSimpleName(), failed);
+      log.warn("Failed to batch-hard-delete({}): {}건 실패", entityType.getSimpleName(), failed);
     }
     return deleted;
   }
@@ -299,7 +303,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
           .map(AbstractEntity::getId)
           .toList();
     } catch (IOException e) {
-      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
     int deleted = 0;
     for (UUID id : toRemove) {
@@ -321,7 +325,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
         }
       }
     } catch (IOException e) {
-      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
     return cnt;
   }
@@ -334,7 +338,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
         cnt++;
       }
     } catch (IOException e) {
-      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
     return cnt;
   }

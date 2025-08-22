@@ -14,14 +14,6 @@ public interface AbstractRepository<T extends AbstractEntity> {
 
   List<T> saveAll(Collection<T> entities);
 
-  Optional<T> findById(UUID id);
-
-  Optional<T> findByIdIncludingDeleted(UUID id);
-
-  boolean existsById(UUID id);
-
-  T getOrThrow(UUID id);
-
   List<T> findAll();
 
   List<T> findAllIncludingDeleted();
@@ -31,6 +23,14 @@ public interface AbstractRepository<T extends AbstractEntity> {
   List<T> findAllById(Set<UUID> ids);
 
   List<T> findAllByIdIncludingDeleted(Set<UUID> ids);
+
+  Optional<T> findById(UUID id);
+
+  Optional<T> findByIdIncludingDeleted(UUID id);
+
+  T getOrThrow(UUID id);
+
+  boolean existsById(UUID id);
 
   boolean softDeleteById(UUID id);
 

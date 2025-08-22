@@ -73,7 +73,7 @@ public class FileMessageRepository extends AbstractFileRepository<Message> imple
               BinaryOperator.maxBy(Comparator.naturalOrder())
           ));
     } catch (IOException e) {
-      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
   }
 

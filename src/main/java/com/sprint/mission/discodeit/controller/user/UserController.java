@@ -40,7 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/users", produces = "application/json")
+@RequestMapping(path = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @Validated
 public class UserController {
 

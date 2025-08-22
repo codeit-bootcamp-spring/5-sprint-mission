@@ -35,6 +35,7 @@ ApiError:
       description: HTTP 상태 코드
     code:
       type: string
+      minLength: 1
       description: 애플리케이션 오류 코드
     message:
       type: string

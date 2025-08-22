@@ -18,30 +18,19 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
     super(User.class);
   }
 
-  private static final Comparator<User> BY_EMAIL =
-      Comparator.comparing(User::getEmail, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
   private static final Comparator<User> BY_USERNAME =
       Comparator.comparing(User::getUsername, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+  private static final Comparator<User> BY_EMAIL =
+      Comparator.comparing(User::getEmail, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
-  private static boolean startsWithIgnoreCase(String value, String prefix) {
-    if (value == null || prefix == null) {
-      return false;
+  @Override
+  public Optional<User> findByUsername(String username) {
+    if (username == null || username.isBlank()) {
+      return Optional.empty();
     }
-    int len = prefix.length();
-    if (value.length() < len) {
-      return false;
-    }
-    return value.regionMatches(true, 0, prefix, 0, len);
-  }
-
-  private static boolean containsIgnoreCase(String value, String needle) {
-    if (value == null || needle == null) {
-      return false;
-    }
-    if (needle.isEmpty()) {
-      return true;
-    }
-    return value.toLowerCase(Locale.ROOT).contains(needle.toLowerCase(Locale.ROOT));
+    return data.values().stream()
+        .filter(u -> !u.isDeleted() && username.equalsIgnoreCase(u.getUsername()))
+        .findFirst();
   }
 
   @Override
@@ -56,13 +45,11 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
   }
 
   @Override
-  public Optional<User> findByUsername(String username) {
+  public boolean existsByUsername(String username) {
     if (username == null || username.isBlank()) {
-      return Optional.empty();
+      return false;
     }
-    return data.values().stream()
-        .filter(u -> !u.isDeleted() && username.equalsIgnoreCase(u.getUsername()))
-        .findFirst();
+    return findByUsername(username).isPresent();
   }
 
   @Override
@@ -74,23 +61,23 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
   }
 
   @Override
-  public boolean existsByUsername(String username) {
-    if (username == null || username.isBlank()) {
-      return false;
-    }
-    return findByUsername(username).isPresent();
+  public List<User> searchByUsernameKeyword(String keyword) {
+    return searchByContains(User::getUsername, keyword, BY_USERNAME);
   }
 
-  private List<User> searchByPrefix(Function<User, String> extractor, String prefix,
-      Comparator<User> order) {
-    if (prefix == null || prefix.isBlank()) {
-      return List.of();
-    }
-    final String p = prefix.strip();
-    return findAll().stream()
-        .filter(u -> startsWithIgnoreCase(extractor.apply(u), p))
-        .sorted(order)
-        .toList();
+  @Override
+  public List<User> searchByEmailKeyword(String keyword) {
+    return searchByContains(User::getEmail, keyword, BY_EMAIL);
+  }
+
+  @Override
+  public List<User> searchByUsernamePrefix(String usernamePrefix) {
+    return searchByPrefix(User::getUsername, usernamePrefix, BY_USERNAME);
+  }
+
+  @Override
+  public List<User> searchByEmailPrefix(String emailPrefix) {
+    return searchByPrefix(User::getEmail, emailPrefix, BY_EMAIL);
   }
 
   private List<User> searchByContains(Function<User, String> extractor, String keyword,
@@ -105,23 +92,36 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
         .toList();
   }
 
-  @Override
-  public List<User> searchByEmailPrefix(String emailPrefix) {
-    return searchByPrefix(User::getEmail, emailPrefix, BY_EMAIL);
+  private List<User> searchByPrefix(Function<User, String> extractor, String prefix,
+      Comparator<User> order) {
+    if (prefix == null || prefix.isBlank()) {
+      return List.of();
+    }
+    final String p = prefix.strip();
+    return findAll().stream()
+        .filter(u -> startsWithIgnoreCase(extractor.apply(u), p))
+        .sorted(order)
+        .toList();
   }
 
-  @Override
-  public List<User> searchByUsernamePrefix(String usernamePrefix) {
-    return searchByPrefix(User::getUsername, usernamePrefix, BY_USERNAME);
+  private static boolean containsIgnoreCase(String value, String needle) {
+    if (value == null || needle == null) {
+      return false;
+    }
+    if (needle.isEmpty()) {
+      return true;
+    }
+    return value.toLowerCase(Locale.ROOT).contains(needle.toLowerCase(Locale.ROOT));
   }
 
-  @Override
-  public List<User> searchByEmailKeyword(String keyword) {
-    return searchByContains(User::getEmail, keyword, BY_EMAIL);
-  }
-
-  @Override
-  public List<User> searchByUsernameKeyword(String keyword) {
-    return searchByContains(User::getUsername, keyword, BY_USERNAME);
+  private static boolean startsWithIgnoreCase(String value, String prefix) {
+    if (value == null || prefix == null) {
+      return false;
+    }
+    int len = prefix.length();
+    if (value.length() < len) {
+      return false;
+    }
+    return value.regionMatches(true, 0, prefix, 0, len);
   }
 }

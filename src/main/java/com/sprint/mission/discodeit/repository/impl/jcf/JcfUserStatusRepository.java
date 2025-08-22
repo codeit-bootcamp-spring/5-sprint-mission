@@ -34,10 +34,8 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
     if (userIds.isEmpty()) {
       return Set.of();
     }
-    return userIds.stream()
-        .map(data::get)
-        .filter(Objects::nonNull)
-        .filter(UserStatus::isNotDeleted)
+    return data.values().stream()
+        .filter(us -> !us.isDeleted() && userIds.contains(us.getUserId()))
         .collect(Collectors.toSet());
   }
 
@@ -45,7 +43,7 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
   public UserStatus getOrThrowByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
     return findByUserId(userId).orElseThrow(
-        () -> new NotFoundException("UserStatus with id %s not found".formatted(userId)));
+        () -> new NotFoundException("UserStatus with userId %s not found".formatted(userId)));
   }
 
   @Override

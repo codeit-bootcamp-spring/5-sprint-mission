@@ -77,8 +77,8 @@ public class FileFriendRequestRepository extends AbstractFileRepository<FriendRe
           .filter(fr -> userId.equals(fr.getSenderId()) || userId.equals(fr.getReceiverId()))
           .forEach(FriendRequest::delete);
     } catch (IOException e) {
-      log.warn("저장 파일 나열 실패: {}", directory, e);
-      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
   }
 

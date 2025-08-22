@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/channels", produces = "application/json")
+@RequestMapping(path = "/api/channels", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ChannelController {
 
   private final ChannelService channelService;
@@ -35,13 +36,13 @@ public class ChannelController {
     return channelService.findAll(userId);
   }
 
-  @PostMapping(path = "/public", consumes = "application/json")
+  @PostMapping(path = "/public", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   public ChannelSaveResponse createPublic(@Valid @RequestBody PublicChannelCreateRequest req) {
     return channelService.create(req);
   }
 
-  @PostMapping(path = "/private", consumes = "application/json")
+  @PostMapping(path = "/private", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   public ChannelSaveResponse createPrivate(@Valid @RequestBody PrivateChannelCreateRequest req) {
     return channelService.create(req);
@@ -53,7 +54,7 @@ public class ChannelController {
     channelService.delete(channelId);
   }
 
-  @PatchMapping(path = "/{channelId}", consumes = "application/json")
+  @PatchMapping(path = "/{channelId}", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   public ChannelSaveResponse update(@PathVariable("channelId") UUID channelId,
       @Valid @RequestBody PublicChannelUpdateRequest req) {

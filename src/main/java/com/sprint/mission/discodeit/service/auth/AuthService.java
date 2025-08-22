@@ -4,9 +4,8 @@ import static com.sprint.mission.discodeit.support.StringUtil.nullOrStripAndLowe
 
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
-import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 import com.sprint.mission.discodeit.dto.request.auth.AuthLoginRequest;
-import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
 import com.sprint.mission.discodeit.exception.UnauthorizedException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -26,7 +25,7 @@ public class AuthService {
   private final PasswordEncoder passwordEncoder;
 
   @Transactional
-  public UserResponse login(AuthLoginRequest req) {
+  public UserSaveResponse login(AuthLoginRequest req) {
     String username = nullOrStripAndLowerCase(req.username());
     User u = userRepository.findByUsername(username)
         .orElseThrow(() -> new UnauthorizedException("Username or password incorrect"));
@@ -36,10 +35,9 @@ public class AuthService {
 
     UserStatus userStatus = userStatusRepository.findByUserId(u.getId())
         .orElseGet(() -> new UserStatus(u.getId()));
-    userStatus.login();
-    userStatusRepository.save(userStatus);
+    userStatusRepository.save(userStatus.login());
 
-    return UserResponse.from(u, UserStatusType.ONLINE);
+    return UserSaveResponse.from(u);
   }
 
   @Transactional
@@ -48,7 +46,6 @@ public class AuthService {
 
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
         .orElseGet(() -> new UserStatus(userId));
-    userStatus.logout();
-    userStatusRepository.save(userStatus);
+    userStatusRepository.save(userStatus.logout());
   }
 }

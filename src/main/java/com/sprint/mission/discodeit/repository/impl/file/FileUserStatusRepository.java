@@ -35,8 +35,8 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
           .filter(us -> !us.isDeleted() && userId.equals(us.getUserId()))
           .findFirst();
     } catch (IOException e) {
-      log.warn("저장 파일 나열 실패: {}", directory, e);
-      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
   }
 
@@ -45,33 +45,31 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
     if (userIds == null || userIds.isEmpty()) {
       return Set.of();
     }
-
-    return userIds.stream()
-        .map(this::resolvePath)
-        .map(this::readObject).flatMap(Optional::stream)
-        .filter(UserStatus::isNotDeleted)
-        .collect(Collectors.toSet());
+    try (Stream<Path> s = streamSerializedFiles()) {
+      return s.map(this::readObject).flatMap(Optional::stream)
+          .filter(us -> !us.isDeleted() && userIds.contains(us.getUserId()))
+          .collect(Collectors.toSet());
+    } catch (IOException e) {
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
+    }
   }
 
   @Override
   public UserStatus getOrThrowByUserId(UUID userId) {
     return findByUserId(userId).orElseThrow(
-        () -> new NotFoundException("UserStatus with id %s not found".formatted(userId)));
+        () -> new NotFoundException("UserStatus with userId %s not found".formatted(userId)));
   }
 
   @Override
   public boolean existsByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
-
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
-          .filter(us -> userId.equals(us.getUserId()))
-          .map(UserStatus::isNotDeleted)
-          .findFirst()
-          .orElse(false);
+          .anyMatch(us -> !us.isDeleted() && userId.equals(us.getUserId()));
     } catch (IOException e) {
-      log.warn("저장 파일 나열 실패: {}", directory, e);
-      throw new RuntimeException("저장 파일 나열 실패: " + directory, e);
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
   }
 

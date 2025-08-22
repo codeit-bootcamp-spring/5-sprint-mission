@@ -10,5 +10,7 @@ public interface GuildRepository extends AbstractRepository<Guild> {
 
   List<Guild> findGuildsByMember(UUID userId);
 
+  void softDeleteAllByOwnerId(UUID ownerId);
+
   List<Guild> searchGuilds(String keyword);
 }

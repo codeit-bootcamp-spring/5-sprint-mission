@@ -29,6 +29,15 @@ public class JcfGuildRepository extends AbstractJcfRepository<Guild> implements 
   }
 
   @Override
+  public void softDeleteAllByOwnerId(UUID ownerId) {
+    Objects.requireNonNull(ownerId);
+    data.values().stream()
+        .filter(Guild::isNotDeleted)
+        .filter(g -> g.isOwner(ownerId))
+        .forEach(Guild::delete);
+  }
+
+  @Override
   public List<Guild> searchGuilds(String keyword) {
     Objects.requireNonNull(keyword, "keyword must not be null");
     String k = keyword.strip().toLowerCase(Locale.ROOT);

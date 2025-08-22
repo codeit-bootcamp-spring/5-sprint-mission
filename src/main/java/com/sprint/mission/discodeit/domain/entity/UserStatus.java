@@ -60,7 +60,7 @@ public class UserStatus extends AbstractEntity {
     }
   }
 
-  public void login() {
+  public UserStatus login() {
     if (!this.loggedIn) {
       this.loggedIn = true;
       this.manual = false;
@@ -68,9 +68,10 @@ public class UserStatus extends AbstractEntity {
       heartbeat();
       touch();
     }
+    return this;
   }
 
-  public void logout() {
+  public UserStatus logout() {
     if (this.loggedIn || this.type != UserStatusType.OFFLINE || this.lastActiveAt != null
         || this.manual) {
       this.loggedIn = false;
@@ -79,6 +80,7 @@ public class UserStatus extends AbstractEntity {
       this.lastActiveAt = null;
       touch();
     }
+    return this;
   }
 
 

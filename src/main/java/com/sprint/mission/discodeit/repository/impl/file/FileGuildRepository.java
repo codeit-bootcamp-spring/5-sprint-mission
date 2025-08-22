@@ -3,13 +3,19 @@ package com.sprint.mission.discodeit.repository.impl.file;
 import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.repository.GuildRepository;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @Profile("dev")
 public class FileGuildRepository extends AbstractFileRepository<Guild> implements GuildRepository {
@@ -31,6 +37,23 @@ public class FileGuildRepository extends AbstractFileRepository<Guild> implement
     return findAll().stream()
         .filter(g -> g.getUserIds().contains(userId))
         .toList();
+  }
+
+  @Override
+  public void softDeleteAllByOwnerId(UUID ownerId) {
+    Objects.requireNonNull(ownerId, "ownerId must not be null");
+    try (Stream<Path> s = streamSerializedFiles()) {
+      s.map(this::readObject).flatMap(Optional::stream)
+          .filter(Guild::isNotDeleted)
+          .filter(g -> g.isOwner(ownerId))
+          .forEach(g -> {
+            g.delete();
+            save(g);
+          });
+    } catch (IOException e) {
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
+    }
   }
 
   @Override

@@ -3,8 +3,7 @@ messages_root:
     tags: [ Messages ]
     summary: Channel의 Message 목록 조회
     operationId: findAllByChannelId
-    description: |
-      `channelId` 조건으로 모든 메시지를 조회합니다.
+    description: channelId 조건으로 모든 메시지를 조회합니다.
     parameters:
       - in: query
         name: channelId

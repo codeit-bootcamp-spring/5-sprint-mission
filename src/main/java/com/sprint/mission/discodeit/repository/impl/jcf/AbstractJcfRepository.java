@@ -34,26 +34,9 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
     if (entities == null || entities.isEmpty()) {
       return List.of();
     }
-    for (T e : entities) {
-      save(e);
-    }
+
+    entities.forEach(this::save);
     return List.copyOf(entities);
-  }
-
-  @Override
-  public Optional<T> findById(UUID id) {
-    return Optional.ofNullable(data.get(id)).filter(AbstractEntity::isNotDeleted);
-  }
-
-  @Override
-  public Optional<T> findByIdIncludingDeleted(UUID id) {
-    return Optional.ofNullable(data.get(id));
-  }
-
-  @Override
-  public T getOrThrow(UUID id) {
-    return findById(id).orElseThrow(() ->
-        new NotFoundException("%s with id %s not found".formatted(entityType.getSimpleName(), id)));
   }
 
   @Override
@@ -81,6 +64,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
     }
     return ids.stream()
         .map(data::get)
+        .filter(Objects::nonNull)
         .filter(AbstractEntity::isNotDeleted)
         .toList();
   }
@@ -97,16 +81,32 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
+  public Optional<T> findById(UUID id) {
+    return Optional.ofNullable(data.get(id)).filter(AbstractEntity::isNotDeleted);
+  }
+
+  @Override
+  public Optional<T> findByIdIncludingDeleted(UUID id) {
+    return Optional.ofNullable(data.get(id));
+  }
+
+  @Override
+  public T getOrThrow(UUID id) {
+    return findById(id).orElseThrow(() ->
+        new NotFoundException("%s with id %s not found".formatted(entityType.getSimpleName(), id)));
+  }
+
+  @Override
   public boolean existsById(UUID id) {
     T e = data.get(id);
-    return !e.isDeleted();
+    return e != null && !e.isDeleted();
   }
 
   @Override
   public boolean softDeleteById(UUID id) {
-    T entity = data.get(id);
-    if (!entity.isDeleted()) {
-      entity.delete();
+    T e = data.get(id);
+    if (e != null && !e.isDeleted()) {
+      e.delete();
       return true;
     }
     return false;
