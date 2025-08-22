@@ -8,8 +8,10 @@ import static com.sprint.mission.discodeit.support.Constants.SUPPORTED_IMAGE_TYP
 
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
+import com.sprint.mission.discodeit.dto.response.userstatus.UserStatusResponse;
 import com.sprint.mission.discodeit.exception.ParameterNumberNotValidException;
 import com.sprint.mission.discodeit.service.user.UserService;
 import com.sprint.mission.discodeit.support.FileNames;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -123,5 +126,18 @@ public class UserController {
     }
 
     return userService.update(userId, req, profile);
+  }
+
+  @PatchMapping(path = "/{userId}/userStatus", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  public UserStatusResponse updateUserStatusByUserId(@PathVariable UUID userId,
+      @RequestBody UserStatusUpdateRequest req) {
+    return userService.updateUserStatusByUserId(userId, req);
+  }
+
+  @PostMapping(path = "/{userId}/heartbeat")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void heartbeat(@PathVariable UUID userId) {
+    userService.heartbeat(userId);
   }
 }

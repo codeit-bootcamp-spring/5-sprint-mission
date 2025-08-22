@@ -112,3 +112,42 @@ UserUpdateRequest:
       minLength: 8
       maxLength: 72
       description: 입력 값은 서버에서 strip 후 해시로 인코딩됨
+
+UserStatusResponse:
+  type: object
+  required:
+    - id
+    - createdAt
+    - updatedAt
+    - userId
+    - lastActiveAt
+    - online
+    - displayName
+  properties:
+    id:
+      type: string
+      format: uuid
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+    userId:
+      type: string
+      format: uuid
+    lastActiveAt:
+      type: string
+    online:
+      type: boolean
+    displayName:
+      $ref: "./user-status-type.yaml#/UserStatusTypeDisplayName"
+
+UserStatusUpdateRequest:
+  type: object
+  properties:
+    newUserStatusType:
+      $ref: "./user-status-type.yaml#/UserStatusType"
+    newLastActiveAt:
+      type: string
+      format: date-time

@@ -53,11 +53,9 @@ public class UserStatus extends AbstractEntity {
     }
   }
 
-  public void unfixStatus() {
-    if (this.manual) {
-      this.manual = false;
-      touch();
-    }
+  public void setLastActiveAt(Instant newLastActiveAt) {
+    this.lastActiveAt = newLastActiveAt;
+    touch();
   }
 
   public UserStatus login() {
@@ -82,7 +80,6 @@ public class UserStatus extends AbstractEntity {
     }
     return this;
   }
-
 
   public void heartbeat() {
     this.lastActiveAt = now();

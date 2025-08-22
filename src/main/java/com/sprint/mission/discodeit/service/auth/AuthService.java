@@ -5,11 +5,11 @@ import static com.sprint.mission.discodeit.support.StringUtil.nullOrStripAndLowe
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.dto.request.auth.AuthLoginRequest;
+import com.sprint.mission.discodeit.dto.request.auth.AuthLogoutRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
 import com.sprint.mission.discodeit.exception.UnauthorizedException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,11 +41,11 @@ public class AuthService {
   }
 
   @Transactional
-  public void logout(UUID userId) {
-    userRepository.getOrThrow(userId);
+  public void logout(AuthLogoutRequest req) {
+    userRepository.getOrThrow(req.userId());
 
-    UserStatus userStatus = userStatusRepository.findByUserId(userId)
-        .orElseGet(() -> new UserStatus(userId));
+    UserStatus userStatus = userStatusRepository.findByUserId(req.userId())
+        .orElseGet(() -> new UserStatus(req.userId()));
     userStatusRepository.save(userStatus.logout());
   }
 }

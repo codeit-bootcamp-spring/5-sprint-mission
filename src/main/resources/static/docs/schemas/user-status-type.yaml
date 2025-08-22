@@ -1,0 +1,23 @@
+UserStatusType:
+  type: string
+  description: |-
+    사용자 상태 타입. 각 값은 한국어 표시 이름과 매핑됩니다
+
+    - ONLINE → "온라인"
+    - DO_NOT_DISTURB → "방해 금지"
+    - IDLE → "자리 비움"
+    - OFFLINE → "오프라인 표시"
+  enum:
+    - ONLINE
+    - DO_NOT_DISTURB
+    - IDLE
+    - OFFLINE
+
+UserStatusTypeDisplayName:
+  type: string
+  description: UserStatusType의 한국어 표시 이름
+  enum:
+    - 온라인
+    - 방해 금지
+    - 자리 비움
+    - 오프라인 표시

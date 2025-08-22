@@ -16,22 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/auth")
+@RequestMapping(path = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AuthController {
 
   private final AuthService authService;
 
-  @PostMapping(path = "/login",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public UserSaveResponse login(@RequestBody @Valid AuthLoginRequest body) {
-    return authService.login(body);
+  public UserSaveResponse login(@RequestBody @Valid AuthLoginRequest req) {
+    return authService.login(req);
   }
 
   @PostMapping(path = "/logout", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void logout(@RequestBody @Valid AuthLogoutRequest body) {
-    authService.logout(body.userId());
+  public void logout(@RequestBody @Valid AuthLogoutRequest req) {
+    authService.logout(req);
   }
 }

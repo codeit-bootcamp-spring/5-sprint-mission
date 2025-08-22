@@ -10,6 +10,10 @@ paths:
     $ref: "./paths/users.yaml#/usersRoot"
   /users/{userId}:
     $ref: "./paths/users.yaml#/userById"
+  /users/{userId}/userStatus:
+    $ref: "./paths/users.yaml#/userStatus"
+  /users/{userId}/heartbeat:
+    $ref: "./paths/users.yaml#/heartbeat"
 components:
   parameters:
     UserId:
@@ -54,5 +58,13 @@ components:
       $ref: "./schemas/user.yaml#/UserSaveResponse"
     UserUpdateRequest:
       $ref: "./schemas/user.yaml#/UserUpdateRequest"
+    UserStatusResponse:
+      $ref: "./schemas/user.yaml#/UserStatusResponse"
+    UserStatusUpdateRequest:
+      $ref: "./schemas/user.yaml#/UserStatusUpdateRequest"
     ApiError:
       $ref: "./schemas/error.yaml#/ApiError"
+    UserStatusType:
+      $ref: "./schemas/user-status-type.yaml#/UserStatusType"
+    UserStatusTypeDisplayName:
+      $ref: "./schemas/user-status-type.yaml#/UserStatusTypeDisplayName"

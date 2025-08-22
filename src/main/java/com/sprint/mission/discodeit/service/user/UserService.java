@@ -9,9 +9,12 @@ import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
+import com.sprint.mission.discodeit.dto.response.userstatus.UserStatusResponse;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
+import com.sprint.mission.discodeit.exception.UnauthorizedException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
@@ -208,5 +211,40 @@ public class UserService {
     }
 
     return UserSaveResponse.from(u);
+  }
+
+  @Transactional
+  public UserStatusResponse updateUserStatusByUserId(UUID userId, UserStatusUpdateRequest req) {
+    userRepository.getOrThrow(userId);
+    UserStatus us = userStatusRepository.findByUserId(userId)
+        .orElseGet(() -> userStatusRepository.save(new UserStatus(userId)));
+
+    if (!us.isLoggedIn()) {
+      throw new UnauthorizedException("User not logged in");
+    }
+
+    if (req.newUserStatusType() != null) {
+      us.setType(req.newUserStatusType());
+    }
+
+    if (req.newLastActiveAt() != null) {
+      us.setLastActiveAt(req.newLastActiveAt());
+    }
+
+    return UserStatusResponse.from(userStatusRepository.save(us));
+  }
+
+  @Transactional
+  public void heartbeat(UUID userId) {
+    userRepository.getOrThrow(userId);
+    UserStatus us = userStatusRepository.findByUserId(userId)
+        .orElseGet(() -> userStatusRepository.save(new UserStatus(userId)));
+
+    if (!us.isLoggedIn()) {
+      throw new UnauthorizedException("User not logged in");
+    }
+
+    us.heartbeat();
+    userStatusRepository.save(us);
   }
 }

@@ -23,7 +23,5 @@ springdoc:
         url: /docs/openapi-messages.yaml
       - name: Read Statuses API
         url: /docs/openapi-read-statuses.yaml
-      - name: User Statuses API
-        url: /docs/openapi-user-statuses.yaml
       - name: Users API
         url: /docs/openapi-users.yaml
