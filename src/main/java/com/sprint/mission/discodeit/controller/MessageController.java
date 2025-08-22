@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Collections;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,23 +43,28 @@ public class MessageController {
   })
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<Message> create(
-      @RequestPart MessageCreateRequest messageCreateRequest,
-      @RequestPart(required = false) List<MultipartFile> profiles
-  ) throws IOException {
-    List<BinaryContentCreateRequest> binaryContents = new ArrayList<>();
-
-    if (!profiles.isEmpty()) {
-      for (MultipartFile profile : profiles) {
-        binaryContents.add(new BinaryContentCreateRequest(
-            profile.getOriginalFilename(),
-            profile.getContentType(),
-            profile.getBytes()
-        ));
-      }
-    }
-
-    Message message = messageService.create(messageCreateRequest, binaryContents);
-    return ResponseEntity.status(HttpStatus.CREATED).body(message);
+      @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+      @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
+  ) {
+    List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
+        .map(files -> files.stream()
+            .map(file -> {
+              try {
+                return new BinaryContentCreateRequest(
+                    file.getOriginalFilename(),
+                    file.getContentType(),
+                    file.getBytes()
+                );
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+            })
+            .toList())
+        .orElse(new ArrayList<>());
+    Message createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(createdMessage);
   }
 
 
@@ -82,9 +89,9 @@ public class MessageController {
       @ApiResponse(responseCode = "404", description = "Message를 찾을 수 없음",
           content = @Content(examples = @ExampleObject(value = "Message with id {messageId} not found")))
   })
-  public ResponseEntity<Message> delete(@RequestParam("messageId") UUID messageId) {
+  public ResponseEntity<Void> delete(@PathVariable("messageId") UUID messageId) {
     messageService.delete(messageId);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   @Operation(summary = "Channel의 Message 목록 조회")

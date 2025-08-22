@@ -68,12 +68,12 @@ public class UserController {
   })
   public ResponseEntity<User> update(
       @PathVariable("userId") UUID userId,
-      @RequestPart("request") UserUpdateRequest request,
+      @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
-    Optional<BinaryContentCreateRequest> updateRequest = Optional.ofNullable(profile)
+    Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
-    User updatedUser = userService.update(userId, request, updateRequest);
+    User updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
 
     return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
   }
