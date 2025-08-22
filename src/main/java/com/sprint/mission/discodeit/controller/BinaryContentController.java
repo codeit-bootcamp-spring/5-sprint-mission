@@ -23,7 +23,13 @@ public class BinaryContentController {
 
   private final BinaryContentService binaryContentService;
 
-  // ✅ 파일 생성 (등록)
+  /* MultipartFile : 클라이언트가 업로드한 파일을 컨트롤러에서 받는 용도
+   * BinaryContent : 서버에서 그 파일 데이터 저장하고 관리하는 용도 (엔티티)
+   * 프론트에서 파일을 올리면, 서버에서 MultipartFile로 받고
+   * 그걸 BinaryContent로 변환해서 저장하는 흐름이다.
+   * */
+
+  // ✅ 파일 등록
   @PostMapping("/api/binaryContents")
   public ResponseEntity<UUID> create(@RequestBody BinaryContentCreateRequest request) {
     UUID id = binaryContentService.create(request);

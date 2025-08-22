@@ -69,11 +69,13 @@ public class FileUserRepository implements UserRepository {
 
   @Override
   public Optional<User> findByUserIdAndPassword(String userId, String password) {
-    return data.values().stream()
-        .filter(user -> user.getUsername().equals(userId) && user.getPassword().equals(password))
-        .findFirst()
-        .map(User::new); // 복사본 리턴
+    return data.values().stream() //data : Map <UUID, User> 안 User 객체 가져옴
+        .filter(user -> Objects.equals(user.getUsername(), userId))
+        .filter(user -> Objects.equals(user.getPassword(), password))
+        .findFirst() // 모든 조건 만족하는 첫번째 유저만 찾아서 Optional<User>로 반환
+        .map(User::new);
   }
+
 
   //객체 -> 파일 직렬화
   private void saveToFile() {

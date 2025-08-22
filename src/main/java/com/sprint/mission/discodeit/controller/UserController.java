@@ -53,7 +53,7 @@ public class UserController {
     return ResponseEntity.ok(userService.findById(userId));
   }
 
-  // 사용자 수정
+  // 사용자 수정 : username,email,password
   @PatchMapping(value = "/{userId}", consumes = "multipart/form-data")
   public ResponseEntity<User> update(
       @PathVariable UUID userId,

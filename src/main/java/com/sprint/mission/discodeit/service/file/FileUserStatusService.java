@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,28 +29,5 @@ public class FileUserStatusService implements UserStatusService {
     status.setLastOnline(request.getNewLastActiveAt());
 
     userStatusRepository.update(status);
-  }
-
-  //단건조회
-  @Override
-  public UserStatus findByUserId(UUID userId) {
-    UserStatus status = userStatusRepository.findByUserId(userId.toString());
-    if (status == null) {
-      throw new IllegalArgumentException("해당 유저의 상태 정보가 없습니다.");
-    }
-    return status;
-  }
-
-
-  //상태 삭제
-  @Override
-  public void delete(UUID userId) {
-    UserStatus status = findByUserId(userId); // 존재 확인
-    userStatusRepository.delete(userId);
-  }
-
-  @Override
-  public List<UserStatus> findAll() {
-    return List.of();
   }
 }
