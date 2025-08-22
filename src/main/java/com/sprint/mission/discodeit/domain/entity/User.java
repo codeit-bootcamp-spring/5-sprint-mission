@@ -1,13 +1,8 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import static com.sprint.mission.discodeit.support.StringUtil.nullOrStripAndLowerCase;
-
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,10 +26,9 @@ public class User extends AbstractEntity {
       String password,
       UUID profileId
   ) {
-    this.email = nullOrStripAndLowerCase(Objects.requireNonNull(email, "email must not be null"));
-    this.username = nullOrStripAndLowerCase(
-        Objects.requireNonNull(username, "username must not be null"));
-    this.password = Objects.requireNonNull(password, "password must not be null");
+    this.email = email;
+    this.username = username;
+    this.password = password;
     this.profileId = profileId;
   }
 
@@ -61,16 +55,18 @@ public class User extends AbstractEntity {
     }
   }
 
-  public void clearProfileId() {
-    clearIfPresent(() -> this.profileId, () -> this.profileId = null);
+  public void removeProfileId() {
+    if (this.profileId != null) {
+      this.profileId = null;
+      touch();
+    }
   }
 
   public Set<UUID> getFriendIds() {
-    return Collections.unmodifiableSet(friendIds);
+    return Set.copyOf(friendIds);
   }
 
   public void addFriend(UUID friend) {
-    Objects.requireNonNull(friend, "friendId must not be null");
     if (friend.equals(getId())) {
       throw new IllegalArgumentException("Cannot add self as friend");
     }
@@ -80,73 +76,58 @@ public class User extends AbstractEntity {
   }
 
   public void removeFriend(UUID friend) {
-    Objects.requireNonNull(friend, "friendId must not be null");
     if (friendIds.remove(friend)) {
       touch();
     }
   }
 
   public boolean isFriend(UUID friend) {
-    Objects.requireNonNull(friend, "friendId must not be null");
     return friendIds.contains(friend);
   }
 
   public Set<UUID> getGuildIds() {
-    return Collections.unmodifiableSet(guildIds);
+    return Set.copyOf(guildIds);
   }
 
   public void joinGuild(UUID guildId) {
-    Objects.requireNonNull(guildId, "guildId must not be null");
     if (guildIds.add(guildId)) {
       touch();
     }
   }
 
   public void leaveGuild(UUID guildId) {
-    Objects.requireNonNull(guildId, "guildId must not be null");
     if (guildIds.remove(guildId)) {
       touch();
     }
   }
 
   public boolean isMemberOfGuild(UUID guildId) {
-    Objects.requireNonNull(guildId, "guildId must not be null");
     return guildIds.contains(guildId);
   }
 
   public Set<UUID> getChannelIds() {
-    return Collections.unmodifiableSet(channelIds);
+    return Set.copyOf(channelIds);
   }
 
   public void joinChannel(UUID channelId) {
-    Objects.requireNonNull(channelId, "channelId must not be null");
     if (channelIds.add(channelId)) {
       touch();
     }
   }
 
   public void leaveChannel(UUID channelId) {
-    Objects.requireNonNull(channelId, "channelId must not be null");
     if (channelIds.remove(channelId)) {
       touch();
     }
   }
 
   public boolean isMemberOfChannel(UUID channelId) {
-    Objects.requireNonNull(channelId, "channelId must not be null");
     return channelIds.contains(channelId);
   }
 
   @Override
   public String toString() {
-    return "User[id=%s, username=%s, email=%s]"
-        .formatted(getId(), username, email);
-  }
-
-  private void clearIfPresent(Supplier<?> getter, Runnable clearer) {
-    if (getter.get() != null) {
-      clearer.run();
-      touch();
-    }
+    return "User[id=%s, username=%s]"
+        .formatted(getId(), username);
   }
 }

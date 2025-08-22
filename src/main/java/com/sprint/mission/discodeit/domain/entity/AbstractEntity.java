@@ -53,7 +53,11 @@ public abstract class AbstractEntity implements Serializable {
     } else {
       this.deletedAt = (deletedAt != null) ? deletedAt : current;
       this.purgeAt = purgeAt;
+      if (this.purgeAt != null && this.purgeAt.isBefore(this.deletedAt)) {
+        throw new IllegalArgumentException("purgeAt must be >= deletedAt");
+      }
     }
+
     if (version < 0) {
       throw new IllegalArgumentException("version must be >= 0");
     }
@@ -141,6 +145,9 @@ public abstract class AbstractEntity implements Serializable {
   }
 
   protected void touch(Instant updatedAt) {
+    if (updatedAt.isBefore(this.createdAt) || updatedAt.isBefore(this.updatedAt)) {
+      throw new IllegalArgumentException("updatedAt must be >= current updatedAt and createdAt");
+    }
     this.updatedAt = updatedAt;
     this.version++;
   }
