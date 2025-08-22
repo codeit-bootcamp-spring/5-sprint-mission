@@ -4,8 +4,11 @@ import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,17 +22,15 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Tag(name = "Message", description = "메세지 관리 API")
 @RestController
+@RequiredArgsConstructor
 public class MessageController {
 
   private final MessageService messageService;
 
-  // 생성자 주입
-  public MessageController(MessageService messageService) {
-    this.messageService = messageService;
-  }
-
-  // ✅메시지 생성
+  //메시지 생성
+  @Operation(summary = "메세지 생성")
   @PostMapping(value = "/api/messages", consumes = "multipart/form-data")
   public ResponseEntity<Message> create(
       @RequestPart("messageCreateRequest") MessageCreateRequest request,
@@ -40,21 +41,24 @@ public class MessageController {
   }
 
 
-  // ✅메시지 단건 조회
+  //메시지 단건 조회
+  @Operation(summary = "메시지 단건 조회")
   @GetMapping("/api/messages/{messageId}")
   public ResponseEntity<Message> findById(@PathVariable UUID messageId) {
     Message found = messageService.findById(messageId);
     return ResponseEntity.ok(found);
   }
 
-  // ✅채널 내 모든 메시지 조회
+  //채널 내 모든 메시지 조회
+  @Operation(summary = "채널 내 모든 메시지 조회")
   @GetMapping("/api/messages")
   public ResponseEntity<List<Message>> findAllByChannelId(@RequestParam UUID channelId) {
     List<Message> messages = messageService.findAllByChannelId(channelId);
     return ResponseEntity.ok(messages);
   }
 
-  // ✅메시지 수정
+  //메시지 수정
+  @Operation(summary = "메시지 수정")
   @PatchMapping("/api/messages/{messageId}")
   public ResponseEntity<Message> update(
       @PathVariable UUID messageId,
@@ -65,7 +69,8 @@ public class MessageController {
   }
 
 
-  // ✅메시지 삭제
+  //메시지 삭제
+  @Operation(summary = "메시지 삭제")
   @DeleteMapping("/api/messages/{messageId}")
   public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
     messageService.delete(messageId);

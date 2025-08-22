@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -33,6 +34,26 @@ public class FileUserStatusRepository implements UserStatusRepository {
   @Override
   public List<UserStatus> findAll() {
     return List.copyOf(data.values());
+  }
+
+  @Override
+  public void save(UserStatus status) {
+    if (status == null) {
+      return;
+    }
+    // userId를 key로 해서 저장
+    data.put(status.getUserId().toString(), status);
+    saveToFile(); // 파일에 반영
+  }
+
+
+  @Override
+  public void delete(UUID id) {
+    if (id == null) {
+      return;
+    }
+    data.values().removeIf(status -> status.getId().equals(id));
+    saveToFile();
   }
 
 
