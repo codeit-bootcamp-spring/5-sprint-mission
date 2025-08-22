@@ -3,11 +3,13 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+@Service
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
 
@@ -37,7 +39,7 @@ public class BasicMessageService implements MessageService {
         validate(msgDto);
         Message msg = findById(id);
         msg.editContent(msgDto.getContent());
-        return msg;
+        return messageRepository.save(msg);
     }
 
     @Override

@@ -3,11 +3,13 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+@Service
 public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
 
@@ -37,7 +39,7 @@ public class BasicChannelService implements ChannelService {
         validate(channelDto);
         Channel ch = findById(id);
         ch.update(channelDto.getName(), channelDto.getDescription());
-        return ch;
+        return channelRepository.save(ch);
     }
 
     @Override
