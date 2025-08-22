@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +25,11 @@ public class ReadStatusController {
 
   private final ReadStatusService readStatusService;
 
-  // ✅ 특정 채널 메세지 수신 정보 생성
+  /* 메세지별 읽음표시
+   * 내가 어디까지 읽었는지, 13시 10분 읽음 등
+   * */
+
+  // ✅ A채널 메세지 읽었을때 읽었음!이라는 새로운 읽음상태 생성
   @PostMapping
   public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
     ReadStatus created = readStatusService.create(request);
@@ -34,7 +37,7 @@ public class ReadStatusController {
   }
 
 
-  // ✅ 특정 채널 수신정보 수정
+  // ✅ 읽음상태 업데이트
   @PatchMapping("/{readStatusId}")
   public ResponseEntity<ReadStatus> update(
       @PathVariable UUID readStatusId,
@@ -44,31 +47,16 @@ public class ReadStatusController {
     return ResponseEntity.ok(updated);
   }
 
-
-  // ✅ 특정 사용자 수신 정보 조회
-  @GetMapping("/{readStatusId}")
-  public ResponseEntity<ReadStatus> findById(@PathVariable UUID readStatusId) {
-    ReadStatus found = readStatusService.findById(readStatusId);
-    return ResponseEntity.ok(found);
-  }
-
-  // ✅ 유저별 전체 읽음 상태 조회
+  // ✅내가 속한 모든 채팅방에서, 내가 어디까지 읽었는지
   @GetMapping
   public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam("userId") UUID userId) {
     return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
   }
 
-  // ✅ 채널 기반 삭제
+  // ✅ 채널 삭제시, 그 채널의 모든 읽음기록 지우기
   @RequestMapping(value = "/channel/{channelId}", method = RequestMethod.DELETE)
   public ResponseEntity<Void> deleteByChannelId(@PathVariable UUID channelId) {
     readStatusService.deleteByChannelId(channelId);
-    return ResponseEntity.noContent().build();
-  }
-
-  // ✅ 단건 삭제
-  @DeleteMapping("/{readStatusId}")
-  public ResponseEntity<Void> delete(@PathVariable UUID readStatusId) {
-    readStatusService.delete(readStatusId);
     return ResponseEntity.noContent().build();
   }
 }

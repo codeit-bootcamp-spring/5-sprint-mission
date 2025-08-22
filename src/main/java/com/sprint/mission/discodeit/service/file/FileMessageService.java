@@ -91,7 +91,8 @@ public class FileMessageService implements MessageService {
   @Override
   public List<Message> findAllByChannelId(UUID channelId) {
     return repository.findAll().stream() //repo에 모든 message 객체를 리스트로 가져옴
-        .filter(m -> m.getChannelId().equals(channelId)) //m으로 하나하나 꺼낸뒤 파라미터의 ChannelId와 같은 경우만 남김
+        .filter(m -> m.getChannelId() != null && m.getChannelId()
+            .equals(channelId))//m으로 하나하나 꺼낸뒤 파라미터의 ChannelId와 같은 경우만 남김
         .toList(); // 필터링 결과 리스트 반환
   }
 

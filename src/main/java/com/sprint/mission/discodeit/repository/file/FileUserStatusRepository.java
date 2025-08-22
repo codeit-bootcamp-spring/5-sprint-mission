@@ -11,7 +11,6 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -20,9 +19,8 @@ public class FileUserStatusRepository implements UserStatusRepository {
   private static final String FILE_PATH = "user-status.dat";
   private final Map<String, UserStatus> data = load(); // key = userId
 
-
   @Override
-  public void save(UserStatus status) {
+  public void update(UserStatus status) {
     data.put(status.getUserId().toString(), status);
     saveToFile();
   }
@@ -33,33 +31,10 @@ public class FileUserStatusRepository implements UserStatusRepository {
   }
 
   @Override
-  public void delete(UUID userId) {
-    // ID로 해당 유저 상태를 찾아서 삭제
-    String targetUserId = null;
-
-    for (Map.Entry<String, UserStatus> entry : data.entrySet()) {
-      if (entry.getValue().getUserId().equals(userId)) {
-        targetUserId = entry.getKey();
-        break;
-      }
-    }
-    if (targetUserId != null) {
-      data.remove(targetUserId);
-      saveToFile();
-    }
-  }
-
-
-  @Override
   public List<UserStatus> findAll() {
     return List.copyOf(data.values());
   }
 
-  @Override
-  public void update(UserStatus status) {
-    data.put(status.getUserId().toString(), status);
-    saveToFile();
-  }
 
   // 파일 저장
   private void saveToFile() {

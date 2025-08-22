@@ -100,14 +100,5 @@ public class FileReadStatusService implements ReadStatusService {
   public void deleteByChannelId(UUID channelId) {
     readStatusRepository.deleteByChannelId(channelId);
   }
-
-
-  @Override
-  public void delete(UUID readStatusId) {
-    ReadStatus existing = readStatusRepository.findById(readStatusId);
-    if (existing == null) {
-      throw new IllegalArgumentException("삭제할 ReadStatus가 존재하지 않습니다.");
-    }
-    readStatusRepository.deleteById(readStatusId);
-  }
+  
 }
