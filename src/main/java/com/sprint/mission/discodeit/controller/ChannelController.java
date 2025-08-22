@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.dto.channel.ChannelRequest;
 import com.sprint.mission.discodeit.dto.channel.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.ReadStatusService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,11 +18,11 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Channel", description = "Channel API")
 @RequestMapping("api/channels")
 public class ChannelController {
 
     private final ChannelService channelService;
-    private final ReadStatusService readStatusService;
 
     @PostMapping("/public")
     public ResponseEntity<ChannelResponse.Detail> createChannel(
