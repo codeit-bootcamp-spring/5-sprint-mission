@@ -6,6 +6,8 @@ import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Tag(name = "User", description = "유저 관리 API")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
@@ -30,7 +33,8 @@ public class UserController {
   private final UserService userService;
   private final UserStatusService userStatusService;
 
-  // ✅ 사용자 등록
+  //회원가입
+  @Operation(summary = "회원가입")
   @PostMapping(consumes = "multipart/form-data")
   public ResponseEntity<User> create(
       @RequestPart("userCreateRequest") UserCreateRequest request,
@@ -40,20 +44,23 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
   }
 
-  // ✅ 사용자 전체목록 조회
+  //유저 전체조회
+  @Operation(summary = "유저 전체조회")
   @GetMapping
   public ResponseEntity<List<UserDto>> findAll() {
     return ResponseEntity.ok(userService.findAll());
   }
 
 
-  // 사용자 단건 조회
+  //유저 단건조회
+  @Operation(summary = "유저 단건조회")
   @GetMapping("/{userId}")
   public ResponseEntity<UserDto> findById(@PathVariable UUID userId) {
     return ResponseEntity.ok(userService.findById(userId));
   }
 
   // 사용자 수정 : username,email,password
+  @Operation(summary = "회원 정보 수정")
   @PatchMapping(value = "/{userId}", consumes = "multipart/form-data")
   public ResponseEntity<User> update(
       @PathVariable UUID userId,
@@ -66,6 +73,7 @@ public class UserController {
 
 
   // 사용자 삭제
+  @Operation(summary = "회원 탈퇴")
   @DeleteMapping("/{userId}")
   public ResponseEntity<Void> delete(@PathVariable UUID userId) {
     userService.delete(userId);
