@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
@@ -27,7 +28,7 @@ public class BasicMessageService implements MessageService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public Message create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
+    public MessageDto create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
         UUID channelId = messageCreateRequest.channelId();
         UUID authorId = messageCreateRequest.authorId();
 
@@ -57,28 +58,30 @@ public class BasicMessageService implements MessageService {
                 authorId,
                 attachmentIds
         );
-        return messageRepository.save(message);
+        return toDto(messageRepository.save(message));
     }
 
     @Override
-    public Message find(UUID messageId) {
+    public MessageDto find(UUID messageId) {
         return messageRepository.findById(messageId)
+                .map(this::toDto)
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
     }
 
     @Override
-    public List<Message> findAllByChannelId(UUID channelId) {
+    public List<MessageDto> findAllByChannelId(UUID channelId) {
         return messageRepository.findAllByChannelId(channelId).stream()
+                .map(this::toDto)
                 .toList();
     }
 
     @Override
-    public Message update(UUID messageId, MessageUpdateRequest request) {
+    public MessageDto update(UUID messageId, MessageUpdateRequest request) {
         String newContent = request.newContent();
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
         message.update(newContent);
-        return messageRepository.save(message);
+        return toDto(messageRepository.save(message));
     }
 
     @Override
@@ -90,5 +93,17 @@ public class BasicMessageService implements MessageService {
                 .forEach(binaryContentRepository::deleteById);
 
         messageRepository.deleteById(messageId);
+    }
+
+    private MessageDto toDto(Message message) {
+        return new MessageDto(
+                message.getId(),
+                message.getCreatedAt(),
+                message.getUpdatedAt(),
+                message.getContent(),
+                message.getChannelId(),
+                message.getAuthorId(),
+                message.getAttachmentIds()
+        );
     }
 }

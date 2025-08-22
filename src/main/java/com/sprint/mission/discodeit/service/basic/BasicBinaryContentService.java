@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -17,7 +18,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public BinaryContent create(BinaryContentCreateRequest request) {
+    public BinaryContentDto create(BinaryContentCreateRequest request) {
         String fileName = request.fileName();
         byte[] bytes = request.bytes();
         String contentType = request.contentType();
@@ -27,18 +28,20 @@ public class BasicBinaryContentService implements BinaryContentService {
                 contentType,
                 bytes
         );
-        return binaryContentRepository.save(binaryContent);
+        return toDto(binaryContentRepository.save(binaryContent));
     }
 
     @Override
-    public BinaryContent find(UUID binaryContentId) {
+    public BinaryContentDto find(UUID binaryContentId) {
         return binaryContentRepository.findById(binaryContentId)
+                .map(this::toDto)
                 .orElseThrow(() -> new NoSuchElementException("BinaryContent with id " + binaryContentId + " not found"));
     }
 
     @Override
-    public List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds) {
+    public List<BinaryContentDto> findAllByIdIn(List<UUID> binaryContentIds) {
         return binaryContentRepository.findAllByIdIn(binaryContentIds).stream()
+                .map(this::toDto)
                 .toList();
     }
 
@@ -48,5 +51,16 @@ public class BasicBinaryContentService implements BinaryContentService {
             throw new NoSuchElementException("BinaryContent with id " + binaryContentId + " not found");
         }
         binaryContentRepository.deleteById(binaryContentId);
+    }
+
+    private BinaryContentDto toDto(BinaryContent binaryContent) {
+        return new BinaryContentDto(
+                binaryContent.getId(),
+                binaryContent.getCreatedAt(),
+                binaryContent.getFileName(),
+                binaryContent.getSize(),
+                binaryContent.getContentType(),
+                binaryContent.getBytes()
+        );
     }
 }
