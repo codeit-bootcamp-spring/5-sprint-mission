@@ -1,13 +1,13 @@
-package com.sprint.mission.discodeit.controller; // 컨트롤러가 속한 패키지 선언
+package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.LoginRequest; // 로그인 요청 DTO 임포트
-import com.sprint.mission.discodeit.entity.User; // 로그인 성공 시 반환할 사용자 엔티티 임포트
-import com.sprint.mission.discodeit.service.AuthService; // 인증 비즈니스 로직 서비스 임포트
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.AuthService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor; // final 필드 생성자 자동 생성 애너테이션 임포트
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity; // 응답 본문/상태를 감싸는 ResponseEntity 임포트
-import org.springframework.web.bind.annotation.*; // REST 컨트롤러 관련 애너테이션 임포트
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 // --- Swagger(OpenAPI) 애너테이션 임포트 ---
 import io.swagger.v3.oas.annotations.Operation; // API 요약/설명 애너테이션

@@ -1,19 +1,19 @@
-package com.sprint.mission.discodeit.controller; // 컨트롤러 패키지 선언
+package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest; // 생성 요청 DTO 임포트
-import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest; // 수정 요청 DTO 임포트
-import com.sprint.mission.discodeit.entity.ReadStatus; // ReadStatus 엔티티 임포트
-import com.sprint.mission.discodeit.service.ReadStatusService; // 서비스 임포트
+import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.service.ReadStatusService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import lombok.RequiredArgsConstructor; // Lombok RequiredArgsConstructor 임포트
-import org.springframework.http.HttpStatus; // 상태코드 상수 임포트
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity; // 응답 엔벨로프 임포트
-import org.springframework.web.bind.annotation.*; // REST 애너테이션 임포트
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List; // 리스트 컬렉션 임포트
-import java.util.UUID; // UUID 타입 임포트
+import java.util.List;
+import java.util.UUID;
 
 // -------------------- Swagger(OpenAPI) 임포트(간단 버전) --------------------
 import io.swagger.v3.oas.annotations.Operation; // 엔드포인트 요약/설명
@@ -25,13 +25,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses; // 복수 응답
 import io.swagger.v3.oas.annotations.tags.Tag; // 컨트롤러 태그
 // ---------------------------------------------------------------------------
 
-@RequiredArgsConstructor // final 필드 생성자를 자동 생성
-@RestController // @Controller + @ResponseBody 대체: REST 응답 전용 컨트롤러
-@RequestMapping("/api/readStatuses") // 베이스 경로는 기존 그대로 유지
-@Tag(name = "ReadStatus", description = "읽음 상태(ReadStatus) 생성/수정/조회 API") // 컨트롤러 태그
-public class ReadStatusController { // 컨트롤러 클래스 시작
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/readStatuses")
+@Tag(name = "ReadStatus", description = "읽음 상태(ReadStatus) 생성/수정/조회 API")
+public class ReadStatusController {
 
-    private final ReadStatusService readStatusService; // 비즈니스 로직 서비스 의존성
+    private final ReadStatusService readStatusService;
 
     @PostMapping( // 생성은 POST 메서드로 명시
         consumes = "application/json", // 요청 본문 타입(JSON) 명시

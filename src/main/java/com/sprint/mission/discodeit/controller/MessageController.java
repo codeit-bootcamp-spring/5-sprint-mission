@@ -1,24 +1,24 @@
-package com.sprint.mission.discodeit.controller; // 컨트롤러 패키지 선언
+package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest; // 첨부파일 바이너리 DTO 임포트
-import com.sprint.mission.discodeit.dto.request.MessageCreateRequest; // 메시지 생성 요청 DTO 임포트
-import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest; // 메시지 수정 요청 DTO 임포트
-import com.sprint.mission.discodeit.entity.Message; // 메시지 엔티티 임포트
-import com.sprint.mission.discodeit.service.MessageService; // 메시지 서비스 임포트
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import lombok.RequiredArgsConstructor; // Lombok RequiredArgsConstructor 임포트
-import org.springframework.http.HttpStatus; // HTTP 상태코드 상수 임포트
-import org.springframework.http.MediaType; // 미디어 타입 상수 임포트
-import org.springframework.http.ResponseEntity; // 응답 래퍼 클래스 임포트
-import org.springframework.web.bind.annotation.*; // REST 애너테이션 임포트
-import org.springframework.web.multipart.MultipartFile; // 멀티파트 파일 타입 임포트
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException; // IO 예외 임포트
-import java.util.ArrayList; // ArrayList 임포트
-import java.util.List; // List 임포트
-import java.util.Optional; // Optional 임포트
-import java.util.UUID; // UUID 임포트
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 // ===== Swagger/OpenAPI 애너테이션 임포트(간단 버전) =====
 import io.swagger.v3.oas.annotations.Operation; // 엔드포인트 요약/설명
@@ -29,14 +29,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses; // 복수 응답
 import io.swagger.v3.oas.annotations.tags.Tag; // 태그 그룹
 // =====================================================
 
-@RequiredArgsConstructor // final 필드에 대한 생성자를 자동 생성
-@RestController // @Controller + @ResponseBody 조합을 대체하는 REST 전용 컨트롤러
-@RequestMapping("/api/messages") // 베이스 경로는 기존 그대로 유지
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/messages")
 @Tag( // Swagger UI에서 'Messages' 그룹으로 묶기 위한 태그
     name = "Messages", // 그룹 이름
     description = "메시지 생성·수정·삭제·조회 API" // 그룹 설명
 )
-public class MessageController { // 컨트롤러 클래스 시작
+public class MessageController {
 
     private final MessageService messageService; // 메시지 비즈니스 로직을 처리하는 서비스 의존성
 
@@ -61,10 +61,10 @@ public class MessageController { // 컨트롤러 클래스 시작
         @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content), // 본문 없음
         @ApiResponse(responseCode = "500", description = "서버 내부 오류") // 서버 예외
     })
-    public ResponseEntity<Message> create( // 메시지 생성 엔드포인트
+    public ResponseEntity<Message> create(
         @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,// 멀티파트 중 JSON 파트 바인딩
         @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments // 멀티파트 중 파일 리스트(선택)
-    ) { // 메서드 시작
+    ) {
         List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(
                 attachments) // 첨부파일 리스트 null 안전 처리
             .map(files -> files.stream() // 파일 스트림 생성
@@ -85,7 +85,7 @@ public class MessageController { // 컨트롤러 클래스 시작
         return ResponseEntity // 응답 빌더 시작
             .status(HttpStatus.CREATED) // 201 Created 상태코드
             .body(createdMessage); // 생성된 메시지 본문 반환
-    } // create 종료
+    }
 
     @PatchMapping( // 수정은 PUT 메서드로 명시
         path = "/{messageId}", // 기존 update 라우트 유지 + 식별자는 PathVariable로 적용
@@ -117,12 +117,12 @@ public class MessageController { // 컨트롤러 클래스 시작
     public ResponseEntity<Message> update( // 메시지 수정 엔드포인트
         @PathVariable("messageId") UUID messageId, // 경로 변수에서 메시지 ID 추출
         @RequestBody MessageUpdateRequest request // 요청 본문(JSON) 바인딩
-    ) { // 메서드 시작
+    ) {
         Message updatedMessage = messageService.update(messageId, request); // 서비스 호출로 메시지 수정
         return ResponseEntity // 응답 빌더 시작
             .status(HttpStatus.OK) // 200 OK 상태코드
             .body(updatedMessage); // 수정된 메시지 본문 반환
-    } // update 종료
+    }
 
     @DeleteMapping( // 삭제는 DELETE 메서드로 명시
         path = "/{messageId}" // 식별자는 PathVariable로 적용
@@ -150,12 +150,12 @@ public class MessageController { // 컨트롤러 클래스 시작
     })
     public ResponseEntity<Void> delete( // 메시지 삭제 엔드포인트
         @PathVariable("messageId") UUID messageId // 경로 변수에서 메시지 ID 추출
-    ) { // 메서드 시작
+    ) {
         messageService.delete(messageId); // 서비스 호출로 메시지 삭제
         return ResponseEntity // 응답 빌더 시작
             .status(HttpStatus.NO_CONTENT) // 204 No Content 상태코드
             .build(); // 본문 없이 응답
-    } // delete 종료
+    }
 
     @GetMapping( // 조회는 GET 메서드로 명시
         produces = MediaType.APPLICATION_JSON_VALUE // 응답은 JSON
@@ -190,10 +190,10 @@ public class MessageController { // 컨트롤러 클래스 시작
     public ResponseEntity<List<Message>> findAllByChannelId( // 채널별 메시지 목록 조회 엔드포인트
         @Parameter(description = "조회할 채널 ID", required = true) // ★ 문서에 필수로 노출
         @RequestParam(name = "channelId", required = true) UUID channelId // ★ 필수 쿼리 파라미터
-    ) { // 메서드 시작
+    ) {
         List<Message> messages = messageService.findAllByChannelId(channelId); // 서비스 호출로 목록 조회
         return ResponseEntity // 응답 빌더 시작
             .status(HttpStatus.OK) // 200 OK 상태코드
             .body(messages); // 조회 결과 본문 반환
-    } // findAllByChannelId 종료
-} // 클래스 종료
+    }
+}

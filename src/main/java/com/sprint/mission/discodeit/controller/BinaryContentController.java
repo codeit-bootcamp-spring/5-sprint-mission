@@ -1,14 +1,14 @@
-package com.sprint.mission.discodeit.controller; // 컨트롤러가 속한 패키지 선언
+package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.entity.BinaryContent; // 바이너리 컨텐츠 엔티티 임포트
-import com.sprint.mission.discodeit.service.BinaryContentService; // 바이너리 컨텐츠 서비스 임포트
-import lombok.RequiredArgsConstructor; // final 필드 생성자 자동 생성(Lombok)
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.service.BinaryContentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity; // 응답을 감싸는 ResponseEntity
-import org.springframework.web.bind.annotation.*; // REST 컨트롤러 관련 애너테이션 임포트
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List; // 리스트 컬렉션
-import java.util.UUID; // UUID 타입
+import java.util.List;
+import java.util.UUID;
 
 // --- Swagger(OpenAPI) 임포트 ---
 import io.swagger.v3.oas.annotations.Operation; // 엔드포인트 요약/설명
@@ -46,7 +46,7 @@ public class BinaryContentController {
             .body(binaryContent);
     }
 
-    @GetMapping // ("/findAllByIdIn")
+    @GetMapping
     @Operation(summary = "바이너리 컨텐츠 복수 조회", description = "모든 바이너리 컨텐츠를 조회합니다.", operationId = "findBinaryContentsByIdIn")
     @ApiResponses({
         @ApiResponse(

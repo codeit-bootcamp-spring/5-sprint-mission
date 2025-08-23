@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.config; // 설정 클래스 패키지
+package com.sprint.mission.discodeit.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -8,10 +8,10 @@ import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration // 스프링 설정 클래스로 등록
+@Configuration
 public class OpenApiConfig { // OpenAPI 관련 전역 설정을 담는 클래스
 
-  @Bean // IoC 컨테이너에 OpenAPI 스펙 객체를 빈으로 등록
+  @Bean
   public OpenAPI discodeitOpenAPI() { // Swagger UI가 읽어갈 OpenAPI 정의 반환
     Info info = new Info() // 문서 상단 기본 정보(제목/설명/버전/연락처/라이선스)를 구성
         .title("Discodeit API") // 문서 제목
