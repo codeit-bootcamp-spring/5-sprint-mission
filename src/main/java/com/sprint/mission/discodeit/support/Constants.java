@@ -9,11 +9,8 @@ import org.springframework.http.MediaType;
 public final class Constants {
 
   public static final List<String> SUPPORTED_IMAGE_TYPE = List.of(
-      MediaType.APPLICATION_OCTET_STREAM_VALUE,
-      MediaType.IMAGE_PNG_VALUE,
-      MediaType.IMAGE_JPEG_VALUE,
-      "image/webp"
-  );
+      MediaType.APPLICATION_OCTET_STREAM_VALUE, MediaType.IMAGE_PNG_VALUE,
+      MediaType.IMAGE_JPEG_VALUE, "image/webp");
 
   public static final int MIN_USERNAME_LENGTH = 2;
   public static final int MAX_USERNAME_LENGTH = 32;
@@ -26,6 +23,8 @@ public final class Constants {
 
   public static final int MIN_CHANNEL_NAME_LENGTH = 1;
   public static final int MAX_CHANNEL_NAME_LENGTH = 100;
+
+  public static final int MAX_CHANNEL_DESCRIPTION_LENGTH = 100;
 
   public static final int MIN_CHANNEL_PARTICIPANTS = 2;
   public static final int MAX_CHANNEL_PARTICIPANTS = 10;

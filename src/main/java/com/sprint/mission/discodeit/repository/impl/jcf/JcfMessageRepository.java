@@ -1,17 +1,13 @@
 package com.sprint.mission.discodeit.repository.impl.jcf;
 
-import com.sprint.mission.discodeit.domain.entity.AbstractEntity;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -47,22 +43,6 @@ public class JcfMessageRepository extends AbstractJcfRepository<Message> impleme
         .limit(lim)
         .sorted(Comparator.comparing(Message::getCreatedAt))
         .toList();
-  }
-
-  @Override
-  public Map<UUID, Instant> findLastMessageAtByChannelIds(Set<UUID> channelIds) {
-    if (channelIds == null || channelIds.isEmpty()) {
-      return Map.of();
-    }
-    return data.values().stream()
-        .filter(AbstractEntity::isNotDeleted)
-        .filter(m -> channelIds.contains(m.getChannelId()))
-        .filter(m -> m.getCreatedAt() != null)
-        .collect(Collectors.toMap(
-            Message::getChannelId,
-            Message::getCreatedAt,
-            BinaryOperator.maxBy(Comparator.naturalOrder())
-        ));
   }
 
   @Override

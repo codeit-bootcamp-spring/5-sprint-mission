@@ -1,10 +1,12 @@
 package com.sprint.mission.discodeit.domain.entity;
 
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
+import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
@@ -17,7 +19,7 @@ public class Channel extends AbstractEntity {
   private final ChannelType type;
 
   private final Set<UUID> participantIds = new HashSet<>();
-  private final Set<UUID> messageIds = new LinkedHashSet<>();
+  private final Deque<UUID> messageIds = new ArrayDeque<>();
 
   public Channel(String name, String description) {
     Objects.requireNonNull(name, "Channel name must not be null");
@@ -53,6 +55,13 @@ public class Channel extends AbstractEntity {
       this.description = description;
       touch();
     }
+  }
+
+  public Optional<UUID> getLastMessageId() {
+    if (messageIds.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(messageIds.peekLast());
   }
 
   @Override

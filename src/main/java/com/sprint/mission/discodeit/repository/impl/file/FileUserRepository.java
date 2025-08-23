@@ -36,7 +36,7 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     }
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
-          .filter(u -> !u.isDeleted() && username.equalsIgnoreCase(u.getUsername()))
+          .filter(u -> u.isNotDeleted() && username.equalsIgnoreCase(u.getUsername()))
           .findFirst();
     } catch (IOException e) {
       log.warn("Failed to list saved files: {}", directory, e);
@@ -52,7 +52,7 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     }
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
-          .filter(u -> !u.isDeleted() && email.equalsIgnoreCase(u.getEmail()))
+          .filter(u -> u.isNotDeleted() && email.equalsIgnoreCase(u.getEmail()))
           .findFirst();
     } catch (IOException e) {
       log.warn("Failed to list saved files: {}", directory, e);

@@ -15,6 +15,14 @@ paths:
   /channels/{channelId}:
     $ref: "./paths/channels.yaml#/channelById"
 components:
+  parameters:
+    ChannelIdInPath:
+      in: path
+      name: channelId
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
     ChannelResponse:
       $ref: "./schemas/channel.yaml#/ChannelResponse"

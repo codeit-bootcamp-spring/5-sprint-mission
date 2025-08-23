@@ -26,7 +26,7 @@ channelsRoot:
                   - "983ef160-4389-4d80-aadc-13a772525173"
                   - "d6831c9f-d9c3-45d8-bfd3-6c5b0976077e"
                 lastMessageAt: null
-              - id: "4c12dg11-31aa-21ca-h2qm-1d429efj1m2n"
+              - id: "24bd1fed-d151-497d-a1fb-07233cd6381d"
                 type: "PRIVATE"
                 name: null
                 description: null
@@ -64,19 +64,20 @@ channelsRoot:
                   details:
                     - "missing parameter: userId (required type: UUID)"
       '404':
-        description: User를 찾을 수 없음
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
-            example:
-              timestamp: "2025-08-17T15:30:02Z"
-              path: "/api/channels?userId=e6681542-a6b1-43f3-b759-6dc9cfebcf41"
-              method: "GET"
-              status: 404
-              code: "RESOURCE_NOT_FOUND"
-              message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"
-
+            examples:
+              userNotFound:
+                description: User를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/channels?userId=e6681542-a6b1-43f3-b759-6dc9cfebcf41"
+                  method: "GET"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"
 publicChannels:
   post:
     tags:
@@ -98,25 +99,26 @@ publicChannels:
             schema:
               $ref: "../schemas/channel.yaml#/ChannelSaveResponse"
       '400':
-        description: Field validation/JSON parsing 오류
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidField:
+                description: Body Field 값이 유효하지 않음
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/channels/public"
                   method: "POST"
                   status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "입력 값이 유효하지 않습니다."
+                  code: "INVALID_BODY_VALUE"
+                  message: "Request body value not valid"
                   details:
                     - "name: 공백일 수 없습니다"
                     - "name: 크기가 1에서 100 사이여야 합니다"
                     - "description: 크기가 0에서 1024 사이여야 합니다"
               invalidJSON:
+                description: JSON parsing 실패
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/channels/public"
@@ -173,8 +175,8 @@ privateChannels:
                   path: "/api/channels/private"
                   method: "POST"
                   status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "입력 값이 유효하지 않습니다."
+                  code: "INVALID_BODY_VALUE"
+                  message: "Request body value not valid"
                   details:
                     - "participantIds: 참여자 ID 목록은 필수입니다."
                     - "participantIds: 비공개 채널은 2명~10명 사이여야 합니다"
@@ -190,19 +192,35 @@ privateChannels:
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 3, column: 1]"
       '404':
-        description: participantIds에 존재하지 않는 User가 포함됨
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
-            example:
-              timestamp: "2025-08-16T12:34:56Z"
-              path: "/api/channels/private"
-              method: "POST"
-              status: 404
-              code: "RESOURCE_NOT_FOUND"
-              message: "유저를 찾을 수 없습니다: f77609a6-ad81-425a-85a9-0e7f04dcb761"
-
+            examples:
+              userNotFound:
+                description: participantIds에 존재하지 않는 User가 포함됨
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/channels/private"
+                  method: "POST"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"
+      '409':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              duplicatePrivateChannel:
+                description: 1:1 DM 채널이 이미 존재함
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/channels/private"
+                  method: "POST"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "Private channel between e6681542-a6b1-43f3-b759-6dc9cfebcf41, 983ef160-4389-4d80-aadc-13a772525173 already exists"
 channelById:
   delete:
     tags:
@@ -211,42 +229,32 @@ channelById:
     operationId: delete
     description: 채널을 삭제합니다.
     parameters:
-      - name: channelId
-        in: path
-        description: 삭제할 Channel ID
-        required: true
-        schema:
-          type: string
-          format: uuid
+      - $ref: "../openapi-channels.yaml#/components/parameters/ChannelIdInPath"
     responses:
       '204':
         description: Channel이 성공적으로 삭제됨
       '404':
-        description: Channel을 찾을 수 없음
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
-            example:
-              timestamp: "2025-08-16T12:34:56Z"
-              path: "/api/channels/{channelId}"
-              method: "DELETE"
-              status: 404
-              code: "RESOURCE_NOT_FOUND"
-              message: "채널을(를) 찾을 수 없습니다: 2cf7f12f-e0f9-4736-a5b8-2e7b51404eac"
+            examples:
+              userNotFound:
+                description: Channel을 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/channels/e6681542-a6b1-43f3-b759-6dc9cfebcf42"
+                  method: "DELETE"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "Channel with id e6681542-a6b1-43f3-b759-6dc9cfebcf42 not found"
   patch:
     tags:
       - Channel
     summary: Channel 정보 수정
     operationId: update
     parameters:
-      - name: channelId
-        in: path
-        description: 수정할 Channel ID
-        required: true
-        schema:
-          type: string
-          format: uuid
+      - $ref: "../openapi-channels.yaml#/components/parameters/ChannelIdInPath"
     requestBody:
       required: true
       content:
@@ -263,42 +271,37 @@ channelById:
             schema:
               $ref: "../schemas/channel.yaml#/ChannelSaveResponse"
       '400':
-        description: |
-          Private Channel은 수정할 수 없음
-          newName 또는 newDescription 모두 빈 값임
-          Field validation/JSON parsing 오류
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidChannelType:
+                description: Private channel은 수정할 수 없음
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
-                  path: "/api/channels/{channelId}"
+                  path: "/api/channels/e6681542-a6b1-43f3-b759-6dc9cfebcf42"
                   method: "PATCH"
                   status: 400
                   code: "BAD_REQUEST"
-                  message: "요청이 올바르지 않습니다."
-                  details:
-                    - "Private channel cannot be updated"
+                  message: "Private channel cannot be updated."
               invalidField:
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
-                  path: "/api/channels/{channelId}"
+                  path: "/api/channels/e6681542-a6b1-43f3-b759-6dc9cfebcf42"
                   method: "PATCH"
                   status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "입력 값이 유효하지 않습니다."
+                  code: "INVALID_BODY_VALUE"
+                  message: "Request body value not valid"
                   details:
-                    - "any: newName 또는 newDescription 중 하나는 필수입니다."
                     - "newName: 공백일 수 없습니다"
                     - "newName: 크기가 1에서 100 사이여야 합니다"
                     - "newDescription: 크기가 0에서 1024 사이여야 합니다"
               invalidJSON:
+                description: JSON parsing 실패
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
-                  path: "/api/channels/{channelId}"
+                  path: "/api/channels/e6681542-a6b1-43f3-b759-6dc9cfebcf42"
                   method: "PATCH"
                   status: 400
                   code: "INVALID_JSON"
@@ -306,15 +309,17 @@ channelById:
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 1]"
       '404':
-        description: Channel을 찾을 수 없음
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
-            example:
-              timestamp: "2025-08-16T12:34:56Z"
-              path: "/api/channels/{channelId}"
-              method: "PATCH"
-              status: 404
-              code: "RESOURCE_NOT_FOUND"
-              message: "채널을(를) 찾을 수 없습니다: 2cf7f12f-e0f9-4736-a5b8-2e7b51404eac"
+            examples:
+              channelNotFound:
+                description: Channel을 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/channels/e6681542-a6b1-43f3-b759-6dc9cfebcf42"
+                  method: "PATCH"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "Channel with id e6681542-a6b1-43f3-b759-6dc9cfebcf42 not found"

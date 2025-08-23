@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.domain.entity.AbstractEntity;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -29,6 +30,8 @@ public interface AbstractRepository<T extends AbstractEntity> {
   Optional<T> findById(UUID id);
 
   Optional<T> findByIdIncludingDeleted(UUID id);
+
+  Map<UUID, Instant> findAllCreatedAtById(Set<UUID> ids);
 
   T getOrThrow(UUID id);
 

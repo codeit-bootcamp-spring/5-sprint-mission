@@ -37,7 +37,6 @@ components:
         type: string
         minLength: 2
         maxLength: 32
-        pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
       description: |-
         **username**과 일치하는 사용자를 검색합니다.
         
@@ -69,9 +68,7 @@ components:
       $ref: "./schemas/user.yaml#/UserStatusResponse"
     UserStatusUpdateRequest:
       $ref: "./schemas/user.yaml#/UserStatusUpdateRequest"
+    UserStatusType:
+      $ref: "./schemas/user.yaml#/UserStatusType"
     ApiError:
       $ref: "./schemas/error.yaml#/ApiError"
-    UserStatusType:
-      $ref: "./schemas/user-status-type.yaml#/UserStatusType"
-    UserStatusTypeDisplayName:
-      $ref: "./schemas/user-status-type.yaml#/UserStatusTypeDisplayName"

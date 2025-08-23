@@ -1,12 +1,9 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.domain.entity.Message;
-import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 public interface MessageRepository extends AbstractRepository<Message> {
@@ -19,8 +16,6 @@ public interface MessageRepository extends AbstractRepository<Message> {
   List<Message> findAllByChannelId(UUID channelId);
 
   List<Message> findRecentByChannelId(UUID channelId, int limit);
-
-  Map<UUID, Instant> findLastMessageAtByChannelIds(Set<UUID> channelIds);
 
   List<Message> findAllByAuthorId(UUID authorId);
 

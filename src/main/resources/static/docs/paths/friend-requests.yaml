@@ -70,7 +70,7 @@ friend_requests_root:
               method: "POST"
               status: 404
               code: "RESOURCE_NOT_FOUND"
-              message: "유저가 존재하지 않습니다."
+              message: "User with username {receiverUsername} not found"
 
 friend_request_by_id:
   get:

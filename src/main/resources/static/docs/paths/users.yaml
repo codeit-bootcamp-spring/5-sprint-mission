@@ -64,7 +64,6 @@ usersRoot:
                   message: "매개변수 값이 유효하지 않습니다."
                   details:
                     - "username: 크기가 2에서 32 사이여야 합니다"
-                    - "username: \"^(?!.*\\.\\.)[A-Za-z0-9._]+$\"와 일치해야 합니다"
                     - "email: 올바른 형식의 이메일 주소여야 합니다"
                     - "email: 크기가 6에서 254 사이여야 합니다"
   post:
@@ -123,7 +122,6 @@ usersRoot:
                   details:
                     - "username: 크기가 2에서 32 사이여야 합니다"
                     - "username: 공백일 수 없습니다"
-                    - "username: \"^(?!.*\\.\\.)[A-Za-z0-9._]+$\"와 일치해야 합니다"
                     - "email: 올바른 형식의 이메일 주소여야 합니다"
                     - "email: 크기가 6에서 254 사이여야 합니다"
                     - "email: 공백일 수 없습니다"
@@ -141,7 +139,7 @@ usersRoot:
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 7, column: 1]"
               missingUserCreateRequest:
-                description: userCreateRequest 없음
+                description: 요청에 userCreateRequest가 포함되지 않음
                 value:
                   timestamp: "2025-08-21T14:48:06.656981Z"
                   path: "/api/users"
@@ -300,7 +298,6 @@ userById:
                   message: "Request body value not valid"
                   details:
                     - "newUsername: 크기가 2에서 32 사이여야 합니다"
-                    - "newUsername: \"^(?!.*\\.\\.)[A-Za-z0-9._]+$\"와 일치해야 합니다"
                     - "newEmail: 올바른 형식의 이메일 주소여야 합니다"
                     - "newEmail: 크기가 6에서 254 사이여야 합니다"
                     - "newPassword: 크기가 8에서 72 사이여야 합니다"
@@ -425,7 +422,7 @@ userStatus:
               userId: "dff68265-b7be-4976-9832-46110cdf3aa4"
               lastActiveAt: "2025-08-22T05:35:45.486300Z"
               online: true
-              displayName: "온라인"
+              userStatusType: "ONLINE"
       '400':
         content:
           application/json:

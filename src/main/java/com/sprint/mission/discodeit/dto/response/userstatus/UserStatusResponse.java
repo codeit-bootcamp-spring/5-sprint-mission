@@ -7,24 +7,11 @@ import java.util.UUID;
 
 public record UserStatusResponse(
 
-    UUID id,
-    Instant createdAt,
-    Instant updatedAt,
-    UUID userId,
-    Instant lastActiveAt,
-    boolean online,
-    String displayName
-) {
+    UUID id, Instant createdAt, Instant updatedAt, UUID userId, Instant lastActiveAt,
+    boolean online, UserStatusType userStatusType) {
 
   public static UserStatusResponse from(UserStatus us) {
-    return new UserStatusResponse(
-        us.getId(),
-        us.getCreatedAt(),
-        us.getUpdatedAt(),
-        us.getUserId(),
-        us.getLastActiveAt(),
-        !UserStatusType.OFFLINE.equals(us.getType()),
-        us.getType().getDisplayName()
-    );
+    return new UserStatusResponse(us.getId(), us.getCreatedAt(), us.getUpdatedAt(), us.getUserId(),
+        us.getLastActiveAt(), !UserStatusType.OFFLINE.equals(us.getType()), us.getType());
   }
 }

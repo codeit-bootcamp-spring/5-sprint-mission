@@ -26,7 +26,7 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
   public Optional<UserStatus> findByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
     return data.values().stream()
-        .filter(us -> !us.isDeleted() && userId.equals(us.getUserId()))
+        .filter(us -> us.isNotDeleted() && userId.equals(us.getUserId()))
         .findFirst();
   }
 
@@ -36,7 +36,7 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
       return Map.of();
     }
     return data.values().stream()
-        .filter(us -> !us.isDeleted() && userIds.contains(us.getUserId()))
+        .filter(us -> us.isNotDeleted() && userIds.contains(us.getUserId()))
         .collect(Collectors.toMap(
             UserStatus::getUserId,
             UserStatus::getType

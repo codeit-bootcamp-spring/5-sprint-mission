@@ -34,7 +34,7 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
 
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
-          .filter(us -> !us.isDeleted() && userId.equals(us.getUserId()))
+          .filter(us -> us.isNotDeleted() && userId.equals(us.getUserId()))
           .findFirst();
     } catch (IOException e) {
       log.warn("Failed to list saved files: {}", directory, e);
@@ -50,7 +50,7 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
 
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
-          .filter(us -> !us.isDeleted() && userIds.contains(us.getUserId()))
+          .filter(us -> us.isNotDeleted() && userIds.contains(us.getUserId()))
           .collect(Collectors.toMap(
               UserStatus::getUserId,
               UserStatus::getType
@@ -72,7 +72,7 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
     Objects.requireNonNull(userId, "userId must not be null");
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
-          .anyMatch(us -> !us.isDeleted() && userId.equals(us.getUserId()));
+          .anyMatch(us -> us.isNotDeleted() && userId.equals(us.getUserId()));
     } catch (IOException e) {
       log.warn("Failed to list saved files: {}", directory, e);
       throw new RuntimeException("Failed to list saved files: " + directory, e);

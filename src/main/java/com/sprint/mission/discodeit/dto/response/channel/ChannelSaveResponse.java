@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.dto.response.channel;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
 import java.time.Instant;
@@ -17,10 +15,8 @@ public record ChannelSaveResponse(
 
     ChannelType type,
 
-    @JsonInclude(Include.ALWAYS)
     String name,
 
-    @JsonInclude(Include.ALWAYS)
     String description
 ) {
 

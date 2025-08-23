@@ -18,7 +18,6 @@ import com.sprint.mission.discodeit.support.FileNames;
 import com.sprint.mission.discodeit.support.StringUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.io.IOException;
 import java.util.List;
@@ -52,16 +51,10 @@ public class UserController {
   @GetMapping
   public List<UserResponse> findAll(
 
-      @RequestParam(required = false)
-      @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH)
-      @Pattern(regexp = "^(?!.*\\.\\.)[A-Za-z0-9._]+$")
-      String username,
+      @RequestParam(required = false) @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH) String username,
 
-      @RequestParam(required = false)
-      @Email
-      @Size(min = MIN_EMAIL_LENGTH, max = MAX_EMAIL_LENGTH)
-      String email
-  ) {
+      @RequestParam(required = false) @Email @Size(min = MIN_EMAIL_LENGTH, max = MAX_EMAIL_LENGTH) String email) {
+
     String u = StringUtil.nullOrStripAndLowerCase(username);
     String e = StringUtil.nullOrStripAndLowerCase(email);
 
@@ -79,18 +72,16 @@ public class UserController {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  public UserSaveResponse create(
-      @RequestPart("userCreateRequest") @Valid UserCreateRequest req,
-      @RequestPart(value = "profile", required = false) MultipartFile profile
-  ) throws HttpMediaTypeNotSupportedException, IOException {
+  public UserSaveResponse create(@RequestPart("userCreateRequest") @Valid UserCreateRequest req,
+      @RequestPart(value = "profile", required = false) MultipartFile profile)
+      throws HttpMediaTypeNotSupportedException, IOException {
 
     if (profile != null && !profile.isEmpty()) {
       String ct = FileNames.normalizeContentType(profile.getContentType());
       if (!SUPPORTED_IMAGE_TYPE.contains(ct)) {
         throw new HttpMediaTypeNotSupportedException(
             "Content-Type '%s' not supported".formatted(ct),
-            SUPPORTED_IMAGE_TYPE.stream().map(MediaType::valueOf).toList()
-        );
+            SUPPORTED_IMAGE_TYPE.stream().map(MediaType::valueOf).toList());
       }
     }
 
@@ -109,19 +100,17 @@ public class UserController {
   }
 
   @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public UserSaveResponse update(
-      @PathVariable("userId") UUID userId,
+  public UserSaveResponse update(@PathVariable("userId") UUID userId,
       @RequestPart(value = "userUpdateRequest", required = false) @Valid UserUpdateRequest req,
-      @RequestPart(value = "profile", required = false) MultipartFile profile
-  ) throws HttpMediaTypeNotSupportedException, IOException {
+      @RequestPart(value = "profile", required = false) MultipartFile profile)
+      throws HttpMediaTypeNotSupportedException, IOException {
 
     if (profile != null && !profile.isEmpty()) {
       String ct = FileNames.normalizeContentType(profile.getContentType());
       if (!SUPPORTED_IMAGE_TYPE.contains(ct)) {
         throw new HttpMediaTypeNotSupportedException(
             "Content-Type '%s' not supported".formatted(ct),
-            SUPPORTED_IMAGE_TYPE.stream().map(MediaType::valueOf).toList()
-        );
+            SUPPORTED_IMAGE_TYPE.stream().map(MediaType::valueOf).toList());
       }
     }
 

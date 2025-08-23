@@ -8,7 +8,6 @@ LoginRequest:
       type: string
       minLength: 2
       maxLength: 32
-      pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
       description: 입력 값은 대소문자 모두 허용되지만, 서버에서 strip 후 소문자로 정규화하여 처리됨
     password:
       type: string

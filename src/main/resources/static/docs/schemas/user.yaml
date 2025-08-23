@@ -42,7 +42,6 @@ UserCreateRequest:
       type: string
       minLength: 2
       maxLength: 32
-      pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
       description: 입력 값은 대소문자 모두 허용되지만, 서버에서 strip 후 소문자로 정규화하여 처리됨
     email:
       type: string
@@ -97,12 +96,11 @@ UserUpdateRequest:
       nullable: true
       minLength: 2
       maxLength: 32
-      pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
       description: 입력 값은 대소문자 모두 허용되지만, 서버에서 strip 후 소문자로 정규화하여 처리됨
     newEmail:
       type: string
-      nullable: true
       format: email
+      nullable: true
       minLength: 6
       maxLength: 254
       description: 입력 값은 대소문자 모두 허용되지만, 서버에서 strip 후 소문자로 정규화하여 처리됨
@@ -122,7 +120,7 @@ UserStatusResponse:
     - userId
     - lastActiveAt
     - online
-    - displayName
+    - usrStatusType
   properties:
     id:
       type: string
@@ -140,14 +138,24 @@ UserStatusResponse:
       type: string
     online:
       type: boolean
-    displayName:
-      $ref: "./user-status-type.yaml#/UserStatusTypeDisplayName"
+    userStatusType:
+      $ref: "#/UserStatusType"
 
 UserStatusUpdateRequest:
   type: object
+  description: 변경할 User 온라인 상태 정보
   properties:
     newUserStatusType:
-      $ref: "./user-status-type.yaml#/UserStatusType"
+      $ref: "#/UserStatusType"
     newLastActiveAt:
       type: string
       format: date-time
+
+UserStatusType:
+  type: string
+  description: User 상태 유형
+  enum:
+    - ONLINE
+    - DO_NOT_DISTURB
+    - IDLE
+    - OFFLINE

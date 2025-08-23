@@ -7,12 +7,14 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -100,6 +102,21 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
+  public Map<UUID, Instant> findAllCreatedAtById(Set<UUID> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return Map.of();
+    }
+
+    return data.values().stream()
+        .filter(Objects::nonNull)
+        .filter(e -> e.isNotDeleted() && ids.contains(e.getId()))
+        .collect(Collectors.toMap(
+            AbstractEntity::getId,
+            AbstractEntity::getCreatedAt
+        ));
+  }
+
+  @Override
   public T getOrThrow(UUID id) {
     return findById(id).orElseThrow(() ->
         new NotFoundException("%s with id %s not found".formatted(entityType.getSimpleName(), id)));
@@ -108,13 +125,13 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   @Override
   public boolean existsById(UUID id) {
     T e = data.get(id);
-    return e != null && !e.isDeleted();
+    return e != null && e.isNotDeleted();
   }
 
   @Override
   public boolean softDeleteById(UUID id) {
     T e = data.get(id);
-    if (e != null && !e.isDeleted()) {
+    if (e != null && e.isNotDeleted()) {
       e.delete();
       return true;
     }

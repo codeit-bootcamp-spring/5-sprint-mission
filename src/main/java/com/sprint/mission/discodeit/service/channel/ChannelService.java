@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateReque
 import com.sprint.mission.discodeit.dto.request.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelSaveResponse;
+import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -36,10 +38,23 @@ public class ChannelService {
   public List<ChannelResponse> findAll(UUID userId) {
     User u = userRepository.getOrThrow(userId);
     List<Channel> channels = channelRepository.findAllById(u.getChannelIds());
-    Set<UUID> ids = channels.stream().map(Channel::getId).collect(Collectors.toSet());
-    Map<UUID, Instant> lastMap = messageRepository.findLastMessageAtByChannelIds(ids);
+
+    Set<UUID> lastIds = channels.stream()
+        .map(Channel::getLastMessageId)
+        .flatMap(Optional::stream)
+        .collect(Collectors.toSet());
+
+    Map<UUID, Instant> lastMessageAtMap = lastIds.isEmpty()
+        ? Map.of()
+        : messageRepository.findAllCreatedAtById(lastIds);
+
     return channels.stream()
-        .map(c -> ChannelResponse.from(c, lastMap.get(c.getId())))
+        .map(c -> {
+          Instant lastMessageAt = c.getLastMessageId()
+              .map(lastMessageAtMap::get)
+              .orElse(null);
+          return ChannelResponse.from(c, lastMessageAt);
+        })
         .toList();
   }
 
@@ -58,6 +73,15 @@ public class ChannelService {
       Set<UUID> found = users.stream().map(User::getId).collect(Collectors.toSet());
       UUID missing = ids.stream().filter(id -> !found.contains(id)).findFirst().orElse(null);
       throw new NotFoundException("User with id %s not found".formatted(missing));
+    }
+
+    if (users.size() == 2) {
+      UUID userId1 = users.get(0).getId();
+      UUID userId2 = users.get(1).getId();
+      if (channelRepository.existsBetween(userId1, userId2)) {
+        throw new DuplicateResourceException(
+            "Private channel between %s, %s already exists".formatted(userId1, userId2));
+      }
     }
 
     Channel c = channelRepository.save(new Channel(ids));
@@ -83,31 +107,35 @@ public class ChannelService {
       throw new IllegalArgumentException("Private channel cannot be updated");
     }
 
-    String targetName = c.getName();
+    if (req.newName() == null && req.newDescription() == null) {
+      return ChannelSaveResponse.from(c);
+    }
+
+    String name = c.getName();
     if (req.newName() != null) {
-      String stripped = req.newName().strip();
-      if (!stripped.isBlank()) {
-        targetName = stripped;
+      String newName = req.newName().strip();
+      if (!newName.isBlank()) {
+        name = newName;
       }
     }
 
-    String targetDescription = c.getDescription();
+    String description = c.getDescription();
     if (req.newDescription() != null) {
-      targetDescription = req.newDescription().strip();
+      description = req.newDescription().strip();
     }
 
-    boolean nameChanged = !Objects.equals(c.getName(), targetName);
-    boolean descChanged = !Objects.equals(c.getDescription(), targetDescription);
+    boolean nameChanged = !Objects.equals(c.getName(), name);
+    boolean descChanged = !Objects.equals(c.getDescription(), description);
 
     if (!nameChanged && !descChanged) {
       return ChannelSaveResponse.from(c);
     }
 
     if (nameChanged) {
-      c.changeName(targetName);
+      c.changeName(name);
     }
     if (descChanged) {
-      c.changeDescription(targetDescription);
+      c.changeDescription(description);
     }
 
     return ChannelSaveResponse.from(channelRepository.save(c));

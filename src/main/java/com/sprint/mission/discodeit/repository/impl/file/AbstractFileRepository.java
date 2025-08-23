@@ -24,10 +24,12 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.AccessLevel;
@@ -219,6 +221,22 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
+  public Map<UUID, Instant> findAllCreatedAtById(Set<UUID> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return Map.of();
+    }
+
+    return ids.stream()
+        .map(this::resolvePath)
+        .map(this::readObject).flatMap(Optional::stream)
+        .filter(e -> e.isNotDeleted() && ids.contains(e.getId()))
+        .collect(Collectors.toMap(
+            AbstractEntity::getId,
+            AbstractEntity::getCreatedAt
+        ));
+  }
+
+  @Override
   public T getOrThrow(UUID id) {
     return findById(id).orElseThrow(() ->
         new NotFoundException("%s with id %s not found".formatted(entityType.getSimpleName(), id)));
@@ -232,7 +250,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   @Override
   public boolean softDeleteById(UUID id) {
     Optional<T> opt = readObject(resolvePath(id));
-    if (opt.isPresent() && !opt.get().isDeleted()) {
+    if (opt.isPresent() && opt.get().isNotDeleted()) {
       T e = opt.get();
       e.delete();
       writeObject(e);
@@ -335,7 +353,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(directory, "*" + EXTENSION)) {
       for (Path p : ds) {
         Optional<T> e = readObject(p);
-        if (e.isPresent() && !e.get().isDeleted()) {
+        if (e.isPresent() && e.get().isNotDeleted()) {
           cnt++;
         }
       }

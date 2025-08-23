@@ -29,7 +29,7 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
       return Optional.empty();
     }
     return data.values().stream()
-        .filter(u -> !u.isDeleted() && username.equalsIgnoreCase(u.getUsername()))
+        .filter(u -> u.isNotDeleted() && username.equalsIgnoreCase(u.getUsername()))
         .findFirst();
   }
 
@@ -40,7 +40,7 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
     }
     final String key = email.strip();
     return data.values().stream()
-        .filter(u -> !u.isDeleted() && email.equalsIgnoreCase(u.getEmail()))
+        .filter(u -> u.isNotDeleted() && email.equalsIgnoreCase(u.getEmail()))
         .findFirst();
   }
 

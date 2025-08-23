@@ -47,7 +47,6 @@ login:
                   details:
                     - "username: 크기가 2에서 32 사이여야 합니다"
                     - "username: 공백일 수 없습니다"
-                    - "username: \"^(?!.*\\.\\.)[A-Za-z0-9._]+$\"와 일치해야 합니다"
                     - "password: 크기가 8에서 72 사이여야 합니다"
                     - "password: 공백일 수 없습니다"
               invalidJson:
