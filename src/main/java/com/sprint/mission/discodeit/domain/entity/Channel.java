@@ -22,9 +22,8 @@ public class Channel extends AbstractEntity {
   private final Deque<UUID> messageIds = new ArrayDeque<>();
 
   public Channel(String name, String description) {
-    Objects.requireNonNull(name, "Channel name must not be null");
-    if (name.isBlank()) {
-      throw new IllegalArgumentException("Channel name must not be blank");
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("Channel name must not be null or blank");
     }
     if (description != null && description.isBlank()) {
       description = null;

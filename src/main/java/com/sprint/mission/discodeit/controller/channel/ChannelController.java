@@ -32,32 +32,62 @@ public class ChannelController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<ChannelResponse> findAll(@RequestParam("userId") UUID userId) {
+  public List<ChannelResponse> findAll(
+
+      @RequestParam("userId")
+      UUID userId
+  ) {
+
     return channelService.findAll(userId);
   }
 
   @PostMapping(path = "/public", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  public ChannelSaveResponse createPublic(@Valid @RequestBody PublicChannelCreateRequest req) {
+  public ChannelSaveResponse createPublic(
+
+      @RequestBody
+      @Valid
+      PublicChannelCreateRequest req
+  ) {
+
     return channelService.create(req);
   }
 
   @PostMapping(path = "/private", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  public ChannelSaveResponse createPrivate(@Valid @RequestBody PrivateChannelCreateRequest req) {
+  public ChannelSaveResponse createPrivate(
+
+      @RequestBody
+      @Valid
+      PrivateChannelCreateRequest req
+  ) {
+
     return channelService.create(req);
   }
 
   @DeleteMapping(path = "/{channelId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable("channelId") UUID channelId) {
+  public void delete(
+
+      @PathVariable("channelId")
+      UUID channelId
+  ) {
+
     channelService.delete(channelId);
   }
 
   @PatchMapping(path = "/{channelId}", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public ChannelSaveResponse update(@PathVariable("channelId") UUID channelId,
-      @Valid @RequestBody PublicChannelUpdateRequest req) {
+  public ChannelSaveResponse update(
+
+      @PathVariable("channelId")
+      UUID channelId,
+
+      @RequestBody
+      @Valid
+      PublicChannelUpdateRequest req
+  ) {
+
     return channelService.update(channelId, req);
   }
 }

@@ -5,6 +5,7 @@ import static com.sprint.mission.discodeit.support.Constants.MAX_USERNAME_LENGTH
 import static com.sprint.mission.discodeit.support.Constants.MIN_EMAIL_LENGTH;
 import static com.sprint.mission.discodeit.support.Constants.MIN_USERNAME_LENGTH;
 import static com.sprint.mission.discodeit.support.Constants.SUPPORTED_IMAGE_TYPE;
+import static com.sprint.mission.discodeit.support.StringUtil.nullOrStripAndLowerCase;
 
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
@@ -15,7 +16,6 @@ import com.sprint.mission.discodeit.dto.response.userstatus.UserStatusResponse;
 import com.sprint.mission.discodeit.exception.ParameterNumberNotValidException;
 import com.sprint.mission.discodeit.service.user.UserService;
 import com.sprint.mission.discodeit.support.FileNames;
-import com.sprint.mission.discodeit.support.StringUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
@@ -61,8 +61,8 @@ public class UserController {
       String email
   ) {
 
-    String u = StringUtil.nullOrStripAndLowerCase(username);
-    String e = StringUtil.nullOrStripAndLowerCase(email);
+    String u = nullOrStripAndLowerCase(username);
+    String e = nullOrStripAndLowerCase(email);
 
     if (u != null && e != null) {
       throw new ParameterNumberNotValidException(List.of("username", "email"));
@@ -148,7 +148,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   public UserStatusResponse updateUserStatusByUserId(
 
-      @PathVariable
+      @PathVariable("userId")
       UUID userId,
 
       @RequestBody
@@ -161,7 +161,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void heartbeat(
 
-      @PathVariable
+      @PathVariable("userId")
       UUID userId
   ) {
     userService.heartbeat(userId);

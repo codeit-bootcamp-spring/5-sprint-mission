@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.service.channel;
 
+import static com.sprint.mission.discodeit.support.StringUtil.nullOrStrip;
+
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
@@ -13,7 +15,6 @@ import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.support.StringUtil;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -39,14 +40,12 @@ public class ChannelService {
     User u = userRepository.getOrThrow(userId);
     List<Channel> channels = channelRepository.findAllById(u.getChannelIds());
 
-    Set<UUID> lastIds = channels.stream()
+    Set<UUID> lastMessageIds = channels.stream()
         .map(Channel::getLastMessageId)
         .flatMap(Optional::stream)
         .collect(Collectors.toSet());
 
-    Map<UUID, Instant> lastMessageAtMap = lastIds.isEmpty()
-        ? Map.of()
-        : messageRepository.findAllCreatedAtById(lastIds);
+    Map<UUID, Instant> lastMessageAtMap = messageRepository.findAllCreatedAtById(lastMessageIds);
 
     return channels.stream()
         .map(c -> {
@@ -60,8 +59,8 @@ public class ChannelService {
 
   @Transactional
   public ChannelSaveResponse create(PublicChannelCreateRequest req) {
-    String name = StringUtil.nullOrStrip(req.name());
-    String description = StringUtil.nullOrStrip(req.description());
+    String name = nullOrStrip(req.name());
+    String description = nullOrStrip(req.description());
     return ChannelSaveResponse.from(channelRepository.save(new Channel(name, description)));
   }
 
@@ -69,6 +68,7 @@ public class ChannelService {
   public ChannelSaveResponse create(PrivateChannelCreateRequest req) {
     Set<UUID> ids = req.participantIds();
     List<User> users = userRepository.findAllById(ids);
+
     if (users.size() != ids.size()) {
       Set<UUID> found = users.stream().map(User::getId).collect(Collectors.toSet());
       UUID missing = ids.stream().filter(id -> !found.contains(id)).findFirst().orElse(null);
