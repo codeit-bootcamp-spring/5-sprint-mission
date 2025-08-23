@@ -5,32 +5,29 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@Controller
-@ResponseBody
-@RequestMapping("/api/binaryContent")
+@RestController
+@RequestMapping("/api/binaryContents")
 public class BinaryContentController {
+
     private final BinaryContentService binaryContentService;
 
-    @RequestMapping(path = "find")
-    public ResponseEntity<BinaryContent> find(@RequestParam("binaryContentId") UUID binaryContentId) {
+    // 바이너리 콘텐츠 단일 조회
+    @GetMapping("/{binaryContentId}")
+    public ResponseEntity<BinaryContent> find(@PathVariable UUID binaryContentId) {
         BinaryContent binaryContent = binaryContentService.find(binaryContentId);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(binaryContent);
+        return ResponseEntity.ok(binaryContent);
     }
 
-    @RequestMapping(path = "findAllByIdIn")
-    public ResponseEntity<List<BinaryContent>> findAllByIdIn(@RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
+    // 바이너리 콘텐츠 복수 조회
+    @PostMapping
+    public ResponseEntity<List<BinaryContent>> findAllByIdIn(@RequestBody List<UUID> binaryContentIds) {
         List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(binaryContents);
+        return ResponseEntity.status(HttpStatus.OK).body(binaryContents);
     }
 }

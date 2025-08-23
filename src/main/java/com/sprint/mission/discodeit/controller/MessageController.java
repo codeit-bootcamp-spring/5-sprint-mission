@@ -4,13 +4,11 @@ import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.main.Message;
-import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,21 +18,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.springframework.web.bind.annotation.RequestMethod.*;
-
 @RequiredArgsConstructor
-@Controller
-@ResponseBody
-@RequestMapping("/api/message")
+@RestController
+@RequestMapping("/api/messages")
 public class MessageController {
+
     private final MessageService messageService;
 
-    @RequestMapping(
-            path = "create",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    // 메시지 생성
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Message> create(
-            @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+            @RequestPart("messageCreateRequest") MessageCreateRequest request,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
         List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
@@ -52,33 +46,32 @@ public class MessageController {
                         })
                         .toList())
                 .orElse(new ArrayList<>());
-        Message createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(createdMessage);
+
+        Message created = messageService.create(request, attachmentRequests);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @RequestMapping(path = "update")
-    public ResponseEntity<Message> update(@RequestParam("messageId") UUID messageId, @RequestBody MessageUpdateRequest request) {
-        Message updatedMessage = messageService.update(messageId, request);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(updatedMessage);
+    // 수정
+    @PatchMapping("/{messageId}")
+    public ResponseEntity<Message> update(
+            @PathVariable UUID messageId,
+            @RequestBody MessageUpdateRequest request
+    ) {
+        Message updated = messageService.update(messageId, request);
+        return ResponseEntity.ok(updated);
     }
 
-    @RequestMapping(path = "delete")
-    public ResponseEntity<Void> delete(@RequestParam("messageId") UUID messageId) {
+    // 삭제
+    @DeleteMapping("/{messageId}")
+    public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
         messageService.delete(messageId);
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .build();
+        return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping("findAllByChannelId")
-    public ResponseEntity<List<Message>> findAllByChannelId(@RequestParam("channelId") UUID channelId) {
+    // 채널별 메시지 조회
+    @GetMapping
+    public ResponseEntity<List<Message>> findAllByChannelId(@RequestParam UUID channelId) {
         List<Message> messages = messageService.findAllByChannelId(channelId);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(messages);
+        return ResponseEntity.ok(messages);
     }
 }
