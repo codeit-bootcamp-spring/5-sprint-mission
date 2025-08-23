@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.exception;
 
+import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
 
@@ -10,7 +11,7 @@ public class ParameterNumberNotValidException extends RuntimeException {
 
   public ParameterNumberNotValidException(List<String> receivedParameters, String message) {
     super(message != null && !message.isBlank() ? message : "Multiple parameters not allowed");
-    this.receivedParameters = List.copyOf(receivedParameters);
+    this.receivedParameters = Collections.unmodifiableList(receivedParameters);
   }
 
   public ParameterNumberNotValidException(List<String> receivedParameters) {

@@ -86,18 +86,11 @@ public class MessageService {
   }
 
   @Transactional
-  public MessageResponse update(
-      UUID messageId,
-      MessageUpdateRequest req
-  ) {
-
+  public MessageResponse update(UUID messageId, MessageUpdateRequest req) {
     Message m = messageRepository.getOrThrow(messageId);
-
     return MessageResponse.from(
         messageRepository.save(
-            m.update(
-                nullOrStrip(req.content())
-            )
+            m.update(nullOrStrip(req.content()))
         )
     );
   }

@@ -6,7 +6,6 @@ usersRoot:
     operationId: findAll
     description: |-
       모든 사용자를 조회하거나 **username** 또는 **email** 조건으로 검색합니다.
-      
       - **username**과 **email**은 동시에 전달할 수 없습니다. 동시에 전달되면 400(BAD_REQUEST)을 반환합니다.
       - 결과는 항상 배열로 반환됩니다(0개/1개여도 배열).
     parameters:

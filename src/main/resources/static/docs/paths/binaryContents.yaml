@@ -1,4 +1,4 @@
-binary_contents_root:
+binaryContentsRoot:
   post:
     tags: [ BinaryContents ]
     summary: 바이너리 콘텐츠 업로드
@@ -50,7 +50,7 @@ binary_contents_root:
         content:
           application/json:
             schema:
-              $ref: "../schemas/binary-content.yaml#/BinaryContentResponse"
+              $ref: "../schemas/binaryContent.yaml#/BinaryContentResponse"
             examples:
               created:
                 value:
@@ -89,9 +89,9 @@ binary_contents_root:
             schema:
               type: array
               items:
-                $ref: "../schemas/binary-content.yaml#/BinaryContentResponse"
+                $ref: "../schemas/binaryContent.yaml#/BinaryContentResponse"
 
-binary_content_by_id:
+binaryContentById:
   get:
     tags: [ BinaryContents ]
     summary: 바이너리 콘텐츠 단건 조회
@@ -109,7 +109,7 @@ binary_content_by_id:
         content:
           application/json:
             schema:
-              $ref: "../schemas/binary-content.yaml#/BinaryContentResponse"
+              $ref: "../schemas/binaryContent.yaml#/BinaryContentResponse"
       '404':
         description: Not Found
         content:

@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.domain.entity;
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
 import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Optional;
@@ -56,6 +57,10 @@ public class Channel extends AbstractEntity {
       touch();
     }
     return this;
+  }
+
+  public Set<UUID> getParticipantIds() {
+    return Collections.unmodifiableSet(participantIds);
   }
 
   public Optional<UUID> getLastMessageId() {

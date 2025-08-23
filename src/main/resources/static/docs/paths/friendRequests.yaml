@@ -11,7 +11,7 @@ friend_requests_root:
             schema:
               type: array
               items:
-                $ref: "../schemas/friend-request.yaml#/FriendRequestResponse"
+                $ref: "../schemas/friendRequest.yaml#/FriendRequestResponse"
 
   post:
     tags: [ FriendRequests ]
@@ -22,7 +22,7 @@ friend_requests_root:
       content:
         application/json:
           schema:
-            $ref: "../schemas/friend-request.yaml#/FriendRequestSendRequest"
+            $ref: "../schemas/friendRequest.yaml#/FriendRequestSendRequest"
           examples:
             valid:
               value:
@@ -34,7 +34,7 @@ friend_requests_root:
         content:
           application/json:
             schema:
-              $ref: "../schemas/friend-request.yaml#/FriendRequestResponse"
+              $ref: "../schemas/friendRequest.yaml#/FriendRequestResponse"
       '400':
         description: Bad Request
         content:
@@ -88,7 +88,7 @@ friend_request_by_id:
         content:
           application/json:
             schema:
-              $ref: "../schemas/friend-request.yaml#/FriendRequestResponse"
+              $ref: "../schemas/friendRequest.yaml#/FriendRequestResponse"
       '404':
         description: Not Found
         content:
@@ -118,7 +118,7 @@ friend_request_by_id:
       content:
         application/json:
           schema:
-            $ref: "../schemas/friend-request.yaml#/FriendRequestHandleRequest"
+            $ref: "../schemas/friendRequest.yaml#/FriendRequestHandleRequest"
     responses:
       '204':
         description: No Content
@@ -182,7 +182,7 @@ friend_requests_sent:
             schema:
               type: array
               items:
-                $ref: "../schemas/friend-request.yaml#/FriendRequestResponse"
+                $ref: "../schemas/friendRequest.yaml#/FriendRequestResponse"
       '400':
         description: Bad Request
         content:
@@ -207,7 +207,7 @@ friend_requests_received:
             schema:
               type: array
               items:
-                $ref: "../schemas/friend-request.yaml#/FriendRequestResponse"
+                $ref: "../schemas/friendRequest.yaml#/FriendRequestResponse"
       '400':
         description: Bad Request
         content:

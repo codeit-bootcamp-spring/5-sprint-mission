@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.domain.entity;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -39,7 +40,7 @@ public class Message extends AbstractEntity {
   }
 
   public Set<UUID> getAttachmentIds() {
-    return Set.copyOf(attachmentIds);
+    return Collections.unmodifiableSet(attachmentIds);
   }
 
   @Override

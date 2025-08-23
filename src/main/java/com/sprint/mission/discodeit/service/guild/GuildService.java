@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.domain.enums.Permission;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -130,8 +131,8 @@ public class GuildService {
     return !guildRepository.getOrThrow(guildId).isNotMember(userId);
   }
 
-  public List<UUID> getMemberIds(UUID guildId) {
-    return List.copyOf(guildRepository.getOrThrow(guildId).getUserIds());
+  public Set<UUID> getMemberIds(UUID guildId) {
+    return Collections.unmodifiableSet(guildRepository.getOrThrow(guildId).getUserIds());
   }
 
   public int getMemberCount(UUID guildId) {

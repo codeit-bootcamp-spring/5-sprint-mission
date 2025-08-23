@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/messages")
+@RequestMapping(path = "/api/messages", produces = MediaType.APPLICATION_JSON_VALUE)
 @Validated
 public class MessageController {
 
@@ -63,9 +63,20 @@ public class MessageController {
     return messageService.create(req, attachments);
   }
 
-  @PutMapping(path = "/{messageId}")
+  @DeleteMapping(path = "/{messageId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(
+
+      @PathVariable("messageId")
+      UUID messageId
+  ) {
+    messageService.delete(messageId);
+  }
+
+  @PutMapping(path = "/{messageId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
   public MessageResponse update(
+
       @PathVariable("messageId")
       UUID messageId,
 
@@ -75,14 +86,5 @@ public class MessageController {
   ) {
 
     return messageService.update(messageId, req);
-  }
-
-  @DeleteMapping(path = "/{messageId}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(
-      @PathVariable("messageId")
-      UUID messageId
-  ) {
-    messageService.delete(messageId);
   }
 }

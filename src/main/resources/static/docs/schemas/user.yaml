@@ -120,7 +120,7 @@ UserStatusResponse:
     - userId
     - lastActiveAt
     - online
-    - usrStatusType
+    - userStatusType
   properties:
     id:
       type: string
@@ -136,6 +136,7 @@ UserStatusResponse:
       format: uuid
     lastActiveAt:
       type: string
+      format: date-time
     online:
       type: boolean
     userStatusType:

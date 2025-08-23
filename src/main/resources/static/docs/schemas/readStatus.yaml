@@ -1,5 +1,12 @@
 ReadStatusResponse:
   type: object
+  required:
+    - id
+    - createdAt
+    - updatedAt
+    - userId
+    - channelId
+    - lastReadAt
   properties:
     id:
       type: string
@@ -35,5 +42,13 @@ ReadStatusCreateRequest:
       type: string
       format: uuid
     lastReadAt:
+      type: string
+      format: date-time
+
+ReadStatusUpdateRequest:
+  type: object
+  description: Message 읽음 상태 생성 정보
+  properties:
+    newLastReadAt:
       type: string
       format: date-time

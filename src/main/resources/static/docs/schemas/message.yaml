@@ -20,6 +20,7 @@ MessageResponse:
       format: date-time
     content:
       type: string
+      nullable: true
     channelId:
       type: string
       format: uuid

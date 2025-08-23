@@ -39,9 +39,8 @@ components:
         maxLength: 32
       description: |-
         **username**과 일치하는 사용자를 검색합니다.
-        
-        - 요청 시 대소문자 모두 허용되지만,
-        - 서버에서 strip 후 소문자로 정규화하여 처리됩니다.
+        - 요청 시 대소문자 허용
+        - 서버는 strip 후 소문자로 정규화하여 처리
     Email:
       in: query
       name: email
@@ -52,9 +51,8 @@ components:
         maxLength: 254
       description: |-
         **email**과 일치하는 사용자를 검색합니다.
-        
-        - 요청 시 대소문자 모두 허용되지만,
-        - 서버에서 strip 후 소문자로 정규화하여 처리됩니다.
+        - 요청 시 대소문자 허용
+        - 서버는 strip 후 소문자로 정규화하여 처리
   schemas:
     UserResponse:
       $ref: "./schemas/user.yaml#/UserResponse"

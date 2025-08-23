@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.domain.entity;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -74,7 +75,7 @@ public class User extends AbstractEntity {
   }
 
   public Set<UUID> getFriendIds() {
-    return Set.copyOf(friendIds);
+    return Collections.unmodifiableSet(friendIds);
   }
 
   public void addFriend(UUID friend) {
@@ -98,7 +99,7 @@ public class User extends AbstractEntity {
   }
 
   public Set<UUID> getGuildIds() {
-    return Set.copyOf(guildIds);
+    return Collections.unmodifiableSet(guildIds);
   }
 
   public void joinGuild(UUID guildId) {
@@ -119,7 +120,7 @@ public class User extends AbstractEntity {
   }
 
   public Set<UUID> getChannelIds() {
-    return Set.copyOf(channelIds);
+    return Collections.unmodifiableSet(channelIds);
   }
 
   public void joinChannel(UUID channelId) {
