@@ -345,7 +345,7 @@ userById:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
               duplicateUsername:
-                description: username를 사용하는 User가 이미 존재함
+                description: 같은 username을 사용하는 User가 이미 존재함
                 value:
                   timestamp: "2025-08-17T15:30:02Z"
                   path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
@@ -380,7 +380,7 @@ userById:
                   details:
                     - "Content-Type 'application/octet-stream' not supported"
               invalidProfile:
-                description: 이미지 파일의 타입이 지원되지 않음
+                description: 프로필 이미지의 타입이 지원되지 않음
                 value:
                   timestamp: "2025-08-19T07:13:02.116388Z"
                   path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
@@ -458,7 +458,7 @@ userStatus:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
               unauthorized:
-                description: 로그아웃 상태
+                description: User가 로그아웃 상태임
                 value:
                   timestamp: "2025-08-17T15:31:00Z"
                   path: "/api/users/e6681542-a6b1-43f3-b759-6dc9cfebcf41/userStatus"
@@ -520,7 +520,7 @@ heartbeat:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
               unauthorized:
-                description: 로그아웃 상태
+                description: User가 로그아웃 상태임
                 value:
                   timestamp: "2025-08-17T15:31:00Z"
                   path: "/api/users/e6681542-a6b1-43f3-b759-6dc9cfebcf41/heartbeat"
