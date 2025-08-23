@@ -75,7 +75,10 @@ public class FileFriendRequestRepository extends AbstractFileRepository<FriendRe
       s.map(this::readObject).flatMap(Optional::stream)
           .filter(FriendRequest::isNotDeleted)
           .filter(fr -> userId.equals(fr.getSenderId()) || userId.equals(fr.getReceiverId()))
-          .forEach(FriendRequest::delete);
+          .forEach(fr -> {
+            fr.delete();
+            save(fr);
+          });
     } catch (IOException e) {
       log.warn("Failed to list saved files: {}", directory, e);
       throw new RuntimeException("Failed to list saved files: " + directory, e);
@@ -86,10 +89,10 @@ public class FileFriendRequestRepository extends AbstractFileRepository<FriendRe
   public boolean softDeleteBySenderAndReceiver(UUID senderId, UUID receiverId) {
     Objects.requireNonNull(senderId, "senderId must not be null");
     Objects.requireNonNull(receiverId, "receiverId must not be null");
-    Optional<FriendRequest> fr = findAll().stream()
-        .filter(e -> senderId.equals(e.getSenderId()) && receiverId.equals(e.getReceiverId()))
+    Optional<FriendRequest> frOpt = findAll().stream()
+        .filter(fr -> senderId.equals(fr.getSenderId()) && receiverId.equals(fr.getReceiverId()))
         .findFirst();
-    return fr.map(e -> softDeleteById(e.getId())).orElse(false);
+    return frOpt.map(fr -> softDeleteById(fr.getId())).orElse(false);
   }
 
   @Override

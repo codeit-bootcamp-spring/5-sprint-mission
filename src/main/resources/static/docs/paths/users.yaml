@@ -398,7 +398,7 @@ userStatus:
     description: |-
       - **ONLINE**, **DO_NOT_DISTURB**, **IDLE**, **OFFLINE** 중 하나로 상태를 변경합니다.
       - 또는 **lastActiveAt**을 업데이트 합니다.
-      - 사전 로그인이 필요합니다.
+      - 로그아웃 상태면 항상 **online**은 false, **userStatusType**은 OFFLINE으로 반환됩니다.
     operationId: updateUserStatusByUserId
     parameters:
       - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"
@@ -451,21 +451,6 @@ userStatus:
                   message: "Request parameter type not valid"
                   details:
                     - "parameter=userId, value=not-uuid, expectedType=UUID"
-      '401':
-        content:
-          application/json:
-            schema:
-              $ref: "../schemas/error.yaml#/ApiError"
-            examples:
-              unauthorized:
-                description: User가 로그아웃 상태임
-                value:
-                  timestamp: "2025-08-17T15:31:00Z"
-                  path: "/api/users/e6681542-a6b1-43f3-b759-6dc9cfebcf41/userStatus"
-                  method: "POST"
-                  status: 401
-                  code: "UNAUTHORIZED"
-                  message: "User not logged in"
       '404':
         content:
           application/json:
@@ -513,21 +498,6 @@ heartbeat:
                   message: "Request parameter type not valid"
                   details:
                     - "parameter=userId, value=not-uuid, expectedType=UUID"
-      '401':
-        content:
-          application/json:
-            schema:
-              $ref: "../schemas/error.yaml#/ApiError"
-            examples:
-              unauthorized:
-                description: User가 로그아웃 상태임
-                value:
-                  timestamp: "2025-08-17T15:31:00Z"
-                  path: "/api/users/e6681542-a6b1-43f3-b759-6dc9cfebcf41/heartbeat"
-                  method: "POST"
-                  status: 401
-                  code: "UNAUTHORIZED"
-                  message: "User not logged in"
       '404':
         content:
           application/json:

@@ -34,6 +34,7 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     if (username == null || username.isBlank()) {
       return Optional.empty();
     }
+
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
           .filter(u -> u.isNotDeleted() && username.equalsIgnoreCase(u.getUsername()))
@@ -50,6 +51,7 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     if (email == null || email.isBlank()) {
       return Optional.empty();
     }
+
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
           .filter(u -> u.isNotDeleted() && email.equalsIgnoreCase(u.getEmail()))
@@ -65,6 +67,7 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     if (username == null || username.isBlank()) {
       return false;
     }
+
     return findByUsername(username).isPresent();
   }
 
@@ -73,6 +76,7 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     if (email == null || email.isBlank()) {
       return false;
     }
+
     return findByEmail(email).isPresent();
   }
 

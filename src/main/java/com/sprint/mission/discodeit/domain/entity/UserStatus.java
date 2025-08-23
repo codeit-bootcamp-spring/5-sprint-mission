@@ -54,8 +54,11 @@ public class UserStatus extends AbstractEntity {
   }
 
   public void setLastActiveAt(Instant newLastActiveAt) {
-    this.lastActiveAt = newLastActiveAt;
-    touch();
+    Objects.requireNonNull(newLastActiveAt, "lastActiveAt must not be null");
+    if (this.lastActiveAt == null || !this.lastActiveAt.equals(newLastActiveAt)) {
+      this.lastActiveAt = newLastActiveAt;
+      touch();
+    }
   }
 
   public UserStatus login() {
@@ -81,7 +84,8 @@ public class UserStatus extends AbstractEntity {
     return this;
   }
 
-  public void heartbeat() {
+  public UserStatus heartbeat() {
     this.lastActiveAt = now();
+    return this;
   }
 }

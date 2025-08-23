@@ -94,7 +94,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
         ObjectInputStream ois = new ObjectInputStream(bis)) {
       return Optional.of(entityType.cast(ois.readObject()));
     } catch (IOException | ClassNotFoundException e) {
-      throw new RuntimeException("엔티티 로드 실패: " + path, e);
+      throw new RuntimeException("Entity load failed: " + path, e);
     }
   }
 
@@ -320,7 +320,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
       }
     }
     if (failed > 0) {
-      log.warn("Failed to batch-hard-delete({}): {}건 실패", entityType.getSimpleName(), failed);
+      log.warn("Failed to batch-hard-delete({}): {} failed", entityType.getSimpleName(), failed);
     }
     return deleted;
   }

@@ -13,10 +13,18 @@ import jakarta.validation.constraints.Size;
 
 public record UserCreateRequest(
 
-    @NotBlank @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH) String username,
+    @NotBlank
+    @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH)
+    String username,
 
-    @NotBlank @Size(min = MIN_EMAIL_LENGTH, max = MAX_EMAIL_LENGTH) @Email String email,
+    @NotBlank
+    @Size(min = MIN_EMAIL_LENGTH, max = MAX_EMAIL_LENGTH)
+    @Email
+    String email,
 
-    @NotBlank @Size(min = MIN_PASSWORD_LENGTH, max = MAX_PASSWORD_LENGTH) String password) {
+    @NotBlank
+    @Size(min = MIN_PASSWORD_LENGTH, max = MAX_PASSWORD_LENGTH)
+    String password
+) {
 
 }

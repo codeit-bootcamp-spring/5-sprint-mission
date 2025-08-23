@@ -6,7 +6,6 @@ import java.time.Instant;
 public record UserStatusUpdateRequest(
 
     UserStatusType newUserStatusType,
-
     Instant newLastActiveAt
 ) {
 

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.domain.entity;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -26,13 +27,22 @@ public class User extends AbstractEntity {
       String password,
       UUID profileId
   ) {
+    if (email == null || email.isBlank()) {
+      throw new IllegalArgumentException("Email cannot be null or blank");
+    }
+    if (username == null || username.isBlank()) {
+      throw new IllegalArgumentException("Username cannot be null or blank");
+    }
+    if (password == null || password.isBlank()) {
+      throw new IllegalArgumentException("Password cannot be null or blank");
+    }
     this.email = email;
     this.username = username;
     this.password = password;
     this.profileId = profileId;
   }
 
-  public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+  public User update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
     boolean changed = false;
     if (newUsername != null && !newUsername.equals(this.username)) {
       this.username = newUsername;
@@ -53,6 +63,7 @@ public class User extends AbstractEntity {
     if (changed) {
       touch();
     }
+    return this;
   }
 
   public void removeProfileId() {
@@ -67,6 +78,7 @@ public class User extends AbstractEntity {
   }
 
   public void addFriend(UUID friend) {
+    Objects.requireNonNull(friend, "friend must not be null");
     if (friend.equals(getId())) {
       throw new IllegalArgumentException("Cannot add self as friend");
     }
@@ -90,6 +102,7 @@ public class User extends AbstractEntity {
   }
 
   public void joinGuild(UUID guildId) {
+    Objects.requireNonNull(guildId, "guildId must not be null");
     if (guildIds.add(guildId)) {
       touch();
     }
@@ -110,6 +123,7 @@ public class User extends AbstractEntity {
   }
 
   public void joinChannel(UUID channelId) {
+    Objects.requireNonNull(channelId, "channelId must not be null");
     if (channelIds.add(channelId)) {
       touch();
     }

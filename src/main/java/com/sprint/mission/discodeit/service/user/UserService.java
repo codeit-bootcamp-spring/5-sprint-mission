@@ -14,7 +14,6 @@ import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
 import com.sprint.mission.discodeit.dto.response.userstatus.UserStatusResponse;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
-import com.sprint.mission.discodeit.exception.UnauthorizedException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
@@ -72,23 +71,25 @@ public class UserService {
     if (users.isEmpty()) {
       return List.of();
     }
+
     Set<UUID> ids = users.stream()
         .map(User::getId)
         .collect(Collectors.toSet()
         );
 
-    Map<UUID, UserStatusType> statusMap = userStatusRepository.findAllTypesByUserIds(ids);
+    Map<UUID, UserStatusType> userStatusTypeMap = userStatusRepository.findAllTypesByUserIds(ids);
 
     return users.stream()
-        .map(u -> {
-          UserStatusType type = statusMap.getOrDefault(u.getId(), UserStatusType.OFFLINE);
-          return UserResponse.from(u, type);
-        })
+        .map(u -> UserResponse.from(
+            u,
+            userStatusTypeMap.getOrDefault(u.getId(), UserStatusType.OFFLINE))
+        )
         .toList();
   }
 
   @Transactional
-  public UserSaveResponse create(UserCreateRequest req, MultipartFile profile) {
+  public UserSaveResponse create(UserCreateRequest req, MultipartFile profile)
+      throws IOException {
     String username = nullOrStripAndLowerCase(req.username());
     if (userRepository.existsByUsername(username)) {
       throw new DuplicateResourceException(
@@ -105,29 +106,23 @@ public class UserService {
       String ct = FileNames.normalizeContentType(profile.getContentType());
       String original = profile.getOriginalFilename();
       String fileName = FileNames.buildStoredName(original, ct);
-
-      try {
-        profileId = binaryContentRepository.save(
-            new BinaryContent(fileName, ct, profile.getBytes())).getId();
-      } catch (IOException ignore) {
-        profileId = null;
-      }
+      profileId = binaryContentRepository.save(
+          new BinaryContent(fileName, ct, profile.getBytes())
+      ).getId();
     } else {
       profileId = null;
     }
 
+    String password = passwordEncoder.encode(req.password().strip());
     User user = new User(
         email,
         username,
-        passwordEncoder.encode(req.password().strip()),
+        password,
         profileId
     );
 
     User saved = userRepository.save(user);
-
-    UserStatus userStatus = new UserStatus(saved.getId());
-    userStatusRepository.save(userStatus);
-
+    userStatusRepository.save(new UserStatus(saved.getId()));
     return UserSaveResponse.from(saved);
   }
 
@@ -139,7 +134,7 @@ public class UserService {
   public void deleteAccount(UUID userId) {
     User user = userRepository.getOrThrow(userId);
 
-    guildRepository.softDeleteAllById(user.getGuildIds());
+    guildRepository.softDeleteAllByOwnerId(user.getId());
 
     friendRequestRepository.softDeleteAllByUserId(user.getId());
 
@@ -153,40 +148,40 @@ public class UserService {
   }
 
   @Transactional
-  public UserSaveResponse update(UUID userId, UserUpdateRequest req, MultipartFile profile) {
+  public UserSaveResponse update(UUID userId, UserUpdateRequest req, MultipartFile profile)
+      throws IOException {
     User u = userRepository.getOrThrow(userId);
 
+    String oldUsername = nullOrStripAndLowerCase(u.getUsername());
     String newUsername = req != null ? nullOrStripAndLowerCase(req.newUsername()) : null;
-    String username =
-        (newUsername != null && !newUsername.equals(u.getUsername())) ? newUsername : null;
+    String username = newUsername != null && !newUsername.equals(oldUsername) ? newUsername : null;
     if (username != null && userRepository.existsByUsername(username)) {
       throw new DuplicateResourceException(
           "User with username %s already exists".formatted(username));
     }
 
+    String oldEmail = nullOrStripAndLowerCase(u.getEmail());
     String newEmail = req != null ? nullOrStripAndLowerCase(req.newEmail()) : null;
-    String email = (newEmail != null && !newEmail.equals(u.getEmail())) ? newEmail : null;
+    String email = newEmail != null && !newEmail.equals(oldEmail) ? newEmail : null;
     if (email != null && userRepository.existsByEmail(email)) {
       throw new DuplicateResourceException("User with email %s already exists".formatted(email));
     }
 
+    String oldPassword = u.getPassword();
     String newPassword = req != null ? nullOrStrip(req.newPassword()) : null;
     String password =
-        (newPassword != null && !passwordEncoder.matches(newPassword, u.getPassword()))
-            ? passwordEncoder.encode(newPassword) : null;
+        newPassword != null && !passwordEncoder.matches(newPassword, u.getPassword())
+            ? passwordEncoder.encode(newPassword)
+            : null;
 
     UUID profileId;
     if (profile != null && !profile.isEmpty()) {
       String ct = FileNames.normalizeContentType(profile.getContentType());
       String original = profile.getOriginalFilename();
       String fileName = FileNames.buildStoredName(original, ct);
-
-      try {
-        profileId = binaryContentRepository.save(
-            new BinaryContent(fileName, ct, profile.getBytes())).getId();
-      } catch (IOException ignore) {
-        profileId = null;
-      }
+      profileId = binaryContentRepository.save(
+          new BinaryContent(fileName, ct, profile.getBytes())
+      ).getId();
     } else {
       profileId = null;
     }
@@ -194,19 +189,20 @@ public class UserService {
     boolean noOp = username == null
         && email == null
         && password == null
-        && (profile == null || profile.isEmpty());
+        && profileId == null;
     if (noOp) {
       return UserSaveResponse.from(u);
     }
 
-    u.update(username, email, password, profileId);
-    User saved = userRepository.save(u);
-
-    if (profileId != null && u.getProfileId() != null && !profileId.equals(u.getProfileId())) {
+    if (profileId != null && u.getProfileId() != null) {
       binaryContentRepository.softDeleteById(u.getProfileId());
     }
 
-    return UserSaveResponse.from(u);
+    return UserSaveResponse.from(
+        userRepository.save(
+            u.update(username, email, password, profileId)
+        )
+    );
   }
 
   @Transactional
@@ -214,10 +210,6 @@ public class UserService {
     userRepository.getOrThrow(userId);
     UserStatus us = userStatusRepository.findByUserId(userId)
         .orElseGet(() -> userStatusRepository.save(new UserStatus(userId)));
-
-    if (!us.isLoggedIn()) {
-      throw new UnauthorizedException("User not logged in");
-    }
 
     if (req.newUserStatusType() != null) {
       us.setType(req.newUserStatusType());
@@ -236,11 +228,6 @@ public class UserService {
     UserStatus us = userStatusRepository.findByUserId(userId)
         .orElseGet(() -> userStatusRepository.save(new UserStatus(userId)));
 
-    if (!us.isLoggedIn()) {
-      throw new UnauthorizedException("User not logged in");
-    }
-
-    us.heartbeat();
-    userStatusRepository.save(us);
+    userStatusRepository.save(us.heartbeat());
   }
 }

@@ -28,6 +28,7 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
     if (username == null || username.isBlank()) {
       return Optional.empty();
     }
+
     return data.values().stream()
         .filter(u -> u.isNotDeleted() && username.equalsIgnoreCase(u.getUsername()))
         .findFirst();
@@ -38,6 +39,7 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
     if (email == null || email.isBlank()) {
       return Optional.empty();
     }
+
     final String key = email.strip();
     return data.values().stream()
         .filter(u -> u.isNotDeleted() && email.equalsIgnoreCase(u.getEmail()))
@@ -49,6 +51,7 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
     if (username == null || username.isBlank()) {
       return false;
     }
+
     return findByUsername(username).isPresent();
   }
 
@@ -57,6 +60,7 @@ public class JcfUserRepository extends AbstractJcfRepository<User> implements Us
     if (email == null || email.isBlank()) {
       return false;
     }
+
     return findByEmail(email).isPresent();
   }
 
