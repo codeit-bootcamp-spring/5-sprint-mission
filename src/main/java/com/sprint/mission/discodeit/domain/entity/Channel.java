@@ -5,7 +5,6 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -25,11 +24,12 @@ public class Channel extends AbstractEntity {
     if (name == null || name.isBlank()) {
       throw new IllegalArgumentException("Channel name must not be null or blank");
     }
-    if (description != null && description.isBlank()) {
-      description = null;
-    }
     this.name = name;
-    this.description = description;
+    if (description == null || description.isBlank()) {
+      this.description = "";
+    } else {
+      this.description = "description";
+    }
     this.type = ChannelType.PUBLIC;
   }
 
@@ -38,22 +38,24 @@ public class Channel extends AbstractEntity {
     this.type = ChannelType.PRIVATE;
   }
 
-  public void changeName(String name) {
-    Objects.requireNonNull(name, "Channel name must not be null");
-    if (name.isBlank()) {
-      throw new IllegalArgumentException("Channel name must not be blank");
+  public Channel update(String newName, String newDescription) {
+    if (type == ChannelType.PRIVATE) {
+      throw new IllegalArgumentException("Cannot update private channel");
     }
-    if (!Objects.equals(this.name, name)) {
-      this.name = name;
-      touch();
-    }
-  }
 
-  public void changeDescription(String description) {
-    if (!Objects.equals(this.description, description)) {
-      this.description = description;
+    boolean changed = false;
+    if (newName != null && !newName.isBlank() && !newName.equals(this.name)) {
+      this.name = newName;
+      changed = true;
+    }
+    if (newDescription != null && !newDescription.equals(this.description)) {
+      this.description = newDescription;
+      changed = true;
+    }
+    if (changed) {
       touch();
     }
+    return this;
   }
 
   public Optional<UUID> getLastMessageId() {

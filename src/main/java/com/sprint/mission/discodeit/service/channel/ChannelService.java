@@ -18,7 +18,6 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -107,37 +106,15 @@ public class ChannelService {
       throw new IllegalArgumentException("Private channel cannot be updated");
     }
 
-    if (req.newName() == null && req.newDescription() == null) {
+    String name = nullOrStrip(req.newName());
+    String description = nullOrStrip(req.newDescription());
+
+    if (name == null && description == null) {
       return ChannelSaveResponse.from(c);
     }
 
-    String name = c.getName();
-    if (req.newName() != null) {
-      String newName = req.newName().strip();
-      if (!newName.isBlank()) {
-        name = newName;
-      }
-    }
-
-    String description = c.getDescription();
-    if (req.newDescription() != null) {
-      description = req.newDescription().strip();
-    }
-
-    boolean nameChanged = !Objects.equals(c.getName(), name);
-    boolean descChanged = !Objects.equals(c.getDescription(), description);
-
-    if (!nameChanged && !descChanged) {
-      return ChannelSaveResponse.from(c);
-    }
-
-    if (nameChanged) {
-      c.changeName(name);
-    }
-    if (descChanged) {
-      c.changeDescription(description);
-    }
-
-    return ChannelSaveResponse.from(channelRepository.save(c));
+    return ChannelSaveResponse.from(channelRepository.save(
+        c.update(name, description)
+    ));
   }
 }

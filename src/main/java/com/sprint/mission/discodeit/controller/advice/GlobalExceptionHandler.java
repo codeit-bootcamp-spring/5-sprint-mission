@@ -92,9 +92,9 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(IllegalArgumentException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ApiError handleIllegalArgument(IllegalArgumentException e, HttpServletRequest req) {
-    log.warn("400(ILLEGAL_ARGUMENT) {} {} -> {}", req.getMethod(), req.getRequestURI(),
+    log.warn("400(BAD_REQUEST) {} {} -> {}", req.getMethod(), req.getRequestURI(),
         e.getMessage());
-    return ApiError.from(req, HttpStatus.BAD_REQUEST, "ILLEGAL_ARGUMENT", e.getMessage(),
+    return ApiError.from(req, HttpStatus.BAD_REQUEST, "BAD_REQUEST", e.getMessage(),
         List.of());
   }
 
@@ -153,7 +153,7 @@ public class GlobalExceptionHandler {
     return ApiError.from(req, HttpStatus.FORBIDDEN, "FORBIDDEN", msg, List.of());
   }
 
-  @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+  @ExceptionHandler({ NoHandlerFoundException.class, NoResourceFoundException.class })
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ApiError handleNoHandler(Exception e, HttpServletRequest req) {
     log.warn("404(ENDPOINT_NOT_FOUND) {} {} -> {}", req.getMethod(), req.getRequestURI(),
@@ -210,8 +210,8 @@ public class GlobalExceptionHandler {
     return ApiError.from(req, HttpStatus.NOT_ACCEPTABLE, "NOT_ACCEPTABLE", msg, List.of());
   }
 
-  @ExceptionHandler({DuplicateResourceException.class, DataIntegrityViolationException.class,
-      IllegalStateException.class})
+  @ExceptionHandler({ DuplicateResourceException.class, DataIntegrityViolationException.class,
+      IllegalStateException.class })
   @ResponseStatus(HttpStatus.CONFLICT)
   public ApiError handleConflict(Exception e, HttpServletRequest req) {
     String msg = (e instanceof DuplicateResourceException && e.getMessage() != null)
