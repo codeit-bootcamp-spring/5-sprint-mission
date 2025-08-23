@@ -22,19 +22,33 @@ usersRoot:
               items:
                 $ref: "../schemas/user.yaml#/UserResponse"
             example:
-              - id: "983ef160-4389-4d80-aadc-13a772525173"
-                createdAt: "2025-08-18T09:00:09.791282Z"
-                updatedAt: "2025-08-18T09:00:09.791282Z"
+              - id: "2589ffe4-1f98-4f64-82cf-d1857e7f42f8"
+                createdAt: "2025-08-23T08:44:21.766937Z"
+                updatedAt: "2025-08-23T08:44:21.766937Z"
+                username: "jessie"
+                email: "jessie@codeit.com"
+                profileId: null
+                online: true
+              - id: "6d33007b-1a77-4c70-b295-7feaccf8aaf8"
+                createdAt: "2025-08-23T08:44:13.691575Z"
+                updatedAt: "2025-08-23T08:44:13.691575Z"
+                username: "rex"
+                email: "rex@codeit.com"
+                profileId: "a0777d4a-15c8-4477-b1ad-0fb16276882b"
+                online: false
+              - id: "da717ad7-efe6-48eb-94cd-4f7265ead16c"
+                createdAt: "2025-08-23T08:44:06.738403Z"
+                updatedAt: "2025-08-23T08:44:06.738403Z"
+                username: "buzz"
+                email: "buzz@codeit.com"
+                profileId: "4fcd07c1-a995-4111-809a-b726915a5aee"
+                online: true
+              - id: "d0e0dfdd-cdbc-41cd-970f-b8ce5776111a"
+                createdAt: "2025-08-23T08:43:46.881887Z"
+                updatedAt: "2025-08-23T08:43:46.881887Z"
                 username: "woody"
                 email: "woody@codeit.com"
                 profileId: null
-                online: true
-              - id: "d6831c9f-d9c3-45d8-bfd3-6c5b0976077e"
-                createdAt: "2025-08-18T09:06:45.271391Z"
-                updatedAt: "2025-08-18T09:06:45.271391Z"
-                username: "buzz"
-                email: "buzz@codeit.com"
-                profileId: "4454f06b-2dc9-4473-92ac-f16532cab09e"
                 online: false
       '400':
         content:
@@ -45,7 +59,7 @@ usersRoot:
               invalidParameterNumber:
                 description: username, email을 동시에 포함
                 value:
-                  timestamp: "2025-08-17T15:30:02Z"
+                  timestamp: "2025-08-23T08:47:53.015980Z"
                   path: "/api/users"
                   method: "GET"
                   status: 400
@@ -56,12 +70,12 @@ usersRoot:
               invalidParameterValue:
                 description: 매개변수 값이 유효하지 않음
                 value:
-                  timestamp: "2025-08-17T15:30:02Z"
+                  timestamp: "2025-08-23T08:53:50.548938Z"
                   path: "/api/users"
                   method: "GET"
                   status: 400
                   code: "INVALID_PARAMETER_VALUE"
-                  message: "매개변수 값이 유효하지 않습니다."
+                  message: "Request parameter value not valid"
                   details:
                     - "username: 크기가 2에서 32 사이여야 합니다"
                     - "email: 올바른 형식의 이메일 주소여야 합니다"
@@ -97,13 +111,13 @@ usersRoot:
             schema:
               $ref: "../schemas/user.yaml#/UserSaveResponse"
             example:
-              id: "e6681542-a6b1-43f3-b759-6dc9cfebcf41"
-              createdAt: "2025-08-18T14:26:12.176736Z"
-              updatedAt: "2025-08-18T14:26:12.176736Z"
+              id: "e9ea0824-fc8f-45a8-acfa-db97424f71d4"
+              createdAt: "2025-08-23T08:55:27.157270Z"
+              updatedAt: "2025-08-23T08:55:27.157270Z"
               username: "test"
               email: "test@codeit.com"
-              password: "$2a$10$dWaZkA5OoFmhdht9dizPvOGRoHd1vWjwib/U7ooQ.tLMdG3zSEORK"
-              profileId: "d6703e18-89e6-4722-bfc1-cc253bb7046f"
+              password: "$2a$10$NQzvbzT8uZa9BrU6xj8iBulqOLSjh2TadE6.PoOkKQ1A4AIwbBudW"
+              profileId: "a68a5f8e-784d-4b47-b0af-8243ee79c166"
       '400':
         content:
           application/json:
@@ -163,7 +177,7 @@ usersRoot:
                   method: "POST"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with username alice.k already exists"
+                  message: "User with username test already exists"
               duplicateEmail:
                 description: 같은 email을 사용하는 User가 이미 존재함
                 value:
@@ -172,7 +186,7 @@ usersRoot:
                   method: "POST"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with email alice@example.com already exists"
+                  message: "User with email test@codeit.com already exists"
       '415':
         content:
           application/json:
@@ -277,8 +291,8 @@ userById:
               id: "e6681542-a6b1-43f3-b759-6dc9cfebcf41"
               createdAt: "2025-08-18T14:26:12.176736Z"
               updatedAt: "2025-08-18T14:26:12.176736Z"
-              username: "test"
-              email: "test@codeit.com"
+              username: "test2"
+              email: "test2@codeit.com"
               password: "$2a$10$dWaZkA5OoFmhdht9dizPvOGRoHd1vWjwib/U7ooQ.tLMdG3zSEORK"
               profileId: "d6703e18-89e6-4722-bfc1-cc253bb7046f"
       '400':
@@ -311,7 +325,7 @@ userById:
                   code: "INVALID_JSON"
                   message: "Unable to read request body, please check JSON format and field type"
                   details:
-                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 7, column: 1]"
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 1]"
               invalidParameterType:
                 description: parameter(userId) 타입이 UUID가 아님
                 value:
@@ -352,7 +366,7 @@ userById:
                   method: "PATCH"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with username alice.k already exists"
+                  message: "User with username test already exists"
               duplicateEmail:
                 description: 같은 email을 사용하는 User가 이미 존재함
                 value:
@@ -361,7 +375,7 @@ userById:
                   method: "PATCH"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with email alice@example.com already exists"
+                  message: "User with email test@example.com already exists"
       '415':
         content:
           application/json:
@@ -399,6 +413,7 @@ userStatus:
       - **ONLINE**, **DO_NOT_DISTURB**, **IDLE**, **OFFLINE** 중 하나로 상태를 변경합니다.
       - 또는 **lastActiveAt**을 업데이트 합니다.
       - 로그아웃 상태면 항상 **online**은 false, **userStatusType**은 OFFLINE으로 반환됩니다.
+      - **ONLINE**으로 업데이트 시 UTC 기준 **lastActiveAt**과 현재 시간이 5분 이상 차이날 경우, **UserStatusType**은 **IDLE**로 반한됩니다.
     operationId: updateUserStatusByUserId
     parameters:
       - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"
@@ -474,7 +489,6 @@ heartbeat:
     summary: 사용자 상태의 **lastActiveAt** 갱신
     description: |-
       - 하트비트를 실행하여 사용자의 **lastActiveAt**을 현재 시간으로 변경합니다.
-      - 사전 로그인이 필요합니다.
     operationId: heartbeat
     parameters:
       - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"

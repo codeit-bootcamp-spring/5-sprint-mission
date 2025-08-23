@@ -23,13 +23,25 @@ public class AuthController {
 
   @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public UserSaveResponse login(@RequestBody @Valid AuthLoginRequest req) {
+  public UserSaveResponse login(
+
+      @RequestBody
+      @Valid
+      AuthLoginRequest req
+  ) {
+
     return authService.login(req);
   }
 
   @PostMapping(path = "/logout", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void logout(@RequestBody @Valid AuthLogoutRequest req) {
+  public void logout(
+
+      @RequestBody
+      @Valid
+      AuthLogoutRequest req
+  ) {
+
     authService.logout(req);
   }
 }

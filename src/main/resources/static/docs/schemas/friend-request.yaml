@@ -80,8 +80,6 @@ FriendRequestResponse:
     senderId: "8b2aba84-5f3e-4ae5-b09a-6e05c95c3e7d"
     senderProfileId: "67f70412-53af-43f5-9a2e-b46a8942d1c3"
     senderUsername: "rex"
-    senderGlobalName: null
     receiverId: "099b1ff2-5b5d-132f-91a1-6c3c2b2a15j2"
     receiverProfileId: null
-    receiverUsername: "alice.k"
-    receiverGlobalName: "Alice Kim"
+    receiverUsername: "test2"

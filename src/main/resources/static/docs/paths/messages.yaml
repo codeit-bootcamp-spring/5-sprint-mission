@@ -87,7 +87,7 @@ messages_root:
                   method: "POST"
                   status: 400
                   code: "INVALID_BODY_VALUE"
-                  message: "입력 값이 유효하지 않습니다."
+                  message: "Request body value not valid"
                   details:
                     - "content: 크기가 0에서 2000 사이여야 합니다"
               invalidJSON:

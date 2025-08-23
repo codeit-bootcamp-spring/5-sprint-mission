@@ -62,7 +62,7 @@ public class UserStatus extends AbstractEntity {
   }
 
   public UserStatus login() {
-    if (!this.loggedIn) {
+    if (!this.loggedIn || this.manual || this.type != UserStatusType.ONLINE) {
       this.loggedIn = true;
       this.manual = false;
       this.type = UserStatusType.ONLINE;
@@ -73,12 +73,10 @@ public class UserStatus extends AbstractEntity {
   }
 
   public UserStatus logout() {
-    if (this.loggedIn || this.type != UserStatusType.OFFLINE || this.lastActiveAt != null
-        || this.manual) {
+    if (this.loggedIn || this.manual || this.type != UserStatusType.OFFLINE) {
       this.loggedIn = false;
-      this.type = UserStatusType.OFFLINE;
       this.manual = false;
-      this.lastActiveAt = null;
+      this.type = UserStatusType.OFFLINE;
       touch();
     }
     return this;

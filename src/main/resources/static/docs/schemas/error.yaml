@@ -15,7 +15,6 @@ ApiError:
       description: 오류 발생 시각(UTC)
     path:
       type: string
-      minLength: 1
       description: 요청 URI
     method:
       type: string
@@ -35,16 +34,12 @@ ApiError:
       description: HTTP 상태 코드
     code:
       type: string
-      minLength: 1
       description: 애플리케이션 오류 코드
     message:
       type: string
-      minLength: 1
       description: 사용자에게 표시할 기본 오류 메시지
     details:
       type: array
       items:
         type: string
-        minLength: 1
-      minItems: 1
       description: 세부 오류 목록

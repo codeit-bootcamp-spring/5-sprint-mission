@@ -98,7 +98,8 @@ public class UserService {
 
     String email = nullOrStripAndLowerCase(req.email());
     if (userRepository.existsByEmail(email)) {
-      throw new DuplicateResourceException("User with email %s already exists".formatted(email));
+      throw new DuplicateResourceException(
+          "User with email %s already exists".formatted(email));
     }
 
     UUID profileId;
@@ -170,7 +171,7 @@ public class UserService {
     String oldPassword = u.getPassword();
     String newPassword = req != null ? nullOrStrip(req.newPassword()) : null;
     String password =
-        newPassword != null && !passwordEncoder.matches(newPassword, u.getPassword())
+        newPassword != null && !passwordEncoder.matches(newPassword, oldPassword)
             ? passwordEncoder.encode(newPassword)
             : null;
 
