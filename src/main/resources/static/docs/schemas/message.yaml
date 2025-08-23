@@ -1,6 +1,13 @@
 MessageResponse:
   type: object
-  required: [ id, createdAt, updatedAt, content, channelId, authorId, attachmentIds ]
+  required:
+    - id
+    - createdAt
+    - updatedAt
+    - content
+    - channelId
+    - authorId
+    - attachmentIds
   properties:
     id:
       type: string
@@ -27,8 +34,8 @@ MessageResponse:
 
 MessageCreateRequest:
   type: object
+  description: Message 생성 정보
   required:
-    - content
     - channelId
     - authorId
   properties:
@@ -42,29 +49,10 @@ MessageCreateRequest:
       type: string
       format: uuid
 
-MessageCreateResponse:
+MessageUpdateRequest:
   type: object
-  description: Message 생성 정보
+  description: 수정할 Message 내용
   properties:
-    id:
+    newContent:
       type: string
-      format: uuid
-    createdAt:
-      type: string
-      format: date-time
-    updatedAt:
-      type: string
-      format: date-time
-    content:
-      type: string
-    channelId:
-      type: string
-      format: uuid
-    authorId:
-      type: string
-      format: uuid
-    attachmentIds:
-      type: array
-      items:
-        type: string
-        format: uuid
+      maxLength: 2000

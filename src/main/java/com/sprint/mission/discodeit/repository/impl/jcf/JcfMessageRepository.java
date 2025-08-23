@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -24,24 +23,10 @@ public class JcfMessageRepository extends AbstractJcfRepository<Message> impleme
   @Override
   public List<Message> findAllByChannelId(UUID channelId) {
     Objects.requireNonNull(channelId, "channelId must not be null");
-    return findAll().stream()
-        .filter(m -> channelId.equals(m.getChannelId()))
-        .sorted(Comparator.comparing(Message::getCreatedAt))
-        .toList();
-  }
-
-  @Override
-  public List<Message> findRecentByChannelId(UUID channelId, int limit) {
-    Objects.requireNonNull(channelId, "channelId must not be null");
-    int lim = normalizeLimit(limit);
-    if (lim == 0) {
-      return List.of();
-    }
-    return findAll().stream()
+    return data.values().stream()
+        .filter(Message::isNotDeleted)
         .filter(m -> channelId.equals(m.getChannelId()))
         .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
-        .limit(lim)
-        .sorted(Comparator.comparing(Message::getCreatedAt))
         .toList();
   }
 
@@ -50,32 +35,6 @@ public class JcfMessageRepository extends AbstractJcfRepository<Message> impleme
     Objects.requireNonNull(authorId, "authorId must not be null");
     return findAll().stream()
         .filter(m -> authorId.equals(m.getAuthorId()))
-        .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
-        .toList();
-  }
-
-  @Override
-  public List<Message> findAllReplies(UUID replyTo) {
-    Objects.requireNonNull(replyTo, "replyTo must not be null");
-    return findAll().stream()
-        .filter(m -> replyTo.equals(m.getReplyTo()))
-        .sorted(Comparator.comparing(Message::getCreatedAt))
-        .toList();
-  }
-
-  @Override
-  public List<Message> searchInChannel(UUID channelId, String keyword) {
-    Objects.requireNonNull(channelId, "channelId must not be null");
-    String k = MessageRepository.normalizeKeyword(keyword);
-    if (k.isEmpty()) {
-      return List.of();
-    }
-    return findAll().stream()
-        .filter(m -> channelId.equals(m.getChannelId()))
-        .filter(m -> {
-          String c = m.getContent();
-          return c != null && c.toLowerCase(Locale.ROOT).contains(k);
-        })
         .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
         .toList();
   }

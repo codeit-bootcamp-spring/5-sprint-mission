@@ -4,15 +4,25 @@ info:
   version: "1.0.0"
   description: 메시지(Message) 관련 API 문서
 servers:
-  - url: /api/messages
+  - url: /api
 paths:
-  /:
-    $ref: "./paths/messages.yaml#/messages_root"
+  /messages:
+    $ref: "./paths/messages.yaml#/messagesRoot"
+  /messages/{messageId}:
+    $ref: "./paths/messages.yaml#/messageById"
 components:
+  parameters:
+    MessageIdInPath:
+      in: path
+      name: messageId
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
     MessageResponse:
       $ref: "./schemas/message.yaml#/MessageResponse"
     MessageCreateRequest:
       $ref: "./schemas/message.yaml#/MessageCreateRequest"
-    MessageCreateResponse:
-      $ref: "./schemas/message.yaml#/MessageCreateResponse"
+    MessageUpdateRequest:
+      $ref: "./schemas/message.yaml#/MessageUpdateRequest"

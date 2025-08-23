@@ -1,17 +1,12 @@
-messages_root:
+messagesRoot:
   get:
-    tags: [ Messages ]
+    tags:
+      - Message
     summary: Channel의 Message 목록 조회
     operationId: findAllByChannelId
     description: channelId 조건으로 모든 메시지를 조회합니다.
     parameters:
-      - in: query
-        name: channelId
-        schema:
-          type: string
-          format: uuid
-        required: true
-        description: 조회할 Channel ID
+      - $ref: "../openapi-channels.yaml#/components/parameters/ChannelIdInQuery"
     responses:
       '200':
         description: Message 목록 조회 성공
@@ -21,21 +16,61 @@ messages_root:
               type: array
               items:
                 $ref: "../schemas/message.yaml#/MessageResponse"
-      '404':
-        description: Channel을 찾을 수 없음
+              example:
+                - id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                  createdAt: "2025-08-17T15:30:02Z"
+                  updatedAt: "2025-08-17T15:30:02Z"
+                  content: "Hello, world!"
+                  channelId: "c9b4f154-145d-4372-ab9a-ca030e13b327"
+                  authorId: "e9ea0824-fc8f-45a8-acfa-db97424f71d4"
+                  attachmentIds:
+                    - "s019f93r-3d4b-4f0a-b5a1-1f2a4c6b7d8q"
+      '400':
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
-            example:
-              timestamp: "2025-08-18T12:00:00Z"
-              path: "/api/messages?channelId=2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
-              method: "POST"
-              status: 404
-              code: "RESOURCE_NOT_FOUND"
-              message: "채널을(를) 찾을 수 없습니다: 2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
+            examples:
+              invalidParameterType:
+                description: parameter(channelId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/messages?channelId=not-uuid"
+                  method: "GET"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=channelId, value=not-uuid, expectedType=UUID"
+              missingParameter:
+                description: 요청에 parameter(channelId)가 포함되지 않음
+                value:
+                  timestamp: "2025-08-22T14:00:41.625908Z"
+                  path: "/api/messages"
+                  method: "GET"
+                  status: 400
+                  code: "MISSING_PARAMETER"
+                  message: "Required parameter missing"
+                  details:
+                    - "missing parameter: channelId (required type: UUID)"
+      '404':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              channelNotFound:
+                description: Channel을 찾을 수 없음
+                value:
+                  timestamp: "2025-08-18T12:00:00Z"
+                  path: "/api/messages?channelId=2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
+                  method: "GET"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "Channel with id 2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11 not found"
   post:
-    tags: [ Messages ]
+    tags:
+      - Message
     summary: Message 생성
     operationId: create
     requestBody:
@@ -53,7 +88,8 @@ messages_root:
                 items:
                   type: string
                   format: binary
-            required: [ messageCreateRequest ]
+            required:
+              - messageCreateRequest
           encoding:
             messageCreateRequest:
               contentType: application/json
@@ -63,24 +99,24 @@ messages_root:
         content:
           application/json:
             schema:
-              $ref: "../schemas/message.yaml#/MessageCreateResponse"
+              $ref: "../schemas/message.yaml#/MessageResponse"
             example:
               id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
               createdAt: "2025-08-17T15:30:02Z"
               updatedAt: "2025-08-17T15:30:02Z"
               content: "Hello, world!"
-              channelId: "b9a9a9c2-3d3b-4f0a-b5a1-1f2a4c6b7d8e"
-              authorId: "c2a9a9c2-3erb-4f0a-b5a1-1f2af36b7d2r"
+              channelId: "c9b4f154-145d-4372-ab9a-ca030e13b327"
+              authorId: "e9ea0824-fc8f-45a8-acfa-db97424f71d4"
               attachmentIds:
                 - "s019f93r-3d4b-4f0a-b5a1-1f2a4c6b7d8q"
       '400':
-        description: Bad Request
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidField:
+                description: messageCreateRequest Field 값이 유효하지 않음
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/messages"
@@ -89,8 +125,11 @@ messages_root:
                   code: "INVALID_BODY_VALUE"
                   message: "Request body value not valid"
                   details:
+                    - "channelId: 널이어서는 안됩니다"
+                    - "authorId: 널이어서는 안됩니다"
                     - "content: 크기가 0에서 2000 사이여야 합니다"
               invalidJSON:
+                description: JSON parsing 실패
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/messages"
@@ -101,15 +140,155 @@ messages_root:
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 1]"
       '404':
-        description: Channel 또는 User를 찾을 수 없음
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              channelNotFound:
+                description: Channel을 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/messages"
+                  method: "POST"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "Channel with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found"
+              userNotFound:
+                description: User를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/messages"
+                  method: "POST"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "User with id e9ea0824-fc8f-45a8-acfa-db97424f71d4 not found"
+messageById:
+  delete:
+    tags:
+      - Message
+    summary: Message 삭제
+    operationId: delete
+    parameters:
+      - $ref: "../openapi-messages.yaml#/components/parameters/MessageIdInPath"
+    responses:
+      '204':
+        description: Message가 성공적으로 삭제됨
+      '400':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidParameterType:
+                description: parameter(messageId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/messages/not-uuid"
+                  method: "DELETE"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=messageId, value=not-uuid, expectedType=UUID"
+      '404':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              messageNotFound:
+                description: Message를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327"
+                  method: "DELETE"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "Message with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found"
+  patch:
+    tags:
+      - Message
+    summary: Message 내용 수정
+    operationId: update
+    parameters:
+      - $ref: "../openapi-messages.yaml#/components/parameters/MessageIdInPath"
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              messageUpdateRequest:
+                $ref: "../schemas/message.yaml#/MessageUpdateRequest"
+              attachments:
+                type: array
+                description: Message 첨부 파일들
+                items:
+                  type: string
+                  format: binary
+            required:
+              - messageUpdateRequest
+          encoding:
+            messageUpdateRequest:
+              contentType: application/json
+    responses:
+      '200':
+        description: Message가 성공적으로 수정됨
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/message.yaml#/MessageResponse"
             example:
-              timestamp: "2025-08-17T15:30:02Z"
-              path: "/api/messages"
-              method: "POST"
-              status: 404
-              code: "RESOURCE_NOT_FOUND"
-              message: "Channel | Author with id {channelId | authorId} not found"
+              id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              createdAt: "2025-08-17T15:30:02Z"
+              updatedAt: "2025-08-17T15:30:02Z"
+              content: "Hello, world!"
+              channelId: "c9b4f154-145d-4372-ab9a-ca030e13b327"
+              authorId: "e9ea0824-fc8f-45a8-acfa-db97424f71d4"
+              attachmentIds:
+                - "e9ea0824-fc8f-45a8-acfa-db97424f71d4"
+      '400':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidField:
+                description: messageUpdateRequest Field 값이 유효하지 않음
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327"
+                  method: "PATCH"
+                  status: 400
+                  code: "INVALID_BODY_VALUE"
+                  message: "Request body value not valid"
+                  details:
+                    - "newContent: 크기가 0에서 2000 사이여야 합니다"
+              invalidJSON:
+                description: JSON parsing 실패
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327"
+                  method: "PATCH"
+                  status: 400
+                  code: "INVALID_JSON"
+                  message: "Unable to read request body, please check JSON format and field type"
+                  details:
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 1]"
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/error.yaml#/ApiError"
+              examples:
+                messageNotFound:
+                  description: Message를 찾을 수 없음
+                  value:
+                    timestamp: "2025-08-17T15:30:02Z"
+                    path: "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327"
+                    method: "PATCH"
+                    status: 404
+                    code: "RESOURCE_NOT_FOUND"
+                    message: "Message with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found"

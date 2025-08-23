@@ -28,7 +28,7 @@ public class Channel extends AbstractEntity {
     if (description == null || description.isBlank()) {
       this.description = "";
     } else {
-      this.description = "description";
+      this.description = description;
     }
     this.type = ChannelType.PUBLIC;
   }
@@ -63,6 +63,10 @@ public class Channel extends AbstractEntity {
       return Optional.empty();
     }
     return Optional.of(messageIds.peekLast());
+  }
+
+  public void addMessageId(UUID messageId) {
+    messageIds.offer(messageId);
   }
 
   @Override

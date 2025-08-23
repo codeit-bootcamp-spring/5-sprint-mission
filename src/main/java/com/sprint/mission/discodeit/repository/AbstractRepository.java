@@ -23,7 +23,7 @@ public interface AbstractRepository<T extends AbstractEntity> {
 
   List<UUID> findAllIds();
 
-  List<T> findAllById(Set<UUID> ids);
+  List<T> findAllById(Collection<UUID> ids);
 
   List<T> findAllByIdIncludingDeleted(Set<UUID> ids);
 

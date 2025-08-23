@@ -187,7 +187,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
 
 
   @Override
-  public List<T> findAllById(Set<UUID> ids) {
+  public List<T> findAllById(Collection<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }

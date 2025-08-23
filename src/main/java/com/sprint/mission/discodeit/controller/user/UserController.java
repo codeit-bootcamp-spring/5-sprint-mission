@@ -104,18 +104,19 @@ public class UserController {
   public UserResponse find(
 
       @PathVariable("userId")
-      UUID id
+      UUID userId
   ) {
-    return userService.find(id);
+    return userService.find(userId);
   }
 
   @DeleteMapping(path = "/{userId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(
 
-      @PathVariable("userId") UUID id
+      @PathVariable("userId")
+      UUID userId
   ) {
-    userService.deleteAccount(id);
+    userService.deleteAccount(userId);
   }
 
   @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -154,6 +155,7 @@ public class UserController {
       @RequestBody
       UserStatusUpdateRequest req
   ) {
+
     return userService.updateUserStatusByUserId(userId, req);
   }
 

@@ -3,14 +3,19 @@ package com.sprint.mission.discodeit.repository.impl.file;
 import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @Profile("dev")
 public class FileMessageRepository extends AbstractFileRepository<Message> implements
@@ -22,26 +27,16 @@ public class FileMessageRepository extends AbstractFileRepository<Message> imple
 
   @Override
   public List<Message> findAllByChannelId(UUID channelId) {
-    Objects.requireNonNull(channelId, "channelId must not be null");
-    return findAll().stream()
-        .filter(m -> channelId.equals(m.getChannelId()))
-        .sorted(Comparator.comparing(Message::getCreatedAt))
-        .toList();
-  }
-
-  @Override
-  public List<Message> findRecentByChannelId(UUID channelId, int limit) {
-    Objects.requireNonNull(channelId, "channelId must not be null");
-    int lim = normalizeLimit(limit);
-    if (lim == 0) {
-      return List.of();
+    try (Stream<Path> s = streamSerializedFiles()) {
+      return s.map(this::readObject).flatMap(Optional::stream)
+          .filter(Message::isNotDeleted)
+          .filter(m -> channelId.equals(m.getChannelId()))
+          .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
+          .toList();
+    } catch (IOException e) {
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
     }
-    return findAll().stream()
-        .filter(m -> channelId.equals(m.getChannelId()))
-        .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
-        .limit(lim)
-        .sorted(Comparator.comparing(Message::getCreatedAt))
-        .toList();
   }
 
   @Override
@@ -49,32 +44,6 @@ public class FileMessageRepository extends AbstractFileRepository<Message> imple
     Objects.requireNonNull(authorId, "authorId must not be null");
     return findAll().stream()
         .filter(m -> authorId.equals(m.getAuthorId()))
-        .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
-        .toList();
-  }
-
-  @Override
-  public List<Message> findAllReplies(UUID replyTo) {
-    Objects.requireNonNull(replyTo, "replyTo must not be null");
-    return findAll().stream()
-        .filter(m -> replyTo.equals(m.getReplyTo()))
-        .sorted(Comparator.comparing(Message::getCreatedAt))
-        .toList();
-  }
-
-  @Override
-  public List<Message> searchInChannel(UUID channelId, String keyword) {
-    Objects.requireNonNull(channelId, "channelId must not be null");
-    String k = MessageRepository.normalizeKeyword(keyword);
-    if (k.isEmpty()) {
-      return List.of();
-    }
-    return findAll().stream()
-        .filter(m -> channelId.equals(m.getChannelId()))
-        .filter(m -> {
-          String c = m.getContent();
-          return c != null && c.toLowerCase(Locale.ROOT).contains(k);
-        })
         .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
         .toList();
   }

@@ -69,10 +69,11 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public List<T> findAllById(Set<UUID> ids) {
+  public List<T> findAllById(Collection<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
+
     return ids.stream()
         .map(data::get)
         .filter(Objects::nonNull)

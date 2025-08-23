@@ -1,23 +1,19 @@
 package com.sprint.mission.discodeit.controller.message;
 
-import com.sprint.mission.discodeit.dto.request.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.binarycontent.BinaryContentResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import com.sprint.mission.discodeit.service.binarycontent.BinaryContentService;
 import com.sprint.mission.discodeit.service.message.MessageService;
-import com.sprint.mission.discodeit.support.FileNames;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/messages")
+@Validated
 public class MessageController {
 
   private final MessageService messageService;
@@ -41,46 +38,51 @@ public class MessageController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<MessageResponse> findAllByChannelId(@RequestParam("channelId") UUID channelId) {
+  public List<MessageResponse> findAllByChannelId(
+
+      @RequestParam("channelId")
+      @NotNull
+      UUID channelId
+  ) {
+
     return messageService.findAllByChannelId(channelId);
   }
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   public MessageResponse create(
-      @RequestPart("messageCreateRequest") @Valid MessageCreateRequest req,
-      @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
+
+      @RequestPart("messageCreateRequest")
+      @Valid
+      MessageCreateRequest req,
+
+      @RequestPart(value = "attachments", required = false)
+      List<MultipartFile> attachments
   ) throws IOException {
-    Set<UUID> attachmentIds = new LinkedHashSet<>();
-    for (MultipartFile attachment : attachments) {
-      String ct = FileNames.normalizeContentType(attachment.getContentType());
-      String original = attachment.getOriginalFilename();
-      String fileName = FileNames.buildStoredName(original, ct);
 
-      BinaryContentResponse saved = binaryContentService.create(
-          new BinaryContentCreateRequest(fileName, ct, attachment.getBytes())
-      );
-      attachmentIds.add(saved.id());
-    }
-    return messageService.create(req, attachmentIds);
+    return messageService.create(req, attachments);
   }
 
-  @PutMapping(path = "/{id}")
-  public ResponseEntity<Void> update(@PathVariable("id") UUID id,
-      @Valid @RequestBody MessageUpdateRequest body) {
-    messageService.update(id, body);
-    return ResponseEntity.noContent().build();
+  @PutMapping(path = "/{messageId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public MessageResponse update(
+      @PathVariable("messageId")
+      UUID messageId,
+
+      @RequestBody
+      @Valid
+      MessageUpdateRequest req
+  ) {
+
+    return messageService.update(messageId, req);
   }
 
-  @DeleteMapping(path = "/{id}")
-  public ResponseEntity<Void> delete(@PathVariable("id") UUID id,
-      @RequestParam("actorId") UUID actorId) {
-    messageService.delete(id, actorId);
-    return ResponseEntity.noContent().build();
-  }
-
-  @GetMapping(path = "/{id}")
-  public ResponseEntity<MessageResponse> find(@PathVariable("id") UUID id) {
-    return ResponseEntity.ok(messageService.find(id));
+  @DeleteMapping(path = "/{messageId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(
+      @PathVariable("messageId")
+      UUID messageId
+  ) {
+    messageService.delete(messageId);
   }
 }

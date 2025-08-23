@@ -23,6 +23,13 @@ components:
       schema:
         type: string
         format: uuid
+    ChannelIdInQuery:
+      in: query
+      name: channelId
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
     ChannelResponse:
       $ref: "./schemas/channel.yaml#/ChannelResponse"
