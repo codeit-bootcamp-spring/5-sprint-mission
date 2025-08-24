@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serial;
 import java.util.Objects;
 
+@Getter
 public class Channel extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -12,14 +15,6 @@ public class Channel extends BaseEntity {
     public Channel(String name, String description) {
         this.name = name;
         this.description = description;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public void update(String name, String description) {
