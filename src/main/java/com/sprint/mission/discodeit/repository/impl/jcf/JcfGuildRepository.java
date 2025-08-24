@@ -29,7 +29,7 @@ public class JcfGuildRepository extends AbstractJcfRepository<Guild> implements 
   }
 
   @Override
-  public void softDeleteAllByOwnerId(UUID ownerId) {
+  public void deleteAllByOwnerId(UUID ownerId) {
     Objects.requireNonNull(ownerId);
     data.values().stream()
         .filter(Guild::isNotDeleted)

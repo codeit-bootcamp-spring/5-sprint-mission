@@ -89,7 +89,6 @@ PrivateChannelCreateRequest:
       items:
         type: string
         format: uuid
-        nullable: false
       minItems: 2
       maxItems: 10
       uniqueItems: true

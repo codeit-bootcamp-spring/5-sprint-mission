@@ -104,7 +104,7 @@ publicChannels:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidField:
-                description: Body Field 값이 유효하지 않음
+                description: Body field 값이 유효하지 않음
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/channels/public"
@@ -116,7 +116,7 @@ publicChannels:
                     - "name: 공백일 수 없습니다"
                     - "name: 크기가 1에서 100 사이여야 합니다"
                     - "description: 크기가 0에서 1024 사이여야 합니다"
-              invalidJSON:
+              invalidJson:
                 description: JSON parsing 실패
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
@@ -172,7 +172,7 @@ privateChannels:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
               invalidField:
-                description: Body Field 값이 유효하지 않음
+                description: Body field 값이 유효하지 않음
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/channels/private"
@@ -183,7 +183,7 @@ privateChannels:
                   details:
                     - "participantIds: 널이어서는 안됩니다"
                     - "participantIds: 비공개 채널은 2명~10명 사이여야 합니다"
-              invalidJSON:
+              invalidJson:
                 description: JSON parsing 실패
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
@@ -254,7 +254,7 @@ channelById:
   patch:
     tags:
       - Channel
-    summary: Channel 정보 수정
+    summary: Channel(Public) 정보 수정
     operationId: update
     parameters:
       - $ref: "../openapi-channels.yaml#/components/parameters/ChannelIdInPath"
@@ -277,15 +277,6 @@ channelById:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
-              invalidChannelType:
-                description: Private channel은 수정할 수 없음
-                value:
-                  timestamp: "2025-08-16T12:34:56Z"
-                  path: "/api/channels/e6681542-a6b1-43f3-b759-6dc9cfebcf42"
-                  method: "PATCH"
-                  status: 400
-                  code: "BAD_REQUEST"
-                  message: "Private channel cannot be updated"
               invalidField:
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
@@ -297,7 +288,7 @@ channelById:
                   details:
                     - "newName: 크기가 1에서 100 사이여야 합니다"
                     - "newDescription: 크기가 0에서 1024 사이여야 합니다"
-              invalidJSON:
+              invalidJson:
                 description: JSON parsing 실패
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
@@ -308,6 +299,21 @@ channelById:
                   message: "Unable to read request body, please check JSON format and field type"
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 1]"
+      '403':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              updateNotAllowed:
+                description: Private channel은 수정할 수 없음
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/channels/e6681542-a6b1-43f3-b759-6dc9cfebcf42"
+                  method: "PATCH"
+                  status: 403
+                  code: "FORBIDDEN"
+                  message: "Private channel cannot be updated"
       '404':
         content:
           application/json:

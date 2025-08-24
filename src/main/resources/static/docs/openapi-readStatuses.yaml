@@ -11,6 +11,14 @@ paths:
   /readStatuses/{readStatusId}:
     $ref: "./paths/readStatuses.yaml#/readStatusById"
 components:
+  parameters:
+    ReadStatusIdInPath:
+      in: path
+      name: readStatusId
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
     ReadStatusResponse:
       $ref: "./schemas/readStatus.yaml#/ReadStatusResponse"

@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.dto.request.friendrequest.FriendRequestSendR
 import com.sprint.mission.discodeit.dto.response.friendrequest.FriendRequestResponse;
 import com.sprint.mission.discodeit.service.friendrequest.FriendRequestService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -34,16 +33,24 @@ public class FriendRequestController {
     return friendRequestService.findAll();
   }
 
-  @GetMapping("/{id}")
+  @GetMapping("/{friendRequestId}")
   @ResponseStatus(HttpStatus.OK)
   public FriendRequestResponse find(
-      @PathVariable("id") @NotNull UUID id) {
-    return friendRequestService.findById(id);
+
+      @PathVariable("friendRequestId")
+      UUID friendRequestId) {
+
+    return friendRequestService.findById(friendRequestId);
   }
 
   @GetMapping(path = "/sent")
   @ResponseStatus(HttpStatus.OK)
-  public List<FriendRequestResponse> findAllBySenderId(@RequestParam("userId") UUID userId) {
+  public List<FriendRequestResponse> findAllBySenderId(
+
+      @RequestParam("userId")
+      UUID userId
+  ) {
+
     return friendRequestService.findAllBySenderId(userId);
   }
 
@@ -65,15 +72,15 @@ public class FriendRequestController {
     friendRequestService.clearFriendRequests(userId);
   }
 
-  @DeleteMapping(path = "/{id}")
+  @DeleteMapping(path = "/{friendRequestId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void accept(@PathVariable("id") UUID requestId,
+  public void accept(@PathVariable("friendRequestId") UUID friendRequestId,
       @RequestParam(name = "action") FriendRequestAction action,
       @Valid @RequestBody FriendRequestHandleRequest body) {
     switch (action) {
-      case ACCEPT -> friendRequestService.accept(requestId, body.userId());
-      case REJECT -> friendRequestService.reject(requestId, body.userId());
-      case CANCEL -> friendRequestService.cancel(requestId, body.userId());
+      case ACCEPT -> friendRequestService.accept(friendRequestId, body.userId());
+      case REJECT -> friendRequestService.reject(friendRequestId, body.userId());
+      case CANCEL -> friendRequestService.cancel(friendRequestId, body.userId());
       default -> throw new IllegalArgumentException("지원하지 않는 action입니다: " + action);
     }
   }

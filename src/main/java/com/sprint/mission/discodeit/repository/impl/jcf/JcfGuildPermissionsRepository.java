@@ -75,28 +75,28 @@ public class JcfGuildPermissionsRepository extends
   }
 
   @Override
-  public boolean softDeleteByGuildIdAndUserId(UUID guildId, UUID userId) {
-    return findByGuildIdAndUserId(guildId, userId).map(e -> softDeleteById(e.getId()))
+  public boolean deleteByGuildIdAndUserId(UUID guildId, UUID userId) {
+    return findByGuildIdAndUserId(guildId, userId).map(e -> delete(e.getId()))
         .orElse(false);
   }
 
   @Override
-  public void softDeleteAllByGuildId(UUID guildId) {
+  public void deleteAllByGuildId(UUID guildId) {
     Objects.requireNonNull(guildId, "guildId must not be null");
     Set<UUID> ids = findAll().stream()
         .filter(gp -> guildId.equals(gp.getGuildId()))
         .map(GuildPermissions::getId)
         .collect(Collectors.toSet());
-    softDeleteAllById(ids);
+    deleteAllByIdIn(ids);
   }
 
   @Override
-  public void softDeleteAllByUserId(UUID userId) {
+  public void deleteAllByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
     Set<UUID> ids = findAll().stream()
         .filter(gp -> userId.equals(gp.getUserId()))
         .map(GuildPermissions::getId)
         .collect(Collectors.toSet());
-    softDeleteAllById(ids);
+    deleteAllByIdIn(ids);
   }
 }

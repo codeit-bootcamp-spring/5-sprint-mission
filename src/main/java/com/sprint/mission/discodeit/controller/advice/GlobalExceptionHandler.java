@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -219,6 +220,14 @@ public class GlobalExceptionHandler {
         : "Resource already exists";
     log.warn("409(CONFLICT) {} {} -> {}", req.getMethod(), req.getRequestURI(), e.getMessage());
     return ApiError.from(req, HttpStatus.CONFLICT, "CONFLICT", msg, List.of());
+  }
+
+  @ExceptionHandler(MaxUploadSizeExceededException.class)
+  @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+  public ApiError handleMaxSizeExceeded(MaxUploadSizeExceededException e, HttpServletRequest req) {
+    String msg = (e.getMessage() != null) ? e.getMessage() : "File size exceeds limit";
+    log.warn("413(PAYLOAD_TOO_LARGE) {} {} -> {}", req.getMethod(), req.getRequestURI(), msg);
+    return ApiError.from(req, HttpStatus.PAYLOAD_TOO_LARGE, "PAYLOAD_TOO_LARGE", msg, List.of());
   }
 
   @ExceptionHandler(HttpMediaTypeNotSupportedException.class)

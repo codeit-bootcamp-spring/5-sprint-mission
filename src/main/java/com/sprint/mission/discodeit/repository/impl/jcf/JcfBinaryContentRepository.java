@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -15,14 +14,6 @@ public class JcfBinaryContentRepository extends AbstractJcfRepository<BinaryCont
 
   public JcfBinaryContentRepository() {
     super(BinaryContent.class);
-  }
-  
-  @Override
-  public Optional<BinaryContent> findBySha256(String sha256) {
-    Objects.requireNonNull(sha256, "sha256 must not be null");
-    return findAll().stream()
-        .filter(b -> sha256.equalsIgnoreCase(b.getSha256()))
-        .findFirst();
   }
 
   @Override

@@ -32,6 +32,7 @@ MessageResponse:
       items:
         type: string
         format: uuid
+      uniqueItems: true
 
 MessageCreateRequest:
   type: object

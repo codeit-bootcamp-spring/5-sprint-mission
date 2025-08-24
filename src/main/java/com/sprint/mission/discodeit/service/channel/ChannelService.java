@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateReque
 import com.sprint.mission.discodeit.dto.request.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelSaveResponse;
+import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -37,7 +38,14 @@ public class ChannelService {
 
   public List<ChannelResponse> findAll(UUID userId) {
     User u = userRepository.getOrThrow(userId);
-    List<Channel> channels = channelRepository.findAllById(u.getChannelIds());
+
+    Set<UUID> channelIds = u.getChannelIds();
+
+    if (channelIds.isEmpty()) {
+      return List.of();
+    }
+
+    List<Channel> channels = channelRepository.findAllByIdIn(u.getChannelIds());
 
     Set<UUID> lastMessageIds = channels.stream()
         .map(Channel::getLastMessageId)
@@ -47,12 +55,12 @@ public class ChannelService {
     Map<UUID, Instant> lastMessageAtMap = messageRepository.findAllCreatedAtById(lastMessageIds);
 
     return channels.stream()
-        .map(c -> {
-          Instant lastMessageAt = c.getLastMessageId()
-              .map(lastMessageAtMap::get)
-              .orElse(null);
-          return ChannelResponse.from(c, lastMessageAt);
-        })
+        .map(c -> ChannelResponse.from(
+            c,
+            c.getLastMessageId()
+                .map(lastMessageAtMap::get)
+                .orElse(null))
+        )
         .toList();
   }
 
@@ -66,7 +74,7 @@ public class ChannelService {
   @Transactional
   public ChannelSaveResponse create(PrivateChannelCreateRequest req) {
     Set<UUID> ids = req.participantIds();
-    List<User> users = userRepository.findAllById(ids);
+    List<User> users = userRepository.findAllByIdIn(ids);
 
     if (users.size() != ids.size()) {
       Set<UUID> found = users.stream().map(User::getId).collect(Collectors.toSet());
@@ -93,7 +101,7 @@ public class ChannelService {
 
   @Transactional
   public void delete(UUID channelId) {
-    if (!channelRepository.softDeleteById(channelId)) {
+    if (!channelRepository.delete(channelId)) {
       throw new NotFoundException("Channel with id %s not found".formatted(channelId));
     }
   }
@@ -103,7 +111,7 @@ public class ChannelService {
     Channel c = channelRepository.getOrThrow(channelId);
 
     if (c.getType() == ChannelType.PRIVATE) {
-      throw new IllegalArgumentException("Private channel cannot be updated");
+      throw new AccessDeniedException("Private channel cannot be updated");
     }
 
     String name = nullOrStrip(req.newName());

@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record UserSaveResponse(
+
     UUID id,
     Instant createdAt,
     Instant updatedAt,

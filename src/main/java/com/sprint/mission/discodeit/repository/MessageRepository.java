@@ -10,9 +10,9 @@ public interface MessageRepository extends AbstractRepository<Message> {
 
   List<Message> findAllByAuthorId(UUID authorId);
 
-  void softDeleteAllByChannelId(UUID channelId);
+  void deleteAllByChannelId(UUID channelId);
 
-  void softDeleteAllByAuthorId(UUID authorId);
+  void deleteAllByAuthorId(UUID authorId);
 
   long countByChannelId(UUID channelId);
 }

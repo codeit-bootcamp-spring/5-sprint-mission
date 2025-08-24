@@ -22,6 +22,7 @@ public record ChannelResponse(
 
     Set<UUID> participantIds,
 
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     Instant lastMessageAt
 ) {
 

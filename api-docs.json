@@ -1255,7 +1255,7 @@
             "type": "string",
             "format": "date-time"
           },
-          "fileName": {
+          "filename": {
             "type": "string"
           },
           "size": {

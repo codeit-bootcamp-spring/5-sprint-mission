@@ -19,7 +19,7 @@ import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import com.sprint.mission.discodeit.support.FileNames;
+import com.sprint.mission.discodeit.support.Filenames;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -53,14 +53,16 @@ public class UserService {
   }
 
   public List<UserResponse> findByUsername(String username) {
-    return userRepository.findByUsername(username)
+    String u = nullOrStripAndLowerCase(username);
+    return userRepository.findByUsername(u)
         .map(this::toResponse)
         .map(List::of)
         .orElse(List.of());
   }
 
   public List<UserResponse> findByEmail(String email) {
-    return userRepository.findByEmail(email)
+    String e = nullOrStripAndLowerCase(email);
+    return userRepository.findByEmail(e)
         .map(this::toResponse)
         .map(List::of)
         .orElse(List.of());
@@ -68,16 +70,17 @@ public class UserService {
 
   public List<UserResponse> findAll() {
     List<User> users = userRepository.findAll();
+
     if (users.isEmpty()) {
       return List.of();
     }
 
-    Set<UUID> ids = users.stream()
+    Set<UUID> userIds = users.stream()
         .map(User::getId)
-        .collect(Collectors.toSet()
-        );
+        .collect(Collectors.toSet());
 
-    Map<UUID, UserStatusType> userStatusTypeMap = userStatusRepository.findAllTypesByUserIds(ids);
+    Map<UUID, UserStatusType> userStatusTypeMap =
+        userStatusRepository.findAllTypesByUserIds(userIds);
 
     return users.stream()
         .map(u -> UserResponse.from(
@@ -104,17 +107,17 @@ public class UserService {
 
     UUID profileId;
     if (profile != null && !profile.isEmpty()) {
-      String ct = FileNames.normalizeContentType(profile.getContentType());
+      String ct = Filenames.normalizeContentType(profile.getContentType());
       String original = profile.getOriginalFilename();
-      String fileName = FileNames.buildStoredName(original, ct);
+      String filename = Filenames.buildStoredName(original, ct);
       profileId = binaryContentRepository.save(
-          new BinaryContent(fileName, ct, profile.getBytes())
+          new BinaryContent(filename, ct, profile.getBytes())
       ).getId();
     } else {
       profileId = null;
     }
 
-    String password = passwordEncoder.encode(req.password().strip());
+    String password = passwordEncoder.encode(req.password());
     User user = new User(
         email,
         username,
@@ -132,20 +135,20 @@ public class UserService {
   }
 
   @Transactional
-  public void deleteAccount(UUID userId) {
+  public void delete(UUID userId) {
     User user = userRepository.getOrThrow(userId);
 
-    guildRepository.softDeleteAllByOwnerId(user.getId());
+    guildRepository.deleteAllByOwnerId(user.getId());
 
-    friendRequestRepository.softDeleteAllByUserId(user.getId());
+    friendRequestRepository.deleteAllByUserId(user.getId());
 
     if (user.getProfileId() != null) {
-      binaryContentRepository.softDeleteById(user.getProfileId());
+      binaryContentRepository.delete(user.getProfileId());
     }
 
-    userStatusRepository.softDeleteByUserId(user.getId());
+    userStatusRepository.deleteByUserId(user.getId());
 
-    userRepository.softDeleteById(user.getId());
+    userRepository.delete(user.getId());
   }
 
   @Transactional
@@ -177,11 +180,11 @@ public class UserService {
 
     UUID profileId;
     if (profile != null && !profile.isEmpty()) {
-      String ct = FileNames.normalizeContentType(profile.getContentType());
+      String ct = Filenames.normalizeContentType(profile.getContentType());
       String original = profile.getOriginalFilename();
-      String fileName = FileNames.buildStoredName(original, ct);
+      String filename = Filenames.buildStoredName(original, ct);
       profileId = binaryContentRepository.save(
-          new BinaryContent(fileName, ct, profile.getBytes())
+          new BinaryContent(filename, ct, profile.getBytes())
       ).getId();
     } else {
       profileId = null;
@@ -196,7 +199,7 @@ public class UserService {
     }
 
     if (profileId != null && u.getProfileId() != null) {
-      binaryContentRepository.softDeleteById(u.getProfileId());
+      binaryContentRepository.delete(u.getProfileId());
     }
 
     return UserSaveResponse.from(
@@ -209,6 +212,7 @@ public class UserService {
   @Transactional
   public UserStatusResponse updateUserStatusByUserId(UUID userId, UserStatusUpdateRequest req) {
     userRepository.getOrThrow(userId);
+
     UserStatus us = userStatusRepository.findByUserId(userId)
         .orElseGet(() -> userStatusRepository.save(new UserStatus(userId)));
 
@@ -226,6 +230,7 @@ public class UserService {
   @Transactional
   public void heartbeat(UUID userId) {
     userRepository.getOrThrow(userId);
+
     UserStatus us = userStatusRepository.findByUserId(userId)
         .orElseGet(() -> userStatusRepository.save(new UserStatus(userId)));
 

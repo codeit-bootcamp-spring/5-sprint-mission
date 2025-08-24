@@ -53,7 +53,7 @@ UserCreateRequest:
       type: string
       minLength: 8
       maxLength: 72
-      description: 입력 값은 서버에서 strip 후 해시로 인코딩됨
+      description: 입력 값은 서버에서 해시로 인코딩됨
 
 UserSaveResponse:
   type: object
@@ -109,7 +109,7 @@ UserUpdateRequest:
       nullable: true
       minLength: 8
       maxLength: 72
-      description: 입력 값은 서버에서 strip 후 해시로 인코딩됨
+      description: 입력 값은 서버에서 해시로 인코딩됨
 
 UserStatusResponse:
   type: object

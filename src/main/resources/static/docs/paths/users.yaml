@@ -300,6 +300,17 @@ userById:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
+              invalidParameterType:
+                description: parameter(userId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/users/not-uuid"
+                  method: "PATCH"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=userId, value=not-uuid, expectedType=UUID"
               invalidField:
                 description: userUpdateRequest Field 값이 유효하지 않음
                 value:
@@ -325,17 +336,6 @@ userById:
                   message: "Unable to read request body, please check JSON format and field type"
                   details:
                     - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 1]"
-              invalidParameterType:
-                description: parameter(userId) 타입이 UUID가 아님
-                value:
-                  timestamp: "2025-08-21T14:42:21.048570Z"
-                  path: "/api/users/not-uuid"
-                  method: "PATCH"
-                  status: 400
-                  code: "INVALID_PARAMETER_TYPE"
-                  message: "Request parameter type not valid"
-                  details:
-                    - "parameter=userId, value=not-uuid, expectedType=UUID"
       '404':
         content:
           application/json:
@@ -412,7 +412,7 @@ userStatus:
       - **ONLINE**, **DO_NOT_DISTURB**, **IDLE**, **OFFLINE** 중 하나로 상태를 변경합니다.
       - 또는 **lastActiveAt**을 업데이트 합니다.
       - 로그아웃 상태면 항상 **online**은 false, **userStatusType**은 OFFLINE으로 반환됩니다.
-      - **ONLINE**으로 업데이트 시 UTC 기준 **lastActiveAt**과 현재 시간이 5분 이상 차이날 경우, **UserStatusType**은 **IDLE**로 반한됩니다.
+      - **ONLINE**으로 업데이트 시 UTC 기준 **lastActiveAt**과 현재 시간이 5분 이상 차이날 경우, **UserStatusType**은 **IDLE**로 반환됩니다.
     operationId: updateUserStatusByUserId
     parameters:
       - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"
@@ -443,17 +443,6 @@ userStatus:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
-              invalidJson:
-                description: JSON parsing 실패
-                value:
-                  timestamp: "2025-08-16T12:34:56Z"
-                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173/userStatus"
-                  method: "PATCH"
-                  status: 400
-                  code: "INVALID_JSON"
-                  message: "Unable to read request body, please check JSON format and field type"
-                  details:
-                    - "Text '2025-08-22T09:31' could not be parsed at index 16"
               invalidParameterType:
                 description: parameter(userId) 타입이 UUID가 아님
                 value:
@@ -465,6 +454,17 @@ userStatus:
                   message: "Request parameter type not valid"
                   details:
                     - "parameter=userId, value=not-uuid, expectedType=UUID"
+              invalidJson:
+                description: JSON parsing 실패
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173/userStatus"
+                  method: "PATCH"
+                  status: 400
+                  code: "INVALID_JSON"
+                  message: "Unable to read request body, please check JSON format and field type"
+                  details:
+                    - "Text '2025-08-22T09:31' could not be parsed at index 16"
       '404':
         content:
           application/json:
@@ -476,7 +476,7 @@ userStatus:
                 value:
                   timestamp: "2025-08-17T15:30:02Z"
                   path: "/api/users/e6681542-a6b1-43f3-b759-6dc9cfebcf41/userStatus"
-                  method: "POST"
+                  method: "PATCH"
                   status: 404
                   code: "RESOURCE_NOT_FOUND"
                   message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"
@@ -486,8 +486,7 @@ heartbeat:
     tags:
       - User
     summary: 사용자 상태의 **lastActiveAt** 갱신
-    description: |-
-      - 하트비트를 실행하여 사용자의 **lastActiveAt**을 현재 시간으로 변경합니다.
+    description: 하트비트를 실행하여 사용자의 **lastActiveAt**을 현재 시간으로 변경합니다.
     operationId: heartbeat
     parameters:
       - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"

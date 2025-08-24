@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.domain.entity;
 
+import static com.sprint.mission.discodeit.support.StringUtil.blankOrStrip;
+import static com.sprint.mission.discodeit.support.StringUtil.requireNonBlank;
+
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -22,15 +25,8 @@ public class Channel extends AbstractEntity {
   private final Deque<UUID> messageIds = new ArrayDeque<>();
 
   public Channel(String name, String description) {
-    if (name == null || name.isBlank()) {
-      throw new IllegalArgumentException("Channel name must not be null or blank");
-    }
-    this.name = name;
-    if (description == null || description.isBlank()) {
-      this.description = "";
-    } else {
-      this.description = description;
-    }
+    this.name = requireNonBlank(name, "name must not be blank");
+    this.description = blankOrStrip(description);
     this.type = ChannelType.PUBLIC;
   }
 

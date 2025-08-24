@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record FriendRequestResponse(
+
     UUID id,
     Instant createdAt,
     UUID senderId,

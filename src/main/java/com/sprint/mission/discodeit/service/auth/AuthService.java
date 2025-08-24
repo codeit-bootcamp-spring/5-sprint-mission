@@ -29,7 +29,7 @@ public class AuthService {
     String username = nullOrStripAndLowerCase(req.username());
     User u = userRepository.findByUsername(username)
         .orElseThrow(() -> new UnauthorizedException("Username or password incorrect"));
-    if (!passwordEncoder.matches(req.password().strip(), u.getPassword())) {
+    if (!passwordEncoder.matches(req.password(), u.getPassword())) {
       throw new UnauthorizedException("Username or password incorrect");
     }
 

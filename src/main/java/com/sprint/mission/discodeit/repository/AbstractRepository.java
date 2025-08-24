@@ -23,7 +23,7 @@ public interface AbstractRepository<T extends AbstractEntity> {
 
   List<UUID> findAllIds();
 
-  List<T> findAllById(Collection<UUID> ids);
+  List<T> findAllByIdIn(Collection<UUID> ids);
 
   List<T> findAllByIdIncludingDeleted(Set<UUID> ids);
 
@@ -37,17 +37,17 @@ public interface AbstractRepository<T extends AbstractEntity> {
 
   boolean existsById(UUID id);
 
-  boolean softDeleteById(UUID id);
+  boolean delete(UUID id);
 
-  void softDeleteAllById(Set<UUID> ids);
+  void deleteAllByIdIn(Set<UUID> ids);
 
-  boolean restoreById(UUID id);
+  boolean restore(UUID id);
 
-  int restoreAllById(Set<UUID> ids);
+  int restoreAllByIdIn(Set<UUID> ids);
 
-  boolean hardDeleteById(UUID id);
+  boolean hardDelete(UUID id);
 
-  int hardDeleteAllById(Set<UUID> ids);
+  int hardDeleteAllByIdIn(Set<UUID> ids);
 
   int hardDeleteAllExpired(Instant now);
 

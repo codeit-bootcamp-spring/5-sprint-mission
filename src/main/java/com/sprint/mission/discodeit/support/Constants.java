@@ -30,8 +30,9 @@ public final class Constants {
   public static final int MAX_CHANNEL_PARTICIPANTS = 10;
 
   public static final int MIN_MESSAGE_CONTENT_LENGTH = 1;
-
   public static final int MAX_MESSAGE_CONTENT_LENGTH = 2000;
+
+  public static final int MAX_MESSAGE_ATTACHMENTS = 10;
 
   public static final int MAX_BIO_LENGTH = 190;
 

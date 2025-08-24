@@ -44,13 +44,10 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
 
   @Override
   public Map<UUID, UserStatusType> findAllTypesByUserIds(Set<UUID> userIds) {
-    if (userIds == null || userIds.isEmpty()) {
-      return Map.of();
-    }
-
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
-          .filter(us -> us.isNotDeleted() && userIds.contains(us.getUserId()))
+          .filter(UserStatus::isNotDeleted)
+          .filter(us -> userIds.contains(us.getUserId()))
           .collect(Collectors.toMap(
               UserStatus::getUserId,
               UserStatus::getType
@@ -80,12 +77,12 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
   }
 
   @Override
-  public boolean softDeleteByUserId(UUID userId) {
-    return findByUserId(userId).map(us -> softDeleteById(us.getId())).orElse(false);
+  public boolean deleteByUserId(UUID userId) {
+    return findByUserId(userId).map(us -> delete(us.getId())).orElse(false);
   }
 
   @Override
   public boolean hardDeleteByUserId(UUID userId) {
-    return findByUserId(userId).map(us -> hardDeleteById(us.getId())).orElse(false);
+    return findByUserId(userId).map(us -> hardDelete(us.getId())).orElse(false);
   }
 }

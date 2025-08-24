@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 public record MessageUpdateRequest(
 
     @Size(max = MAX_MESSAGE_CONTENT_LENGTH)
-    String content
+    String newContent
 ) {
 
 }

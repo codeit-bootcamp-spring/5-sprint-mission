@@ -10,7 +10,6 @@ public class ReadStatus extends AbstractEntity {
 
   private final UUID userId;
   private final UUID channelId;
-
   private Instant lastReadAt;
 
   public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
@@ -19,8 +18,12 @@ public class ReadStatus extends AbstractEntity {
     this.lastReadAt = Objects.requireNonNull(lastReadAt, "lastReadAt must not be null");
   }
 
-  public void changeLastReadAt(Instant lastReadAt) {
-    this.lastReadAt = Objects.requireNonNull(lastReadAt, "lastReadAt must not be null");
+  public ReadStatus update(Instant newLastReadAt) {
+    if (newLastReadAt != null && !newLastReadAt.equals(lastReadAt)) {
+      this.lastReadAt = newLastReadAt;
+      touch();
+    }
+    return this;
   }
 
   @Override

@@ -14,14 +14,14 @@ springdoc:
       - name: Auth API
         url: /docs/openapi-auth.yaml
       - name: Binary Contents API
-        url: /docs/openapi-binary-contents.yaml
+        url: /docs/openapi-binaryContents.yaml
       - name: Channels API
         url: /docs/openapi-channels.yaml
       - name: Friend Requests API
-        url: /docs/openapi-friend-requests.yaml
+        url: /docs/openapi-friendRequests.yaml
       - name: Messages API
         url: /docs/openapi-messages.yaml
       - name: Read Statuses API
-        url: /docs/openapi-read-statuses.yaml
+        url: /docs/openapi-readStatuses.yaml
       - name: Users API
         url: /docs/openapi-users.yaml

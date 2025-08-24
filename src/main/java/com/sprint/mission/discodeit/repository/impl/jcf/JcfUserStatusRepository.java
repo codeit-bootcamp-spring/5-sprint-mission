@@ -32,11 +32,9 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
 
   @Override
   public Map<UUID, UserStatusType> findAllTypesByUserIds(Set<UUID> userIds) {
-    if (userIds == null || userIds.isEmpty()) {
-      return Map.of();
-    }
     return data.values().stream()
-        .filter(us -> us.isNotDeleted() && userIds.contains(us.getUserId()))
+        .filter(UserStatus::isNotDeleted)
+        .filter(us -> userIds.contains(us.getUserId()))
         .collect(Collectors.toMap(
             UserStatus::getUserId,
             UserStatus::getType
@@ -57,14 +55,14 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
   }
 
   @Override
-  public boolean softDeleteByUserId(UUID userId) {
+  public boolean deleteByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
-    return findByUserId(userId).map(us -> softDeleteById(us.getId())).orElse(false);
+    return findByUserId(userId).map(us -> delete(us.getId())).orElse(false);
   }
 
   @Override
   public boolean hardDeleteByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
-    return findByUserId(userId).map(us -> hardDeleteById(us.getId())).orElse(false);
+    return findByUserId(userId).map(us -> hardDelete(us.getId())).orElse(false);
   }
 }

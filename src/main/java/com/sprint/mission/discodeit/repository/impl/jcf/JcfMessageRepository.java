@@ -40,23 +40,23 @@ public class JcfMessageRepository extends AbstractJcfRepository<Message> impleme
   }
 
   @Override
-  public void softDeleteAllByChannelId(UUID channelId) {
+  public void deleteAllByChannelId(UUID channelId) {
     Objects.requireNonNull(channelId, "channelId must not be null");
     Set<UUID> ids = findAll().stream()
         .filter(m -> channelId.equals(m.getChannelId()))
         .map(Message::getId)
         .collect(Collectors.toSet());
-    softDeleteAllById(ids);
+    deleteAllByIdIn(ids);
   }
 
   @Override
-  public void softDeleteAllByAuthorId(UUID authorId) {
+  public void deleteAllByAuthorId(UUID authorId) {
     Objects.requireNonNull(authorId, "authorId must not be null");
     Set<UUID> ids = findAll().stream()
         .filter(m -> authorId.equals(m.getAuthorId()))
         .map(Message::getId)
         .collect(Collectors.toSet());
-    softDeleteAllById(ids);
+    deleteAllByIdIn(ids);
   }
 
   @Override

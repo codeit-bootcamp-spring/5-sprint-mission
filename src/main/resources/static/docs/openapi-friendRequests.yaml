@@ -4,17 +4,17 @@ info:
   version: "1.0.0"
   description: 친구 요청(FriendRequest) 관련 API 문서
 servers:
-  - url: /api/friendRequests
+  - url: /api
 paths:
-  /:
-    $ref: "./paths/friendRequests.yaml#/friend_requests_root"
-  /{id}:
-    $ref: "./paths/friendRequests.yaml#/friend_request_by_id"
-  /sent:
+  /friendRequests:
+    $ref: "./paths/friendRequests.yaml#/friendRequestsRoot"
+  /friendRequests/{friendRequestId}:
+    $ref: "./paths/friendRequests.yaml#/friendRequestById"
+  /friendRequests/sent:
     $ref: "./paths/friendRequests.yaml#/friend_requests_sent"
-  /received:
+  /friendRequests/received:
     $ref: "./paths/friendRequests.yaml#/friend_requests_received"
-  /by-user/{userId}:
+  /friendRequests/by-user/{userId}:
     $ref: "./paths/friendRequests.yaml#/friend_requests_clear_by_user"
 components:
   schemas:

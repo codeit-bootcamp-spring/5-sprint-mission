@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.dto.request.readstatus;
 
 import jakarta.validation.constraints.NotNull;
-import java.util.UUID;
+import java.time.Instant;
 
 public record ReadStatusUpdateRequest(
 
     @NotNull
-    UUID lastReadMessageId
+    Instant lastReadAt
 ) {
 
 }

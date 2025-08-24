@@ -68,7 +68,7 @@ public class FileFriendRequestRepository extends AbstractFileRepository<FriendRe
   }
 
   @Override
-  public void softDeleteAllByUserId(UUID userId) {
+  public void deleteAllByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
 
     try (Stream<Path> s = streamSerializedFiles()) {
@@ -86,13 +86,13 @@ public class FileFriendRequestRepository extends AbstractFileRepository<FriendRe
   }
 
   @Override
-  public boolean softDeleteBySenderAndReceiver(UUID senderId, UUID receiverId) {
+  public boolean deleteBySenderAndReceiver(UUID senderId, UUID receiverId) {
     Objects.requireNonNull(senderId, "senderId must not be null");
     Objects.requireNonNull(receiverId, "receiverId must not be null");
     Optional<FriendRequest> frOpt = findAll().stream()
         .filter(fr -> senderId.equals(fr.getSenderId()) && receiverId.equals(fr.getReceiverId()))
         .findFirst();
-    return frOpt.map(fr -> softDeleteById(fr.getId())).orElse(false);
+    return frOpt.map(fr -> delete(fr.getId())).orElse(false);
   }
 
   @Override
@@ -102,6 +102,6 @@ public class FileFriendRequestRepository extends AbstractFileRepository<FriendRe
     Optional<FriendRequest> fr = findAll().stream()
         .filter(e -> senderId.equals(e.getSenderId()) && receiverId.equals(e.getReceiverId()))
         .findFirst();
-    return fr.map(e -> hardDeleteById(e.getId())).orElse(false);
+    return fr.map(e -> hardDelete(e.getId())).orElse(false);
   }
 }

@@ -101,7 +101,7 @@ public class FriendRequestService {
       userRepository.save(receiver);
     }
 
-    friendRequestRepository.hardDeleteById(requestId);
+    friendRequestRepository.hardDelete(requestId);
     friendRequestRepository.hardDeleteBySenderAndReceiver(receiverId, senderId);
   }
 
@@ -112,7 +112,7 @@ public class FriendRequestService {
     if (!fr.getReceiverId().equals(actingUserId)) {
       throw new AccessDeniedException("친구 요청 거절 권한이 없습니다.");
     }
-    friendRequestRepository.hardDeleteById(requestId);
+    friendRequestRepository.hardDelete(requestId);
   }
 
   @Transactional
@@ -122,12 +122,12 @@ public class FriendRequestService {
     if (!fr.getSenderId().equals(actingUserId)) {
       throw new AccessDeniedException("친구 요청 취소 권한이 없습니다.");
     }
-    friendRequestRepository.softDeleteById(requestId);
+    friendRequestRepository.delete(requestId);
   }
 
   @Transactional
   public void clearFriendRequests(UUID userId) {
-    friendRequestRepository.softDeleteAllByUserId(userId);
+    friendRequestRepository.deleteAllByUserId(userId);
   }
 
   private boolean existsFriendRequestEitherWay(UUID a, UUID b) {
@@ -137,7 +137,7 @@ public class FriendRequestService {
 
   private Map<UUID, User> loadUsers(UUID... ids) {
     Set<UUID> set = new HashSet<>(Arrays.asList(ids));
-    Map<UUID, User> map = userRepository.findAllById(set).stream()
+    Map<UUID, User> map = userRepository.findAllByIdIn(set).stream()
         .collect(Collectors.toMap(User::getId, Function.identity()));
     for (UUID id : set) {
       if (!map.containsKey(id)) {

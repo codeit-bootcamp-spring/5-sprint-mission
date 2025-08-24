@@ -21,10 +21,21 @@ messagesRoot:
                   createdAt: "2025-08-17T15:30:02Z"
                   updatedAt: "2025-08-17T15:30:02Z"
                   content: "Hello, world!"
-                  channelId: "c9b4f154-145d-4372-ab9a-ca030e13b327"
+                  channelId: "8c70bfa4-de77-4d49-8705-b824f0e41010"
                   authorId: "e9ea0824-fc8f-45a8-acfa-db97424f71d4"
                   attachmentIds:
                     - "s019f93r-3d4b-4f0a-b5a1-1f2a4c6b7d8q"
+                - id: "3170dca2-0c5f-47c2-921b-b0947aacec7c"
+                  createdAt: "2025-08-24T09:01:19.010327Z"
+                  updatedAt: "2025-08-24T09:01:19.010327Z"
+                  channelId: "8c70bfa4-de77-4d49-8705-b824f0e41010"
+                  authorId: "51d5020e-6818-4110-9ca1-a620f653b58f"
+                  content: "hi"
+                  attachmentIds:
+                    - "0956fcf1-123f-4bfb-a7cd-243b28a0d9c3"
+                    - "f3dd6134-8f67-45c9-bb03-d67f9b5ce70b"
+                    - "69224cd6-3c32-4234-a88d-fd02d684569a"
+                    - "d873e9f3-1c21-4057-8f89-b7cdefa9e70c"
       '400':
         content:
           application/json:
@@ -88,6 +99,7 @@ messagesRoot:
                 items:
                   type: string
                   format: binary
+                maxItems: 10
             required:
               - messageCreateRequest
           encoding:
@@ -101,21 +113,24 @@ messagesRoot:
             schema:
               $ref: "../schemas/message.yaml#/MessageResponse"
             example:
-              id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-              createdAt: "2025-08-17T15:30:02Z"
-              updatedAt: "2025-08-17T15:30:02Z"
-              content: "Hello, world!"
-              channelId: "c9b4f154-145d-4372-ab9a-ca030e13b327"
-              authorId: "e9ea0824-fc8f-45a8-acfa-db97424f71d4"
+              id: "3170dca2-0c5f-47c2-921b-b0947aacec7c"
+              createdAt: "2025-08-24T09:01:19.010327Z"
+              updatedAt: "2025-08-24T09:01:19.010327Z"
+              channelId: "8c70bfa4-de77-4d49-8705-b824f0e41010"
+              authorId: "51d5020e-6818-4110-9ca1-a620f653b58f"
+              content: "hi"
               attachmentIds:
-                - "s019f93r-3d4b-4f0a-b5a1-1f2a4c6b7d8q"
+                - "0956fcf1-123f-4bfb-a7cd-243b28a0d9c3"
+                - "f3dd6134-8f67-45c9-bb03-d67f9b5ce70b"
+                - "69224cd6-3c32-4234-a88d-fd02d684569a"
+                - "d873e9f3-1c21-4057-8f89-b7cdefa9e70c"
       '400':
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
-              invalidField:
+              invalidMessageCreateRequest:
                 description: messageCreateRequest Field 값이 유효하지 않음
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
@@ -128,7 +143,18 @@ messagesRoot:
                     - "channelId: 널이어서는 안됩니다"
                     - "authorId: 널이어서는 안됩니다"
                     - "content: 크기가 0에서 2000 사이여야 합니다"
-              invalidJSON:
+              invalidAttachments:
+                description: attachments가 10개 초과됨
+                value:
+                  timestamp: "2025-08-24T08:15:52.321451Z"
+                  path: "/api/messages"
+                  method: "POST"
+                  status: 400
+                  code: "INVALID_PARAMETER_VALUE"
+                  message: "Request parameter value not valid"
+                  details:
+                    - "attachments: 크기가 0에서 10 사이여야 합니다"
+              invalidJson:
                 description: JSON parsing 실패
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
@@ -163,6 +189,38 @@ messagesRoot:
                   status: 404
                   code: "RESOURCE_NOT_FOUND"
                   message: "User with id e9ea0824-fc8f-45a8-acfa-db97424f71d4 not found"
+      '413':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              payloadTooLarge:
+                description: 첨부 파일 용량 초과
+                value:
+                  timestamp: "2025-08-24T09:27:02.568707Z"
+                  path: "/api/messages"
+                  method: "POST"
+                  status: 413
+                  code: "PAYLOAD_TOO_LARGE"
+                  message: "Maximum upload size exceeded"
+      '415':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidUserCreateRequest:
+                description: messageCreateRequest가 application/json 형식이 아님
+                value:
+                  timestamp: "2025-08-19T07:13:02.116388Z"
+                  path: "/api/messages"
+                  method: "POST"
+                  status: 415
+                  code: "UNSUPPORTED_MEDIA_TYPE"
+                  message: "Media type not allowed. Supported types: application/json, application/yaml, application/*+json"
+                  details:
+                    - "Content-Type 'application/octet-stream' not supported"
 messageById:
   delete:
     tags:
@@ -216,23 +274,9 @@ messageById:
     requestBody:
       required: true
       content:
-        multipart/form-data:
+        application/json:
           schema:
-            type: object
-            properties:
-              messageUpdateRequest:
-                $ref: "../schemas/message.yaml#/MessageUpdateRequest"
-              attachments:
-                type: array
-                description: Message 첨부 파일들
-                items:
-                  type: string
-                  format: binary
-            required:
-              - messageUpdateRequest
-          encoding:
-            messageUpdateRequest:
-              contentType: application/json
+            $ref: "../schemas/message.yaml#/MessageUpdateRequest"
     responses:
       '200':
         description: Message가 성공적으로 수정됨
@@ -248,15 +292,27 @@ messageById:
               channelId: "c9b4f154-145d-4372-ab9a-ca030e13b327"
               authorId: "e9ea0824-fc8f-45a8-acfa-db97424f71d4"
               attachmentIds:
-                - "e9ea0824-fc8f-45a8-acfa-db97424f71d4"
+                - "5e28e1da-e889-4dd8-ac78-3dd6c59c09ea"
+                - "39dcc1ba-c3bd-466c-bb65-4b925e3b9dcd"
       '400':
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
+              invalidParameterType:
+                description: parameter(messageId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/messages/not-uuid"
+                  method: "PATCH"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=messageId, value=not-uuid, expectedType=UUID"
               invalidField:
-                description: messageUpdateRequest Field 값이 유효하지 않음
+                description: Body field 값이 유효하지 않음
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327"
@@ -266,7 +322,7 @@ messageById:
                   message: "Request body value not valid"
                   details:
                     - "newContent: 크기가 0에서 2000 사이여야 합니다"
-              invalidJSON:
+              invalidJson:
                 description: JSON parsing 실패
                 value:
                   timestamp: "2025-08-16T12:34:56Z"
@@ -276,19 +332,19 @@ messageById:
                   code: "INVALID_JSON"
                   message: "Unable to read request body, please check JSON format and field type"
                   details:
-                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 1]"
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: "../schemas/error.yaml#/ApiError"
-              examples:
-                messageNotFound:
-                  description: Message를 찾을 수 없음
-                  value:
-                    timestamp: "2025-08-17T15:30:02Z"
-                    path: "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327"
-                    method: "PATCH"
-                    status: 404
-                    code: "RESOURCE_NOT_FOUND"
-                    message: "Message with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found"
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 3, column: 1]"
+      '404':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              messageNotFound:
+                description: Message를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327"
+                  method: "PATCH"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "Message with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found"

@@ -20,7 +20,7 @@ public class Message extends AbstractEntity {
     this.channelId = Objects.requireNonNull(channelId, "channelId must not be null.");
     this.authorId = Objects.requireNonNull(authorId, "authorId must not be null.");
     if (content == null || content.isBlank()) {
-      this.content = null;
+      this.content = "";
     } else {
       this.content = content;
     }
@@ -29,11 +29,10 @@ public class Message extends AbstractEntity {
     }
   }
 
-  public Message update(String content) {
-    if (content == null || content.isBlank()) {
-      this.content = null;
-    } else {
-      this.content = content;
+  public Message update(String newContent) {
+    if (newContent != null && !newContent.equals(this.content)) {
+      this.content = newContent;
+      touch();
     }
 
     return this;

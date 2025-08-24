@@ -17,7 +17,7 @@ public interface UserStatusRepository extends AbstractRepository<UserStatus> {
 
   boolean existsByUserId(UUID userId);
 
-  boolean softDeleteByUserId(UUID userId);
+  boolean deleteByUserId(UUID userId);
 
   boolean hardDeleteByUserId(UUID userId);
 }

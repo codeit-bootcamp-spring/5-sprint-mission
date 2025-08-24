@@ -141,7 +141,6 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
           .filter(AbstractEntity::isNotDeleted)
-          .sorted(Comparator.comparing(AbstractEntity::getCreatedAt).reversed())
           .toList();
     } catch (IOException e) {
       log.warn("Failed to list saved files: {}", directory, e);
@@ -187,15 +186,12 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
 
 
   @Override
-  public List<T> findAllById(Collection<UUID> ids) {
-    if (ids == null || ids.isEmpty()) {
-      return List.of();
-    }
-
+  public List<T> findAllByIdIn(Collection<UUID> ids) {
     return ids.stream()
         .map(this::resolvePath)
         .map(this::readObject).flatMap(Optional::stream)
         .filter(AbstractEntity::isNotDeleted)
+        .sorted(Comparator.comparing(AbstractEntity::getCreatedAt).reversed())
         .toList();
   }
 
@@ -222,14 +218,11 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
 
   @Override
   public Map<UUID, Instant> findAllCreatedAtById(Set<UUID> ids) {
-    if (ids == null || ids.isEmpty()) {
-      return Map.of();
-    }
-
     return ids.stream()
         .map(this::resolvePath)
         .map(this::readObject).flatMap(Optional::stream)
-        .filter(e -> e.isNotDeleted() && ids.contains(e.getId()))
+        .filter(AbstractEntity::isNotDeleted)
+        .filter(e -> ids.contains(e.getId()))
         .collect(Collectors.toMap(
             AbstractEntity::getId,
             AbstractEntity::getCreatedAt
@@ -248,7 +241,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public boolean softDeleteById(UUID id) {
+  public boolean delete(UUID id) {
     Optional<T> opt = readObject(resolvePath(id));
     if (opt.isPresent() && opt.get().isNotDeleted()) {
       T e = opt.get();
@@ -260,15 +253,15 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public void softDeleteAllById(Set<UUID> ids) {
+  public void deleteAllByIdIn(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return;
     }
-    ids.forEach(this::softDeleteById);
+    ids.forEach(this::delete);
   }
 
   @Override
-  public boolean restoreById(UUID id) {
+  public boolean restore(UUID id) {
     Optional<T> opt = readObject(resolvePath(id));
     if (opt.isPresent() && opt.get().isDeleted()) {
       T e = opt.get();
@@ -280,13 +273,13 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public int restoreAllById(Set<UUID> ids) {
+  public int restoreAllByIdIn(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }
     int count = 0;
     for (UUID id : ids) {
-      if (restoreById(id)) {
+      if (restore(id)) {
         count++;
       }
     }
@@ -294,7 +287,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public boolean hardDeleteById(UUID id) {
+  public boolean hardDelete(UUID id) {
     try {
       return Files.deleteIfExists(resolvePath(id));
     } catch (IOException e) {
@@ -304,7 +297,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public int hardDeleteAllById(Set<UUID> ids) {
+  public int hardDeleteAllByIdIn(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }
@@ -340,7 +333,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
     }
     int deleted = 0;
     for (UUID id : toRemove) {
-      if (hardDeleteById(id)) {
+      if (hardDelete(id)) {
         deleted++;
       }
     }

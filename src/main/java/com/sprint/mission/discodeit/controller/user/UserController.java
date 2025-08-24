@@ -5,7 +5,6 @@ import static com.sprint.mission.discodeit.support.Constants.MAX_USERNAME_LENGTH
 import static com.sprint.mission.discodeit.support.Constants.MIN_EMAIL_LENGTH;
 import static com.sprint.mission.discodeit.support.Constants.MIN_USERNAME_LENGTH;
 import static com.sprint.mission.discodeit.support.Constants.SUPPORTED_IMAGE_TYPE;
-import static com.sprint.mission.discodeit.support.StringUtil.nullOrStripAndLowerCase;
 
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
@@ -15,7 +14,7 @@ import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
 import com.sprint.mission.discodeit.dto.response.userstatus.UserStatusResponse;
 import com.sprint.mission.discodeit.exception.ParameterNumberNotValidException;
 import com.sprint.mission.discodeit.service.user.UserService;
-import com.sprint.mission.discodeit.support.FileNames;
+import com.sprint.mission.discodeit.support.Filenames;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
@@ -61,17 +60,14 @@ public class UserController {
       String email
   ) {
 
-    String u = nullOrStripAndLowerCase(username);
-    String e = nullOrStripAndLowerCase(email);
-
-    if (u != null && e != null) {
+    if (username != null && email != null) {
       throw new ParameterNumberNotValidException(List.of("username", "email"));
     }
-    if (u != null) {
-      return userService.findByUsername(u);
+    if (username != null) {
+      return userService.findByUsername(username);
     }
-    if (e != null) {
-      return userService.findByEmail(e);
+    if (email != null) {
+      return userService.findByEmail(email);
     }
     return userService.findAll();
   }
@@ -89,7 +85,7 @@ public class UserController {
   ) throws HttpMediaTypeNotSupportedException, IOException {
 
     if (profile != null && !profile.isEmpty()) {
-      String ct = FileNames.normalizeContentType(profile.getContentType());
+      String ct = Filenames.normalizeContentType(profile.getContentType());
       if (!SUPPORTED_IMAGE_TYPE.contains(ct)) {
         throw new HttpMediaTypeNotSupportedException(
             "Content-Type '%s' not supported".formatted(ct),
@@ -116,7 +112,7 @@ public class UserController {
       @PathVariable("userId")
       UUID userId
   ) {
-    userService.deleteAccount(userId);
+    userService.delete(userId);
   }
 
   @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -134,7 +130,7 @@ public class UserController {
   ) throws HttpMediaTypeNotSupportedException, IOException {
 
     if (profile != null && !profile.isEmpty()) {
-      String ct = FileNames.normalizeContentType(profile.getContentType());
+      String ct = Filenames.normalizeContentType(profile.getContentType());
       if (!SUPPORTED_IMAGE_TYPE.contains(ct)) {
         throw new HttpMediaTypeNotSupportedException(
             "Content-Type '%s' not supported".formatted(ct),

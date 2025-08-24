@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.http.MediaType;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class FileNames {
+public final class Filenames {
 
   private static final SecureRandom RNG = new SecureRandom();
 

@@ -21,9 +21,9 @@ public interface GuildPermissionsRepository extends AbstractRepository<GuildPerm
 
   List<GuildPermissions> findAllByGuildIdAndPermission(UUID guildId, Permission permission);
 
-  boolean softDeleteByGuildIdAndUserId(UUID guildId, UUID userId);
+  boolean deleteByGuildIdAndUserId(UUID guildId, UUID userId);
 
-  void softDeleteAllByGuildId(UUID guildId);
+  void deleteAllByGuildId(UUID guildId);
 
-  void softDeleteAllByUserId(UUID userId);
+  void deleteAllByUserId(UUID userId);
 }

@@ -11,6 +11,26 @@ paths:
   /binaryContents/{binaryContentId}:
     $ref: "./paths/binaryContents.yaml#/binaryContentById"
 components:
+  parameters:
+    binaryContentIds:
+      in: query
+      name: binaryContentIds
+      description: 조회할 첨부 파일 ID 목록
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
+          format: uuid
+        minItems: 1
+    binaryContentId:
+      in: path
+      name: binaryContentId
+      description: 조회할 첨부 파일 ID
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
-    UserResponse:
+    BinaryContentResponse:
       $ref: "./schemas/binaryContent.yaml#/BinaryContentResponse"

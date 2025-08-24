@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.domain.entity;
 
+import static com.sprint.mission.discodeit.support.StringUtil.requireNonBlank;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -28,32 +30,23 @@ public class User extends AbstractEntity {
       String password,
       UUID profileId
   ) {
-    if (email == null || email.isBlank()) {
-      throw new IllegalArgumentException("Email cannot be null or blank");
-    }
-    if (username == null || username.isBlank()) {
-      throw new IllegalArgumentException("Username cannot be null or blank");
-    }
-    if (password == null || password.isBlank()) {
-      throw new IllegalArgumentException("Password cannot be null or blank");
-    }
-    this.email = email;
-    this.username = username;
-    this.password = password;
+    this.email = requireNonBlank(email, "email must not be blank");
+    this.username = requireNonBlank(username, "username must not be blank");
+    this.password = requireNonBlank(password, "password must not be blank");
     this.profileId = profileId;
   }
 
   public User update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
     boolean changed = false;
-    if (newUsername != null && !newUsername.equals(this.username)) {
+    if (newUsername != null && !newUsername.isBlank() && !newUsername.equals(this.username)) {
       this.username = newUsername;
       changed = true;
     }
-    if (newEmail != null && !newEmail.equals(this.email)) {
+    if (newEmail != null && !newEmail.isBlank() && !newEmail.equals(this.email)) {
       this.email = newEmail;
       changed = true;
     }
-    if (newPassword != null && !newPassword.equals(this.password)) {
+    if (newPassword != null && !newPassword.isBlank() && !newPassword.equals(this.password)) {
       this.password = newPassword;
       changed = true;
     }
@@ -65,13 +58,6 @@ public class User extends AbstractEntity {
       touch();
     }
     return this;
-  }
-
-  public void removeProfileId() {
-    if (this.profileId != null) {
-      this.profileId = null;
-      touch();
-    }
   }
 
   public Set<UUID> getFriendIds() {
@@ -115,10 +101,6 @@ public class User extends AbstractEntity {
     }
   }
 
-  public boolean isMemberOfGuild(UUID guildId) {
-    return guildIds.contains(guildId);
-  }
-
   public Set<UUID> getChannelIds() {
     return Collections.unmodifiableSet(channelIds);
   }
@@ -134,10 +116,6 @@ public class User extends AbstractEntity {
     if (channelIds.remove(channelId)) {
       touch();
     }
-  }
-
-  public boolean isMemberOfChannel(UUID channelId) {
-    return channelIds.contains(channelId);
   }
 
   @Override

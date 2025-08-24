@@ -62,7 +62,7 @@ public class JcfFriendRequestRepository extends AbstractJcfRepository<FriendRequ
   }
 
   @Override
-  public void softDeleteAllByUserId(UUID userId) {
+  public void deleteAllByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
 
     data.values().stream()
@@ -72,13 +72,13 @@ public class JcfFriendRequestRepository extends AbstractJcfRepository<FriendRequ
   }
 
   @Override
-  public boolean softDeleteBySenderAndReceiver(UUID senderId, UUID receiverId) {
+  public boolean deleteBySenderAndReceiver(UUID senderId, UUID receiverId) {
     Objects.requireNonNull(senderId, "senderId must not be null");
     Objects.requireNonNull(receiverId, "receiverId must not be null");
     Optional<FriendRequest> fr = findAll().stream()
         .filter(e -> senderId.equals(e.getSenderId()) && receiverId.equals(e.getReceiverId()))
         .findFirst();
-    return fr.map(e -> softDeleteById(e.getId())).orElse(false);
+    return fr.map(e -> delete(e.getId())).orElse(false);
   }
 
   @Override
@@ -88,6 +88,6 @@ public class JcfFriendRequestRepository extends AbstractJcfRepository<FriendRequ
     Optional<FriendRequest> fr = findAll().stream()
         .filter(e -> senderId.equals(e.getSenderId()) && receiverId.equals(e.getReceiverId()))
         .findFirst();
-    return fr.map(e -> hardDeleteById(e.getId())).orElse(false);
+    return fr.map(e -> hardDelete(e.getId())).orElse(false);
   }
 }

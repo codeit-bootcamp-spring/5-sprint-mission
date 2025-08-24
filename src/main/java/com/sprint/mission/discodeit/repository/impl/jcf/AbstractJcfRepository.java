@@ -45,7 +45,6 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   public List<T> findAll() {
     return data.values().stream()
         .filter(AbstractEntity::isNotDeleted)
-        .sorted(Comparator.comparing(AbstractEntity::getCreatedAt).reversed())
         .toList();
   }
 
@@ -69,15 +68,12 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public List<T> findAllById(Collection<UUID> ids) {
-    if (ids == null || ids.isEmpty()) {
-      return List.of();
-    }
-
+  public List<T> findAllByIdIn(Collection<UUID> ids) {
     return ids.stream()
         .map(data::get)
         .filter(Objects::nonNull)
         .filter(AbstractEntity::isNotDeleted)
+        .sorted(Comparator.comparing(AbstractEntity::getCreatedAt).reversed())
         .toList();
   }
 
@@ -104,13 +100,10 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
 
   @Override
   public Map<UUID, Instant> findAllCreatedAtById(Set<UUID> ids) {
-    if (ids == null || ids.isEmpty()) {
-      return Map.of();
-    }
-
     return data.values().stream()
         .filter(Objects::nonNull)
-        .filter(e -> e.isNotDeleted() && ids.contains(e.getId()))
+        .filter(AbstractEntity::isNotDeleted)
+        .filter(e -> ids.contains(e.getId()))
         .collect(Collectors.toMap(
             AbstractEntity::getId,
             AbstractEntity::getCreatedAt
@@ -130,7 +123,7 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public boolean softDeleteById(UUID id) {
+  public boolean delete(UUID id) {
     T e = data.get(id);
     if (e != null && e.isNotDeleted()) {
       e.delete();
@@ -140,15 +133,15 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public void softDeleteAllById(Set<UUID> ids) {
+  public void deleteAllByIdIn(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return;
     }
-    ids.forEach(this::softDeleteById);
+    ids.forEach(this::delete);
   }
 
   @Override
-  public boolean restoreById(UUID id) {
+  public boolean restore(UUID id) {
     T entity = data.get(id);
     if (entity != null && entity.isDeleted()) {
       entity.restore();
@@ -158,13 +151,13 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public int restoreAllById(Set<UUID> ids) {
+  public int restoreAllByIdIn(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }
     int count = 0;
     for (UUID id : ids) {
-      if (restoreById(id)) {
+      if (restore(id)) {
         count++;
       }
     }
@@ -172,18 +165,18 @@ public class AbstractJcfRepository<T extends AbstractEntity> implements Abstract
   }
 
   @Override
-  public boolean hardDeleteById(UUID id) {
+  public boolean hardDelete(UUID id) {
     return data.remove(id) != null;
   }
 
   @Override
-  public int hardDeleteAllById(Set<UUID> ids) {
+  public int hardDeleteAllByIdIn(Set<UUID> ids) {
     if (ids == null || ids.isEmpty()) {
       return 0;
     }
     int count = 0;
     for (UUID id : ids) {
-      if (hardDeleteById(id)) {
+      if (hardDelete(id)) {
         count++;
       }
     }

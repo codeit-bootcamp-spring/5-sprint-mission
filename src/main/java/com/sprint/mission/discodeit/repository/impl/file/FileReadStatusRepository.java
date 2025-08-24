@@ -67,22 +67,22 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
   }
 
   @Override
-  public void softDeleteAllByUserId(UUID userId) {
+  public void deleteAllByUserId(UUID userId) {
     Objects.requireNonNull(userId, "userId must not be null");
     Set<UUID> ids = findAll().stream()
         .filter(rs -> userId.equals(rs.getUserId()))
         .map(ReadStatus::getId)
         .collect(Collectors.toSet());
-    softDeleteAllById(ids);
+    deleteAllByIdIn(ids);
   }
 
   @Override
-  public void softDeleteAllByChannelId(UUID channelId) {
+  public void deleteAllByChannelId(UUID channelId) {
     Objects.requireNonNull(channelId, "channelId must not be null");
     Set<UUID> ids = findAll().stream()
         .filter(rs -> channelId.equals(rs.getChannelId()))
         .map(ReadStatus::getId)
         .collect(Collectors.toSet());
-    softDeleteAllById(ids);
+    deleteAllByIdIn(ids);
   }
 }

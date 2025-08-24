@@ -40,7 +40,7 @@ public class FileGuildRepository extends AbstractFileRepository<Guild> implement
   }
 
   @Override
-  public void softDeleteAllByOwnerId(UUID ownerId) {
+  public void deleteAllByOwnerId(UUID ownerId) {
     Objects.requireNonNull(ownerId, "ownerId must not be null");
     try (Stream<Path> s = streamSerializedFiles()) {
       s.map(this::readObject).flatMap(Optional::stream)

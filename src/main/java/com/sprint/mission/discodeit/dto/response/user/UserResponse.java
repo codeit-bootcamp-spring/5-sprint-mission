@@ -1,16 +1,20 @@
 package com.sprint.mission.discodeit.dto.response.user;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 import java.time.Instant;
 import java.util.UUID;
 
 public record UserResponse(
+
     UUID id,
     Instant createdAt,
     Instant updatedAt,
     String username,
     String email,
+
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     UUID profileId,
     boolean online
 ) {
