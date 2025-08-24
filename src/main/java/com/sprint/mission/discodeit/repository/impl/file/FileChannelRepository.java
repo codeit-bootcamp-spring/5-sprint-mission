@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.domain.enums.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -22,6 +23,19 @@ public class FileChannelRepository extends AbstractFileRepository<Channel> imple
 
   public FileChannelRepository(AppProperties appProperties) {
     super(Channel.class, appProperties.storage());
+  }
+
+  @Override
+  public List<Channel> findAllPublic() {
+    try (Stream<Path> s = streamSerializedFiles()) {
+      return s.map(this::readObject).flatMap(Optional::stream)
+          .filter(Channel::isNotDeleted)
+          .filter(c -> c.getType() == ChannelType.PUBLIC)
+          .toList();
+    } catch (IOException e) {
+      log.warn("Failed to list saved files: {}", directory, e);
+      throw new RuntimeException("Failed to list saved files: " + directory, e);
+    }
   }
 
   @Override

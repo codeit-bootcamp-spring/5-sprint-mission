@@ -126,7 +126,7 @@ public class UserService {
     );
 
     User saved = userRepository.save(user);
-    userStatusRepository.save(new UserStatus(saved.getId()));
+    userStatusRepository.save(new UserStatus(saved.getId()).login());
     return UserSaveResponse.from(saved);
   }
 

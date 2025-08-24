@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +46,11 @@ public class ChannelService {
       return List.of();
     }
 
-    List<Channel> channels = channelRepository.findAllByIdIn(u.getChannelIds());
+    List<Channel> myChannels = channelRepository.findAllByIdIn(u.getChannelIds());
+    List<Channel> publicChannels = channelRepository.findAllPublic();
+
+    List<Channel> channels = Stream.concat(myChannels.stream(), publicChannels.stream())
+        .toList();
 
     Set<UUID> lastMessageIds = channels.stream()
         .map(Channel::getLastMessageId)

@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.repository.impl.jcf;
 
+import com.sprint.mission.discodeit.domain.entity.AbstractEntity;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -16,6 +18,14 @@ public class JcfChannelRepository extends AbstractJcfRepository<Channel> impleme
 
   public JcfChannelRepository() {
     super(Channel.class);
+  }
+
+  @Override
+  public List<Channel> findAllPublic() {
+    return data.values().stream()
+        .filter(AbstractEntity::isNotDeleted)
+        .filter(c -> c.getType() == ChannelType.PUBLIC)
+        .toList();
   }
 
   @Override
