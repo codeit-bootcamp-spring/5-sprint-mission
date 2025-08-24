@@ -45,15 +45,15 @@ public final class Filenames {
     return ext.matches("[a-z0-9]+") ? ext : null;
   }
 
-  private static String baseNameFromFilename(String filename) {
-    if (filename == null) {
+  private static String baseNameFromFilename(String fileName) {
+    if (fileName == null) {
       return null;
     }
-    int dot = filename.lastIndexOf('.');
+    int dot = fileName.lastIndexOf('.');
     if (dot > 0) {
-      return filename.substring(0, dot);
+      return fileName.substring(0, dot);
     }
-    return filename;
+    return fileName;
   }
 
   public static String extFromContentType(String contentType) {

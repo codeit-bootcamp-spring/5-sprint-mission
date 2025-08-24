@@ -39,7 +39,7 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     try (Stream<Path> s = streamSerializedFiles()) {
       return s.map(this::readObject).flatMap(Optional::stream)
           .filter(User::isNotDeleted)
-          .filter(u -> u.isNotDeleted() && email.equals(u.getEmail()))
+          .filter(u -> email.equals(u.getEmail()))
           .findFirst();
     } catch (IOException e) {
       log.warn("Failed to list saved files: {}", directory, e);

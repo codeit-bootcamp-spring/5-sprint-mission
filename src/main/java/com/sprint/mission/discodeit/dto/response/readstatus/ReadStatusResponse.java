@@ -15,6 +15,7 @@ public record ReadStatusResponse(
 ) {
 
   public static ReadStatusResponse from(ReadStatus rs) {
+
     return new ReadStatusResponse(
         rs.getId(),
         rs.getCreatedAt(),

@@ -6,7 +6,7 @@ import java.time.Instant;
 public record ReadStatusUpdateRequest(
 
     @NotNull
-    Instant lastReadAt
+    Instant newLastReadAt
 ) {
 
 }

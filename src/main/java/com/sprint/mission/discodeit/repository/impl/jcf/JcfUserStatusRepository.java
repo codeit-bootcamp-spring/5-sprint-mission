@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.repository.impl.jcf;
 
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
-import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import java.util.Map;
 import java.util.Objects;
@@ -37,21 +36,9 @@ public class JcfUserStatusRepository extends AbstractJcfRepository<UserStatus> i
         .filter(us -> userIds.contains(us.getUserId()))
         .collect(Collectors.toMap(
             UserStatus::getUserId,
-            UserStatus::getType
+            UserStatus::getType,
+            (left, right) -> right
         ));
-  }
-
-  @Override
-  public UserStatus getOrThrowByUserId(UUID userId) {
-    Objects.requireNonNull(userId, "userId must not be null");
-    return findByUserId(userId).orElseThrow(
-        () -> new NotFoundException("UserStatus with userId %s not found".formatted(userId)));
-  }
-
-  @Override
-  public boolean existsByUserId(UUID userId) {
-    Objects.requireNonNull(userId, "userId must not be null");
-    return findByUserId(userId).isPresent();
   }
 
   @Override

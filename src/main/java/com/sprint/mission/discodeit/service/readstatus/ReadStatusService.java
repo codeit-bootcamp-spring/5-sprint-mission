@@ -4,8 +4,8 @@ import com.sprint.mission.discodeit.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.dto.request.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.readstatus.ReadStatusResponse;
+import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.List;
@@ -22,11 +22,11 @@ public class ReadStatusService {
   private final UserRepository userRepository;
   private final ReadStatusRepository readStatusRepository;
   private final ChannelRepository channelRepository;
-  private final MessageRepository messageRepository;
 
   public List<ReadStatusResponse> findAllByUserId(UUID userId) {
     userRepository.getOrThrow(userId);
-    return readStatusRepository.findAllByUserId(userId).stream().map(ReadStatusResponse::from)
+    return readStatusRepository.findAllByUserId(userId).stream()
+        .map(ReadStatusResponse::from)
         .toList();
   }
 
@@ -37,26 +37,22 @@ public class ReadStatusService {
 
     readStatusRepository.findByUserIdAndChannelId(req.userId(), req.channelId())
         .ifPresent(rs -> {
-          throw new IllegalStateException(
-              "ReadStatus with userId %s and channelId %s already exists.".formatted(req.userId(),
-                  req.channelId()));
+          throw new DuplicateResourceException(
+              "ReadStatus with userId %s and channelId %s already exists."
+                  .formatted(req.userId(), req.channelId()));
         });
 
-    return ReadStatusResponse.from(readStatusRepository.save(
-        new ReadStatus(req.userId(), req.channelId(), req.lastReadAt())));
+    return ReadStatusResponse.from(
+        readStatusRepository.save(new ReadStatus(req.userId(), req.channelId(), req.lastReadAt()))
+    );
   }
 
   @Transactional
-  public void update(UUID id, ReadStatusUpdateRequest req) {
-    ReadStatus rs = readStatusRepository.getOrThrow(id);
-    readStatusRepository.save(rs);
-  }
+  public ReadStatusResponse update(UUID readStatusId, ReadStatusUpdateRequest req) {
+    ReadStatus rs = readStatusRepository.getOrThrow(readStatusId);
 
-  public ReadStatusResponse findByUserAndChannel(UUID userId, UUID channelId) {
-    userRepository.getOrThrow(userId);
-    channelRepository.getOrThrow(channelId);
-    ReadStatus rs = readStatusRepository.findByUserIdAndChannelId(userId, channelId)
-        .orElseThrow(() -> new IllegalArgumentException("해당 정보가 없습니다"));
-    return ReadStatusResponse.from(rs);
+    return ReadStatusResponse.from(
+        readStatusRepository.save(rs.update(req.newLastReadAt()))
+    );
   }
 }

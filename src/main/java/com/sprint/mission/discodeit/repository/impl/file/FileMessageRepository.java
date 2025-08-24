@@ -9,7 +9,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -51,20 +53,20 @@ public class FileMessageRepository extends AbstractFileRepository<Message> imple
   @Override
   public void deleteAllByChannelId(UUID channelId) {
     Objects.requireNonNull(channelId, "channelId must not be null");
-    var ids = findAll().stream()
+    Set<UUID> ids = findAll().stream()
         .filter(m -> channelId.equals(m.getChannelId()))
         .map(Message::getId)
-        .collect(java.util.stream.Collectors.toSet());
+        .collect(Collectors.toSet());
     deleteAllByIdIn(ids);
   }
 
   @Override
   public void deleteAllByAuthorId(UUID authorId) {
     Objects.requireNonNull(authorId, "authorId must not be null");
-    var ids = findAll().stream()
+    Set<UUID> ids = findAll().stream()
         .filter(m -> authorId.equals(m.getAuthorId()))
         .map(Message::getId)
-        .collect(java.util.stream.Collectors.toSet());
+        .collect(Collectors.toSet());
     deleteAllByIdIn(ids);
   }
 

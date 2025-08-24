@@ -24,5 +24,7 @@ components:
       $ref: "./schemas/readStatus.yaml#/ReadStatusResponse"
     ReadStatusCreateRequest:
       $ref: "./schemas/readStatus.yaml#/ReadStatusCreateRequest"
+    ReadStatusUpdateRequest:
+      $ref: "./schemas/readStatus.yaml#/ReadStatusUpdateRequest"
     ApiError:
       $ref: "./schemas/error.yaml#/ApiError"

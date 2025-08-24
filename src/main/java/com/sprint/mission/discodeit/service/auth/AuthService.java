@@ -35,6 +35,7 @@ public class AuthService {
 
     UserStatus userStatus = userStatusRepository.findByUserId(u.getId())
         .orElseGet(() -> new UserStatus(u.getId()));
+
     userStatusRepository.save(userStatus.login());
 
     return UserSaveResponse.from(u);

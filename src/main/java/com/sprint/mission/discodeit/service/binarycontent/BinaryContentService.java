@@ -5,8 +5,9 @@ import com.sprint.mission.discodeit.dto.response.binarycontent.BinaryContentResp
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,23 +20,30 @@ public class BinaryContentService {
 
   public List<BinaryContentResponse> findAllByIn(List<UUID> binaryContentIds) {
 
-    List<BinaryContent> binaryContents = binaryContentRepository.findAllByIdIn(binaryContentIds);
-    if (binaryContents.size() != binaryContentIds.size()) {
-      Set<UUID> found = binaryContents.stream().map(BinaryContent::getId)
-          .collect(Collectors.toSet());
-      UUID missing = binaryContentIds.stream().filter(id -> !found.contains(id)).findFirst()
-          .orElse(null);
-      throw new NotFoundException(
-          "Binary content with id %s not found".formatted(missing));
+    Map<UUID, BinaryContent> found = binaryContentRepository.findAllByIdIn(binaryContentIds)
+        .stream()
+        .collect(Collectors.toMap(
+            BinaryContent::getId,
+            Function.identity(),
+            (a, b) -> a)
+        );
+
+    UUID missing = binaryContentIds.stream()
+        .filter(id -> !found.containsKey(id))
+        .findFirst()
+        .orElse(null);
+
+    if (missing != null) {
+      throw new NotFoundException("Binary content with id %s not found".formatted(missing));
     }
 
-    return binaryContents.stream()
+    return binaryContentIds.stream()
+        .map(found::get)
         .map(BinaryContentResponse::from)
         .toList();
   }
 
   public BinaryContentResponse find(UUID binaryContentId) {
     return BinaryContentResponse.from(binaryContentRepository.getOrThrow(binaryContentId));
-
   }
 }

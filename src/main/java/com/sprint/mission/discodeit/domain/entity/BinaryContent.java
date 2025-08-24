@@ -7,14 +7,14 @@ import lombok.Getter;
 @Getter
 public class BinaryContent extends AbstractEntity {
 
-  private String filename;
+  private String fileName;
   private long size;
   private String contentType;
 
   private byte[] bytes;
 
-  public BinaryContent(String filename, String contentType, byte[] bytes) {
-    this.filename = requireNonBlank(filename, "filename must not be blank");
+  public BinaryContent(String fileName, String contentType, byte[] bytes) {
+    this.fileName = requireNonBlank(fileName, "fileName must not be blank");
     this.contentType = requireNonBlank(contentType, "contentType must not be blank");
     this.size = bytes.length;
     this.bytes = bytes.clone();
@@ -22,8 +22,8 @@ public class BinaryContent extends AbstractEntity {
 
   public BinaryContent update(String newFilename, String newContentType, byte[] newBytes) {
     boolean changed = false;
-    if (filename != null && !filename.isBlank() && !filename.equals(newFilename)) {
-      this.filename = newFilename;
+    if (fileName != null && !fileName.isBlank() && !fileName.equals(newFilename)) {
+      this.fileName = newFilename;
     }
     if (contentType != null && !contentType.isBlank() && !contentType.equals(newContentType)) {
       this.contentType = newContentType;
@@ -46,7 +46,7 @@ public class BinaryContent extends AbstractEntity {
 
   @Override
   public String toString() {
-    return "BinaryContent[id=%s, filename=%s, contentType=%s, size=%d]"
-        .formatted(getId(), filename, contentType, size);
+    return "BinaryContent[id=%s, fileName=%s, contentType=%s, size=%d]"
+        .formatted(getId(), fileName, contentType, size);
   }
 }

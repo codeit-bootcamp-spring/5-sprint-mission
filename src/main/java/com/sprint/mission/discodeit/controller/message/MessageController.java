@@ -5,7 +5,6 @@ import static com.sprint.mission.discodeit.support.Constants.MAX_MESSAGE_ATTACHM
 import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
-import com.sprint.mission.discodeit.service.binarycontent.BinaryContentService;
 import com.sprint.mission.discodeit.service.message.MessageService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -37,7 +36,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class MessageController {
 
   private final MessageService messageService;
-  private final BinaryContentService binaryContentService;
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)

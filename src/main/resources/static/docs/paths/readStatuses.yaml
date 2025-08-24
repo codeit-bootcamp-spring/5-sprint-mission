@@ -60,7 +60,7 @@ readStatusesRoot:
                   message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"
   post:
     tags:
-      - ReadStatuses
+      - ReadStatus
     summary: Message 읽음 상태 생성
     operationId: create
     requestBody:
@@ -136,13 +136,13 @@ readStatusesRoot:
               method: "POST"
               status: 409
               code: "CONFLICT"
-              message: "ReadStatus with userId {userId} and channelId {channelId} already exists"
+              message: "ReadStatus with userId e6681542-a6b1-43f3-b759-6dc9cfebcf41 and channelId 4fcd07c1-a995-4111-809a-b726915a5aee already exists"
 readStatusById:
   patch:
     tags:
       - ReadStatus
     summary: Message 읽음 상태 수정
-    operationId: update_1
+    operationId: update
     parameters:
       - $ref: "../openapi-readStatuses.yaml#/components/parameters/ReadStatusIdInPath"
     requestBody:
@@ -152,14 +152,37 @@ readStatusById:
           schema:
             $ref: "../schemas/readStatus.yaml#/ReadStatusUpdateRequest"
     responses:
-      "200":
+      '200':
         description: Message 읽음 상태가 성공적으로 수정됨
         content:
-          "*/*":
+          application/json:
             schema:
               $ref: "../schemas/readStatus.yaml#/ReadStatusResponse"
-      "404":
-        description: Message 읽음 상태를 찾을 수 없음
+      '400':
         content:
-          "*/*":
-            example: "ReadStatus with id {readStatusId} not found"
+          application/json:
+            examples:
+              invalidParameterType:
+                description: parameter(userId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/readStatuses/not-uuid"
+                  method: "GET"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=userId, value=not-uuid, expectedType=UUID"
+      '404':
+        content:
+          application/json:
+            examples:
+              readStatusNotFound:
+                description: Message 읽음 상태를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/readStatuses/e6681542-a6b1-43f3-b759-6dc9cfebcf41"
+                  method: "GET"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "ReadStatus with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"

@@ -27,9 +27,9 @@ public interface AbstractRepository<T extends AbstractEntity> {
 
   List<T> findAllByIdIncludingDeleted(Set<UUID> ids);
 
-  Optional<T> findById(UUID id);
+  Optional<T> find(UUID id);
 
-  Optional<T> findByIdIncludingDeleted(UUID id);
+  Optional<T> findIncludingDeleted(UUID id);
 
   Map<UUID, Instant> findAllCreatedAtById(Set<UUID> ids);
 

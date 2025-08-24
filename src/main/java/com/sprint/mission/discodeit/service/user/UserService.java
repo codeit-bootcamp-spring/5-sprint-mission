@@ -109,9 +109,9 @@ public class UserService {
     if (profile != null && !profile.isEmpty()) {
       String ct = Filenames.normalizeContentType(profile.getContentType());
       String original = profile.getOriginalFilename();
-      String filename = Filenames.buildStoredName(original, ct);
+      String fileName = Filenames.buildStoredName(original, ct);
       profileId = binaryContentRepository.save(
-          new BinaryContent(filename, ct, profile.getBytes())
+          new BinaryContent(fileName, ct, profile.getBytes())
       ).getId();
     } else {
       profileId = null;
@@ -182,9 +182,9 @@ public class UserService {
     if (profile != null && !profile.isEmpty()) {
       String ct = Filenames.normalizeContentType(profile.getContentType());
       String original = profile.getOriginalFilename();
-      String filename = Filenames.buildStoredName(original, ct);
+      String fileName = Filenames.buildStoredName(original, ct);
       profileId = binaryContentRepository.save(
-          new BinaryContent(filename, ct, profile.getBytes())
+          new BinaryContent(fileName, ct, profile.getBytes())
       ).getId();
     } else {
       profileId = null;

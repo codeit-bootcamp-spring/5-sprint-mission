@@ -57,7 +57,7 @@ public class FriendRequestService {
 
   @Transactional
   public FriendRequestResponse send(FriendRequestSendRequest body) {
-    User sender = userRepository.findById(body.senderId())
+    User sender = userRepository.find(body.senderId())
         .orElseThrow(
             () -> new NotFoundException("User with id %s not found".formatted(body.senderId())));
     User receiver = userRepository.findByUsername(body.receiverUsername())
@@ -78,7 +78,7 @@ public class FriendRequestService {
 
   @Transactional
   public void accept(UUID requestId, UUID actingUserId) {
-    FriendRequest fr = friendRequestRepository.findById(requestId)
+    FriendRequest fr = friendRequestRepository.find(requestId)
         .orElseThrow(() -> new NotFoundException("이미 처리된 요청입니다"));
 
     UUID senderId = fr.getSenderId();
@@ -107,7 +107,7 @@ public class FriendRequestService {
 
   @Transactional
   public void reject(UUID requestId, UUID actingUserId) {
-    FriendRequest fr = friendRequestRepository.findById(requestId)
+    FriendRequest fr = friendRequestRepository.find(requestId)
         .orElseThrow(() -> new NotFoundException("이미 처리된 요청입니다."));
     if (!fr.getReceiverId().equals(actingUserId)) {
       throw new AccessDeniedException("친구 요청 거절 권한이 없습니다.");
@@ -117,7 +117,7 @@ public class FriendRequestService {
 
   @Transactional
   public void cancel(UUID requestId, UUID actingUserId) {
-    FriendRequest fr = friendRequestRepository.findById(requestId)
+    FriendRequest fr = friendRequestRepository.find(requestId)
         .orElseThrow(() -> new NotFoundException("이미 처리된 요청입니다."));
     if (!fr.getSenderId().equals(actingUserId)) {
       throw new AccessDeniedException("친구 요청 취소 권한이 없습니다.");

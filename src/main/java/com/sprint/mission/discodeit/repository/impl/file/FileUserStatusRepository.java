@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.repository.impl.file;
 import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
-import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -50,26 +49,9 @@ public class FileUserStatusRepository extends AbstractFileRepository<UserStatus>
           .filter(us -> userIds.contains(us.getUserId()))
           .collect(Collectors.toMap(
               UserStatus::getUserId,
-              UserStatus::getType
+              UserStatus::getType,
+              (left, right) -> right
           ));
-    } catch (IOException e) {
-      log.warn("Failed to list saved files: {}", directory, e);
-      throw new RuntimeException("Failed to list saved files: " + directory, e);
-    }
-  }
-
-  @Override
-  public UserStatus getOrThrowByUserId(UUID userId) {
-    return findByUserId(userId).orElseThrow(
-        () -> new NotFoundException("UserStatus with userId %s not found".formatted(userId)));
-  }
-
-  @Override
-  public boolean existsByUserId(UUID userId) {
-    Objects.requireNonNull(userId, "userId must not be null");
-    try (Stream<Path> s = streamSerializedFiles()) {
-      return s.map(this::readObject).flatMap(Optional::stream)
-          .anyMatch(us -> us.isNotDeleted() && userId.equals(us.getUserId()));
     } catch (IOException e) {
       log.warn("Failed to list saved files: {}", directory, e);
       throw new RuntimeException("Failed to list saved files: " + directory, e);

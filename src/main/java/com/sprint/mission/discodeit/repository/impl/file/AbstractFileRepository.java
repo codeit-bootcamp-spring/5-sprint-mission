@@ -207,12 +207,12 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   }
 
   @Override
-  public Optional<T> findById(UUID id) {
+  public Optional<T> find(UUID id) {
     return readObject(resolvePath(id)).filter(AbstractEntity::isNotDeleted);
   }
 
   @Override
-  public Optional<T> findByIdIncludingDeleted(UUID id) {
+  public Optional<T> findIncludingDeleted(UUID id) {
     return readObject(resolvePath(id));
   }
 
@@ -231,7 +231,7 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
 
   @Override
   public T getOrThrow(UUID id) {
-    return findById(id).orElseThrow(() ->
+    return find(id).orElseThrow(() ->
         new NotFoundException("%s with id %s not found".formatted(entityType.getSimpleName(), id)));
   }
 

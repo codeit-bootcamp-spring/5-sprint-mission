@@ -13,10 +13,6 @@ public interface UserStatusRepository extends AbstractRepository<UserStatus> {
 
   Map<UUID, UserStatusType> findAllTypesByUserIds(Set<UUID> userIds);
 
-  UserStatus getOrThrowByUserId(UUID userId);
-
-  boolean existsByUserId(UUID userId);
-
   boolean deleteByUserId(UUID userId);
 
   boolean hardDeleteByUserId(UUID userId);

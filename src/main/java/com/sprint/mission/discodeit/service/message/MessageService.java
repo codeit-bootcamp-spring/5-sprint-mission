@@ -61,10 +61,10 @@ public class MessageService {
         }
         String ct = Filenames.normalizeContentType(attachment.getContentType());
         String original = attachment.getOriginalFilename();
-        String filename = Filenames.buildStoredName(original, ct);
+        String fileName = Filenames.buildStoredName(original, ct);
 
         BinaryContent saved = binaryContentRepository.save(
-            new BinaryContent(filename, ct, attachment.getBytes())
+            new BinaryContent(fileName, ct, attachment.getBytes())
         );
 
         attachmentIds.add(saved.getId());
@@ -75,7 +75,7 @@ public class MessageService {
         new Message(
             req.channelId(),
             req.authorId(),
-            req.content(),
+            nullOrStrip(req.content()),
             attachmentIds
         )
     );

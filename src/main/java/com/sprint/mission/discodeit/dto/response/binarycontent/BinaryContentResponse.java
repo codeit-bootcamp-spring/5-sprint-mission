@@ -8,7 +8,7 @@ public record BinaryContentResponse(
 
     UUID id,
     Instant createdAt,
-    String filename,
+    String fileName,
     long size,
     String contentType,
     byte[] bytes
@@ -18,7 +18,7 @@ public record BinaryContentResponse(
     return new BinaryContentResponse(
         bc.getId(),
         bc.getCreatedAt(),
-        bc.getFilename(),
+        bc.getFileName(),
         bc.getSize(),
         bc.getContentType(),
         bc.getBytes()

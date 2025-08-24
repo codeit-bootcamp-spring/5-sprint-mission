@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/read-statuses")
+@RequestMapping(path = "/api/readStatuses", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ReadStatusController {
 
   private final ReadStatusService readStatusService;
@@ -30,28 +30,38 @@ public class ReadStatusController {
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public List<ReadStatusResponse> findAllByUserId(
-      @RequestParam("userId") UUID userId) {
+
+      @RequestParam("userId")
+      UUID userId
+  ) {
+
     return readStatusService.findAllByUserId(userId);
   }
 
-  @PostMapping
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   public ReadStatusResponse create(
-      @Valid @RequestBody ReadStatusCreateRequest body) {
+
+      @RequestBody
+      @Valid
+      ReadStatusCreateRequest body
+  ) {
+
     return readStatusService.create(body);
   }
 
-  @PutMapping(path = "/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void update(@PathVariable("id") UUID id,
-      @Valid @RequestBody ReadStatusUpdateRequest body) {
-    readStatusService.update(id, body);
-  }
+  @PatchMapping(path = "/{readStatusId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  public ReadStatusResponse update(
 
-  @GetMapping(path = "/by")
-  public ResponseEntity<ReadStatusResponse> findByUserAndChannel(
-      @RequestParam("userId") UUID userId,
-      @RequestParam("channelId") UUID channelId) {
-    return ResponseEntity.ok(readStatusService.findByUserAndChannel(userId, channelId));
+      @PathVariable("readStatusId")
+      UUID id,
+
+      @RequestBody
+      @Valid
+      ReadStatusUpdateRequest body
+  ) {
+
+    return readStatusService.update(id, body);
   }
 }
