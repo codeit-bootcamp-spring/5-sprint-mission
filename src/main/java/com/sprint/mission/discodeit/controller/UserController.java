@@ -23,18 +23,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@Controller
-@ResponseBody
-@RequestMapping("/api/user")
+@RestController
+@RequestMapping("/api/users")
 public class UserController {
 
   private final UserService userService;
   private final UserStatusService userStatusService;
 
-  @RequestMapping(
-      path = "create",
-      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-  )
+  @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<User> create(
       @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
@@ -47,12 +43,9 @@ public class UserController {
         .body(createdUser);
   }
 
-  @RequestMapping(
-      path = "update",
-      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-  )
+  @PatchMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<User> update(
-      @RequestParam("userId") UUID userId,
+      @PathVariable("id") UUID userId,
       @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
@@ -64,15 +57,15 @@ public class UserController {
         .body(updatedUser);
   }
 
-  @RequestMapping(path = "delete")
-  public ResponseEntity<Void> delete(@RequestParam("userId") UUID userId) {
+  @DeleteMapping(path = "/{userId}")
+  public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
     userService.delete(userId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)
         .build();
   }
 
-  @RequestMapping(path = "findAll")
+  @GetMapping
   public ResponseEntity<List<UserDto>> findAll() {
     List<UserDto> users = userService.findAll();
     return ResponseEntity
@@ -80,8 +73,8 @@ public class UserController {
         .body(users);
   }
 
-  @RequestMapping(path = "updateUserStatusByUserId")
-  public ResponseEntity<UserStatus> updateUserStatusByUserId(@RequestParam("userId") UUID userId,
+  @PatchMapping(path = "/{userId}/userStatus")
+  public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
       @RequestBody UserStatusUpdateRequest request) {
     UserStatus updatedUserStatus = userStatusService.updateByUserId(userId, request);
     return ResponseEntity
