@@ -42,15 +42,15 @@ public class ChannelService {
 
     Set<UUID> channelIds = u.getChannelIds();
 
-    if (channelIds.isEmpty()) {
-      return List.of();
-    }
-
     List<Channel> myChannels = channelRepository.findAllByIdIn(u.getChannelIds());
     List<Channel> publicChannels = channelRepository.findAllPublic();
 
     List<Channel> channels = Stream.concat(myChannels.stream(), publicChannels.stream())
         .toList();
+
+    if (channels.isEmpty()) {
+      return List.of();
+    }
 
     Set<UUID> lastMessageIds = channels.stream()
         .map(Channel::getLastMessageId)

@@ -3,7 +3,7 @@ BinaryContentResponse:
   required:
     - id
     - createdAt
-    - fileName
+    - filename
     - size
     - contentType
     - bytes
@@ -14,7 +14,7 @@ BinaryContentResponse:
     createdAt:
       type: string
       format: date-time
-    fileName:
+    filename:
       type: string
     size:
       type: integer

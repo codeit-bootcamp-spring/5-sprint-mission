@@ -18,19 +18,19 @@ binaryContentsRoot:
               example:
                 - id: "5e28e1da-e889-4dd8-ac78-3dd6c59c09ea"
                   createdAt: "2025-08-24T10:11:11.296094Z"
-                  fileName: "index_03af0738.html"
+                  filename: "index_03af0738.html"
                   size: 673
                   contentType: "text/html"
                   bytes: "PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KICA8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiIC8+CiAgICA8dGl0bGU..."
                 - id: "39dcc1ba-c3bd-466c-bb65-4b925e3b9dcd"
                   createdAt: "2025-08-24T10:11:06.328282Z"
-                  fileName: "favicon_e66d1868.ico"
+                  filename: "favicon_e66d1868.ico"
                   size: 1588
                   contentType: "image/vnd.microsoft.icon"
                   bytes: "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAABGdBTUEAALGPC/xhBQAAACBjSFJN..."
                 - id: "c299849b-b674-4a25-8143-6fb4b4d264a3"
                   createdAt: "2025-08-24T10:10:54.320992Z"
-                  fileName: "default-avatar_08440a0a.png"
+                  filename: "default-avatar_08440a0a.png"
                   size: 12529
                   contentType: "image/png"
                   bytes: "iVBORw0KGgoAAAANSUhEUgAAAWsAAAFrCAIAAACYJD8vAAAgAElEQVR42u2d+XfTVtrHtW+Wl3iJTVaSkgZaQqF908Jh6/v2..."
@@ -91,7 +91,7 @@ binaryContentById:
             example:
               id: "c299849b-b674-4a25-8143-6fb4b4d264a3"
               createdAt: "2025-08-24T10:10:54.320992Z"
-              fileName: "default-avatar_08440a0a.png"
+              filename: "default-avatar_08440a0a.png"
               size: 12529
               contentType: "image/png"
               bytes: "iVBORw0KGgoAAAANSUhEUgAAAWsAAAFrCAIAAACYJD8vAAAgAElEQVR42u2d+XfTVtrHtW+Wl3iJTVaSkgZaQqF908Jh6/v2..."
