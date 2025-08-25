@@ -4,58 +4,66 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.service.ReadStatusService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "ReadStatus", description = "메세지 읽음표시 API")
 @RestController
-@RequestMapping("/read-status")
+@RequestMapping("/api/readStatuses")
 @RequiredArgsConstructor
 public class ReadStatusController {
 
-    private final ReadStatusService readStatusService;
+  private final ReadStatusService readStatusService;
 
-    // ✅ 특정 채널 메세지 수신 정보 생성
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
-        ReadStatus created = readStatusService.create(request);
-        return ResponseEntity.status(201).body(created);
-    }
+  /* 메세지별 읽음표시
+   * 내가 채팅방 안 메세지를 어디까지 읽었는지, 13시 10분 읽음 등
+   * */
 
-    // ✅ 특정 채널 수신정보 수정
-    @RequestMapping(value = "/update", method = RequestMethod.PUT)
-    public ResponseEntity<ReadStatus> update(@RequestBody ReadStatusUpdateRequest request) {
-        ReadStatus updated = readStatusService.update(request);
-        return ResponseEntity.ok(updated);
-    }
+  //A채널 읽었을때 읽었음!이라는 새로운 읽음상태 생성
+  @Operation(summary = "읽음상태 생성")
+  @PostMapping
+  public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
+    ReadStatus created = readStatusService.create(request);
+    return ResponseEntity.status(201).body(created);
+  }
 
-    // ✅ 특정 사용자 수신 정보 조회
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<ReadStatus> findById(@PathVariable UUID id) {
-        ReadStatus found = readStatusService.findById(id);
-        return ResponseEntity.ok(found);
-    }
+  //읽음상태 업데이트
+  @Operation(summary = "읽음상태 업데이트")
+  @PatchMapping("/{readStatusId}")
+  public ResponseEntity<ReadStatus> update(
+      @PathVariable UUID readStatusId,
+      @RequestBody ReadStatusUpdateRequest request
+  ) {
+    ReadStatus updated = readStatusService.update(readStatusId, request);
+    return ResponseEntity.ok(updated);
+  }
 
-    // ✅ 유저별 전체 읽음 상태 조회
-    @RequestMapping(value = "/findAllByUserId", method = RequestMethod.GET)
-    public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam("userId") UUID userId) {
-        return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
-    }
+  //내가 속한 모든 채팅방에서, 내가 어디까지 읽었는지
+  //안읽은 메세지 3개, 마지막으로 읽은 위치 등과 같은
+  @Operation(summary = "내 모든 채팅방 읽음상태 조회", description = "userId로 내가 어디까지 읽었는지 전체 조회")
+  @GetMapping
+  public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam("userId") UUID userId) {
+    return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
+  }
 
-    // ✅ 채널 기반 삭제
-    @RequestMapping(value = "/channel/{channelId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteByChannelId(@PathVariable UUID channelId) {
-        readStatusService.deleteByChannelId(channelId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ✅ 단건 삭제
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        readStatusService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
+  //채널 삭제시, 그 채널의 모든 읽음기록 지우기
+  @Operation(summary = "채널의 모든 읽음상태 삭제")
+  @RequestMapping(value = "/channel/{channelId}", method = RequestMethod.DELETE)
+  public ResponseEntity<Void> deleteByChannelId(@PathVariable UUID channelId) {
+    readStatusService.deleteByChannelId(channelId);
+    return ResponseEntity.noContent().build();
+  }
 }
