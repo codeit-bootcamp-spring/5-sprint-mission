@@ -2,9 +2,9 @@ package com.sprint.mission.discodeit.service;
 
 import java.util.List; // List 임포트
 import java.util.UUID; // UUID 임포트
-import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest; // DTO 임포트
-import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest; // DTO 임포트
+import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 
