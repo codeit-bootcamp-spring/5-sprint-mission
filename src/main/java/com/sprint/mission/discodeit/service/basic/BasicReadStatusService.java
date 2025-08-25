@@ -1,113 +1,104 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateCommand;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class BasicReadStatusService implements ReadStatusService {
 
-    private final UserRepository userRepository;
-    private final ChannelRepository channelRepository;
-    private final ReadStatusRepository readStatusRepository;
+  private final UserRepository userRepository;
+  private final ChannelRepository channelRepository;
+  private final ReadStatusRepository readStatusRepository;
 
-    @Override
-    public ReadStatusDto.DetailResponse create(ReadStatusDto.CreateRequest request) {
-        User user = userRepository.findById(request.getUserId()).orElse(null);
-        if (user == null) {
-            throw new IllegalArgumentException("Not Found User");
-        }
+  @Override
+  public ReadStatusDto.Detail create(CreateCommand request) {
 
-        Channel channel = channelRepository.findById(request.getChannelId()).orElse(null);
-        if (channel == null) {
-            throw new IllegalArgumentException("Not Found Channel");
-        }
+    userRepository.findById(request.getUserId())
+                  .orElseThrow(() -> new RuntimeException("Not Found User"));
+    channelRepository.findById(request.getChannelId())
+                     .orElseThrow(() -> new RuntimeException("Not Found Channel"));
 
-        if (readStatusRepository.findAllByUserId(request.getUserId()).stream()
-            .anyMatch(rs -> rs.getChannelId().equals(request.getChannelId()))) {
-            throw new IllegalArgumentException("Already Registered Read Status");
-        }
-
-        ReadStatus readStatus = new ReadStatus(request.getUserId(), request.getChannelId());
-        readStatusRepository.save(readStatus);
-
-        return ReadStatusDto.DetailResponse.builder()
-            .id(readStatus.getId())
-            .channelId(readStatus.getChannelId())
-            .userId(readStatus.getUserId())
-            .lastReadAt(readStatus.getLastReadAt())
-            .build();
+    if (readStatusRepository.findAllByUserId(request.getUserId())
+                            .stream()
+                            .anyMatch(rs -> rs.getChannelId()
+                                              .equals(request.getChannelId()))) {
+      throw new IllegalArgumentException("Already Registered Read Status");
     }
 
-    @Override
-    public ReadStatusDto.DetailResponse find(UUID id) {
-        ReadStatus readStatus = readStatusRepository.findById(id).orElse(null);
+    ReadStatus readStatus = new ReadStatus(request.getUserId(), request.getChannelId());
+    readStatusRepository.save(readStatus);
 
-        if (readStatus == null) {
-            return null;
-        }
+    return ReadStatusDto.Detail.builder()
+                               .id(readStatus.getId())
+                               .channelId(readStatus.getChannelId())
+                               .userId(readStatus.getUserId())
+                               .lastReadAt(readStatus.getLastReadAt())
+                               .build();
+  }
 
-        return ReadStatusDto.DetailResponse.builder()
-            .id(readStatus.getId())
-            .channelId(readStatus.getChannelId())
-            .userId(readStatus.getUserId())
-            .lastReadAt(readStatus.getLastReadAt())
-            .build();
-    }
+  @Override
+  public ReadStatusDto.Detail find(UUID id) {
+    ReadStatus readStatus = readStatusRepository.findById(id)
+                                                .orElseThrow(() -> new RuntimeException(
+                                                    "Not Found Read Status"));
 
-    @Override
-    public List<ReadStatusDto.DetailResponse> findAllByUserId(UUID userId) {
-        List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(userId);
+    return ReadStatusDto.Detail.builder()
+                               .id(readStatus.getId())
+                               .channelId(readStatus.getChannelId())
+                               .userId(readStatus.getUserId())
+                               .lastReadAt(readStatus.getLastReadAt())
+                               .build();
+  }
 
-        return readStatuses.stream()
-            .map(rs ->
-                ReadStatusDto.DetailResponse.builder()
-                    .id(rs.getId())
-                    .channelId(rs.getChannelId())
-                    .userId(rs.getUserId())
-                    .lastReadAt(rs.getLastReadAt())
-                    .build())
-            .toList();
-    }
+  @Override
+  public List<ReadStatusDto.Detail> findAllByUserId(UUID userId) {
+    List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(userId);
 
-    @Override
-    public void delete(UUID id) {
-        readStatusRepository.delete(id);
-    }
+    return readStatuses.stream()
+                       .map(rs -> ReadStatusDto.Detail.builder()
+                                                      .id(rs.getId())
+                                                      .channelId(rs.getChannelId())
+                                                      .userId(rs.getUserId())
+                                                      .lastReadAt(rs.getLastReadAt())
+                                                      .build())
+                       .toList();
+  }
 
-    @Override
-    public void deleteAll() {
-        readStatusRepository.deleteAll();
-    }
+  @Override
+  public void delete(UUID id) {
+    readStatusRepository.delete(id);
+  }
 
-    @Override
-    public ReadStatusDto.DetailResponse update(UUID id) {
+  @Override
+  public void deleteAll() {
+    readStatusRepository.deleteAll();
+  }
 
-        ReadStatus readStatus = readStatusRepository.findById(id).orElse(null);
+  @Override
+  public ReadStatusDto.Detail update(UUID id) {
 
-        if (readStatus == null) {
-            return null;
-        }
+    ReadStatus readStatus = readStatusRepository.findById(id)
+                                                .orElseThrow(() -> new RuntimeException(
+                                                    "Not Found Read Status"));
 
-        readStatus.update();
-        readStatusRepository.save(readStatus);
+    readStatus.update();
+    readStatusRepository.save(readStatus);
 
-        return ReadStatusDto.DetailResponse.builder()
-            .id(readStatus.getId())
-            .channelId(readStatus.getChannelId())
-            .userId(readStatus.getUserId())
-            .lastReadAt(readStatus.getLastReadAt())
-            .build();
-    }
+    return ReadStatusDto.Detail.builder()
+                               .id(readStatus.getId())
+                               .channelId(readStatus.getChannelId())
+                               .userId(readStatus.getUserId())
+                               .lastReadAt(readStatus.getLastReadAt())
+                               .build();
+  }
 }

@@ -1,24 +1,24 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.UserDto;
-import com.sprint.mission.discodeit.entity.User;
-
+import com.sprint.mission.discodeit.dto.UserDto.CreateCommand;
+import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
 
-    UserDto.DetailResponse create(UserDto.CreateRequest request);
+  UserDto.Detail create(CreateCommand create);
 
-    UserDto.DetailResponse update(UserDto.UpdateRequest request);
+  UserDto.Detail update(UpdateCommand update);
 
-    UserDto.DetailResponse findById(UUID id);
+  UserDto.Detail findById(UUID id);
 
-    List<UserDto.DetailResponse> findAll();
+  List<UserDto.Detail> findAll();
 
-    void delete(UUID id);
+  void delete(UUID id);
 
-    void deleteAll();
+  void deleteAll();
 
 
 }

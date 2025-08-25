@@ -1,50 +1,107 @@
 package com.sprint.mission.discodeit.dto;
 
-import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.Builder;
+import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 
 public class UserDto {
 
-    @Getter
-    @Builder
-    public static class CreateRequest {
-        private String name;
-        private String email;
-        private String password;
-        private MultipartFile profileImage;
-    }
+  @Getter
+  @Schema(name = "UserCreateRequest")
+  public static class CreateRequest {
 
-    @Getter
-    @Builder
-    public static class UpdateRequest {
-        private UUID id;
-        private String name;
-        private String email;
-        private String password;
-        private MultipartFile profileImage;
-    }
+    private String username;
+    private String email;
+    private String password;
 
-    @Getter
-    @Builder
-    public static class SummaryResponse {
-        private UUID id;
-        private String name;
-        private String email;
+    public CreateCommand toCommand(MultipartFile profileImage) {
+      return CreateCommand.builder()
+                          .username(this.username)
+                          .email(this.email)
+                          .password(this.password)
+                          .profileImage(profileImage)
+                          .build();
     }
+  }
 
-    @Getter
-    @Builder
-    @ToString
-    public static class DetailResponse {
-        private UUID id;
-        private String name;
-        private String email;
-        private UUID profileId;
-        private Boolean isOnline;
-        private Instant createdAt;
-        private Instant updatedAt;
+  @Getter
+  @Builder
+  public static class CreateCommand {
+
+    private String username;
+    private String email;
+    private String password;
+    private MultipartFile profileImage;
+  }
+
+  @Getter
+  @Schema(name = "UserUpdateRequest")
+  public static class UpdateRequest {
+
+    private String newUsername;
+    private String newEmail;
+    private String newPassword;
+
+    public UpdateCommand toCommand(UUID id, MultipartFile profileImage) {
+      return UpdateCommand.builder()
+                          .id(id)
+                          .username(this.newUsername)
+                          .email(this.newEmail)
+                          .password(this.newPassword)
+                          .profileImage(profileImage)
+                          .build();
     }
+  }
+
+  @Getter
+  @Builder
+  public static class UpdateCommand {
+
+    private UUID id;
+    private String username;
+    private String email;
+    private String password;
+    private MultipartFile profileImage;
+  }
+
+  @Getter
+  @Builder
+  @Schema(name = "UserDetailResponse")
+  public static class DetailResponse {
+
+    private UUID id;
+    private String username;
+    private String email;
+    private UUID profileId;
+    private Boolean online;
+    private Instant createdAt;
+    private Instant updatedAt;
+  }
+
+  @Builder
+  public static class Detail {
+
+    private UUID id;
+    private String username;
+    private String email;
+    private UUID profileId;
+    private Boolean online;
+    private Instant createdAt;
+    private Instant updatedAt;
+
+    public DetailResponse toResponse() {
+      return DetailResponse.builder()
+                           .id(id)
+                           .username(username)
+                           .email(email)
+                           .profileId(profileId)
+                           .online(online)
+                           .createdAt(createdAt)
+                           .updatedAt(updatedAt)
+                           .build();
+    }
+  }
 }

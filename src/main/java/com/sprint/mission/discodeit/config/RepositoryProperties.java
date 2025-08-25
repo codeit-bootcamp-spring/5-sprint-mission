@@ -4,22 +4,23 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "discodeit.repository")
 public class RepositoryProperties {
-    private String type = "jcf";
-    private String filePath = "./data.dir";
 
-    public String getType() {
-        return type;
-    }
+  private String type;
+  private String filePath;
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public String getFilePath() {
-        return filePath;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
+  public String getFilePath() {
+    return filePath;
+  }
+
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
+  }
 }
