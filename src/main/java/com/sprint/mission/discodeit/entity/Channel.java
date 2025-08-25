@@ -1,66 +1,40 @@
 package com.sprint.mission.discodeit.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.*;
+import java.util.UUID;
 
+@Getter
+@Schema(name = "Channel")
 public class Channel implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final UUID id;
-    private final Long createdAt;
-    private Long updatedAt;
-
+    @Schema(description = "Channel ID", format = "uuid")
+    private UUID id;
+    @Schema(description = "생성 시각", format = "date-time")
+    private Instant createdAt;
+    @Schema(description = "수정 시각", format = "date-time")
+    private Instant updatedAt;
+    //
+    @Schema(description = "채널 타입(PUBLIC/PRIVATE)", allowableValues = {"PUBLIC", "PRIVATE"})
     private ChannelType type;
+    @Schema(description = "채널명")
     private String name;
-    private final UUID authorId;
+    @Schema(description = "채널 설명")
     private String description;
 
-    public Channel(UUID authorId, String name) {
+    public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().getEpochSecond();
-        this.name = name;
-        this.authorId = authorId;
-    }
-
-    public Channel(ChannelType type, String name, UUID authorId, String description) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().getEpochSecond();
-
+        this.createdAt = Instant.now();
+        //
         this.type = type;
         this.name = name;
-        this.authorId = authorId;
         this.description = description;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public ChannelType getType() {
-        return type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public UUID getAuthorId() {
-        return authorId;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public void update(String newName, String newDescription) {
@@ -75,7 +49,7 @@ public class Channel implements Serializable {
         }
 
         if (anyValueUpdated) {
-            this.updatedAt = Instant.now().getEpochSecond();
+            this.updatedAt = Instant.now();
         }
     }
 }

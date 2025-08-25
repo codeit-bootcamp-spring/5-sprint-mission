@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: discodeit
+
+discodeit:
+  repository:
+    type: file   # jcf | file
+    file-directory: .discodeit
+
+# src/main/resources/application.yml
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    enabled: true
+    version: OPENAPI_3_1
+    path: /api-docs          # => /api-docs/{group}
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+
+#springdoc:
+#  api-docs:
+#    enabled: true          # API 스펙 JSON 활성화
+#    path: /api-docs        # 스펙 JSON 기본 경로
+#  swagger-ui:
+#    enabled: true          # Swagger UI 사용 여부
+#    path: /swagger-ui.html # Swagger UI 접속 경로
+#    display-request-duration: true   # 요청 소요 시간 표시
+#    persist-authorization: true      # 새로고침해도 토큰 유지
