@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.repository.impl.file;
 
-import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -14,17 +13,15 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
-@Profile("dev")
 public class FileUserStatusRepository extends AbstractFileRepository<UserStatus> implements
     UserStatusRepository {
 
-  public FileUserStatusRepository(AppProperties appProperties) {
-    super(UserStatus.class, appProperties.storage());
+  public FileUserStatusRepository() {
+    super(UserStatus.class);
   }
 
   @Override

@@ -1,11 +1,24 @@
 spring:
-  profiles:
-    active: dev
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate.format_sql: true
+      hibernate.jdbc.lob.non_contextual_creation: true
+      hibernate.jdbc.time_zone: UTC
 
 server:
   shutdown: graceful
-  compression:
-    enabled: true
+  forward-headers-strategy: native
 
 springdoc:
   swagger-ui:

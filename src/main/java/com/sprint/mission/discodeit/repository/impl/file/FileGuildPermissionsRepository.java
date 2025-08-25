@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.repository.impl.file;
 
-import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.GuildPermissions;
 import com.sprint.mission.discodeit.domain.enums.Permission;
 import com.sprint.mission.discodeit.repository.GuildPermissionsRepository;
@@ -12,16 +11,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("dev")
 public class FileGuildPermissionsRepository extends
     AbstractFileRepository<GuildPermissions> implements GuildPermissionsRepository {
 
-  public FileGuildPermissionsRepository(AppProperties appProperties) {
-    super(GuildPermissions.class, appProperties.storage());
+  public FileGuildPermissionsRepository() {
+    super(GuildPermissions.class);
   }
 
   @Override

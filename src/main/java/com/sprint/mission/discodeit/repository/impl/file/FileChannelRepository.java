@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.repository.impl.file;
 
-import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -12,17 +11,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
-@Profile("dev")
 public class FileChannelRepository extends AbstractFileRepository<Channel> implements
     ChannelRepository {
 
-  public FileChannelRepository(AppProperties appProperties) {
-    super(Channel.class, appProperties.storage());
+  public FileChannelRepository() {
+    super(Channel.class);
   }
 
   @Override

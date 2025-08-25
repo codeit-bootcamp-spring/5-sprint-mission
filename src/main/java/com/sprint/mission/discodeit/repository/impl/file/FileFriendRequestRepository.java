@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.repository.impl.file;
 
-import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.FriendRequest;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
 import java.io.IOException;
@@ -12,17 +11,15 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
-@Profile("dev")
 public class FileFriendRequestRepository extends AbstractFileRepository<FriendRequest> implements
     FriendRequestRepository {
 
-  public FileFriendRequestRepository(AppProperties appProperties) {
-    super(FriendRequest.class, appProperties.storage());
+  public FileFriendRequestRepository() {
+    super(FriendRequest.class);
   }
 
   @Override

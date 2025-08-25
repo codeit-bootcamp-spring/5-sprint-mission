@@ -6,7 +6,6 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 
-import com.sprint.mission.discodeit.config.AppStorageProperties;
 import com.sprint.mission.discodeit.domain.entity.AbstractEntity;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.AbstractRepository;
@@ -47,9 +46,9 @@ public abstract class AbstractFileRepository<T extends AbstractEntity> implement
   @Getter(AccessLevel.PROTECTED)
   protected final Path directory;
 
-  protected AbstractFileRepository(Class<T> entityType, AppStorageProperties storageProperties) {
+  protected AbstractFileRepository(Class<T> entityType) {
     this.entityType = entityType;
-    this.directory = Paths.get(System.getProperty("user.dir"), storageProperties.rootDir(),
+    this.directory = Paths.get(System.getProperty("user.dir"),
         entityType.getSimpleName());
     try {
       Files.createDirectories(directory);

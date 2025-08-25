@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.repository.impl.file;
 
-import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.io.IOException;
@@ -8,16 +7,14 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
-@Profile("dev")
 public class FileUserRepository extends AbstractFileRepository<User> implements UserRepository {
 
-  public FileUserRepository(AppProperties appProperties) {
-    super(User.class, appProperties.storage());
+  public FileUserRepository() {
+    super(User.class);
   }
 
   @Override

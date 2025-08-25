@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.repository.impl.file;
 
-import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import java.util.List;
@@ -9,16 +8,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("dev")
 public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus> implements
     ReadStatusRepository {
 
-  public FileReadStatusRepository(AppProperties appProperties) {
-    super(ReadStatus.class, appProperties.storage());
+  public FileReadStatusRepository() {
+    super(ReadStatus.class);
   }
 
   @Override

@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.repository.impl.file;
 
-import com.sprint.mission.discodeit.config.AppProperties;
 import com.sprint.mission.discodeit.domain.entity.Guild;
 import com.sprint.mission.discodeit.repository.GuildRepository;
 import java.io.IOException;
@@ -12,16 +11,14 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
-@Profile("dev")
 public class FileGuildRepository extends AbstractFileRepository<Guild> implements GuildRepository {
 
-  public FileGuildRepository(AppProperties appProperties) {
-    super(Guild.class, appProperties.storage());
+  public FileGuildRepository() {
+    super(Guild.class);
   }
 
   @Override
