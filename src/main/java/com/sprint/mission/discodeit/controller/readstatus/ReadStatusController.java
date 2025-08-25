@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.controller.readstatus;
 
-import com.sprint.mission.discodeit.dto.request.readstatus.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.request.readstatus.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.readstatus.ReadStatusResponse;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.service.readstatus.ReadStatusService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -29,7 +29,7 @@ public class ReadStatusController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<ReadStatusResponse> findAllByUserId(
+  public List<ReadStatusDto> findAllByUserId(
 
       @RequestParam("userId")
       UUID userId
@@ -40,7 +40,7 @@ public class ReadStatusController {
 
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  public ReadStatusResponse create(
+  public ReadStatusDto create(
 
       @RequestBody
       @Valid
@@ -52,7 +52,7 @@ public class ReadStatusController {
 
   @PatchMapping(path = "/{readStatusId}", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public ReadStatusResponse update(
+  public ReadStatusDto update(
 
       @PathVariable("readStatusId")
       UUID id,

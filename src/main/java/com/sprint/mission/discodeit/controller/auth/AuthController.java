@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.controller.auth;
 
-import com.sprint.mission.discodeit.dto.request.auth.AuthLoginRequest;
-import com.sprint.mission.discodeit.dto.request.auth.AuthLogoutRequest;
-import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
+import com.sprint.mission.discodeit.dto.auth.AuthLoginRequest;
+import com.sprint.mission.discodeit.dto.auth.AuthLogoutRequest;
+import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class AuthController {
 
   @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public UserSaveResponse login(
+  public UserDto login(
 
       @RequestBody
       @Valid

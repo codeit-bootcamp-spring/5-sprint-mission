@@ -31,10 +31,8 @@ components:
         type: string
         format: uuid
   schemas:
-    ChannelResponse:
-      $ref: "./schemas/channel.yaml#/ChannelResponse"
-    ChannelSaveResponse:
-      $ref: "./schemas/channel.yaml#/ChannelSaveResponse"
+    ChannelDto:
+      $ref: "./schemas/channel.yaml#/ChannelDto"
     PublicChannelCreateRequest:
       $ref: "./schemas/channel.yaml#/PublicChannelCreateRequest"
     PrivateChannelCreateRequest:

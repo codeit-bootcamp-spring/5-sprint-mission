@@ -54,16 +54,14 @@ components:
         - 요청 시 대소문자 허용
         - 서버는 strip 후 소문자로 정규화하여 처리
   schemas:
-    UserResponse:
-      $ref: "./schemas/user.yaml#/UserResponse"
+    UserDto:
+      $ref: "./schemas/user.yaml#/UserDto"
     UserCreateRequest:
       $ref: "./schemas/user.yaml#/UserCreateRequest"
-    UserSaveResponse:
-      $ref: "./schemas/user.yaml#/UserSaveResponse"
     UserUpdateRequest:
       $ref: "./schemas/user.yaml#/UserUpdateRequest"
     UserStatusResponse:
-      $ref: "./schemas/user.yaml#/UserStatusResponse"
+      $ref: "./schemas/user.yaml#/UserStatusDto"
     UserStatusUpdateRequest:
       $ref: "./schemas/user.yaml#/UserStatusUpdateRequest"
     UserStatusType:

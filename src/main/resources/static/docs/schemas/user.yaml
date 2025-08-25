@@ -1,32 +1,22 @@
-UserResponse:
+UserDto:
   type: object
   required:
     - id
-    - createdAt
-    - updatedAt
     - username
     - email
-    - profileId
+    - profile
     - online
   properties:
     id:
       type: string
       format: uuid
-    createdAt:
-      type: string
-      format: date-time
-    updatedAt:
-      type: string
-      format: date-time
     username:
       type: string
     email:
       type: string
       format: email
-    profileId:
-      type: string
-      format: uuid
-      nullable: true
+    profile:
+      $ref: '../schemas/binaryContent.yaml#/BinaryContentDto'
     online:
       type: boolean
 
@@ -55,38 +45,6 @@ UserCreateRequest:
       maxLength: 72
       description: 입력 값은 서버에서 해시로 인코딩됨
 
-UserSaveResponse:
-  type: object
-  required:
-    - id
-    - createdAt
-    - updatedAt
-    - username
-    - email
-    - password
-    - profileId
-  properties:
-    id:
-      type: string
-      format: uuid
-    createdAt:
-      type: string
-      format: date-time
-    updatedAt:
-      type: string
-      format: date-time
-    username:
-      type: string
-    email:
-      type: string
-      format: email
-    password:
-      type: string
-    profileId:
-      type: string
-      format: uuid
-      nullable: true
-
 UserUpdateRequest:
   type: object
   description: 수정할 User 정보
@@ -111,34 +69,23 @@ UserUpdateRequest:
       maxLength: 72
       description: 입력 값은 서버에서 해시로 인코딩됨
 
-UserStatusResponse:
+UserStatusDto:
   type: object
   required:
     - id
-    - createdAt
-    - updatedAt
     - userId
     - lastActiveAt
-    - online
     - userStatusType
   properties:
     id:
       type: string
       format: uuid
-    createdAt:
-      type: string
-      format: date-time
-    updatedAt:
-      type: string
-      format: date-time
     userId:
       type: string
       format: uuid
     lastActiveAt:
       type: string
       format: date-time
-    online:
-      type: boolean
     userStatusType:
       $ref: "#/UserStatusType"
 

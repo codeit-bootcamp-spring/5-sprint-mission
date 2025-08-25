@@ -12,8 +12,8 @@ paths:
     $ref: "./paths/auth.yaml#/logout"
 components:
   schemas:
-    UserSaveResponse:
-      $ref: "./schemas/user.yaml#/UserSaveResponse"
+    UserDto:
+      $ref: "./schemas/user.yaml#/UserDto"
     LoginRequest:
       $ref: "./schemas/auth.yaml#/LoginRequest"
     LogoutRequest:

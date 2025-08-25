@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.controller.friendrequest;
 
 import com.sprint.mission.discodeit.domain.enums.FriendRequestAction;
-import com.sprint.mission.discodeit.dto.request.friendrequest.FriendRequestHandleRequest;
-import com.sprint.mission.discodeit.dto.request.friendrequest.FriendRequestSendRequest;
-import com.sprint.mission.discodeit.dto.response.friendrequest.FriendRequestResponse;
+import com.sprint.mission.discodeit.dto.friendrequest.FriendRequestDto;
+import com.sprint.mission.discodeit.dto.friendrequest.FriendRequestHandleRequest;
+import com.sprint.mission.discodeit.dto.friendrequest.FriendRequestSendRequest;
 import com.sprint.mission.discodeit.service.friendrequest.FriendRequestService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -29,13 +29,13 @@ public class FriendRequestController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<FriendRequestResponse> findAll() {
+  public List<FriendRequestDto> findAll() {
     return friendRequestService.findAll();
   }
 
   @GetMapping("/{friendRequestId}")
   @ResponseStatus(HttpStatus.OK)
-  public FriendRequestResponse find(
+  public FriendRequestDto find(
 
       @PathVariable("friendRequestId")
       UUID friendRequestId) {
@@ -45,7 +45,7 @@ public class FriendRequestController {
 
   @GetMapping(path = "/sent")
   @ResponseStatus(HttpStatus.OK)
-  public List<FriendRequestResponse> findAllBySenderId(
+  public List<FriendRequestDto> findAllBySenderId(
 
       @RequestParam("userId")
       UUID userId
@@ -56,13 +56,13 @@ public class FriendRequestController {
 
   @GetMapping(path = "/received")
   @ResponseStatus(HttpStatus.OK)
-  public List<FriendRequestResponse> findAllByReceiverId(@RequestParam("userId") UUID userId) {
+  public List<FriendRequestDto> findAllByReceiverId(@RequestParam("userId") UUID userId) {
     return friendRequestService.findAllByReceiverId(userId);
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public FriendRequestResponse send(@Valid @RequestBody FriendRequestSendRequest body) {
+  public FriendRequestDto send(@Valid @RequestBody FriendRequestSendRequest body) {
     return friendRequestService.send(body);
   }
 

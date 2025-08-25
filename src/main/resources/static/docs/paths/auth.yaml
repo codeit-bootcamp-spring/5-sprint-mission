@@ -20,15 +20,13 @@ login:
         content:
           application/json:
             schema:
-              $ref: "../schemas/user.yaml#/UserSaveResponse"
+              $ref: "../schemas/user.yaml#/UserDto"
             example:
               id: "e6681542-a6b1-43f3-b759-6dc9cfebcf41"
-              createdAt: "2025-08-18T14:26:12.176736Z"
-              updatedAt: "2025-08-18T14:26:12.176736Z"
               username: "test"
               email: "test@codeit.com"
-              password: "$2a$10$dWaZkA5OoFmhdht9dizPvOGRoHd1vWjwib/U7ooQ.tLMdG3zSEORK"
-              profileId: "d6703e18-89e6-4722-bfc1-cc253bb7046f"
+              profile: null
+              online: true
       '400':
         content:
           application/json:
@@ -120,7 +118,7 @@ logout:
                   code: "INVALID_JSON"
                   message: "Unable to read request body, please check JSON format and field type"
                   details:
-                    - "Cannot deserialize value of type `java.util.UUID` from String \"not-uuid\": UUID has to be represented by standard 36-char representation\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 2, column: 15] (through reference chain: com.sprint.mission.discodeit.dto.request.auth.AuthLogoutRequest[\"userId\"])"
+                    - "Cannot deserialize value of type `java.util.UUID` from String \"not-uuid\": UUID has to be represented by standard 36-char representation\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 2, column: 15] (through reference chain: com.sprint.mission.discodeit.dto.auth.AuthLogoutRequest[\"userId\"])"
       '404':
         content:
           application/json:

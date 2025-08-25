@@ -14,7 +14,7 @@ channelsRoot:
             schema:
               type: array
               items:
-                $ref: "../schemas/channel.yaml#/ChannelResponse"
+                $ref: "../schemas/channel.yaml#/ChannelDto"
             example:
               - id: "5b98cf49-38ba-48ab-a4fc-0c335dee6e2c"
                 type: "PRIVATE"
@@ -96,7 +96,7 @@ publicChannels:
         content:
           application/json:
             schema:
-              $ref: "../schemas/channel.yaml#/ChannelSaveResponse"
+              $ref: "../schemas/channel.yaml#/ChannelDto"
       '400':
         content:
           application/json:
@@ -157,7 +157,7 @@ privateChannels:
         content:
           application/json:
             schema:
-              $ref: "../schemas/channel.yaml#/ChannelSaveResponse"
+              $ref: "../schemas/channel.yaml#/ChannelDto"
             example:
               id: "9b80f2ab-838d-49b5-881f-344fe310acdb"
               createdAt: "2025-08-19T09:07:47.200570Z"
@@ -181,8 +181,8 @@ privateChannels:
                   code: "INVALID_BODY_VALUE"
                   message: "Request body value not valid"
                   details:
-                    - "participantIds: 널이어서는 안됩니다"
-                    - "participantIds: 비공개 채널은 2명~10명 사이여야 합니다"
+                    - "participantsparticipantIds: 널이어서는 안됩니다"
+                    - "participantsparticipantIds: 비공개 채널은 2명~10명 사이여야 합니다"
               invalidJson:
                 description: JSON parsing 실패
                 value:
@@ -193,7 +193,7 @@ privateChannels:
                   code: "INVALID_JSON"
                   message: "Unable to read request body, please check JSON format and field type"
                   details:
-                    - "Cannot deserialize value of type `java.util.UUID` from String \"not-uuid\": UUID has to be represented by standard 36-char representation\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 2, column: 22] (through reference chain: com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest[\"participantIds\"]->java.util.HashSet[0])"
+                    - "Cannot deserialize value of type `java.util.UUID` from String \"not-uuid\": UUID has to be represented by standard 36-char representation\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 2, column: 22] (through reference chain: com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest[\"participants\"]->java.util.HashSet[0])"
       '404':
         content:
           application/json:
@@ -270,7 +270,7 @@ channelById:
         content:
           application/json:
             schema:
-              $ref: "../schemas/channel.yaml#/ChannelSaveResponse"
+              $ref: "../schemas/channel.yaml#/ChannelDto"
       '400':
         content:
           application/json:

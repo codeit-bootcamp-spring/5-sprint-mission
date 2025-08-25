@@ -5,16 +5,23 @@ import static com.sprint.mission.discodeit.support.StringUtil.nullOrStrip;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Message;
-import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
+import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.domain.enums.UserStatusType;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.support.Filenames;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,19 +41,36 @@ public class MessageService {
   private final MessageRepository messageRepository;
   private final ChannelRepository channelRepository;
   private final UserRepository userRepository;
+  private final UserStatusRepository userStatusRepository;
   private final BinaryContentRepository binaryContentRepository;
 
+  private MessageDto toResponse(Message m) {
+    User user = userRepository.find(m.getAuthorId()).orElse(null);
+    UserStatusType userStatusType = userStatusRepository.findByUserId(user.getId())
+        .map(UserStatus::getType)
+        .orElse(UserStatusType.OFFLINE);
+    BinaryContent bc = binaryContentRepository.find(user.getProfileId()).orElse(null);
+    BinaryContentDto profile = bc != null ? BinaryContentDto.from(bc) : null;
+    UserDto author = UserDto.from(user, userStatusType, profile);
+    List<BinaryContent> bcs = binaryContentRepository.findAllByIdIn(m.getAttachmentIds());
+    List<BinaryContentDto> attachments = new ArrayList<>();
+    for (BinaryContent b : bcs) {
+      attachments.add(BinaryContentDto.from(b));
+    }
+    return MessageDto.from(m, author, attachments);
+  }
 
-  public List<MessageResponse> findAllByChannelId(UUID channelId) {
+
+  public List<MessageDto> findAllByChannelId(UUID channelId) {
     Channel c = channelRepository.getOrThrow(channelId);
 
     return messageRepository.findAllByIdIn(c.getMessageIds()).stream()
-        .map(MessageResponse::from)
+        .map(this::toResponse)
         .toList();
   }
 
   @Transactional
-  public MessageResponse create(
+  public MessageDto create(
       MessageCreateRequest req,
       List<MultipartFile> attachments
   ) throws IOException {
@@ -83,7 +107,7 @@ public class MessageService {
     c.addMessageId(m.getId());
     channelRepository.save(c);
 
-    return MessageResponse.from(m);
+    return toResponse(m);
   }
 
   @Transactional
@@ -94,9 +118,9 @@ public class MessageService {
   }
 
   @Transactional
-  public MessageResponse update(UUID messageId, MessageUpdateRequest req) {
+  public MessageDto update(UUID messageId, MessageUpdateRequest req) {
     Message m = messageRepository.getOrThrow(messageId);
-    return MessageResponse.from(
+    return toResponse(
         messageRepository.save(
             m.update(nullOrStrip(req.newContent()))
         )

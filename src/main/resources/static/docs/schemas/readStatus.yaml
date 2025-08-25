@@ -1,9 +1,7 @@
-ReadStatusResponse:
+ReadStatusDto:
   type: object
   required:
     - id
-    - createdAt
-    - updatedAt
     - userId
     - channelId
     - lastReadAt
@@ -11,12 +9,6 @@ ReadStatusResponse:
     id:
       type: string
       format: uuid
-    createdAt:
-      type: string
-      format: date-time
-    updatedAt:
-      type: string
-      format: date-time
     userId:
       type: string
       format: uuid

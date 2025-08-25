@@ -20,8 +20,8 @@ components:
         type: string
         format: uuid
   schemas:
-    ReadStatusResponse:
-      $ref: "./schemas/readStatus.yaml#/ReadStatusResponse"
+    ReadStatusDto:
+      $ref: "./schemas/readStatus.yaml#/ReadStatusDto"
     ReadStatusCreateRequest:
       $ref: "./schemas/readStatus.yaml#/ReadStatusCreateRequest"
     ReadStatusUpdateRequest:

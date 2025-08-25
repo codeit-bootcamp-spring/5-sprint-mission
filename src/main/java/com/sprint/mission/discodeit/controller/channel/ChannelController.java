@@ -1,10 +1,9 @@
 package com.sprint.mission.discodeit.controller.channel;
 
-import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.channel.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
-import com.sprint.mission.discodeit.dto.response.channel.ChannelSaveResponse;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.service.channel.ChannelService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -32,7 +31,7 @@ public class ChannelController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<ChannelResponse> findAll(
+  public List<ChannelDto> findAll(
 
       @RequestParam("userId")
       UUID userId
@@ -43,7 +42,7 @@ public class ChannelController {
 
   @PostMapping(path = "/public", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  public ChannelSaveResponse createPublic(
+  public ChannelDto createPublic(
 
       @RequestBody
       @Valid
@@ -55,7 +54,7 @@ public class ChannelController {
 
   @PostMapping(path = "/private", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  public ChannelSaveResponse createPrivate(
+  public ChannelDto createPrivate(
 
       @RequestBody
       @Valid
@@ -78,7 +77,7 @@ public class ChannelController {
 
   @PatchMapping(path = "/{channelId}", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public ChannelSaveResponse update(
+  public ChannelDto update(
 
       @PathVariable("channelId")
       UUID channelId,

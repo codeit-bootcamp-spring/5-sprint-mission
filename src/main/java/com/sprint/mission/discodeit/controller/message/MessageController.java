@@ -2,9 +2,9 @@ package com.sprint.mission.discodeit.controller.message;
 
 import static com.sprint.mission.discodeit.support.Constants.MAX_MESSAGE_ATTACHMENTS;
 
-import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.service.message.MessageService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -39,7 +39,7 @@ public class MessageController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<MessageResponse> findAllByChannelId(
+  public List<MessageDto> findAllByChannelId(
 
       @RequestParam("channelId")
       UUID channelId
@@ -50,7 +50,7 @@ public class MessageController {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  public MessageResponse create(
+  public MessageDto create(
 
       @RequestPart("messageCreateRequest")
       @Valid
@@ -76,7 +76,7 @@ public class MessageController {
 
   @PatchMapping(path = "/{messageId}", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public MessageResponse update(
+  public MessageDto update(
 
       @PathVariable("messageId")
       UUID messageId,

@@ -14,7 +14,7 @@ readStatusesRoot:
             schema:
               type: array
               items:
-                $ref: "../schemas/readStatus.yaml#/ReadStatusResponse"
+                $ref: "../schemas/readStatus.yaml#/ReadStatusDto"
       '400':
         content:
           application/json:
@@ -75,11 +75,9 @@ readStatusesRoot:
         content:
           'application/json':
             schema:
-              $ref: "../schemas/readStatus.yaml#/ReadStatusResponse"
+              $ref: "../schemas/readStatus.yaml#/ReadStatusDto"
             example:
               id: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
-              createdAt: "2025-08-17T15:30:00Z"
-              updatedAt: "2025-08-17T15:30:00Z"
               userId: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
               channelId: "6c1c5c7a-6d7d-4e9d-8a1f-bb2b3c4d5e6f"
               lastReadAt: "2025-08-17T15:30:00Z"
@@ -157,7 +155,7 @@ readStatusById:
         content:
           application/json:
             schema:
-              $ref: "../schemas/readStatus.yaml#/ReadStatusResponse"
+              $ref: "../schemas/readStatus.yaml#/ReadStatusDto"
       '400':
         content:
           application/json:

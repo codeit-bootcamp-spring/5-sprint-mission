@@ -1,4 +1,4 @@
-MessageResponse:
+MessageDto:
   type: object
   required:
     - id
@@ -6,8 +6,8 @@ MessageResponse:
     - updatedAt
     - content
     - channelId
-    - authorId
-    - attachmentIds
+    - author
+    - attachments
   properties:
     id:
       type: string
@@ -24,14 +24,12 @@ MessageResponse:
     channelId:
       type: string
       format: uuid
-    authorId:
-      type: string
-      format: uuid
-    attachmentIds:
+    author:
+      $ref: "../schemas/user.yaml#/UserDto"
+    attachments:
       type: array
       items:
-        type: string
-        format: uuid
+        $ref: "../schemas/binaryContent.yaml#/BinaryContentDto"
       uniqueItems: true
 
 MessageCreateRequest:

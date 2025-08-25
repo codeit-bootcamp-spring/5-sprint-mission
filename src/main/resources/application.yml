@@ -17,8 +17,6 @@ springdoc:
         url: /docs/openapi-binaryContents.yaml
       - name: Channels API
         url: /docs/openapi-channels.yaml
-      - name: Friend Requests API
-        url: /docs/openapi-friendRequests.yaml
       - name: Messages API
         url: /docs/openapi-messages.yaml
       - name: Read Statuses API

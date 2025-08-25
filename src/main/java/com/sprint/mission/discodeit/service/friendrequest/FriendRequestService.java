@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.service.friendrequest;
 
 import com.sprint.mission.discodeit.domain.entity.FriendRequest;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.dto.request.friendrequest.FriendRequestSendRequest;
-import com.sprint.mission.discodeit.dto.response.friendrequest.FriendRequestResponse;
+import com.sprint.mission.discodeit.dto.friendrequest.FriendRequestDto;
+import com.sprint.mission.discodeit.dto.friendrequest.FriendRequestSendRequest;
 import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
@@ -29,26 +29,26 @@ public class FriendRequestService {
   private final UserRepository userRepository;
   private final FriendRequestRepository friendRequestRepository;
 
-  public List<FriendRequestResponse> findAll() {
+  public List<FriendRequestDto> findAll() {
     return friendRequestRepository.findAll().stream()
         .sorted(Comparator.comparing(FriendRequest::getCreatedAt).reversed())
         .map(this::toResponseWithUsers)
         .toList();
   }
 
-  public FriendRequestResponse findById(UUID id) {
+  public FriendRequestDto findById(UUID id) {
     FriendRequest fr = friendRequestRepository.getOrThrow(id);
     return toResponseWithUsers(fr);
   }
 
-  public List<FriendRequestResponse> findAllBySenderId(UUID senderId) {
+  public List<FriendRequestDto> findAllBySenderId(UUID senderId) {
     return friendRequestRepository.findAllBySenderId(senderId).stream()
         .sorted(Comparator.comparing(FriendRequest::getCreatedAt).reversed())
         .map(this::toResponseWithUsers)
         .toList();
   }
 
-  public List<FriendRequestResponse> findAllByReceiverId(UUID receiverId) {
+  public List<FriendRequestDto> findAllByReceiverId(UUID receiverId) {
     return friendRequestRepository.findAllByReceiverId(receiverId).stream()
         .sorted(Comparator.comparing(FriendRequest::getCreatedAt).reversed())
         .map(this::toResponseWithUsers)
@@ -56,7 +56,7 @@ public class FriendRequestService {
   }
 
   @Transactional
-  public FriendRequestResponse send(FriendRequestSendRequest body) {
+  public FriendRequestDto send(FriendRequestSendRequest body) {
     User sender = userRepository.find(body.senderId())
         .orElseThrow(
             () -> new NotFoundException("User with id %s not found".formatted(body.senderId())));
@@ -73,7 +73,7 @@ public class FriendRequestService {
 
     FriendRequest fr = friendRequestRepository.save(
         new FriendRequest(sender.getId(), receiver.getId()));
-    return FriendRequestResponse.from(fr, sender, receiver);
+    return FriendRequestDto.from(fr, sender, receiver);
   }
 
   @Transactional
@@ -147,9 +147,9 @@ public class FriendRequestService {
     return map;
   }
 
-  private FriendRequestResponse toResponseWithUsers(FriendRequest fr) {
+  private FriendRequestDto toResponseWithUsers(FriendRequest fr) {
     Map<UUID, User> users = loadUsers(fr.getSenderId(), fr.getReceiverId());
-    return FriendRequestResponse.from(
+    return FriendRequestDto.from(
         fr,
         users.get(fr.getSenderId()),
         users.get(fr.getReceiverId())

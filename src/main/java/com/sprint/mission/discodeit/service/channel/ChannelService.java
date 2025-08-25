@@ -5,11 +5,10 @@ import static com.sprint.mission.discodeit.support.StringUtil.nullOrStrip;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
-import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.channel.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
-import com.sprint.mission.discodeit.dto.response.channel.ChannelSaveResponse;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
@@ -37,7 +36,7 @@ public class ChannelService {
   private final UserRepository userRepository;
   private final MessageRepository messageRepository;
 
-  public List<ChannelResponse> findAll(UUID userId) {
+  public List<ChannelDto> findAll(UUID userId) {
     User u = userRepository.getOrThrow(userId);
 
     Set<UUID> channelIds = u.getChannelIds();
@@ -60,8 +59,9 @@ public class ChannelService {
     Map<UUID, Instant> lastMessageAtMap = messageRepository.findAllCreatedAtById(lastMessageIds);
 
     return channels.stream()
-        .map(c -> ChannelResponse.from(
+        .map(c -> ChannelDto.from(
             c,
+            List.of(),
             c.getLastMessageId()
                 .map(lastMessageAtMap::get)
                 .orElse(null))
@@ -70,14 +70,18 @@ public class ChannelService {
   }
 
   @Transactional
-  public ChannelSaveResponse create(PublicChannelCreateRequest req) {
+  public ChannelDto create(PublicChannelCreateRequest req) {
     String name = nullOrStrip(req.name());
     String description = nullOrStrip(req.description());
-    return ChannelSaveResponse.from(channelRepository.save(new Channel(name, description)));
+    return ChannelDto.from(
+        channelRepository.save(new Channel(name, description)),
+        List.of(),
+        null
+    );
   }
 
   @Transactional
-  public ChannelSaveResponse create(PrivateChannelCreateRequest req) {
+  public ChannelDto create(PrivateChannelCreateRequest req) {
     Set<UUID> ids = req.participantIds();
     List<User> users = userRepository.findAllByIdIn(ids);
 
@@ -101,7 +105,11 @@ public class ChannelService {
     users.forEach(u -> u.joinChannel(c.getId()));
     userRepository.saveAll(users);
 
-    return ChannelSaveResponse.from(c);
+    return ChannelDto.from(
+        c,
+        List.of(),
+        null
+    );
   }
 
   @Transactional
@@ -112,7 +120,7 @@ public class ChannelService {
   }
 
   @Transactional
-  public ChannelSaveResponse update(UUID channelId, PublicChannelUpdateRequest req) {
+  public ChannelDto update(UUID channelId, PublicChannelUpdateRequest req) {
     Channel c = channelRepository.getOrThrow(channelId);
 
     if (c.getType() == ChannelType.PRIVATE) {
@@ -123,11 +131,17 @@ public class ChannelService {
     String description = nullOrStrip(req.newDescription());
 
     if (name == null && description == null) {
-      return ChannelSaveResponse.from(c);
+      return ChannelDto.from(
+          c,
+          List.of(),
+          null
+      );
     }
 
-    return ChannelSaveResponse.from(channelRepository.save(
-        c.update(name, description)
-    ));
+    return ChannelDto.from(
+        channelRepository.save(c.update(name, description)),
+        List.of(),
+        null
+    );
   }
 }

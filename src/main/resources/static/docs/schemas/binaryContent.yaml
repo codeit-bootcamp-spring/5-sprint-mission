@@ -1,19 +1,14 @@
-BinaryContentResponse:
+BinaryContentDto:
   type: object
   required:
     - id
-    - createdAt
     - filename
     - size
     - contentType
-    - bytes
   properties:
     id:
       type: string
       format: uuid
-    createdAt:
-      type: string
-      format: date-time
     filename:
       type: string
     size:
@@ -21,6 +16,3 @@ BinaryContentResponse:
       format: int64
     contentType:
       type: string
-    bytes:
-      type: string
-      format: byte

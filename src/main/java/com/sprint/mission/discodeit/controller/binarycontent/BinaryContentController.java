@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.controller.binarycontent;
 
-import com.sprint.mission.discodeit.dto.response.binarycontent.BinaryContentResponse;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.service.binarycontent.BinaryContentService;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,7 +26,7 @@ public class BinaryContentController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<BinaryContentResponse> findAllByIn(
+  public List<BinaryContentDto> findAllByIn(
 
       @RequestParam("binaryContentIds")
       @Size(min = 1)
@@ -38,7 +38,7 @@ public class BinaryContentController {
 
   @GetMapping(path = "/{binaryContentId}")
   @ResponseStatus(HttpStatus.OK)
-  public BinaryContentResponse find(
+  public BinaryContentDto find(
 
       @PathVariable("binaryContentId")
       UUID binaryContentId

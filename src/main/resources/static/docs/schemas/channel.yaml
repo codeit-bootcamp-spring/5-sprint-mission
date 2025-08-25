@@ -1,11 +1,11 @@
-ChannelResponse:
+ChannelDto:
   type: object
   required:
     - id
     - type
     - name
     - description
-    - participantIds
+    - participants
     - lastMessageAt
   properties:
     id:
@@ -25,42 +25,10 @@ ChannelResponse:
     participantIds:
       type: array
       items:
-        type: string
-        format: uuid
+        $ref: "../schemas/user.yaml#/UserDto"
     lastMessageAt:
       type: string
       format: date-time
-      nullable: true
-
-ChannelSaveResponse:
-  type: object
-  required:
-    - id
-    - createdAt
-    - updatedAt
-    - type
-    - name
-    - description
-  properties:
-    id:
-      type: string
-      format: uuid
-    createdAt:
-      type: string
-      format: date-time
-    updatedAt:
-      type: string
-      format: date-time
-    type:
-      type: string
-      enum:
-        - PUBLIC
-        - PRIVATE
-    name:
-      type: string
-      nullable: true
-    description:
-      type: string
       nullable: true
 
 PublicChannelCreateRequest:
@@ -81,7 +49,7 @@ PrivateChannelCreateRequest:
   type: object
   description: Private Channel 생성 정보
   required:
-    - participantIds
+    - participants
   properties:
     participantIds:
       type: array

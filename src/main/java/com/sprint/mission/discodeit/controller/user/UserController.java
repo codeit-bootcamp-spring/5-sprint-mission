@@ -6,12 +6,11 @@ import static com.sprint.mission.discodeit.support.Constants.MIN_EMAIL_LENGTH;
 import static com.sprint.mission.discodeit.support.Constants.MIN_USERNAME_LENGTH;
 import static com.sprint.mission.discodeit.support.Constants.SUPPORTED_IMAGE_TYPE;
 
-import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.request.userstatus.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.user.UserResponse;
-import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
-import com.sprint.mission.discodeit.dto.response.userstatus.UserStatusResponse;
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.exception.ParameterNumberNotValidException;
 import com.sprint.mission.discodeit.service.user.UserService;
 import com.sprint.mission.discodeit.support.Filenames;
@@ -48,7 +47,7 @@ public class UserController {
   private final UserService userService;
 
   @GetMapping
-  public List<UserResponse> findAll(
+  public List<UserDto> findAll(
 
       @RequestParam(required = false)
       @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH)
@@ -74,7 +73,7 @@ public class UserController {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  public UserSaveResponse create(
+  public UserDto create(
 
       @RequestPart("userCreateRequest")
       @Valid
@@ -97,7 +96,7 @@ public class UserController {
   }
 
   @GetMapping(path = "/{userId}")
-  public UserResponse find(
+  public UserDto find(
 
       @PathVariable("userId")
       UUID userId
@@ -116,7 +115,7 @@ public class UserController {
   }
 
   @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public UserSaveResponse update(
+  public UserDto update(
 
       @PathVariable("userId")
       UUID userId,
@@ -143,7 +142,7 @@ public class UserController {
 
   @PatchMapping(path = "/{userId}/userStatus", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public UserStatusResponse updateUserStatusByUserId(
+  public UserStatusDto updateUserStatusByUserId(
 
       @PathVariable("userId")
       UUID userId,

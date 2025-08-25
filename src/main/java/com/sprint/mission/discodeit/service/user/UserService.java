@@ -7,12 +7,12 @@ import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.UserStatusType;
-import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.request.userstatus.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.user.UserResponse;
-import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
-import com.sprint.mission.discodeit.dto.response.userstatus.UserStatusResponse;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.FriendRequestRepository;
@@ -45,14 +45,16 @@ public class UserService {
 
   private final PasswordEncoder passwordEncoder;
 
-  private UserResponse toResponse(User user) {
+  public UserDto toResponse(User user) {
     UserStatusType userStatusType = userStatusRepository.findByUserId(user.getId())
         .map(UserStatus::getType)
         .orElse(UserStatusType.OFFLINE);
-    return UserResponse.from(user, userStatusType);
+    BinaryContent bc = binaryContentRepository.find(user.getProfileId()).orElse(null);
+    BinaryContentDto binaryContentDto = bc != null ? BinaryContentDto.from(bc) : null;
+    return UserDto.from(user, userStatusType, binaryContentDto);
   }
 
-  public List<UserResponse> findByUsername(String username) {
+  public List<UserDto> findByUsername(String username) {
     String u = nullOrStripAndLowerCase(username);
     return userRepository.findByUsername(u)
         .map(this::toResponse)
@@ -60,7 +62,7 @@ public class UserService {
         .orElse(List.of());
   }
 
-  public List<UserResponse> findByEmail(String email) {
+  public List<UserDto> findByEmail(String email) {
     String e = nullOrStripAndLowerCase(email);
     return userRepository.findByEmail(e)
         .map(this::toResponse)
@@ -68,7 +70,7 @@ public class UserService {
         .orElse(List.of());
   }
 
-  public List<UserResponse> findAll() {
+  public List<UserDto> findAll() {
     List<User> users = userRepository.findAll();
 
     if (users.isEmpty()) {
@@ -83,15 +85,18 @@ public class UserService {
         userStatusRepository.findAllTypesByUserIds(userIds);
 
     return users.stream()
-        .map(u -> UserResponse.from(
-            u,
-            userStatusTypeMap.getOrDefault(u.getId(), UserStatusType.OFFLINE))
-        )
+        .map(u -> {
+          UserStatusType userStatusType = userStatusTypeMap.getOrDefault(u.getId(),
+              UserStatusType.OFFLINE);
+          BinaryContent bc = binaryContentRepository.find(u.getProfileId()).orElse(null);
+          BinaryContentDto binaryContentDto = bc != null ? BinaryContentDto.from(bc) : null;
+          return UserDto.from(u, userStatusType, binaryContentDto);
+        })
         .toList();
   }
 
   @Transactional
-  public UserSaveResponse create(UserCreateRequest req, MultipartFile profile)
+  public UserDto create(UserCreateRequest req, MultipartFile profile)
       throws IOException {
     String username = nullOrStripAndLowerCase(req.username());
     if (userRepository.existsByUsername(username)) {
@@ -126,11 +131,13 @@ public class UserService {
     );
 
     User saved = userRepository.save(user);
-    userStatusRepository.save(new UserStatus(saved.getId()).login());
-    return UserSaveResponse.from(saved);
+    UserStatus us = userStatusRepository.save(new UserStatus(saved.getId()).login());
+    BinaryContent bc = binaryContentRepository.find(saved.getProfileId()).orElse(null);
+    BinaryContentDto binaryContentDto = bc != null ? BinaryContentDto.from(bc) : null;
+    return UserDto.from(saved, us.getType(), binaryContentDto);
   }
 
-  public UserResponse find(UUID userId) {
+  public UserDto find(UUID userId) {
     return toResponse(userRepository.getOrThrow(userId));
   }
 
@@ -152,7 +159,7 @@ public class UserService {
   }
 
   @Transactional
-  public UserSaveResponse update(UUID userId, UserUpdateRequest req, MultipartFile profile)
+  public UserDto update(UUID userId, UserUpdateRequest req, MultipartFile profile)
       throws IOException {
     User u = userRepository.getOrThrow(userId);
 
@@ -195,14 +202,14 @@ public class UserService {
         && password == null
         && profileId == null;
     if (noOp) {
-      return UserSaveResponse.from(u);
+      return toResponse(u);
     }
 
     if (profileId != null && u.getProfileId() != null) {
       binaryContentRepository.delete(u.getProfileId());
     }
 
-    return UserSaveResponse.from(
+    return toResponse(
         userRepository.save(
             u.update(username, email, password, profileId)
         )
@@ -210,7 +217,7 @@ public class UserService {
   }
 
   @Transactional
-  public UserStatusResponse updateUserStatusByUserId(UUID userId, UserStatusUpdateRequest req) {
+  public UserStatusDto updateUserStatusByUserId(UUID userId, UserStatusUpdateRequest req) {
     userRepository.getOrThrow(userId);
 
     UserStatus us = userStatusRepository.findByUserId(userId)
@@ -224,7 +231,7 @@ public class UserService {
       us.setLastActiveAt(req.newLastActiveAt());
     }
 
-    return UserStatusResponse.from(userStatusRepository.save(us));
+    return UserStatusDto.from(userStatusRepository.save(us));
   }
 
   @Transactional

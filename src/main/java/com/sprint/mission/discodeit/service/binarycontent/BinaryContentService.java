@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.binarycontent;
 
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
-import com.sprint.mission.discodeit.dto.response.binarycontent.BinaryContentResponse;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import java.util.List;
@@ -18,7 +18,7 @@ public class BinaryContentService {
 
   private final BinaryContentRepository binaryContentRepository;
 
-  public List<BinaryContentResponse> findAllByIn(List<UUID> binaryContentIds) {
+  public List<BinaryContentDto> findAllByIn(List<UUID> binaryContentIds) {
 
     Map<UUID, BinaryContent> found = binaryContentRepository.findAllByIdIn(binaryContentIds)
         .stream()
@@ -39,11 +39,11 @@ public class BinaryContentService {
 
     return binaryContentIds.stream()
         .map(found::get)
-        .map(BinaryContentResponse::from)
+        .map(BinaryContentDto::from)
         .toList();
   }
 
-  public BinaryContentResponse find(UUID binaryContentId) {
-    return BinaryContentResponse.from(binaryContentRepository.getOrThrow(binaryContentId));
+  public BinaryContentDto find(UUID binaryContentId) {
+    return BinaryContentDto.from(binaryContentRepository.getOrThrow(binaryContentId));
   }
 }

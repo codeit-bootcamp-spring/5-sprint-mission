@@ -19,35 +19,35 @@ usersRoot:
             schema:
               type: array
               items:
-                $ref: "../schemas/user.yaml#/UserResponse"
+                $ref: "../schemas/user.yaml#/UserDto"
             example:
               - id: "2589ffe4-1f98-4f64-82cf-d1857e7f42f8"
-                createdAt: "2025-08-23T08:44:21.766937Z"
-                updatedAt: "2025-08-23T08:44:21.766937Z"
                 username: "jessie"
                 email: "jessie@codeit.com"
-                profileId: null
+                profile: null
                 online: true
               - id: "6d33007b-1a77-4c70-b295-7feaccf8aaf8"
-                createdAt: "2025-08-23T08:44:13.691575Z"
-                updatedAt: "2025-08-23T08:44:13.691575Z"
                 username: "rex"
                 email: "rex@codeit.com"
-                profileId: "a0777d4a-15c8-4477-b1ad-0fb16276882b"
+                profile:
+                  id: "4fcd07c1-a995-4111-809a-b726915a5aee"
+                  fileName: "rex.png"
+                  size: 1024
+                  contentType: "image/png"
                 online: false
               - id: "da717ad7-efe6-48eb-94cd-4f7265ead16c"
-                createdAt: "2025-08-23T08:44:06.738403Z"
-                updatedAt: "2025-08-23T08:44:06.738403Z"
                 username: "buzz"
                 email: "buzz@codeit.com"
-                profileId: "4fcd07c1-a995-4111-809a-b726915a5aee"
+                profile:
+                  id: "a0777d4a-15c8-4477-b1ad-0fb16276882b"
+                  fileName: "buzz.png"
+                  size: 1024
+                  contentType: "image/png"
                 online: true
               - id: "d0e0dfdd-cdbc-41cd-970f-b8ce5776111a"
-                createdAt: "2025-08-23T08:43:46.881887Z"
-                updatedAt: "2025-08-23T08:43:46.881887Z"
                 username: "woody"
                 email: "woody@codeit.com"
-                profileId: null
+                profile: null
                 online: false
       '400':
         content:
@@ -108,15 +108,17 @@ usersRoot:
         content:
           application/json:
             schema:
-              $ref: "../schemas/user.yaml#/UserSaveResponse"
+              $ref: "../schemas/user.yaml#/UserDto"
             example:
               id: "e9ea0824-fc8f-45a8-acfa-db97424f71d4"
-              createdAt: "2025-08-23T08:55:27.157270Z"
-              updatedAt: "2025-08-23T08:55:27.157270Z"
               username: "test"
               email: "test@codeit.com"
-              password: "$2a$10$NQzvbzT8uZa9BrU6xj8iBulqOLSjh2TadE6.PoOkKQ1A4AIwbBudW"
-              profileId: "a68a5f8e-784d-4b47-b0af-8243ee79c166"
+              profile:
+                id: "a68a5f8e-784d-4b47-b0af-8243ee79c166"
+                fileName: "test.png"
+                size: 1024
+                contentType: "image/png"
+              online: false
       '400':
         content:
           application/json:
@@ -285,15 +287,13 @@ userById:
         content:
           application/json:
             schema:
-              $ref: "../schemas/user.yaml#/UserSaveResponse"
+              $ref: "../schemas/user.yaml#/UserDto"
             example:
               id: "e6681542-a6b1-43f3-b759-6dc9cfebcf41"
-              createdAt: "2025-08-18T14:26:12.176736Z"
-              updatedAt: "2025-08-18T14:26:12.176736Z"
               username: "test2"
               email: "test2@codeit.com"
-              password: "$2a$10$dWaZkA5OoFmhdht9dizPvOGRoHd1vWjwib/U7ooQ.tLMdG3zSEORK"
-              profileId: "d6703e18-89e6-4722-bfc1-cc253bb7046f"
+              profile: null
+              online: false
       '400':
         content:
           application/json:
@@ -428,7 +428,7 @@ userStatus:
         content:
           application/json:
             schema:
-              $ref: "../schemas/user.yaml#/UserStatusResponse"
+              $ref: "../schemas/user.yaml#/UserStatusDto"
             example:
               id: "28807592-fc25-4d9c-a281-dc014b50deb8"
               createdAt: "2025-08-22T05:29:52.441558Z"
