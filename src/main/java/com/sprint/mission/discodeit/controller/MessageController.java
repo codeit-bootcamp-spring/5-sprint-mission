@@ -5,6 +5,8 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +31,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/messages")
+@Tag(name = "Message", description = "Message API")
 public class MessageController {
 
   private final MessageService messageService;
 
+  @Operation(summary = "Message 생성", operationId = "create")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<Message> create(
       @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
@@ -59,6 +63,7 @@ public class MessageController {
         .body(createdMessage);
   }
 
+  @Operation(summary = "Message 수정", operationId = "update")
   @PatchMapping("/{messageId}")
   public ResponseEntity<Message> update(@PathVariable UUID messageId,
       @RequestBody MessageUpdateRequest request) {
@@ -68,6 +73,7 @@ public class MessageController {
         .body(updatedMessage);
   }
 
+  @Operation(summary = "Message 삭제", operationId = "delete")
   @DeleteMapping("/{messageId}")
   public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
     messageService.delete(messageId);
@@ -76,6 +82,7 @@ public class MessageController {
         .build();
   }
 
+  @Operation(summary = "Message의 채널 조회", operationId = "findAllByChannelId")
   @GetMapping("/{channelId}")
   public ResponseEntity<List<Message>> findAllByChannelId(
       @PathVariable UUID channelId) {
