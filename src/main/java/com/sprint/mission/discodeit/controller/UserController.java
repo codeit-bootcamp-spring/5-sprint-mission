@@ -40,7 +40,6 @@ public class UserController {
   private final UserService userService;
   private final UserStatusService userStatusService;
 
-  // 전체조회
   @Operation(summary = "전체 User 목록 조회", operationId = "findAll")
   @GetMapping
   public ResponseEntity<List<UserDto>> findAll(
@@ -48,7 +47,6 @@ public class UserController {
     return ResponseEntity.ok(userService.findAll());
   }
 
-  // 생성
   @Operation(summary = "User 등록", operationId = "create")
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<User> create(
@@ -63,6 +61,7 @@ public class UserController {
         .body(createdUser);
   }
 
+  @Operation(summary = "User 정보 수정", operationId = "update")
   @PatchMapping(path = "/{userId}",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
   )
@@ -79,6 +78,7 @@ public class UserController {
         .body(updatedUser);
   }
 
+  @Operation(summary = "User 정보 삭제", operationId = "delete")
   @DeleteMapping("/{userId}")
   public ResponseEntity<Void> delete(@PathVariable UUID userId) {
     userService.delete(userId);
@@ -87,6 +87,7 @@ public class UserController {
         .build();
   }
 
+  @Operation(summary = "User 상태 수정", operationId = "userStatus")
   @PatchMapping("/{userId}/userStatus")
   public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable UUID userId,
       @RequestBody UserStatusUpdateRequest request) {
