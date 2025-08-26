@@ -1,0 +1,8 @@
+services:
+  backend:
+    container_name: spring-mission-5
+    #    build: .
+    image: gyural/spring-mission-5:latest
+    platform: linux/amd64  # 플랫폼 지정
+    ports:
+      - "8080:8080"

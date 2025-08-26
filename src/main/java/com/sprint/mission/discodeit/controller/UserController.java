@@ -70,7 +70,6 @@ public class UserController {
 			  profile.getOriginalFilename()
 			));
 		}
-
 		User createdUser = userService.create(CreateUserDTO.builder()
 		  .username(userCreateRequest.getUsername())
 		  .email(userCreateRequest.getEmail())

@@ -30,7 +30,7 @@ import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.request.UpdateMessageRequest;
 import com.sprint.mission.discodeit.domain.response.CreateMessageResponse;
-import com.sprint.mission.discodeit.domain.response.MessagesInChannelResponse;
+import com.sprint.mission.discodeit.domain.response.MessageResponse;
 import com.sprint.mission.discodeit.domain.response.UpdateMessageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 
@@ -100,7 +100,7 @@ public class MessageController {
 	}
 
 	@GetMapping
-	public ResponseEntity<MessagesInChannelResponse> GetMessagesInChannel(@RequestParam UUID channelId) {
+	public ResponseEntity<List<MessageResponse>> GetMessagesInChannel(@RequestParam UUID channelId) {
 		List<Message> readMessages = messageService.readAllByChannelId(channelId);
 		return ResponseEntity.ok((toMessagesInChannelResponse(readMessages)));
 	}

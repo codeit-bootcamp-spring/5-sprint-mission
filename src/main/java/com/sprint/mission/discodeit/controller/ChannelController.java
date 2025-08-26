@@ -172,8 +172,7 @@ public class ChannelController {
 	@ApiResponses(value = {
 	  @ApiResponse(
 		responseCode = "200",
-		description = "Channel 목록 조회 성공",
-		content = @Content(schema = @Schema(implementation = CreatePrivateChannelResponse.class))
+		description = "Channel 목록 조회 성공"
 	  )
 	})
 	@GetMapping

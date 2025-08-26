@@ -105,9 +105,16 @@ public class BasicUserService implements UserService {
 
 		User targetUser = userRepository.find(userId)
 		  .orElseThrow(() -> new NoSuchElementException("User with ID " + userId + " does not exist"));
-		targetUser.setUsername(newUsername);
-		targetUser.setEmail(newEmail);
-		targetUser.setPassword(newPassword);
+
+		if (newUsername != null) {
+			targetUser.setUsername(newUsername);
+		}
+		if (newEmail != null) {
+			targetUser.setEmail(newEmail);
+		}
+		if (newPassword != null) {
+			targetUser.setPassword(newPassword);
+		}
 
 		Optional<BinaryContent> profilePicture = Optional.empty();
 		if (newProfileImage != null) {
@@ -121,6 +128,7 @@ public class BasicUserService implements UserService {
 		}
 
 		userRepository.save(targetUser);
+
 		return UserUpdateResult.builder()
 		  .id(targetUser.getId())
 		  .createdAt(targetUser.getCreatedAt())
