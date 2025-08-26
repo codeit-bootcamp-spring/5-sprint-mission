@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.sprint.mission.discodeit.dto.request.binaryContent.CreateBinaryContentRequest;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,10 +18,10 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class UpdateMessageRequest {
-	@NotBlank(message = "메시지 ID는 필수")
+	@NotNull(message = "메시지 ID는 필수")
 	private UUID messageId;
 
-	@NotBlank(message = "작성자 ID는 필수")
+	@NotNull(message = "작성자 ID는 필수")
 	private UUID authorId;
 
 	@NotBlank(message = "메시지 내용은 필수")

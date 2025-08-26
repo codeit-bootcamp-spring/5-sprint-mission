@@ -12,10 +12,10 @@ import com.sprint.mission.discodeit.dto.response.message.*;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
-import com.sprint.mission.discodeit.exception.MessageNotFoundException;
-import com.sprint.mission.discodeit.exception.NotChannelMemberException;
-import com.sprint.mission.discodeit.exception.UnauthorizedMessageAccessException;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.NotChannelMemberException;
+import com.sprint.mission.discodeit.exception.message.UnauthorizedMessageAccessException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -152,37 +152,5 @@ public class BasicMessageService implements MessageService {
 				message.addAttachment(binaryContent.getId());
 			}
 		}
-	}
-
-	// Deprecated 레거시 코드
-
-	@Override
-	public boolean createMessage(UUID authorUUID, UUID channelUUID, String message) {
-		return false;
-	}
-
-	@Override
-	public Message getMessage(UUID messageUUID) {
-		return null;
-	}
-
-	@Override
-	public List<Message> getMessageByAuthor(String targetAuthor, UUID channelUUID) {
-		return List.of();
-	}
-
-	@Override
-	public List<Message> getMessageByChannel(UUID channelUUID) {
-		return List.of();
-	}
-
-	@Override
-	public boolean updateMessage(UUID messageUUID, UUID authorUUID, String text) {
-		return false;
-	}
-
-	@Override
-	public void deleteMessage(UUID messageUUID, UUID authorUUID) {
-
 	}
 }

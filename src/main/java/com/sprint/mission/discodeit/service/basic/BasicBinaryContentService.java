@@ -5,12 +5,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.stereotype.Service;
-
 import com.sprint.mission.discodeit.dto.request.binaryContent.CreateBinaryContentRequest;
 import com.sprint.mission.discodeit.dto.response.binaryContent.BinaryContentResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.exception.BinaryContentNotFoundException;
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 

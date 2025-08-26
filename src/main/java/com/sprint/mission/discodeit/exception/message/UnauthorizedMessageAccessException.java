@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.exception;
+package com.sprint.mission.discodeit.exception.message;
 
 public class UnauthorizedMessageAccessException extends RuntimeException {
 	public UnauthorizedMessageAccessException() {

@@ -1,14 +1,5 @@
-package com.sprint.mission.discodeit.repository.file;
+package com.sprint.mission.discodeit.repository.jcf;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,38 +8,23 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 
-@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
-public class FileReadStatusRepository implements ReadStatusRepository {
-	private final String DATA_DIR;
-	private final String EXTENSION = ".ser";
-	private final String READ_STATUS_FILE;
-	private final String USER_INDEX_FILE;
-	private final String CHANNEL_INDEX_FILE;
-
+public class JCFReadStatusRepository implements ReadStatusRepository {
 	private final Map<UUID, ReadStatus> readStatusMap;
-	private final Map<UUID, List<UUID>> userToReadStatusMap;
-	private final Map<UUID, List<UUID>> channelToReadStatusMap;
+	private final Map<UUID, List<UUID>> userToReadStatusMap;    // userId -> List<readStatusId>
+	private final Map<UUID, List<UUID>> channelToReadStatusMap; // channelId -> List<readStatusId>
 
-	public FileReadStatusRepository(@Value("${discodeit.repository.file-directory:.discodeit}") String fileDirectory) {
+	public JCFReadStatusRepository() {
 		readStatusMap = new ConcurrentHashMap<>();
 		userToReadStatusMap = new ConcurrentHashMap<>();
 		channelToReadStatusMap = new ConcurrentHashMap<>();
-
-		this.DATA_DIR = fileDirectory.endsWith("/") ? fileDirectory : fileDirectory + "/";
-		this.READ_STATUS_FILE = DATA_DIR + "readStatus" + EXTENSION;
-		this.USER_INDEX_FILE = DATA_DIR + "readStatusUserIndex" + EXTENSION;
-		this.CHANNEL_INDEX_FILE = DATA_DIR + "readStatusChannelIndex" + EXTENSION;
-
-		createDirectoryIfNotExists();
-		loadFile();
 	}
 
 	@Override
@@ -68,14 +44,11 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 		if (!channelReadStatusIds.contains(status.getId())) {
 			channelReadStatusIds.add(status.getId());
 		}
-
-		saveFile();
 	}
 
 	@Override
 	public Optional<ReadStatus> findById(UUID id) {
-		return Optional.ofNullable(readStatusMap.get(id))
-			.map(ReadStatus::copy);
+		return Optional.ofNullable(readStatusMap.get(id)).map(ReadStatus::copy);
 	}
 
 	@Override
@@ -91,7 +64,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
 		return readStatusIds.stream()
 			.map(readStatusMap::get)
-			.filter(rs -> rs != null)
+			.filter(Objects::nonNull)
 			.map(ReadStatus::copy)
 			.toList();
 	}
@@ -109,7 +82,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
 		return readStatusIds.stream()
 			.map(readStatusMap::get)
-			.filter(rs -> rs != null)
+			.filter(Objects::nonNull)
 			.map(ReadStatus::copy)
 			.toList();
 	}
@@ -147,7 +120,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 		ReadStatus readStatus = readStatusMap.get(id);
 		if (readStatus != null) {
 			removeFromMaps(id, readStatus);
-			saveFile();
 		}
 	}
 
@@ -160,15 +132,12 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 		List<UUID> readStatusIds = channelToReadStatusMap.get(channelId);
 		if (readStatusIds != null) {
 			List<UUID> idsToDelete = new ArrayList<>(readStatusIds);
-
 			for (UUID id : idsToDelete) {
 				ReadStatus readStatus = readStatusMap.get(id);
 				if (readStatus != null) {
 					removeFromMaps(id, readStatus);
 				}
 			}
-
-			saveFile();
 		}
 	}
 
@@ -181,7 +150,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 		for (ReadStatus rs : toDelete) {
 			deleteById(rs.getId());
 		}
-
 	}
 
 	@Override
@@ -190,12 +158,10 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 			return false;
 		}
 
-
 		List<UUID> channelReadStatusIds = channelToReadStatusMap.get(channelId);
 		if (channelReadStatusIds == null) {
 			return false;
 		}
-
 
 		for (UUID readStatusId : channelReadStatusIds) {
 			ReadStatus rs = readStatusMap.get(readStatusId);
@@ -203,7 +169,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -235,94 +200,13 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
 	@Override
 	public void createDirectoryIfNotExists() {
-		try {
-			Path dataPath = Paths.get(DATA_DIR);
-			if (!Files.exists(dataPath)) {
-				Files.createDirectories(dataPath);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override
 	public void loadFile() {
-		Map<UUID, ReadStatus> tempReadStatusMap = null;
-		Map<UUID, List<UUID>> tempUserIndex = null;
-		Map<UUID, List<UUID>> tempChannelIndex = null;
-		boolean readStatusLoaded = false;
-		boolean userIndexLoaded = false;
-		boolean channelIndexLoaded = false;
-
-		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(READ_STATUS_FILE))) {
-			tempReadStatusMap = (Map<UUID, ReadStatus>) ois.readObject();
-			readStatusLoaded = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(USER_INDEX_FILE))) {
-			tempUserIndex = (Map<UUID, List<UUID>>) ois.readObject();
-			userIndexLoaded = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(CHANNEL_INDEX_FILE))) {
-			tempChannelIndex = (Map<UUID, List<UUID>>) ois.readObject();
-			channelIndexLoaded = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		if (readStatusLoaded && userIndexLoaded && channelIndexLoaded) {
-			readStatusMap.clear();
-			readStatusMap.putAll(tempReadStatusMap);
-			userToReadStatusMap.clear();
-			userToReadStatusMap.putAll(tempUserIndex);
-			channelToReadStatusMap.clear();
-			channelToReadStatusMap.putAll(tempChannelIndex);
-		}
 	}
 
 	@Override
 	public void saveFile() {
-		Path readStatusTmp = Paths.get(READ_STATUS_FILE + ".tmp");
-		Path userIndexTmp = Paths.get(USER_INDEX_FILE + ".tmp");
-		Path channelIndexTmp = Paths.get(CHANNEL_INDEX_FILE + ".tmp");
-
-		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(readStatusTmp.toFile()))) {
-			oos.writeObject(readStatusMap);
-		} catch (Exception e) {
-			throw new RuntimeException("ReadStatus 저장 파일 쓰기 실패", e);
-		}
-
-		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(userIndexTmp.toFile()))) {
-			oos.writeObject(userToReadStatusMap);
-		} catch (Exception e) {
-			throw new RuntimeException("ReadStatus 사용자 인덱스 파일 쓰기 실패", e);
-		}
-
-		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(channelIndexTmp.toFile()))) {
-			oos.writeObject(channelToReadStatusMap);
-		} catch (Exception e) {
-			throw new RuntimeException("ReadStatus 채널 인덱스 파일 쓰기 실패", e);
-		}
-
-		try {
-			Files.move(readStatusTmp, Paths.get(READ_STATUS_FILE), StandardCopyOption.REPLACE_EXISTING);
-			Files.move(userIndexTmp, Paths.get(USER_INDEX_FILE), StandardCopyOption.REPLACE_EXISTING);
-			Files.move(channelIndexTmp, Paths.get(CHANNEL_INDEX_FILE), StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {
-			throw new RuntimeException("임시 파일 이동 실패", e);
-		}
-
-		try {
-			Files.deleteIfExists(readStatusTmp);
-			Files.deleteIfExists(userIndexTmp);
-			Files.deleteIfExists(channelIndexTmp);
-		} catch (IOException e) {
-			throw new RuntimeException("임시 파일 삭제 실패", e);
-		}
 	}
 }

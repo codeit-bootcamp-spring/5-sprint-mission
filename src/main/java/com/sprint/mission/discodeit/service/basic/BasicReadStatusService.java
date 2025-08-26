@@ -9,8 +9,8 @@ import com.sprint.mission.discodeit.dto.request.readStatus.CreateReadStatusReque
 import com.sprint.mission.discodeit.dto.request.readStatus.UpdateReadStatusRequest;
 import com.sprint.mission.discodeit.dto.response.readStatus.ReadStatusResponse;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.exception.AlreadyExistsReadStatusException;
-import com.sprint.mission.discodeit.exception.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.readstatus.AlreadyExistsReadStatusException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -59,8 +59,30 @@ public class BasicReadStatusService implements ReadStatusService {
 	}
 
 	@Override
-	public ReadStatusResponse update(UpdateReadStatusRequest request) {
-		ReadStatus readStatus = readStatusRepository.findById(request.getId())
+	public List<ReadStatusResponse> getAllByChannelId(UUID channelId) {
+		List<ReadStatus> readStatuses = readStatusRepository.findByUserId(channelId);
+
+		return readStatuses.stream()
+			.map(ReadStatusResponse::success)
+			.toList();
+	}
+
+	@Override
+	public ReadStatusResponse updateById(UUID id) {
+		ReadStatus readStatus = readStatusRepository.findById(id)
+			.orElseThrow(ReadStatusNotFoundException::new);
+
+		readStatus.updateUpdatedAt();
+		readStatusRepository.save(readStatus);
+
+		return ReadStatusResponse.success(readStatus);
+	}
+
+	@Override
+	public ReadStatusResponse updateByChannelIdAndUserId(UpdateReadStatusRequest request) {
+		ReadStatus readStatus = readStatusRepository.findByChannelIdAndUserId(request.getChannelId(), request.getUserId())
+			.stream()
+			.findFirst()
 			.orElseThrow(ReadStatusNotFoundException::new);
 
 		readStatus.updateUpdatedAt();

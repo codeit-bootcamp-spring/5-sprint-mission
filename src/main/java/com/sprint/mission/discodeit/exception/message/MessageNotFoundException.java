@@ -1,6 +1,4 @@
-package com.sprint.mission.discodeit.exception;
-
-import java.util.UUID;
+package com.sprint.mission.discodeit.exception.message;
 
 public class MessageNotFoundException extends RuntimeException {
 	public MessageNotFoundException() {

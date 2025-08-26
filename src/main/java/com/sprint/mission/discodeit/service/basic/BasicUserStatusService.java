@@ -10,9 +10,9 @@ import com.sprint.mission.discodeit.dto.request.userStatus.CreateUserStatusReque
 import com.sprint.mission.discodeit.dto.request.userStatus.UpdateUserStatusRequest;
 import com.sprint.mission.discodeit.dto.response.userStatus.UserStatusResponse;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.exception.AlreadyExistsUserStatusException;
-import com.sprint.mission.discodeit.exception.UserNotFoundException;
-import com.sprint.mission.discodeit.exception.UserStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.userstatus.AlreadyExistsUserStatusException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;

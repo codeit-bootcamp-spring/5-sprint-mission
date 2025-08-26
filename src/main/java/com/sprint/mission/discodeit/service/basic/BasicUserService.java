@@ -6,16 +6,17 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+
 import com.sprint.mission.discodeit.dto.request.user.*;
 import com.sprint.mission.discodeit.dto.response.user.*;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.exception.DuplicateEmailException;
-import com.sprint.mission.discodeit.exception.DuplicateLoginIdException;
-import com.sprint.mission.discodeit.exception.InvalidPasswordException;
-import com.sprint.mission.discodeit.exception.UserNotFoundException;
-import com.sprint.mission.discodeit.exception.UserStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
+import com.sprint.mission.discodeit.exception.user.DuplicateLoginIdException;
+import com.sprint.mission.discodeit.exception.user.InvalidPasswordException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;

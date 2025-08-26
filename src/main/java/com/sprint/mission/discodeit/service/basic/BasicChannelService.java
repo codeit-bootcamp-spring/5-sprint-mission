@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.dto.request.channel.GetChannelBychannelName;
 import com.sprint.mission.discodeit.dto.request.channel.GetChannelsByUserRequest;
 import com.sprint.mission.discodeit.dto.request.channel.JoinChannelRequest;
 import com.sprint.mission.discodeit.dto.request.channel.LeaveChannelRequest;
+import com.sprint.mission.discodeit.dto.request.channel.UpdateChannelnameRequest;
 import com.sprint.mission.discodeit.dto.request.channel.UpdateUserNicknameRequest;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.dto.response.channel.CreateChannelResponse;
@@ -24,14 +25,16 @@ import com.sprint.mission.discodeit.dto.response.channel.LeaveChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.AlreadyExistsChannelMemberException;
-import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
-import com.sprint.mission.discodeit.exception.DuplicateChannelNameException;
-import com.sprint.mission.discodeit.exception.NotChannelMemberException;
+import com.sprint.mission.discodeit.exception.channel.AlreadyExistsChannelMemberException;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.DuplicateChannelNameException;
+import com.sprint.mission.discodeit.exception.channel.NotChannelMemberException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import lombok.RequiredArgsConstructor;
@@ -42,6 +45,7 @@ public class BasicChannelService implements ChannelService {
 	private final ChannelRepository channelRepository;
 	private final ReadStatusRepository readStatusRepository;
 	private final MessageRepository messageRepository;
+	private final UserRepository  userRepository;
 
 	@Override
 	public CreateChannelResponse createPublicChannel(CreatePublicChannelRequest request) {
@@ -58,16 +62,28 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	public CreateChannelResponse createPrivateChannel(CreatePrivateChannelRequest request) {
-		Channel channel = new Channel(request.getMemberIds());
+		List<UUID> uniqueMemberIds = request.getMemberIds().stream().distinct().toList();
+
+		for (UUID userId : request.getMemberIds()) {
+			if (userId == null) {
+				throw new IllegalArgumentException("null");
+			}
+
+			if (!userRepository.existsById(userId)) {
+				throw new UserNotFoundException();
+			}
+		}
+
+		Channel channel = new Channel(uniqueMemberIds);
 
 		channelRepository.save(channel);
 
-		for (UUID userId : request.getMemberIds()) {
+		for (UUID userId : uniqueMemberIds) {
 			ReadStatus readStatus = new ReadStatus(userId, channel.getId());
 			readStatusRepository.save(readStatus);
 		}
 
-		return CreateChannelResponse.successWithMembers(channel, request.getMemberIds());
+		return CreateChannelResponse.successWithMembers(channel, uniqueMemberIds);
 	}
 
 	@Override
@@ -140,24 +156,31 @@ public class BasicChannelService implements ChannelService {
 		return channelResponseList;
 	}
 
+
+	// 수정된 updateChannelName 메서드
 	@Override
-	public boolean updateChannelName(UUID channelUUID, String channelNewName) {
-		Channel channel = channelRepository.findById(channelUUID)
+	public ChannelResponse updateChannelName(UpdateChannelnameRequest request) {
+		Channel channel = channelRepository.findById(request.getChannelId())
 			.orElseThrow(ChannelNotFoundException::new);
 
-		if (channelRepository.existsByName(channelNewName)) {
+		if (channelRepository.existsByName(request.getChannelNewName())) {
 			throw new DuplicateChannelNameException();
 		}
 
-		channel.updateChannelName(channelNewName);
+		if (channel.getType().equals("PRIVATE")) {
+			throw new PrivateChannelUpdateException();
+		}
+
+		channel.updateChannelName(request.getChannelNewName());
 		channel.updateUpdatedAt();
 		channelRepository.save(channel);
 
-		return true;
+		return createChannelByType(channel);
 	}
 
+	// 수정된 updateUserNickname 메서드
 	@Override
-	public boolean updateUserNickname(UpdateUserNicknameRequest request) {
+	public ChannelResponse updateUserNickname(UpdateUserNicknameRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
 			.orElseThrow(ChannelNotFoundException::new);
 
@@ -165,11 +188,15 @@ public class BasicChannelService implements ChannelService {
 			throw new NotChannelMemberException();
 		}
 
+		if (channel.getType().equals("PRIVATE")) {
+			throw new PrivateChannelUpdateException();
+		}
+
 		channel.addNickname(request.getUserId(), request.getNewNickname());
 		channel.updateUpdatedAt();
 		channelRepository.save(channel);
 
-		return true;
+		return createChannelByType(channel);
 	}
 
 	@Override
@@ -223,52 +250,5 @@ public class BasicChannelService implements ChannelService {
 			.stream()
 			.map(ReadStatus::getUserId)
 			.toList();
-	}
-
-	// @Deprecated 레거시 코드
-
-	@Override
-	public Channel createChannel(String channelName) {
-		return null;
-	}
-
-	@Override
-	public boolean joinChannel(User user, String channelName) {
-		return false;
-	}
-
-	@Override
-	public Channel getChannelByName(String channelName) {
-		return null;
-	}
-
-	@Override
-	public Channel getChannelByUUID(UUID channelUUID) {
-		return null;
-	}
-
-	@Override
-	public List<Channel> getAllChannels() {
-		return List.of();
-	}
-
-	@Override
-	public boolean updateUserNickname(UUID channelUUID, UUID userUUID, String newNickname) {
-		return false;
-	}
-
-	@Override
-	public boolean leaveChannel(UUID channelUUID, UUID userUUID) {
-		return false;
-	}
-
-	@Override
-	public boolean deleteChannel(UUID channelUUID) {
-		return false;
-	}
-
-	@Override
-	public boolean deleteChannel(String channelName) {
-		return false;
 	}
 }

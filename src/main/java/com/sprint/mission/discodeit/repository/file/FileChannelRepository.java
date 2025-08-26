@@ -18,26 +18,32 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.FileRepository;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
 public class FileChannelRepository implements ChannelRepository {
-	private static final String DATA_DIR = "data/";
-	private static final String EXTENSION = ".ser";
-	private static final String CHANNELS_FILE = DATA_DIR + "channels" + EXTENSION;
-	private static final String CHANNEL_MAPPING_FILE = DATA_DIR + "channelMapping" + EXTENSION;
-
+	private final String DATA_DIR;
+	private final String EXTENSION = ".ser";
+	private final String CHANNELS_FILE;
+	private final String CHANNEL_MAPPING_FILE;
 
 	private final Map<UUID, Channel> channelMap;
 	private final Map<String, UUID> channelNameToUUID;
 
-	public FileChannelRepository() {
+	public FileChannelRepository(@Value("${discodeit.repository.file-directory:.discodeit}") String fileDirectory) {
 		channelMap = new ConcurrentHashMap<>();
 		channelNameToUUID = new ConcurrentHashMap<>();
+
+		this.DATA_DIR = fileDirectory.endsWith("/") ? fileDirectory : fileDirectory + "/";
+		this.CHANNELS_FILE = DATA_DIR + "channels" + EXTENSION;
+		this.CHANNEL_MAPPING_FILE = DATA_DIR + "channelMapping" + EXTENSION;
 
 		createDirectoryIfNotExists();
 		loadFile();
@@ -47,6 +53,11 @@ public class FileChannelRepository implements ChannelRepository {
 	public void save(Channel channel) {
 		if (channel == null || channel.getId() == null) {
 			return;
+		}
+
+		Channel existingChannel = channelMap.get(channel.getId());
+		if (existingChannel != null) {
+			channelNameToUUID.remove(existingChannel.getChannelName());
 		}
 
 		channelMap.put(channel.getId(), channel);

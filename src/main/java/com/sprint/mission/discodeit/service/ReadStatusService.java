@@ -11,6 +11,8 @@ public interface ReadStatusService {
 	ReadStatusResponse create(CreateReadStatusRequest request);
 	ReadStatusResponse getById(UUID id);
 	List<ReadStatusResponse> getAllByUserId(UUID userId);
-	ReadStatusResponse update(UpdateReadStatusRequest request);
+	List<ReadStatusResponse> getAllByChannelId(UUID channelId);
+	ReadStatusResponse updateByChannelIdAndUserId(UpdateReadStatusRequest request);
+	ReadStatusResponse updateById(UUID id);
 	ReadStatusResponse delete(UUID id);
 }

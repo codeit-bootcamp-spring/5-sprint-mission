@@ -2,15 +2,17 @@ package com.sprint.mission.discodeit.dto.request.channel;
 
 import java.util.UUID;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Builder
 public class GetChannelsByUserRequest {
-	@NotBlank(message = "사용자 ID는 필수입니다")
+	@NotNull(message = "사용자 ID는 필수입니다")
 	private UUID userId;
 }

@@ -46,12 +46,14 @@ public class Channel implements Serializable {
 		memberIds = new ArrayList<>();
 		userNicknames = new ConcurrentHashMap<UUID, String>();
 
+		List<UUID> uniqueUserIds = userUUIDs.stream().distinct().toList();
+
 		id = UUID.randomUUID();
 		type = "PRIVATE";
 		channelName = "private-"+id;
 		createdAt = Instant.now();
 		updatedAt = createdAt;
-		this.memberIds.addAll(userUUIDs);
+		this.memberIds.addAll(uniqueUserIds);
 	}
 
 	public Channel(Channel original) {

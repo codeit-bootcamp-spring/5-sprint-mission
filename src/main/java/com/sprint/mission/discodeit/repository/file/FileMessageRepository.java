@@ -16,21 +16,27 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
 public class FileMessageRepository implements MessageRepository {
-	private static final String DATA_DIR = "data/";
-	private static final String EXTENSION = ".ser";
-	private static final String MESSAGES_FILE = DATA_DIR + "messages" + EXTENSION;
+	private final String DATA_DIR;
+	private final String EXTENSION = ".ser";
+	private final String MESSAGES_FILE;
 
 	private final Map<UUID, Message> messageMap;
 
-	public FileMessageRepository() {
+	public FileMessageRepository(@Value("${discodeit.repository.file-directory:.discodeit}") String fileDirectory) {
 		messageMap = new ConcurrentHashMap<>();
+
+		this.DATA_DIR = fileDirectory.endsWith("/") ? fileDirectory : fileDirectory + "/";
+		this.MESSAGES_FILE = DATA_DIR + "messages" + EXTENSION;
 
 		createDirectoryIfNotExists();
 		loadFile();

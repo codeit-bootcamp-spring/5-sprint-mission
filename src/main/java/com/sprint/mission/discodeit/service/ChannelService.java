@@ -27,29 +27,9 @@ public interface ChannelService {
 	List<String> getMemberNicknames(String channelName);
 
 	// 수정
-	boolean updateUserNickname(UpdateUserNicknameRequest request);
+	ChannelResponse updateUserNickname(UpdateUserNicknameRequest request);
+	ChannelResponse updateChannelName(UpdateChannelnameRequest request);
 
 	// 삭제
 	DeleteChannelResponse deleteChannel(DeleteChannelRequest request);
-
-	@Deprecated
-	Channel createChannel(String channelName);
-	@Deprecated
-	boolean joinChannel(User user, String channelName);
-	@Deprecated
-	Channel getChannelByName(String channelName);
-	@Deprecated
-	Channel getChannelByUUID(UUID channelUUID);
-	@Deprecated
-	List<Channel> getAllChannels();
-	@Deprecated
-	boolean updateChannelName(UUID channelUUID, String channelNewName);
-	@Deprecated
-	boolean updateUserNickname(UUID channelUUID, UUID userUUID, String newNickname);
-	@Deprecated
-	boolean leaveChannel(UUID channelUUID, UUID userUUID);
-	@Deprecated
-	boolean deleteChannel(UUID channelUUID);
-	@Deprecated
-	boolean deleteChannel(String channelName);
 }

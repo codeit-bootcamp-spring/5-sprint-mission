@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.exception;
+package com.sprint.mission.discodeit.exception.readstatus;
 
 public class ReadStatusNotFoundException extends RuntimeException {
   public ReadStatusNotFoundException() {

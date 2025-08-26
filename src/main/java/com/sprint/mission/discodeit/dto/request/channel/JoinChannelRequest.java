@@ -5,6 +5,7 @@ package com.sprint.mission.discodeit.dto.request.channel;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ import lombok.Data;
 @Data
 @Builder
 public class JoinChannelRequest {
-	@NotBlank(message = "유저 ID는 필수")
+	@NotNull(message = "유저 ID는 필수")
 	private UUID userId;
 	@NotBlank(message = "유저 닉네임은 필수")
 	private String userDefaultNickname;
