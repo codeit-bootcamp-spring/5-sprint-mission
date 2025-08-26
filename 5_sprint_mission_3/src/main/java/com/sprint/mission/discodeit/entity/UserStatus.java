@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serial;
@@ -39,6 +40,7 @@ public class UserStatus implements Serializable {
     }
 
     public boolean isOnline() {
-        return this.lastAccessAt != null && lastAccessAt.isAfter(Instant.now().minusSeconds(300));
+        return lastAccessAt != null &&
+                Instant.now().minusSeconds(300).isBefore(lastAccessAt);
     }
 }

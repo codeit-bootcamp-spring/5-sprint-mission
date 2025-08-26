@@ -43,6 +43,14 @@ public class AppConfig {
     }
 
     @Bean
+    public ChannelParticipantRepository channelParticipantRepository() {
+        return switch (properties.getType()) {
+            case "file" -> new FileChannelParticipantRepository(properties.getFileDirectory());
+            default -> new JCFChannelParticipantRepository();
+        };
+    }
+
+    @Bean
     public BinaryContentRepository binaryContentRepository() {
         return switch (properties.getType()) {
             case "file" -> new FileBinaryContentRepository(properties.getFileDirectory());
@@ -72,14 +80,16 @@ public class AppConfig {
     }
 
     @Bean
-    public ChannelService channelService() {
+    public ChannelService channelService(ChannelParticipantRepository channelParticipantRepository) {
         return new BasicChannelService(
                 channelRepository(),
                 readStatusRepository(),
                 userRepository(),
-                messageRepository()
+                messageRepository(),
+                channelParticipantRepository()
         );
     }
+
 
     @Bean
     public MessageService messageService() {

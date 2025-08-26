@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div id="userList">
+    <div th:each="user : ${users}" class="user-item">
+        <img th:src="${user.profileImageId != null} ? @{/api/binary/${user.profileImageId}} : '/default-avatar.png'"
+             th:alt="${user.username}" class="user-avatar">
+        <div class="user-info">
+            <div class="user-name" th:text="${user.username}"></div>
+            <div class="user-email" th:text="${user.email}"></div>
+        </div>
+        <div th:class="'status-badge ' + (${user.online} ? 'online' : 'offline')"
+             th:text="${user.online} ? '온라인' : '오프라인'">
+        </div>
+    </div>
+</div>
+</body>
+</html>

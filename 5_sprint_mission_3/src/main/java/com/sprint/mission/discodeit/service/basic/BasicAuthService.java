@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
 
 @Service("basicAuthService")
-@Primary
 @RequiredArgsConstructor
 public class BasicAuthService implements AuthService {
     private final UserRepository userRepository;
@@ -33,6 +32,8 @@ public class BasicAuthService implements AuthService {
 
         return new UserResponseDto(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getProfileImageId(),

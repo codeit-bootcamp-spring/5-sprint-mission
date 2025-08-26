@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service("basicBinaryContentService")
-@Primary
 @RequiredArgsConstructor
 public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
@@ -30,5 +30,10 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Override
     public void deleteById(UUID id) {
         binaryContentRepository.deleteById(id);
+    }
+
+    @Override
+    public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
+        return binaryContentRepository.findAllByIdIn(ids);
     }
 }

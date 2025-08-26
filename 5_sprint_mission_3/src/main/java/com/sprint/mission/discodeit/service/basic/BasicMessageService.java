@@ -18,7 +18,6 @@ import java.util.*;
 
 
 @Service("basicMessageService")
-@Primary
 @RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
@@ -29,11 +28,10 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public Message create(MessageCreateRequest request) {
-        // 유효성 검사
         if (!channelRepository.existsById(request.channelId())) {
             throw new NoSuchElementException("채널이 존재하지 않습니다.");
         }
-        if (!userRepository.existsById(request.authorId())) {
+        if (!userRepository.existsById(request.userId())) {
             throw new NoSuchElementException("사용자가 존재하지 않습니다.");
         }
 
@@ -53,7 +51,7 @@ public class BasicMessageService implements MessageService {
         Message message = new Message(
                 request.content(),
                 request.channelId(),
-                request.authorId(),
+                request.userId(),
                 attachmentIds
         );
         return messageRepository.save(message);
@@ -75,25 +73,16 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public Message update(MessageUpdateRequest request) {
-        Message message = messageRepository.findById(request.messageId())
-                .orElseThrow(() -> new NoSuchElementException("메시지 Id가 존재하지 않습니다."));
-        message.update(request.newContent());
-        return messageRepository.save(message);
+    public Message update(UUID messageId, MessageUpdateRequest messageUpdateRequest) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("Message not found with id: " + messageId));
+        message.update(messageUpdateRequest.newContent());
+        messageRepository.save(message);
+        return message;
     }
 
     @Override
     public void delete(UUID messageId) {
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("메시지 Id가 존재하지 않습니다."));
-
-        List<UUID> attachmentIds = message.getAttachmentIds();
-
-        if(attachmentIds != null) {
-            for (UUID attachmentId : attachmentIds) {
-                binaryContentRepository.deleteById((attachmentId));
-            }
-        }
         messageRepository.deleteById(messageId);
     }
 }

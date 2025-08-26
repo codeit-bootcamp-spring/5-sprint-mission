@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import jakarta.annotation.Nullable;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,5 +20,8 @@ public interface UserService {
     UserResponseDto update(UserUpdateRequest request);
 
     void delete(UUID userId);
-    User create(UserCreateRequest request, @Nullable BinaryContentCreateRequest profileImage);
+    UserResponseDto create(UserCreateRequest request, @Nullable BinaryContentCreateRequest profileImage);
+
+    void updateLastAccessAt(UUID userId, Instant lastAccessAt);
+
 }

@@ -7,6 +7,7 @@ import lombok.ToString;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Getter
@@ -24,6 +25,8 @@ public class User implements Serializable {
     private String password;
     @Setter
     private UUID profileImageId;
+    @Setter
+    private Instant lastAccessAt;
 
     public User(String username, String email, String password, UUID profileImageId) {
         this.id = UUID.randomUUID();
@@ -34,6 +37,7 @@ public class User implements Serializable {
         this.email = email;
         this.password = password;
         this.profileImageId = profileImageId;
+        this.lastAccessAt = Instant.now();
     }
 
     public User(String username, String email, String password) {
@@ -65,6 +69,18 @@ public class User implements Serializable {
         if (anyValueUpdated) {
             this.updatedAt = Instant.now();
         }
+    }
+
+    public void updateLastAccessAt(Instant lastAccessAt) {
+        if (lastAccessAt != null && lastAccessAt.equals(this.lastAccessAt)) {
+            this.lastAccessAt = lastAccessAt;
+            this.updatedAt = Instant.now();
+        }
+    }
+
+    public boolean isOnline() {
+        return lastAccessAt != null &&
+                Instant.now().minusSeconds(300).isBefore(lastAccessAt);
     }
 
 }
