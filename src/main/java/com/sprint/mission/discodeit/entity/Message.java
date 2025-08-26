@@ -1,60 +1,46 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
-public class Message {
-    private UUID id;
-    private Long createdAt;
-    private Long updatedAt;
+@Getter
+public class Message implements Serializable {
 
-    // 소속된 채널과 글쓴이 표현
-    private String channelName;
-    private String nickName;
-    private String message;
+  private static final long serialVersionUID = 1L;
 
-    public Message(String channelName,String nickName, String message) {
-        this.id = UUID.randomUUID();
-        this.channelName = channelName;
-        this.nickName = nickName;
-        this.message = message;
-        this.createdAt = System.currentTimeMillis();
+  private UUID id;
+  private Instant createdAt;
+  private Instant updatedAt;
+  //
+  private String content;
+  //
+  private UUID channelId;
+  private UUID authorId;
+  private List<UUID> attachmentIds;
+
+  public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+    this.id = UUID.randomUUID();
+    this.createdAt = Instant.now();
+    //
+    this.content = content;
+    this.channelId = channelId;
+    this.authorId = authorId;
+    this.attachmentIds = attachmentIds;
+  }
+
+  public void update(String newContent) {
+    boolean anyValueUpdated = false;
+    if (newContent != null && !newContent.equals(this.content)) {
+      this.content = newContent;
+      anyValueUpdated = true;
     }
 
-    public UUID getId() {
-        return id;
+    if (anyValueUpdated) {
+      this.updatedAt = Instant.now();
     }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public String getNickName() {
-        return nickName;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void updateMessage(String message) {
-        this.message = message;
-        this.updatedAt = System.currentTimeMillis();
-    }
-    @Override
-    public String toString() {
-        String sb = "메세지{" + " 채널='" + channelName + '\'' +
-                ", 전송 시간=" + createdAt +
-                ", 닉네임='" + nickName + '\'' +
-                ", 내용='" + message + '\'' +
-                '}'+ '\n';
-        return sb;
-    }
+  }
 }
