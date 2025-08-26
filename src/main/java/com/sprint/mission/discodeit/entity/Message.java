@@ -1,47 +1,74 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Getter;
-
+import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
-@Getter
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Message implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
-    //
-    private String content;
-    //
-    private UUID channelId;
-    private UUID authorId;
-    private List<UUID> attachmentIds;
+    private final UUID id;              //고유 아이디
+    private String content;             //메시지 내용
+    private UUID userId;                //작성자 아이디
+    private UUID channelId;             //작성 채널 아이디
+    private final Long createdAt;        //생성 시간
+    private Long updatedAt;              //수정 시간
 
-    public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+    public Message() {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        //
-        this.content = content;
-        this.channelId = channelId;
-        this.authorId = authorId;
-        this.attachmentIds = attachmentIds;
+        this.createdAt = System.currentTimeMillis();
     }
 
-    public void update(String newContent) {
-        boolean anyValueUpdated = false;
-        if (newContent != null && !newContent.equals(this.content)) {
-            this.content = newContent;
-            anyValueUpdated = true;
-        }
+    public Message(String content, UUID userId, UUID channelId) {
+        this.id = UUID.randomUUID();
+        this.createdAt = System.currentTimeMillis();
+        this.content = content;
+        this.userId = userId;
+        this.channelId = channelId;
+    }
 
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
+    public UUID getId() {
+        return id;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public UUID getChannelId() {
+        return channelId;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public Long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        return "메시지 { " +
+                "아이디 = " + id +
+                ", 내용 = '" + content + '\'' +
+                ", 사용자 ID = " + userId +
+                ", 채널 ID = " + channelId +
+                ", 생성 시간 = " + createdAt +
+                ", 수정 시간 = " + updatedAt +
+                " }";
     }
 }
