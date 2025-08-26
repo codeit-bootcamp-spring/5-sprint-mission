@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
-import com.sprint.mission.discodeit.dto.request.binaryContent.CreateBinaryContentRequest;
+import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.response.binaryContent.BinaryContentResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
@@ -20,12 +20,12 @@ public class BasicBinaryContentService implements BinaryContentService {
 	private final BinaryContentRepository binaryContentRepository;
 
 	@Override
-	public BinaryContentResponse create(CreateBinaryContentRequest request) {
+	public BinaryContentResponse create(UserProfileImageRequest request) {
 		BinaryContent binaryContent = new BinaryContent(
-			request.getFilename(),
+			request.getFileName(),
 			request.getContentType(),
 			request.getSize(),
-			request.getContent()
+			request.getBytes()
 		);
 
 		binaryContentRepository.save(binaryContent);

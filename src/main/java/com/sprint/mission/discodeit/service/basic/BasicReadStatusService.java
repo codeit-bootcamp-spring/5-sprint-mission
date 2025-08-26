@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.sprint.mission.discodeit.dto.request.readStatus.CreateReadStatusRequest;
-import com.sprint.mission.discodeit.dto.request.readStatus.UpdateReadStatusRequest;
+import com.sprint.mission.discodeit.dto.request.readStatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.readStatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.readStatus.ReadStatusResponse;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.exception.readstatus.AlreadyExistsReadStatusException;
@@ -21,83 +22,90 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class BasicReadStatusService implements ReadStatusService {
-	private final ReadStatusRepository readStatusRepository;
-	private final UserRepository userRepository;
-	private final ChannelRepository channelRepository;
 
-	@Override
-	public ReadStatusResponse create(CreateReadStatusRequest request) {
-		if(!userRepository.existsById(request.getUserId())
-		|| channelRepository.findById(request.getChannelId()).isEmpty()){
-			throw new ReadStatusNotFoundException();
-		}
+  private final ReadStatusRepository readStatusRepository;
+  private final UserRepository userRepository;
+  private final ChannelRepository channelRepository;
 
-		if (readStatusRepository.existsByChannelIdAndUserId(request.getChannelId(), request.getUserId())) {
-			throw new AlreadyExistsReadStatusException();
-		}
+  @Override
+  public ReadStatusResponse create(ReadStatusCreateRequest request) {
+    if (!userRepository.existsById(request.getUserId())
+        || channelRepository.findById(request.getChannelId()).isEmpty()) {
+      throw new ReadStatusNotFoundException();
+    }
 
-		ReadStatus readStatus = new ReadStatus(request.getUserId(), request.getChannelId());
-		readStatusRepository.save(readStatus);
+    if (readStatusRepository.existsByChannelIdAndUserId(request.getChannelId(), request.getUserId())) {
+      ReadStatus existingReadStatus = readStatusRepository.findByChannelIdAndUserId(request.getChannelId(), request.getUserId());
 
-		return ReadStatusResponse.success(readStatus);
-	}
+      existingReadStatus.update(request.getLastReadAt());
+      readStatusRepository.save(existingReadStatus);
 
-	@Override
-	public ReadStatusResponse getById(UUID id) {
-		ReadStatus readStatus = readStatusRepository.findById(id)
-			.orElseThrow(ReadStatusNotFoundException::new);
-		return ReadStatusResponse.success(readStatus);
-	}
+      return ReadStatusResponse.success(existingReadStatus);
+    } else {
+      ReadStatus readStatus = new ReadStatus(request.getUserId(), request.getChannelId());
+      readStatusRepository.save(readStatus);
 
-	@Override
-	public List<ReadStatusResponse> getAllByUserId(UUID userId) {
-		List<ReadStatus> readStatuses = readStatusRepository.findByUserId(userId);
+      return ReadStatusResponse.success(readStatus);
+    }
+  }
 
-		return readStatuses.stream()
-			.map(ReadStatusResponse::success)
-			.toList();
-	}
+  @Override
+  public ReadStatusResponse getById(UUID id) {
+    ReadStatus readStatus = readStatusRepository.findById(id)
+        .orElseThrow(ReadStatusNotFoundException::new);
+    return ReadStatusResponse.success(readStatus);
+  }
 
-	@Override
-	public List<ReadStatusResponse> getAllByChannelId(UUID channelId) {
-		List<ReadStatus> readStatuses = readStatusRepository.findByUserId(channelId);
+  @Override
+  public List<ReadStatusResponse> getAllByUserId(UUID userId) {
+    List<ReadStatus> readStatuses = readStatusRepository.findByUserId(userId);
 
-		return readStatuses.stream()
-			.map(ReadStatusResponse::success)
-			.toList();
-	}
+    return readStatuses.stream()
+        .map(ReadStatusResponse::success)
+        .toList();
+  }
 
-	@Override
-	public ReadStatusResponse updateById(UUID id) {
-		ReadStatus readStatus = readStatusRepository.findById(id)
-			.orElseThrow(ReadStatusNotFoundException::new);
+  @Override
+  public List<ReadStatusResponse> getAllByChannelId(UUID channelId) {
+    List<ReadStatus> readStatuses = readStatusRepository.findByUserId(channelId);
 
-		readStatus.updateUpdatedAt();
-		readStatusRepository.save(readStatus);
+    return readStatuses.stream()
+        .map(ReadStatusResponse::success)
+        .toList();
+  }
 
-		return ReadStatusResponse.success(readStatus);
-	}
+  @Override
+  public ReadStatusResponse updateById(UUID id, ReadStatusUpdateRequest request) {
+    ReadStatus readStatus = readStatusRepository.findById(id)
+        .orElseThrow(ReadStatusNotFoundException::new);
 
-	@Override
-	public ReadStatusResponse updateByChannelIdAndUserId(UpdateReadStatusRequest request) {
-		ReadStatus readStatus = readStatusRepository.findByChannelIdAndUserId(request.getChannelId(), request.getUserId())
-			.stream()
-			.findFirst()
-			.orElseThrow(ReadStatusNotFoundException::new);
+    readStatus.update(request.getNewLastReadAt());
+    readStatusRepository.save(readStatus);
 
-		readStatus.updateUpdatedAt();
-		readStatusRepository.save(readStatus);
+    return ReadStatusResponse.success(readStatus);
+  }
 
-		return ReadStatusResponse.success(readStatus);
-	}
+  @Override
+  public ReadStatusResponse updateByChannelIdAndUserId(UUID channelId, UUID userId,
+      ReadStatusUpdateRequest request) {
+    ReadStatus readStatus = readStatusRepository.findByChannelIdAndUserId(channelId, userId);
+    if (readStatus == null) {
+      throw new ReadStatusNotFoundException();
+    }
 
-	@Override
-	public ReadStatusResponse delete(UUID id) {
-		ReadStatus readStatus = readStatusRepository.findById(id)
-			.orElseThrow(ReadStatusNotFoundException::new);
+    readStatus.update(request.getNewLastReadAt());
+    readStatusRepository.save(readStatus);
 
-		readStatusRepository.deleteById(id);
+    return ReadStatusResponse.success(readStatus);
+  }
 
-		return ReadStatusResponse.success(readStatus);
-	}
+  @Override
+  public ReadStatusResponse delete(UUID id) {
+    ReadStatus readStatus = readStatusRepository.findById(id)
+        .orElseThrow(ReadStatusNotFoundException::new);
+
+    readStatusRepository.deleteById(id);
+
+    return ReadStatusResponse.success(readStatus);
+  }
 }

@@ -10,31 +10,37 @@ import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Builder
 public class ChannelResponse {
 	private UUID id;
 	private Instant createdAt;
 	private Instant updatedAt;
-	private String channelName;
+	private String name;
+	private String description;
 	private String type; // PUBLIC or PRIVATE
 
-	@Nullable
-	private Instant lastMessageTime;
 
 	@Nullable
-	private List<UUID> memberIds;
+	private Instant lastMessageAt;
 
-	private ChannelResponse(Channel channel, @Nullable Instant lastMessageTime, @Nullable List<UUID> participantIds) {
+
+	@Nullable
+	private List<UUID> participantIds;
+
+	private ChannelResponse(Channel channel, @Nullable Instant lastMessageAt, @Nullable List<UUID> participantIds) {
 		this.id = channel.getId();
 		this.createdAt = channel.getCreatedAt();
 		this.updatedAt = channel.getUpdatedAt();
-		this.channelName = channel.getChannelName();
+		this.name = channel.getName();
+		this.description = channel.getDescription();
 		this.type = channel.getType();
-		this.lastMessageTime = lastMessageTime;
-		this.memberIds = participantIds;
+		this.lastMessageAt = lastMessageAt;
+		this.participantIds = participantIds;
 	}
 
 	public static ChannelResponse fromPublicChannel(Channel channel,

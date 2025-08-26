@@ -26,11 +26,6 @@ import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundExcep
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<String> handleGenericException(Exception e) {
-		return ResponseEntity.status(500).body("서버 내부 오류");
-	}
-
 	@ExceptionHandler(UserNotFoundException.class)
 	public ResponseEntity<String> handleUserNotFound(UserNotFoundException e) {
 		return ResponseEntity.status(404).body(e.getMessage());
@@ -109,5 +104,10 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(PrivateChannelUpdateException.class)
 	public ResponseEntity<String> handlePrivateChannelUpdate(PrivateChannelUpdateException e) {
 		return ResponseEntity.status(400).body(e.getMessage());
+	}
+
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<String> handleGenericException(Exception e) {
+		return ResponseEntity.status(500).body("서버 내부 오류");
 	}
 }

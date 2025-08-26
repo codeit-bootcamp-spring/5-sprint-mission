@@ -8,14 +8,16 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Builder
 public class BinaryContentResponse {
 	private UUID id;
 	private Instant createdAt;
-	private String filename;
+	private String fileName;
 	private String contentType;
 	private Long size;
 	private byte[] content;
@@ -24,10 +26,10 @@ public class BinaryContentResponse {
 	private BinaryContentResponse(BinaryContent binaryContent) {
 		this.id = binaryContent.getId();
 		this.createdAt = binaryContent.getCreatedAt();
-		this.filename = binaryContent.getFilename();
+		this.fileName = binaryContent.getFileName();
 		this.contentType = binaryContent.getContentType();
 		this.size = binaryContent.getSize();
-		this.content = binaryContent.getContent();
+		this.content = binaryContent.getBytes();
 		this.success = true;
 	}
 

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,26 +17,49 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/binaryContent")
+@RequestMapping("/api/binaryContents")
 @RequiredArgsConstructor
 public class BinaryContentController {
-	private final BinaryContentService binaryContentService;
 
-	@RequestMapping(path = "/find", method = RequestMethod.GET)
-	public ResponseEntity<Base64BinaryContentResponse> findBinaryContent(@RequestParam UUID binaryContentId) {
-		BinaryContentResponse response = binaryContentService.getById(binaryContentId);
-		Base64BinaryContentResponse base64Response = Base64BinaryContentResponse.fromResponse(response);
-		return ResponseEntity.ok(base64Response);
-	}
+  private final BinaryContentService binaryContentService;
 
-	@RequestMapping(path = "/findContents", method = RequestMethod.GET)
-	public ResponseEntity<List<Base64BinaryContentResponse>> findBinaryContents(@RequestParam List<UUID> binaryContentIds) {
-		List<BinaryContentResponse> responses = binaryContentService.getAllByIdIn(binaryContentIds);
+  @RequestMapping(path = "/find", method = RequestMethod.GET)
+  public ResponseEntity<Base64BinaryContentResponse> findBinaryContentForList(
+      @RequestParam UUID binaryContentId) {
+    BinaryContentResponse response = binaryContentService.getById(binaryContentId);
+    Base64BinaryContentResponse base64Response = Base64BinaryContentResponse.fromResponse(response);
+    return ResponseEntity.ok(base64Response);
+  }
 
-		List<Base64BinaryContentResponse> base64Responses = responses.stream()
-			.map(Base64BinaryContentResponse::fromResponse)
-			.toList();
+  @RequestMapping(path = "/findContents", method = RequestMethod.GET)
+  public ResponseEntity<List<Base64BinaryContentResponse>> findBinaryContentsForList(
+      @RequestParam List<UUID> binaryContentIds) {
+    List<BinaryContentResponse> responses = binaryContentService.getAllByIdIn(binaryContentIds);
 
-		return ResponseEntity.ok(base64Responses);
-	}
+    List<Base64BinaryContentResponse> base64Responses = responses.stream()
+        .map(Base64BinaryContentResponse::fromResponse)
+        .toList();
+
+    return ResponseEntity.ok(base64Responses);
+  }
+
+  @RequestMapping(path = "/{binaryContentId}", method = RequestMethod.GET)
+  public ResponseEntity<Base64BinaryContentResponse> findBinaryContent(
+      @PathVariable UUID binaryContentId) {
+    BinaryContentResponse response = binaryContentService.getById(binaryContentId);
+    Base64BinaryContentResponse base64Response = Base64BinaryContentResponse.fromResponse(response);
+    return ResponseEntity.ok(base64Response);
+  }
+
+  @RequestMapping(method = RequestMethod.GET)
+  public ResponseEntity<List<Base64BinaryContentResponse>> findBinaryContents(
+      @RequestParam List<UUID> binaryContentIds) {
+    List<BinaryContentResponse> responses = binaryContentService.getAllByIdIn(binaryContentIds);
+
+    List<Base64BinaryContentResponse> base64Responses = responses.stream()
+        .map(Base64BinaryContentResponse::fromResponse)
+        .toList();
+
+    return ResponseEntity.ok(base64Responses);
+  }
 }

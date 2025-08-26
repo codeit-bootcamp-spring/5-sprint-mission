@@ -6,8 +6,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.sprint.mission.discodeit.dto.request.userStatus.CreateUserStatusRequest;
-import com.sprint.mission.discodeit.dto.request.userStatus.UpdateUserStatusRequest;
+import com.sprint.mission.discodeit.dto.request.userStatus.UserStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.userStatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.userStatus.UserStatusResponse;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.userstatus.AlreadyExistsUserStatusException;
@@ -26,7 +26,7 @@ public class BasicUserStatusService implements UserStatusService {
 	private final UserRepository userRepository;
 
 	@Override
-	public UserStatusResponse create(CreateUserStatusRequest request) {
+	public UserStatusResponse create(UserStatusCreateRequest request) {
 		if (!userRepository.existsById(request.getUserId())) {
 			throw new UserNotFoundException();
 		}
@@ -60,22 +60,22 @@ public class BasicUserStatusService implements UserStatusService {
 
 
 	@Override
-	public UserStatusResponse update(UpdateUserStatusRequest request) {
-		UserStatus userStatus = userStatusRepository.findById(request.getId())
+	public UserStatusResponse update(UUID userStatusId, UserStatusUpdateRequest request) {
+		UserStatus userStatus = userStatusRepository.findById(userStatusId)
 			.orElseThrow(UserStatusNotFoundException::new);
 
-		userStatus.updateUpdatedAt();
+		userStatus.updateLastActiveAt(request.getNewLastActiveAt());
 		userStatusRepository.save(userStatus);
 
 		return UserStatusResponse.success(userStatus);
 	}
 
 	@Override
-	public UserStatusResponse updateByUserId(UUID userId) {
+	public UserStatusResponse updateByUserId(UUID userId, UserStatusUpdateRequest request) {
 		UserStatus userStatus = userStatusRepository.findByUserId(userId)
 			.orElseThrow(UserStatusNotFoundException::new);
 
-		userStatus.updateUpdatedAt();
+		userStatus.updateLastActiveAt(request.getNewLastActiveAt());
 		userStatusRepository.save(userStatus);
 
 		return UserStatusResponse.success(userStatus);
@@ -96,6 +96,12 @@ public class BasicUserStatusService implements UserStatusService {
 		UserStatus userStatus = userStatusRepository.findByUserId(userId)
 			.orElseThrow(UserStatusNotFoundException::new);
 
-		return userStatus.getUpdatedAt().isAfter(Instant.now().minusSeconds(300));
+		Instant lastActiveAt = userStatus.getLastActiveAt();
+
+		if (lastActiveAt == null) {
+			return false;
+		}
+
+		return lastActiveAt.isAfter(Instant.now().minusSeconds(300));
 	}
 }

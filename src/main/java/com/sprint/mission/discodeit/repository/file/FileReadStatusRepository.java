@@ -115,9 +115,9 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 	}
 
 	@Override
-	public List<ReadStatus> findByChannelIdAndUserId(UUID channelId, UUID userId) {
+	public ReadStatus findByChannelIdAndUserId(UUID channelId, UUID userId) {
 		if (channelId == null || userId == null) {
-			return List.of();
+			return null;
 		}
 
 		List<UUID> channelIds = channelToReadStatusMap.getOrDefault(channelId, List.of());
@@ -128,7 +128,8 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 			.map(readStatusMap::get)
 			.filter(Objects::nonNull)
 			.map(ReadStatus::copy)
-			.toList();
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Override
@@ -177,10 +178,8 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 		if (userId == null || channelId == null) {
 			return;
 		}
-		List<ReadStatus> toDelete = findByChannelIdAndUserId(channelId, userId);
-		for (ReadStatus rs : toDelete) {
-			deleteById(rs.getId());
-		}
+		ReadStatus toDelete = findByChannelIdAndUserId(channelId, userId);
+		deleteById(toDelete.getId());
 
 	}
 

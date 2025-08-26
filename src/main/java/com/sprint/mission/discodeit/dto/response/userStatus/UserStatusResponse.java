@@ -8,14 +8,18 @@ import com.sprint.mission.discodeit.entity.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Builder
 public class UserStatusResponse {
 	private UUID id;
 	private UUID userId;
+	private Instant createdAt;
 	private Instant updatedAt;
+	private Instant lastActiveAt;
 	private boolean success;
 
 	private UserStatusResponse(UserStatus userStatus) {

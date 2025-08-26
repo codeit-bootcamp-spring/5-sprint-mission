@@ -13,8 +13,6 @@ import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 
-import lombok.RequiredArgsConstructor;
-
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
 public class JCFChannelRepository implements ChannelRepository {
@@ -33,7 +31,7 @@ public class JCFChannelRepository implements ChannelRepository {
 		}
 
 		channelMap.put(channel.getId(), channel);
-		channelNameToUUID.put(channel.getChannelName(), channel.getId());
+		channelNameToUUID.put(channel.getName(), channel.getId());
 	}
 
 	@Override
@@ -56,7 +54,7 @@ public class JCFChannelRepository implements ChannelRepository {
 		for (Channel channel : channelMap.values()) {
 			channelList.add(channel.copy());
 		}
-		channelList.sort((c1, c2) -> c1.getChannelName().compareTo(c2.getChannelName()));
+		channelList.sort((c1, c2) -> c1.getName().compareTo(c2.getName()));
 		return channelList;
 	}
 
@@ -74,7 +72,7 @@ public class JCFChannelRepository implements ChannelRepository {
 
 		Channel channel = channelMap.get(channelId);
 		if (channel != null) {
-			channelNameToUUID.remove(channel.getChannelName());
+			channelNameToUUID.remove(channel.getName());
 			channelMap.remove(channelId);
 		}
 	}

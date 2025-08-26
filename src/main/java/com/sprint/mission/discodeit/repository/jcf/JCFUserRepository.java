@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
@@ -37,7 +36,7 @@ public class JCFUserRepository implements UserRepository {
 		}
 
 		userMap.put(user.getId(), user);
-		loginIdToUUID.put(user.getLoginId(), user.getId());
+		loginIdToUUID.put(user.getUsername(), user.getId());
 	}
 
 	@Override
@@ -65,7 +64,7 @@ public class JCFUserRepository implements UserRepository {
 		for (User user : userMap.values()) {
 			userList.add(user.copy());
 		}
-		userList.sort((u1, u2) -> u1.getDefaultNickname().compareTo(u2.getDefaultNickname()));
+
 		return userList;
 	}
 
@@ -77,7 +76,7 @@ public class JCFUserRepository implements UserRepository {
 
 		User user = userMap.get(id);
 		if (user != null) {
-			loginIdToUUID.remove(user.getLoginId());
+			loginIdToUUID.remove(user.getUsername());
 			userMap.remove(id);
 		}
 	}

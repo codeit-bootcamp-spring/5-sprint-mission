@@ -9,8 +9,10 @@ import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Builder
 public class LoginResponse {
@@ -18,6 +20,7 @@ public class LoginResponse {
 	private Instant createdAt;
 	private Instant updatedAt;
 	private String email;
+	private String username;
 	private String defaultNickname;
 	@Nullable
 	private UUID profileId;
@@ -28,6 +31,7 @@ public class LoginResponse {
 		this.createdAt = user.getCreatedAt();
 		this.updatedAt = user.getUpdatedAt();
 		this.email = user.getEmail();
+		this.username = user.getUsername();
 		this.defaultNickname = user.getDefaultNickname();
 		this.profileId = user.getProfileId();
 		this.success = true;

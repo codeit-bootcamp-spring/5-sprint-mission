@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Repository;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.FileRepository;
 
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
@@ -57,11 +55,11 @@ public class FileChannelRepository implements ChannelRepository {
 
 		Channel existingChannel = channelMap.get(channel.getId());
 		if (existingChannel != null) {
-			channelNameToUUID.remove(existingChannel.getChannelName());
+			channelNameToUUID.remove(existingChannel.getName());
 		}
 
 		channelMap.put(channel.getId(), channel);
-		channelNameToUUID.put(channel.getChannelName(), channel.getId());
+		channelNameToUUID.put(channel.getName(), channel.getId());
 
 		saveFile();
 	}
@@ -86,7 +84,7 @@ public class FileChannelRepository implements ChannelRepository {
 		for (Channel channel : channelMap.values()) {
 			channelList.add(channel.copy());
 		}
-		return channelList.stream().sorted(Comparator.comparing(Channel::getChannelName)).toList();
+		return channelList.stream().sorted(Comparator.comparing(Channel::getName)).toList();
 	}
 
 	@Override
@@ -103,7 +101,7 @@ public class FileChannelRepository implements ChannelRepository {
 
 		Channel channel = channelMap.get(channelId);
 		if (channel != null) {
-			channelNameToUUID.remove(channel.getChannelName());
+			channelNameToUUID.remove(channel.getName());
 			channelMap.remove(channelId);
 
 			saveFile();

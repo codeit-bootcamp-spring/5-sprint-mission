@@ -1,0 +1,779 @@
+{
+	"info": {
+		"_postman_id": "3236a906-9d53-4647-8ef6-818e204af8ca",
+		"name": "Spring sprint5 - rest test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43159763"
+	},
+	"item": [
+		{
+			"name": "00.post user signup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Save user id\", function () {\r",
+							"    if (pm.response.code === 200 || pm.response.code === 201) {\r",
+							"    var data = pm.response.json();\r",
+							"    \r",
+							"    pm.environment.set(\"userId\", data.id);\r",
+							"    pm.environment.set(\"userNickname\", data.nickname);\r",
+							"    \r",
+							"    if (data.profileId) {\r",
+							"        pm.environment.set(\"userProfileId\", data.profileId);\r",
+							"    }\r",
+							"}\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "userCreateRequest",
+							"value": "{\n    \"username\": \"test1\",\n    \"password\": \"1234\", \n    \"defaultNickname\": \"홍길동\",\n    \"email\": \"hong1@hh.com\"\n}",
+							"contentType": "application/json",
+							"type": "text"
+						},
+						{
+							"key": "profile",
+							"contentType": "multipart/form-data",
+							"type": "file",
+							"src": "postman-cloud:///1f0782bb-421d-4b90-a005-2d23ccaf4952"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{apiServer}}/users",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "01.get user all",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{apiServer}}/users",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02.post auth userLogin",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"test1\",\r\n    \"password\": \"1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiServer}}/auth/login",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "test1",
+							"disabled": true
+						},
+						{
+							"key": "password",
+							"value": "1234",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03.get user statusUpdate",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"newLastActiveAt\" : \"2025-08-20T17:00:00.000Z\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiServer}}/users/{{userId}}/userStatus",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}",
+						"userStatus"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04.patch user update",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "userUpdateRequest",
+							"value": "{\n    \"newEmail\": \"newTest1@email.com\"\n}",
+							"contentType": "application/json",
+							"type": "text"
+						},
+						{
+							"key": "profile",
+							"type": "file",
+							"src": "/C:/Users/userjin/Desktop/문서/로아/놀자에요.jpg"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{apiServer}}/users/{{userId}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05.get user byId",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{apiServer}}/users/{{userId}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10.post channel create public",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Save channel id\", function () {\r",
+							"    if (pm.response.code === 200 || pm.response.code === 201) {\r",
+							"        var data = pm.response.json();\r",
+							"        pm.environment.set(\"channelId\", data.id);\r",
+							"        pm.environment.set(\"channelName\", data.channelName);\r",
+							"        pm.environment.set(\"channelDescription\", data.description);\r",
+							"        console.log(\"저장된 채널:\", data.channelName);\r",
+							"   }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\" : \"임시\",\r\n    \"description\" : \"임시채널임\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiServer}}/channels/public",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"channels",
+						"public"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11.patch channel name public Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Save channel id\", function () {\r",
+							"    if (pm.response.code === 200 || pm.response.code === 201) {\r",
+							"        var data = pm.response.json();\r",
+							"        pm.environment.set(\"channelName\", data.channelName);\r",
+							"        console.log(\"저장된 채널:\", data.channelName);\r",
+							"   }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"channelId\" : \"{{channelId}}\",\r\n    \"newDescription\" : \"수정된 설명\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiServer}}/channels/{{channelId}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"channels",
+						"{{channelId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12-0.post private channel create member Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Save user id\", function () {\r",
+							"    if (pm.response.code === 200 || pm.response.code === 201) {\r",
+							"    var data = pm.response.json();\r",
+							"    \r",
+							"    pm.environment.set(\"userId2\", data.id);\r",
+							"    pm.environment.set(\"userNickname2\", data.nickname);\r",
+							"\r",
+							"    if (data.profileId) {\r",
+							"        pm.environment.set(\"userProfileId2\", data.profileId);\r",
+							"    }\r",
+							"}\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "userCreateRequest",
+							"value": "{\n    \"username\": \"test2\",\n    \"password\": \"1234\", \n    \"defaultNickname\": \"정길동\",\n    \"email\": \"test2@email.com\"\n}",
+							"contentType": "application/json",
+							"type": "text"
+						},
+						{
+							"key": "profile",
+							"contentType": "multipart/form-data",
+							"type": "file",
+							"src": "postman-cloud:///1f0782bc-4c00-4210-a510-5c71d75a79ae"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{apiServer}}/users",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12.post channel create private Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"participantIds\": [\r\n        \"{{userId}}\",\r\n        \"{{userId2}}\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiServer}}/channels/private",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"channels",
+						"private"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "test1",
+							"disabled": true
+						},
+						{
+							"key": "password",
+							"value": "1234",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "13.get channel byUserId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{apiServer}}/channels?userId={{userId}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"channels"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{userId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "20.post message create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Save message id and attachment ids\", function () {\r",
+							"    if (pm.response.code === 200 || pm.response.code === 201) {\r",
+							"        var data = pm.response.json();\r",
+							"        if (data && data.id) {\r",
+							"            pm.environment.set(\"messageId\", data.id);\r",
+							"            pm.environment.set(\"authorId\", data.authorId)\r",
+							"            console.log(\"메시지 ID 저장:\", data.id);\r",
+							"        }\r",
+							"        if (data && Array.isArray(data.attachmentIds)) {\r",
+							"            pm.environment.set(\"attachmentIds\", JSON.stringify(data.attachmentIds));\r",
+							"            console.log(\"첨부파일 ID 저장:\", data.attachmentIds);\r",
+							"        }\r",
+							"    }\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "messageCreateRequest",
+							"value": "{\n  \"authorId\": \"{{userId}}\",\n  \"channelId\": \"{{channelId}}\",\n  \"content\": \"메시지 테스트용\"\n}",
+							"contentType": "application/json",
+							"type": "text"
+						},
+						{
+							"key": "attachments",
+							"contentType": "multipart/form-data",
+							"type": "file",
+							"src": [
+								"postman-cloud:///1f0782bd-193b-4310-8ecc-cda0d0de46e1",
+								"postman-cloud:///1f0782bd-18e0-4dc0-b99b-9ca6d0a45281",
+								"postman-cloud:///1f0782bd-18cd-4540-ac79-bfe6c612342b"
+							]
+						}
+					]
+				},
+				"url": {
+					"raw": "{{apiServer}}/messages",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "21.get message byChannelId Copy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{apiServer}}/messages?channelId={{channelId}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"messages"
+					],
+					"query": [
+						{
+							"key": "channelId",
+							"value": "{{channelId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "30.get binaryContent fine Copy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{apiServer}}/binaryContents/{{userProfileId}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"binaryContents",
+						"{{userProfileId}}"
+					],
+					"query": [
+						{
+							"key": "binaryContentId",
+							"value": "{{userProfileId}}",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "31.get binaryContent fine Contents",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{apiServer}}/binaryContents/findContents?binaryContentIds={{userProfileId}},{{userProfileId2}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"binaryContents",
+						"findContents"
+					],
+					"query": [
+						{
+							"key": "binaryContentIds",
+							"value": "{{userProfileId}},{{userProfileId2}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "40 get readStatus byUserId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"readStatusId\", function () {\r",
+							"    if (pm.response.code === 200 || pm.response.code === 201) {\r",
+							"        var data = pm.response.json();\r",
+							"        if (data && data[0].id) {\r",
+							"            pm.environment.set(\"readStatusId\", data[0].id);\r",
+							"            pm.environment.set(\"rsChannelId\", data[0].channelId);\r",
+							"            pm.environment.set(\"rsUserId\", data[0].userId);\r",
+							"        }\r",
+							"    }\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{apiServer}}/readStatuses?userId={{userId}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"readStatuses"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{userId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "-00.delete message by message, userId",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"messageId\": \"{{messageId}}\",\r\n  \"authorId\": \"{{userId}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiServer}}/messages/{{messageId}}?authorId={{authorId}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"messages",
+						"{{messageId}}"
+					],
+					"query": [
+						{
+							"key": "authorId",
+							"value": "{{authorId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "-01. delete readstatus byId",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{apiServer}}/readStatuses/{{readStatusId}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"readStatuses",
+						"{{readStatusId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "-02.delete user id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{apiServer}}/users/{{userId}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "-03.delete channel byChannel,userID",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"channelId\": \"{{channelId}}\",\r\n  \"userId\": \"{{userId}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiServer}}/channels/{{channelId}}",
+					"host": [
+						"{{apiServer}}"
+					],
+					"path": [
+						"channels",
+						"{{channelId}}"
+					],
+					"query": [
+						{
+							"key": "channelId",
+							"value": "{{channelId}}",
+							"disabled": true
+						},
+						{
+							"key": "userId",
+							"value": "{{userId}}",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "apiServer",
+			"value": "localhost:8080/api",
+			"type": "string"
+		}
+	]
+}

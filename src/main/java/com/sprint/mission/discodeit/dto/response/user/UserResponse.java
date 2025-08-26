@@ -9,8 +9,10 @@ import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Builder
 public class UserResponse {
@@ -31,7 +33,7 @@ public class UserResponse {
 		this.createdAt = user.getCreatedAt();
 		this.updatedAt = user.getUpdatedAt();
 		this.profileId = user.getProfileId();
-		this.username = user.getLoginId(); // loginId는 username으로
+		this.username = user.getUsername(); // loginId는 username으로
 	}
 
 	public static UserResponse success(User user) {

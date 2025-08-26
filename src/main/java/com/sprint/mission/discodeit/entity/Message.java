@@ -24,13 +24,13 @@ public class Message implements Serializable {
 	private Instant updatedAt;
 	private final UUID authorId;
 	private final UUID channelId;
-	private String text;
+	private String content;
 	private final List<UUID> attachmentIds;
 
-	public Message(UUID authorId, UUID channelId, String text) {
+	public Message(UUID authorId, UUID channelId, String content) {
 		this.authorId = Objects.requireNonNull(authorId, "작성자UUID는 필수 입니다.");
 		this.channelId = Objects.requireNonNull(channelId, "채널UUID는 필수입니다.");
-		this.text = Objects.requireNonNull(text, "내용은 필수 입니다.");
+		this.content = Objects.requireNonNull(content, "내용은 필수 입니다.");
 
 		id = UUID.randomUUID();
 		createdAt = Instant.now();
@@ -44,16 +44,12 @@ public class Message implements Serializable {
 		this.updatedAt = original.updatedAt;
 		this.authorId = original.authorId;
 		this.channelId = original.channelId;
-		this.text = original.text;
+		this.content = original.content;
 		this.attachmentIds = original.attachmentIds;
 	}
 
 	public void updateUpdatedAt() {
 		this.updatedAt = Instant.now();
-	}
-
-	public void updateText(String text) {
-		this.text = text;
 	}
 
 	public void addAttachment(UUID attachmentId) {
