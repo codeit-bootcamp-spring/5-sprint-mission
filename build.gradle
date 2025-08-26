@@ -34,3 +34,7 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+bootJar {
+	archiveFileName = "app.jar"   // 항상 build/libs/app.jar 로 생성
+}
