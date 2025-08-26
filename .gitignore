@@ -11,6 +11,9 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.discodeit
+*.jpg
+*.png
 
 # AWS User-specific
 .idea/**/aws.xml
