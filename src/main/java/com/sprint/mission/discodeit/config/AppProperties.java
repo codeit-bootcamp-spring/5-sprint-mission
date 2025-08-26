@@ -5,5 +5,6 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 @ConfigurationProperties(prefix = "app")
 public record AppProperties(
-        @NestedConfigurationProperty AppStorageProperties storage) {
+    @NestedConfigurationProperty AppStorageProperties storage) {
+
 }

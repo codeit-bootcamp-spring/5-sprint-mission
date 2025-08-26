@@ -1,66 +1,91 @@
 package com.sprint.mission.discodeit.controller.message;
 
-import com.sprint.mission.discodeit.dto.request.message.MessageSendRequest;
+import static com.sprint.mission.discodeit.support.Constants.MAX_MESSAGE_ATTACHMENTS;
+
+import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import com.sprint.mission.discodeit.service.message.MessageService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
-import java.util.List;
-import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping(path = "/api/messages", produces = MediaType.APPLICATION_JSON_VALUE)
+@Validated
 public class MessageController {
 
-    private final MessageService messageService;
+  private final MessageService messageService;
 
-    @PostMapping(path = "/channels/{channelId}/messages")
-    public ResponseEntity<MessageResponse> send(@PathVariable("channelId") UUID channelId,
-                                                @Valid @RequestBody MessageSendRequest body) {
-        MessageResponse res = messageService.send(channelId, body);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(res.id()).toUri();
-        return ResponseEntity.created(location).body(res);
-    }
+  @GetMapping
+  @ResponseStatus(HttpStatus.OK)
+  public List<MessageResponse> findAllByChannelId(
 
-    @PutMapping(path = "/messages/{id}")
-    public ResponseEntity<Void> update(@PathVariable("id") UUID id,
-                                       @Valid @RequestBody MessageUpdateRequest body) {
-        messageService.update(id, body);
-        return ResponseEntity.noContent().build();
-    }
+      @RequestParam("channelId")
+      UUID channelId
+  ) {
 
-    @DeleteMapping(path = "/messages/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") UUID id,
-                                       @RequestParam("actorId") UUID actorId) {
-        messageService.delete(id, actorId);
-        return ResponseEntity.noContent().build();
-    }
+    return messageService.findAllByChannelId(channelId);
+  }
 
-    @GetMapping(path = "/channels/{channelId}/messages")
-    public ResponseEntity<List<MessageResponse>> list(@PathVariable("channelId") UUID channelId,
-                                                      @RequestParam(value = "page", required = false) Integer page,
-                                                      @RequestParam(value = "size", required = false) Integer size) {
-        return ResponseEntity.ok(messageService.findByChannel(channelId, page, size));
-    }
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @ResponseStatus(HttpStatus.CREATED)
+  public MessageResponse create(
 
-    @GetMapping(path = "/messages/{id}")
-    public ResponseEntity<MessageResponse> find(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok(messageService.find(id));
-    }
+      @RequestPart("messageCreateRequest")
+      @Valid
+      MessageCreateRequest req,
+
+      @RequestPart(value = "attachments", required = false)
+      @Size(max = MAX_MESSAGE_ATTACHMENTS)
+      List<@NotNull MultipartFile> attachments
+  ) throws IOException {
+
+    return messageService.create(req, attachments);
+  }
+
+  @DeleteMapping(path = "/{messageId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(
+
+      @PathVariable("messageId")
+      UUID messageId
+  ) {
+    messageService.delete(messageId);
+  }
+
+  @PatchMapping(path = "/{messageId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  public MessageResponse update(
+
+      @PathVariable("messageId")
+      UUID messageId,
+
+      @RequestBody
+      @Valid
+      MessageUpdateRequest req
+  ) {
+
+    return messageService.update(messageId, req);
+  }
 }

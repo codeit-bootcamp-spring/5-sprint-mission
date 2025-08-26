@@ -1,49 +1,72 @@
 openapi: 3.0.3
 info:
-  title: Discodeit API
+  title: Discodeit Users API
   version: "1.0.0"
+  description: 사용자(User) 관련 API 문서
 servers:
-  - url: /api/users
-
+  - url: /api
 paths:
-  /:
-    $ref: "./paths/users.yaml#/users_root"
-  /{id}:
-    $ref: "./paths/users.yaml#/user"
-  /{id}/profile-settings:
-    $ref: "./paths/users.yaml#/user_profile_settings"
-  /{id}/profile-image:
-    $ref: "./paths/users.yaml#/user_profile_image"
-  /{id}/email:
-    $ref: "./paths/users.yaml#/user_email"
-  /{id}/username:
-    $ref: "./paths/users.yaml#/user_username"
-  /{id}/password:
-    $ref: "./paths/users.yaml#/user_password"
-  /{id}/phone-number:
-    $ref: "./paths/users.yaml#/user_phone_number"
-  /{id}/deactivation:
-    $ref: "./paths/users.yaml#/user_deactivation"
-
+  /users:
+    $ref: "./paths/users.yaml#/usersRoot"
+  /users/{userId}:
+    $ref: "./paths/users.yaml#/userById"
+  /users/{userId}/userStatus:
+    $ref: "./paths/users.yaml#/userStatus"
+  /users/{userId}/heartbeat:
+    $ref: "./paths/users.yaml#/heartbeat"
 components:
+  parameters:
+    UserIdInPath:
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    UserIdInQuery:
+      in: query
+      name: userId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Username:
+      in: query
+      name: username
+      schema:
+        type: string
+        minLength: 2
+        maxLength: 32
+      description: |-
+        **username**과 일치하는 사용자를 검색합니다.
+        - 요청 시 대소문자 허용
+        - 서버는 strip 후 소문자로 정규화하여 처리
+    Email:
+      in: query
+      name: email
+      schema:
+        type: string
+        format: email
+        minLength: 6
+        maxLength: 254
+      description: |-
+        **email**과 일치하는 사용자를 검색합니다.
+        - 요청 시 대소문자 허용
+        - 서버는 strip 후 소문자로 정규화하여 처리
   schemas:
     UserResponse:
       $ref: "./schemas/user.yaml#/UserResponse"
-    UserRegisterRequest:
-      $ref: "./schemas/user.yaml#/UserRegisterRequest"
-    UserRegisterResponse:
-      $ref: "./schemas/user.yaml#/UserRegisterResponse"
-    UserUpdateProfileSettingsRequest:
-      $ref: "./schemas/user.yaml#/UserUpdateProfileSettingsRequest"
-    UserUpdateProfileImageRequest:
-      $ref: "./schemas/user.yaml#/UserUpdateProfileImageRequest"
-    UserUpdateEmailRequest:
-      $ref: "./schemas/user.yaml#/UserUpdateEmailRequest"
-    UserUpdateUsernameRequest:
-      $ref: "./schemas/user.yaml#/UserUpdateUsernameRequest"
-    UserUpdatePasswordRequest:
-      $ref: "./schemas/user.yaml#/UserUpdatePasswordRequest"
-    UserUpdatePhoneNumberRequest:
-      $ref: "./schemas/user.yaml#/UserUpdatePhoneNumberRequest"
+    UserCreateRequest:
+      $ref: "./schemas/user.yaml#/UserCreateRequest"
+    UserSaveResponse:
+      $ref: "./schemas/user.yaml#/UserSaveResponse"
+    UserUpdateRequest:
+      $ref: "./schemas/user.yaml#/UserUpdateRequest"
+    UserStatusResponse:
+      $ref: "./schemas/user.yaml#/UserStatusResponse"
+    UserStatusUpdateRequest:
+      $ref: "./schemas/user.yaml#/UserStatusUpdateRequest"
+    UserStatusType:
+      $ref: "./schemas/user.yaml#/UserStatusType"
     ApiError:
       $ref: "./schemas/error.yaml#/ApiError"

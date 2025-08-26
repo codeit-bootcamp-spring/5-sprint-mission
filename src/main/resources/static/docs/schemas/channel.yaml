@@ -1,0 +1,106 @@
+ChannelResponse:
+  type: object
+  required:
+    - id
+    - type
+    - name
+    - description
+    - participantIds
+    - lastMessageAt
+  properties:
+    id:
+      type: string
+      format: uuid
+    type:
+      type: string
+      enum:
+        - PUBLIC
+        - PRIVATE
+    name:
+      type: string
+      nullable: true
+    description:
+      type: string
+      nullable: true
+    participantIds:
+      type: array
+      items:
+        type: string
+        format: uuid
+    lastMessageAt:
+      type: string
+      format: date-time
+      nullable: true
+
+ChannelSaveResponse:
+  type: object
+  required:
+    - id
+    - createdAt
+    - updatedAt
+    - type
+    - name
+    - description
+  properties:
+    id:
+      type: string
+      format: uuid
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+    type:
+      type: string
+      enum:
+        - PUBLIC
+        - PRIVATE
+    name:
+      type: string
+      nullable: true
+    description:
+      type: string
+      nullable: true
+
+PublicChannelCreateRequest:
+  type: object
+  description: Public Channel 생성 정보
+  required:
+    - name
+  properties:
+    name:
+      type: string
+      minLength: 1
+      maxLength: 100
+    description:
+      type: string
+      maxLength: 1024
+
+PrivateChannelCreateRequest:
+  type: object
+  description: Private Channel 생성 정보
+  required:
+    - participantIds
+  properties:
+    participantIds:
+      type: array
+      description: 채널 참여자 ID 목록 (2명 이상 10명 이하)
+      items:
+        type: string
+        format: uuid
+      minItems: 2
+      maxItems: 10
+      uniqueItems: true
+
+PublicChannelUpdateRequest:
+  type: object
+  description: 수정할 Channel 정보
+  properties:
+    newName:
+      type: string
+      minLength: 1
+      maxLength: 100
+    newDescription:
+      type: string
+      maxLength: 1024

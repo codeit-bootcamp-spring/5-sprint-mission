@@ -1,8 +1,9 @@
 login:
   post:
-    tags: [ Auth ]
+    tags:
+      - Auth
     summary: 로그인
-    description: 이메일/비밀번호로 로그인합니다.<br>성공 시 사용자 정보를 반환합니다.
+    description: 사용자명, 비밀번호로 로그인합니다.
     operationId: login
     requestBody:
       required: true
@@ -11,71 +12,77 @@ login:
           schema:
             $ref: "../schemas/auth.yaml#/LoginRequest"
           example:
-            email: "alice@example.com"
+            username: "test"
             password: "P@ssw0rd123!"
     responses:
       '200':
-        description: OK
+        description: 로그인 성공
         content:
           application/json:
             schema:
-              $ref: "../schemas/user.yaml#/UserResponse"
+              $ref: "../schemas/user.yaml#/UserSaveResponse"
             example:
-              "id": "8c804c9b-a512-44b8-9b9b-4adace09b2ac"
-              "createdAt": "2025-08-16T12:20:08.016839Z"
-              "updatedAt": "2025-08-17T11:26:05.007836Z"
-              "email": "alice@example.com"
-              "username": "alice.k"
-              "globalName": "Alice Kim"
-              "bio": null
-              "profileId": null
-              "userStatusType": "ONLINE"
+              id: "e6681542-a6b1-43f3-b759-6dc9cfebcf41"
+              createdAt: "2025-08-18T14:26:12.176736Z"
+              updatedAt: "2025-08-18T14:26:12.176736Z"
+              username: "test"
+              email: "test@codeit.com"
+              password: "$2a$10$dWaZkA5OoFmhdht9dizPvOGRoHd1vWjwib/U7ooQ.tLMdG3zSEORK"
+              profileId: "d6703e18-89e6-4722-bfc1-cc253bb7046f"
       '400':
-        description: Bad Request (이메일/비밀번호 불일치, 형식 오류)
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
             examples:
-              invalidCredentials:
+              invalidField:
+                description: Body field 값이 유효하지 않음
                 value:
-                  timestamp: "2025-08-17T15:31:00Z"
+                  timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/auth/login"
                   method: "POST"
                   status: 400
-                  code: "BAD_REQUEST"
-                  message: "요청이 올바르지 않습니다."
+                  code: "INVALID_BODY_VALUE"
+                  message: "Request body value not valid"
                   details:
-                    - "이메일 또는 비밀번호가 일치하지 않습니다."
-              invalidJSON:
+                    - "username: 공백일 수 없습니다"
+                    - "username: 크기가 2에서 32 사이여야 합니다"
+                    - "password: 공백일 수 없습니다"
+                    - "password: 크기가 8에서 72 사이여야 합니다"
+              invalidJson:
+                description: JSON parsing 실패
                 value:
-                  timestamp: "2025-08-17T15:31:02Z"
+                  timestamp: "2025-08-16T12:34:56Z"
                   path: "/api/auth/login"
                   method: "POST"
                   status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
+                  code: "INVALID_JSON"
+                  message: "Unable to read request body, please check JSON format and field type"
                   details:
-                    - "Unexpected character ('\"' (code 34)): was expecting a colon to separate field name and value"
-      '403':
-        description: Forbidden (정지된 계정)
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 1]"
+      '401':
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
-            example:
-              timestamp: "2025-08-17T15:31:05Z"
-              path: "/api/auth/login"
-              method: "POST"
-              status: 403
-              code: "FORBIDDEN"
-              message: "정지된 계정입니다."
-
+            examples:
+              unauthorized:
+                description: 사용자명 또는 비밀번호가 일치하지 않음
+                value:
+                  timestamp: "2025-08-17T15:31:00Z"
+                  path: "/api/auth/login"
+                  method: "POST"
+                  status: 401
+                  code: "UNAUTHORIZED"
+                  message: "Username or password incorrect"
 logout:
   post:
-    tags: [ Auth ]
+    tags:
+      - Auth
     summary: 로그아웃
-    description: 사용자의 현재 세션/상태를 로그아웃 처리합니다.<br>`userId`를 body로 받습니다.
+    description: |-
+      - 사용자의 현재 세션/상태를 로그아웃 처리합니다.
+      - **userId**를 body로 받습니다.
     operationId: logout
     requestBody:
       required: true
@@ -83,36 +90,49 @@ logout:
         application/json:
           schema:
             $ref: "../schemas/auth.yaml#/LogoutRequest"
-          example:
-            userId: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
     responses:
       '204':
-        description: No Content (성공)
+        description: 로그아웃 성공
       '400':
-        description: Bad Request (userId 미포함)
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
-            example:
-              timestamp: "2025-08-17T15:32:00Z"
-              path: "/api/auth/logout"
-              method: "POST"
-              status: 400
-              code: "BAD_REQUEST"
-              message: "요청이 올바르지 않습니다."
-              details:
-                - "userId: 널이어서는 안됩니다"
+            examples:
+              invalidField:
+                description: Body field 값이 유효하지 않음
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/auth/logout"
+                  method: "POST"
+                  status: 400
+                  code: "INVALID_BODY_VALUE"
+                  message: "Request body value not valid"
+                  details:
+                    - "userId: 널이어서는 안됩니다"
+              invalidJson:
+                description: JSON parsing 실패
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/auth/logout"
+                  method: "POST"
+                  status: 400
+                  code: "INVALID_JSON"
+                  message: "Unable to read request body, please check JSON format and field type"
+                  details:
+                    - "Cannot deserialize value of type `java.util.UUID` from String \"not-uuid\": UUID has to be represented by standard 36-char representation\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 2, column: 15] (through reference chain: com.sprint.mission.discodeit.dto.request.auth.AuthLogoutRequest[\"userId\"])"
       '404':
-        description: Not Found (존재하지 않는 사용자)
         content:
           application/json:
             schema:
               $ref: "../schemas/error.yaml#/ApiError"
-            example:
-              timestamp: "2025-08-17T15:32:05Z"
-              path: "/api/auth/logout"
-              method: "POST"
-              status: 404
-              code: "NOT_FOUND"
-              message: "유저를 찾을 수 없습니다: 2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
+            examples:
+              userNotFound:
+                description: User를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/auth/logout"
+                  method: "POST"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"

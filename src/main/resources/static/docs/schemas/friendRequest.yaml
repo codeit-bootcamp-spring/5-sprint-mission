@@ -1,0 +1,66 @@
+FriendRequestSendRequest:
+  type: object
+  required:
+    - senderId,
+    - receiverUsername
+  properties:
+    senderId:
+      type: string
+      format: uuid
+      description: 요청을 보낸 사용자 ID
+    receiverUsername:
+      type: string
+      description: 요청을 받을 사용자 username
+
+FriendRequestHandleRequest:
+  type: object
+  required:
+    - userId
+  properties:
+    userId:
+      type: string
+      format: uuid
+      description: 이 액션을 수행하는 사용자 ID(수락/거절/취소 요청자)
+
+FriendRequestResponse:
+  type: object
+  required:
+    - id
+    - createdAt
+    - senderId
+    - senderUsername
+    - receiverId
+    - receiverUsername
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: 친구 요청 ID
+    createdAt:
+      type: string
+      format: date-time
+      description: 생성 일시(UTC)
+    senderId:
+      type: string
+      format: uuid
+      description: 보낸 사용자 ID
+    senderProfileId:
+      type: string
+      format: uuid
+      nullable: true
+      description: 보낸 사용자의 프로필 이미지 ID
+    senderUsername:
+      type: string
+      description: 보낸 사용자의 username
+    receiverId:
+      type: string
+      format: uuid
+      description: 받는 사용자 ID
+    receiverProfileId:
+      type: string
+      format: uuid
+      nullable: true
+      description: 받는 사용자의 프로필 이미지 ID
+    receiverUsername:
+      type: string
+      description: 받는 사용자의 username

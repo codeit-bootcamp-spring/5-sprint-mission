@@ -1,361 +1,527 @@
-users_root:
-  post:
-    tags: [ Users ]
-    summary: 회원가입
-    description: 새 사용자를 등록합니다.<br>성공 시 201과 함께 생성된 사용자 정보를 반환합니다.<br>이 엔드포인트는 인증이 필요하지 않습니다.
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserRegisterRequest'
-          example:
-            email: "alice@example.com"
-            username: "alice.k"
-            globalName: "Alice Kim"
-            password: "P@ssw0rd123!"
-            birthDate: "2001-05-10"
-            subscribedToNewsletter: true
-    responses:
-      '201':
-        description: Created
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/user.yaml#/UserRegisterResponse'
-            example:
-              id: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
-              email: "alice@example.com"
-              username: "alice.k"
-              globalName: "Alice Kim"
-      '400':
-        description: Bad Request
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/error.yaml#/ApiError'
-            examples:
-              invalidField:
-                value:
-                  timestamp: "2025-08-16T12:34:56Z"
-                  path: "/api/users"
-                  method: "POST"
-                  status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "입력 값이 유효하지 않습니다."
-                  details:
-                    - "username: 공백일 수 없습니다."
-                    - "password: 크기가 8에서 72 사이여야 합니다"
-                    - "email: 크기가 6에서 254 사이여야 합니다"
-                    - "email: 올바른 형식의 이메일 주소여야 합니다"
-              invalidJSON:
-                value:
-                  timestamp: "2025-08-16T12:34:56Z"
-                  path: "/api/users"
-                  method: "POST"
-                  status: 400
-                  code: "VALIDATION_ERROR"
-                  message: "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인하세요."
-                  details:
-                    - "Unrecognized token 'True': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false') at line: 7, column: 35"
-
-      '409':
-        description: Conflict (이메일/사용자명 중복)
-        content:
-          application/json:
-            schema:
-              $ref: "../schemas/error.yaml#/ApiError"
-            examples:
-              duplicateEmail:
-                value:
-                  timestamp: "2025-08-17T15:30:02Z"
-                  path: "/api/users"
-                  method: "POST"
-                  status: 409
-                  code: "CONFLICT"
-                  message: "이미 사용 중인 이메일입니다."
-              duplicateUsername:
-                value:
-                  timestamp: "2025-08-17T15:30:02Z"
-                  path: "/api/users"
-                  method: "POST"
-                  status: 409
-                  code: "CONFLICT"
-                  message: "이미 사용 중인 사용자명입니다."
-
+usersRoot:
   get:
-    tags: [ Users ]
-    summary: 사용자 목록/검색
-    description: |
-      모든 사용자를 조회하거나 `username` 또는 `email` 조건으로 검색합니다.<br>
-      `username`과 `email`을 동시에 전달하면 400을 반환합니다.<br>
-      조회된 사용자가 1명이어도 array로 반환합니다.
+    tags:
+      - User
+    summary: 전체 User 목록 조회
+    operationId: findAll
+    description: |-
+      모든 사용자를 조회하거나 **username** 또는 **email** 조건으로 검색합니다.
+      - **username**과 **email**은 동시에 전달할 수 없습니다. 동시에 전달되면 400(BAD_REQUEST)을 반환합니다.
+      - 결과는 항상 배열로 반환됩니다(0개/1개여도 배열).
     parameters:
-      - in: query
-        name: username
-        schema:
-          type: string
-          minLength: 2
-          maxLength: 32
-          pattern: "^(?!.*\\.\\.)[A-Za-z0-9._]+$"
-        required: false
-        description: username으로 사용자 검색 (서버에서 strip+lowercase 정규화)
-      - in: query
-        name: email
-        schema:
-          type: string
-          format: email
-          minLength: 6
-          maxLength: 254
-        required: false
-        description: email로 사용자 검색 (서버에서 strip+lowercase 정규화)
+      - $ref: "../openapi-users.yaml#/components/parameters/Username"
+      - $ref: "../openapi-users.yaml#/components/parameters/Email"
     responses:
       '200':
-        description: OK
+        description: User 목록 조회 성공
         content:
           application/json:
             schema:
               type: array
               items:
-                $ref: '../schemas/user.yaml#/UserResponse'
+                $ref: "../schemas/user.yaml#/UserResponse"
+            example:
+              - id: "2589ffe4-1f98-4f64-82cf-d1857e7f42f8"
+                createdAt: "2025-08-23T08:44:21.766937Z"
+                updatedAt: "2025-08-23T08:44:21.766937Z"
+                username: "jessie"
+                email: "jessie@codeit.com"
+                profileId: null
+                online: true
+              - id: "6d33007b-1a77-4c70-b295-7feaccf8aaf8"
+                createdAt: "2025-08-23T08:44:13.691575Z"
+                updatedAt: "2025-08-23T08:44:13.691575Z"
+                username: "rex"
+                email: "rex@codeit.com"
+                profileId: "a0777d4a-15c8-4477-b1ad-0fb16276882b"
+                online: false
+              - id: "da717ad7-efe6-48eb-94cd-4f7265ead16c"
+                createdAt: "2025-08-23T08:44:06.738403Z"
+                updatedAt: "2025-08-23T08:44:06.738403Z"
+                username: "buzz"
+                email: "buzz@codeit.com"
+                profileId: "4fcd07c1-a995-4111-809a-b726915a5aee"
+                online: true
+              - id: "d0e0dfdd-cdbc-41cd-970f-b8ce5776111a"
+                createdAt: "2025-08-23T08:43:46.881887Z"
+                updatedAt: "2025-08-23T08:43:46.881887Z"
+                username: "woody"
+                email: "woody@codeit.com"
+                profileId: null
+                online: false
       '400':
-        description: Bad Request (이메일/사용자명 동시 포함)
         content:
           application/json:
             schema:
-              $ref: '../schemas/error.yaml#/ApiError'
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidParameterNumber:
+                description: username, email을 동시에 포함
+                value:
+                  timestamp: "2025-08-23T08:47:53.015980Z"
+                  path: "/api/users"
+                  method: "GET"
+                  status: 400
+                  code: "INVALID_PARAMETER_NUMBER"
+                  message: "Multiple parameters not allowed"
+                  details:
+                    - "username, email: 하나만 포함하여야 합니다"
+              invalidParameterValue:
+                description: 매개변수 값이 유효하지 않음
+                value:
+                  timestamp: "2025-08-23T08:53:50.548938Z"
+                  path: "/api/users"
+                  method: "GET"
+                  status: 400
+                  code: "INVALID_PARAMETER_VALUE"
+                  message: "Request parameter value not valid"
+                  details:
+                    - "username: 크기가 2에서 32 사이여야 합니다"
+                    - "email: 올바른 형식의 이메일 주소여야 합니다"
+                    - "email: 크기가 6에서 254 사이여야 합니다"
+  post:
+    tags:
+      - User
+    summary: User 등록
+    operationId: create
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              userCreateRequest:
+                $ref: "../schemas/user.yaml#/UserCreateRequest"
+              profile:
+                type: string
+                format: binary
+                description: User 프로필 이미지
+            required:
+              - userCreateRequest
+          encoding:
+            userCreateRequest:
+              contentType: application/json
+    responses:
+      '201':
+        description: User가 성공적으로 생성됨
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/user.yaml#/UserSaveResponse"
             example:
-              timestamp: "2025-08-17T15:30:02Z"
-              path: "/api/users"
-              method: "GET"
-              status: 400
-              code: "BAD_REQUEST"
-              message: "요청이 올바르지 않습니다."
-              details:
-                - "username과 email은 동시에 포함될 수 없습니다."
-
-user:
-  get:
-    tags: [ Users ]
-    summary: 사용자 단건 조회
-    description: ID(UUID)로 사용자를 조회합니다.
+              id: "e9ea0824-fc8f-45a8-acfa-db97424f71d4"
+              createdAt: "2025-08-23T08:55:27.157270Z"
+              updatedAt: "2025-08-23T08:55:27.157270Z"
+              username: "test"
+              email: "test@codeit.com"
+              password: "$2a$10$NQzvbzT8uZa9BrU6xj8iBulqOLSjh2TadE6.PoOkKQ1A4AIwbBudW"
+              profileId: "a68a5f8e-784d-4b47-b0af-8243ee79c166"
+      '400':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidField:
+                description: userCreateRequest Field 값이 유효하지 않음
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 400
+                  code: "INVALID_BODY_VALUE"
+                  message: "Request body value not valid"
+                  details:
+                    - "username: 크기가 2에서 32 사이여야 합니다"
+                    - "username: 공백일 수 없습니다"
+                    - "email: 올바른 형식의 이메일 주소여야 합니다"
+                    - "email: 크기가 6에서 254 사이여야 합니다"
+                    - "email: 공백일 수 없습니다"
+                    - "password: 크기가 8에서 72 사이여야 합니다"
+                    - "password: 공백일 수 없습니다"
+              invalidJson:
+                description: JSON parsing 실패
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 400
+                  code: "INVALID_JSON"
+                  message: "Unable to read request body, please check JSON format and field type"
+                  details:
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 7, column: 1]"
+              missingUserCreateRequest:
+                description: 요청에 userCreateRequest가 포함되지 않음
+                value:
+                  timestamp: "2025-08-21T14:48:06.656981Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 400
+                  code: "MISSING_PART"
+                  message: "Required part missing"
+                  details:
+                    - "missing part: userCreateRequest"
+      '409':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              duplicateUsername:
+                description: 같은 username을 사용하는 User가 이미 존재함
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "User with username test already exists"
+              duplicateEmail:
+                description: 같은 email을 사용하는 User가 이미 존재함
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "User with email test@codeit.com already exists"
+      '415':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidUserCreateRequest:
+                description: userCreateRequest가 application/json 형식이 아님
+                value:
+                  timestamp: "2025-08-19T07:13:02.116388Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 415
+                  code: "UNSUPPORTED_MEDIA_TYPE"
+                  message: "Media type not allowed. Supported types: application/json, application/yaml, application/*+json"
+                  details:
+                    - "Content-Type 'application/octet-stream' not supported"
+              invalidProfile:
+                description: 프로필 이미지의 타입이 지원되지 않음
+                value:
+                  timestamp: "2025-08-19T07:13:02.116388Z"
+                  path: "/api/users"
+                  method: "POST"
+                  status: 415
+                  code: "UNSUPPORTED_MEDIA_TYPE"
+                  message: "Media type not allowed. Supported types: application/octet-stream, image/png, image/jpeg, image/webp"
+                  details:
+                    - "Content-Type 'image/vnd.microsoft.icon' not supported"
+userById:
+  delete:
+    tags:
+      - User
+    summary: User 삭제
+    operationId: delete
     parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-        description: 사용자 UUID
+      - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"
+    responses:
+      '204':
+        description: User가 성공적으로 삭제됨
+      '400':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidParameterType:
+                description: 매개변수(userId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/users/not-uuid"
+                  method: "DELETE"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=userId, value=not-uuid, expectedType=UUID"
+      '404':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              userNotFound:
+                description: User를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users/e6681542-a6b1-43f3-b759-6dc9cfebcf41"
+                  method: "DELETE"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"
+  patch:
+    tags:
+      - User
+    summary: User 정보 수정
+    operationId: update
+    parameters:
+      - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              userUpdateRequest:
+                $ref: "../schemas/user.yaml#/UserUpdateRequest"
+              profile:
+                type: string
+                format: binary
+                description: 수정할 User 프로필 이미지
+          encoding:
+            userUpdateRequest:
+              contentType: application/json
     responses:
       '200':
-        description: OK
+        description: User 정보가 성공적으로 수정됨
         content:
           application/json:
             schema:
-              $ref: '../schemas/user.yaml#/UserResponse'
+              $ref: "../schemas/user.yaml#/UserSaveResponse"
+            example:
+              id: "e6681542-a6b1-43f3-b759-6dc9cfebcf41"
+              createdAt: "2025-08-18T14:26:12.176736Z"
+              updatedAt: "2025-08-18T14:26:12.176736Z"
+              username: "test2"
+              email: "test2@codeit.com"
+              password: "$2a$10$dWaZkA5OoFmhdht9dizPvOGRoHd1vWjwib/U7ooQ.tLMdG3zSEORK"
+              profileId: "d6703e18-89e6-4722-bfc1-cc253bb7046f"
+      '400':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidParameterType:
+                description: parameter(userId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/users/not-uuid"
+                  method: "PATCH"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=userId, value=not-uuid, expectedType=UUID"
+              invalidField:
+                description: userUpdateRequest Field 값이 유효하지 않음
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+                  method: "PATCH"
+                  status: 400
+                  code: "INVALID_BODY_VALUE"
+                  message: "Request body value not valid"
+                  details:
+                    - "newUsername: 크기가 2에서 32 사이여야 합니다"
+                    - "newEmail: 올바른 형식의 이메일 주소여야 합니다"
+                    - "newEmail: 크기가 6에서 254 사이여야 합니다"
+                    - "newPassword: 크기가 8에서 72 사이여야 합니다"
+              invalidJson:
+                description: JSON parsing 실패
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+                  method: "PATCH"
+                  status: 400
+                  code: "INVALID_JSON"
+                  message: "Unable to read request body, please check JSON format and field type"
+                  details:
+                    - "Unexpected character ('}' (code 125)): was expecting double-quote to start field name\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 1]"
       '404':
-        $ref: '../response/errors.yaml#/NotFound'
-
-  delete:
-    tags: [ Users ]
-    summary: 사용자 삭제 (소프트 삭제)
-    description: |
-      사용자 계정을 소프트 삭제합니다.<br>
-      또한 사용자가 **owner**인 길드를 소프트 삭제하고,<br>
-      해당 사용자가 보낸/받은 **친구 요청**도 함께 소프트 삭제합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-        description: 사용자 UUID
-    responses:
-      '204':
-        description: No Content
-      '404': { $ref: '../response/errors.yaml#/NotFound' }
-
-user_profile_settings:
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              userNotFound:
+                description: User를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users/e6681542-a6b1-43f3-b759-6dc9cfebcf41"
+                  method: "PATCH"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"
+      '409':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              duplicateUsername:
+                description: 같은 username을 사용하는 User가 이미 존재함
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+                  method: "PATCH"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "User with username test already exists"
+              duplicateEmail:
+                description: 같은 email을 사용하는 User가 이미 존재함
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+                  method: "PATCH"
+                  status: 409
+                  code: "CONFLICT"
+                  message: "User with email test@example.com already exists"
+      '415':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidUserUpdateRequest:
+                description: userUpdateRequest가 application/json 형식이 아님
+                value:
+                  timestamp: "2025-08-19T07:13:02.116388Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+                  method: "PATCH"
+                  status: 415
+                  code: "UNSUPPORTED_MEDIA_TYPE"
+                  message: "Media type not allowed. Supported types: application/json, application/yaml, application/*+json"
+                  details:
+                    - "Content-Type 'application/octet-stream' not supported"
+              invalidProfile:
+                description: 프로필 이미지의 타입이 지원되지 않음
+                value:
+                  timestamp: "2025-08-19T07:13:02.116388Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173"
+                  method: "PATCH"
+                  status: 415
+                  code: "UNSUPPORTED_MEDIA_TYPE"
+                  message: "Media type not allowed. Supported types: application/octet-stream, image/png, image/jpeg, image/webp"
+                  details:
+                    - "Content-Type 'image/vnd.microsoft.icon' not supported"
+userStatus:
   patch:
-    tags: [ Users ]
-    summary: 프로필 설정 변경
-    description: globalName, bio를 수정합니다.
+    tags:
+      - User
+    summary: User 온라인 상태 업데이트
+    description: |-
+      - **ONLINE**, **DO_NOT_DISTURB**, **IDLE**, **OFFLINE** 중 하나로 상태를 변경합니다.
+      - 또는 **lastActiveAt**을 업데이트 합니다.
+      - 로그아웃 상태면 항상 **online**은 false, **userStatusType**은 OFFLINE으로 반환됩니다.
+      - **ONLINE**으로 업데이트 시 UTC 기준 **lastActiveAt**과 현재 시간이 5분 이상 차이날 경우, **UserStatusType**은 **IDLE**로 반환됩니다.
+    operationId: updateUserStatusByUserId
     parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
+      - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"
     requestBody:
       required: true
       content:
         application/json:
           schema:
-            $ref: '../schemas/user.yaml#/UserUpdateProfileSettingsRequest'
-          example:
-            globalName: Alice
-            bio: Hello, world!
+            $ref: "../schemas/user.yaml#/UserStatusUpdateRequest"
     responses:
-      '204': { description: No Content }
-      '400': { $ref: '../response/errors.yaml#/BadRequest' }
-      '404': { $ref: '../response/errors.yaml#/NotFound' }
+      '200':
+        description: User 온라인 상태가 성공적으로 업데이트됨
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/user.yaml#/UserStatusResponse"
+            example:
+              id: "28807592-fc25-4d9c-a281-dc014b50deb8"
+              createdAt: "2025-08-22T05:29:52.441558Z"
+              updatedAt: "2025-08-22T05:34:45.029098Z"
+              userId: "dff68265-b7be-4976-9832-46110cdf3aa4"
+              lastActiveAt: "2025-08-22T05:35:45.486300Z"
+              online: true
+              userStatusType: "ONLINE"
+      '400':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidParameterType:
+                description: parameter(userId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/users/not-uuid/userStatus"
+                  method: "PATCH"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=userId, value=not-uuid, expectedType=UUID"
+              invalidJson:
+                description: JSON parsing 실패
+                value:
+                  timestamp: "2025-08-16T12:34:56Z"
+                  path: "/api/users/983ef160-4389-4d80-aadc-13a772525173/userStatus"
+                  method: "PATCH"
+                  status: 400
+                  code: "INVALID_JSON"
+                  message: "Unable to read request body, please check JSON format and field type"
+                  details:
+                    - "Text '2025-08-22T09:31' could not be parsed at index 16"
+      '404':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              userNotFound:
+                description: User를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users/e6681542-a6b1-43f3-b759-6dc9cfebcf41/userStatus"
+                  method: "PATCH"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"
 
-user_profile_image:
-  put:
-    tags: [ Users ]
-    summary: 프로필 이미지 변경
-    description: Binary Content로 업로드한 profileId를 업데이트합니다.<br>기존 이미지가 있다면 서버 정책에 따라 정리됩니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserUpdateProfileImageRequest'
-          example:
-            profileId: "b9a9a9c2-3d3b-4f0a-b5a1-1f2a4c6b7d8e"
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../response/errors.yaml#/BadRequest' }
-      '404': { $ref: '../response/errors.yaml#/NotFound' }
-
-  delete:
-    tags: [ Users ]
-    summary: 프로필 이미지 제거
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../response/errors.yaml#/BadRequest' }
-      '404': { $ref: '../response/errors.yaml#/NotFound' }
-
-user_email:
-  put:
-    tags: [ Users ]
-    summary: 이메일 변경
-    description: 이메일을 변경합니다. 중복 시 409를 반환합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserUpdateEmailRequest'
-          example:
-            email: "alice.new@example.com"
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../response/errors.yaml#/BadRequest' }
-      '404': { $ref: '../response/errors.yaml#/NotFound' }
-      '409': { $ref: '../response/errors.yaml#/Conflict' }
-
-user_username:
-  put:
-    tags: [ Users ]
-    summary: 사용자명 변경
-    description: 사용자명을 변경합니다. 중복 시 409를 반환합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserUpdateUsernameRequest'
-          example:
-            username: "alice.k"
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../response/errors.yaml#/BadRequest' }
-      '404': { $ref: '../response/errors.yaml#/NotFound' }
-      '409': { $ref: '../response/errors.yaml#/Conflict' }
-
-user_password:
-  put:
-    tags: [ Users ]
-    summary: 비밀번호 변경
-    description: 동일한 비밀번호로 변경 시 409를 반환합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserUpdatePasswordRequest'
-          example:
-            password: "N3wP@ssw0rd!"
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../response/errors.yaml#/BadRequest' }
-      '404': { $ref: '../response/errors.yaml#/NotFound' }
-      '409': { $ref: '../response/errors.yaml#/Conflict' }
-
-user_phone_number:
-  put:
-    tags: [ Users ]
-    summary: 전화번호 등록/변경
-    description: E.164 형식(`+`로 시작, 숫자 8~15자리)만 허용합니다.
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/user.yaml#/UserUpdatePhoneNumberRequest'
-          examples:
-            e164:
-              summary: E.164 예시
-              value: { phoneNumber: "+821012345678" }
-    responses:
-      '204': { description: No Content }
-      '400': { $ref: '../response/errors.yaml#/BadRequest' }
-      '404': { $ref: '../response/errors.yaml#/NotFound' }
-
-  delete:
-    tags: [ Users ]
-    summary: 전화번호 제거
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema: { type: string, format: uuid }
-    responses:
-      '204': { description: No Content }
-      '404': { $ref: '../response/errors.yaml#/NotFound' }
-
-user_deactivation:
+heartbeat:
   post:
-    tags: [ Users ]
-    summary: 계정 비활성화
-    description: 계정을 비활성화합니다. (소프트 삭제와는 다름)
+    tags:
+      - User
+    summary: 사용자 상태의 **lastActiveAt** 갱신
+    description: 하트비트를 실행하여 사용자의 **lastActiveAt**을 현재 시간으로 변경합니다.
+    operationId: heartbeat
     parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-          format: uuid
+      - $ref: "../openapi-users.yaml#/components/parameters/UserIdInPath"
     responses:
       '204':
-        description: No Content
+        description: 성공적으로 하트비트됨
+      '400':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidParameterType:
+                description: parameter(userId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/users/not-uuid/heartbeat"
+                  method: "POST"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=userId, value=not-uuid, expectedType=UUID"
       '404':
-        $ref: '../response/errors.yaml#/NotFound'
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              userNotFound:
+                description: User를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/users/e6681542-a6b1-43f3-b759-6dc9cfebcf41/heartbeat"
+                  method: "POST"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "User with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"

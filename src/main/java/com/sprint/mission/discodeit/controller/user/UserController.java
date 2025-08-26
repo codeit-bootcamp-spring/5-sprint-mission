@@ -1,145 +1,167 @@
 package com.sprint.mission.discodeit.controller.user;
 
-import com.sprint.mission.discodeit.dto.request.user.UserRegisterRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateEmailRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdatePhoneNumberRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileImageRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateProfileSettingsRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateUsernameRequest;
-import com.sprint.mission.discodeit.dto.response.user.UserRegisterResponse;
+import static com.sprint.mission.discodeit.support.Constants.MAX_EMAIL_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.MAX_USERNAME_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.MIN_EMAIL_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.MIN_USERNAME_LENGTH;
+import static com.sprint.mission.discodeit.support.Constants.SUPPORTED_IMAGE_TYPE;
+
+import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserSaveResponse;
+import com.sprint.mission.discodeit.dto.response.userstatus.UserStatusResponse;
+import com.sprint.mission.discodeit.exception.ParameterNumberNotValidException;
 import com.sprint.mission.discodeit.service.user.UserService;
+import com.sprint.mission.discodeit.support.Filenames;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/users")
+@RequestMapping(path = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@Validated
 public class UserController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @PostMapping({"", "/"})
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserRegisterResponse register(@Valid @RequestBody UserRegisterRequest body) {
-        return userService.register(body);
+  @GetMapping
+  public List<UserResponse> findAll(
+
+      @RequestParam(required = false)
+      @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH)
+      String username,
+
+      @RequestParam(required = false)
+      @Size(min = MIN_EMAIL_LENGTH, max = MAX_EMAIL_LENGTH)
+      @Email
+      String email
+  ) {
+
+    if (username != null && email != null) {
+      throw new ParameterNumberNotValidException(List.of("username", "email"));
+    }
+    if (username != null) {
+      return userService.findByUsername(username);
+    }
+    if (email != null) {
+      return userService.findByEmail(email);
+    }
+    return userService.findAll();
+  }
+
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @ResponseStatus(HttpStatus.CREATED)
+  public UserSaveResponse create(
+
+      @RequestPart("userCreateRequest")
+      @Valid
+      UserCreateRequest req,
+
+      @RequestPart(value = "profile", required = false)
+      MultipartFile profile
+  ) throws HttpMediaTypeNotSupportedException, IOException {
+
+    if (profile != null && !profile.isEmpty()) {
+      String ct = Filenames.normalizeContentType(profile.getContentType());
+      if (!SUPPORTED_IMAGE_TYPE.contains(ct)) {
+        throw new HttpMediaTypeNotSupportedException(
+            "Content-Type '%s' not supported".formatted(ct),
+            SUPPORTED_IMAGE_TYPE.stream().map(MediaType::valueOf).toList());
+      }
     }
 
-    @GetMapping(path = "/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponse find(@PathVariable("id") UUID id) {
-        return userService.find(id);
+    return userService.create(req, profile);
+  }
+
+  @GetMapping(path = "/{userId}")
+  public UserResponse find(
+
+      @PathVariable("userId")
+      UUID userId
+  ) {
+    return userService.find(userId);
+  }
+
+  @DeleteMapping(path = "/{userId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(
+
+      @PathVariable("userId")
+      UUID userId
+  ) {
+    userService.delete(userId);
+  }
+
+  @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public UserSaveResponse update(
+
+      @PathVariable("userId")
+      UUID userId,
+
+      @RequestPart(value = "userUpdateRequest", required = false)
+      @Valid
+      UserUpdateRequest req,
+
+      @RequestPart(value = "profile", required = false)
+      MultipartFile profile
+  ) throws HttpMediaTypeNotSupportedException, IOException {
+
+    if (profile != null && !profile.isEmpty()) {
+      String ct = Filenames.normalizeContentType(profile.getContentType());
+      if (!SUPPORTED_IMAGE_TYPE.contains(ct)) {
+        throw new HttpMediaTypeNotSupportedException(
+            "Content-Type '%s' not supported".formatted(ct),
+            SUPPORTED_IMAGE_TYPE.stream().map(MediaType::valueOf).toList());
+      }
     }
 
-    @GetMapping({"", "/"})
-    @ResponseStatus(HttpStatus.OK)
-    public List<UserResponse> findAll(
-            @RequestParam(required = false) String username,
-            @RequestParam(required = false) String email) {
-        if (username != null && email != null) {
-            throw new IllegalArgumentException("username과 email은 동시에 포함될 수 없습니다.");
-        }
-        if (username != null) {
-            return userService.findByUsername(username);
-        }
-        if (email != null) {
-            return userService.findByEmail(email);
-        }
-        return userService.findAll();
-    }
+    return userService.update(userId, req, profile);
+  }
 
-    @DeleteMapping(path = "/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") UUID id) {
-        userService.deleteAccount(id);
-    }
+  @PatchMapping(path = "/{userId}/userStatus", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  public UserStatusResponse updateUserStatusByUserId(
 
-    @PatchMapping(path = "/{id}/profile-settings")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProfileSettings(@PathVariable("id") UUID id,
-                                      @Valid @RequestBody UserUpdateProfileSettingsRequest body) {
-        userService.updateProfileSettings(id, body);
-    }
+      @PathVariable("userId")
+      UUID userId,
 
-    @PutMapping(path = "/{id}/profile-image")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProfileImage(@PathVariable("id") UUID id,
-                                   @Valid @RequestBody UserUpdateProfileImageRequest body) {
-        userService.updateProfileImage(id, body);
-    }
+      @RequestBody
+      UserStatusUpdateRequest req
+  ) {
 
-    @DeleteMapping(path = "/{id}/profile-image")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void clearProfileImage(@PathVariable("id") UUID id) {
-        userService.clearProfileImage(id);
-    }
+    return userService.updateUserStatusByUserId(userId, req);
+  }
 
-    @PutMapping(path = "/{id}/email")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateEmail(@PathVariable("id") UUID id,
-                            @Valid @RequestBody UserUpdateEmailRequest body) {
-        userService.updateEmail(id, body);
-    }
+  @PostMapping(path = "/{userId}/heartbeat")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void heartbeat(
 
-    @PutMapping(path = "/{id}/username")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateUsername(@PathVariable("id") UUID id,
-                               @Valid @RequestBody UserUpdateUsernameRequest body) {
-        userService.updateUsername(id, body);
-    }
-
-    @PutMapping(path = "/{id}/password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePassword(@PathVariable("id") UUID id,
-                               @Valid @RequestBody UserUpdatePasswordRequest body) {
-        userService.updatePassword(id, body);
-    }
-
-    @PutMapping(path = "/{id}/phone-number")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePhoneNumber(@PathVariable("id") UUID id,
-                                  @Valid @RequestBody UserUpdatePhoneNumberRequest body) {
-        userService.updatePhoneNumber(id, body);
-    }
-
-    @DeleteMapping(path = "/{id}/phone-number")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void clearPhoneNumber(@PathVariable("id") UUID id) {
-        userService.clearPhoneNumber(id);
-    }
-
-    @PostMapping(path = "/{id}/deactivation")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deactivateAccount(@PathVariable("id") UUID id) {
-        userService.deactivateAccount(id);
-    }
-
-    @GetMapping(path = "/{id}/friends")
-    @ResponseStatus(HttpStatus.OK)
-    public List<UserResponse> getFriends(@PathVariable("id") UUID id) {
-        return userService.getFriends(id);
-    }
-
-    @DeleteMapping(path = "/{id}/friends/{friendId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeFriend(@PathVariable("id") UUID id,
-                             @PathVariable("friendId") UUID friendId) {
-        userService.removeFriend(id, friendId);
-    }
+      @PathVariable("userId")
+      UUID userId
+  ) {
+    userService.heartbeat(userId);
+  }
 }

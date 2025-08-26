@@ -1,0 +1,43 @@
+openapi: 3.0.3
+info:
+  title: Discodeit Channels API
+  version: "1.0.0"
+  description: 채널(Channel) 관련 API 문서
+servers:
+  - url: /api
+paths:
+  /channels:
+    $ref: "./paths/channels.yaml#/channelsRoot"
+  /channels/public:
+    $ref: "./paths/channels.yaml#/publicChannels"
+  /channels/private:
+    $ref: "./paths/channels.yaml#/privateChannels"
+  /channels/{channelId}:
+    $ref: "./paths/channels.yaml#/channelById"
+components:
+  parameters:
+    ChannelIdInPath:
+      in: path
+      name: channelId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ChannelIdInQuery:
+      in: query
+      name: channelId
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    ChannelResponse:
+      $ref: "./schemas/channel.yaml#/ChannelResponse"
+    ChannelSaveResponse:
+      $ref: "./schemas/channel.yaml#/ChannelSaveResponse"
+    PublicChannelCreateRequest:
+      $ref: "./schemas/channel.yaml#/PublicChannelCreateRequest"
+    PrivateChannelCreateRequest:
+      $ref: "./schemas/channel.yaml#/PrivateChannelCreateRequest"
+    PublicChannelUpdateRequest:
+      $ref: "./schemas/channel.yaml#/PublicChannelUpdateRequest"

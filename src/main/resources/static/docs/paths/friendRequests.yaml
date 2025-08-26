@@ -1,0 +1,240 @@
+friendRequestsRoot:
+  get:
+    tags:
+      - FriendRequest
+    summary: 친구 요청 목록 조회
+    operationId: findAll
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "../schemas/friendRequest.yaml#/FriendRequestResponse"
+  post:
+    tags:
+      - FriendRequest
+    summary: 친구 요청 보내기
+    operationId: sendFriendRequest
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/friendRequest.yaml#/FriendRequestSendRequest"
+          examples:
+            valid:
+              value:
+                senderId: "2f9b1b3f-5b5d-4f5f-91a1-6c3c2b2a1a11"
+                receiverUsername: "bob"
+    responses:
+      '201':
+        description: Created
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/friendRequest.yaml#/FriendRequestResponse"
+      '400':
+        description: Bad Request
+        content:
+          application/json:
+            schema: { $ref: "../schemas/error.yaml#/ApiError" }
+            examples:
+              alreadyFriend:
+                value:
+                  timestamp: "2025-08-18T10:00:00Z"
+                  path: "/api/friend-requests"
+                  method: "POST"
+                  status: 400
+                  code: "BAD_REQUEST"
+                  message: "요청이 올바르지 않습니다."
+                  details: [ "이미 친구입니다." ]
+              duplicatedRequest:
+                value:
+                  timestamp: "2025-08-18T10:00:00Z"
+                  path: "/api/friend-requests"
+                  method: "POST"
+                  status: 400
+                  code: "BAD_REQUEST"
+                  message: "요청이 올바르지 않습니다."
+                  details: [ "친구 요청이 이미 존재합니다." ]
+      '404':
+        description: Not Found
+        content:
+          application/json:
+            schema: { $ref: "../schemas/error.yaml#/ApiError" }
+            example:
+              timestamp: "2025-08-18T10:00:00Z"
+              path: "/api/friend-requests"
+              method: "POST"
+              status: 404
+              code: "RESOURCE_NOT_FOUND"
+              message: "User with username {receiverUsername} not found"
+
+friendRequestById:
+  get:
+    tags:
+      - FriendRequest
+    summary: 친구 요청 단건 조회
+    operationId: getFriendRequest
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/friendRequest.yaml#/FriendRequestResponse"
+      '404':
+        description: Not Found
+        content:
+          application/json:
+            schema: { $ref: "../schemas/error.yaml#/ApiError" }
+  delete:
+    tags:
+      - FriendRequest
+    summary: 친구 요청 처리
+    operationId: handleFriendRequest
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: 친구 요청 ID
+      - in: query
+        name: action
+        required: true
+        schema:
+          type: string
+          enum: [ ACCEPT, REJECT, CANCEL ]
+        description: 처리할 동작
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/friendRequest.yaml#/FriendRequestHandleRequest"
+    responses:
+      '204':
+        description: No Content
+      '400':
+        description: Bad Request (userId 미포함)
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            example:
+              timestamp: "2025-08-17T15:32:00Z"
+              path: "/api/friend-requests/{id}?action=ACCEPT"
+              method: "DELETE"
+              status: 400
+              code: "BAD_REQUEST"
+              message: "요청이 올바르지 않습니다."
+              details:
+                - "userId: 널이어서는 안됩니다"
+      '403':
+        description: Forbidden (sender/receiver가 아님)
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            example:
+              timestamp: "2025-08-17T15:31:05Z"
+              path: "/api/friend-requests/{id}?action=ACCEPT"
+              method: "DELETE"
+              status: 403
+              code: "FORBIDDEN"
+              message: "요청 수락/거절/취소 권한이 없습니다."
+      '404':
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            example:
+              timestamp: "2025-08-16T12:34:56Z"
+              path: "/api/*/6c1c5c7a-6d7d-4e9d-8a1f-bb2b3c4d5e6f"
+              method: "GET"
+              status: 404
+              code: "RESOURCE_NOT_FOUND"
+              message: "이미 처리된 요청입니다."
+
+friend_requests_sent:
+  get:
+    tags:
+      - FriendRequest
+    summary: 보낸 친구 요청 목록 조회
+    operationId: listFriendRequestsBySender
+    parameters:
+      - in: query
+        name: userId
+        required: true
+        schema: { type: string, format: uuid }
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "../schemas/friendRequest.yaml#/FriendRequestResponse"
+      '400':
+        description: Bad Request
+        content:
+          application/json:
+            schema: { $ref: "../schemas/error.yaml#/ApiError" }
+
+friend_requests_received:
+  get:
+    tags:
+      - FriendRequest
+    summary: 받은 친구 요청 목록 조회
+    operationId: listFriendRequestsByReceiver
+    parameters:
+      - in: query
+        name: userId
+        required: true
+        schema: { type: string, format: uuid }
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "../schemas/friendRequest.yaml#/FriendRequestResponse"
+      '400':
+        description: Bad Request
+        content:
+          application/json:
+            schema: { $ref: "../schemas/error.yaml#/ApiError" }
+
+friend_requests_clear_by_user:
+  delete:
+    tags:
+      - FriendRequest
+    summary: 특정 사용자의 친구 요청 전체 삭제(soft delete)
+    operationId: clearFriendRequestsByUser
+    parameters:
+      - in: path
+        name: userId
+        required: true
+        schema: { type: string, format: uuid }
+    responses:
+      '204':
+        description: No Content
+      '404':
+        description: Not Found
+        content:
+          application/json:
+            schema: { $ref: "../schemas/error.yaml#/ApiError" }

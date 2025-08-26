@@ -1,102 +1,105 @@
 package com.sprint.mission.discodeit.service.message;
 
+import static com.sprint.mission.discodeit.support.StringUtil.nullOrStrip;
+
+import com.sprint.mission.discodeit.domain.entity.BinaryContent;
+import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Message;
-import com.sprint.mission.discodeit.dto.request.message.MessageSendRequest;
+import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
+import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Comparator;
+import com.sprint.mission.discodeit.support.Filenames;
+import java.io.IOException;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import static com.sprint.mission.discodeit.mapper.MessageMapper.toMessageResponse;
-import static com.sprint.mission.discodeit.mapper.MessageMapper.toMessageResponses;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MessageService {
 
-    private final MessageRepository messageRepository;
-    private final ChannelRepository channelRepository;
-    private final UserRepository userRepository;
+  private final MessageRepository messageRepository;
+  private final ChannelRepository channelRepository;
+  private final UserRepository userRepository;
+  private final BinaryContentRepository binaryContentRepository;
 
-    @Transactional
-    public MessageResponse send(UUID channelId, MessageSendRequest req) {
-        Objects.requireNonNull(channelId, "channelId must not be null");
-        channelRepository.getOrThrow(channelId);
-        userRepository.getOrThrow(req.senderId());
 
-        if (req.replyTo() != null) {
-            Message parent = messageRepository.getOrThrow(req.replyTo());
-            if (!parent.getChannelId().equals(channelId)) {
-                throw new IllegalArgumentException("Reply 대상 메시지는 동일 채널이어야 합니다.");
-            }
+  public List<MessageResponse> findAllByChannelId(UUID channelId) {
+    Channel c = channelRepository.getOrThrow(channelId);
+
+    return messageRepository.findAllByIdIn(c.getMessageIds()).stream()
+        .map(MessageResponse::from)
+        .toList();
+  }
+
+  @Transactional
+  public MessageResponse create(
+      MessageCreateRequest req,
+      List<MultipartFile> attachments
+  ) throws IOException {
+    Channel c = channelRepository.getOrThrow(req.channelId());
+    userRepository.getOrThrow(req.authorId());
+
+    Set<UUID> attachmentIds = new LinkedHashSet<>();
+    if (attachments != null) {
+      for (MultipartFile attachment : attachments) {
+        if (attachment == null || attachment.isEmpty()) {
+          continue;
         }
+        String ct = Filenames.normalizeContentType(attachment.getContentType());
+        String original = attachment.getOriginalFilename();
+        String filename = Filenames.buildStoredName(original, ct);
 
-        Message msg = new Message(
-                channelId,
-                req.senderId(),
-                req.content(),
-                (req.attachmentIds() == null ? Set.of() : req.attachmentIds()),
-                req.replyTo()
+        BinaryContent saved = binaryContentRepository.save(
+            new BinaryContent(filename, ct, attachment.getBytes())
         );
 
-        Message saved = messageRepository.save(msg);
-        return toMessageResponse(saved);
+        attachmentIds.add(saved.getId());
+      }
     }
 
-    @Transactional
-    public void update(UUID messageId, MessageUpdateRequest req) {
-        Message m = messageRepository.getOrThrow(messageId);
-        if (!m.getAuthorId().equals(req.senderId())) {
-            throw new IllegalStateException("작성자만 메시지를 수정할 수 있습니다.");
-        }
-        if (req.content() != null) {
-            m.setContent(req.content());
-        }
-        if (req.attachmentIds() != null) {
-            m.setAttachmentIds(req.attachmentIds());
-        }
-        messageRepository.save(m);
+    Message m = messageRepository.save(
+        new Message(
+            req.channelId(),
+            req.authorId(),
+            nullOrStrip(req.content()),
+            attachmentIds
+        )
+    );
+
+    c.addMessageId(m.getId());
+    channelRepository.save(c);
+
+    return MessageResponse.from(m);
+  }
+
+  @Transactional
+  public void delete(UUID messageId) {
+    if (!messageRepository.delete(messageId)) {
+      throw new NotFoundException("Message with id %s not found".formatted(messageId));
     }
+  }
 
-    @Transactional
-    public void delete(UUID messageId, UUID actorId) {
-        Message m = messageRepository.getOrThrow(messageId);
-        if (!m.getAuthorId().equals(Objects.requireNonNull(actorId, "actorId must not be null"))) {
-            throw new IllegalStateException("작성자만 메시지를 삭제할 수 있습니다.");
-        }
-        messageRepository.softDeleteById(messageId);
-    }
-
-    public List<MessageResponse> findByChannel(UUID channelId, Integer page, Integer size) {
-        Objects.requireNonNull(channelId, "channelId must not be null");
-        channelRepository.getOrThrow(channelId);
-
-        int p = (page == null || page < 0) ? 0 : page;
-        int s = (size == null || size <= 0 || size > 200) ? 50 : size;
-
-        List<Message> all = messageRepository.findAllByChannelId(channelId).stream()
-                .filter(m -> !m.isDeleted())
-                .sorted(Comparator.comparing(Message::getCreatedAt))
-                .toList();
-
-        int from = Math.min(p * s, all.size());
-        int to = Math.min(from + s, all.size());
-
-        return toMessageResponses(all.subList(from, to));
-    }
-
-    public MessageResponse find(UUID id) {
-        return toMessageResponse(messageRepository.getOrThrow(id));
-    }
+  @Transactional
+  public MessageResponse update(UUID messageId, MessageUpdateRequest req) {
+    Message m = messageRepository.getOrThrow(messageId);
+    return MessageResponse.from(
+        messageRepository.save(
+            m.update(nullOrStrip(req.newContent()))
+        )
+    );
+  }
 }

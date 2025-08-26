@@ -1,0 +1,129 @@
+binaryContentsRoot:
+  get:
+    tags:
+      - BinaryContent
+    summary: 여러 첨부 파일 조회
+    operationId: findAllByIdIn
+    parameters:
+      - $ref: "../openapi-binaryContents.yaml#/components/parameters/binaryContentIds"
+    responses:
+      '200':
+        description: 첨부 파일 목록 조회 성공
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "../schemas/binaryContent.yaml#/BinaryContentResponse"
+              example:
+                - id: "5e28e1da-e889-4dd8-ac78-3dd6c59c09ea"
+                  createdAt: "2025-08-24T10:11:11.296094Z"
+                  filename: "index_03af0738.html"
+                  size: 673
+                  contentType: "text/html"
+                  bytes: "PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KICA8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiIC8+CiAgICA8dGl0bGU..."
+                - id: "39dcc1ba-c3bd-466c-bb65-4b925e3b9dcd"
+                  createdAt: "2025-08-24T10:11:06.328282Z"
+                  filename: "favicon_e66d1868.ico"
+                  size: 1588
+                  contentType: "image/vnd.microsoft.icon"
+                  bytes: "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAABGdBTUEAALGPC/xhBQAAACBjSFJN..."
+                - id: "c299849b-b674-4a25-8143-6fb4b4d264a3"
+                  createdAt: "2025-08-24T10:10:54.320992Z"
+                  filename: "default-avatar_08440a0a.png"
+                  size: 12529
+                  contentType: "image/png"
+                  bytes: "iVBORw0KGgoAAAANSUhEUgAAAWsAAAFrCAIAAACYJD8vAAAgAElEQVR42u2d+XfTVtrHtW+Wl3iJTVaSkgZaQqF908Jh6/v2..."
+      '400':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidParameterType:
+                description: parameter(binaryContentIds) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/binaryContents?binaryContentIds=not-uuid&binaryContentIds=null"
+                  method: "GET"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=binaryContentIds, value=[Ljava.lang.String;@6595d50, expectedType=List"
+              invalidParameterValue:
+                description: parameter(binaryContentIds) 값이 유효하지 않음
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/binaryContents?binaryContentIds=5e28e1da-e889-4dd8-ac78-3dd6c59c09ea&binaryContentIds=39dcc1ba-c3bd-466c-bb65-4b925e3b9dcd&binaryContentIds="
+                  method: "GET"
+                  status: 400
+                  code: "INVALID_PARAMETER_VALUE"
+                  message: "Request parameter value not valid"
+                  details:
+                    - "<list element>: 널이어서는 안됩니다"
+              missingParameter:
+                description: 요청에 parameter(binaryContentIds)가 포함되지 않음
+                value:
+                  timestamp: "2025-08-22T14:00:41.625908Z"
+                  path: "/api/binaryContents"
+                  method: "GET"
+                  status: 400
+                  code: "MISSING_PARAMETER"
+                  message: "Required parameter missing"
+                  details:
+                    - "missing parameter: binaryContentIds (required type: List)"
+binaryContentById:
+  get:
+    tags:
+      - BinaryContent
+    summary: 첨부 파일 조회
+    operationId: find
+    parameters:
+      - $ref: "../openapi-binaryContents.yaml#/components/parameters/binaryContentId"
+    responses:
+      '200':
+        description: 첨부 파일 조회 성공
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/binaryContent.yaml#/BinaryContentResponse"
+            example:
+              id: "c299849b-b674-4a25-8143-6fb4b4d264a3"
+              createdAt: "2025-08-24T10:10:54.320992Z"
+              filename: "default-avatar_08440a0a.png"
+              size: 12529
+              contentType: "image/png"
+              bytes: "iVBORw0KGgoAAAANSUhEUgAAAWsAAAFrCAIAAACYJD8vAAAgAElEQVR42u2d+XfTVtrHtW+Wl3iJTVaSkgZaQqF908Jh6/v2..."
+      '400':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              invalidParameterType:
+                description: parameter(binaryContentId) 타입이 UUID가 아님
+                value:
+                  timestamp: "2025-08-21T14:42:21.048570Z"
+                  path: "/api/binaryContents/not-uuid"
+                  method: "GET"
+                  status: 400
+                  code: "INVALID_PARAMETER_TYPE"
+                  message: "Request parameter type not valid"
+                  details:
+                    - "parameter=binaryContentId, value=not-uuid, expectedType=UUID"
+      '404':
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/error.yaml#/ApiError"
+            examples:
+              binaryContentNotFound:
+                description: Binary Content를 찾을 수 없음
+                value:
+                  timestamp: "2025-08-17T15:30:02Z"
+                  path: "/api/binaryContents/e6681542-a6b1-43f3-b759-6dc9cfebcf41"
+                  method: "GET"
+                  status: 404
+                  code: "RESOURCE_NOT_FOUND"
+                  message: "BinaryContent with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found"

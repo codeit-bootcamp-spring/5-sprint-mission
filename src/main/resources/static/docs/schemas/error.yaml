@@ -1,5 +1,6 @@
 ApiError:
   type: object
+  additionalProperties: false
   required:
     - timestamp
     - path
@@ -7,7 +8,6 @@ ApiError:
     - status
     - code
     - message
-    - details
   properties:
     timestamp:
       type: string
@@ -15,34 +15,31 @@ ApiError:
       description: 오류 발생 시각(UTC)
     path:
       type: string
-      description: 요청 uri
+      description: 요청 URI
     method:
       type: string
-      description: 요청 method
       enum:
         - GET
         - POST
         - PUT
         - PATCH
         - DELETE
+        - HEAD
+        - OPTIONS
+      description: 요청 HTTP 메서드
     status:
       type: integer
-      description: 리스폰스 상태 코드
+      minimum: 400
+      maximum: 599
+      description: HTTP 상태 코드
     code:
       type: string
       description: 애플리케이션 오류 코드
-      enum:
-        - BAD_REQUEST
-        - NOT_FOUND
-        - METHOD_NOT_ALLOWED
-        - CONFLICT
-        - UNSUPPORTED_MEDIA_TYPE
-        - INTERNAL_ERROR
     message:
       type: string
-      description: 사용자 표시용 메시지
+      description: 사용자에게 표시할 기본 오류 메시지
     details:
       type: array
-      description: 세부 오류 목록
       items:
         type: string
+      description: 세부 오류 목록

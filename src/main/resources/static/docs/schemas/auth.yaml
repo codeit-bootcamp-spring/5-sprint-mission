@@ -1,20 +1,24 @@
 LoginRequest:
   type: object
-  required: [ email, password ]
+  required:
+    - username
+    - password
   properties:
-    email:
+    username:
       type: string
-      format: email
-      description: 로그인 이메일
+      minLength: 2
+      maxLength: 32
+      description: 입력 값은 대소문자 모두 허용되지만, 서버에서 strip 후 소문자로 정규화하여 처리됨
     password:
       type: string
       minLength: 8
       maxLength: 72
-      description: 비밀번호
+      description: 입력 값은 서버에서 해시로 인코딩됨
 
 LogoutRequest:
   type: object
-  required: [ userId ]
+  required:
+    - userId
   properties:
     userId:
       type: string

@@ -1,54 +1,57 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.domain.entity.AbstractEntity;
-
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface AbstractRepository<T extends AbstractEntity> {
 
-    T save(T entity);
+  T save(T entity);
 
-    List<T> saveAll(Collection<T> entities);
+  List<T> saveAll(Collection<T> entities);
 
-    Optional<T> findById(UUID id);
+  List<T> findAll();
 
-    Optional<T> findByIdIncludingDeleted(UUID id);
+  List<T> findAllIncludingDeleted();
 
-    boolean existsById(UUID id);
+  List<T> findAllDeleted();
 
-    boolean existsAllByIds(Collection<UUID> ids);
+  List<UUID> findAllIds();
 
-    T getOrThrow(UUID id);
+  List<T> findAllByIdIn(Collection<UUID> ids);
 
-    List<T> findAll();
+  List<T> findAllByIdIncludingDeleted(Set<UUID> ids);
 
-    List<T> findAllIncludingDeleted();
+  Optional<T> find(UUID id);
 
-    List<T> findAllDeleted();
+  Optional<T> findIncludingDeleted(UUID id);
 
-    List<T> findAllByIds(Collection<UUID> ids);
+  Map<UUID, Instant> findAllCreatedAtById(Set<UUID> ids);
 
-    List<T> findAllByIdsIncludingDeleted(Collection<UUID> ids);
+  T getOrThrow(UUID id);
 
-    boolean softDeleteById(UUID id);
+  boolean existsById(UUID id);
 
-    int softDeleteAllByIds(Collection<UUID> ids);
+  boolean delete(UUID id);
 
-    boolean restoreById(UUID id);
+  void deleteAllByIdIn(Set<UUID> ids);
 
-    int restoreAllByIds(Collection<UUID> ids);
+  boolean restore(UUID id);
 
-    boolean hardDeleteById(UUID id);
+  int restoreAllByIdIn(Set<UUID> ids);
 
-    int hardDeleteAllByIds(Collection<UUID> ids);
+  boolean hardDelete(UUID id);
 
-    int hardDeleteAllExpired(Instant now);
+  int hardDeleteAllByIdIn(Set<UUID> ids);
 
-    long count();
+  int hardDeleteAllExpired(Instant now);
 
-    long countIncludingDeleted();
+  long count();
+
+  long countIncludingDeleted();
 }

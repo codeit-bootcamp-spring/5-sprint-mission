@@ -1,20 +1,19 @@
 openapi: 3.0.3
 info:
-  title: Discodeit API
+  title: Discodeit Auth API
   version: "1.0.0"
+  description: 인증(Auth) 관련 API 문서
 servers:
-  - url: /api/auth
-
+  - url: /api
 paths:
-  /login:
+  /auth/login:
     $ref: "./paths/auth.yaml#/login"
-  /logout:
+  /auth/logout:
     $ref: "./paths/auth.yaml#/logout"
-
 components:
   schemas:
-    UserResponse:
-      $ref: "./schemas/user.yaml#/UserResponse"
+    UserSaveResponse:
+      $ref: "./schemas/user.yaml#/UserSaveResponse"
     LoginRequest:
       $ref: "./schemas/auth.yaml#/LoginRequest"
     LogoutRequest:

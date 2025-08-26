@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.dto.request.message;
 
-import jakarta.validation.constraints.NotNull;
+import static com.sprint.mission.discodeit.support.Constants.MAX_MESSAGE_CONTENT_LENGTH;
 
-import java.util.Set;
-import java.util.UUID;
+import jakarta.validation.constraints.Size;
 
 public record MessageUpdateRequest(
-        @NotNull UUID senderId,
-        String content,
-        Set<UUID> attachmentIds
+
+    @Size(max = MAX_MESSAGE_CONTENT_LENGTH)
+    String newContent
 ) {
+
 }
