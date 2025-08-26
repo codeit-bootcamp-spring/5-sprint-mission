@@ -1,14 +1,12 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ReadStatusDto;
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
-import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,41 +20,45 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BasicReadStatusService implements ReadStatusService {
 
+    private final UserRepository userRepository;
+    private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
-    private final MessageService messageService;
     private final MessageRepository messageRepository;
-    private final UserService userService;
-    private final ChannelService channelService;
 
     @Override
-    public ReadStatusDto.response updateLastReadAt(ReadStatusDto.create dto) {
+    public ReadStatus create(UUID userId, UUID channelId, Instant lastReadAt) {
+        userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다."));
+        channelRepository.findById(channelId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
-        // 메시지 아이디로 메시지 조회
-        Message message = messageService.findById(dto.messageId());
+        Optional<ReadStatus> existing = readStatusRepository.findByUserIdAndChannelId(userId, channelId);
 
-        // 채널 일치 검증
-        if(!message.getChannelId().equals(dto.channelId())){
-            throw new IllegalArgumentException("지정한 채널에 속하지 않는 메시지입니다.");
-        }
+        ReadStatus readStatus;
+        if (existing.isPresent()) {
+            // 기존 데이터가 있으면 업데이트
+            readStatus = existing.get();
+            Instant oldReadAt = readStatus.getLastReadAt();
 
-        // 읽음 상태가 존재하면 없데이트, 없다면 새로 생성
-        ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(dto.userId(), dto.channelId())
-                .orElseGet(() -> new ReadStatus(dto.userId(), dto.channelId()));
-
-        Instant lastReadAt = message.getCreatedAt(); // 마지막으로 읽은 시간
-
-        // 과거로 돌아감 방지
-        Instant oldReadAt = readStatus.getLastReadAt(); // null일 수도 있음
-
-        if(oldReadAt == null || lastReadAt.isAfter(oldReadAt)){
-            readStatus.updateLastReadAt(lastReadAt);
+            if (oldReadAt == null || lastReadAt.isAfter(oldReadAt)) {
+                readStatus.updateLastReadAt(lastReadAt);
+                readStatusRepository.save(readStatus); // 저장
+            }
+        } else {
+            // 없으면 새로 생성 → 무조건 저장
+            readStatus = new ReadStatus(userId, channelId, lastReadAt);
             readStatusRepository.save(readStatus);
         }
-        return ReadStatusDto.response.builder()
-                .userId(dto.userId())
-                .channelId(dto.channelId())
-                .readAt(lastReadAt)
-                .build();
+
+        return readStatus;
+    }
+
+    @Override
+    public ReadStatus findById(UUID readStatusId, Instant newLastReadAt) {
+        return readStatusRepository.findById(readStatusId);
+    }
+
+    @Override
+    public List<ReadStatus> findByUserId(UUID userId) {
+        return readStatusRepository.findByUserId(userId);
     }
 
     @Override
@@ -94,6 +96,16 @@ public class BasicReadStatusService implements ReadStatusService {
                     return new ReadStatusDto.unread(channelId, hasUnread);
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 특정 채널에 있는 모든 사용자
+     * 채널 참여자
+     */
+    @Override
+    public List<UUID> findAllUsers(UUID channelId) {
+        List<ReadStatus> readStatusList = readStatusRepository.findAllByChannelId(channelId);
+        return readStatusList.stream().map(ReadStatus::getUserId).toList();
     }
 
     /**

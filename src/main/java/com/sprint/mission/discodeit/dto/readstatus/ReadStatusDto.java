@@ -1,9 +1,8 @@
-package com.sprint.mission.discodeit.dto;
+package com.sprint.mission.discodeit.dto.readstatus;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
-import java.time.Instant;
 import java.util.UUID;
 
 public class ReadStatusDto {
@@ -27,6 +26,6 @@ public class ReadStatusDto {
     public record response(
             UUID userId,
             UUID channelId,
-            Instant readAt
+            String readAt
     ) {}
 }

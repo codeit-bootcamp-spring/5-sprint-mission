@@ -13,6 +13,10 @@ public interface ReadStatusRepository {
 
     void saveAll(List<ReadStatus> readStatuses);
 
+    List<ReadStatus> findByUserId(UUID userId);
+
+    ReadStatus findById(UUID readStatusId);
+
     /**
      * 특정 사용자-채널 조합의 읽음 상태 조회
      */
@@ -29,4 +33,9 @@ public interface ReadStatusRepository {
      * 특정 채널의 모든 사용자 읽음 상태 조회
      */
     List<ReadStatus> findAllByChannelId(UUID channelId);
+
+    /**
+     * 특정 채널의 읽음 상태
+     */
+    Optional<ReadStatus> findByChannelId(UUID channelId);
 }

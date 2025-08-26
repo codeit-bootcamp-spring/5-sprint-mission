@@ -26,6 +26,18 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
     }
 
     @Override
+    public ReadStatus findById(UUID readStatusId) {
+        return data.get(readStatusId);
+    }
+
+    @Override
+    public List<ReadStatus> findByUserId(UUID userId) {
+        return data.values().stream()
+                .filter(rs -> rs.getUserId().equals(userId))
+                .toList();
+    }
+
+    @Override
     public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
         return data.values().stream()
                 .filter(rs -> rs.getUserId().equals(userId) && rs.getChannelId().equals(channelId))
@@ -51,5 +63,12 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
             }
         }
         return result;
+    }
+
+    @Override
+    public Optional<ReadStatus> findByChannelId(UUID channelId) {
+        return data.values().stream()
+                .filter(rs -> rs.getChannelId().equals(channelId))
+                .findFirst();
     }
 }

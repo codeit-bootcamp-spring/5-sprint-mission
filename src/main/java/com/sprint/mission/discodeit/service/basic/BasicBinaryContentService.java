@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.binaryContent.FileDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
@@ -19,21 +20,18 @@ public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public UUID save(MultipartFile file) {
-        if (file == null || file.isEmpty()) return null;
+    public UUID save(FileDto dto) {
+        if (dto == null) return null;
 
-        try {
-            BinaryContent bc = new BinaryContent(
-                    file.getOriginalFilename(),
-                    file.getContentType(),
-                    file.getBytes(),
-                    file.getSize()
-            );
-            binaryContentRepository.save(bc);
-            return bc.getId();
-        } catch (IOException e) {
-            throw new RuntimeException("파일 저장 중 오류", e);
-        }
+        BinaryContent bc = new BinaryContent(
+                dto.name(),
+                dto.contentType(),
+                dto.content(),
+                dto.content().length
+        );
+
+        binaryContentRepository.save(bc);
+        return bc.getId();
     }
 
     @Override
@@ -45,6 +43,13 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Override
     public List<BinaryContent> findAll() {
         return binaryContentRepository.findAll();
+    }
+
+    @Override
+    public List<BinaryContent> findAllById(List<UUID> ids) {
+        return binaryContentRepository.findAll().stream()
+                .filter(bc -> ids.contains(bc.getId()))
+                .toList();
     }
 
     @Override

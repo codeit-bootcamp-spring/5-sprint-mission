@@ -20,10 +20,10 @@ public class ReadStatus extends Base {
     private final UUID channelId;
     private Instant lastReadAt;
 
-    public ReadStatus(UUID userId, UUID channelId) {
+    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
         this.userId = userId;
         this.channelId = channelId;
-        this.lastReadAt = null; // 아직 읽은 메시지 없음
+        this.lastReadAt = lastReadAt; // 아직 읽은 메시지 없음
     }
 
     /**
@@ -42,5 +42,9 @@ public class ReadStatus extends Base {
      */
     public boolean isRead(Instant messageCreatedAt) {
         return lastReadAt != null && !messageCreatedAt.isAfter(lastReadAt);
+    }
+
+    public String getLastReadAtFormatted() {
+       return super.formatTimestamp(lastReadAt);
     }
 }

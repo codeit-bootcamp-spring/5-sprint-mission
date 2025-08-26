@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto;
+package com.sprint.mission.discodeit.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,26 +9,21 @@ import java.util.UUID;
 
 public class UserRequest {
 
-    public record create(
+    public record Create(
             @NotBlank(message = "이름을 입력해주세요")
-            String name,
+            String username,
 
             @NotBlank(message = "이메일을 입력해주세요")
             String email,
 
             @NotBlank(message = "비밀번호를 입력해주세요")
-            String password,
-
-            @Nullable
-            MultipartFile profileImage
+            String password
     ) {}
 
-    public record update(
-            @NotNull(message = "아이디를 입력해주세요")
-            UUID id,
-            @Nullable String name,
-            @Nullable String email,
-            @Nullable MultipartFile profileImage
+    public record Update(
+            @Nullable String newUsername,
+            @Nullable String newEmail,
+            @Nullable String newPassword
     ) {}
 
     public record passwordReset(

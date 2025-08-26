@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
@@ -48,10 +47,10 @@ public class FileUserRepository extends FileStore<User> implements UserRepositor
     }
 
     @Override
-    public List<User> findByName(String name) {
+    public Optional<User> findByName(String name) {
         return userMap.values().stream()
-                .filter(user -> user.getEmail().equals(name))
-                .collect(Collectors.toList());
+                .filter(user -> user.getName().equals(name))
+                .findFirst();
     }
 
 

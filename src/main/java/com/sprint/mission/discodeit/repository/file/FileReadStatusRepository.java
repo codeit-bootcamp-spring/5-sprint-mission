@@ -38,6 +38,18 @@ public class FileReadStatusRepository extends FileStore<ReadStatus> implements R
         saveToFile(data);
     }
 
+    @Override
+    public ReadStatus findById(UUID readStatusId) {
+        return data.get(readStatusId);
+    }
+
+    @Override
+    public List<ReadStatus> findByUserId(UUID userId) {
+        return data.values().stream()
+                .filter(rs -> rs.getUserId().equals(userId))
+                .toList();
+    }
+
     // 특정 채널에 속한 모든 유저의 읽음 상태 조회
     @Override
     public List<ReadStatus> findAllByChannelId(UUID channelId) {
@@ -72,6 +84,13 @@ public class FileReadStatusRepository extends FileStore<ReadStatus> implements R
             }
         }
         return result;
+    }
+
+    @Override
+    public Optional<ReadStatus> findByChannelId(UUID channelId) {
+        return data.values().stream()
+                .filter(rs -> rs.getChannelId().equals(channelId))
+                .findFirst();
     }
 
 

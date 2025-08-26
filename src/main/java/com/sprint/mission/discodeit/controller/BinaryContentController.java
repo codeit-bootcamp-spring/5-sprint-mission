@@ -1,36 +1,37 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.binaryContent.FileResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/binary")
+@Tag(name = "BinaryContent", description = "BinaryContent API")
+@RequestMapping("api/binaryContents")
 public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;
 
-    /**
-     * 바이너리 파일을 1개 조회
-     */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> findById(@PathVariable UUID id) {
-        BinaryContent file = binaryContentService.findById(id);
+    /** 파일 1개 조회 */
+    @GetMapping("/{binaryContentId}")
+    public ResponseEntity<FileResponse> findById(@PathVariable UUID binaryContentId) {
+        BinaryContent file = binaryContentService.findById(binaryContentId);
+        return ResponseEntity.ok(FileResponse.of(file));
+    }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(file.getContentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-        "inline; filename=\"" + file.getFileName() + "\"")
-                .body(file.getContent());
+    @GetMapping()
+    public ResponseEntity<List<FileResponse>> findAllById(@RequestParam List<UUID> binaryContentIds) {
+        List<BinaryContent> files = binaryContentService.findAllById(binaryContentIds);
+        List<FileResponse> result = files.stream().map(FileResponse::of).toList();
+        return ResponseEntity.ok(result);
     }
 }
