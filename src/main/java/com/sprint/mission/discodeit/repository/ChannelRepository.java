@@ -7,13 +7,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ChannelRepository {
-    Channel save(Channel channel);
 
-    Optional<Channel> findById(UUID id);
+  Channel save(Channel channel);
 
-    Optional<Channel> findByName(String name);
+  Optional<Channel> findById(UUID id);
 
-    List<Channel> findAll();
+  List<Channel> findAll();
 
-    void delete(UUID id);
+  boolean existsById(UUID id);
+
+  void deleteById(UUID id);
 }

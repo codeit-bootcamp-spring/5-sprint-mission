@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class JcfMessageRepository implements MessageRepository {
+public class JCFMessageRepository implements MessageRepository {
     private final Map<UUID, Message> messages = new HashMap<>();
 
     @Override

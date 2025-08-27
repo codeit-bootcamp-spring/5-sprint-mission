@@ -1,78 +1,46 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import lombok.Getter;
+
 import java.io.Serializable;
-import java.util.Objects;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
+@Getter
 public class Message implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
 
-    private final UUID id;
-    private final Long createdAt;
-    private Long updatedAt;
+  private static final long serialVersionUID = 1L;
 
-    private final UUID userId;
-    private final UUID channelId;
-    private String content;
+  private UUID id;
+  private Instant createdAt;
+  private Instant updatedAt;
+  //
+  private String content;
+  //
+  private UUID channelId;
+  private UUID authorId;
+  private List<UUID> attachmentIds;
 
-    public Message(UUID userId, UUID channelId, String content) {
-        Objects.requireNonNull(userId, "userId cannot be null"); // null 체크
-        Objects.requireNonNull(channelId, "userId cannot be null"); // null 체크
+  public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+    this.id = UUID.randomUUID();
+    this.createdAt = Instant.now();
+    //
+    this.content = content;
+    this.channelId = channelId;
+    this.authorId = authorId;
+    this.attachmentIds = attachmentIds;
+  }
 
-        if (content == null || content.trim().isEmpty()) {
-            throw new IllegalArgumentException("content cannot be null or empty");
-        }
-
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = this.createdAt;
-        this.userId = userId;
-        this.channelId = channelId;
-        this.content = content;
+  public void update(String newContent) {
+    boolean anyValueUpdated = false;
+    if (newContent != null && !newContent.equals(this.content)) {
+      this.content = newContent;
+      anyValueUpdated = true;
     }
 
-    public UUID getId() {
-        return id;
+    if (anyValueUpdated) {
+      this.updatedAt = Instant.now();
     }
-
-    public long getCreatedAt() {
-        return createdAt;
-    }
-
-    public long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void updateContent(String newContent) {
-            this.content = newContent;
-            this.updatedAt = System.currentTimeMillis();
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Message{");
-        sb.append("id=").append(id);
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append(", userId=").append(userId);
-        sb.append(", channelId=").append(channelId);
-        sb.append(", content='").append(content).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
-
+  }
 }

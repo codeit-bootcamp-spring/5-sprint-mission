@@ -1,96 +1,144 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
+@RequiredArgsConstructor
+@Service
 public class BasicUserService implements UserService {
 
-    private final UserRepository userRepository; // UserRepository 의존성 주입 // 생성자 주입
+  private final UserRepository userRepository;
+  //
+  private final BinaryContentRepository binaryContentRepository;
+  private final UserStatusRepository userStatusRepository;
 
-    public BasicUserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+  @Override
+  public User create(UserCreateRequest userCreateRequest,
+      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+    String username = userCreateRequest.username();
+    String email = userCreateRequest.email();
+
+    if (userRepository.existsByEmail(email)) {
+      throw new IllegalArgumentException("User with email " + email + " already exists");
+    }
+    if (userRepository.existsByUsername(username)) {
+      throw new IllegalArgumentException("User with username " + username + " already exists");
     }
 
+    UUID nullableProfileId = optionalProfileCreateRequest
+        .map(profileRequest -> {
+          String fileName = profileRequest.fileName();
+          String contentType = profileRequest.contentType();
+          byte[] bytes = profileRequest.bytes();
+          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+              contentType, bytes);
+          return binaryContentRepository.save(binaryContent).getId();
+        })
+        .orElse(null);
+    String password = userCreateRequest.password();
 
-    @Override
-    public User registerUser(String name, String email, String password) {
-        Optional<User> existingUser = userRepository.findByEmail(email);
-        // 1. 이메일 중복 검사
-        if (existingUser.isPresent()) {
-            System.out.println("Registration failed: Email : " + email);
-            return existingUser.get();
-        }
+    User user = new User(username, email, password, nullableProfileId);
+    User createdUser = userRepository.save(user);
 
-        // 2. 새로운 User 객체를 생성
-        User newUser = new User(name, email, password);
+    Instant now = Instant.now();
+    UserStatus userStatus = new UserStatus(createdUser.getId(), now);
+    userStatusRepository.save(userStatus);
 
-        // 3. UserRepository를 통해 사용자 저장
-        userRepository.save(newUser);
-        System.out.println("[Ser]User registered successfully" + newUser.getName()); // 성공적으로 등록됨
-        return newUser;
+    return createdUser;
+  }
+
+  @Override
+  public UserDto find(UUID userId) {
+    return userRepository.findById(userId)
+        .map(this::toDto)
+        .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+  }
+
+  @Override
+  public List<UserDto> findAll() {
+    return userRepository.findAll()
+        .stream()
+        .map(this::toDto)
+        .toList();
+  }
+
+  @Override
+  public User update(UUID userId, UserUpdateRequest userUpdateRequest,
+      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+
+    String newUsername = userUpdateRequest.newUsername();
+    String newEmail = userUpdateRequest.newEmail();
+    if (userRepository.existsByEmail(newEmail)) {
+      throw new IllegalArgumentException("User with email " + newEmail + " already exists");
+    }
+    if (userRepository.existsByUsername(newUsername)) {
+      throw new IllegalArgumentException("User with username " + newUsername + " already exists");
     }
 
-    @Override
-    public Optional<User> loginUser(String email, String password) {
-        // 1. 이메일 사용자 조회
-        Optional<User> existingUser = userRepository.findByEmail(email);
+    UUID nullableProfileId = optionalProfileCreateRequest
+        .map(profileRequest -> {
+          Optional.ofNullable(user.getProfileId())
+              .ifPresent(binaryContentRepository::deleteById);
 
-        // 2. 사용자가 존재하고 비밀번호가 일치한지 확인
-        if (existingUser.isPresent()) { // 이메일이 동일한지 체크
-            User user = existingUser.get();
-            if (user.getPassword().equals(password)) { // 비밀번호가 동일한지 체크
-                System.out.println("User logged successfully" + user.getEmail());
-                return Optional.of(user); // 성공
-            } else {
-                System.out.println("Login failed[Incorrect Password]" + email);
-            }
-        } else {
-            System.out.println("Login failed[Incorrect Email]" + email);
-        }
-        return Optional.empty(); // 로그인 실패 -> 아무것도 반환 x
+          String fileName = profileRequest.fileName();
+          String contentType = profileRequest.contentType();
+          byte[] bytes = profileRequest.bytes();
+          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+              contentType, bytes);
+          return binaryContentRepository.save(binaryContent).getId();
+        })
+        .orElse(null);
 
-    }
+    String newPassword = userUpdateRequest.newPassword();
+    user.update(newUsername, newEmail, newPassword, nullableProfileId);
 
-    @Override
-    public Optional<User> findById(UUID id) {
-        // 1. 아이디 사용자 조회
-        System.out.println("Finding user by id: " + id);
-        return userRepository.findById(id);
-    }
+    return userRepository.save(user);
+  }
 
-    @Override
-    public Optional<User> findByEmail(String email) {
-        System.out.println("Finding user by email: " + email);
-        return userRepository.findByEmail(email);
-    }
+  @Override
+  public void delete(UUID userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
-    @Override
-    public Optional<User> findByName(String name) {
-        System.out.println("Finding user by name: " + name);
-        return userRepository.findByName(name);
-    }
+    Optional.ofNullable(user.getProfileId())
+        .ifPresent(binaryContentRepository::deleteById);
+    userStatusRepository.deleteByUserId(userId);
 
-    @Override
-    public boolean deleteUser(UUID id) {
-        // 1. 사용자 존재 여부 확인
-        Optional<User> userToDelete = userRepository.findById(id);
-        if (userToDelete.isEmpty()) {
-            System.out.println("Delete failed: " + id);
-            return false;
-        }
+    userRepository.deleteById(userId);
+  }
 
-        // 2. UserRepository를 통해 사용자 삭제
-        try {
-            userRepository.deleteById(id);
-            System.out.println("User deleted successfully" + id);
-            return true;
-        } catch (RuntimeException e) {
-            System.out.println("Delete failed: " + id);
-            return false;
-        }
-    }
+  private UserDto toDto(User user) {
+    Boolean online = userStatusRepository.findByUserId(user.getId())
+        .map(UserStatus::isOnline)
+        .orElse(null);
+
+    return new UserDto(
+        user.getId(),
+        user.getCreatedAt(),
+        user.getUpdatedAt(),
+        user.getUsername(),
+        user.getEmail(),
+        user.getProfileId(),
+        online
+    );
+  }
 }

@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 
 import java.util.*;
 
-public class JcfUserRepository implements UserRepository {
+public class JCFUserRepository implements UserRepository {
     // 사용자 데이터를 저장할 HashMap. UUID를 키로, User 객체를 값으로 사용
     private final Map<UUID, User> users = new HashMap<>();
 
