@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: '5-sprint-mission'
+
+discodeit:
+  repository:
+    type: jcf
+    file-path: ./discodeit/data
