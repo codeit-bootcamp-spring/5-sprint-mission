@@ -6,91 +6,99 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-@RestController
+@Tag(name = "User")
 @RequiredArgsConstructor
-@RequestMapping("/api/user")
+@RestController
+@RequestMapping("/api/users") // ← 스펙: 복수형 /api/users
 public class UserController {
 
-    private final UserService userService;
-    private final UserStatusService userStatusService;
+  private final UserService userService;
+  private final UserStatusService userStatusService;
 
-    // [POST] 사용자 등록
+  @Operation(summary = "전체 User 목록 조회")
+  @GetMapping
+  public ResponseEntity<List<UserDto>> findAll() {
+    List<UserDto> users = userService.findAll();
+    return ResponseEntity.ok(users);
+  }
 
-    @RequestMapping(path = "create", method = RequestMethod.POST,
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<User> create(
-            @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
-            @RequestPart(value = "profile", required = false) MultipartFile profile
-    ) throws IOException {
+  @Operation(summary = "User 등록 (multipart)")
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<User> create(
+      @Valid @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
+      @RequestPart(value = "profile", required = false) MultipartFile profile
+  ) {
+    Optional<BinaryContentCreateRequest> profileRequest =
+        Optional.ofNullable(profile).flatMap(this::resolveProfileRequest);
 
-        Optional<BinaryContentCreateRequest> profileCreateRequest = Optional.empty();
-        if (profile != null && !profile.isEmpty()) {
-            profileCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profile.getOriginalFilename(),
-                    profile.getContentType(),
-                    profile.getBytes()
-            ));
-        }
-        User created = userService.create(userCreateRequest, profileCreateRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    User createdUser = userService.create(userCreateRequest, profileRequest);
+    return ResponseEntity
+        .created(URI.create("/api/users/" + createdUser.getId()))
+        .body(createdUser);
+  }
+
+  @Operation(summary = "User 정보 수정 (multipart)")
+  @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<User> update(
+      @PathVariable UUID userId,
+      @Valid @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
+      @RequestPart(value = "profile", required = false) MultipartFile profile
+  ) {
+    Optional<BinaryContentCreateRequest> profileRequest =
+        Optional.ofNullable(profile).flatMap(this::resolveProfileRequest);
+
+    User updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
+    return ResponseEntity.ok(updatedUser);
+  }
+
+  @Operation(summary = "User 삭제")
+  @DeleteMapping("/{userId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID userId) {
+    userService.delete(userId);
+  }
+
+  @Operation(summary = "User 온라인 상태 업데이트")
+  @PatchMapping("/{userId}/userStatus")
+  public ResponseEntity<UserStatus> updateUserStatusByUserId(
+      @PathVariable UUID userId,
+      @Valid @RequestBody UserStatusUpdateRequest request
+  ) {
+    UserStatus updatedUserStatus = userStatusService.updateByUserId(userId, request);
+    return ResponseEntity.ok(updatedUserStatus);
+  }
+
+  private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {
+    if (profileFile == null || profileFile.isEmpty()) {
+      return Optional.empty();
     }
-
-    // [PUT] 사용자 정보 수정 (선택: 프로필 교체 가능)
-
-    @RequestMapping(path = "update/{userId}", method = RequestMethod.PUT,
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<User> update(
-            @PathVariable("userId") UUID userId,
-            @RequestPart("userUpdateRequest") UserUpdateRequest req,
-            @RequestPart(value = "profile", required = false) MultipartFile profile
-    ) throws IOException {
-        Optional<BinaryContentCreateRequest> profileCreateRequest = Optional.empty();
-        if (profile != null && !profile.isEmpty()) {
-            profileCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profile.getOriginalFilename(),
-                    profile.getContentType(),
-                    profile.getBytes()
-            ));
-        }
-        User updated = userService.update(userId, req, profileCreateRequest);
-        return ResponseEntity.ok(updated);
+    try {
+      return Optional.of(new BinaryContentCreateRequest(
+          profileFile.getOriginalFilename(),
+          profileFile.getContentType(),
+          profileFile.getBytes()
+      ));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
-
-    // [DELETE] 사용자 삭제
-
-    @RequestMapping(path = "delete/{userId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
-        userService.delete(userId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // [GET] 사용자 목록 조회 (심화 요구사항)
-
-    @RequestMapping(path = "findAll", method = RequestMethod.GET)
-    public ResponseEntity<List<UserDto>> findAll() {
-        List<UserDto> users = userService.findAll();
-        return ResponseEntity.ok(users);
-    }
-
-    //[PATCH] 사용자의 온라인 상태 업데이트
-
-    @RequestMapping(path = "status/update/{userId}", method = RequestMethod.PATCH,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> updateStatus(
-            @PathVariable("userId") UUID userId,
-            @RequestBody UserStatusUpdateRequest req
-    ) {
-        userStatusService.updateByUserId(userId, req);
-        return ResponseEntity.noContent().build();
-    }
+  }
 }
