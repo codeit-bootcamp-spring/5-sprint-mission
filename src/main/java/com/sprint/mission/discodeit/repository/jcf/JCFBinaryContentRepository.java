@@ -10,6 +10,7 @@ import java.util.*;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
 public class JCFBinaryContentRepository implements BinaryContentRepository {
+
     private final Map<UUID, BinaryContent> data;
 
     public JCFBinaryContentRepository() {
@@ -30,8 +31,8 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
         return this.data.values().stream()
-                .filter(content -> ids.contains(content.getId()))
-                .toList();
+            .filter(content -> ids.contains(content.getId()))
+            .toList();
     }
 
     @Override

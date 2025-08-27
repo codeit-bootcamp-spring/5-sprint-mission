@@ -2,7 +2,7 @@
 const API_BASE_URL = '/api';
 const ENDPOINTS = {
     USERS: `${API_BASE_URL}/user/findAll`,
-    BINARY_CONTENT: `${API_BASE_URL}/binaryContent/find`
+    BINARY_CONTENT: `${API_BASE_URL}/binaryContent/find`,
 };
 
 // Initialize the application
@@ -25,7 +25,9 @@ async function fetchAndRenderUsers() {
 // Fetch user profile image
 async function fetchUserProfile(profileId) {
     try {
-        const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}?binaryContentId=${profileId}`);
+        const response = await fetch(
+            `${ENDPOINTS.BINARY_CONTENT}?binaryContentId=${profileId}`
+        );
         if (!response.ok) throw new Error('Failed to fetch profile');
         const profile = await response.json();
 
@@ -47,9 +49,9 @@ async function renderUserList(users) {
         userElement.className = 'user-item';
 
         // Get profile image URL
-        const profileUrl = user.profileId ?
-            await fetchUserProfile(user.profileId) :
-            '/default-avatar.png';
+        const profileUrl = user.profileId
+            ? await fetchUserProfile(user.profileId)
+            : '/default-avatar.png';
 
         userElement.innerHTML = `
             <img src="${profileUrl}" alt="${user.username}" class="user-avatar">

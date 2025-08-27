@@ -18,13 +18,15 @@ import java.util.stream.Stream;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
 public class FileBinaryContentRepository implements BinaryContentRepository {
+
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
 
     public FileBinaryContentRepository(
-            @Value("${discodeit.repository.file-directory:data}") String fileDirectory
+        @Value("${discodeit.repository.file-directory:data}") String fileDirectory
     ) {
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, BinaryContent.class.getSimpleName());
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory,
+            BinaryContent.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -42,8 +44,8 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     public BinaryContent save(BinaryContent binaryContent) {
         Path path = resolvePath(binaryContent.getId());
         try (
-                FileOutputStream fos = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fos)
+            FileOutputStream fos = new FileOutputStream(path.toFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(binaryContent);
         } catch (IOException e) {
@@ -58,8 +60,8 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
-                    FileInputStream fis = new FileInputStream(path.toFile());
-                    ObjectInputStream ois = new ObjectInputStream(fis)
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
                 binaryContentNullable = (BinaryContent) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
@@ -73,19 +75,19 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
-                    .filter(path -> path.toString().endsWith(EXTENSION))
-                    .map(path -> {
-                        try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (BinaryContent) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .filter(content -> ids.contains(content.getId()))
-                    .toList();
+                .filter(path -> path.toString().endsWith(EXTENSION))
+                .map(path -> {
+                    try (
+                        FileInputStream fis = new FileInputStream(path.toFile());
+                        ObjectInputStream ois = new ObjectInputStream(fis)
+                    ) {
+                        return (BinaryContent) ois.readObject();
+                    } catch (IOException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .filter(content -> ids.contains(content.getId()))
+                .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

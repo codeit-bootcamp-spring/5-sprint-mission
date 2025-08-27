@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserStatusService {
+
     UserStatus create(UserStatusCreateRequest request);
 
     UserStatus find(UUID userStatusId);

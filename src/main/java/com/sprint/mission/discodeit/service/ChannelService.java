@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ChannelService {
+
     Channel create(PublicChannelCreateRequest request);
 
     Channel create(PrivateChannelCreateRequest request);

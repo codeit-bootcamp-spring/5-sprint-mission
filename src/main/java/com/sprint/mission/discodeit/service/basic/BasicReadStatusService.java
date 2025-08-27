@@ -18,6 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 public class BasicReadStatusService implements ReadStatusService {
+
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
     private final ChannelRepository channelRepository;
@@ -34,8 +35,10 @@ public class BasicReadStatusService implements ReadStatusService {
             throw new NoSuchElementException("Channel with id " + channelId + " does not exist");
         }
         if (readStatusRepository.findAllByUserId(userId).stream()
-                .anyMatch(readStatus -> readStatus.getChannelId().equals(channelId))) {
-            throw new IllegalArgumentException("ReadStatus with userId " + userId + " and channelId " + channelId + " already exists");
+            .anyMatch(readStatus -> readStatus.getChannelId().equals(channelId))) {
+            throw new IllegalArgumentException(
+                "ReadStatus with userId " + userId + " and channelId " + channelId
+                    + " already exists");
         }
 
         Instant lastReadAt = request.lastReadAt();
@@ -46,20 +49,24 @@ public class BasicReadStatusService implements ReadStatusService {
     @Override
     public ReadStatus find(UUID readStatusId) {
         return readStatusRepository.findById(readStatusId)
-                .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
+            .orElseThrow(
+                () -> new NoSuchElementException(
+                    "ReadStatus with id " + readStatusId + " not found"));
     }
 
     @Override
     public List<ReadStatus> findAllByUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId).stream()
-                .toList();
+            .toList();
     }
 
     @Override
     public ReadStatus update(UUID readStatusId, ReadStatusUpdateRequest request) {
         Instant newLastReadAt = request.newLastReadAt();
         ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-                .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
+            .orElseThrow(
+                () -> new NoSuchElementException(
+                    "ReadStatus with id " + readStatusId + " not found"));
         readStatus.update(newLastReadAt);
         return readStatusRepository.save(readStatus);
     }

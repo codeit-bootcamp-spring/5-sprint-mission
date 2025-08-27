@@ -10,6 +10,7 @@ import java.util.*;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
 public class JCFUserStatusRepository implements UserStatusRepository {
+
     private final Map<UUID, UserStatus> data;
 
     public JCFUserStatusRepository() {
@@ -30,8 +31,8 @@ public class JCFUserStatusRepository implements UserStatusRepository {
     @Override
     public Optional<UserStatus> findByUserId(UUID userId) {
         return this.findAll().stream()
-                .filter(userStatus -> userStatus.getUserId().equals(userId))
-                .findFirst();
+            .filter(userStatus -> userStatus.getUserId().equals(userId))
+            .findFirst();
     }
 
     @Override
@@ -52,6 +53,6 @@ public class JCFUserStatusRepository implements UserStatusRepository {
     @Override
     public void deleteByUserId(UUID userId) {
         this.findByUserId(userId)
-                .ifPresent(userStatus -> this.deleteByUserId(userStatus.getId()));
+            .ifPresent(userStatus -> this.deleteByUserId(userStatus.getId()));
     }
 }

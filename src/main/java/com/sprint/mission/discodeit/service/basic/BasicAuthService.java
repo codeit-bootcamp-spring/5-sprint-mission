@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @Service
 public class BasicAuthService implements AuthService {
+
     private final UserRepository userRepository;
 
     @Override
@@ -20,7 +21,8 @@ public class BasicAuthService implements AuthService {
         String password = loginRequest.password();
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User with username " + username + " not found"));
+            .orElseThrow(
+                () -> new NoSuchElementException("User with username " + username + " not found"));
 
         if (!user.getPassword().equals(password)) {
             throw new IllegalArgumentException("Wrong password");

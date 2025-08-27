@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BinaryContentService {
+
     BinaryContent create(BinaryContentCreateRequest request);
 
     BinaryContent find(UUID binaryContentId);
