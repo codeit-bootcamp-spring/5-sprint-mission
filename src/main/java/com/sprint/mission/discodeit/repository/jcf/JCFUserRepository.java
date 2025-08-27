@@ -10,6 +10,7 @@ import java.util.*;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
 public class JCFUserRepository implements UserRepository {
+
     private final Map<UUID, User> data;
 
     public JCFUserRepository() {
@@ -30,8 +31,8 @@ public class JCFUserRepository implements UserRepository {
     @Override
     public Optional<User> findByUsername(String username) {
         return this.findAll().stream()
-                .filter(user -> user.getUsername().equals(username))
-                .findFirst();
+            .filter(user -> user.getUsername().equals(username))
+            .findFirst();
     }
 
     @Override
