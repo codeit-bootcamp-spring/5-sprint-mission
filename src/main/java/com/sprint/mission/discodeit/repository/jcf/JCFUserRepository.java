@@ -2,61 +2,57 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
-@Repository
 public class JCFUserRepository implements UserRepository {
+    // 사용자 데이터를 저장할 HashMap. UUID를 키로, User 객체를 값으로 사용
+    private final Map<UUID, User> users = new HashMap<>();
 
-  private final Map<UUID, User> data;
 
-  public JCFUserRepository() {
-    this.data = new HashMap<>();
-  }
+    @Override
+    public User save(User user) {
+       users.put(user.getId(), user); // Map에 사용자 저장
+        System.out.println("[Repo]User saved to JCF cache: " + user.getId());
+        return user;
+    }
 
-  @Override
-  public User save(User user) {
-    this.data.put(user.getId(), user);
-    return user;
-  }
+    @Override
+    public Optional<User> findById(UUID id) {
+        // Map에서 UUID를 사용하여 사용자 조회
+        // get(id)는 해당 키가 없으면 null을 반환하므로, Optional.ofNullable()을 사용해서 비어있는 Optional을 반환하도록 함
+        System.out.println("[Repo]Findig user by ID in JCF cache: " + id);
+        return Optional.ofNullable(users.get(id));
+    }
 
-  @Override
-  public Optional<User> findById(UUID id) {
-    return Optional.ofNullable(this.data.get(id));
-  }
+    @Override
+    public Optional<User> findByEmail(String email) {
+        System.out.println("[Repo]Finding user by email in JCF cache: " + email);
+        return users.values().stream()
+                .filter(user -> user.getEmail() != null && user.getEmail().equals(email))
+                .findFirst(); // 필터링된 요소 중 가장 첫번째로 필터링된 요소를 수집하여 반환 -> Email 중복이여도 첫번째 email만 반환
+    }
 
-  @Override
-  public Optional<User> findByUsername(String username) {
-    return this.findAll().stream()
-        .filter(user -> user.getUsername().equals(username))
-        .findFirst();
-  }
+    @Override
+    public Optional<User> findByName(String name) {
+        System.out.println("[Repo]Finding user by name in JCF cache: " + name);
+        return users.values().stream()
+                .filter(user -> user.getName() != null && user.getName().equals(name))
+                .findFirst(); // email과 마찬가지로 가장 첫번째 필터링된 요소를 수집하여 반환 -> 중복 x
+    }
 
-  @Override
-  public List<User> findAll() {
-    return this.data.values().stream().toList();
-  }
+    @Override
+    public List<User> findAll() {
+        System.out.println("[Repo]Retrieving all users from JCF cache. Total: " + users.size());
+        return new ArrayList<>(users.values());
+    }
 
-  @Override
-  public boolean existsById(UUID id) {
-    return this.data.containsKey(id);
-  }
-
-  @Override
-  public void deleteById(UUID id) {
-    this.data.remove(id);
-  }
-
-  @Override
-  public boolean existsByEmail(String email) {
-    return this.findAll().stream().anyMatch(user -> user.getEmail().equals(email));
-  }
-
-  @Override
-  public boolean existsByUsername(String username) {
-    return this.findAll().stream().anyMatch(user -> user.getUsername().equals(username));
-  }
+    @Override
+    public void deleteById(UUID id) {
+        if(!users.containsKey(id)) {
+            throw new NoSuchElementException("[Repo]User with id " + id + " not found");
+        }
+        users.remove(id);
+        System.out.println("[Repo]User deleted from JCF cache: "+ id);
+    }
 }

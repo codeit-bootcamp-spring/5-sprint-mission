@@ -2,51 +2,45 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
-@Repository
 public class JCFMessageRepository implements MessageRepository {
+    private final Map<UUID, Message> messages = new HashMap<>();
 
-  private final Map<UUID, Message> data;
+    @Override
+    public Message save(Message message) {
+        messages.put(message.getId(), message);
+        System.out.println("[Repo]Message saved to JCF cache: " + message.getId());
+        return message;
+    }
 
-  public JCFMessageRepository() {
-    this.data = new HashMap<>();
-  }
+    @Override
+    public Optional<Message> findById(UUID id) {
+        System.out.println("[Repo] Finding message by Id in JCF cache: " + id);
+        return Optional.ofNullable(messages.get(id));
+    }
 
-  @Override
-  public Message save(Message message) {
-    this.data.put(message.getId(), message);
-    return message;
-  }
+    @Override
+    public List<Message> findAll() {
+        System.out.println("[Repo] Finding all messages in JCF cache: " + messages.size());
+        return new ArrayList<>(messages.values());
+    }
 
-  @Override
-  public Optional<Message> findById(UUID id) {
-    return Optional.ofNullable(this.data.get(id));
-  }
+    @Override
+    public List<Message> findByChannelId(UUID channelId) {
+        System.out.println("[Repo] Finding all messages in JCF cache: " + channelId);
+        return messages.values().stream()
+                .filter(m -> m.getChannelId().equals(channelId)).collect(Collectors.toList());
+    }
 
-  @Override
-  public List<Message> findAllByChannelId(UUID channelId) {
-    return this.data.values().stream().filter(message -> message.getChannelId().equals(channelId))
-        .toList();
-  }
-
-  @Override
-  public boolean existsById(UUID id) {
-    return this.data.containsKey(id);
-  }
-
-  @Override
-  public void deleteById(UUID id) {
-    this.data.remove(id);
-  }
-
-  @Override
-  public void deleteAllByChannelId(UUID channelId) {
-    this.findAllByChannelId(channelId)
-        .forEach(message -> this.deleteById(message.getId()));
-  }
+    @Override
+    public void delete(UUID id) {
+        if (messages.remove(id) == null) {
+            System.out.println("[Repo]Message deleted for JCF cache: " + id);
+        } else {
+            throw new RuntimeException("[Repo]Message not found in JCF cache: " + id);
+        }
+    }
 }
