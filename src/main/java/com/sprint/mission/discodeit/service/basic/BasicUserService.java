@@ -27,7 +27,7 @@ public class BasicUserService implements UserService {
 
     @Override
     public UserResponse register(CreateUserRequest userRequest, CreateFile profileImage) {
-        if (!isUnique(userRequest.email(), userRequest.userName())) return null;
+        if (!isUnique(userRequest.email(), userRequest.username())) return null;
 
         UUID profileId = null;
         if (profileImage != null) {
@@ -37,7 +37,7 @@ public class BasicUserService implements UserService {
             profileId = saved.getId();
         }
 
-        User user = new User(profileId, userRequest.email(), userRequest.userName(), userRequest.nickname(), userRequest.password(), userRequest.phoneNumber());
+        User user = new User(profileId, userRequest.email(), userRequest.username(), userRequest.nickname(), userRequest.password(), userRequest.phoneNumber());
         userRepository.save(user);
 
         UserStatus status = new UserStatus(user.getId());
