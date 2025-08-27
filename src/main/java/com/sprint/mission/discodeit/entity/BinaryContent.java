@@ -10,24 +10,22 @@ import java.util.UUID;
 @Getter
 public class BinaryContent implements Serializable {
 
-    @Serial
     private static final long serialVersionUID = 1L;
-
     private UUID id;
     private Instant createdAt;
+    //
+    private String fileName;
+    private Long size;
+    private String contentType;
+    private byte[] bytes;
 
-    // 파일 관련 정보
-    private final String fileName;
-    private final String contentType;
-    private final byte[] content;
-    private final long fileSize;
-
-    public BinaryContent(String fileName, String contentType, byte[] content, long fileSize) {
+    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
+        //
         this.fileName = fileName;
+        this.size = size;
         this.contentType = contentType;
-        this.content = content;
-        this.fileSize = fileSize;
+        this.bytes = bytes;
     }
 }

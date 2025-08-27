@@ -2,50 +2,61 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
+@Repository
 public class JCFReadStatusRepository implements ReadStatusRepository {
 
-    // 동시성 문제 때문에 CopyOnWriteArrayList 사용
-    private final List<ReadStatus> data = new CopyOnWriteArrayList<>();
+    private final Map<UUID, ReadStatus> data;
 
-    public ReadStatus findById(UUID id) {
-        return data.stream()
-                .filter(status -> status.getId().equals(id))
-                .findFirst()
-                .get();
+    public JCFReadStatusRepository() {
+        this.data = new HashMap<>();
     }
 
+    @Override
+    public ReadStatus save(ReadStatus readStatus) {
+        this.data.put(readStatus.getId(), readStatus);
+        return readStatus;
+    }
+
+    @Override
+    public Optional<ReadStatus> findById(UUID id) {
+        return Optional.ofNullable(this.data.get(id));
+    }
+
+    @Override
     public List<ReadStatus> findAllByUserId(UUID userId) {
-        return data.stream()
-                .filter(status -> status.getUserId().equals(userId))
-                .collect(Collectors.toList());
+        return this.data.values().stream()
+                .filter(readStatus -> readStatus.getUserId().equals(userId))
+                .toList();
     }
 
+    @Override
+    public List<ReadStatus> findAllByChannelId(UUID channelId) {
+        return this.data.values().stream()
+                .filter(readStatus -> readStatus.getChannelId().equals(channelId))
+                .toList();
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return this.data.containsKey(id);
+    }
+
+    @Override
     public void deleteById(UUID id) {
-        data.removeIf(status -> status.getId().equals(id));
+        this.data.remove(id);
     }
 
     @Override
-    public void save(ReadStatus readStatus) {
-        Optional<ReadStatus> existing = this.findByUserIdAndChannelId(readStatus.getUserId(), readStatus.getChannelId());
-
-        existing.ifPresent(data::remove);
-
-        data.add(readStatus);
-    }
-
-    @Override
-    public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
-        return data.stream()
-                // 수정된 부분: rs.getUser().getId() -> rs.getUserId()
-                .filter(rs -> rs.getUserId().equals(userId) && rs.getChannelId().equals(channelId))
-                .findFirst();
+    public void deleteAllByChannelId(UUID channelId) {
+        this.findAllByChannelId(channelId)
+                .forEach(readStatus -> this.deleteById(readStatus.getId()));
     }
 }

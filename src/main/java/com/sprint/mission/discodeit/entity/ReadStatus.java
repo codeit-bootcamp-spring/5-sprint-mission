@@ -10,23 +10,32 @@ import java.util.UUID;
 public class ReadStatus implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     private UUID id;
     private Instant createdAt;
     private Instant updatedAt;
-
-    private UUID channelId;
+    //
     private UUID userId;
+    private UUID channelId;
+    private Instant lastReadAt;
 
-    public ReadStatus(User user, Channel channel) {
+    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
         this.id = UUID.randomUUID();
-        this.userId = user.getId();
-        this.channelId = channel.getId();
         this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
+        //
+        this.userId = userId;
+        this.channelId = channelId;
+        this.lastReadAt = lastReadAt;
     }
 
-    public void updated() {
-        this.updatedAt = Instant.now();
+    public void update(Instant newLastReadAt) {
+        boolean anyValueUpdated = false;
+        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+            this.lastReadAt = newLastReadAt;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
