@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.dto.request;
 
-import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.Instant;
 
-import java.util.UUID;
-
+@Schema(description = "변경할 User 온라인 상태 정보")
 public record UserStatusUpdateRequest(
-        @NotNull UUID id,
-        boolean loginStatus
+    Instant newLastActiveAt
 ) {
+
 }

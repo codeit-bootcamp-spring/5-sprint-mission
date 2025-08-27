@@ -1,49 +1,49 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @ToString
 public class UserStatus implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private static final int TIME_DIFF = 300;
 
-    private final UUID id;
-    private final UUID userId;
-    private final Instant createdAt;
-    private Instant updatedAt;
-    private boolean loginStatus;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-    public UserStatus(UUID userId) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.loginStatus = false;
+  private final UUID id;
+  private final UUID userId;
+  private final Instant createdAt;
+  private Instant updatedAt;
+  private Instant lastActiveAt;
 
-        this.userId = userId;
+  public UserStatus(UUID userId, Instant lastActiveAt) {
+    this.id = UUID.randomUUID();
+    this.createdAt = Instant.now();
+
+    this.userId = userId;
+    this.lastActiveAt = lastActiveAt;
+  }
+
+  public void update(Instant lastActiveAt) {
+    boolean anyValueUpdated = false;
+    if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+      this.lastActiveAt = lastActiveAt;
+      anyValueUpdated = true;
     }
 
-    public void update(boolean loginStatus) {
-        boolean anyValueUpdated = false;
-
-        if (this.loginStatus != loginStatus) {
-            this.loginStatus = loginStatus;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            updatedAt = Instant.now();
-        }
+    if (anyValueUpdated) {
+      this.updatedAt = Instant.now();
     }
+  }
 
-    public boolean isLogin() {
-        loginStatus = updatedAt != null && updatedAt.getEpochSecond() - Instant.now().getEpochSecond() <= TIME_DIFF;
-        return loginStatus;
-    }
+  public boolean isOnline() {
+    Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
+
+    return lastActiveAt.isAfter(instantFiveMinutesAgo);
+  }
 }

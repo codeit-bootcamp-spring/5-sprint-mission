@@ -4,22 +4,22 @@ import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.UUID;
 
 public interface UserStatusService {
-    UserStatus create(@Valid UserStatusCreateRequest userStatusCreateRequest);
 
-    UserStatus findById(UUID id);
+  UserStatus create(@Valid UserStatusCreateRequest userStatusCreateRequest);
 
-    UserStatus findByUserId(UUID userid);
+  UserStatus findById(UUID id);
 
-    List<UserStatus> findAll();
+  UserStatus findByUserId(UUID userid);
 
-    UserStatus update(@Valid UserStatusUpdateRequest userStatusUpdateRequest);
+  List<UserStatus> findAll();
 
-    UserStatus updateByUserId(@Valid UserStatusUpdateRequest userStatusUpdateRequest);
+  UserStatus update(UUID userStatusId, @Valid UserStatusUpdateRequest userStatusUpdateRequest);
 
-    void delete(UUID id);
+  UserStatus updateByUserId(UUID userId, @Valid UserStatusUpdateRequest userStatusUpdateRequest);
+
+  void delete(UUID id);
 }
