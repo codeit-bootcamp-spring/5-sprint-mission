@@ -4,39 +4,47 @@ import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.service.ReadStatusService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.net.URI;
+import java.util.List;
+import java.util.UUID;
 
-@RestController
+@Tag(name = "ReadStatus")
 @RequiredArgsConstructor
-@RequestMapping("/api/readstatus")
+@RestController
+@RequestMapping("/api/readStatuses")
 public class ReadStatusController {
 
-    private final ReadStatusService readStatusService;
+  private final ReadStatusService readStatusService;
 
-    // [POST] 특정 채널의 메시지 수신정보 생성
-    @RequestMapping(path = "create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest req) {
-        ReadStatus created = readStatusService.create(req);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
+  @Operation(summary = "읽음 상태 생성")
+  @PostMapping
+  public ResponseEntity<ReadStatus> create(@Valid @RequestBody ReadStatusCreateRequest request) {
+    ReadStatus created = readStatusService.create(request);
+    return ResponseEntity
+        .created(URI.create("/api/readStatuses/" + created.getId()))
+        .body(created);
+  }
 
-    // [PUT] 특정 채널의 메시지 수신정보 수정
-    @RequestMapping(path = "update/{readStatusId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ReadStatus> update(
-            @PathVariable("readStatusId") UUID readStatusId,
-            @RequestBody ReadStatusUpdateRequest req
-    ) {
-        ReadStatus updated = readStatusService.update(readStatusId, req);
-        return ResponseEntity.ok(updated);
-    }
+  @Operation(summary = "읽음 상태 수정")
+  @PatchMapping("/{readStatusId}")
+  public ResponseEntity<ReadStatus> update(@PathVariable UUID readStatusId,
+      @Valid @RequestBody ReadStatusUpdateRequest request) {
+    ReadStatus updated = readStatusService.update(readStatusId, request);
+    return ResponseEntity.ok(updated);
+  }
 
-    // [GET] 특정 사용자의 메시지 수신정보 조회
-    @RequestMapping(path = "user/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<List<ReadStatus>> findByUser(@PathVariable("userId") UUID userId) {
-        return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
-    }
+  @Operation(summary = "사용자의 읽음 상태 목록 조회")
+  @GetMapping
+  public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam UUID userId) {
+    List<ReadStatus> readStatuses = readStatusService.findAllByUserId(userId);
+    return ResponseEntity.ok(readStatuses);
+  }
 }
+
