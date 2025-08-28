@@ -19,6 +19,11 @@ spring:
         jdbc.lob.non_contextual_creation: true
         jdbc.time_zone: UTC
 
+logging:
+  level:
+    org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo: OFF
+    org.hibernate.orm.connections.pooling: OFF
+
 server:
   shutdown: graceful
   forward-headers-strategy: native
