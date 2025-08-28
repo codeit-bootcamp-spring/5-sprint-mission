@@ -22,7 +22,7 @@ public record ChannelDto(
             c.getType(),
             c.getName(),
             c.getDescription(),
-            c.getParticipants().stream().map(UserDto::from).toList(),
+            List.of(),
             lastMessageAt
         );
     }

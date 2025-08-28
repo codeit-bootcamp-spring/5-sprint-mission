@@ -20,5 +20,6 @@ management:
 logging:
   level:
     org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.orm.jdbc.bind: info
+    org.hibernate.orm.jdbc.extract: info
     org.hibernate.type.descriptor.sql: trace
