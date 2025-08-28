@@ -24,7 +24,7 @@
 //
 // @RestController
 // @RequiredArgsConstructor
-// @RequestMapping(path = "/api/channels", produces = MediaType.APPLICATION_JSON_VALUE)
+// @RequestMapping(path = "/api/channels")
 // public class ChannelController {
 //
 //   private final ChannelService channelService;
@@ -40,7 +40,7 @@
 //     return channelService.findAll(userId);
 //   }
 //
-//   @PostMapping(path = "/public", consumes = MediaType.APPLICATION_JSON_VALUE)
+//   @PostMapping(path = "/public")
 //   @ResponseStatus(HttpStatus.CREATED)
 //   public ChannelDto createPublic(
 //
@@ -52,7 +52,7 @@
 //     return channelService.create(req);
 //   }
 //
-//   @PostMapping(path = "/private", consumes = MediaType.APPLICATION_JSON_VALUE)
+//   @PostMapping(path = "/private")
 //   @ResponseStatus(HttpStatus.CREATED)
 //   public ChannelDto createPrivate(
 //
@@ -75,7 +75,7 @@
 //     channelService.delete(channelId);
 //   }
 //
-//   @PatchMapping(path = "/{channelId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+//   @PatchMapping(path = "/{channelId}")
 //   @ResponseStatus(HttpStatus.OK)
 //   public ChannelDto update(
 //

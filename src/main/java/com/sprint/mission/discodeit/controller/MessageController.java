@@ -29,7 +29,7 @@
 //
 // @RestController
 // @RequiredArgsConstructor
-// @RequestMapping(path = "/api/messages", produces = MediaType.APPLICATION_JSON_VALUE)
+// @RequestMapping(path = "/api/messages")
 // @Validated
 // public class MessageController {
 //
@@ -71,7 +71,7 @@
 //     messageService.delete(messageId);
 //   }
 //
-//   @PatchMapping(path = "/{messageId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+//   @PatchMapping(path = "/{messageId}")
 //   @ResponseStatus(HttpStatus.OK)
 //   public MessageDto update(
 //

@@ -22,7 +22,7 @@
 //
 // @RestController
 // @RequiredArgsConstructor
-// @RequestMapping(path = "/api/readStatuses", produces = MediaType.APPLICATION_JSON_VALUE)
+// @RequestMapping(path = "/api/readStatuses")
 // public class ReadStatusController {
 //
 //   private final ReadStatusService readStatusService;
@@ -38,7 +38,7 @@
 //     return readStatusService.findAllByUserId(userId);
 //   }
 //
-//   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+//   @PostMapping
 //   @ResponseStatus(HttpStatus.CREATED)
 //   public ReadStatusDto create(
 //
@@ -50,7 +50,7 @@
 //     return readStatusService.create(body);
 //   }
 //
-//   @PatchMapping(path = "/{readStatusId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+//   @PatchMapping(path = "/{readStatusId}")
 //   @ResponseStatus(HttpStatus.OK)
 //   public ReadStatusDto update(
 //

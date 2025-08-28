@@ -34,7 +34,7 @@
 //
 // @RestController
 // @RequiredArgsConstructor
-// @RequestMapping(path = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
+// @RequestMapping(path = "/api/users")
 // @Validated
 // public class UserController {
 //
@@ -132,7 +132,7 @@
 //     return userService.update(userId, req, profile);
 //   }
 //
-//   @PatchMapping(path = "/{userId}/userStatus", consumes = MediaType.APPLICATION_JSON_VALUE)
+//   @PatchMapping(path = "/{userId}/userStatus")
 //   @ResponseStatus(HttpStatus.OK)
 //   public UserStatusDto updateUserStatusByUserId(
 //

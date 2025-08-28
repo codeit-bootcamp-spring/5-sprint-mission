@@ -16,12 +16,12 @@
 //
 // @RestController
 // @RequiredArgsConstructor
-// @RequestMapping(path = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
+// @RequestMapping(path = "/api/auth")
 // public class AuthController {
 //
 //   private final AuthService authService;
 //
-//   @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
+//   @PostMapping(path = "/login")
 //   @ResponseStatus(HttpStatus.OK)
 //   public UserDto login(
 //
@@ -33,7 +33,7 @@
 //     return authService.login(req);
 //   }
 //
-//   @PostMapping(path = "/logout", consumes = MediaType.APPLICATION_JSON_VALUE)
+//   @PostMapping(path = "/logout")
 //   @ResponseStatus(HttpStatus.NO_CONTENT)
 //   public void logout(
 //
