@@ -4,7 +4,6 @@
 // import static com.sprint.mission.discodeit.support.Constants.MAX_USERNAME_LENGTH;
 // import static com.sprint.mission.discodeit.support.Constants.MIN_EMAIL_LENGTH;
 // import static com.sprint.mission.discodeit.support.Constants.MIN_USERNAME_LENGTH;
-// import static com.sprint.mission.discodeit.support.Constants.SUPPORTED_IMAGE_TYPE;
 //
 // import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 // import com.sprint.mission.discodeit.dto.user.UserDto;
