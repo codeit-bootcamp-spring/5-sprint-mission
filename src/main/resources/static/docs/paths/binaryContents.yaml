@@ -17,15 +17,15 @@ binaryContentsRoot:
                 $ref: "../schemas/binaryContent.yaml#/BinaryContentDto"
               example:
                 - id: "5e28e1da-e889-4dd8-ac78-3dd6c59c09ea"
-                  filename: "index_03af0738.html"
+                  fileName: "index_03af0738.html"
                   size: 673
                   contentType: "text/html"
                 - id: "39dcc1ba-c3bd-466c-bb65-4b925e3b9dcd"
-                  filename: "favicon_e66d1868.ico"
+                  fileName: "favicon_e66d1868.ico"
                   size: 1588
                   contentType: "image/vnd.microsoft.icon"
                 - id: "c299849b-b674-4a25-8143-6fb4b4d264a3"
-                  filename: "default-avatar_08440a0a.png"
+                  fileName: "default-avatar_08440a0a.png"
                   size: 12529
                   contentType: "image/png"
       '400':
@@ -84,7 +84,7 @@ binaryContentById:
               $ref: "../schemas/binaryContent.yaml#/BinaryContentDto"
             example:
               id: "c299849b-b674-4a25-8143-6fb4b4d264a3"
-              filename: "default-avatar_08440a0a.png"
+              fileName: "default-avatar_08440a0a.png"
               size: 12529
               contentType: "image/png"
       '400':

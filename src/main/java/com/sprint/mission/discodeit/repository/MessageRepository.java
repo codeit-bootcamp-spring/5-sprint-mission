@@ -1,18 +1,26 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.domain.entity.Message;
-import java.util.List;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface MessageRepository extends AbstractRepository<Message> {
+public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-  List<Message> findAllByChannelId(UUID channelId);
+    default Message getOrThrow(UUID id) {
+        return findById(id).orElseThrow(() ->
+            new NotFoundException(
+                "Message with id %s not found".formatted(id))
+        );
+    }
 
-  List<Message> findAllByAuthorId(UUID authorId);
-
-  void deleteAllByChannelId(UUID channelId);
-
-  void deleteAllByAuthorId(UUID authorId);
-
-  long countByChannelId(UUID channelId);
+    // List<Message> findAllByChannelId(UUID channelId);
+    //
+    // List<Message> findAllByAuthorId(UUID authorId);
+    //
+    // void deleteAllByChannelId(UUID channelId);
+    //
+    // void deleteAllByAuthorId(UUID authorId);
+    //
+    // long countByChannelId(UUID channelId);
 }

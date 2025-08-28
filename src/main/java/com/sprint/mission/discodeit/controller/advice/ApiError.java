@@ -20,37 +20,38 @@ public record ApiError(
     List<String> details
 ) {
 
-  public static ApiError from(
-      HttpServletRequest req,
-      HttpStatus httpStatus,
-      String code,
-      String message,
-      Collection<String> details
-  ) {
-    Objects.requireNonNull(req, "req must not be null");
-    String path = req.getRequestURI() != null ? req.getRequestURI() : "";
-    String method = req.getMethod() != null ? req.getMethod().toUpperCase(Locale.ROOT) : "";
-    int status = httpStatus != null ? httpStatus.value() : HttpStatus.INTERNAL_SERVER_ERROR.value();
-    String resolvedCode = (code != null && !code.isBlank()) ? code : "INTERNAL_ERROR";
-    String resolvedMessage = message != null ? message : "";
+    public static ApiError from(
+        HttpServletRequest req,
+        HttpStatus httpStatus,
+        String code,
+        String message,
+        Collection<String> details
+    ) {
+        Objects.requireNonNull(req, "req must not be null");
+        String path = req.getRequestURI() != null ? req.getRequestURI() : "";
+        String method = req.getMethod() != null ? req.getMethod().toUpperCase(Locale.ROOT) : "";
+        int status =
+            httpStatus != null ? httpStatus.value() : HttpStatus.INTERNAL_SERVER_ERROR.value();
+        String resolvedCode = (code != null && !code.isBlank()) ? code : "INTERNAL_ERROR";
+        String resolvedMessage = message != null ? message : "";
 
-    List<String> normalizedDetails =
-        details == null
-            ? List.of()
-            : details.stream()
-                .filter(Objects::nonNull)
-                .map(String::strip)
-                .filter(s -> !s.isEmpty())
-                .toList();
+        List<String> normalizedDetails =
+            details == null
+                ? List.of()
+                : details.stream()
+                    .filter(Objects::nonNull)
+                    .map(String::strip)
+                    .filter(s -> !s.isEmpty())
+                    .toList();
 
-    return new ApiError(
-        Instant.now(),
-        path,
-        method,
-        status,
-        resolvedCode,
-        resolvedMessage,
-        normalizedDetails
-    );
-  }
+        return new ApiError(
+            Instant.now(),
+            path,
+            method,
+            status,
+            resolvedCode,
+            resolvedMessage,
+            normalizedDetails
+        );
+    }
 }

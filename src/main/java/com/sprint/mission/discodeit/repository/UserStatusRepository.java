@@ -1,19 +1,23 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.domain.entity.UserStatus;
-import com.sprint.mission.discodeit.domain.enums.UserStatusType;
-import java.util.Map;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserStatusRepository extends AbstractRepository<UserStatus> {
+public interface UserStatusRepository extends JpaRepository<UserStatus, UUID> {
 
-  Optional<UserStatus> findByUserId(UUID userId);
+    default UserStatus getOrThrow(UUID id) {
+        return findById(id).orElseThrow(() ->
+            new NotFoundException(
+                "UserStatus with id %s not found".formatted(id))
+        );
+    }
 
-  Map<UUID, UserStatusType> findAllTypesByUserIds(Set<UUID> userIds);
+    Optional<UserStatus> findByUserId(UUID userId);
 
-  boolean deleteByUserId(UUID userId);
+    // Map<UUID, UserStatusType> findAllTypesByUserIds(Set<UUID> userIds);
 
-  boolean hardDeleteByUserId(UUID userId);
+    boolean deleteByUserId(UUID userId);
 }

@@ -1,12 +1,20 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.domain.entity.Channel;
-import java.util.List;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ChannelRepository extends AbstractRepository<Channel> {
+public interface ChannelRepository extends JpaRepository<Channel, UUID> {
 
-  List<Channel> findAllPublic();
+    default Channel getOrThrow(UUID id) {
+        return findById(id).orElseThrow(() ->
+            new NotFoundException(
+                "Channel with id %s not found".formatted(id))
+        );
+    }
 
-  boolean existsBetween(UUID userId1, UUID userId2);
+    // List<Channel> findAllPublic();
+
+    // boolean existsBetween(UUID userId1, UUID userId2);
 }

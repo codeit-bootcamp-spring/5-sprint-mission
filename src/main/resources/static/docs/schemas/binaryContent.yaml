@@ -2,14 +2,14 @@ BinaryContentDto:
   type: object
   required:
     - id
-    - filename
+    - fileName
     - size
     - contentType
   properties:
     id:
       type: string
       format: uuid
-    filename:
+    fileName:
       type: string
     size:
       type: integer

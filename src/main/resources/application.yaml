@@ -12,9 +12,12 @@ spring:
       ddl-auto: validate
     open-in-view: false
     properties:
-      hibernate.format_sql: true
-      hibernate.jdbc.lob.non_contextual_creation: true
-      hibernate.jdbc.time_zone: UTC
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+        jdbc.lob.non_contextual_creation: true
+        jdbc.time_zone: UTC
 
 server:
   shutdown: graceful
