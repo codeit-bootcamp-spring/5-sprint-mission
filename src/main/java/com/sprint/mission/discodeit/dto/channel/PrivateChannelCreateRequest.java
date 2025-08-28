@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public record PrivateChannelCreateRequest(
-
     @NotNull
     Set<@NotNull UUID> participantIds
 ) {
