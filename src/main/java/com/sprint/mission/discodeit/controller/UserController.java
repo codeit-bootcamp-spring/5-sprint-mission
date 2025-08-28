@@ -1,10 +1,5 @@
 // package com.sprint.mission.discodeit.controller.user;
 //
-// import static com.sprint.mission.discodeit.support.Constants.MAX_EMAIL_LENGTH;
-// import static com.sprint.mission.discodeit.support.Constants.MAX_USERNAME_LENGTH;
-// import static com.sprint.mission.discodeit.support.Constants.MIN_EMAIL_LENGTH;
-// import static com.sprint.mission.discodeit.support.Constants.MIN_USERNAME_LENGTH;
-//
 // import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 // import com.sprint.mission.discodeit.dto.user.UserDto;
 // import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
@@ -49,11 +44,9 @@
 //   public List<UserDto> findAll(
 //
 //       @RequestParam(required = false)
-//       @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH)
 //       String username,
 //
 //       @RequestParam(required = false)
-//       @Size(min = MIN_EMAIL_LENGTH, max = MAX_EMAIL_LENGTH)
 //       @Email
 //       String email
 //   ) {
