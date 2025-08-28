@@ -1,10 +1,7 @@
 package com.sprint.mission.discodeit.support;
 
 import java.util.Locale;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class StringUtil {
 
     public static String nullOrStripAndLowerCase(String s) {

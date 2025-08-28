@@ -7,11 +7,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.http.MediaType;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FileNames {
 
     private static final SecureRandom RNG = new SecureRandom();
