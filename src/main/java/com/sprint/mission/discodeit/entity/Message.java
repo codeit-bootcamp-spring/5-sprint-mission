@@ -1,11 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -19,41 +16,23 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity
-@Table(
-    name = "messages",
-    indexes = @Index(
-        name = "idx_messages_channel_created",
-        columnList = "channel_id, created_at DESC"
-    )
-)
+@Table(name = "messages")
 public class Message extends BaseUpdatableEntity {
 
-    @Column(columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-        name = "channel_id",
-        nullable = false,
-        foreignKey = @ForeignKey(name = "messages_channel_id_fkey")
-    )
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "channel_id")
     private Channel channel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-        name = "author_id",
-        foreignKey = @ForeignKey(name = "messages_author_id_fkey")
-    )
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "author_id")
     private User author;
 
     @ManyToMany

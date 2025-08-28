@@ -87,3 +87,5 @@ CREATE TABLE IF NOT EXISTS read_statuses
     last_read_at timestamptz NOT NULL,
     CONSTRAINT uq_read_statuses UNIQUE (user_id, channel_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_read_statuses_channel ON read_statuses (channel_id);
