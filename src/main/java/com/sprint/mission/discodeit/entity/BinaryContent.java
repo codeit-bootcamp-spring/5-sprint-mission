@@ -34,7 +34,10 @@ public class BinaryContent extends BaseEntity {
     private String contentType;
 
     @Lob
-    @Column(nullable = false)
+    @Column(
+        nullable = false,
+        columnDefinition = "bytea"
+    )
     private byte[] bytes;
 
     @Override

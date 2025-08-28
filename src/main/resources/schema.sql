@@ -1,47 +1,56 @@
+DROP TABLE IF EXISTS channel_participants CASCADE;
+DROP TABLE IF EXISTS message_attachments CASCADE;
+DROP TABLE IF EXISTS read_statuses CASCADE;
+DROP TABLE IF EXISTS user_statuses CASCADE;
+DROP TABLE IF EXISTS messages CASCADE;
+DROP TABLE IF EXISTS channels CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS binary_contents CASCADE;
+
 CREATE TABLE IF NOT EXISTS binary_contents
 (
-    id           UUID PRIMARY KEY,
+    id           uuid PRIMARY KEY,
     created_at   timestamptz  NOT NULL,
-    file_name    VARCHAR(255) NOT NULL,
-    size         BIGINT       NOT NULL,
-    content_type VARCHAR(100) NOT NULL,
-    bytes        BYTEA        NOT NULL
+    file_name    varchar(255) NOT NULL,
+    size         bigint       NOT NULL,
+    content_type varchar(100) NOT NULL,
+    bytes        bytea        NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS users
 (
-    id         UUID PRIMARY KEY,
+    id         uuid PRIMARY KEY,
     created_at timestamptz  NOT NULL,
     updated_at timestamptz,
-    username   VARCHAR(50)  NOT NULL UNIQUE,
-    email      VARCHAR(100) NOT NULL UNIQUE,
-    password   VARCHAR(60)  NOT NULL,
-    profile_id UUID         REFERENCES binary_contents (id) ON DELETE SET NULL
+    username   varchar(50)  NOT NULL UNIQUE,
+    email      varchar(100) NOT NULL UNIQUE,
+    password   varchar(60)  NOT NULL,
+    profile_id uuid
 );
 
 CREATE TABLE IF NOT EXISTS user_statuses
 (
-    id             UUID PRIMARY KEY,
+    id             uuid PRIMARY KEY,
     created_at     timestamptz NOT NULL,
     updated_at     timestamptz,
-    user_id        UUID        NOT NULL UNIQUE REFERENCES users (id) ON DELETE CASCADE,
+    user_id        uuid        NOT NULL UNIQUE,
     last_active_at timestamptz NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS channels
 (
-    id          UUID PRIMARY KEY,
+    id          uuid PRIMARY KEY,
     created_at  timestamptz NOT NULL,
     updated_at  timestamptz,
-    name        VARCHAR(100),
-    description VARCHAR(500),
-    type        VARCHAR(10) NOT NULL
+    name        varchar(100),
+    description varchar(500),
+    type        varchar(10) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS channel_participants
 (
-    channel_id UUID NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
-    user_id    UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    channel_id uuid NOT NULL,
+    user_id    uuid NOT NULL,
     PRIMARY KEY (channel_id, user_id)
 );
 
@@ -49,34 +58,32 @@ CREATE INDEX IF NOT EXISTS idx_channel_participants_user ON channel_participants
 
 CREATE TABLE IF NOT EXISTS messages
 (
-    id         UUID PRIMARY KEY,
+    id         uuid PRIMARY KEY,
     created_at timestamptz NOT NULL,
     updated_at timestamptz,
-    content    TEXT,
-    channel_id UUID        NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
-    author_id  UUID        REFERENCES users (id) ON DELETE SET NULL
+    content    text,
+    channel_id uuid        NOT NULL,
+    author_id  uuid
 );
 
 CREATE INDEX IF NOT EXISTS idx_messages_channel_created ON messages (channel_id, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS message_attachments
 (
-    message_id    UUID NOT NULL REFERENCES messages (id) ON DELETE CASCADE,
-    attachment_id UUID NOT NULL REFERENCES binary_contents (id) ON DELETE CASCADE,
-    order_index   INT  NOT NULL,
+    message_id    uuid NOT NULL,
+    attachment_id uuid NOT NULL,
+    order_index   int  NOT NULL,
     PRIMARY KEY (message_id, attachment_id),
-    CONSTRAINT uq_message_attachment_order UNIQUE (message_id, order_index)
+    CONSTRAINT uq_msg_attachments_message_order UNIQUE (message_id, order_index)
 );
-
-CREATE INDEX IF NOT EXISTS idx_msg_attachments_message_order ON message_attachments (message_id, order_index);
 
 CREATE TABLE IF NOT EXISTS read_statuses
 (
-    id           UUID PRIMARY KEY,
+    id           uuid PRIMARY KEY,
     created_at   timestamptz NOT NULL,
     updated_at   timestamptz,
-    user_id      UUID        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    channel_id   UUID        NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
+    user_id      uuid        NOT NULL,
+    channel_id   uuid        NOT NULL,
     last_read_at timestamptz NOT NULL,
-    CONSTRAINT uq_read_status UNIQUE (user_id, channel_id)
+    CONSTRAINT uq_read_statuses UNIQUE (user_id, channel_id)
 );
