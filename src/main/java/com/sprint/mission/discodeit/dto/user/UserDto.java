@@ -21,7 +21,7 @@ public record UserDto(
         BinaryContent profile,
         boolean online
     ) {
-        this(id, username, email, BinaryContentDto.from(profile), online);
+        this(id, username, email, profile != null ? BinaryContentDto.from(profile) : null, online);
     }
 
     public static UserDto from(User user, UserStatus userStatus) {

@@ -8,6 +8,9 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.ChannelParticipantRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import java.time.Duration;
@@ -26,9 +29,12 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional(readOnly = true)
 public class UserService {
 
+    private final BinaryContentRepository binaryContentRepository;
+    private final ChannelParticipantRepository channelParticipantRepository;
+    private final MessageRepository messageRepository;
+    private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
-    private final BinaryContentRepository binaryContentRepository;
     private final PasswordEncoder passwordEncoder;
 
     public List<UserDto> findAll() {
@@ -65,12 +71,25 @@ public class UserService {
     public void delete(UUID userId) {
         User user = userRepository.getForUpdateOrThrow(userId);
 
+        UUID profileId;
         if (user.getProfile() != null) {
+            profileId = user.getProfile().getId();
             user.setProfile(null);
-            binaryContentRepository.delete(user.getProfile());
+        } else {
+            profileId = null;
         }
 
-        userStatusRepository.deleteByUserId(user.getId());
+        messageRepository.nullifyAllAuthorByUserId(userId);
+
+        readStatusRepository.deleteAllByUserId(userId);
+
+        channelParticipantRepository.deleteAllByUserId(userId);
+
+        userStatusRepository.deleteAllByUserId(userId);
+
+        if (profileId != null) {
+            binaryContentRepository.deleteById(profileId);
+        }
 
         userRepository.delete(user);
     }

@@ -8,16 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserStatusRepository extends JpaRepository<UserStatus, UUID> {
 
+    Optional<UserStatus> findByUserId(UUID userId);
+
+    int deleteAllByUserId(UUID userId);
+
     default UserStatus getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->
             new NotFoundException(
                 "UserStatus with id %s not found".formatted(id))
         );
     }
-
-    Optional<UserStatus> findByUserId(UUID userId);
-
-    // Map<UUID, UserStatusType> findAllTypesByUserIds(Set<UUID> userIds);
-
-    boolean deleteByUserId(UUID userId);
 }

@@ -24,7 +24,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             (s.lastActiveAt >= :onlineSince)
         )
         FROM User u
-        JOIN UserStatus s on s.user = u
+        JOIN UserStatus s ON s.user = u
         LEFT JOIN u.profile p
         """
     )
