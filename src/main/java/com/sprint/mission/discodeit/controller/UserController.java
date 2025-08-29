@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -49,7 +49,7 @@ public class UserController {
         return userService.create(req, profile);
     }
 
-    @DeleteMapping(path = "/{userId}")
+    @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("userId") UUID userId) {
         userService.delete(userId);
@@ -70,7 +70,7 @@ public class UserController {
         return userService.update(userId, req, profile);
     }
 
-    @PatchMapping(path = "/{userId}/userStatus")
+    @PatchMapping("/{userId}/userStatus")
     @ResponseStatus(HttpStatus.OK)
     public UserStatusDto updateUserStatusByUserId(
         @PathVariable("userId")
