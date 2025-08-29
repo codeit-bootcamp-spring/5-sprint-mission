@@ -18,5 +18,4 @@ public final class Utils {
             throw new RuntimeException("파일 읽기 실패: " + multipartFile.getOriginalFilename(), e);
         }
     }
-
 }

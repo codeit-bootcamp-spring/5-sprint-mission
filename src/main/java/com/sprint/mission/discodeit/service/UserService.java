@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,24 +60,21 @@ public class UserService {
 
         return UserDto.from(savedUser, savedUserStatus);
     }
-//
-//    @Transactional
-//    public void delete(UUID userId) {
-//        User user = userRepository.getOrThrow(userId);
-//
-//        guildRepository.deleteAllByOwnerId(user.getId());
-//
-//        friendRequestRepository.deleteAllByUserId(user.getId());
-//
-//        if (user.getProfile() != null) {
-//            binaryContentRepository.delete(user.getProfile());
-//        }
-//
-//        userStatusRepository.deleteByUserId(user.getId());
-//
-//        userRepository.delete(user.getId());
-//    }
-//
+
+    @Transactional
+    public void delete(UUID userId) {
+        User user = userRepository.getForUpdateOrThrow(userId);
+
+        if (user.getProfile() != null) {
+            user.setProfile(null);
+            binaryContentRepository.delete(user.getProfile());
+        }
+
+        userStatusRepository.deleteByUserId(user.getId());
+
+        userRepository.delete(user);
+    }
+
 //    @Transactional
 //    public UserDto update(UUID userId, UserUpdateRequest req, MultipartFile profile)
 //        throws IOException {

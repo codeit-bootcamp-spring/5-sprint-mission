@@ -5,13 +5,7 @@ import com.sprint.mission.discodeit.enums.ChannelType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,14 +25,6 @@ public class Channel extends BaseUpdatableEntity {
 
     @Enumerated(EnumType.STRING)
     private ChannelType type;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "channel_participants",
-        joinColumns = @JoinColumn(name = "channel_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> participants = new HashSet<>();
 
     @Override
     public String toString() {

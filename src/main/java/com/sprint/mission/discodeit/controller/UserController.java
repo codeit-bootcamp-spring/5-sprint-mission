@@ -5,10 +5,13 @@ import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -40,16 +43,16 @@ public class UserController {
     ) {
         return userService.create(req, profile);
     }
-    // @DeleteMapping(path = "/{userId}")
-    // @ResponseStatus(HttpStatus.NO_CONTENT)
-    // public void delete(
-    //
-    //     @PathVariable("userId")
-    //     UUID userId
-    // ) {
-    //     userService.delete(userId);
-    // }
-    //
+
+    @DeleteMapping(path = "/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(
+        @PathVariable("userId")
+        UUID userId
+    ) {
+        userService.delete(userId);
+    }
+
     // @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     // public UserDto update(
     //
