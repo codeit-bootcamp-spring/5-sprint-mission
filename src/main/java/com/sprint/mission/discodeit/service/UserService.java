@@ -41,7 +41,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public List<UserDto> findAll() {
-        return userRepository.findAllDto(Instant.now().minus(Duration.ofMinutes(5)));
+        return userRepository.findAllToDto(Instant.now().minus(Duration.ofMinutes(5)));
     }
 
     @Transactional
@@ -67,7 +67,7 @@ public class UserService {
 
     @Transactional
     public void delete(UUID userId) {
-        User user = userRepository.getForUpdateOrThrow(userId);
+        User user = userRepository.getOrThrowForUpdate(userId);
 
         UUID profileId;
         if (user.getProfile() != null) {
@@ -94,7 +94,7 @@ public class UserService {
 
     @Transactional
     public UserDto update(UUID userId, UserUpdateRequest req, MultipartFile profile) {
-        User u = userRepository.getForUpdateOrThrow(userId);
+        User u = userRepository.getOrThrowForUpdate(userId);
 
         String newUsername = (req.newUsername() != null && !req.newUsername().isBlank())
             ? req.newUsername().strip().toLowerCase(Locale.ROOT)

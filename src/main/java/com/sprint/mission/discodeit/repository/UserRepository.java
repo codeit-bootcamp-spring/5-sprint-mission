@@ -32,11 +32,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
         LEFT JOIN u.profile p
         """
     )
-    List<UserDto> findAllDto(@Param("onlineSince") Instant onlineSince);
+    List<UserDto> findAllToDto(@Param("onlineSince") Instant onlineSince);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT u FROM User u WHERE u.id = :id")
     Optional<User> findForUpdateById(@Param("id") UUID id);
+
+    Optional<User> findByUsername(String username);
 
     default User getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->
@@ -45,7 +47,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
         );
     }
 
-    default User getForUpdateOrThrow(UUID id) {
+    default User getOrThrowForUpdate(UUID id) {
         return findForUpdateById(id).orElseThrow(() ->
             new NotFoundException(
                 "User with id %s not found".formatted(id))
