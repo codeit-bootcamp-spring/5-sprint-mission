@@ -178,7 +178,7 @@ usersRoot:
                   method: "POST"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with username test already exists"
+                  message: "(username)=(test) already exists."
               duplicateEmail:
                 description: 같은 email을 사용하는 User가 이미 존재함
                 value:
@@ -187,7 +187,7 @@ usersRoot:
                   method: "POST"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with email test@codeit.com already exists"
+                  message: "(email)=(test@codeit.com) already exists."
       '415':
         content:
           application/json:
@@ -365,7 +365,7 @@ userById:
                   method: "PATCH"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with username test already exists"
+                  message: "(username)=(test) already exists."
               duplicateEmail:
                 description: 같은 email을 사용하는 User가 이미 존재함
                 value:
@@ -374,7 +374,7 @@ userById:
                   method: "PATCH"
                   status: 409
                   code: "CONFLICT"
-                  message: "User with email test@example.com already exists"
+                  message: "(email)=(test@example.com) already exists."
       '415':
         content:
           application/json:

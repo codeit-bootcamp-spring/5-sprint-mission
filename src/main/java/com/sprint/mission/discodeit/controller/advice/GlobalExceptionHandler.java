@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.controller.advice;
 
 import com.sprint.mission.discodeit.exception.AccessDeniedException;
-import com.sprint.mission.discodeit.exception.DuplicateResourceException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.exception.ParameterNumberNotValidException;
 import com.sprint.mission.discodeit.exception.UnauthorizedException;
@@ -10,6 +9,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -89,15 +89,6 @@ public class GlobalExceptionHandler {
         );
 
         return ApiError.from(req, HttpStatus.BAD_REQUEST, "INVALID_PARAMETER_NUMBER", msg, details);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleIllegalArgument(IllegalArgumentException e, HttpServletRequest req) {
-        log.warn("400(BAD_REQUEST) {} {} -> {}", req.getMethod(), req.getRequestURI(),
-            e.getMessage());
-        return ApiError.from(req, HttpStatus.BAD_REQUEST, "BAD_REQUEST", e.getMessage(),
-            List.of());
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -215,15 +206,30 @@ public class GlobalExceptionHandler {
         return ApiError.from(req, HttpStatus.NOT_ACCEPTABLE, "NOT_ACCEPTABLE", msg, List.of());
     }
 
-    @ExceptionHandler({DuplicateResourceException.class, DataIntegrityViolationException.class,
-        IllegalStateException.class})
+    @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleConflict(Exception e, HttpServletRequest req) {
-        String msg = (e instanceof DuplicateResourceException && e.getMessage() != null)
-            ? e.getMessage()
-            : "Resource already exists";
-        log.warn("409(CONFLICT) {} {} -> {}", req.getMethod(), req.getRequestURI(), e.getMessage());
+    public ApiError handleDataIntegrity(DataIntegrityViolationException e, HttpServletRequest req) {
+        String msg = Optional.ofNullable(sliceKeyToBracket(e.getMessage()))
+            .orElse("Data integrity violation");
+
+        log.warn("409(CONFLICT) {} {} -> {}", req.getMethod(), req.getRequestURI(), msg);
         return ApiError.from(req, HttpStatus.CONFLICT, "CONFLICT", msg, List.of());
+    }
+
+    private String sliceKeyToBracket(String message) {
+        if (message == null) {
+            return null;
+        }
+        int start = message.indexOf("Key ");
+        if (start < 0) {
+            return null;
+        }
+        int end = message.indexOf(']', start);
+        if (end < 0) {
+            return null;
+        }
+        String s = message.substring(start + 3, end).strip();
+        return s.isEmpty() ? null : s;
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
