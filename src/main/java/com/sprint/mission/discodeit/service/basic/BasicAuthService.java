@@ -34,7 +34,7 @@ public class BasicAuthService implements AuthService {
 		  .email(user.getEmail())
 		  .createdAt(user.getCreatedAt())
 		  .updatedAt(user.getUpdatedAt())
-		  .profileId(user.getProfileId())
+		  .profileId(user.getProfileImage().getId())
 		  .build();
 	}
 }

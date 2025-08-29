@@ -5,10 +5,10 @@ import java.util.UUID;
 
 import com.sprint.mission.discodeit.domain.dto.CreateMessageDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateMessageDTO;
-import com.sprint.mission.discodeit.domain.entity.Message;
+import com.sprint.mission.discodeit.domain.entity.Messages;
 
 public interface MessageService {
-	Message create(CreateMessageDTO dto);
+	Messages create(CreateMessageDTO dto);
 
 	void delete(UUID id);
 
@@ -16,13 +16,13 @@ public interface MessageService {
 
 	void deleteAllByChannelId(UUID channelId);
 
-	Message update(UpdateMessageDTO dto);
+	Messages update(UpdateMessageDTO dto);
 
-	Message read(UUID id);
+	Messages read(UUID id);
 
-	List<Message> findAllByChannelId(UUID channelId);
+	List<Messages> findAllByChannelId(UUID channelId);
 
-	List<Message> readAllByChannelId(UUID channelId);
+	List<Messages> readAllByChannelId(UUID channelId);
 
 	boolean isEmpty(UUID channelId);
 }

@@ -1,34 +1,35 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 
 @Getter
 @ToString
-public class UserStatus implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
+public class UserStatus extends BaseUpdatableEntity {
 
-	private final UUID id;
-	private final Instant createdAt;
-	private Instant updatedAt;
+	@JoinColumn(nullable = false)
 	private Instant LastActiveAt; // 마지막 활동 시간
 
 	// Foreign key
-	private final UUID userId; // 유저 ID
+	@ManyToOne(cascade = CascadeType.REMOVE)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user; // 유저 ID
 
 	public UserStatus(
 	  @NonNull UUID userId
 	) {
 		this.id = UUID.randomUUID();
 		this.createdAt = Instant.now();
-		this.userId = userId;
+		// this.userId = userId;
 	}
 
 	public boolean isOnline() {

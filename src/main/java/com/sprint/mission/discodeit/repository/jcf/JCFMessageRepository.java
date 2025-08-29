@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import com.sprint.mission.discodeit.domain.entity.Message;
+import com.sprint.mission.discodeit.domain.entity.Messages;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 
 @Repository
@@ -21,16 +21,16 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 )
 public class JCFMessageRepository implements MessageRepository {
 
-	public final Map<UUID, Message> data;
+	public final Map<UUID, Messages> data;
 
 	public JCFMessageRepository() {
 		this.data = new HashMap<>();
 	}
 
 	@Override
-	public Message save(Message message) {
-		data.put(message.getId(), message);
-		return message;
+	public Messages save(Messages messages) {
+		data.put(messages.getId(), messages);
+		return messages;
 	}
 
 	@Override
@@ -52,23 +52,23 @@ public class JCFMessageRepository implements MessageRepository {
 
 	@Override
 	public void deleteByChannelId(UUID channelId) {
-		data.values().removeIf(message -> message.getChannelId().equals(channelId));
+		data.values().removeIf(message -> message.getChannels().getId().equals(channelId));
 	}
 
 	@Override
-	public Optional<Message> find(UUID id) {
+	public Optional<Messages> find(UUID id) {
 		return Optional.ofNullable(data.get(id));
 	}
 
 	@Override
-	public List<Message> findAll() {
+	public List<Messages> findAll() {
 		return data.values().stream().toList();
 	}
 
 	@Override
-	public List<Message> findAllByChannelId(UUID channelId) {
+	public List<Messages> findAllByChannelId(UUID channelId) {
 		return data.values().stream()
-		  .filter(message -> message.getChannelId().equals(channelId))
+		  .filter(message -> message.getChannels().getId().equals(channelId))
 		  .toList();
 	}
 

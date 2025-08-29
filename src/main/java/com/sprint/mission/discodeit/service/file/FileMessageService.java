@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.sprint.mission.discodeit.domain.dto.CreateMessageDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateMessageDTO;
-import com.sprint.mission.discodeit.domain.entity.Message;
+import com.sprint.mission.discodeit.domain.entity.Messages;
 import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -27,7 +27,7 @@ public class FileMessageService implements MessageService {
 	}
 
 	@Override
-	public Message create(CreateMessageDTO dto) {
+	public Messages create(CreateMessageDTO dto) {
 		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("CreateMessageDTO cannot be null"));
 
 		String content = dto.getContent();
@@ -44,7 +44,7 @@ public class FileMessageService implements MessageService {
 			throw new IllegalArgumentException("User ID cannot be null or empty");
 		}
 
-		return messageRepository.save(new Message(content, channelId, userId, null));
+		return messageRepository.save(new Messages(content, channelId, userId));
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class FileMessageService implements MessageService {
 	}
 
 	@Override
-	public Message update(UpdateMessageDTO dto) {
+	public Messages update(UpdateMessageDTO dto) {
 		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("UpdateMessageDTO cannot be null"));
 		UUID id = dto.getId();
 		String newContent = dto.getNewContent();
@@ -75,27 +75,27 @@ public class FileMessageService implements MessageService {
 			throw new IllegalArgumentException("New content cannot be null or empty");
 		}
 
-		Message targetMessage = messageRepository.find(id)
+		Messages targetMessages = messageRepository.find(id)
 		  .orElseThrow(() -> new NoSuchElementException("Message with ID " + id + " not found"));
-		targetMessage.setContent(newContent);
-		return messageRepository.save(targetMessage);
+		targetMessages.setContent(newContent);
+		return messageRepository.save(targetMessages);
 	}
 
 	@Override
-	public Message read(UUID id) {
+	public Messages read(UUID id) {
 		return messageRepository.find(id)
 		  .orElseThrow(() -> new NoSuchElementException("Message with ID " + id + " not found"));
 	}
 
 	@Override
-	public List<Message> findAllByChannelId(UUID channelId) {
+	public List<Messages> findAllByChannelId(UUID channelId) {
 		return messageRepository.findAll().stream().filter(
-			message -> message.getChannelId().equals(channelId))
+			message -> message.getChannels().getId().equals(channelId))
 		  .toList();
 	}
 
 	@Override
-	public List<Message> readAllByChannelId(UUID channelId) {
+	public List<Messages> readAllByChannelId(UUID channelId) {
 		return messageRepository.findAllByChannelId(channelId);
 	}
 

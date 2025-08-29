@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.sprint.mission.discodeit.domain.entity.Message;
+import com.sprint.mission.discodeit.domain.entity.Messages;
 
 public interface MessageRepository {
-	Message save(Message message);
+	Messages save(Messages messages);
 
 	void delete(UUID id);
 
@@ -15,11 +15,11 @@ public interface MessageRepository {
 
 	void deleteByChannelId(UUID channelId);
 
-	Optional<Message> find(UUID id);
+	Optional<Messages> find(UUID id);
 
-	List<Message> findAll();
+	List<Messages> findAll();
 
-	List<Message> findAllByChannelId(UUID channelId);
+	List<Messages> findAllByChannelId(UUID channelId);
 
 	boolean isEmpty(UUID channelId);
 

@@ -1,56 +1,36 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
+
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class User implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
+@Setter
+public class User extends BaseUpdatableEntity {
 
-	private final UUID id;
-	private final Instant createdAt;
-	private Instant updatedAt;
+	@JoinColumn(nullable = false, unique = true)
 	private String username;
+	@JoinColumn(nullable = false, unique = true)
 	private String email;
+	@JoinColumn(nullable = false)
 	private String password;
 
 	// Foreign key
-	private UUID profileId;
+	@OneToOne(orphanRemoval = true)
+	@JoinColumn(name = "profile_id")
+	private BinaryContent profileImage;
 
 	public User(String username, String email, String password, UUID profileId) {
-		this.id = UUID.randomUUID();
-		this.createdAt = Instant.now();
-		this.updatedAt = null;
 		this.username = username;
 		this.email = email;
 		this.password = password;
-		this.profileId = profileId;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-		this.updatedAt = Instant.now();
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-		this.updatedAt = Instant.now();
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-		this.updatedAt = Instant.now();
-	}
-
-	public void setProfileId(UUID profileId) {
-		this.profileId = profileId;
-		this.updatedAt = Instant.now();
+		// this.profileImage = profileId;
 	}
 
 	@Override
@@ -68,17 +48,6 @@ public class User implements Serializable {
 		return Objects.hashCode(id);
 	}
 
-	@Override
-	public String toString() {
-		return "User{" +
-		  "id=" + id +
-		  ", createdAt=" + createdAt +
-		  ", updatedAt=" + updatedAt +
-		  ", username='" + username + '\'' +
-		  ", email='" + email + '\'' +
-		  ", password='" + password + '\'' +
-		  '}';
-	}
 }
 
 

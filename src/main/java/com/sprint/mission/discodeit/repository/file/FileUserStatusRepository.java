@@ -71,7 +71,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
 	@Override
 	public Optional<UserStatus> findByUserId(UUID userId) {
 		return findAll().stream()
-		  .filter(u -> u.getUserId().equals(userId))
+		  .filter(u -> u.getUser().getId().equals(userId))
 		  .findFirst();
 	}
 
@@ -126,7 +126,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
 	@Override
 	public void deleteByUserId(UUID userId) {
 		List<UserStatus> userStatusList = new ArrayList<>(findAll());
-		userStatusList.removeIf(u -> u.getUserId().equals(userId));
+		userStatusList.removeIf(u -> u.getUser().getId().equals(userId));
 
 		try (FileOutputStream fos = new FileOutputStream(FILE_NAME);
 			 ObjectOutputStream oos = new ObjectOutputStream(fos)) {

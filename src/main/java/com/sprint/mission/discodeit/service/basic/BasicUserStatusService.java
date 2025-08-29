@@ -73,7 +73,7 @@ public class BasicUserStatusService implements UserStatusService {
 		  .id(userStatus.getId())
 		  .createdAt(userStatus.getCreatedAt())
 		  .updatedAt(userStatus.getUpdatedAt())
-		  .userId(userStatus.getUserId())
+		  .userId(userStatus.getUser().getId())
 		  .lastActiveAt(userStatus.getLastActiveAt())
 		  .isOnline(userStatus.isOnline())
 		  .build();

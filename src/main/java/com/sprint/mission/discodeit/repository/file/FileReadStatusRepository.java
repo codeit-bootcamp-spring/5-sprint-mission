@@ -76,20 +76,20 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 	@Override
 	public List<ReadStatus> findAllByUserId(UUID userId) {
 		return findAll().stream()
-		  .filter(binaryContent -> binaryContent.getUserId().equals(userId)).toList();
+		  .filter(binaryContent -> binaryContent.getUser().getId().equals(userId)).toList();
 	}
 
 	@Override
 	public List<ReadStatus> findAllByChannelId(UUID channelId) {
 		return findAll().stream()
-		  .filter(binaryContent -> binaryContent.getChannelId().equals(channelId)).toList();
+		  .filter(binaryContent -> binaryContent.getChannel().getId().equals(channelId)).toList();
 	}
 
 	@Override
 	public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
 		return findAll().stream()
-		  .filter(binaryContent -> binaryContent.getUserId().equals(userId))
-		  .filter(binaryContent -> binaryContent.getChannelId().equals(channelId))
+		  .filter(binaryContent -> binaryContent.getUser().getId().equals(userId))
+		  .filter(binaryContent -> binaryContent.getChannel().getId().equals(channelId))
 		  .findFirst();
 	}
 
@@ -131,7 +131,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 	@Override
 	public void deleteByChannelId(UUID channelId) {
 		List<ReadStatus> readStatuses = findAll();
-		readStatuses.removeIf(readStatus -> readStatus.getChannelId().equals(channelId));
+		readStatuses.removeIf(readStatus -> readStatus.getChannel().getId().equals(channelId));
 
 		try (FileOutputStream fos = new FileOutputStream(FILE_NAME);
 			 ObjectOutputStream oos = new ObjectOutputStream(fos)) {

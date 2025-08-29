@@ -30,16 +30,16 @@ public class BasicBinaryContentService implements BinaryContentService {
 	@Override
 	public FindBiContentResult find(UUID id) {
 
-		BinaryContent binaryContent = binaryContentRepository.find(id)
+		BinaryContent binaryContents = binaryContentRepository.find(id)
 		  .orElseThrow(() -> new NoSuchElementException("Binary content not found for ID: " + id));
 
 		return FindBiContentResult.builder()
-		  .createdAt(binaryContent.getCreatedAt())
-		  .id(binaryContent.getId())
-		  .fileName(binaryContent.getFileName())
-		  .contentType(binaryContent.getContentType())
-		  .bytes(binaryContent.getContent())
-		  .size(binaryContent.getSize())
+		  .createdAt(binaryContents.getCreatedAt())
+		  .id(binaryContents.getId())
+		  .fileName(binaryContents.getFileName())
+		  .contentType(binaryContents.getContentType())
+		  .bytes(binaryContents.getBytes())
+		  .size(binaryContents.getSize())
 		  .build();
 	}
 
@@ -51,7 +51,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 			.createdAt(content.getCreatedAt())
 			.fileName(content.getFileName())
 			.contentType(content.getContentType())
-			.bytes(content.getContent())
+			.bytes(content.getBytes())
 			.size(content.getSize())
 			.build()).toList();
 	}

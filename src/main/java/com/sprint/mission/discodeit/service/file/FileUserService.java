@@ -58,8 +58,8 @@ public class FileUserService implements UserService {
 		// 1. User Status 삭제
 		userStatusRepository.deleteByUserId(userId);
 		// 2. Profile Image 삭제
-		if (binaryContentRepository.find(targetUser.getProfileId()).isPresent()) {
-			binaryContentRepository.delete(targetUser.getProfileId());
+		if (binaryContentRepository.find(targetUser.getProfileImage().getId()).isPresent()) {
+			binaryContentRepository.delete(targetUser.getProfileImage().getId());
 		}
 		// 3. User 삭제
 		userRepository.delete(userId);
@@ -98,11 +98,11 @@ public class FileUserService implements UserService {
 
 		if (newProfileImage != null) {
 			// 기존 프로필이 있다면 삭제
-			if (targetUser.getProfileId() != null) {
-				binaryContentRepository.delete(targetUser.getProfileId());
+			if (targetUser.getProfileImage().getId() != null) {
+				binaryContentRepository.delete(targetUser.getProfileImage().getId());
 			}
 			BinaryContent newProfilePicture = binaryContentService.create(newProfileImage);
-			targetUser.setProfileId(newProfilePicture.getId());
+			targetUser.setProfileImage(newProfilePicture);
 
 			userRepository.save(targetUser);
 			return UserUpdateResult.builder()
@@ -116,7 +116,7 @@ public class FileUserService implements UserService {
 		}
 
 		userRepository.save(targetUser);
-		BinaryContent profilePicture = binaryContentRepository.find(targetUser.getProfileId())
+		BinaryContent profilePicture = binaryContentRepository.find(targetUser.getProfileImage().getId())
 		  .orElse(null);
 		return UserUpdateResult.builder()
 		  .id(targetUser.getId())
@@ -145,7 +145,7 @@ public class FileUserService implements UserService {
 		  .updatedAt(user.getUpdatedAt())
 		  .username(user.getUsername())
 		  .email(user.getEmail())
-		  .profileId(user.getProfileId())
+		  .profileId(user.getProfileImage().getId())
 		  .online(isOnline)
 		  .build();
 	}
@@ -158,7 +158,7 @@ public class FileUserService implements UserService {
 		  .updatedAt(u.getUpdatedAt())
 		  .username(u.getUsername())
 		  .email(u.getEmail())
-		  .profileId(u.getProfileId())
+		  .profileId(u.getProfileImage().getId())
 		  .online(
 			userStatusRepository.findByUserId(u.getId())
 			  .map(UserStatus::isOnline)

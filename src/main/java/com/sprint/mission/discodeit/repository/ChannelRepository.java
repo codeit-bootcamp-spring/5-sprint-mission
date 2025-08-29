@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.sprint.mission.discodeit.domain.entity.Channel;
+import com.sprint.mission.discodeit.domain.entity.Channels;
 
 public interface ChannelRepository {
-	public Channel save(Channel channel);
+	public Channels save(Channels channels);
 
-	public Optional<Channel> find(UUID id);
+	public Optional<Channels> find(UUID id);
 
-	public List<Channel> findAll();
+	public List<Channels> findAll();
 
 	public void delete(UUID id);
 
