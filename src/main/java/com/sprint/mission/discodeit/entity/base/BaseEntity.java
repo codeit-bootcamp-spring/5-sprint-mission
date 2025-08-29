@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity.base;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
@@ -20,8 +21,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public abstract class BaseEntity {
 
   @Id
+  @Column(updatable = false)
   private UUID id;
 
   @CreatedDate
+  @Column(updatable = false)
   private Instant createdAt;
 }

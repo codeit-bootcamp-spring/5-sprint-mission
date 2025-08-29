@@ -1,20 +1,35 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
-@ToString
+@Entity
+@Table(name = "read_statuses")
 @AllArgsConstructor
+@NoArgsConstructor
 public class ReadStatus extends BaseUpdatableEntity {
 
-  private final UUID userId;
-  private final UUID channelId;
   private Instant lastReadAt;
+
+  @JoinColumn(name = "user_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  private User user;
+
+  @JoinColumn(name = "channel_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Channel channel;
 
   public void update(Instant newLastReadAt) {
     boolean anyValueUpdated = false;
