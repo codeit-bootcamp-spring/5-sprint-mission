@@ -3,11 +3,36 @@ spring:
     name: discodeit
   servlet:
     multipart:
-      maxFileSize: 10MB # 파일 하나의 최대 크기
-      maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
+      max-file-size: 10MB
+      max-request-size: 30MB
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: discodeit_user
+    password: discodeit1234
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none              # schema.sql로 테이블 생성/관리
+    properties:
+      hibernate:
+        format_sql: true          # SQL 보기 좋게 포매팅
+        highlight_sql: true       # (옵션) 콘솔 하이라이트
+        jdbc.time_zone: Asia/Seoul
+        # dialect는 PostgreSQL이면 자동 감지되어 생략 가능(넣어도 무방)
+
+  sql:
+    init:
+      mode: always                # 부팅 시 resources/schema.sql 실행
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.orm.jdbc.extract: trace   # (옵션) 결과 추출 로그, 시끄러우면 삭제/낮춤
 
 discodeit:
   repository:
-    type: file   # jcf | file
+    type: file                    # 당장은 file 모드 그대로(나중에 DB 모드로 전환)
     file-directory: .discodeit
