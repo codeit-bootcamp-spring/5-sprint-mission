@@ -22,11 +22,12 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -125,11 +126,9 @@ public class BasicChannelService implements ChannelService {
 
 		if (request.getNewName() != null) {
 			channel.setName(request.getNewName());
-			channel.updateUpdatedAt();
 		}
 		if (request.getNewDescription() != null) {
 			channel.setDescription(request.getNewDescription());
-			channel.updateUpdatedAt();
 		}
 		channelRepository.save(channel);
 
@@ -150,7 +149,6 @@ public class BasicChannelService implements ChannelService {
 
 		readStatusRepository.deleteById(readStatus.getId());
 
-		channel.updateUpdatedAt();
 		channelRepository.save(channel);
 
 		String nickname = userRepository.findById(request.getUserId())
@@ -175,14 +173,14 @@ public class BasicChannelService implements ChannelService {
 		Instant lastMessageTime = getLastMessageTime(channel.getId());
 
 		if ("PRIVATE".equals(channel.getType())) {
-			List<java.util.UUID> participantIds = getPrivateChannelParticipants(channel.getId());
+			List<UUID> participantIds = getPrivateChannelParticipants(channel.getId());
 			return ChannelResponse.fromPrivateChannel(channel, lastMessageTime, participantIds);
 		} else {
 			return ChannelResponse.fromPublicChannel(channel, lastMessageTime);
 		}
 	}
 
-	private Instant getLastMessageTime(java.util.UUID channelId) {
+	private Instant getLastMessageTime(UUID channelId) {
 		List<Message> messages = messageRepository.findByChannelId(channelId);
 		return messages.stream()
 			.map(Message::getCreatedAt)
@@ -190,7 +188,7 @@ public class BasicChannelService implements ChannelService {
 			.orElse(null);
 	}
 
-	private List<java.util.UUID> getPrivateChannelParticipants(java.util.UUID channelId) {
+	private List<UUID> getPrivateChannelParticipants(UUID channelId) {
 		return readStatusRepository.findByChannelId(channelId)
 			.stream()
 			.map(ReadStatus::getUserId)

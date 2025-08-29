@@ -1,55 +1,55 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sprint.mission.discodeit.entity.common.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+@Entity
+@Table(name = "messages")
+@Getter @Setter @SuperBuilder /*@ToString*/
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Message extends BaseUpdatableEntity implements Serializable {
+//	@Serial
+//	private static final long serialVersionUID = 1L;
 
-@AllArgsConstructor
-@Data
-@Builder
-public class Message implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
 
-	private final UUID id;
-	private final Instant createdAt;
-	private Instant updatedAt;
-	private final UUID authorId;
-	private final UUID channelId;
+    @Column()
+	private UUID authorId;
+    @Column(nullable = false, updatable = false)
+	private UUID channelId;
+    @Column
 	private String content;
-	private final List<UUID> attachmentIds;
+    @Column(nullable = false)
+	private List<UUID> attachmentIds;
 
 	public Message(UUID authorId, UUID channelId, String content) {
 		this.authorId = Objects.requireNonNull(authorId, "작성자UUID는 필수 입니다.");
 		this.channelId = Objects.requireNonNull(channelId, "채널UUID는 필수입니다.");
 		this.content = Objects.requireNonNull(content, "내용은 필수 입니다.");
 
-		id = UUID.randomUUID();
-		createdAt = Instant.now();
-		updatedAt = createdAt;
 		attachmentIds = new ArrayList<>();
 	}
 
 	public Message(Message original) {
-		this.id = original.id;
-		this.createdAt = original.createdAt;
-		this.updatedAt = original.updatedAt;
+        super(original.getId(), original.getCreatedAt(), original.getUpdatedAt());
 		this.authorId = original.authorId;
 		this.channelId = original.channelId;
 		this.content = original.content;
 		this.attachmentIds = original.attachmentIds;
-	}
-
-	public void updateUpdatedAt() {
-		this.updatedAt = Instant.now();
 	}
 
 	public void addAttachment(UUID attachmentId) {
@@ -59,9 +59,7 @@ public class Message implements Serializable {
 	}
 
 	public void removeAttachment(UUID attachmentId) {
-		if (this.attachmentIds.remove(attachmentId)) {
-			updateUpdatedAt();
-		}
+		this.attachmentIds.remove(attachmentId);
 	}
 
 	public Message copy() {

@@ -1,49 +1,54 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sprint.mission.discodeit.entity.common.BaseUpdatableEntity;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-import jakarta.annotation.Nullable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+@Entity
+@Table(name = "users")
+@Getter @Setter @SuperBuilder /*@ToString*/
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class User extends BaseUpdatableEntity implements Serializable {
+//	@Serial
+//	private static final long serialVersionUID = 1L;
 
-@AllArgsConstructor
-@Data
-@Builder
-public class User implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
-
-	private final UUID id;
-	private final Instant createdAt;
-	private Instant updatedAt;
+    @Column(unique = true, nullable = false, length = 50)
+    private String username;
+    @Column(nullable = false, length = 30)
+    @JsonIgnore
+    private String password;
+    @Column(unique = true, nullable = false, length = 100)
 	private String email;
-	private String username;
-	private String password;
+    @Column(nullable = false, length = 100)
 	private String defaultNickname;
-	@Nullable
+	@Column()
 	private UUID profileId;
 
 	public User(String username, String password, String defaultNickname, String email, @Nullable UUID profileId) {
-		this.username = username;
+        this.username = username;
 		this.password = password;
 		this.defaultNickname = defaultNickname;
 		this.email = email;
 		this.profileId = profileId;
-
-		id = UUID.randomUUID();
-		createdAt = Instant.now();
 	}
 
 	// 복사용
 	public User(User original) {
-		this.id = original.id;
-		this.createdAt = original.createdAt;
-		this.updatedAt = original.updatedAt;
+        super(original.getId(), original.getCreatedAt(), original.getUpdatedAt());
 		this.email = original.email;
 		this.profileId = original.profileId;
 		this.username = original.username;
@@ -51,37 +56,27 @@ public class User implements Serializable {
 		this.defaultNickname = original.defaultNickname;
 	}
 
-	public void updateUpdatedAt() {
-		this.updatedAt = Instant.now();
-	}
-
 	public void updateUsername(String username) {
-		updateUpdatedAt();
 		this.username = Objects.requireNonNull(username, "사용자 이름은 필수 입력값입니다.");
 	}
 
 	public void updateEmail(String email) {
-		updateUpdatedAt();
 		this.email = Objects.requireNonNull(email, "이메일은 필수 입력값입니다.");
 	}
 
 	public void updateProfileId(@Nullable UUID profileId) {
-		updateUpdatedAt();
 		this.profileId = profileId;
 	}
 
 	public void updatePassword(String password) {
-		updateUpdatedAt();
 		this.password = Objects.requireNonNull(password, "비밀번호는 필수 입력값입니다.");
 	}
 
 	public void updateDefaultNickname(String defaultNickname) {
-		updateUpdatedAt();
 		this.defaultNickname = Objects.requireNonNull(defaultNickname, "닉네임은 필수 입력값입니다.");
 	}
 
 	public void removeProfile() {
-		updateUpdatedAt();
 		this.profileId = null;
 	}
 

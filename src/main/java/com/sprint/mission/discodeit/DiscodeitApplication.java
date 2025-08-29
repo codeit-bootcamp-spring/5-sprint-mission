@@ -21,7 +21,6 @@ public class DiscodeitApplication {
 
 	private static void testing(ConfigurableApplicationContext context) throws InterruptedException {
 		// cleanDirectory(new File("data/"));
-
 		Thread.sleep(10000);
 
 		System.out.println("서비스 테스트 시작\n");

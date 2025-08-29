@@ -1,42 +1,44 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sprint.mission.discodeit.entity.common.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+@Entity
+@Table(name = "read_statuses")
+@Getter @Setter @SuperBuilder /*@ToString*/
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ReadStatus extends BaseUpdatableEntity implements Serializable {
+//	@Serial
+//	private static final long serialVersionUID = 1L;
 
-@AllArgsConstructor
-@Data
-@Builder
-public class ReadStatus implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
-
-	private final UUID id;
-	private final UUID userId;
-	private final UUID channelId;
-	private final Instant createdAt;
-	private Instant updatedAt;
+    @Column(unique = true, nullable = false, updatable = false)
+	private UUID userId;
+    @Column(unique = true, nullable = false, updatable = false)
+	private UUID channelId;
+    @Column(nullable = false)
 	private Instant lastReadAt;
 
 
 	public ReadStatus(UUID userId, UUID channelId) {
-		this.id = UUID.randomUUID();
 		this.userId = userId;
 		this.channelId = channelId;
-		this.createdAt = Instant.now();
 	}
 
 	public ReadStatus(ReadStatus original) {
-		this.id = original.id;
+        super(original.getId(), original.getCreatedAt(), original.getUpdatedAt());
 		this.userId = original.userId;
 		this.channelId = original.channelId;
-		this.createdAt = original.createdAt;
-		this.updatedAt = original.updatedAt;
 		this.lastReadAt = original.lastReadAt;
 	}
 
@@ -45,14 +47,8 @@ public class ReadStatus implements Serializable {
 	}
 
 	public void update(Instant newLastReadAt) {
-		boolean anyValueUpdated = false;
 		if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
 			this.lastReadAt = newLastReadAt;
-			anyValueUpdated = true;
-		}
-
-		if (anyValueUpdated) {
-			this.updatedAt = Instant.now();
 		}
 	}
 

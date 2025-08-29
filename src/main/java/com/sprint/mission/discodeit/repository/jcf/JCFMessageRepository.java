@@ -50,7 +50,7 @@ public class JCFMessageRepository implements MessageRepository {
 	@Override
 	public List<Message> findByChannelId(UUID channelId) {
 		if (channelId == null) {
-			return new ArrayList<>();
+			return List.of();
 		}
 
 		List<Message> messages = new ArrayList<>();

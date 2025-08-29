@@ -1,40 +1,42 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sprint.mission.discodeit.entity.common.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+@Entity
+@Table(name = "user_statuses")
+@Getter @Setter @SuperBuilder /*@ToString*/
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UserStatus extends BaseUpdatableEntity implements Serializable {
+//	@Serial
+//	private static final long serialVersionUID = 1L;
 
-@AllArgsConstructor
-@Data
-@Builder
-public class UserStatus implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
+    @Column(unique = true, nullable = false, updatable = false)
+	private UUID userId;
 
-	private final UUID id;
-	private final UUID userId;
-	private final Instant createdAt;
-	private Instant updatedAt;
-
-	//
+    @Column(nullable = false)
 	private Instant lastActiveAt;
 
 	public UserStatus(UUID userID){
 		this.userId = userID;
-		this.createdAt = Instant.now();
-		this.id = UUID.randomUUID();
 	}
 
 	public UserStatus(UserStatus original) {
-		this.id = original.id;
+        super(original.getId(), original.getCreatedAt(), original.getUpdatedAt());
 		this.userId = original.userId;
-		this.createdAt = original.createdAt;
-		this.updatedAt = original.updatedAt;
 		this.lastActiveAt = original.lastActiveAt;
 	}
 
@@ -42,19 +44,10 @@ public class UserStatus implements Serializable {
 		return new UserStatus(this);
 	}
 
-	public void updateUpdatedAt(){
-		this.updatedAt = Instant.now();
-	}
-
 	public void updateLastActiveAt(Instant lastActiveAt) {
-		boolean anyValueUpdated = false;
 		if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
 			this.lastActiveAt = lastActiveAt;
-			anyValueUpdated = true;
 		}
 
-		if (anyValueUpdated) {
-			this.updatedAt = Instant.now();
-		}
 	}
 }

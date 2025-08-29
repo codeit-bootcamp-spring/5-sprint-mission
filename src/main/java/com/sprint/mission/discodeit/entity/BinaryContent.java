@@ -1,31 +1,37 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sprint.mission.discodeit.entity.common.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
 import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+@Entity
+@Table(name = "binary_contents")
+@Getter @Setter @SuperBuilder /*@ToString*/
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class BinaryContent extends BaseEntity implements Serializable {
+//	@Serial
+//	private static final long serialVersionUID = 1L;
 
-@AllArgsConstructor
-@Data
-@Builder
-public class BinaryContent implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
-
-	private final UUID id;
-	private final Instant createdAt;
-	private final String fileName;
-	private final String contentType;
-	private final Long size;
-	private final byte[] bytes;
+    @Column(nullable = false)
+	private String fileName;
+    @Column(nullable = false)
+	private String contentType;
+    @Column(nullable = false)
+	private Long size;
+    @Column(nullable = false)
+	private byte[] bytes;
 
 	public BinaryContent(String fileName, String contentType, Long size, byte[] bytes) {
-		this.id = UUID.randomUUID();
-		this.createdAt = Instant.now();
 		this.fileName = fileName;
 		this.contentType = contentType;
 		this.size = size;
@@ -33,8 +39,7 @@ public class BinaryContent implements Serializable {
 	}
 
 	private BinaryContent(BinaryContent original) {
-		this.id = original.id;
-		this.createdAt = original.createdAt;
+        super(original.getId(), original.getCreatedAt());
 		this.fileName = original.fileName;
 		this.contentType = original.contentType;
 		this.size = original.size;
