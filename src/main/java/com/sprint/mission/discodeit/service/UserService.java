@@ -4,6 +4,9 @@ import static com.sprint.mission.discodeit.support.Utils.toBinaryContentFromMult
 
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -46,14 +49,9 @@ public class UserService {
         String username = req.username().strip().toLowerCase(Locale.ROOT);
         String email = req.email().strip().toLowerCase(Locale.ROOT);
         String password = passwordEncoder.encode(req.password());
-        BinaryContent savedProfile;
-        if (profile != null && !profile.isEmpty()) {
-            savedProfile = binaryContentRepository.save(
-                toBinaryContentFromMultipartFile(profile)
-            );
-        } else {
-            savedProfile = null;
-        }
+        BinaryContent savedProfile = (profile != null && !profile.isEmpty())
+            ? binaryContentRepository.save(toBinaryContentFromMultipartFile(profile))
+            : null;
 
         User savedUser = userRepository.save(new User(
             username,
@@ -88,97 +86,61 @@ public class UserService {
         userStatusRepository.deleteAllByUserId(userId);
 
         if (profileId != null) {
-            binaryContentRepository.deleteById(profileId);
+            binaryContentRepository.deleteIfExists(profileId);
         }
 
         userRepository.delete(user);
     }
 
-//    @Transactional
-//    public UserDto update(UUID userId, UserUpdateRequest req, MultipartFile profile)
-//        throws IOException {
-//        User u = userRepository.getOrThrow(userId);
-//
-//        String oldUsername = nullOrStripAndLowerCase(u.getUsername());
-//        String newUsername = req != null ? nullOrStripAndLowerCase(req.newUsername()) : null;
-//        String username =
-//            newUsername != null && !newUsername.equals(oldUsername) ? newUsername : null;
-//        if (username != null && userRepository.existsByUsername(username)) {
-//            throw new DuplicateResourceException(
-//                "User with username %s already exists".formatted(username));
-//        }
-//
-//        String oldEmail = nullOrStripAndLowerCase(u.getEmail());
-//        String newEmail = req != null ? nullOrStripAndLowerCase(req.newEmail()) : null;
-//        String email = newEmail != null && !newEmail.equals(oldEmail) ? newEmail : null;
-//        if (email != null && userRepository.existsByEmail(email)) {
-//            throw new DuplicateResourceException(
-//                "User with email %s already exists".formatted(email));
-//        }
-//
-//        String oldPassword = u.getPassword();
-//        String newPassword = req != null ? nullOrStrip(req.newPassword()) : null;
-//        String password =
-//            newPassword != null && !passwordEncoder.matches(newPassword, oldPassword)
-//                ? passwordEncoder.encode(newPassword)
-//                : null;
-//
-//        UUID profileId;
-//        if (profile != null && !profile.isEmpty()) {
-//            String ct = FileNames.normalizeContentType(profile.getContentType());
-//            String original = profile.getOriginalFileName();
-//            String fileName = FileNames.buildStoredName(original, ct);
-//            profileId = binaryContentRepository.save(
-//                new BinaryContent(fileName, ct, profile.getBytes())
-//            ).getId();
-//        } else {
-//            profileId = null;
-//        }
-//
-//        boolean noOp = username == null
-//            && email == null
-//            && password == null
-//            && profileId == null;
-//        if (noOp) {
-//            return toResponse(u);
-//        }
-//
-//        if (profileId != null && u.getProfile() != null) {
-//            binaryContentRepository.delete(u.getProfile());
-//        }
-//
-//        return toResponse(
-//            userRepository.save(
-//                u.update(username, email, password, profileId)
-//            )
-//        );
-//    }
-//
-//    @Transactional
-//    public UserStatusDto updateUserStatusByUserId(UUID userId, UserStatusUpdateRequest req) {
-//        userRepository.getOrThrow(userId);
-//
-//        UserStatus us = userStatusRepository.findByUserId(userId)
-//            .orElseGet(() -> userStatusRepository.save(new UserStatus(userId)));
-//
-//        if (req.newUserStatusType() != null) {
-//            us.setType(req.newUserStatusType());
-//        }
-//
-//        if (req.newLastActiveAt() != null) {
-//            us.setLastActiveAt(req.newLastActiveAt());
-//        }
-//
-//        return UserStatusDto.from(userStatusRepository.save(us));
-//    }
-//
-//    @Transactional
-//    public void heartbeat(UUID userId) {
-//        userRepository.getOrThrow(userId);
-//
-//        UserStatus us = userStatusRepository.findByUserId(userId)
-//            .orElseGet(() -> userStatusRepository.save(new UserStatus(userId)));
-//
-//        userStatusRepository.save(us.heartbeat());
-//    }
+    @Transactional
+    public UserDto update(UUID userId, UserUpdateRequest req, MultipartFile profile) {
+        User u = userRepository.getForUpdateOrThrow(userId);
+
+        String newUsername = (req.newUsername() != null && !req.newUsername().isBlank())
+            ? req.newUsername().strip().toLowerCase(Locale.ROOT)
+            : null;
+        if (newUsername != null && !newUsername.equals(u.getUsername())) {
+            u.setUsername(newUsername);
+        }
+
+        String newEmail = (req.newEmail() != null && !req.newEmail().isBlank())
+            ? req.newEmail().strip().toLowerCase(Locale.ROOT)
+            : null;
+        if (newEmail != null && !newEmail.equals(u.getEmail())) {
+            u.setEmail(newEmail);
+        }
+
+        String newPassword = req.newPassword();
+        if (newPassword != null
+            && !newPassword.isBlank()
+            && !passwordEncoder.matches(newPassword, u.getPassword())
+        ) {
+            u.setPassword(passwordEncoder.encode(newPassword));
+        }
+
+        BinaryContent newProfile = (profile != null && !profile.isEmpty())
+            ? binaryContentRepository.save(toBinaryContentFromMultipartFile(profile))
+            : null;
+
+        if (newProfile != null) {
+            UUID oldProfileId = (u.getProfile() != null) ? u.getProfile().getId() : null;
+            u.setProfile(newProfile);
+            if (oldProfileId != null) {
+                binaryContentRepository.deleteIfExists(oldProfileId);
+            }
+        }
+
+        return UserDto.from(u, userStatusRepository.getOrThrowByUserId(u.getId()));
+    }
+
+    @Transactional
+    public UserStatusDto updateUserStatusByUserId(UUID userId, UserStatusUpdateRequest req) {
+        UserStatus us = userStatusRepository.getOrThrowByUserId(userId);
+
+        if (req.newLastActiveAt() != null) {
+            us.setLastActiveAt(req.newLastActiveAt());
+        }
+
+        return UserStatusDto.from(us);
+    }
 }

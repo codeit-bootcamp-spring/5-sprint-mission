@@ -20,11 +20,15 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             u.id,
             u.username,
             u.email,
-            p,
-            (s.lastActiveAt >= :onlineSince)
+            p.id,
+            p.fileName,
+            p.size,
+            p.contentType,
+            CASE WHEN us.lastActiveAt IS NOT NULL AND us.lastActiveAt >= :onlineSince
+                 THEN TRUE ELSE FALSE END
         )
         FROM User u
-        JOIN UserStatus s ON s.user = u
+        LEFT JOIN UserStatus us ON us.user = u
         LEFT JOIN u.profile p
         """
     )

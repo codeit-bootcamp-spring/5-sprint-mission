@@ -13,8 +13,4 @@ public interface ChannelRepository extends JpaRepository<Channel, UUID> {
                 "Channel with id %s not found".formatted(id))
         );
     }
-
-    // List<Channel> findAllPublic();
-
-    // boolean existsBetween(UUID userId1, UUID userId2);
 }

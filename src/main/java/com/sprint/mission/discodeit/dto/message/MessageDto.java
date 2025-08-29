@@ -24,7 +24,7 @@ public record MessageDto(
             m.getUpdatedAt(),
             m.getContent(),
             m.getChannel().getId(),
-            UserDto.from(m.getAuthor(), null),
+            null,
             null
         );
     }
