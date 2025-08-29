@@ -7,13 +7,17 @@ import java.util.UUID;
 import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @Getter
-public class Messages extends BaseUpdatableEntity {
+@NoArgsConstructor
+@Entity
+public class Message extends BaseUpdatableEntity {
 
 	private String content;
 
@@ -23,9 +27,9 @@ public class Messages extends BaseUpdatableEntity {
 	private User user;
 	@ManyToOne(cascade = CascadeType.REMOVE)
 	@JoinColumn(name = "channel_id", nullable = false)
-	private Channels channels;
+	private Channel channel;
 
-	public Messages(String content, @NonNull UUID authorId, @NonNull UUID channelId) {
+	public Message(String content, @NonNull UUID authorId, @NonNull UUID channelId) {
 		this.id = UUID.randomUUID();
 		this.createdAt = Instant.now();
 		this.updatedAt = null;
@@ -49,8 +53,8 @@ public class Messages extends BaseUpdatableEntity {
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
-		Messages messages = (Messages)o;
-		return Objects.equals(id, messages.id);
+		Message message = (Message)o;
+		return Objects.equals(id, message.id);
 	}
 
 	@Override

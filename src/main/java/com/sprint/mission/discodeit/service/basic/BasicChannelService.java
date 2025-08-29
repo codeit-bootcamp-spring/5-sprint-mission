@@ -17,8 +17,8 @@ import com.sprint.mission.discodeit.domain.dto.CreatePublicChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.CreatePublicChannelResult;
 import com.sprint.mission.discodeit.domain.dto.UpdateChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateChannelResult;
-import com.sprint.mission.discodeit.domain.entity.Channels;
-import com.sprint.mission.discodeit.domain.entity.Messages;
+import com.sprint.mission.discodeit.domain.entity.Channel;
+import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.domain.response.CreatePrivateChannelResponse;
 import com.sprint.mission.discodeit.domain.response.CreatePublicChannelResponse;
@@ -44,29 +44,29 @@ public class BasicChannelService implements ChannelService {
 		String name = dto.getName();
 		String description = dto.getDescription();
 
-		Channels savedChannels = channelRepository.save(new Channels(PUBLIC, name, description));
+		Channel savedChannel = channelRepository.save(new Channel(PUBLIC, name, description));
 
-		return CreatePublicChannelResult.builder().channels(savedChannels).build();
+		return CreatePublicChannelResult.builder().channel(savedChannel).build();
 	}
 
 	@Override
 	public CreatePrivateChannelResult createPrivate(CreatePrivateChannelDTO dto) {
 
-		Channels newChannels = new Channels(PRIVATE);
+		Channel newChannel = new Channel(PRIVATE);
 
 		dto.getUserIds().forEach(
 		  id -> readStatusRepository.save(
-			new ReadStatus(id, newChannels.getId(), null))
+			new ReadStatus(id, newChannel.getId(), null))
 		);
 
-		Channels savedChannels = channelRepository.save(newChannels);
+		Channel savedChannel = channelRepository.save(newChannel);
 
-		return CreatePrivateChannelResult.builder().channels(savedChannels).build();
+		return CreatePrivateChannelResult.builder().channel(savedChannel).build();
 	}
 
 	@Override
 	public List<ChannelDetail> readAllByUserId(UUID userId) {
-		List<Channels> filteredChannels = channelRepository.findAll().stream()
+		List<Channel> filteredChannels = channelRepository.findAll().stream()
 		  // 필터링: PUBLIC 채널 또는 사용자가 참여한 PRIVATE 채널
 		  .filter(c -> c.getType() == PUBLIC ||
 			readStatusRepository.findAllByUserId(userId)
@@ -77,7 +77,7 @@ public class BasicChannelService implements ChannelService {
 		List<ChannelDetail> channelDetails = filteredChannels.stream()
 		  .map(c -> {
 			  messageRepository.findAllByChannelId(c.getId());
-			  List<Messages> messages = messageRepository.findAllByChannelId(c.getId());
+			  List<Message> messages = messageRepository.findAllByChannelId(c.getId());
 			  Instant lastMessageAt = messages.isEmpty() ? null
 				: getLastEditAt(messages);
 
@@ -119,24 +119,24 @@ public class BasicChannelService implements ChannelService {
 		String newDescription = dto.getDescription();
 
 		// 채널이 존재하는지 확인
-		Channels targetChannels = channelRepository.find(id)
+		Channel targetChannel = channelRepository.find(id)
 		  .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
 
-		if (targetChannels.getType() == PRIVATE) {
+		if (targetChannel.getType() == PRIVATE) {
 			throw new IllegalArgumentException(
 			  "Private channel cannot be updated");
 		}
 
 		if (newChannelName != null) {
-			targetChannels.setName(newChannelName);
+			targetChannel.setName(newChannelName);
 
 		}
 		if (newDescription != null) {
-			targetChannels.setDescription(newDescription);
+			targetChannel.setDescription(newDescription);
 		}
 
-		Channels updatedChannels = channelRepository.save(targetChannels);
-		return UpdateChannelResult.builder().updatedChannels(updatedChannels).build();
+		Channel updatedChannel = channelRepository.save(targetChannel);
+		return UpdateChannelResult.builder().updatedChannel(updatedChannel).build();
 	}
 
 	@Override
@@ -150,21 +150,21 @@ public class BasicChannelService implements ChannelService {
 		messageRepository.deleteAll();
 	}
 
-	private Instant getLastEditAt(List<Messages> messages) {
+	private Instant getLastEditAt(List<Message> messages) {
 		return messages.stream().map(this::getMessageLastEditAt)
 		  .max(Instant::compareTo)
 		  .orElseThrow(() -> new NoSuchElementException("No messages found"));
 	}
 
-	private Instant getMessageLastEditAt(Messages messages) {
-		return messages.getUpdatedAt() != null ? messages.getUpdatedAt() : messages.getCreatedAt();
+	private Instant getMessageLastEditAt(Message message) {
+		return message.getUpdatedAt() != null ? message.getUpdatedAt() : message.getCreatedAt();
 	}
 
-	private ChannelDetail toReadChannelDetail(Channels channels, Instant LastMessageAt,
+	private ChannelDetail toReadChannelDetail(Channel channel, Instant LastMessageAt,
 	  List<UUID> membersIDList) {
 
 		return ChannelDetail.builder()
-		  .channels(channels)
+		  .channel(channel)
 		  .lastMessageAt(LastMessageAt)
 		  .userIds(membersIDList)
 		  .build();
@@ -172,43 +172,43 @@ public class BasicChannelService implements ChannelService {
 
 	public static CreatePublicChannelResponse toCreatePublicChannelResponse(CreatePublicChannelResult result) {
 		return CreatePublicChannelResponse.builder()
-		  .id(result.getChannels().getId())
-		  .createdAt(result.getChannels().getCreatedAt())
-		  .updatedAt(result.getChannels().getUpdatedAt())
-		  .type(result.getChannels().getType().toString())
-		  .name(result.getChannels().getName())
-		  .description(result.getChannels().getDescription())
+		  .id(result.getChannel().getId())
+		  .createdAt(result.getChannel().getCreatedAt())
+		  .updatedAt(result.getChannel().getUpdatedAt())
+		  .type(result.getChannel().getType().toString())
+		  .name(result.getChannel().getName())
+		  .description(result.getChannel().getDescription())
 		  .build();
 	}
 
 	public static CreatePrivateChannelResponse toCreatePrivateChannelResponse(CreatePrivateChannelResult result) {
 		return CreatePrivateChannelResponse.builder()
-		  .id(result.getChannels().getId())
-		  .createdAt(result.getChannels().getCreatedAt())
-		  .updatedAt(result.getChannels().getUpdatedAt())
-		  .type(result.getChannels().getType().toString())
-		  .name(result.getChannels().getName())
-		  .description(result.getChannels().getDescription())
+		  .id(result.getChannel().getId())
+		  .createdAt(result.getChannel().getCreatedAt())
+		  .updatedAt(result.getChannel().getUpdatedAt())
+		  .type(result.getChannel().getType().toString())
+		  .name(result.getChannel().getName())
+		  .description(result.getChannel().getDescription())
 		  .build();
 	}
 
 	public static UpdateChannelResponse toUpdateChannelResponse(UpdateChannelResult result) {
 		return UpdateChannelResponse.builder()
-		  .id(result.getUpdatedChannels().getId())
-		  .createdAt(result.getUpdatedChannels().getCreatedAt())
-		  .updatedAt(result.getUpdatedChannels().getUpdatedAt())
-		  .type(result.getUpdatedChannels().getType().toString())
-		  .name(result.getUpdatedChannels().getName())
-		  .description(result.getUpdatedChannels().getDescription())
+		  .id(result.getUpdatedChannel().getId())
+		  .createdAt(result.getUpdatedChannel().getCreatedAt())
+		  .updatedAt(result.getUpdatedChannel().getUpdatedAt())
+		  .type(result.getUpdatedChannel().getType().toString())
+		  .name(result.getUpdatedChannel().getName())
+		  .description(result.getUpdatedChannel().getDescription())
 		  .build();
 	}
 
 	public static ReadChannelResponse channelDetailsToReadChannelResponse(ChannelDetail channelDetail) {
 		return ReadChannelResponse.builder()
-		  .id(channelDetail.getChannels().getId())
-		  .type(channelDetail.getChannels().getType())
-		  .name(channelDetail.getChannels().getName())
-		  .description(channelDetail.getChannels().getDescription())
+		  .id(channelDetail.getChannel().getId())
+		  .type(channelDetail.getChannel().getType())
+		  .name(channelDetail.getChannel().getName())
+		  .description(channelDetail.getChannel().getDescription())
 		  .participantIds(channelDetail.getUserIds())
 		  .lastMessageAt(channelDetail.getLastMessageAt())
 		  .build();

@@ -41,23 +41,23 @@ public class ReadStatusController {
 	@PostMapping
 	public ResponseEntity<CreateReadStatusResponse> createReadStatus(
 	  @RequestBody @Valid CreateReadStatusRequest request) {
-		ReadStatus newReadStatus = readStatusService.create(CreateReadStatusDTO.builder()
+		ReadStatus newReadStatuses = readStatusService.create(CreateReadStatusDTO.builder()
 		  .userId(request.getUserId())
 		  .channelId(request.getChannelId())
 		  .lastReadAt(request.getLastReadAt())
 		  .build());
 
-		return ResponseEntity.status(CREATED).body(toCreateReadStatusResponse(newReadStatus));
+		return ResponseEntity.status(CREATED).body(toCreateReadStatusResponse(newReadStatuses));
 	}
 
 	@PatchMapping("/{readStatusId}")
 	public ResponseEntity<UpdateReadStatusResponse> updateReadStatus(
 	  @PathVariable UUID readStatusId,
 	  @RequestBody @Valid UpdateReadStatusRequest request) {
-		ReadStatus updatedReadStatus = readStatusService.update(
+		ReadStatus updatedReadStatuses = readStatusService.update(
 		  UpdateReadStatusDTO.builder().id(readStatusId).newLastReadAt(request.getNewLastReadAt()).build());
 
-		return ResponseEntity.ok(toUpdateReadStatusResponse(updatedReadStatus));
+		return ResponseEntity.ok(toUpdateReadStatusResponse(updatedReadStatuses));
 	}
 
 	@GetMapping

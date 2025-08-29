@@ -47,9 +47,9 @@ public class BasicReadStatusService implements ReadStatusService {
 			  "ReadStatus with userId " + userId + "  and channelId " + channelId + " already exists");
 		}
 
-		ReadStatus readStatus = new ReadStatus(userId, channelId, lastReadAt);
+		ReadStatus readStatuses = new ReadStatus(userId, channelId, lastReadAt);
 
-		return readStatusRepository.save(readStatus);
+		return readStatusRepository.save(readStatuses);
 	}
 
 	@Override
@@ -58,12 +58,12 @@ public class BasicReadStatusService implements ReadStatusService {
 		UUID id = dto.getId();
 		Instant newLastReadAt = dto.getNewLastReadAt();
 
-		ReadStatus readStatus = readStatusRepository.find(id)
+		ReadStatus readStatuses = readStatusRepository.find(id)
 		  .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + id + " not found"));
 
-		readStatus.setLastReadAt(newLastReadAt);
+		readStatuses.setLastReadAt(newLastReadAt);
 
-		return readStatusRepository.save(readStatus);
+		return readStatusRepository.save(readStatuses);
 	}
 
 	@Override
@@ -84,25 +84,21 @@ public class BasicReadStatusService implements ReadStatusService {
 		readStatusRepository.delete(id);
 	}
 
-	public static CreateReadStatusResponse toCreateReadStatusResponse(ReadStatus readStatus) {
+	public static CreateReadStatusResponse toCreateReadStatusResponse(ReadStatus readStatuses) {
 		return CreateReadStatusResponse.builder()
-		  .id(readStatus.getId())
-		  .userId(readStatus.getUser().getId())
-		  .channelId(readStatus.getChannel().getId())
-		  .lastReadAt(readStatus.getLastReadAt())
-		  .createdAt(readStatus.getCreatedAt())
-		  .updatedAt(readStatus.getUpdatedAt())
+		  .id(readStatuses.getId())
+		  .userId(readStatuses.getUser().getId())
+		  .channelId(readStatuses.getChannel().getId())
+		  .lastReadAt(readStatuses.getLastReadAt())
 		  .build();
 	}
 
-	public static UpdateReadStatusResponse toUpdateReadStatusResponse(ReadStatus readStatus) {
+	public static UpdateReadStatusResponse toUpdateReadStatusResponse(ReadStatus readStatuses) {
 		return UpdateReadStatusResponse.builder()
-		  .id(readStatus.getId())
-		  .userId(readStatus.getUser().getId())
-		  .channelId(readStatus.getChannel().getId())
-		  .lastReadAt(readStatus.getLastReadAt())
-		  .createdAt(readStatus.getCreatedAt())
-		  .updatedAt(readStatus.getUpdatedAt())
+		  .id(readStatuses.getId())
+		  .userId(readStatuses.getUser().getId())
+		  .channelId(readStatuses.getChannel().getId())
+		  .lastReadAt(readStatuses.getLastReadAt())
 		  .build();
 	}
 
@@ -113,8 +109,6 @@ public class BasicReadStatusService implements ReadStatusService {
 			.userId(rs.getUser().getId())
 			.channelId(rs.getChannel().getId())
 			.lastReadAt(rs.getLastReadAt())
-			.createdAt(rs.getCreatedAt())
-			.updatedAt(rs.getUpdatedAt())
 			.build())
 		  .toList();
 

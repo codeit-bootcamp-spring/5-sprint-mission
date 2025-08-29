@@ -15,8 +15,8 @@ import com.sprint.mission.discodeit.domain.dto.CreatePublicChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.CreatePublicChannelResult;
 import com.sprint.mission.discodeit.domain.dto.UpdateChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateChannelResult;
-import com.sprint.mission.discodeit.domain.entity.Channels;
-import com.sprint.mission.discodeit.domain.entity.Messages;
+import com.sprint.mission.discodeit.domain.entity.Channel;
+import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -43,24 +43,24 @@ public class FileChannelService implements ChannelService {
 			throw new IllegalArgumentException("Channel description cannot be null or empty");
 		}
 
-		Channels savedChannels = channelRepository.save(new Channels(PUBLIC, name, description));
+		Channel savedChannel = channelRepository.save(new Channel(PUBLIC, name, description));
 
-		return CreatePublicChannelResult.builder().channels(savedChannels).build();
+		return CreatePublicChannelResult.builder().channel(savedChannel).build();
 	}
 
 	public CreatePrivateChannelResult createPrivate(CreatePrivateChannelDTO dto) {
 
-		Channels savedChannels = channelRepository.save(new Channels(PRIVATE));
-		return CreatePrivateChannelResult.builder().channels(savedChannels).build();
+		Channel savedChannel = channelRepository.save(new Channel(PRIVATE));
+		return CreatePrivateChannelResult.builder().channel(savedChannel).build();
 	}
 
 	@Override
 	public List<ChannelDetail> readAllByUserId(UUID userId) {
-		List<Channels> channels = channelRepository.findAll().stream().toList();
+		List<Channel> channels = channelRepository.findAll().stream().toList();
 		List<ChannelDetail> channelDetails = channels.stream()
 		  .map(c -> {
 			  messageRepository.findAllByChannelId(c.getId());
-			  List<Messages> messages = messageRepository.findAllByChannelId(c.getId());
+			  List<Message> messages = messageRepository.findAllByChannelId(c.getId());
 			  Instant lastMessageAt = messages.isEmpty() ? null
 				: getLastEditAt(messages);
 
@@ -101,14 +101,14 @@ public class FileChannelService implements ChannelService {
 			throw new IllegalArgumentException("Channel description cannot be null or empty");
 		}
 
-		Channels channels = channelRepository.find(id).orElseThrow(()
+		Channel channel = channelRepository.find(id).orElseThrow(()
 		  -> new NoSuchElementException("Channel with ID " + id + " not found"));
-		channels.setName(newChannelName);
-		channels.setDescription(newDescription);
+		channel.setName(newChannelName);
+		channel.setDescription(newDescription);
 
-		Channels savedChannels = channelRepository.save(channels);
+		Channel savedChannel = channelRepository.save(channel);
 
-		return UpdateChannelResult.builder().updatedChannels(savedChannels).build();
+		return UpdateChannelResult.builder().updatedChannel(savedChannel).build();
 	}
 
 	@Override
@@ -122,21 +122,21 @@ public class FileChannelService implements ChannelService {
 		messageRepository.deleteAll();
 	}
 
-	private Instant getLastEditAt(List<Messages> messages) {
+	private Instant getLastEditAt(List<Message> messages) {
 		return messages.stream().map(this::getMessageLastEditAt)
 		  .max(Instant::compareTo)
 		  .orElseThrow(() -> new NoSuchElementException("No messages found"));
 	}
 
-	private Instant getMessageLastEditAt(Messages messages) {
-		return messages.getUpdatedAt() != null ? messages.getUpdatedAt() : messages.getCreatedAt();
+	private Instant getMessageLastEditAt(Message message) {
+		return message.getUpdatedAt() != null ? message.getUpdatedAt() : message.getCreatedAt();
 	}
 
-	private ChannelDetail toReadChannelDetail(Channels channels, Instant LastMessageAt,
+	private ChannelDetail toReadChannelDetail(Channel channel, Instant LastMessageAt,
 	  List<UUID> membersIDList) {
 
 		return ChannelDetail.builder()
-		  .channels(channels)
+		  .channel(channel)
 		  .lastMessageAt(LastMessageAt)
 		  .userIds(membersIDList)
 		  .build();

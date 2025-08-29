@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.response.CreateMessageResponse;
 import com.sprint.mission.discodeit.domain.response.MessageResponse;
+import com.sprint.mission.discodeit.domain.response.MessagesInChannelResponse;
 import com.sprint.mission.discodeit.domain.response.UpdateMessageResponse;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -57,9 +58,7 @@ public class BasicMessageService implements MessageService {
 			});
 		}
 
-		List<UUID> attachmentIds = files.stream().map(BinaryContent::getId).toList();
-
-		return messageRepository.save(new Message(content, userId, channelId, attachmentIds));
+		return messageRepository.save(new Message(content, userId, channelId));
 	}
 
 	@Override
@@ -68,7 +67,7 @@ public class BasicMessageService implements MessageService {
 		  .orElseThrow(() -> new NoSuchElementException("Message with ID " + id + " not found"));
 
 		// 메시지 관련 Attachment 도 삭제
-		messageToDelete.getAttachmentIds().forEach(binaryContentRepository::delete);
+		// messagesToDelete.getAttachmentIds().forEach(binaryContentRepository::delete);
 
 		// 메시지 삭제
 		messageRepository.delete(id);
@@ -108,7 +107,7 @@ public class BasicMessageService implements MessageService {
 		if (AttachmentIdsToRemove != null && !AttachmentIdsToRemove.isEmpty()) {
 			// 기존 첨부파일 삭제
 			AttachmentIdsToRemove.forEach(binaryContentRepository::delete);
-			targetMessage.getAttachmentIds().removeAll(AttachmentIdsToRemove);
+			// targetMessages.getAttachmentIds().removeAll(AttachmentIdsToRemove);
 		}
 		// 3. 새로 추가할 첨부파일이 있다면 추가
 		if (newAttachments != null && !newAttachments.isEmpty()) {
@@ -118,7 +117,7 @@ public class BasicMessageService implements MessageService {
 			List<UUID> newAttachmentIds = newFiles.stream()
 			  .map(BinaryContent::getId)
 			  .toList();
-			targetMessage.getAttachmentIds().addAll(newAttachmentIds);
+			// targetMessages.getAttachmentIds().addAll(newAttachmentIds);
 		}
 
 		return messageRepository.save(targetMessage);
@@ -133,7 +132,7 @@ public class BasicMessageService implements MessageService {
 	@Override
 	public List<Message> findAllByChannelId(UUID channelId) {
 		return messageRepository.findAll().stream().filter(
-			message -> message.getChannelId().equals(channelId))
+			message -> message.getChannel().getId().equals(channelId))
 		  .toList();
 	}
 
@@ -153,9 +152,9 @@ public class BasicMessageService implements MessageService {
 		  .createdAt(newMessage.getCreatedAt())
 		  .updatedAt(newMessage.getUpdatedAt())
 		  .content(newMessage.getContent())
-		  .authorId(newMessage.getAuthorId())
-		  .channelId(newMessage.getChannelId())
-		  .attachmentIds(newMessage.getAttachmentIds())
+		  .authorId(newMessage.getUser().getId())
+		  .channelId(newMessage.getChannel().getId())
+		  // .attachmentIds(newMessages.getAttachmentIds())
 		  .build();
 	}
 
@@ -165,22 +164,25 @@ public class BasicMessageService implements MessageService {
 		  .createdAt(newMessage.getCreatedAt())
 		  .updatedAt(newMessage.getUpdatedAt())
 		  .content(newMessage.getContent())
-		  .authorId(newMessage.getAuthorId())
-		  .channelId(newMessage.getChannelId())
-		  .attachmentIds(newMessage.getAttachmentIds())
+		  .authorId(newMessage.getUser().getId())
+		  .channelId(newMessage.getChannel().getId())
+		  // .attachmentIds(newMessages.getAttachmentIds())
 		  .build();
 	}
 
-	public static List<MessageResponse> toMessagesInChannelResponse(List<Message> messages) {
-		return messages.stream().map(message ->
-			MessageResponse.builder()
-			  .id(message.getId())
-			  .createdAt(message.getCreatedAt())
-			  .updatedAt(message.getUpdatedAt())
-			  .content(message.getContent())
-			  .authorId(message.getAuthorId())
-			  .channelId(message.getChannelId())
-			  .attachmentIds(message.getAttachmentIds()).build())
-		  .toList();
+	public static MessagesInChannelResponse toMessagesInChannelResponse(List<Message> messages) {
+		return new MessagesInChannelResponse(
+		  messages.stream().map(message ->
+			new MessageResponse(
+			  message.getId(),
+			  message.getCreatedAt(),
+			  message.getUpdatedAt(),
+			  message.getContent(),
+			  message.getUser().getId(),
+			  message.getChannel().getId(),
+			  null
+			)
+		  ).toList()
+		);
 	}
 }

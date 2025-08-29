@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import com.sprint.mission.discodeit.domain.entity.Messages;
+import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 
 @Repository
@@ -39,7 +39,7 @@ public class FileMessageRepository implements MessageRepository {
 			if (!Files.exists(filePath)) {
 				try (FileOutputStream fos = new FileOutputStream(FILE_NAME);
 					 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-					oos.writeObject(new ArrayList<Messages>());
+					oos.writeObject(new ArrayList<Message>());
 				}
 			}
 		} catch (IOException e) {
@@ -48,8 +48,8 @@ public class FileMessageRepository implements MessageRepository {
 	}
 
 	@Override
-	public Messages save(Messages message) {
-		List<Messages> messages = new ArrayList<>(findAll());
+	public Message save(Message message) {
+		List<Message> messages = new ArrayList<>(findAll());
 		// 중복된 ID가 있을 경우 제거
 		messages.removeIf(existingMessage -> existingMessage.getId().equals(message.getId()));
 		messages.add(message);
@@ -66,7 +66,7 @@ public class FileMessageRepository implements MessageRepository {
 
 	@Override
 	public void delete(UUID id) {
-		List<Messages> messages = findAll();
+		List<Message> messages = findAll();
 		int beforeSize = messages.size();
 		messages.removeIf(message -> message.getId().equals(id));
 
@@ -94,9 +94,9 @@ public class FileMessageRepository implements MessageRepository {
 
 	@Override
 	public void deleteByChannelId(UUID channelId) {
-		List<Messages> messages = new ArrayList<>(findAll());
+		List<Message> messages = new ArrayList<>(findAll());
 		int beforeSize = messages.size();
-		messages.removeIf(message -> message.getChannels().getId().equals(channelId));
+		messages.removeIf(message -> message.getChannel().getId().equals(channelId));
 
 		if (messages.size() == beforeSize) {
 			return; // 채널 ID에 해당하는 메시지가 없으면 아무 작업도 하지 않음
@@ -113,19 +113,19 @@ public class FileMessageRepository implements MessageRepository {
 	}
 
 	@Override
-	public Optional<Messages> find(UUID id) {
+	public Optional<Message> find(UUID id) {
 		return findAll().stream()
 		  .filter(message -> message.getId().equals(id))
 		  .findFirst();
 	}
 
 	@Override
-	public List<Messages> findAll() {
+	public List<Message> findAll() {
 		try (FileInputStream fis = new FileInputStream(FILE_NAME);
 			 ObjectInputStream ois = new ObjectInputStream(fis)) {
 			Object obj = ois.readObject();
 			if (obj instanceof List) {
-				return (List<Messages>)obj;
+				return (List<Message>)obj;
 			}
 		} catch (Exception e) {
 			// 파일이 없거나 읽기 실패 시 빈 리스트 반환
@@ -134,9 +134,9 @@ public class FileMessageRepository implements MessageRepository {
 	}
 
 	@Override
-	public List<Messages> findAllByChannelId(UUID channelId) {
+	public List<Message> findAllByChannelId(UUID channelId) {
 		return findAll().stream()
-		  .filter(message -> message.getChannels().getId().equals(channelId))
+		  .filter(message -> message.getChannel().getId().equals(channelId))
 		  .toList();
 	}
 

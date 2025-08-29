@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import com.sprint.mission.discodeit.domain.entity.Channels;
+import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 
 @Repository
@@ -38,7 +38,7 @@ public class FileChannelRepository implements ChannelRepository {
 			if (!Files.exists(filePath)) {
 				try (FileOutputStream fos = new FileOutputStream(FILE_NAME);
 					 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-					oos.writeObject(new ArrayList<Channels>());
+					oos.writeObject(new ArrayList<Channel>());
 				}
 			}
 		} catch (IOException e) {
@@ -47,9 +47,9 @@ public class FileChannelRepository implements ChannelRepository {
 	}
 
 	@Override
-	public Channels save(Channels channel) {
+	public Channel save(Channel channel) {
 
-		List<Channels> channels = new ArrayList<>(findAll());
+		List<Channel> channels = new ArrayList<>(findAll());
 		channels.removeIf(c -> c.getId().equals(channel.getId())); // 기존 id 삭제
 		channels = new ArrayList<>(channels);
 		channels.add(channel);
@@ -65,20 +65,20 @@ public class FileChannelRepository implements ChannelRepository {
 	}
 
 	@Override
-	public Optional<Channels> find(UUID id) {
-		List<Channels> channels = findAll();
+	public Optional<Channel> find(UUID id) {
+		List<Channel> channels = findAll();
 		return channels.stream()
 		  .filter(channel -> channel.getId().equals(id))
 		  .findFirst();
 	}
 
 	@Override
-	public List<Channels> findAll() {
+	public List<Channel> findAll() {
 		try (FileInputStream fis = new FileInputStream(FILE_NAME);
 			 ObjectInputStream ois = new ObjectInputStream(fis)) {
 			Object obj = ois.readObject();
 			if (obj instanceof List) {
-				return (List<Channels>)obj;
+				return (List<Channel>)obj;
 			}
 		} catch (Exception e) {
 			// 파일이 없거나 읽기 실패 시 빈 리스트 반환
@@ -88,7 +88,7 @@ public class FileChannelRepository implements ChannelRepository {
 
 	@Override
 	public void delete(UUID id) {
-		List<Channels> channels = findAll();
+		List<Channel> channels = findAll();
 		int beforeSize = channels.size();
 		channels.removeIf(channel -> channel.getId().equals(id));
 

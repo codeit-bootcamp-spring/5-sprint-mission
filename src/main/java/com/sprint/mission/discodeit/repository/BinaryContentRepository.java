@@ -7,7 +7,7 @@ import java.util.UUID;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 
 public interface BinaryContentRepository {
-	public BinaryContent save(BinaryContent binaryContents);
+	public BinaryContent save(BinaryContent binaryContent);
 
 	public List<BinaryContent> saveAll(List<BinaryContent> binaryContents);
 

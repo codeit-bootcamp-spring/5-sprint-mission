@@ -50,16 +50,16 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 	}
 
 	@Override
-	public BinaryContent save(BinaryContent newBinaryContents) {
+	public BinaryContent save(BinaryContent newBinaryContent) {
 		List<BinaryContent> binaryContents = findAll();
 
 		binaryContents = new ArrayList<>(binaryContents);
-		binaryContents.removeIf(exisitingEntity -> exisitingEntity.getId().equals(newBinaryContents.getId()));
-		binaryContents.add(newBinaryContents);
+		binaryContents.removeIf(exisitingEntity -> exisitingEntity.getId().equals(newBinaryContent.getId()));
+		binaryContents.add(newBinaryContent);
 
 		PersistBinaryContents(binaryContents);
 
-		return newBinaryContents;
+		return newBinaryContent;
 	}
 
 	@Override

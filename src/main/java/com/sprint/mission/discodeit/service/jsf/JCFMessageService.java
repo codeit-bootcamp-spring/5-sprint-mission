@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.sprint.mission.discodeit.domain.dto.CreateMessageDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateMessageDTO;
-import com.sprint.mission.discodeit.domain.entity.Messages;
+import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -29,7 +29,7 @@ public class JCFMessageService implements MessageService {
 	}
 
 	@Override
-	public Messages create(CreateMessageDTO dto) {
+	public Message create(CreateMessageDTO dto) {
 		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("CreateMessageDTO cannot be null"));
 
 		String content = dto.getContent();
@@ -52,19 +52,19 @@ public class JCFMessageService implements MessageService {
 		// 2. 채널에 참여한 사용자들에게 알림을 전송
 		// messageAlarmService.sendMessageAlarm(newMessage);
 
-		return messageRepository.save(new Messages(content, channelId, userId));
+		return messageRepository.save(new Message(content, channelId, userId));
 	}
 
 	@Override
-	public Messages read(UUID id) {
+	public Message read(UUID id) {
 		return messageRepository.find(id)
 		  .orElseThrow(() -> new NoSuchElementException("Message not found with ID: " + id));
 	}
 
 	@Override
-	public List<Messages> findAllByChannelId(UUID channelId) {
+	public List<Message> findAllByChannelId(UUID channelId) {
 		return messageRepository.findAll().stream().filter(
-			message -> message.getChannels().getId().equals(channelId))
+			message -> message.getChannel().getId().equals(channelId))
 		  .toList();
 	}
 
@@ -89,7 +89,7 @@ public class JCFMessageService implements MessageService {
 	}
 
 	@Override
-	public Messages update(UpdateMessageDTO dto) {
+	public Message update(UpdateMessageDTO dto) {
 		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("UpdateMessageDTO cannot be null"));
 		UUID id = dto.getId();
 		String newContent = dto.getNewContent();
@@ -102,16 +102,16 @@ public class JCFMessageService implements MessageService {
 			throw new IllegalArgumentException("Message ID cannot be null or empty");
 		}
 
-		Messages targetMessages = messageRepository.find(id)
+		Message targetMessage = messageRepository.find(id)
 		  .orElseThrow(() -> new NoSuchElementException("Message not found with ID: " + id));
-		targetMessages.setContent(newContent);
+		targetMessage.setContent(newContent);
 
 		// 메시지 내용 수정
-		return messageRepository.save(targetMessages);
+		return messageRepository.save(targetMessage);
 	}
 
 	@Override
-	public List<Messages> readAllByChannelId(UUID channelId) {
+	public List<Message> readAllByChannelId(UUID channelId) {
 		return messageRepository.findAllByChannelId(channelId);
 	}
 

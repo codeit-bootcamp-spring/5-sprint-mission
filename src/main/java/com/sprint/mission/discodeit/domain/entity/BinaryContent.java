@@ -10,9 +10,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
 @NoArgsConstructor
+@Entity
 public class BinaryContent extends BaseEntity {
 
 	@NotNull

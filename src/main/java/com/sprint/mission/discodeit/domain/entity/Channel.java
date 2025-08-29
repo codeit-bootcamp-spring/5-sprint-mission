@@ -17,7 +17,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-public class Channels extends BaseUpdatableEntity {
+public class Channel extends BaseUpdatableEntity {
 
 	@Enumerated(EnumType.STRING)
 	@JoinColumn(nullable = false)
@@ -25,13 +25,13 @@ public class Channels extends BaseUpdatableEntity {
 	private String name;
 	private String description;
 
-	public Channels(ChannelType channelType, String name, String description) {
+	public Channel(ChannelType channelType, String name, String description) {
 		this.type = channelType;
 		this.name = name;
 		this.description = description;
 	}
 
-	public Channels(ChannelType channelType) {
+	public Channel(ChannelType channelType) {
 		this.type = channelType;
 	}
 
@@ -41,8 +41,8 @@ public class Channels extends BaseUpdatableEntity {
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
-		Channels channels = (Channels)o;
-		return Objects.equals(id, channels.id);
+		Channel channel = (Channel)o;
+		return Objects.equals(id, channel.id);
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import com.sprint.mission.discodeit.domain.entity.Channels;
+import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 
 @Repository
@@ -21,25 +21,25 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 )
 public class JCFChannelRepository implements ChannelRepository {
 
-	public final Map<UUID, Channels> data;
+	public final Map<UUID, Channel> data;
 
 	public JCFChannelRepository() {
 		this.data = new HashMap<>();
 	}
 
 	@Override
-	public Channels save(Channels channels) {
-		data.put(channels.getId(), channels);
-		return channels;
+	public Channel save(Channel channel) {
+		data.put(channel.getId(), channel);
+		return channel;
 	}
 
 	@Override
-	public Optional<Channels> find(UUID id) {
+	public Optional<Channel> find(UUID id) {
 		return Optional.ofNullable(data.get(id));
 	}
 
 	@Override
-	public List<Channels> findAll() {
+	public List<Channel> findAll() {
 		return data.values().stream().toList();
 	}
 

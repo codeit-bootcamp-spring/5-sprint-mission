@@ -1,8 +1,8 @@
--- Todo CASCADE
-
 DROP TABLE IF EXISTS "read_statuses" CASCADE;
 
-CREATE TABLE "read_statuses"
+DROP TABLE IF EXISTS "read_status" CASCADE;
+
+CREATE TABLE "read_status"
 (
     "id"           uuid        NOT NULL PRIMARY KEY,
     "created_at"   timestamptz NOT NULL,
@@ -12,9 +12,9 @@ CREATE TABLE "read_statuses"
     "user_id"      uuid        NOT NULL
 );
 
-DROP TABLE IF EXISTS "user_statuses" CASCADE;
+DROP TABLE IF EXISTS "user_status" CASCADE;
 
-CREATE TABLE "user_statuses"
+CREATE TABLE "user_status"
 (
     "id"             uuid        NOT NULL PRIMARY KEY,
     "created_at"     timestamptz NOT NULL,
@@ -23,9 +23,9 @@ CREATE TABLE "user_statuses"
     "user_id"        uuid        NOT NULL
 );
 
-DROP TABLE IF EXISTS "binary_contents" CASCADE;
+DROP TABLE IF EXISTS "binary_content" CASCADE;
 
-CREATE TABLE "binary_contents"
+CREATE TABLE "binary_content"
 (
     "id"           uuid         NOT NULL PRIMARY KEY,
     "created_at"   timestamptz  NOT NULL,
@@ -35,9 +35,9 @@ CREATE TABLE "binary_contents"
     "bytes"        bytea        NOT NULL
 );
 
-DROP TABLE IF EXISTS "channels" CASCADE;
+DROP TABLE IF EXISTS "channel" CASCADE;
 
-CREATE TABLE "channels"
+CREATE TABLE "channel"
 (
     "id"          uuid         NOT NULL PRIMARY KEY,
     "created_at"  timestamptz  NOT NULL,
@@ -47,9 +47,9 @@ CREATE TABLE "channels"
     "type"        varchar(10)  NOT NULL
 );
 
-DROP TABLE IF EXISTS "users" CASCADE;
+DROP TABLE IF EXISTS "user" CASCADE;
 
-CREATE TABLE "users"
+CREATE TABLE "user"
 (
     "id"         uuid        NOT NULL PRIMARY KEY,
     "created_at" timestamptz NOT NULL,
@@ -60,13 +60,13 @@ CREATE TABLE "users"
     "profile_id" uuid        NOT NULL
 );
 
-COMMENT ON COLUMN "users"."username" IS 'unique';
+COMMENT ON COLUMN "user"."username" IS 'unique';
 
-COMMENT ON COLUMN "users"."email" IS 'unique';
+COMMENT ON COLUMN "user"."email" IS 'unique';
 
-DROP TABLE IF EXISTS "messages" CASCADE;
+DROP TABLE IF EXISTS "message" CASCADE;
 
-CREATE TABLE "messages"
+CREATE TABLE "message"
 (
     "id"         uuid        NOT NULL PRIMARY KEY,
     "created_at" timestamptz NOT NULL,
@@ -76,9 +76,9 @@ CREATE TABLE "messages"
     "channel_id" uuid        NOT NULL
 );
 
-DROP TABLE IF EXISTS "message_attachments" CASCADE;
+DROP TABLE IF EXISTS "message_attachment" CASCADE;
 
-CREATE TABLE "message_attachments"
+CREATE TABLE "message_attachment"
 (
     "attachment_id" uuid NOT NULL,
     "message_id"    uuid NOT NULL
@@ -93,52 +93,52 @@ CREATE TABLE "message_attachments"
 -- ALTER TABLE "binary_contents"
 --     ADD CONSTRAINT "PK_BINARY_CONTENTS" PRIMARY KEY ("id");
 --
--- ALTER TABLE "channels"
+-- ALTER TABLE "channel"
 --     ADD CONSTRAINT "PK_CHANNELS" PRIMARY KEY ("id");
 --
--- ALTER TABLE "users"
+-- ALTER TABLE "user"
 --     ADD CONSTRAINT "PK_USERS" PRIMARY KEY ("id");
 --
--- ALTER TABLE "messages"
+-- ALTER TABLE "message"
 --     ADD CONSTRAINT "PK_MESSAGES" PRIMARY KEY ("id");
 --
 -- ALTER TABLE "message_attachments"
 --     ADD CONSTRAINT "PK_MESSAGE_ATTACHMENTS" PRIMARY KEY ("attachment_id",
 --                                                          "message_id");
 
-ALTER TABLE "read_statuses"
+ALTER TABLE "read_status"
     ADD CONSTRAINT "FK_channels_TO_read_statuses_1" FOREIGN KEY ("channel_id")
-        REFERENCES "channels" ("id");
+        REFERENCES "channel" ("id");
 
-ALTER TABLE "read_statuses"
-    ADD CONSTRAINT "FK_users_TO_read_statuses_1" FOREIGN KEY ("user_id")
-        REFERENCES "users" ("id")
+ALTER TABLE "read_status"
+    ADD CONSTRAINT "FK_users_TO_read_status_1" FOREIGN KEY ("user_id")
+        REFERENCES "user" ("id")
         ON DELETE CASCADE;
 
-ALTER TABLE "user_statuses"
-    ADD CONSTRAINT "FK_users_TO_user_statuses_1" FOREIGN KEY ("user_id")
-        REFERENCES "users" ("id")
+ALTER TABLE "user_status"
+    ADD CONSTRAINT "FK_user_TO_user_status_1" FOREIGN KEY ("user_id")
+        REFERENCES "user" ("id")
         ON DELETE CASCADE;
 
-ALTER TABLE "users"
-    ADD CONSTRAINT "FK_binary_contents_TO_users_1" FOREIGN KEY ("profile_id")
-        REFERENCES "binary_contents" ("id");
+ALTER TABLE "user"
+    ADD CONSTRAINT "FK_binary_content_TO_user_1" FOREIGN KEY ("profile_id")
+        REFERENCES "binary_content" ("id");
 
-ALTER TABLE "messages"
-    ADD CONSTRAINT "FK_users_TO_messages_1" FOREIGN KEY ("author_id")
-        REFERENCES "users" ("id");
+ALTER TABLE "message"
+    ADD CONSTRAINT "FK_user_TO_message_1" FOREIGN KEY ("author_id")
+        REFERENCES "user" ("id");
 
-ALTER TABLE "messages"
-    ADD CONSTRAINT "FK_channels_TO_messages_1" FOREIGN KEY ("channel_id")
-        REFERENCES "channels" ("id")
+ALTER TABLE "message"
+    ADD CONSTRAINT "FK_channel_TO_message_1" FOREIGN KEY ("channel_id")
+        REFERENCES "channel" ("id")
         ON DELETE CASCADE;
 
-ALTER TABLE "message_attachments"
-    ADD CONSTRAINT "FK_binary_contents_TO_message_attachments_1" FOREIGN KEY ("attachment_id")
-        REFERENCES "binary_contents" ("id")
+ALTER TABLE "message_attachment"
+    ADD CONSTRAINT "FK_binary_content_TO_message_attachment_1" FOREIGN KEY ("attachment_id")
+        REFERENCES "binary_content" ("id")
         ON DELETE CASCADE;
 
-ALTER TABLE "message_attachments"
-    ADD CONSTRAINT "FK_messages_TO_message_attachments_1" FOREIGN KEY ("message_id")
-        REFERENCES "messages" ("id")
+ALTER TABLE "message_attachment"
+    ADD CONSTRAINT "FK_message_TO_message_attachment_1" FOREIGN KEY ("message_id")
+        REFERENCES "message" ("id")
         ON DELETE CASCADE;
