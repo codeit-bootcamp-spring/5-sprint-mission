@@ -39,7 +39,7 @@ public class BasicMessageService implements MessageService {
     List<UUID> attachmentIds = messageCreateCommand.attachments().stream()
         .map(request -> {
           BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(),
-              request.bytes());
+              request.bytes(), request.bytes().length);
           BinaryContent createdBinaryContent = binaryContentRepository.save(binaryContent);
           return createdBinaryContent.getId();
         })

@@ -23,7 +23,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   @Override
   public BinaryContent create(@Valid NewBinaryContent newBinaryContent) {
     BinaryContent binaryContent = new BinaryContent(newBinaryContent.fileName(),
-        newBinaryContent.contentType(), newBinaryContent.bytes());
+        newBinaryContent.contentType(), newBinaryContent.bytes(), newBinaryContent.bytes().length);
     return binaryContentRepository.save(binaryContent);
   }
 

@@ -1,10 +1,17 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 
 /*[ ]  BinaryContent
@@ -14,36 +21,11 @@ import lombok.Getter;
 [ ] User, Message 도메인 모델과의 의존 관계 방향성을 잘 고려하여 id 참조 필드를 추가하세요.*/
 
 @Getter
-public class BinaryContent implements Serializable {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  private final UUID id;
-  private final Instant createdAt;
+@AllArgsConstructor
+public class BinaryContent extends BaseEntity {
 
   private final String fileName;
   private final String contentType;
   private final byte[] bytes;
   private final long size;
-
-  public BinaryContent(String fileName, String contentType, byte[] bytes) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
-
-    this.fileName = fileName;
-    this.contentType = contentType;
-    this.bytes = bytes;
-    this.size = bytes.length;
-  }
-
-  @Override
-  public String toString() {
-    return "BinaryContent{" +
-        "id=" + id +
-        ", createdAt=" + createdAt +
-        ", fileName='" + fileName + '\'' +
-        ", contentType='" + contentType + '\'' +
-        '}';
-  }
 }

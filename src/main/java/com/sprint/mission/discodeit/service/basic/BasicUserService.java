@@ -38,7 +38,7 @@ public class BasicUserService implements UserService {
     UUID profileId = userCommand.profile()
         .map(request -> {
           BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(),
-              request.bytes());
+              request.bytes(), request.bytes().length);
           return binaryContentRepository.save(binaryContent).getId();
         })
         .orElse(null);
@@ -103,7 +103,7 @@ public class BasicUserService implements UserService {
     UUID newProfileId = userCommand.profile()
         .map(request -> {
           BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(),
-              request.bytes());
+              request.bytes(), request.bytes().length);
           return binaryContentRepository.save(binaryContent).getId();
         })
         .orElse(null);
