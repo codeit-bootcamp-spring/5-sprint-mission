@@ -17,15 +17,15 @@ public record MessageDto(
     List<BinaryContentDto> attachments
 ) {
 
-    public static MessageDto from(Message m) {
+    public static MessageDto from(Message m, UserDto author, List<BinaryContentDto> attachments) {
         return new MessageDto(
             m.getId(),
             m.getCreatedAt(),
             m.getUpdatedAt(),
             m.getContent(),
             m.getChannel().getId(),
-            null,
-            null
+            author,
+            attachments
         );
     }
 }
