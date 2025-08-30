@@ -20,15 +20,14 @@ import lombok.Setter;
 @Table(name = "channels")
 public class Channel extends BaseUpdatableEntity {
 
+    @Enumerated(EnumType.STRING)
+    private ChannelType type;
     private String name;
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    private ChannelType type;
-
     @Override
     public String toString() {
-        return "Channel[id=%s, name=%s, type=%s]"
-            .formatted(getId(), name, type);
+        return "Channel[id=%s, type=%s, name=%s, description=%s]"
+            .formatted(getId(), type, name, description);
     }
 }

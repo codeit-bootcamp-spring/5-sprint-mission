@@ -6,13 +6,15 @@ import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
@@ -41,6 +43,10 @@ public class MessageService {
     private final BinaryContentRepository binaryContentRepository;
     private final MessageAttachmentRepository messageAttachmentRepository;
 
+    private final BinaryContentMapper binaryContentMapper;
+    private final UserMapper userMapper;
+    private final MessageMapper messageMapper;
+
     public List<MessageDto> findAllByChannelId(UUID channelId) {
         Channel c = channelRepository.getOrThrow(channelId);
         return List.of();
@@ -50,7 +56,7 @@ public class MessageService {
     public MessageDto create(MessageCreateRequest req, List<MultipartFile> attachments) {
         Channel channel = channelRepository.getOrThrow(req.channelId());
         User author = userRepository.getOrThrow(req.authorId());
-        UserStatus authorStatus = userStatusRepository.getOrThrowByUserId(author.getId());
+        UserStatus authorStatus = userStatusRepository.getOrCreateByUser(author);
         String content = req.content() != null ? req.content().strip() : null;
         Message m = messageRepository.save(new Message(content, channel, author));
         List<BinaryContentDto> bcd = new ArrayList<>();
@@ -61,13 +67,13 @@ public class MessageService {
                     toBinaryContentFromMultipartFile(attachment));
                 messageAttachmentRepository.save(
                     new MessageAttachment(m.getId(), bc.getId(), orderIndex++));
-                BinaryContentDto dto = BinaryContentDto.from(bc);
+                BinaryContentDto dto = binaryContentMapper.toDto(bc);
                 bcd.add(dto);
             }
 
         }
 
-        return MessageDto.from(m, UserDto.from(author, authorStatus), bcd);
+        return messageMapper.toDto(m, null);
     }
 
     @Transactional

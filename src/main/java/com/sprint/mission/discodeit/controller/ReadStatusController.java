@@ -36,8 +36,8 @@ public class ReadStatusController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ReadStatusDto create(@RequestBody @Valid ReadStatusCreateRequest body) {
-        return readStatusService.create(body);
+    public ReadStatusDto create(@RequestBody @Valid ReadStatusCreateRequest req) {
+        return readStatusService.create(req);
     }
 
     @PatchMapping("/{readStatusId}")

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BinaryContentController {
 
     private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentMapper binaryContentMapper;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -32,7 +34,7 @@ public class BinaryContentController {
     @GetMapping("/{binaryContentId}")
     @ResponseStatus(HttpStatus.OK)
     public BinaryContentDto find(@PathVariable UUID binaryContentId) {
-        return BinaryContentDto.from(binaryContentRepository.getOrThrow(binaryContentId));
+        return binaryContentMapper.toDto(binaryContentRepository.getOrThrow(binaryContentId));
     }
 
     @GetMapping(

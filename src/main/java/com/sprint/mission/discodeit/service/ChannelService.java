@@ -4,18 +4,18 @@ import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.dto.channelparticipants.ChannelParticipantRow;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelParticipant;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.ChannelType;
 import com.sprint.mission.discodeit.exception.AccessDeniedException;
-import com.sprint.mission.discodeit.repository.ChannelParticipantRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -33,44 +33,39 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChannelService {
 
     private final ChannelRepository channelRepository;
-    private final ChannelParticipantRepository channelParticipantRepository;
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
     private final MessageAttachmentRepository messageAttachmentRepository;
     private final ReadStatusRepository readStatusRepository;
     private final UserService userService;
+    private final EntityManager em;
 
     public List<ChannelDto> findAll(UUID userId) {
-        List<ChannelDto> channels = channelRepository.findAllWithoutParticipantsByUserId(userId);
+        List<Channel> channels = channelRepository.findAllByUserId(userId);
         if (channels.isEmpty()) {
             return List.of();
         }
 
-        List<UUID> privateChannelIds = channels.stream()
-            .filter(c -> c.type() == ChannelType.PRIVATE)
-            .map(ChannelDto::id)
+        List<Channel> privateChannels = channels.stream()
+            .filter(c -> c.getType() == ChannelType.PRIVATE)
             .toList();
 
-        List<ChannelParticipantRow> rows =
-            channelParticipantRepository.findParticipantsByChannelIds(
-                privateChannelIds,
-                Instant.now().minus(Duration.ofMinutes(5))
-            );
+        List<ReadStatus> readStatuses = readStatusRepository.findAllByChannelIn(privateChannels);
 
-        Map<UUID, List<UserDto>> participantsByChannel =
-            rows.stream().collect(Collectors.groupingBy(
-                ChannelParticipantRow::channelId,
-                Collectors.mapping(ChannelParticipantRow::user, Collectors.toList())
+        Map<Channel, List<User>> participantsMap =
+            readStatuses.stream().collect(Collectors.groupingBy(
+                ReadStatus::getChannel,
+                Collectors.mapping(ReadStatus::getUser, Collectors.toList())
             ));
 
         return channels.stream()
             .map(c -> new ChannelDto(
-                c.id(),
-                c.type(),
-                c.name(),
-                c.description(),
-                participantsByChannel.getOrDefault(c.id(), List.of()),
-                c.lastMessageAt()
+                c.getId(),
+                c.getType(),
+                c.getName(),
+                c.getDescription(),
+                null,
+                null
             ))
             .toList();
     }
@@ -79,7 +74,7 @@ public class ChannelService {
     public ChannelDto create(PublicChannelCreateRequest req) {
         String name = req.name().strip();
         String description = req.description() != null ? req.description().strip() : null;
-        Channel c = channelRepository.save(new Channel(name, description, ChannelType.PUBLIC));
+        Channel c = channelRepository.save(new Channel(ChannelType.PUBLIC, name, description));
         return ChannelDto.from(c, List.of(), null);
     }
 
@@ -99,16 +94,16 @@ public class ChannelService {
             }
         }
 
-        Channel c = channelRepository.save(new Channel(null, null, ChannelType.PRIVATE));
-        List<ChannelParticipant> cps = users.stream()
-            .map(u -> new ChannelParticipant(c.getId(), u.id()))
+        Instant now = Instant.now();
+
+        Channel c = channelRepository.save(new Channel(ChannelType.PRIVATE, null, null));
+        List<ReadStatus> readStatuses = users.stream()
+            .map(u -> new ReadStatus(em.getReference(User.class, u.id()), c, now))
             .toList();
 
-        channelParticipantRepository.saveAll(cps);
+        readStatusRepository.saveAll(readStatuses);
 
-        Instant lastMessageAt = messageRepository.getLastMessageAt(c.getId());
-
-        return ChannelDto.from(c, users, lastMessageAt);
+        return ChannelDto.from(c, users, null);
     }
 
     @Transactional
@@ -120,8 +115,6 @@ public class ChannelService {
         messageRepository.deleteAllByChannel(c);
 
         readStatusRepository.deleteAllByChannel(c);
-
-        channelParticipantRepository.deleteAllByChannelId(c.getId());
 
         channelRepository.deleteById(channelId);
     }

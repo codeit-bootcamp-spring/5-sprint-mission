@@ -10,8 +10,9 @@ import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.ChannelParticipantRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -30,11 +31,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserService {
 
     private final BinaryContentRepository binaryContentRepository;
-    private final ChannelParticipantRepository channelParticipantRepository;
     private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
+
+    private final UserMapper userMapper;
+    private final UserStatusMapper userStatusMapper;
+
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -46,21 +50,27 @@ public class UserService {
             ? binaryContentRepository.save(toBinaryContentFromMultipartFile(profile))
             : null;
 
-        User savedUser = userRepository.save(new User(
-            username,
-            email,
-            password,
-            savedProfile
-        ));
+        User savedUser = userRepository.save(
+            new User(
+                username,
+                email,
+                password,
+                savedProfile
+            )
+        );
 
         UserStatus savedUserStatus = userStatusRepository.save(new UserStatus(savedUser));
 
-        return UserDto.from(savedUser, savedUserStatus);
+        return userMapper.toDto(savedUser, savedUserStatus);
     }
 
+    // delete 중에 해당 userId를 다른 트랜잭션에서 사용할 경우 nullify/delete 되지 않은 row가 남아 있을 수 있음
+    // fk 제약을 걸면 해결되나 soft delete 정책으로 바뀌면 문제는 다시 발생한다.
+    // message author id를 그냥 남겨두고 사용할 수 있지 않을까?
+    // 고아 객체를 삭제하는 워커를 쓰는게 낫지 않을까?
     @Transactional
     public void delete(UUID userId) {
-        User user = userRepository.getOrThrowForUpdate(userId);
+        User user = userRepository.getOrThrow(userId);
 
         UUID profileId;
         if (user.getProfile() != null) {
@@ -74,8 +84,6 @@ public class UserService {
 
         readStatusRepository.deleteAllByUserId(userId);
 
-        channelParticipantRepository.deleteAllByUserId(userId);
-
         userStatusRepository.deleteAllByUserId(userId);
 
         if (profileId != null) {
@@ -87,7 +95,7 @@ public class UserService {
 
     @Transactional
     public UserDto update(UUID userId, UserUpdateRequest req, MultipartFile profile) {
-        User u = userRepository.getOrThrowForUpdate(userId);
+        User u = userRepository.getOrThrow(userId);
 
         String newUsername = (req.newUsername() != null && !req.newUsername().isBlank())
             ? req.newUsername().strip().toLowerCase(Locale.ROOT)
@@ -123,7 +131,7 @@ public class UserService {
             }
         }
 
-        return UserDto.from(u, userStatusRepository.getOrThrowByUserId(u.getId()));
+        return userMapper.toDto(u, userStatusRepository.getOrCreateByUser(u));
     }
 
     @Transactional
@@ -134,6 +142,6 @@ public class UserService {
             us.setLastActiveAt(req.newLastActiveAt());
         }
 
-        return UserStatusDto.from(us);
+        return userStatusMapper.toDto(us);
     }
 }

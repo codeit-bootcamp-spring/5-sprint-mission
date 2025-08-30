@@ -1,11 +1,10 @@
-DROP TABLE IF EXISTS channel_participants CASCADE;
+DROP TABLE IF EXISTS binary_contents CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS user_statuses CASCADE;
+DROP TABLE IF EXISTS channels CASCADE;
+DROP TABLE IF EXISTS messages CASCADE;
 DROP TABLE IF EXISTS message_attachments CASCADE;
 DROP TABLE IF EXISTS read_statuses CASCADE;
-DROP TABLE IF EXISTS user_statuses CASCADE;
-DROP TABLE IF EXISTS messages CASCADE;
-DROP TABLE IF EXISTS channels CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS binary_contents CASCADE;
 
 CREATE TABLE IF NOT EXISTS binary_contents
 (
@@ -47,14 +46,18 @@ CREATE TABLE IF NOT EXISTS channels
     type        varchar(10) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS channel_participants
+CREATE TABLE IF NOT EXISTS read_statuses
 (
-    channel_id uuid NOT NULL,
-    user_id    uuid NOT NULL,
-    PRIMARY KEY (channel_id, user_id)
+    id           uuid PRIMARY KEY,
+    created_at   timestamptz NOT NULL,
+    updated_at   timestamptz,
+    user_id      uuid        NOT NULL,
+    channel_id   uuid        NOT NULL,
+    last_read_at timestamptz NOT NULL,
+    CONSTRAINT uq_read_statuses UNIQUE (user_id, channel_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_channel_participants_user ON channel_participants (user_id);
+CREATE INDEX IF NOT EXISTS idx_read_statuses_channel ON read_statuses (channel_id);
 
 CREATE TABLE IF NOT EXISTS messages
 (
@@ -76,16 +79,3 @@ CREATE TABLE IF NOT EXISTS message_attachments
     PRIMARY KEY (message_id, attachment_id),
     CONSTRAINT uq_msg_attachments_message_order UNIQUE (message_id, order_index)
 );
-
-CREATE TABLE IF NOT EXISTS read_statuses
-(
-    id           uuid PRIMARY KEY,
-    created_at   timestamptz NOT NULL,
-    updated_at   timestamptz,
-    user_id      uuid        NOT NULL,
-    channel_id   uuid        NOT NULL,
-    last_read_at timestamptz NOT NULL,
-    CONSTRAINT uq_read_statuses UNIQUE (user_id, channel_id)
-);
-
-CREATE INDEX IF NOT EXISTS idx_read_statuses_channel ON read_statuses (channel_id);

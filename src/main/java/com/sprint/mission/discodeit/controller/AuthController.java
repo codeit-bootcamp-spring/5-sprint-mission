@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping(path = "/login")
+    @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     public UserDto login(@RequestBody @Valid LoginRequest req) {
         return authService.login(req);
