@@ -45,7 +45,10 @@ public class BasicUserService implements UserService {
         .orElse(null);
 
     User user = new User(username, email, password, profile);
-    userStatusRepository.save(new UserStatus(user, Instant.now()));
+    UserStatus userStatus = new UserStatus();
+    userStatus.setLastActiveAt(Instant.now());
+    user.attachStatus(userStatus);
+    
     return userRepository.save(user);
   }
 

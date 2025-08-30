@@ -5,8 +5,11 @@ import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -32,8 +35,13 @@ public class Message extends BaseUpdatableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   private User author;
 
-  @JsonIgnore
-  private List<BinaryContent> attachmentIds;
+  @ManyToMany
+  @JoinTable(
+      name = "message_attachments",
+      joinColumns = @JoinColumn(name = "message_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id")
+  )
+  private List<BinaryContent> attachments;
 
   public void update(String content) {
     boolean anyValueUpdated = false;

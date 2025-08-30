@@ -11,6 +11,7 @@ import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Entity
@@ -23,7 +24,12 @@ public class UserStatus extends BaseUpdatableEntity {
   @JoinColumn(name = "user_id")
   private User user;
 
+  @Setter
   private Instant lastActiveAt;
+
+  protected void linkToUser(User user) {
+    this.user = user;
+  }
 
   public void update(Instant lastActiveAt) {
     boolean anyValueUpdated = false;
