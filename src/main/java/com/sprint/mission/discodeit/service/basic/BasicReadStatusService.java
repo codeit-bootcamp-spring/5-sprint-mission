@@ -2,7 +2,9 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -25,25 +27,20 @@ public class BasicReadStatusService implements ReadStatusService {
   private final ReadStatusRepository readStatusRepository;
 
   @Override
-  public ReadStatus create(@Valid ReadStatusCreateRequest readStatusCreateRequest) {
-    if (!userRepository.existsById(readStatusCreateRequest.userId())) {
-      throw new NoSuchElementException(
-          "create : 유저를 찾을 수 없습니다. [" + readStatusCreateRequest.userId() + "]");
-    }
+  public ReadStatus create(@Valid ReadStatusCreateRequest request) {
+    User user = userRepository.findById(request.userId())
+        .orElseThrow(() -> new NoSuchElementException("User not found [" + request.userId() + "]"));
 
-    if (!channelRepository.existsById(readStatusCreateRequest.channelId())) {
-      throw new NoSuchElementException(
-          "create : 채널을 찾을 수 없습니다. [" + readStatusCreateRequest.channelId() + "]");
-    }
+    Channel channel = channelRepository.findById(request.channelId())
+        .orElseThrow(
+            () -> new NoSuchElementException("Channel not found [" + request.channelId() + "]"));
 
-    if (readStatusRepository.findByUserId(readStatusCreateRequest.userId()).stream()
-        .anyMatch(status -> status.getChannelId().equals(readStatusCreateRequest.channelId()))) {
+    if (readStatusRepository.findByUserId(request.userId()).stream()
+        .anyMatch(status -> status.getChannel().getId().equals(request.channelId()))) {
       throw new IllegalArgumentException("create : 이미 존재하는 ReadStatus 입니다.");
     }
 
-    ReadStatus readStatus = new ReadStatus(readStatusCreateRequest.userId(),
-        readStatusCreateRequest.channelId(),
-        readStatusCreateRequest.lastReadAt());
+    ReadStatus readStatus = new ReadStatus(channel.getCreatedAt(), user, channel);
     return readStatusRepository.save(readStatus);
   }
 

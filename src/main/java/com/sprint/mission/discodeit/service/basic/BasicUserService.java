@@ -33,19 +33,19 @@ public class BasicUserService implements UserService {
     String username = userCommand.username();
     String password = userCommand.password();
     String email = userCommand.email();
-    validateExist(username, email);
 
-    UUID profileId = userCommand.profile()
-        .map(request -> {
-          BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(),
-              request.bytes(), request.bytes().length);
-          return binaryContentRepository.save(binaryContent).getId();
-        })
+    BinaryContent profile = userCommand.profile().stream()
+        .map(dto -> binaryContentRepository.save(new BinaryContent(
+            dto.fileName(),
+            dto.contentType(),
+            dto.bytes(),
+            dto.bytes().length
+        )))
+        .findFirst()
         .orElse(null);
 
-    User user = new User(username, email, password, profileId);
-
-    userStatusRepository.save(new UserStatus(user.getId(), Instant.now()));
+    User user = new User(username, email, password, profile);
+    userStatusRepository.save(new UserStatus(user, Instant.now()));
     return userRepository.save(user);
   }
 
@@ -61,7 +61,7 @@ public class BasicUserService implements UserService {
         .updatedAt(user.getUpdatedAt())
         .username(user.getUsername())
         .email(user.getEmail())
-        .profileId(user.getProfileId())
+        .profileId(user.getProfile().getId())
         .online(userStatusRepository.findByUserId(user.getId())
             .orElseThrow(() -> new NoSuchElementException(
                 "findById : UserStatus를 찾을 수 없습니다. [" + user.getId() + "]"))
@@ -82,7 +82,7 @@ public class BasicUserService implements UserService {
           .updatedAt(user.getUpdatedAt())
           .username(user.getUsername())
           .email(user.getEmail())
-          .profileId(user.getProfileId())
+          .profileId(user.getProfile().getId())
           .online(userStatus.isOnline())
           .build());
     }
@@ -98,20 +98,21 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다. [" + userId + "]"));
 
-    validateExist(newUserName, newEmail);
-
-    UUID newProfileId = userCommand.profile()
-        .map(request -> {
-          BinaryContent binaryContent = new BinaryContent(request.fileName(), request.contentType(),
-              request.bytes(), request.bytes().length);
-          return binaryContentRepository.save(binaryContent).getId();
-        })
+    BinaryContent newProfile = userCommand.profile().stream()
+        .map(dto -> binaryContentRepository.save(new BinaryContent(
+            dto.fileName(),
+            dto.contentType(),
+            dto.bytes(),
+            dto.bytes().length
+        )))
+        .findFirst()
         .orElse(null);
 
-    if (newProfileId != null) {
-      binaryContentRepository.deleteById(user.getProfileId());
+    if (newProfile != null) {
+      binaryContentRepository.deleteById(user.getProfile().getId());
     }
-    user.update(newUserName, newEmail, newPassword, newProfileId);
+
+    user.update(newUserName, newEmail, newPassword, newProfile);
 
     return userRepository.save(user);
   }
@@ -121,8 +122,8 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("delete : 유저를 찾을 수 없습니다. [" + userId + "]"));
 
-    if (user.getProfileId() != null) {
-      binaryContentRepository.deleteById(user.getProfileId());
+    if (user.getProfile() != null) {
+      binaryContentRepository.deleteById(user.getProfile().getId());
     }
 
     userStatusRepository.findByUserId(user.getId())

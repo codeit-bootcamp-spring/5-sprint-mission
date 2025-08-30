@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -24,18 +25,22 @@ public class BasicUserStatusService implements UserStatusService {
   private final UserStatusRepository userStatusRepository;
 
   @Override
-  public UserStatus create(@Valid UserStatusCreateRequest userStatusCreateRequest) {
-    userRepository.findById(userStatusCreateRequest.userId())
+  public UserStatus create(@Valid UserStatusCreateRequest request) {
+    User user = userRepository.findById(request.userId())
         .orElseThrow(() -> new NoSuchElementException(
-            "create : 유저를 찾을 수 없습니다. [" + userStatusCreateRequest.userId() + "]"));
+            "create : 유저를 찾을 수 없습니다. [" + request.userId() + "]"));
+
     UserStatus userStatus = userStatusRepository.findAll().stream()
-        .filter(s -> s.getUserId().equals(userStatusCreateRequest.userId()))
+        .filter(s -> s.getUser().getId().equals(request.userId()))
         .findFirst()
         .orElse(null);
+
     if (userStatus != null) {
-      throw new IllegalArgumentException("create : UserStatus가 이미 존재합니다.");
+      throw new IllegalArgumentException(
+          "create : UserStatus가 이미 존재합니다. [" + request.userId() + "]");
     }
-    userStatus = new UserStatus(userStatusCreateRequest.userId(), Instant.now());
+
+    userStatus = new UserStatus(user, Instant.now());
     return userStatusRepository.save(userStatus);
   }
 
