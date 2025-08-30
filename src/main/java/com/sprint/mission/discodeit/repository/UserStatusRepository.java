@@ -4,8 +4,9 @@ import com.sprint.mission.discodeit.entity.UserStatus;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserStatusRepository {
+public interface UserStatusRepository extends JpaRepository<UserStatus, UUID> {
 
   UserStatus save(UserStatus userStatus);
 
