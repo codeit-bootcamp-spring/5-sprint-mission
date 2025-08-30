@@ -7,7 +7,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(componentModel = "spring", uses = BinaryContentMapper.class)
+@Mapper(
+    componentModel = "spring",
+    uses = BinaryContentMapper.class
+)
 public interface UserMapper {
 
     @Mapping(source = "user.id", target = "id")
