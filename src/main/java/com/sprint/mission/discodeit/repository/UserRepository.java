@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import jakarta.persistence.LockModeType;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,11 +33,34 @@ public interface UserRepository extends JpaRepository<User, UUID> {
         LEFT JOIN u.profile p
         """
     )
-    List<UserDto> findAllToDto(@Param("onlineSince") Instant onlineSince);
+    List<UserDto> findAll(@Param("onlineSince") Instant onlineSince);
+
+    @Query("""
+        SELECT new com.sprint.mission.discodeit.dto.user.UserDto(
+            u.id,
+            u.username,
+            u.email,
+            p.id,
+            p.fileName,
+            p.size,
+            p.contentType,
+            CASE WHEN us.lastActiveAt IS NOT NULL AND us.lastActiveAt >= :onlineSince
+                 THEN TRUE ELSE FALSE END
+        )
+        FROM User u
+        LEFT JOIN UserStatus us ON us.user = u
+        LEFT JOIN u.profile p
+        WHERE u.id in :ids
+        """
+    )
+    List<UserDto> findAllByIdIn(@Param("ids") Collection<UUID> ids,
+        @Param("onlineSince") Instant onlineSince);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT u FROM User u WHERE u.id = :id")
-    Optional<User> findForUpdateById(@Param("id") UUID id);
+    List<User> findAllForUpdateByIdIn(Collection<UUID> ids);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Optional<User> findForUpdateById(UUID id);
 
     Optional<User> findByUsername(String username);
 

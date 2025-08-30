@@ -5,8 +5,11 @@ import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -30,42 +33,33 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @GetMapping
     public List<UserDto> findAll() {
-        return userService.findAll();
+        return userRepository.findAll(Instant.now().minus(Duration.ofMinutes(5)));
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(
-        @RequestPart("userCreateRequest")
-        @Valid
-        UserCreateRequest req,
-
-        @RequestPart(value = "profile", required = false)
-        MultipartFile profile
+        @RequestPart("userCreateRequest") @Valid UserCreateRequest req,
+        @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
         return userService.create(req, profile);
     }
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("userId") UUID userId) {
+    public void delete(@PathVariable UUID userId) {
         userService.delete(userId);
     }
 
     @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UserDto update(
-        @PathVariable("userId")
-        UUID userId,
-
-        @RequestPart(value = "userUpdateRequest")
-        @Valid
-        UserUpdateRequest req,
-
-        @RequestPart(value = "profile", required = false)
-        MultipartFile profile
+        @PathVariable UUID userId,
+        @RequestPart(value = "userUpdateRequest") @Valid UserUpdateRequest req,
+        @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
         return userService.update(userId, req, profile);
     }
@@ -73,11 +67,8 @@ public class UserController {
     @PatchMapping("/{userId}/userStatus")
     @ResponseStatus(HttpStatus.OK)
     public UserStatusDto updateUserStatusByUserId(
-        @PathVariable("userId")
-        UUID userId,
-
-        @RequestBody
-        UserStatusUpdateRequest req
+        @PathVariable UUID userId,
+        @RequestBody UserStatusUpdateRequest req
     ) {
         return userService.updateUserStatusByUserId(userId, req);
     }

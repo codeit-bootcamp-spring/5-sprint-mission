@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.repository;
 
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import java.util.UUID;
@@ -15,4 +16,6 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
                 "ReadStatus with id %s not found".formatted(id))
         );
     }
+
+    void deleteAllByChannel(Channel channel);
 }

@@ -16,13 +16,13 @@ public record ChannelDto(
     Instant lastMessageAt
 ) {
 
-    public static ChannelDto from(Channel c, Instant lastMessageAt) {
+    public static ChannelDto from(Channel c, List<UserDto> participants, Instant lastMessageAt) {
         return new ChannelDto(
             c.getId(),
             c.getType(),
             c.getName(),
             c.getDescription(),
-            List.of(),
+            participants,
             lastMessageAt
         );
     }

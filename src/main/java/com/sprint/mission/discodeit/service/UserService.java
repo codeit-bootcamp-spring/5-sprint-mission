@@ -16,9 +16,6 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -39,10 +36,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public List<UserDto> findAll() {
-        return userRepository.findAllToDto(Instant.now().minus(Duration.ofMinutes(5)));
-    }
 
     @Transactional
     public UserDto create(UserCreateRequest req, MultipartFile profile) {
@@ -86,7 +79,7 @@ public class UserService {
         userStatusRepository.deleteAllByUserId(userId);
 
         if (profileId != null) {
-            binaryContentRepository.deleteIfExists(profileId);
+            binaryContentRepository.deleteById(profileId);
         }
 
         userRepository.delete(user);
@@ -126,7 +119,7 @@ public class UserService {
             UUID oldProfileId = (u.getProfile() != null) ? u.getProfile().getId() : null;
             u.setProfile(newProfile);
             if (oldProfileId != null) {
-                binaryContentRepository.deleteIfExists(oldProfileId);
+                binaryContentRepository.deleteById(oldProfileId);
             }
         }
 

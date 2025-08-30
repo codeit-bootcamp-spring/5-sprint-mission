@@ -7,20 +7,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface BinaryContentRepository extends JpaRepository<BinaryContent, UUID> {
 
-    List<BinaryContentDto> findAllToDtoByIdIn(Collection<UUID> ids);
+    List<BinaryContentDto> findAllByIdIn(Collection<UUID> ids);
 
     @Query("SELECT b.bytes FROM BinaryContent b WHERE b.id = :id")
     byte[] findBytesById(@Param("id") UUID id);
-
-    @Modifying
-    @Query("DELETE FROM BinaryContent b WHERE b.id = :id")
-    int deleteIfExists(@Param("id") UUID id);
 
     default BinaryContent getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->

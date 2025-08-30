@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/binaryContents")
@@ -28,7 +26,7 @@ public class BinaryContentController {
     @ResponseStatus(HttpStatus.OK)
     public List<BinaryContentDto> findAllByIn(
         @RequestParam("binaryContentIds") Set<UUID> binaryContentIds) {
-        return binaryContentRepository.findAllToDtoByIdIn(binaryContentIds);
+        return binaryContentRepository.findAllByIdIn(binaryContentIds);
     }
 
     @GetMapping("/{binaryContentId}")
