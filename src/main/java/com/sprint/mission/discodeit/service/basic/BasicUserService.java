@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class BasicUserService implements UserService {
   private final UserRepository userRepository;
   private final BinaryContentRepository binaryContentRepository;
   private final UserStatusRepository userStatusRepository;
+  private final BinaryContentStorage binaryContentStorage;
 
   @Override
   @Transactional
@@ -37,12 +39,14 @@ public class BasicUserService implements UserService {
     String email = userCommand.email();
 
     BinaryContent profile = userCommand.profile().stream()
-        .map(dto -> binaryContentRepository.save(new BinaryContent(
-            dto.fileName(),
-            dto.contentType(),
-            dto.bytes(),
-            dto.bytes().length
-        )))
+        .map(dto -> {
+          BinaryContent binaryContent = new BinaryContent(
+              dto.fileName(),
+              dto.contentType(),
+              dto.bytes().length);
+          binaryContentStorage.put(binaryContent.getId(), dto.bytes());
+          return binaryContentRepository.save(binaryContent);
+        })
         .findFirst()
         .orElse(null);
 
@@ -107,12 +111,14 @@ public class BasicUserService implements UserService {
         .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다. [" + userId + "]"));
 
     BinaryContent newProfile = userCommand.profile().stream()
-        .map(dto -> binaryContentRepository.save(new BinaryContent(
-            dto.fileName(),
-            dto.contentType(),
-            dto.bytes(),
-            dto.bytes().length
-        )))
+        .map(dto -> {
+          BinaryContent binaryContent = new BinaryContent(
+              dto.fileName(),
+              dto.contentType(),
+              dto.bytes().length);
+          binaryContentStorage.put(binaryContent.getId(), dto.bytes());
+          return binaryContentRepository.save(binaryContent);
+        })
         .findFirst()
         .orElse(null);
 

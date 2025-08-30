@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.neutral.NewBinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,12 +21,19 @@ import org.springframework.validation.annotation.Validated;
 public class BasicBinaryContentService implements BinaryContentService {
 
   private final BinaryContentRepository binaryContentRepository;
+  private final BinaryContentStorage binaryContentStorage;
 
   @Override
   @Transactional
   public BinaryContent create(@Valid NewBinaryContent newBinaryContent) {
-    BinaryContent binaryContent = new BinaryContent(newBinaryContent.fileName(),
-        newBinaryContent.contentType(), newBinaryContent.bytes(), newBinaryContent.bytes().length);
+    String fileName = newBinaryContent.fileName();
+    String contentType = newBinaryContent.contentType();
+    byte[] bytes = newBinaryContent.bytes();
+    long size = bytes.length;
+
+    BinaryContent binaryContent = new BinaryContent(fileName, contentType, size);
+
+    binaryContentStorage.put(binaryContent.getId(), bytes);
     return binaryContentRepository.save(binaryContent);
   }
 
