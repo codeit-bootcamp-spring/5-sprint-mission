@@ -19,7 +19,7 @@ public class Channel extends BaseUpdatableEntity {
 
   @Enumerated(EnumType.STRING)
   private ChannelType type;
-  
+
   private String name;
   private String description;
 
