@@ -17,6 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Service("userService")
@@ -29,6 +30,7 @@ public class BasicUserService implements UserService {
   private final UserStatusRepository userStatusRepository;
 
   @Override
+  @Transactional
   public User create(@Valid UserCommand userCommand) {
     String username = userCommand.username();
     String password = userCommand.password();
@@ -48,11 +50,12 @@ public class BasicUserService implements UserService {
     UserStatus userStatus = new UserStatus();
     userStatus.setLastActiveAt(Instant.now());
     user.attachStatus(userStatus);
-    
+
     return userRepository.save(user);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public UserFindResponse findById(UUID userId) {
     User user = userRepository.findById(userId)
         .orElseThrow(
@@ -73,6 +76,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<UserFindResponse> findAll() {
     List<UserFindResponse> userFindResponses = new ArrayList<>();
     for (User user : userRepository.findAll()) {
@@ -93,6 +97,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Transactional
   public User update(UUID userId, @Valid UserCommand userCommand) {
     String newUserName = userCommand.username();
     String newPassword = userCommand.password();
@@ -121,6 +126,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Transactional
   public void delete(UUID userId) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("delete : 유저를 찾을 수 없습니다. [" + userId + "]"));

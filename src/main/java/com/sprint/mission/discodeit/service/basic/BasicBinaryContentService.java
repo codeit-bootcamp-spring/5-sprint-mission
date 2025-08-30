@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Service("binaryContentService")
@@ -21,6 +22,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   private final BinaryContentRepository binaryContentRepository;
 
   @Override
+  @Transactional
   public BinaryContent create(@Valid NewBinaryContent newBinaryContent) {
     BinaryContent binaryContent = new BinaryContent(newBinaryContent.fileName(),
         newBinaryContent.contentType(), newBinaryContent.bytes(), newBinaryContent.bytes().length);
@@ -28,6 +30,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public BinaryContent findById(UUID id) {
     return binaryContentRepository.findById(id)
         .orElseThrow(
@@ -35,6 +38,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
     return binaryContentRepository.findAll().stream()
         .filter(binaryContent -> ids.contains(binaryContent.getId()))
@@ -42,6 +46,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
     if (!binaryContentRepository.existsById(id)) {
       throw new NoSuchElementException("delete : BinaryContent를 찾을 수 없습니다. [" + id + "]");

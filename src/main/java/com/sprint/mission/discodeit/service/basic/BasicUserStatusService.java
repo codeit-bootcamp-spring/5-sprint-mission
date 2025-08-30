@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Service("userStatusService")
@@ -25,6 +26,7 @@ public class BasicUserStatusService implements UserStatusService {
   private final UserStatusRepository userStatusRepository;
 
   @Override
+  @Transactional
   public UserStatus create(@Valid UserStatusCreateRequest request) {
     User user = userRepository.findById(request.userId())
         .orElseThrow(() -> new NoSuchElementException(
@@ -45,6 +47,7 @@ public class BasicUserStatusService implements UserStatusService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public UserStatus findById(UUID id) {
     return userStatusRepository.findById(id)
         .orElseThrow(
@@ -52,6 +55,7 @@ public class BasicUserStatusService implements UserStatusService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public UserStatus findByUserId(UUID userid) {
     return userStatusRepository.findByUserId(userid)
         .orElseThrow(() -> new NoSuchElementException(
@@ -59,11 +63,13 @@ public class BasicUserStatusService implements UserStatusService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<UserStatus> findAll() {
     return userStatusRepository.findAll();
   }
 
   @Override
+  @Transactional
   public UserStatus update(UUID userStatusId,
       @Valid UserStatusUpdateRequest userStatusUpdateRequest) {
     UserStatus userStatus = userStatusRepository.findById(userStatusId)
@@ -75,6 +81,7 @@ public class BasicUserStatusService implements UserStatusService {
   }
 
   @Override
+  @Transactional
   public UserStatus updateByUserId(UUID userId,
       @Valid UserStatusUpdateRequest userStatusUpdateRequest) {
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
@@ -86,6 +93,7 @@ public class BasicUserStatusService implements UserStatusService {
   }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
     UserStatus userStatus = userStatusRepository.findById(id)
         .orElseThrow(

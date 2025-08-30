@@ -18,6 +18,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Service("messageService")
@@ -31,6 +32,7 @@ public class BasicMessageService implements MessageService {
   private final BinaryContentRepository binaryContentRepository;
 
   @Override
+  @Transactional
   public Message create(@Valid MessageCreateCommand command) {
     String content = command.content();
     User author = userRepository.findById(command.authorId())
@@ -56,6 +58,7 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Message findById(UUID messageId) {
     return messageRepository.findById(messageId)
         .orElseThrow(
@@ -63,6 +66,7 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Message> findAllByChannelId(UUID channelId) {
     if (!channelRepository.existsById(channelId)) {
       throw new NoSuchElementException("findAllByChannelId : 채널을 찾을 수 없습니다. [" + channelId + "]");
@@ -73,6 +77,7 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
+  @Transactional
   public Message update(UUID messageId, @Valid MessageUpdateRequest messageUpdateRequest) {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(
@@ -83,6 +88,7 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
+  @Transactional
   public void delete(UUID messageId) {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(
@@ -92,14 +98,5 @@ public class BasicMessageService implements MessageService {
       binaryContentRepository.deleteById(binaryContent.getId());
     }
     messageRepository.deleteById(message.getId());
-  }
-
-  private void validateExist(UUID authorId, UUID channelId) {
-    if (!userRepository.existsById(authorId)) {
-      throw new NoSuchElementException("validateExist : 유저를 찾을 수 없습니다. [" + authorId + "]");
-    }
-    if (!channelRepository.existsById(channelId)) {
-      throw new NoSuchElementException("validateExist : 채널을 찾을 수 없습니다. [" + channelId + "]");
-    }
   }
 }

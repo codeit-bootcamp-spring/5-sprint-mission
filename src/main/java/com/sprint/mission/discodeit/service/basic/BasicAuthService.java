@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Service("authService")
@@ -18,6 +19,7 @@ public class BasicAuthService implements AuthService {
   private final UserRepository userRepository;
 
   @Override
+  @Transactional
   public User login(@Valid UserLoginRequest userLoginRequest) {
     User user = userRepository.findByUsername(userLoginRequest.username())
         .orElseThrow(() -> new NoSuchElementException(

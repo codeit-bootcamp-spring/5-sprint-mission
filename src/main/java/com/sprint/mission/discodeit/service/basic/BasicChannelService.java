@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Service("channelService")
@@ -38,6 +39,7 @@ public class BasicChannelService implements ChannelService {
   private final UserRepository userRepository;
 
   @Override
+  @Transactional
   public Channel create(@Valid PublicChannelCreateRequest request) {
     Channel channel = new Channel(ChannelType.PUBLIC, request.name(),
         request.description());
@@ -45,6 +47,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Override
+  @Transactional
   public Channel create(@Valid PrivateChannelCreateRequest request) {
 
     List<User> participants = request.participantIds()
@@ -64,6 +67,7 @@ public class BasicChannelService implements ChannelService {
     return channelRepository.save(channel);
   }
 
+  @Transactional(readOnly = true)
   public ChannelFindResponse findById(UUID channelId) {
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(
@@ -73,6 +77,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public ChannelFindResponse findById(Channel channel) {
     UUID channelId = channel.getId();
 
@@ -96,6 +101,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ChannelFindResponse> findAllByUserId(UUID userId) {
     Map<UUID, ReadStatus> readStatusMap = readStatusRepository.findByUserId(userId).stream()
         .collect(
@@ -116,6 +122,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Override
+  @Transactional
   public Channel update(UUID channelId,
       @Valid PublicChannelUpdateRequest publicChannelUpdateRequest) {
     Channel channel = channelRepository.findById(channelId)
@@ -130,6 +137,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Override
+  @Transactional
   public void delete(UUID channelId) {
     if (!channelRepository.existsById(channelId)) {
       throw new NoSuchElementException("delete : 채널을 찾을 수 없습니다. [" + channelId + "]");

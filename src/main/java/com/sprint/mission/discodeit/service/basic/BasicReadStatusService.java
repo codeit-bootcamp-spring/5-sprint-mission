@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class BasicReadStatusService implements ReadStatusService {
   private final ReadStatusRepository readStatusRepository;
 
   @Override
+  @Transactional
   public ReadStatus create(@Valid ReadStatusCreateRequest request) {
     User user = userRepository.findById(request.userId())
         .orElseThrow(() -> new NoSuchElementException("User not found [" + request.userId() + "]"));
@@ -45,6 +47,7 @@ public class BasicReadStatusService implements ReadStatusService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public ReadStatus findById(UUID id) {
     return readStatusRepository.findById(id)
         .orElseThrow(
@@ -52,6 +55,7 @@ public class BasicReadStatusService implements ReadStatusService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ReadStatus> findAllByUserId(UUID userId) {
     if (!userRepository.existsById(userId)) {
       throw new NoSuchElementException("findAllByUserId : 유저를 찾을 수 없습니다. [" + userId + "]");
@@ -60,6 +64,7 @@ public class BasicReadStatusService implements ReadStatusService {
   }
 
   @Override
+  @Transactional
   public ReadStatus update(UUID readStatusId,
       @Valid ReadStatusUpdateRequest readStatusUpdateRequest) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
@@ -71,6 +76,7 @@ public class BasicReadStatusService implements ReadStatusService {
   }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
     if (!readStatusRepository.existsById(id)) {
       throw new NoSuchElementException("delete : ReadStatus를 찾을 수 없습니다. [" + id + "]");
