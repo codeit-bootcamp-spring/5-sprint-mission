@@ -8,13 +8,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ChannelRepository extends JpaRepository<Channel, UUID> {
 
-  Channel save(Channel channel);
-
-  Optional<Channel> findById(UUID id);
-
-  List<Channel> findAll();
-
-  boolean existsById(UUID id);
-
-  void deleteById(UUID id);
 }

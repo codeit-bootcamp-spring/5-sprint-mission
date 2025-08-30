@@ -9,19 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
-  ReadStatus save(ReadStatus readStatus);
-
-  Optional<ReadStatus> findById(UUID id);
-
   List<ReadStatus> findByUserId(UUID userId);
 
   List<ReadStatus> findByChannelId(UUID channelId);
-
-  List<ReadStatus> findAll();
-
-  boolean existsById(UUID id);
-
-  void deleteById(UUID id);
-
-  User user(User user);
 }
