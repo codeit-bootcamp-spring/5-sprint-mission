@@ -116,3 +116,9 @@ ALTER TABLE "read_statuses"
 ALTER TABLE "read_statuses"
     ADD CONSTRAINT "FK_channels_TO_read_statuses_1" FOREIGN KEY ("channel_id")
         REFERENCES "channels" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "message_attachments"
+    ADD CONSTRAINT "PK_message_attachments" PRIMARY KEY ("message_id", "attachment_id");
+
+SELECT *
+FROM users;
