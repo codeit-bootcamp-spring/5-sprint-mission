@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.service;
 
 import static com.sprint.mission.discodeit.support.Utils.toBinaryContentFromMultipartFile;
 
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
@@ -57,9 +56,12 @@ public class MessageService {
         Channel channel = channelRepository.getOrThrow(req.channelId());
         User author = userRepository.getOrThrow(req.authorId());
         UserStatus authorStatus = userStatusRepository.getOrCreateByUser(author);
+
         String content = req.content() != null ? req.content().strip() : null;
+
         Message m = messageRepository.save(new Message(content, channel, author));
-        List<BinaryContentDto> bcd = new ArrayList<>();
+
+        List<BinaryContent> binaryContents = new ArrayList<>();
         int orderIndex = 0;
         for (MultipartFile attachment : attachments) {
             if (attachment != null && !attachment.isEmpty()) {
@@ -67,13 +69,12 @@ public class MessageService {
                     toBinaryContentFromMultipartFile(attachment));
                 messageAttachmentRepository.save(
                     new MessageAttachment(m.getId(), bc.getId(), orderIndex++));
-                BinaryContentDto dto = binaryContentMapper.toDto(bc);
-                bcd.add(dto);
+                binaryContents.add(bc);
             }
 
         }
 
-        return messageMapper.toDto(m, null);
+        return messageMapper.toDto(m, userMapper.toDto(author, authorStatus), binaryContents);
     }
 
     @Transactional
