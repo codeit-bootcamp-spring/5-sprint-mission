@@ -64,30 +64,12 @@ public class UserService {
         return userMapper.toDto(savedUser, savedUserStatus);
     }
 
-    // delete 중에 해당 userId를 다른 트랜잭션에서 사용할 경우 nullify/delete 되지 않은 row가 남아 있을 수 있음
-    // fk 제약을 걸면 해결되나 soft delete 정책으로 바뀌면 문제는 다시 발생한다.
-    // message author id를 그냥 남겨두고 사용할 수 있지 않을까?
-    // 고아 객체를 삭제하는 워커를 쓰는게 낫지 않을까?
     @Transactional
     public void delete(UUID userId) {
-        User user = userRepository.getOrThrow(userId);
+        User user = userRepository.getOrThrowForDelete(userId);
 
-        UUID profileId;
         if (user.getProfile() != null) {
-            profileId = user.getProfile().getId();
-            user.setProfile(null);
-        } else {
-            profileId = null;
-        }
-
-        messageRepository.nullifyAllAuthorByUserId(userId);
-
-        readStatusRepository.deleteAllByUserId(userId);
-
-        userStatusRepository.deleteAllByUserId(userId);
-
-        if (profileId != null) {
-            binaryContentRepository.deleteById(profileId);
+            binaryContentRepository.deleteById(user.getProfile().getId());
         }
 
         userRepository.delete(user);
@@ -95,28 +77,21 @@ public class UserService {
 
     @Transactional
     public UserDto update(UUID userId, UserUpdateRequest req, MultipartFile profile) {
-        User u = userRepository.getOrThrow(userId);
+        User u = userRepository.getOrThrowForUpdate(userId);
 
-        String newUsername = (req.newUsername() != null && !req.newUsername().isBlank())
-            ? req.newUsername().strip().toLowerCase(Locale.ROOT)
-            : null;
-        if (newUsername != null && !newUsername.equals(u.getUsername())) {
-            u.setUsername(newUsername);
+        if (req.newUsername() != null && !req.newUsername().isBlank()) {
+            u.setUsername(req.newUsername().strip().toLowerCase(Locale.ROOT));
         }
 
-        String newEmail = (req.newEmail() != null && !req.newEmail().isBlank())
-            ? req.newEmail().strip().toLowerCase(Locale.ROOT)
-            : null;
-        if (newEmail != null && !newEmail.equals(u.getEmail())) {
-            u.setEmail(newEmail);
+        if (req.newEmail() != null && !req.newEmail().isBlank()) {
+            u.setEmail(req.newEmail().strip().toLowerCase(Locale.ROOT));
         }
 
-        String newPassword = req.newPassword();
-        if (newPassword != null
-            && !newPassword.isBlank()
-            && !passwordEncoder.matches(newPassword, u.getPassword())
+        if (req.newPassword() != null
+            && !req.newPassword().isBlank()
+            && !passwordEncoder.matches(req.newPassword(), u.getPassword())
         ) {
-            u.setPassword(passwordEncoder.encode(newPassword));
+            u.setPassword(passwordEncoder.encode(req.newPassword()));
         }
 
         BinaryContent newProfile = (profile != null && !profile.isEmpty())
@@ -124,7 +99,7 @@ public class UserService {
             : null;
 
         if (newProfile != null) {
-            UUID oldProfileId = (u.getProfile() != null) ? u.getProfile().getId() : null;
+            UUID oldProfileId = u.getProfile() != null ? u.getProfile().getId() : null;
             u.setProfile(newProfile);
             if (oldProfileId != null) {
                 binaryContentRepository.deleteById(oldProfileId);

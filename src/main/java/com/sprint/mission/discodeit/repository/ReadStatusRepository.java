@@ -13,8 +13,6 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
     List<ReadStatusDto> findAllByUserId(UUID userId);
 
-    int deleteAllByUserId(UUID userId);
-
     default ReadStatus getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->
             new NotFoundException(

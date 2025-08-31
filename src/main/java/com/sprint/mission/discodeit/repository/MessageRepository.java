@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.exception.NotFoundException;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,10 +17,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         WHERE m.channel.id = :channelId
         """)
     Instant getLastMessageAt(@Param("channelId") UUID channelId);
-
-    @Modifying
-    @Query("UPDATE Message m SET m.author = NULL WHERE m.author.id = :userId")
-    int nullifyAllAuthorByUserId(@Param("userId") UUID userId);
 
     default Message getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->

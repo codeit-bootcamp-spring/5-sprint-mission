@@ -13,8 +13,6 @@ public interface UserStatusRepository extends JpaRepository<UserStatus, UUID> {
 
     Optional<UserStatus> findByUserId(UUID userId);
 
-    int deleteAllByUserId(UUID userId);
-
     default UserStatus getOrThrowByUserId(UUID userId) {
         return findByUserId(userId).orElseThrow(() ->
             new NotFoundException(
