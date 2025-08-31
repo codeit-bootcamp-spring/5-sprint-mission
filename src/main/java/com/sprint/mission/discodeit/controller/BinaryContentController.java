@@ -26,15 +26,14 @@ public class BinaryContentController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<BinaryContentDto> findAllByIn(
-        @RequestParam("binaryContentIds") Set<UUID> binaryContentIds) {
+    public List<BinaryContentDto> findAllByIn(@RequestParam Set<UUID> binaryContentIds) {
         return binaryContentRepository.findAllByIdIn(binaryContentIds);
     }
 
     @GetMapping("/{binaryContentId}")
     @ResponseStatus(HttpStatus.OK)
     public BinaryContentDto find(@PathVariable UUID binaryContentId) {
-        return binaryContentMapper.toDto(binaryContentRepository.getOrThrow(binaryContentId));
+        return binaryContentRepository.getOrThrowToDto(binaryContentId);
     }
 
     @GetMapping(
