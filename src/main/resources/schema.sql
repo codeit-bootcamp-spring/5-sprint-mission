@@ -24,15 +24,17 @@ CREATE TABLE IF NOT EXISTS users
     username   varchar(50)  NOT NULL UNIQUE,
     email      varchar(100) NOT NULL UNIQUE,
     password   varchar(60)  NOT NULL,
-    profile_id uuid
+    profile_id uuid         REFERENCES binary_contents (id) ON DELETE SET NULL
 );
+
+CREATE INDEX IF NOT EXISTS idx_users_profile ON users (profile_id);
 
 CREATE TABLE IF NOT EXISTS user_statuses
 (
     id             uuid PRIMARY KEY,
     created_at     timestamptz NOT NULL,
     updated_at     timestamptz,
-    user_id        uuid        NOT NULL UNIQUE,
+    user_id        uuid        NOT NULL UNIQUE REFERENCES users (id) ON DELETE CASCADE,
     last_active_at timestamptz NOT NULL
 );
 
@@ -41,9 +43,9 @@ CREATE TABLE IF NOT EXISTS channels
     id          uuid PRIMARY KEY,
     created_at  timestamptz NOT NULL,
     updated_at  timestamptz,
+    type        varchar(10) NOT NULL,
     name        varchar(100),
-    description varchar(500),
-    type        varchar(10) NOT NULL
+    description varchar(500)
 );
 
 CREATE TABLE IF NOT EXISTS read_statuses
@@ -51,8 +53,8 @@ CREATE TABLE IF NOT EXISTS read_statuses
     id           uuid PRIMARY KEY,
     created_at   timestamptz NOT NULL,
     updated_at   timestamptz,
-    user_id      uuid        NOT NULL,
-    channel_id   uuid        NOT NULL,
+    user_id      uuid        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    channel_id   uuid        NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
     last_read_at timestamptz NOT NULL,
     CONSTRAINT uq_read_statuses UNIQUE (user_id, channel_id)
 );
@@ -65,17 +67,21 @@ CREATE TABLE IF NOT EXISTS messages
     created_at timestamptz NOT NULL,
     updated_at timestamptz,
     content    text,
-    channel_id uuid        NOT NULL,
-    author_id  uuid
+    channel_id uuid        NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
+    author_id  uuid        REFERENCES users (id) ON DELETE SET NULL
 );
+
+CREATE INDEX IF NOT EXISTS idx_messages_author ON messages (author_id);
 
 CREATE INDEX IF NOT EXISTS idx_messages_channel_created ON messages (channel_id, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS message_attachments
 (
-    message_id    uuid NOT NULL,
-    attachment_id uuid NOT NULL,
+    message_id    uuid NOT NULL REFERENCES messages (id) ON DELETE CASCADE,
+    attachment_id uuid NOT NULL REFERENCES binary_contents (id) ON DELETE CASCADE,
     order_index   int  NOT NULL,
     PRIMARY KEY (message_id, attachment_id),
     CONSTRAINT uq_msg_attachments_message_order UNIQUE (message_id, order_index)
 );
+
+CREATE INDEX IF NOT EXISTS idx_msg_att_attachment ON message_attachments (attachment_id);
