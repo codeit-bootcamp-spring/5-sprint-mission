@@ -30,15 +30,16 @@ public class AuthService {
     public UserDto login(LoginRequest req) {
         String username = req.username().strip().toLowerCase(Locale.ROOT);
 
-        User u = userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UnauthorizedException("Username or password incorrect"));
-        if (!passwordEncoder.matches(req.password(), u.getPassword())) {
+        if (!passwordEncoder.matches(req.password(), user.getPassword())) {
             throw new UnauthorizedException("Username or password incorrect");
         }
 
-        UserStatus us = userStatusRepository.getOrCreateByUser(u);
-        us.setLastActiveAt(Instant.now());
+        UserStatus userStatus = userStatusRepository.getOrCreateByUser(user);
+        userStatus.setLastActiveAt(Instant.now());
+        user.setUserStatus(userStatus);
 
-        return userMapper.toDto(u, us);
+        return userMapper.toDto(user);
     }
 }

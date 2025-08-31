@@ -50,18 +50,19 @@ public class UserService {
             ? binaryContentRepository.save(toBinaryContentFromMultipartFile(profile))
             : null;
 
-        User savedUser = userRepository.save(
+        User user = userRepository.save(
             new User(
                 username,
                 email,
                 password,
-                savedProfile
+                savedProfile,
+                null
             )
         );
 
-        UserStatus savedUserStatus = userStatusRepository.save(new UserStatus(savedUser));
+        user.setUserStatus(userStatusRepository.save(new UserStatus(user)));
 
-        return userMapper.toDto(savedUser, savedUserStatus);
+        return userMapper.toDto(user);
     }
 
     @Transactional
@@ -106,7 +107,7 @@ public class UserService {
             }
         }
 
-        return userMapper.toDto(u, userStatusRepository.getOrCreateByUser(u));
+        return userMapper.toDto(u);
     }
 
     @Transactional

@@ -15,21 +15,20 @@ import org.mapstruct.Named;
 )
 public interface UserMapper {
 
-    @Mapping(source = "user.id", target = "id")
     @Mapping(source = "userStatus", target = "online", qualifiedByName = "mapOnline")
-    UserDto toDto(User user, UserStatus userStatus);
+    UserDto toDto(User user);
 
-    @Mapping(source = "user.id", target = "id")
+    @Named("userToDtoWithSince")
     @Mapping(source = "userStatus", target = "online", qualifiedByName = "mapOnlineWithSince")
-    UserDto toDto(User user, UserStatus userStatus, @Context Instant onlineSince);
+    UserDto toDto(User user, @Context Instant onlineSince);
 
     @Named("mapOnline")
-    default boolean mapOnline(UserStatus userStatus) {
-        return userStatus != null && userStatus.isOnline();
+    default boolean mapOnline(UserStatus us) {
+        return us != null && us.isOnline();
     }
 
     @Named("mapOnlineWithSince")
-    default boolean mapOnline(UserStatus userStatus, @Context Instant onlineSince) {
-        return userStatus != null && userStatus.isOnline(onlineSince);
+    default boolean mapOnline(UserStatus us, @Context Instant onlineSince) {
+        return us != null && us.isOnline(onlineSince);
     }
 }

@@ -35,28 +35,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     )
     List<UserDto> findAll(@Param("onlineSince") Instant onlineSince);
 
-    @Query("""
-        SELECT new com.sprint.mission.discodeit.dto.user.UserDto(
-            u.id,
-            u.username,
-            u.email,
-            p.id,
-            p.fileName,
-            p.size,
-            p.contentType,
-            CASE WHEN us.lastActiveAt IS NOT NULL AND us.lastActiveAt >= :onlineSince
-                 THEN TRUE ELSE FALSE END
-        )
-        FROM User u
-        LEFT JOIN UserStatus us ON us.user = u
-        LEFT JOIN u.profile p
-        WHERE u.id in :ids
-        """
-    )
-    List<UserDto> findAllByIdIn(
-        @Param("ids") Collection<UUID> ids,
-        @Param("onlineSince") Instant onlineSince
-    );
+    List<User> findAllByIdIn(Collection<UUID> ids);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<User> findForDeleteById(UUID id);

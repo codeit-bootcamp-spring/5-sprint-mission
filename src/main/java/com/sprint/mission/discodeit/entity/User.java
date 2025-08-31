@@ -28,6 +28,9 @@ public class User extends BaseUpdatableEntity {
     @JoinColumn(name = "profile_id")
     private BinaryContent profile;
 
+    @OneToOne(mappedBy = "user")
+    private UserStatus userStatus;
+
     @Override
     public String toString() {
         return "User[id=%s, username=%s, email=%s, profileId=%s]"

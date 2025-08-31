@@ -74,7 +74,7 @@ public class MessageService {
 
         }
 
-        return messageMapper.toDto(m, userMapper.toDto(author, authorStatus), binaryContents);
+        return messageMapper.toDto(m, binaryContents);
     }
 
     @Transactional

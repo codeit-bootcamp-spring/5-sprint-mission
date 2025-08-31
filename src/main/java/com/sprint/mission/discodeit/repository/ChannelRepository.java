@@ -21,7 +21,7 @@ public interface ChannelRepository extends JpaRepository<Channel, UUID> {
         """)
     List<Channel> findAllByUserId(@Param("userId") UUID userId);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.PESSIMISTIC_READ)
     Optional<Channel> findForUpdateById(UUID id);
 
     @Query("""
