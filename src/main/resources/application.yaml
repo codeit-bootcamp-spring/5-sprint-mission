@@ -28,9 +28,10 @@ spring:
 
 
 discodeit:
-  repository:
-    type: file # jcf | file
-    file-directory: .discodeit
+  storage:
+    type: local
+    local:
+      root-path: .discodeit
 
 springdoc:
   api-docs:

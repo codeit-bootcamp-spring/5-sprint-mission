@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.neutral.NewBinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import jakarta.validation.Valid;
@@ -10,7 +11,7 @@ public interface BinaryContentService {
 
   BinaryContent create(@Valid NewBinaryContent newBinaryContent);
 
-  BinaryContent findById(UUID id);
+  BinaryContentDto findById(UUID id);
 
   List<BinaryContent> findAllByIdIn(List<UUID> ids);
 

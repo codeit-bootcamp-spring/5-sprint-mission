@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BinaryContentController {
 
   private final BinaryContentService binaryContentService;
+  private final BinaryContentStorage binaryContentStorage;
 
   @Operation(summary = "첨부 파일 조회")
   @ApiResponses(value = {
@@ -36,10 +39,11 @@ public class BinaryContentController {
   })
   @Parameter(name = "binaryContentId", description = "조회할 첨부 파일 ID")
   @GetMapping("/{binaryContentId}")
-  public ResponseEntity<BinaryContent> find(@PathVariable("binaryContentId") UUID binaryContentId) {
-    BinaryContent binaryContent = binaryContentService.findById(binaryContentId);
+  public ResponseEntity<BinaryContentDto> find(
+      @PathVariable("binaryContentId") UUID binaryContentId) {
+    BinaryContentDto dto = binaryContentService.findById(binaryContentId);
 
-    return ResponseEntity.status(HttpStatus.OK).body(binaryContent);
+    return ResponseEntity.status(HttpStatus.OK).body(dto);
   }
 
   @Operation(summary = "여러 첨부 파일 조회")
@@ -51,5 +55,10 @@ public class BinaryContentController {
     List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
 
     return ResponseEntity.status(HttpStatus.OK).body(binaryContents);
+  }
+
+  @GetMapping("/{binaryContentId}/download")
+  public ResponseEntity<?> download(@PathVariable UUID binaryContentId) {
+    return binaryContentStorage.download(binaryContentService.findById(binaryContentId));
   }
 }
