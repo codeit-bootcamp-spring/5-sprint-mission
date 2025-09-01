@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +31,9 @@ import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.request.UpdateMessageRequest;
 import com.sprint.mission.discodeit.domain.response.CreateMessageResponse;
-import com.sprint.mission.discodeit.domain.response.MessagesInChannelResponse;
+import com.sprint.mission.discodeit.domain.response.PageResponse;
 import com.sprint.mission.discodeit.domain.response.UpdateMessageResponse;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,6 +47,7 @@ import lombok.RequiredArgsConstructor;
 public class MessageController {
 
 	private final MessageService messageService;
+	private final PageResponseMapper<Message> pageResponseMapper;
 
 	@PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<CreateMessageResponse> createMessage(
@@ -100,8 +103,8 @@ public class MessageController {
 	}
 
 	@GetMapping
-	public ResponseEntity<MessagesInChannelResponse> getMessagesInChannel(@RequestParam UUID channelId) {
-		List<Message> readMessages = messageService.findAllByChannelId(channelId);
-		return ResponseEntity.ok((toMessagesInChannelResponse(readMessages)));
+	public ResponseEntity<PageResponse<Message>> getMessagesInChannel(@RequestParam UUID channelId) {
+		Page<Message> readMessages = messageService.findAllByChannelId(channelId);
+		return ResponseEntity.ok((pageResponseMapper.fromPage(readMessages)));
 	}
 }

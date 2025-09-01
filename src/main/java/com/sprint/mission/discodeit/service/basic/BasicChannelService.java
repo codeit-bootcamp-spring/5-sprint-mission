@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,7 +89,7 @@ public class BasicChannelService implements ChannelService {
 		List<ChannelDetail> channelDetails = filteredChannels.stream()
 		  .map(c ->
 		  {
-			  List<Message> messages = messageRepository.findAllByChannelId(c.getId());
+			  Page<Message> messages = messageRepository.findAllByChannelId(c.getId(), PageRequest.of(0, 50));
 			  Instant lastMessageAt = messages.isEmpty() ? null : getLastEditAt(messages);
 			  List<UUID> membersIDList = c.getType() == PRIVATE ?
 				readStatusRepository.findAllByChannelId(c.getId())
@@ -172,7 +174,7 @@ public class BasicChannelService implements ChannelService {
 		return readStatusRepository.findAllByChannelId(id).stream().map(ReadStatus::getUser).toList();
 	}
 
-	private Instant getLastEditAt(List<Message> messages) {
+	private Instant getLastEditAt(Page<Message> messages) {
 		return messages.stream().map(this::getMessageLastEditAt)
 		  .max(Instant::compareTo)
 		  .orElseThrow(() -> new NoSuchElementException("No messages found"));

@@ -5,6 +5,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,8 +122,9 @@ public class BasicMessageService implements MessageService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<Message> findAllByChannelId(UUID channelId) {
-		return messageRepository.findAllByChannelId(channelId);
+	public Page<Message> findAllByChannelId(UUID channelId) {
+		PageRequest pageRequest = PageRequest.of(0, 50, Sort.by("createdAt").descending());
+		return messageRepository.findAllByChannelId(channelId, pageRequest);
 	}
 
 	@Override

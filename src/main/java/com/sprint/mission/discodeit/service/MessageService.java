@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+
 import com.sprint.mission.discodeit.domain.dto.CreateMessageDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateMessageDTO;
 import com.sprint.mission.discodeit.domain.entity.Message;
@@ -16,7 +18,7 @@ public interface MessageService {
 
 	Message read(UUID id);
 
-	List<Message> findAllByChannelId(UUID channelId);
+	Page<Message> findAllByChannelId(UUID channelId);
 
 	boolean isEmpty(UUID channelId);
 
