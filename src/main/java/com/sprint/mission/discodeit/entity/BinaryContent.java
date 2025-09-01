@@ -1,50 +1,32 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.NoArgsConstructor;
 
 @Getter
-@ToString
-public class BinaryContent implements Serializable {
+@Entity
+@Table(name = "binary_contents")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class BinaryContent extends BaseEntity {
 
-  private static final long serialVersionUID = 1L;
-  private final UUID id;
-  private final String fileName;
-  private final Long fileSize;
-  private final byte[] content;
-  private final String contentType;
-  private final Instant createdAt;
+  @Column(nullable = false)
+  private String fileName;
 
-  public BinaryContent(byte[] content, String contentType, String fileName, Long fileSize) {
-    this.id = UUID.randomUUID();
-    this.content = content;
-    this.contentType = contentType;
-    this.createdAt = Instant.now();
-    this.fileName = fileName;
-    this.fileSize = fileSize;
-  }
+  @Column(nullable = false)
+  private Long size;
 
-  public static BinaryContent of(byte[] content, String contentType, String fileName,
-      Long fileSize) {
-    return new BinaryContent(content, contentType, fileName, fileSize);
-  }
+//  @Lob
+//  @Column(nullable = false)
+//  private byte[] bytes;
 
-  public static BinaryContent of(MultipartFile file) {
-    try {
-      byte[] content = file.getBytes();
-      String contentType = file.getContentType();
-      String fileName = file.getName();
-      Long fileSize = file.getSize();
-
-      return new BinaryContent(content, contentType, fileName, fileSize);
-    } catch (IOException e) {
-      // TODO 필요하면 추가 처리
-      throw new RuntimeException("BinaryContent of error", e);
-    }
-  }
+  @Column(nullable = false)
+  private String contentType;
 }
