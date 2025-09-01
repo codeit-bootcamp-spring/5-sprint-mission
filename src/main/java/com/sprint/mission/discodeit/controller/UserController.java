@@ -32,8 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserService userService;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @GetMapping
     public List<UserDto> findAll() {

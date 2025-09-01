@@ -10,52 +10,72 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
+import com.sprint.mission.discodeit.repository.MessageAttachmentRepository.MessageBinaryRow;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MessageService {
 
-    private final MessageRepository messageRepository;
+    private final BinaryContentRepository binaryContentRepository;
     private final ChannelRepository channelRepository;
+    private final MessageRepository messageRepository;
+    private final MessageAttachmentRepository messageAttachmentRepository;
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
-    private final BinaryContentRepository binaryContentRepository;
-    private final MessageAttachmentRepository messageAttachmentRepository;
 
     private final BinaryContentMapper binaryContentMapper;
-    private final UserMapper userMapper;
     private final MessageMapper messageMapper;
+    private final UserMapper userMapper;
 
     public List<MessageDto> findAllByChannelId(UUID channelId) {
-        Channel c = channelRepository.getOrThrow(channelId);
-        return List.of();
+        List<Message> messages = messageRepository.findAllByChannelId(channelId);
+        if (messages.isEmpty()) {
+            return List.of();
+        }
+
+        List<UUID> messageIds = messages.stream().map(Message::getId).toList();
+
+        List<MessageBinaryRow> rows =
+            messageAttachmentRepository.findBinariesByMessageIds(messageIds);
+
+        Map<UUID, List<BinaryContent>> messageIdToBinaries = rows.stream()
+            .collect(Collectors.groupingBy(
+                MessageBinaryRow::getMessageId,
+                Collectors.mapping(MessageBinaryRow::getAttachment,
+                    Collectors.toList())
+            ));
+
+        return messages.stream()
+            .map(m -> messageMapper.toDto(
+                m,
+                messageIdToBinaries.getOrDefault(m.getId(), List.of())
+            ))
+            .toList();
     }
 
     @Transactional
     public MessageDto create(MessageCreateRequest req, List<MultipartFile> attachments) {
         Channel channel = channelRepository.getOrThrow(req.channelId());
         User author = userRepository.getOrThrow(req.authorId());
-        UserStatus authorStatus = userStatusRepository.getOrCreateByUser(author);
 
         String content = req.content() != null ? req.content().strip() : null;
 
@@ -68,10 +88,9 @@ public class MessageService {
                 BinaryContent bc = binaryContentRepository.save(
                     toBinaryContentFromMultipartFile(attachment));
                 messageAttachmentRepository.save(
-                    new MessageAttachment(m.getId(), bc.getId(), orderIndex++));
+                    new MessageAttachment(m, bc, orderIndex++));
                 binaryContents.add(bc);
             }
-
         }
 
         return messageMapper.toDto(m, binaryContents);
@@ -85,9 +104,14 @@ public class MessageService {
     @Transactional
     public MessageDto update(UUID messageId, MessageUpdateRequest req) {
         Message m = messageRepository.getOrThrow(messageId);
+
         if (req.newContent() != null) {
-            m.setContent(req.newContent());
+            m.setContent(req.newContent().strip());
         }
-        return null;
+
+        List<BinaryContent> attachments =
+            messageAttachmentRepository.findAttachmentsByMessageId(messageId);
+
+        return messageMapper.toDto(m, attachments);
     }
 }

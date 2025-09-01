@@ -11,7 +11,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/messages")
-@Validated
 public class MessageController {
 
     private final MessageService messageService;
@@ -43,10 +41,8 @@ public class MessageController {
     @ResponseStatus(HttpStatus.CREATED)
     public MessageDto create(
         @RequestPart("messageCreateRequest") @Valid MessageCreateRequest req,
-        @RequestPart(
-            value = "attachments",
-            required = false
-        ) List<@NotNull MultipartFile> attachments
+        @RequestPart(value = "attachments", required = false)
+        List<@NotNull MultipartFile> attachments
     ) {
         return messageService.create(req, attachments);
     }
@@ -57,7 +53,7 @@ public class MessageController {
         messageService.delete(messageId);
     }
 
-    @PatchMapping(path = "/{messageId}")
+    @PatchMapping("/{messageId}")
     @ResponseStatus(HttpStatus.OK)
     public MessageDto update(
         @PathVariable UUID messageId,

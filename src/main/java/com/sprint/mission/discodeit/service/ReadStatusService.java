@@ -31,13 +31,16 @@ public class ReadStatusService {
         User u = userRepository.getOrThrow(req.userId());
         Channel c = channelRepository.getOrThrow(req.channelId());
         return readStatusMapper.toDto(
-            readStatusRepository.save(new ReadStatus(u, c, req.lastReadAt())));
+            readStatusRepository.save(new ReadStatus(u, c, req.lastReadAt()))
+        );
     }
 
     @Transactional
     public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest req) {
         ReadStatus rs = readStatusRepository.getOrThrow(readStatusId);
-        rs.setLastReadAt(req.newLastReadAt());
+        if (req.newLastReadAt() != null) {
+            rs.setLastReadAt(req.newLastReadAt());
+        }
         return readStatusMapper.toDto(rs);
     }
 }

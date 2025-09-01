@@ -28,7 +28,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         @Param("channels") Collection<Channel> channels
     );
 
-
     @Query("""
         SELECT MAX(m.createdAt)
         FROM Message m
@@ -37,12 +36,20 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     )
     Instant findLastMessageAtByChannel(@Param("channel") Channel channel);
 
+    @Query("""
+            SELECT m
+            FROM Message m
+            JOIN FETCH m.author a
+            LEFT JOIN FETCH a.profile
+            WHERE m.channel.id = :channelId
+            ORDER BY m.createdAt ASC
+        """)
+    List<Message> findAllByChannelId(UUID channelId);
+
     default Message getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->
             new NotFoundException(
                 "Message with id %s not found".formatted(id))
         );
     }
-
-    void deleteAllByChannel(Channel channel);
 }

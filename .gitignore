@@ -38,3 +38,5 @@ out/
 
 ### storage ###
 /file-data-map/**/*.ser
+
+.sdkmanrc

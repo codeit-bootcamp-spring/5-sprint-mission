@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
-import java.util.UUID;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,26 +15,35 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@IdClass(MessageAttachmentId.class)
 @Table(name = "message_attachments")
 public class MessageAttachment {
 
-    @Id
-    @EqualsAndHashCode.Include
-    private UUID messageId;
+    @EmbeddedId
+    private MessageAttachmentId id;
 
-    @Id
-    @EqualsAndHashCode.Include
-    private UUID attachmentId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @MapsId("messageId")
+    @JoinColumn(name = "message_id")
+    private Message message;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @MapsId("attachmentId")
+    @JoinColumn(name = "attachment_id")
+    private BinaryContent attachment;
 
     private int orderIndex;
+
+    public MessageAttachment(Message message, BinaryContent attachment, int orderIndex) {
+        this.id = new MessageAttachmentId(message.getId(), attachment.getId());
+        this.message = message;
+        this.attachment = attachment;
+        this.orderIndex = orderIndex;
+    }
 
     @Override
     public String toString() {
         return "MessageAttachment[messageId=%s, attachmentId=%s, orderIndex=%s]"
-            .formatted(messageId, attachmentId, orderIndex);
+            .formatted(message.getId(), attachment.getId(), orderIndex);
     }
 }

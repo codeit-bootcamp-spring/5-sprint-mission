@@ -15,7 +15,6 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
     List<ReadStatusDto> findAllByUserId(UUID userId);
 
-
     @Query("""
             SELECT rs.user
             FROM ReadStatus rs

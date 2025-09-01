@@ -38,13 +38,8 @@ public class ChannelController {
 
     @PostMapping(path = "/public")
     @ResponseStatus(HttpStatus.CREATED)
-    public ChannelDto createPublic(
-
-        @RequestBody
-        @Valid
-        PublicChannelCreateRequest req
+    public ChannelDto createPublic(@RequestBody @Valid PublicChannelCreateRequest req
     ) {
-
         return channelService.create(req);
     }
 
