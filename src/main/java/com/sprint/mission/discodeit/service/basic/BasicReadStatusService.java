@@ -51,7 +51,7 @@ public class BasicReadStatusService implements ReadStatusService {
 			  "ReadStatus with userId " + userId + "  and channelId " + channelId + " already exists");
 		}
 
-		ReadStatus readStatuses = new ReadStatus(user, channel, lastReadAt);
+		ReadStatus readStatuses = new ReadStatus(user, channel);
 
 		return readStatusRepository.save(readStatuses);
 	}

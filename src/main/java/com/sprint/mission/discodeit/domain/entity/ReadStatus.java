@@ -31,10 +31,10 @@ public class ReadStatus extends BaseUpdatableEntity {
 	@JoinColumn(name = "channel_id", nullable = false)
 	private Channel channel;
 
-	public ReadStatus(@NonNull User user, @NonNull Channel channel, Instant lastReadAt) {
+	public ReadStatus(@NonNull User user, @NonNull Channel channel) {
 		this.user = user;
 		this.channel = channel;
-		this.lastReadAt = lastReadAt;
+		this.lastReadAt = Instant.now();
 	}
 
 	public void setLastReadAt(Instant newLsatReadAt) {

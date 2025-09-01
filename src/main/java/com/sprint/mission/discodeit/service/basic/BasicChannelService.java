@@ -3,13 +3,11 @@ package com.sprint.mission.discodeit.service.basic;
 import static com.sprint.mission.discodeit.domain.enums.ChannelType.*;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,38 +45,34 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional
-	public CreatePublicChannelResult createPublic(CreatePublicChannelDTO dto) {
+	public Channel createPublic(CreatePublicChannelDTO dto) {
 		String name = dto.getName();
 		String description = dto.getDescription();
 
-		Channel savedChannel = channelRepository.save(new Channel(PUBLIC, name, description));
-
-		return CreatePublicChannelResult.builder().channel(savedChannel).build();
+		return channelRepository.save(new Channel(PUBLIC, name, description));
 	}
 
 	@Override
 	@Transactional
-	public CreatePrivateChannelResult createPrivate(CreatePrivateChannelDTO dto) {
+	public Channel createPrivate(CreatePrivateChannelDTO dto) {
 
 		Channel newChannel = new Channel(PRIVATE);
-
+		channelRepository.save(newChannel);
 		dto.getUserIds().forEach(
 		  id -> readStatusRepository.save(
 			new ReadStatus(
 			  userRepository.findById(id)
 				.orElseThrow(() -> new NoSuchElementException("userId with" + id + "notFound")),
-			  newChannel,
-			  null))
+			  newChannel
+			))
 		);
 
-		Channel savedChannel = channelRepository.save(newChannel);
-
-		return CreatePrivateChannelResult.builder().channel(savedChannel).build();
+		return newChannel;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ChannelDetail> readAllByUserId(UUID userId) {
+	public List<Channel> readAllByUserId(UUID userId) {
 		// 필터링: PUBLIC 채널 또는 사용자가 참여한 PRIVATE 채널
 		List<Channel> filteredChannels = channelRepository.findAll().stream()
 		  .filter(c -> c.getType() == PUBLIC || readStatusRepository.findAllByUserId(userId)
@@ -86,23 +80,7 @@ public class BasicChannelService implements ChannelService {
 			.anyMatch(us -> us.getChannel().getId().equals(c.getId())))
 		  .toList();
 
-		List<ChannelDetail> channelDetails = filteredChannels.stream()
-		  .map(c ->
-		  {
-			  Page<Message> messages = messageRepository.findAllByChannelId(c.getId(), PageRequest.of(0, 50));
-			  Instant lastMessageAt = messages.isEmpty() ? null : getLastEditAt(messages);
-			  List<UUID> membersIDList = c.getType() == PRIVATE ?
-				readStatusRepository.findAllByChannelId(c.getId())
-				  .stream()
-				  .map((r) -> r.getUser().getId())
-				  .toList()
-				: new ArrayList<>();
-
-			  return toReadChannelDetail(c, lastMessageAt, membersIDList);
-		  })
-		  .toList();
-
-		return channelDetails;
+		return filteredChannels;
 	}
 
 	@Override
@@ -123,7 +101,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional
-	public UpdateChannelResult update(UpdateChannelDTO dto) {
+	public Channel update(UpdateChannelDTO dto) {
 		UUID id = dto.getId();
 		String newChannelName = dto.getName();
 		String newDescription = dto.getDescription();
@@ -145,8 +123,7 @@ public class BasicChannelService implements ChannelService {
 			targetChannel.setDescription(newDescription);
 		}
 
-		Channel updatedChannel = channelRepository.save(targetChannel);
-		return UpdateChannelResult.builder().updatedChannel(updatedChannel).build();
+		return channelRepository.save(targetChannel);
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.domain.dto.binaryContent;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,5 +16,6 @@ public class BinaryContentDto {
 	private String fileName;
 	private Long size;
 	private String contentType;
+	@JsonIgnore
 	byte[] bytes;
 }
