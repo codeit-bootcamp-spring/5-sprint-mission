@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.entity.User;
 import org.springframework.stereotype.Service;
 
 import com.sprint.mission.discodeit.dto.request.userStatus.UserStatusCreateRequest;
@@ -28,14 +29,17 @@ public class BasicUserStatusService implements UserStatusService {
 	@Override
 	public UserStatusResponse create(UserStatusCreateRequest request) {
 		if (!userRepository.existsById(request.getUserId())) {
-			throw new UserNotFoundException();
-		}
+            throw new UserNotFoundException();
+        }
 
 		if (userStatusRepository.findByUserId(request.getUserId()).isPresent()) {
 			throw new AlreadyExistsUserStatusException();
 		}
 
-		UserStatus userStatus = new UserStatus(request.getUserId());
+        User user = userRepository.findById(request.getUserId())
+            .orElseThrow(UserNotFoundException::new);
+
+		UserStatus userStatus = new UserStatus(user);
 		userStatusRepository.save(userStatus);
 
 		return UserStatusResponse.success(userStatus);

@@ -2,13 +2,8 @@ package com.sprint.mission.discodeit.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sprint.mission.discodeit.entity.common.BaseUpdatableEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
@@ -20,23 +15,25 @@ import java.util.UUID;
 @Getter @Setter @SuperBuilder /*@ToString*/
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserStatus extends BaseUpdatableEntity implements Serializable {
 //	@Serial
 //	private static final long serialVersionUID = 1L;
 
-    @Column(unique = true, nullable = false, updatable = false)
-	private UUID userId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true, updatable = false)
+    private User user;
 
     @Column(nullable = false)
 	private Instant lastActiveAt;
 
-	public UserStatus(UUID userID){
-		this.userId = userID;
-	}
+    public UserStatus(User user) {
+        this.user = user;
+    }
 
 	public UserStatus(UserStatus original) {
         super(original.getId(), original.getCreatedAt(), original.getUpdatedAt());
-		this.userId = original.userId;
+		this.user = original.user;
 		this.lastActiveAt = original.lastActiveAt;
 	}
 

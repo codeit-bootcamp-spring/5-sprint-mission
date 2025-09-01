@@ -65,7 +65,7 @@ public class BasicUserService implements UserService {
 
 		userRepository.save(user);
 
-		UserStatus userStatus = new UserStatus(user.getId());
+		UserStatus userStatus = new UserStatus(user);
 		userStatusRepository.save(userStatus);
 
 		List<Channel> publicChannels = channelRepository.findAll().stream()
@@ -73,7 +73,7 @@ public class BasicUserService implements UserService {
 				.toList();
 
 		for (Channel channel : publicChannels) {
-			ReadStatus readStatus = new ReadStatus(user.getId(), channel.getId());
+			ReadStatus readStatus = new ReadStatus(user, channel);
 			readStatusRepository.save(readStatus);
 		}
 

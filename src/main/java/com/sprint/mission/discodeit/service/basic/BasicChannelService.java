@@ -49,7 +49,7 @@ public class BasicChannelService implements ChannelService {
 
 		List<User> allUsers = userRepository.findAll();
 		for (User user : allUsers) {
-			ReadStatus readStatus = new ReadStatus(user.getId(), channel.getId());
+			ReadStatus readStatus = new ReadStatus(user, channel);
 			readStatusRepository.save(readStatus);
 		}
 
@@ -58,6 +58,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	public ChannelCreateResponse create(PrivateChannelCreateRequest request) {
+
 		List<java.util.UUID> participantIds = request.getParticipantIds().stream().distinct().toList();
 
 		for (java.util.UUID userId : participantIds) {
@@ -72,8 +73,11 @@ public class BasicChannelService implements ChannelService {
 		Channel channel = new Channel(participantIds);
 		channelRepository.save(channel);
 
-		for (java.util.UUID userId : participantIds) {
-			ReadStatus readStatus = new ReadStatus(userId, channel.getId());
+		for (UUID userId : participantIds) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(UserNotFoundException::new);
+
+			ReadStatus readStatus = new ReadStatus(user, channel);
 			readStatusRepository.save(readStatus);
 		}
 
@@ -99,8 +103,8 @@ public class BasicChannelService implements ChannelService {
 	@Override
 	public List<ChannelResponse> findChannelsByUserId(UUID userId) {
 
-		List<java.util.UUID> myChannelIds = readStatusRepository.findByUserId(userId).stream()
-				.map(ReadStatus::getChannelId)
+		List<UUID> myChannelIds = readStatusRepository.findByUserId(userId).stream()
+				.map(rs -> rs.getChannel().getId())
 				.toList();
 
 		return channelRepository.findAll().stream()
@@ -191,7 +195,7 @@ public class BasicChannelService implements ChannelService {
 	private List<UUID> getPrivateChannelParticipants(UUID channelId) {
 		return readStatusRepository.findByChannelId(channelId)
 			.stream()
-			.map(ReadStatus::getUserId)
+			.map(rs -> rs.getUser().getId())
 			.toList();
 	}
 }

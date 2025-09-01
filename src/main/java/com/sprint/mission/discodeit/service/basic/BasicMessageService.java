@@ -6,10 +6,7 @@ import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessagesGetByAuthorRequest;
 import com.sprint.mission.discodeit.dto.response.message.MessageDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.message.UnauthorizedMessageAccessException;
@@ -18,6 +15,8 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,13 +31,19 @@ public class BasicMessageService implements MessageService {
 	private final UserRepository userRepository;
 	private final BinaryContentRepository binaryContentRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
 
 	@Override
 	public MessageResponse createMessage(MessageCreateRequest request) {
+        User author = userRepository.findById(request.getAuthorId())
+                .orElseThrow(() -> new RuntimeException("User not found: " + request.getAuthorId()));
+
 		Channel channel = channelRepository.findById(request.getChannelId())
 				.orElseThrow(ChannelNotFoundException::new);
 
-		Message message = new Message(request.getAuthorId(), request.getChannelId(), request.getContent());
+		Message message = new Message(author, channel, request.getContent());
 
 		addAttachments(message, request.getAttachments());
 		messageRepository.save(message);
@@ -98,7 +103,7 @@ public class BasicMessageService implements MessageService {
 		Message message = messageRepository.findById(messageId)
 				.orElseThrow(MessageNotFoundException::new);
 
-		if (!message.getAuthorId().equals(request.getAuthorId())) {
+		if (!message.getAuthor().getId().equals(request.getAuthorId())) {
 			throw new UnauthorizedMessageAccessException();
 		}
 
@@ -122,15 +127,17 @@ public class BasicMessageService implements MessageService {
 		Message message = messageRepository.findById(messageId)
 			.orElseThrow(MessageNotFoundException::new);
 
-		if (!message.getAuthorId().equals(authorId)) {
+		if (!message.getAuthor().getId().equals(authorId)) {
 			throw new UnauthorizedMessageAccessException();
 		}
 
-		for (UUID attachmentId : message.getAttachmentIds()) {
+		for (MessageAttachment attachment : message.getAttachments()) {
+            UUID attachmentId = attachment.getAttachment().getId();
 			binaryContentRepository.deleteById(attachmentId);
 		}
 
 		messageRepository.deleteById(messageId);
+        entityManager.clear();
 
 		return MessageDeleteResponse.success(message);
 	}
@@ -146,7 +153,7 @@ public class BasicMessageService implements MessageService {
 				);
 				binaryContentRepository.save(binaryContent);
 
-				message.addAttachment(binaryContent.getId());
+				message.addAttachment(binaryContent);
 			}
 		}
 	}

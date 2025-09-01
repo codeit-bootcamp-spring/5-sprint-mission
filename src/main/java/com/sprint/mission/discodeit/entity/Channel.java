@@ -2,9 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sprint.mission.discodeit.entity.common.BaseUpdatableEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +30,12 @@ public class Channel extends BaseUpdatableEntity implements Serializable {
     @Column(length = 1000)
 	private String description;
 
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ReadStatus> readStatus;
+
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Message> messages;
+
 
 	public Channel(String name, String description) {
 		this.name = Objects.requireNonNull(name, "채널 이름은 필수 입력값입니다.");
@@ -48,6 +52,8 @@ public class Channel extends BaseUpdatableEntity implements Serializable {
 		this.name = original.name;
 		this.type = original.type;
 		this.description = original.description;
+        this.readStatus = original.readStatus;
+        this.messages = original.messages;
 	}
 
 	public Channel copy() {

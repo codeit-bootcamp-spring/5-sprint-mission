@@ -2,9 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sprint.mission.discodeit.entity.common.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +10,8 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "binary_contents")
@@ -31,6 +31,9 @@ public class BinaryContent extends BaseEntity implements Serializable {
     @Column(nullable = false)
 	private byte[] bytes;
 
+    @OneToMany(mappedBy = "attachment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<MessageAttachment> attachments;
+
 	public BinaryContent(String fileName, String contentType, Long size, byte[] bytes) {
 		this.fileName = fileName;
 		this.contentType = contentType;
@@ -44,6 +47,7 @@ public class BinaryContent extends BaseEntity implements Serializable {
 		this.contentType = original.contentType;
 		this.size = original.size;
 		this.bytes = original.bytes;
+        this.attachments = original.attachments;
 	}
 
 	public BinaryContent copy(){

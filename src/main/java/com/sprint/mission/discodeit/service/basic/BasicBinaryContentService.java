@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +20,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BasicBinaryContentService implements BinaryContentService {
 	private final BinaryContentRepository binaryContentRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
 	@Override
 	public BinaryContentResponse create(UserProfileImageRequest request) {
@@ -56,6 +61,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 			.orElseThrow(BinaryContentNotFoundException::new);
 
 		binaryContentRepository.deleteById(id);
+        entityManager.clear();
 
 		return BinaryContentResponse.success(binaryContent);
 	}

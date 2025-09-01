@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sprint.mission.discodeit.entity.common.BaseUpdatableEntity;
 import jakarta.annotation.Nullable;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +12,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -35,25 +34,41 @@ public class User extends BaseUpdatableEntity implements Serializable {
 	private String email;
     @Column(nullable = false, length = 100)
 	private String defaultNickname;
-	@Column()
-	private UUID profileId;
 
-	public User(String username, String password, String defaultNickname, String email, @Nullable UUID profileId) {
+    // 연관관계
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private UserStatus userStatus;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private ReadStatus readStatus;
+
+    @OneToMany(mappedBy = "author")
+    private List<Message> messages;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id", unique = true)
+    private BinaryContent profile;
+
+	public User(String username, String password, String defaultNickname, String email, BinaryContent profile) {
         this.username = username;
 		this.password = password;
 		this.defaultNickname = defaultNickname;
 		this.email = email;
-		this.profileId = profileId;
+		this.profile = profile;
 	}
 
 	// 복사용
 	public User(User original) {
         super(original.getId(), original.getCreatedAt(), original.getUpdatedAt());
 		this.email = original.email;
-		this.profileId = original.profileId;
+		this.profile = original.profile;
 		this.username = original.username;
 		this.password = original.password;
 		this.defaultNickname = original.defaultNickname;
+        this.userStatus = original.userStatus;
+        this.readStatus = original.readStatus;
+        this.messages = original.messages;
 	}
 
 	public void updateUsername(String username) {
@@ -64,8 +79,8 @@ public class User extends BaseUpdatableEntity implements Serializable {
 		this.email = Objects.requireNonNull(email, "이메일은 필수 입력값입니다.");
 	}
 
-	public void updateProfileId(@Nullable UUID profileId) {
-		this.profileId = profileId;
+	public void updateProfile(BinaryContent profile) {
+		this.profile = profile;
 	}
 
 	public void updatePassword(String password) {
@@ -77,7 +92,7 @@ public class User extends BaseUpdatableEntity implements Serializable {
 	}
 
 	public void removeProfile() {
-		this.profileId = null;
+		this.profile = null;
 	}
 
 	public User copy() {
