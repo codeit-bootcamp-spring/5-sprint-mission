@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,8 +57,11 @@ public class BinaryContentController {
     return ResponseEntity.status(HttpStatus.OK).body(binaryContentDtos);
   }
 
+  @Operation(summary = "파일 다운로드")
+  @ApiResponse(responseCode = "200", description = "파일 다운로드 성공")
   @GetMapping("/{binaryContentId}/download")
-  public ResponseEntity<?> download(@PathVariable UUID binaryContentId) {
+  @Parameter(name = "binaryContentId", description = "다운로드할 파일 ID")
+  public ResponseEntity<Resource> download(@PathVariable UUID binaryContentId) {
     return binaryContentStorage.download(binaryContentService.findById(binaryContentId));
   }
 }

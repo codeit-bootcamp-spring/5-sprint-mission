@@ -46,7 +46,7 @@ public class MessageController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "201", description = "Message가 성공적으로 생성됨"),
       @ApiResponse(responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
-          content = @Content(examples = @ExampleObject(value = "Channel | Author with id {channelId | authorId} not found")))
+          content = @Content(examples = @ExampleObject(value = "Channel | Author with id {channelId | author} not found")))
   })
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto> create(
