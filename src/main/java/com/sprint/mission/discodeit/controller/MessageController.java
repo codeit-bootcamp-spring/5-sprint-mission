@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.message.data.MessageDto;
 import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.request.BinaryContentCreateRequest;
@@ -27,7 +28,7 @@ public class MessageController {
 
     // 메시지 생성
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Message> create(
+    public ResponseEntity<MessageDto> create(
             @RequestPart("messageCreateRequest") MessageCreateRequest request,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
@@ -47,17 +48,17 @@ public class MessageController {
                         .toList())
                 .orElse(new ArrayList<>());
 
-        Message created = messageService.create(request, attachmentRequests);
+        MessageDto created = messageService.create(request, attachmentRequests);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     // 수정
     @PatchMapping("/{messageId}")
-    public ResponseEntity<Message> update(
+    public ResponseEntity<MessageDto> update(
             @PathVariable UUID messageId,
             @RequestBody MessageUpdateRequest request
     ) {
-        Message updated = messageService.update(messageId, request);
+        MessageDto updated = messageService.update(messageId, request);
         return ResponseEntity.ok(updated);
     }
 
@@ -70,8 +71,8 @@ public class MessageController {
 
     // 채널별 메시지 조회
     @GetMapping
-    public ResponseEntity<List<Message>> findAllByChannelId(@RequestParam UUID channelId) {
-        List<Message> messages = messageService.findAllByChannelId(channelId);
+    public ResponseEntity<List<MessageDto>> findAllByChannelId(@RequestParam UUID channelId) {
+        List<MessageDto> messages = messageService.findAllByChannelId(channelId);
         return ResponseEntity.ok(messages);
     }
 }

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.main.User;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.dto.auth.request.LoginRequest;
@@ -16,8 +17,8 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
-        User user = authService.login(loginRequest);
+    public ResponseEntity<UserDto> login(@RequestBody LoginRequest loginRequest) {
+        UserDto user = authService.login(loginRequest);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(user);
