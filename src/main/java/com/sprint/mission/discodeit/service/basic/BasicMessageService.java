@@ -1,11 +1,13 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.neutral.MessageCreateCommand;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -32,10 +34,11 @@ public class BasicMessageService implements MessageService {
   private final UserRepository userRepository;
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
+  private final MessageMapper messageMapper;
 
   @Override
   @Transactional
-  public Message create(@Valid MessageCreateCommand command) {
+  public MessageDto create(@Valid MessageCreateCommand command) {
     String content = command.content();
     User author = userRepository.findById(command.authorId())
         .orElseThrow(() -> new NoSuchElementException("user not found :" + command.authorId()));
@@ -56,37 +59,40 @@ public class BasicMessageService implements MessageService {
 
     Message message = new Message(content, channel, author, attachments);
 
-    return messageRepository.save(message);
+    return messageMapper.toDto(messageRepository.save(message));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Message findById(UUID messageId) {
-    return messageRepository.findById(messageId)
-        .orElseThrow(
-            () -> new NoSuchElementException("findById : 메세지를 찾을 수 없습니다. [" + messageId + "]"));
+  public MessageDto findById(UUID messageId) {
+    return messageMapper.toDto(
+        messageRepository.findById(messageId)
+            .orElseThrow(
+                () -> new NoSuchElementException(
+                    "findById : 메세지를 찾을 수 없습니다. [" + messageId + "]")));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Message> findAllByChannelId(UUID channelId) {
+  public List<MessageDto> findAllByChannelId(UUID channelId) {
     if (!channelRepository.existsById(channelId)) {
       throw new NoSuchElementException("findAllByChannelId : 채널을 찾을 수 없습니다. [" + channelId + "]");
     }
     return messageRepository.findAll().stream()
         .filter(m -> m.getChannel().getId().equals(channelId))
-        .collect(Collectors.toList());
+        .map(messageMapper::toDto)
+        .toList();
   }
 
   @Override
   @Transactional
-  public Message update(UUID messageId, @Valid MessageUpdateRequest messageUpdateRequest) {
+  public MessageDto update(UUID messageId, @Valid MessageUpdateRequest messageUpdateRequest) {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(
             () -> new NoSuchElementException("update : 메세지를 찾을 수 없습니다. [" + messageId + "]"));
     message.update(messageUpdateRequest.newContent());
 
-    return messageRepository.save(message);
+    return messageMapper.toDto(messageRepository.save(message));
   }
 
   @Override

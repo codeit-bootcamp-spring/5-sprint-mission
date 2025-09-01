@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserLoginRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.AuthService;
@@ -34,9 +35,9 @@ public class AuthController {
           content = @Content(examples = @ExampleObject(value = "User with username {username} not found")))
   })
   @RequestMapping(value = "/login", method = RequestMethod.POST)
-  public ResponseEntity<User> login(@RequestBody UserLoginRequest userLoginRequest) {
-    User user = authService.login(userLoginRequest);
+  public ResponseEntity<UserDto> login(@RequestBody UserLoginRequest userLoginRequest) {
+    UserDto dto = authService.login(userLoginRequest);
 
-    return ResponseEntity.status(HttpStatus.OK).body(user);
+    return ResponseEntity.status(HttpStatus.OK).body(dto);
   }
 }

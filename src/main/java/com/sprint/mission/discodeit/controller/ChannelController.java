@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
@@ -41,9 +42,9 @@ public class ChannelController {
       @ApiResponse(responseCode = "201", description = "Public Channel이 성공적으로 생성됨")
   })
   @PostMapping("/public")
-  public ResponseEntity<Channel> create(
+  public ResponseEntity<ChannelDto> create(
       @RequestBody PublicChannelCreateRequest publicChannelCreateRequest) {
-    Channel publicChannel = channelService.create(publicChannelCreateRequest);
+    ChannelDto publicChannel = channelService.create(publicChannelCreateRequest);
     return ResponseEntity.status(HttpStatus.CREATED).body(publicChannel);
   }
 
@@ -52,9 +53,9 @@ public class ChannelController {
       @ApiResponse(responseCode = "201", description = "Private Channel이 성공적으로 생성됨")
   })
   @PostMapping("/private")
-  public ResponseEntity<Channel> create(
+  public ResponseEntity<ChannelDto> create(
       @RequestBody PrivateChannelCreateRequest privateChannelCreateRequest) {
-    Channel privateChannel = channelService.create(privateChannelCreateRequest);
+    ChannelDto privateChannel = channelService.create(privateChannelCreateRequest);
     return ResponseEntity.status(HttpStatus.CREATED).body(privateChannel);
   }
 
@@ -68,10 +69,10 @@ public class ChannelController {
   })
   @Parameter(name = "channelId", description = "수정할 Channel ID")
   @PatchMapping("/{channelId}")
-  public ResponseEntity<Channel> update(
+  public ResponseEntity<ChannelDto> update(
       @PathVariable UUID channelId,
       @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest) {
-    Channel updatedChannel = channelService.update(channelId, publicChannelUpdateRequest);
+    ChannelDto updatedChannel = channelService.update(channelId, publicChannelUpdateRequest);
     return ResponseEntity.status(HttpStatus.OK).body(updatedChannel);
   }
 
@@ -94,9 +95,9 @@ public class ChannelController {
   })
   @Parameter(name = "userId", description = "조회할 User ID")
   @GetMapping
-  public ResponseEntity<List<ChannelFindResponse>> findAllByUserId(
+  public ResponseEntity<List<ChannelDto>> findAllByUserId(
       @RequestParam(value = "userId") UUID userId) {
-    List<ChannelFindResponse> channelFindResponseList = channelService.findAllByUserId(userId);
+    List<ChannelDto> channelFindResponseList = channelService.findAllByUserId(userId);
     return ResponseEntity.status(HttpStatus.OK).body(channelFindResponseList);
   }
 }

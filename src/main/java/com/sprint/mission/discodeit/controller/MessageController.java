@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.neutral.MessageCreateCommand;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
@@ -49,7 +50,7 @@ public class MessageController {
           content = @Content(examples = @ExampleObject(value = "Channel | Author with id {channelId | authorId} not found")))
   })
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<Message> create(
+  public ResponseEntity<MessageDto> create(
       @RequestPart MessageCreateRequest messageCreateRequest,
       @RequestPart(required = false) @Schema(description = "Message 첨부 파일들") List<MultipartFile> attachments
   ) throws IOException {
@@ -61,8 +62,8 @@ public class MessageController {
         multipartFileMapper.toNewBinaryContentList(attachments)
     );
 
-    Message message = messageService.create(messageCreateCommand);
-    return ResponseEntity.status(HttpStatus.CREATED).body(message);
+    MessageDto messageDto = messageService.create(messageCreateCommand);
+    return ResponseEntity.status(HttpStatus.CREATED).body(messageDto);
   }
 
   @Operation(summary = "Message 내용 수정")
@@ -73,11 +74,11 @@ public class MessageController {
   })
   @Parameter(name = "messageId", description = "수정할 Message ID")
   @PatchMapping("/{messageId}")
-  public ResponseEntity<Message> update(
+  public ResponseEntity<MessageDto> update(
       @PathVariable UUID messageId,
       @RequestBody MessageUpdateRequest messageUpdateRequest) {
-    Message message = messageService.update(messageId, messageUpdateRequest);
-    return ResponseEntity.status(HttpStatus.OK).body(message);
+    MessageDto messageDto = messageService.update(messageId, messageUpdateRequest);
+    return ResponseEntity.status(HttpStatus.OK).body(messageDto);
   }
 
   @Operation(summary = "Message 삭제")
@@ -99,8 +100,8 @@ public class MessageController {
   })
   @Parameter(name = "channelId", description = "조회할 Channel ID")
   @GetMapping
-  public ResponseEntity<List<Message>> findAllByChannelId(@RequestParam UUID channelId) {
-    List<Message> messages = messageService.findAllByChannelId(channelId);
-    return ResponseEntity.status(HttpStatus.OK).body(messages);
+  public ResponseEntity<List<MessageDto>> findAllByChannelId(@RequestParam UUID channelId) {
+    List<MessageDto> messageDtos = messageService.findAllByChannelId(channelId);
+    return ResponseEntity.status(HttpStatus.OK).body(messageDtos);
   }
 }

@@ -3,9 +3,9 @@ package com.sprint.mission.discodeit.mapper;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import lombok.AllArgsConstructor;
-import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
-@Mapper
+@Component
 @AllArgsConstructor
 public class UserMapper {
 

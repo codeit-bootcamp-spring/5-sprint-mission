@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.UserStatusDto;
 import com.sprint.mission.discodeit.dto.neutral.UserCommand;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
@@ -53,7 +55,7 @@ public class UserController {
           content = @Content(examples = @ExampleObject(value = "User with email {email} already exists")))
   })
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<User> create(
+  public ResponseEntity<UserDto> create(
       @RequestPart UserCreateRequest userCreateRequest,
       @RequestPart(required = false) @Schema(description = "User 프로필 이미지") MultipartFile profile
   ) throws IOException {
@@ -64,8 +66,8 @@ public class UserController {
         userCreateRequest.password(),
         multipartFileMapper.toNewBinaryContent(profile));
 
-    User createdUser = userService.create(userCommand);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    UserDto userDto = userService.create(userCommand);
+    return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
   }
 
   @Operation(summary = "User 정보 수정")
@@ -78,7 +80,7 @@ public class UserController {
   })
   @Parameter(name = "userId", description = "수정할 User ID")
   @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<User> update(
+  public ResponseEntity<UserDto> update(
       @PathVariable UUID userId,
       @RequestPart UserUpdateRequest userUpdateRequest,
       @RequestPart(required = false) @Schema(description = "수정할 User 프로필 이미지") MultipartFile profile
@@ -91,9 +93,9 @@ public class UserController {
         multipartFileMapper.toNewBinaryContent(profile)
     );
 
-    User updatedUser = userService.update(userId, userCommand);
+    UserDto userDto = userService.update(userId, userCommand);
 
-    return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+    return ResponseEntity.status(HttpStatus.OK).body(userDto);
   }
 
   @Operation(summary = "User 삭제")
@@ -114,9 +116,9 @@ public class UserController {
       @ApiResponse(responseCode = "200", description = "User 목록 조회 성공")
   })
   @GetMapping
-  public ResponseEntity<List<UserFindResponse>> findAll() {
-    List<UserFindResponse> users = userService.findAll();
-    return ResponseEntity.status(HttpStatus.OK).body(users);
+  public ResponseEntity<List<UserDto>> findAll() {
+    List<UserDto> userDtos = userService.findAll();
+    return ResponseEntity.status(HttpStatus.OK).body(userDtos);
   }
 
   @Operation(summary = "User 온라인 상태 업데이트")
@@ -127,10 +129,10 @@ public class UserController {
   })
   @Parameter(name = "userId", description = "상태를 변경할 User ID")
   @PatchMapping("/{userId}/userStatus")
-  public ResponseEntity<UserStatus> updateUserStatusByUserId(
+  public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
       @PathVariable UUID userId,
       @RequestBody UserStatusUpdateRequest userStatusUpdateRequest) {
-    UserStatus updatedStatus = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
-    return ResponseEntity.status(HttpStatus.OK).body(updatedStatus);
+    UserStatusDto userStatusDto = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
+    return ResponseEntity.status(HttpStatus.OK).body(userStatusDto);
   }
 }

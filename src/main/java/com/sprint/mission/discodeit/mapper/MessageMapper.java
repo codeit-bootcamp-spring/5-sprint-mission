@@ -3,9 +3,9 @@ package com.sprint.mission.discodeit.mapper;
 import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.entity.Message;
 import lombok.AllArgsConstructor;
-import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
-@Mapper
+@Component
 @AllArgsConstructor
 public class MessageMapper {
 

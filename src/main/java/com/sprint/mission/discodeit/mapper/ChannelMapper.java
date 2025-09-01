@@ -7,10 +7,10 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import java.util.Comparator;
 import lombok.AllArgsConstructor;
-import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
-@Mapper
+@Component
 public class ChannelMapper {
 
   private final MessageRepository messageRepository;

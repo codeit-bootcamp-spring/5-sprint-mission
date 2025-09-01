@@ -50,11 +50,11 @@ public class BinaryContentController {
   @ApiResponse(responseCode = "200", description = "첨부 파일 목록 조회 성공")
   @Parameter(name = "binaryContentIds", description = "조회할 첨부 파일 ID 목록")
   @GetMapping
-  public ResponseEntity<List<BinaryContent>> findAllByIdIn(
+  public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
       @RequestParam List<UUID> binaryContentIds) {
-    List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
+    List<BinaryContentDto> binaryContentDtos = binaryContentService.findAllByIdIn(binaryContentIds);
 
-    return ResponseEntity.status(HttpStatus.OK).body(binaryContents);
+    return ResponseEntity.status(HttpStatus.OK).body(binaryContentDtos);
   }
 
   @GetMapping("/{binaryContentId}/download")
