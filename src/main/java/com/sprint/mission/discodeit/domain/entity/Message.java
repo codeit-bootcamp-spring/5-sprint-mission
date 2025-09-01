@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.domain.entity;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -9,6 +11,8 @@ import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,13 +33,20 @@ public class Message extends BaseUpdatableEntity {
 	@JoinColumn(name = "channel_id", nullable = false)
 	private Channel channel;
 
-	public Message(String content, @NonNull UUID authorId, @NonNull UUID channelId) {
+	@ManyToMany
+	@JoinTable(
+	  name = "message_attachment",
+	  joinColumns = @JoinColumn(name = "message_id"),
+	  inverseJoinColumns = @JoinColumn(name = "attachment_id")
+	)
+	private final List<BinaryContent> attachments = new ArrayList<>();
+
+	public Message(String content, @NonNull User user, @NonNull Channel channel) {
 		this.id = UUID.randomUUID();
 		this.createdAt = Instant.now();
 		this.updatedAt = null;
 		this.content = content;
-		// this.authorId = authorId;
-		// this.channelId = channelId;
+		this.user = user;
 	}
 
 	public Instant getLastEditedAt() {

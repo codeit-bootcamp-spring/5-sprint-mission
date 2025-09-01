@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
 import com.sprint.mission.discodeit.domain.dto.CreateUserDTO;
@@ -39,6 +40,7 @@ public class BasicUserService implements UserService {
 	private final UserStatusRepository userStatusRepository;
 
 	@Override
+	@Transactional
 	public User create(CreateUserDTO dto) {
 		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("CreateUserDTO cannot be null"));
 		String username = dto.getUsername();
@@ -52,18 +54,17 @@ public class BasicUserService implements UserService {
 		}
 
 		// 2. Profile Image 저장
-		BinaryContent savedProfileImage = null;
-		if (profileImage != null) {
-			savedProfileImage = binaryContentService.create(profileImage);
-		}
-		UUID ProfileId = savedProfileImage != null ? savedProfileImage.getId() : null;
+		UUID profileId = Optional.ofNullable(profileImage)
+		  .map(binaryContentService::create)
+		  .map(BinaryContent::getId)
+		  .orElse(null);
 
 		// 3. 인스턴스 생성
 		User newUser = new User(
 		  username,
 		  email,
 		  password,
-		  ProfileId
+		  profileId
 		);
 
 		// 4. User Status 생성
@@ -76,18 +77,19 @@ public class BasicUserService implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public UserDeleteResult delete(UUID userId) {
-		User targetUser = userRepository.find(userId)
+		User targetUser = userRepository.findById(userId)
 		  .orElseThrow(() -> new NoSuchElementException("User with ID " + userId + " does not exist"));
 
 		// 1. User Status 삭제
 		userStatusRepository.deleteByUserId(userId);
 		// 2. Profile Image 삭제
-		if (binaryContentRepository.find(targetUser.getProfileImage().getId()).isPresent()) {
-			binaryContentRepository.delete(targetUser.getProfileImage().getId());
+		if (binaryContentRepository.findById(targetUser.getProfileImage().getId()).isPresent()) {
+			binaryContentRepository.deleteById(targetUser.getProfileImage().getId());
 		}
 		// 3. User 삭제
-		userRepository.delete(userId);
+		userRepository.deleteById(userId);
 
 		return UserDeleteResult.builder()
 		  .isDeleted(true)
@@ -96,6 +98,7 @@ public class BasicUserService implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public UserUpdateResult update(UpdateUserDTO dto) {
 		UUID userId = dto.getUserId();
 		String newUsername = dto.getNewUsername();
@@ -103,22 +106,20 @@ public class BasicUserService implements UserService {
 		String newPassword = dto.getNewPassword();
 		CreateBiContentDTO newProfileImage = dto.getNewProfilePicture();
 
-		User targetUser = userRepository.find(userId)
+		User targetUser = userRepository.findById(userId)
 		  .orElseThrow(() -> new NoSuchElementException("User with ID " + userId + " does not exist"));
 		targetUser.setUsername(newUsername);
 		targetUser.setEmail(newEmail);
 		targetUser.setPassword(newPassword);
 
-		Optional<BinaryContent> profilePicture = Optional.empty();
-		if (newProfileImage != null) {
-			// 기존 프로필이 있다면 삭제
-			if (targetUser.getProfileImage().getId() != null) {
-				binaryContentRepository.delete(targetUser.getProfileImage().getId());
-			}
-			profilePicture = Optional.of(binaryContentService.create(newProfileImage));
-			targetUser.setProfileImage(profilePicture.get());
-
-		}
+		// 프로필 사진 업데이트
+		BinaryContent oldProfile = targetUser.getProfileImage();
+		UUID newProfileId = Optional.ofNullable(newProfileImage)
+		  .map((profileContent) -> {
+			  binaryContentService.delete(oldProfile.getId());
+			  return binaryContentService.create(newProfileImage).getId();
+		  })
+		  .orElse(oldProfile != null ? oldProfile.getId() : null);
 
 		userRepository.save(targetUser);
 		return UserUpdateResult.builder()
@@ -127,19 +128,45 @@ public class BasicUserService implements UserService {
 		  .updatedAt(targetUser.getUpdatedAt())
 		  .username(targetUser.getUsername())
 		  .email(targetUser.getEmail())
-		  .profileId(profilePicture.map(BinaryContent::getId).orElse(null))
+		  .profileId(newProfileId)
 		  .build();
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public UserReadResult read(UUID userId) {
-		User user = userRepository.find(userId)
+		User user = userRepository.findById(userId)
 		  .orElseThrow(() -> new NoSuchElementException("User with ID " + userId + " not found"));
 
 		Optional<UserStatus> status = userStatusRepository.findByUserId(userId);
 
 		boolean isOnline = status.map(UserStatus::isOnline).orElse(false);
 
+		return toUserReadResult(user, isOnline);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<UserReadResult> readAll() {
+		return userRepository.findAll().stream().map(u ->
+		  toUserReadResult(u, userStatusRepository.findByUserId(u.getId()).map(UserStatus::isOnline).orElse(false))
+		).toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isEmpty(UUID userId) {
+		return userRepository.existsById(userId);
+	}
+
+	@Override
+	@Transactional
+	public void deleteAll() {
+		userRepository.deleteAll();
+
+	}
+
+	private UserReadResult toUserReadResult(User user, boolean isOnline) {
 		return UserReadResult.builder()
 		  .id(user.getId())
 		  .createdAt(user.getCreatedAt())
@@ -149,33 +176,15 @@ public class BasicUserService implements UserService {
 		  .profileId(user.getProfileImage().getId())
 		  .online(isOnline)
 		  .build();
+
 	}
 
 	@Override
-	public List<UserReadResult> readAll() {
-		return userRepository.findAll().stream().map(u -> UserReadResult.builder()
-		  .id(u.getId())
-		  .createdAt(u.getCreatedAt())
-		  .updatedAt(u.getUpdatedAt())
-		  .username(u.getUsername())
-		  .email(u.getEmail())
-		  .profileId(u.getProfileImage().getId())
-		  .online(
-			userStatusRepository.findByUserId(u.getId())
-			  .map(UserStatus::isOnline)
-			  .orElse(false))
-		  .build()).toList();
-	}
-
-	@Override
-	public boolean isEmpty(UUID userId) {
-		return userRepository.isEmpty(userId);
-	}
-
-	@Override
-	public void deleteAll() {
-		userRepository.deleteAll();
-
+	@Transactional(readOnly = true)
+	public boolean isOnline(UUID id) {
+		UserStatus userStatus = userStatusRepository.findByUserId(id)
+		  .orElseThrow(() -> new NoSuchElementException("userStatus with ID" + id + "not found"));
+		return userStatus.isOnline();
 	}
 
 	public static CreateUserResponse toCreateUserResponse(User user) {

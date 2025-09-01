@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sprint.mission.discodeit.domain.dto.CreateUserStatusDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateStatusByUserIdDTO;
@@ -24,10 +25,11 @@ public class BasicUserStatusService implements UserStatusService {
 	private final UserRepository userRepository;
 
 	@Override
+	@Transactional
 	public UserStatus create(CreateUserStatusDTO dto) {
 		UUID userId = dto.getUserId();
 
-		if (userId == null || userRepository.isEmpty(userId)) {
+		if (userId == null || !userRepository.existsById(userId)) {
 			throw new IllegalArgumentException("User ID cannot be null or empty");
 		}
 
@@ -36,17 +38,20 @@ public class BasicUserStatusService implements UserStatusService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public UserStatus find(UUID id) {
-		return userStatusRepository.find(id)
+		return userStatusRepository.findById(id)
 		  .orElseThrow(() -> new IllegalArgumentException("User status not found for ID: " + id));
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<UserStatus> findAll() {
 		return userStatusRepository.findAll();
 	}
 
 	@Override
+	@Transactional
 	public UserStatus updateStatusByUserId(UpdateStatusByUserIdDTO dto) {
 		UUID userID = dto.getUserId();
 		Instant newLastActiveAt = dto.getNewLastActiveAt();
@@ -61,11 +66,12 @@ public class BasicUserStatusService implements UserStatusService {
 	}
 
 	@Override
+	@Transactional
 	public void delete(UUID id) {
-		if (userStatusRepository.isEmpty(id)) {
+		if (userStatusRepository.existsById(id)) {
 			throw new IllegalArgumentException("User status not found for ID: " + id);
 		}
-		userStatusRepository.delete(id);
+		userStatusRepository.deleteById(id);
 	}
 
 	public static UpdateUserStatusByUserIdResponse toUpdateUserStatusByUserIdResponse(UserStatus userStatus) {

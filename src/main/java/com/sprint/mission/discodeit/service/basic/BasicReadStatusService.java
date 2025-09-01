@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sprint.mission.discodeit.domain.dto.CreateReadStatusDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateReadStatusDTO;
@@ -29,6 +30,7 @@ public class BasicReadStatusService implements ReadStatusService {
 	private final ChannelRepository channelRepository;
 
 	@Override
+	@Transactional
 	public ReadStatus create(CreateReadStatusDTO dto) {
 
 		UUID channelId = dto.getChannelId();
@@ -38,7 +40,7 @@ public class BasicReadStatusService implements ReadStatusService {
 		if (!channelRepository.existsById(channelId)) {
 			throw new NoSuchElementException("channel with id " + channelId + "not found");
 		}
-		if (userRepository.isEmpty(userId)) {
+		if (userRepository.existsById(userId)) {
 			throw new NoSuchElementException("user with id " + userId + "not found");
 
 		}
@@ -53,12 +55,13 @@ public class BasicReadStatusService implements ReadStatusService {
 	}
 
 	@Override
+	@Transactional
 	public ReadStatus update(UpdateReadStatusDTO dto) {
 
 		UUID id = dto.getId();
 		Instant newLastReadAt = dto.getNewLastReadAt();
 
-		ReadStatus readStatuses = readStatusRepository.find(id)
+		ReadStatus readStatuses = readStatusRepository.findById(id)
 		  .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + id + " not found"));
 
 		readStatuses.setLastReadAt(newLastReadAt);
@@ -67,8 +70,9 @@ public class BasicReadStatusService implements ReadStatusService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<ReadStatus> findAllByUserId(UUID userId) {
-		if (userRepository.isEmpty(userId)) {
+		if (!userRepository.existsById(userId)) {
 			throw new NoSuchElementException("user with id " + userId + "not found");
 		}
 
@@ -76,12 +80,13 @@ public class BasicReadStatusService implements ReadStatusService {
 	}
 
 	@Override
+	@Transactional
 	public void delete(UUID id) {
-		if (id == null || readStatusRepository.isEmpty(id)) {
+		if (id == null || !readStatusRepository.existsById(id)) {
 			throw new IllegalArgumentException("Read status ID cannot be null or empty");
 		}
 
-		readStatusRepository.delete(id);
+		readStatusRepository.deleteById(id);
 	}
 
 	public static CreateReadStatusResponse toCreateReadStatusResponse(ReadStatus readStatuses) {

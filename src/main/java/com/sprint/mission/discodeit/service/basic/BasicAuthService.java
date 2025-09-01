@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sprint.mission.discodeit.domain.dto.LoginParams;
 import com.sprint.mission.discodeit.domain.entity.User;
@@ -16,10 +17,10 @@ public class BasicAuthService implements AuthService {
 	private final UserRepository userRepository;
 
 	@Override
+	@Transactional(readOnly = true)
 	public User login(LoginParams params) {
 		User user = userRepository.findByUsername(params.getUsername())
 		  .orElseThrow(() -> new IllegalArgumentException("User with username " + params.getUsername() + " not found"));
-		System.out.println(user.toString());
 		if (!user.getPassword().equals(params.getPassword())) {
 			throw new IllegalArgumentException("Wrong password");
 		}

@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
 import com.sprint.mission.discodeit.domain.dto.FindBiContentResult;
@@ -23,45 +24,35 @@ public class BasicBinaryContentService implements BinaryContentService {
 	private final BinaryContentRepository binaryContentRepository;
 
 	@Override
+	@Transactional
 	public BinaryContent create(CreateBiContentDTO dto) {
 		return binaryContentRepository.save(DTOtoBinaryContent(dto));
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public FindBiContentResult find(UUID id) {
 
-		BinaryContent binaryContent = binaryContentRepository.find(id)
+		BinaryContent binaryContent = binaryContentRepository.findById(id)
 		  .orElseThrow(() -> new NoSuchElementException("Binary content not found for ID: " + id));
 
-		return FindBiContentResult.builder()
-		  .createdAt(binaryContent.getCreatedAt())
-		  .id(binaryContent.getId())
-		  .fileName(binaryContent.getFileName())
-		  .contentType(binaryContent.getContentType())
-		  .bytes(binaryContent.getBytes())
-		  .size(binaryContent.getSize())
-		  .build();
+		return toFindBinaryContentResult(binaryContent);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<FindBiContentResult> findAllByIdIn(FindBiContentsIdInDTO dto) {
 		return binaryContentRepository.findAllByIdIn(dto.getIds()).stream().map(
-		  content -> FindBiContentResult.builder()
-			.id(content.getId())
-			.createdAt(content.getCreatedAt())
-			.fileName(content.getFileName())
-			.contentType(content.getContentType())
-			.bytes(content.getBytes())
-			.size(content.getSize())
-			.build()).toList();
+		  this::toFindBinaryContentResult).toList();
 	}
 
 	@Override
+	@Transactional
 	public void delete(UUID id) {
-		if (binaryContentRepository.isEmpty(id)) {
+		if (binaryContentRepository.existsById(id)) {
 			throw new IllegalArgumentException("Binary content not found for ID: " + id);
 		}
-		binaryContentRepository.delete(id);
+		binaryContentRepository.deleteById(id);
 	}
 
 	private BinaryContent DTOtoBinaryContent(CreateBiContentDTO dto) {
@@ -70,6 +61,17 @@ public class BasicBinaryContentService implements BinaryContentService {
 		String contentType = dto.getContentType();
 		String filename = dto.getFileName();
 		return new BinaryContent(content, size, contentType, filename);
+	}
+
+	public FindBiContentResult toFindBinaryContentResult(BinaryContent content) {
+		return FindBiContentResult.builder()
+		  .createdAt(content.getCreatedAt())
+		  .id(content.getId())
+		  .fileName(content.getFileName())
+		  .contentType(content.getContentType())
+		  .bytes(content.getBytes())
+		  .size(content.getSize())
+		  .build();
 	}
 
 	public static BinaryContentResponse biContentResultToResponse(FindBiContentResult result) {
@@ -82,5 +84,4 @@ public class BasicBinaryContentService implements BinaryContentService {
 		  .size(result.getSize())
 		  .build();
 	}
-
 }

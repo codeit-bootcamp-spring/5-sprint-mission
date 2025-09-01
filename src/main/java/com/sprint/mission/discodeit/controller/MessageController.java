@@ -101,7 +101,7 @@ public class MessageController {
 
 	@GetMapping
 	public ResponseEntity<MessagesInChannelResponse> getMessagesInChannel(@RequestParam UUID channelId) {
-		List<Message> readMessages = messageService.readAllByChannelId(channelId);
+		List<Message> readMessages = messageService.findAllByChannelId(channelId);
 		return ResponseEntity.ok((toMessagesInChannelResponse(readMessages)));
 	}
 }

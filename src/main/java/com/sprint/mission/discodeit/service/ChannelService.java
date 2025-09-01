@@ -8,9 +8,9 @@ import com.sprint.mission.discodeit.domain.dto.CreatePrivateChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.CreatePrivateChannelResult;
 import com.sprint.mission.discodeit.domain.dto.CreatePublicChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.CreatePublicChannelResult;
-import com.sprint.mission.discodeit.domain.dto.ReadAllChannelResult;
 import com.sprint.mission.discodeit.domain.dto.UpdateChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateChannelResult;
+import com.sprint.mission.discodeit.domain.entity.User;
 
 public interface ChannelService {
 	public CreatePublicChannelResult createPublic(CreatePublicChannelDTO dto);
@@ -27,4 +27,5 @@ public interface ChannelService {
 
 	void deleteAll();
 
+	public List<User> getChannelParticipants(UUID id);
 }

@@ -22,7 +22,7 @@ public interface MessageService {
 
 	List<Message> findAllByChannelId(UUID channelId);
 
-	List<Message> readAllByChannelId(UUID channelId);
-
 	boolean isEmpty(UUID channelId);
+
+	List<UUID> findAttachmentsIds(UUID messageId);
 }
