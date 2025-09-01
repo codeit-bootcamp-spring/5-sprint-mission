@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
 
@@ -42,8 +41,6 @@ public class Message extends BaseUpdatableEntity {
 	private final List<BinaryContent> attachments = new ArrayList<>();
 
 	public Message(String content, @NonNull User user, @NonNull Channel channel) {
-		this.id = UUID.randomUUID();
-		this.createdAt = Instant.now();
 		this.updatedAt = null;
 		this.content = content;
 		this.user = user;

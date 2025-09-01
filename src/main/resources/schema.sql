@@ -31,8 +31,8 @@ CREATE TABLE "binary_content"
     "created_at"   timestamptz  NOT NULL,
     "file_name"    varchar(255) NOT NULL,
     "size"         bigint       NOT NULL,
-    "content_type" varchar(100) NOT NULL,
-    "bytes"        bytea        NOT NULL
+    "content_type" varchar(100) NOT NULL
+--     "bytes"        bytea        NOT NULL
 );
 
 DROP TABLE IF EXISTS "channel" CASCADE;
@@ -53,11 +53,11 @@ CREATE TABLE "user"
 (
     "id"         uuid        NOT NULL PRIMARY KEY,
     "created_at" timestamptz NOT NULL,
-    "updated_at" timestamptz NOT NULL,
+    "updated_at" timestamptz,
     "username"   varchar(50) NOT NULL UNIQUE,
     "email"      varchar(50) NOT NULL UNIQUE,
     "password"   varchar(60) NOT NULL,
-    "profile_id" uuid        NOT NULL
+    "profile_id" uuid
 );
 
 COMMENT ON COLUMN "user"."username" IS 'unique';

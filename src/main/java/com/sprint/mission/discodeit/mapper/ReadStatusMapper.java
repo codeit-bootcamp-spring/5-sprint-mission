@@ -1,4 +1,4 @@
-package com.sprint.mission.mapper;
+package com.sprint.mission.discodeit.mapper;
 
 import org.springframework.stereotype.Component;
 

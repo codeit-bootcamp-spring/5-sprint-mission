@@ -12,10 +12,6 @@ public interface MessageService {
 
 	void delete(UUID id);
 
-	void deleteAll();
-
-	void deleteAllByChannelId(UUID channelId);
-
 	Message update(UpdateMessageDTO dto);
 
 	Message read(UUID id);

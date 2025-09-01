@@ -23,8 +23,6 @@ public interface UserService {
 
 	boolean isEmpty(UUID userId);
 
-	void deleteAll();
-
 	boolean isOnline(UUID id);
 
 }

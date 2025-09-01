@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sprint.mission.discodeit.domain.dto.CreateUserStatusDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateStatusByUserIdDTO;
+import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.response.UpdateUserStatusByUserIdResponse;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -29,11 +30,11 @@ public class BasicUserStatusService implements UserStatusService {
 	public UserStatus create(CreateUserStatusDTO dto) {
 		UUID userId = dto.getUserId();
 
-		if (userId == null || !userRepository.existsById(userId)) {
-			throw new IllegalArgumentException("User ID cannot be null or empty");
-		}
+		User user = userRepository.findById(userId).orElseThrow(() ->
+		  new IllegalArgumentException("User ID cannot be null or empty")
+		);
 
-		UserStatus userStatus = new UserStatus(userId);
+		UserStatus userStatus = new UserStatus(user);
 		return userStatusRepository.save(userStatus);
 	}
 

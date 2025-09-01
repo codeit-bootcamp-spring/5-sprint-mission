@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.domain.entity;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -20,7 +20,7 @@ import lombok.ToString;
 @Entity
 public class ReadStatus extends BaseUpdatableEntity {
 
-	@JoinColumn(nullable = false)
+	@Column(nullable = false)
 	private Instant lastReadAt;
 
 	// Foreign key
@@ -31,11 +31,9 @@ public class ReadStatus extends BaseUpdatableEntity {
 	@JoinColumn(name = "channel_id", nullable = false)
 	private Channel channel;
 
-	public ReadStatus(@NonNull UUID userId, @NonNull UUID channelId, Instant lastReadAt) {
-		this.id = UUID.randomUUID();
-		this.createdAt = Instant.now();
-		// this.userId = userId;
-		// this.channelId = channelId;
+	public ReadStatus(@NonNull User user, @NonNull Channel channel, Instant lastReadAt) {
+		this.user = user;
+		this.channel = channel;
 		this.lastReadAt = lastReadAt;
 	}
 

@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sprint.mission.discodeit.domain.dto.CreateReadStatusDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateReadStatusDTO;
+import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.ReadStatus;
+import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.response.CreateReadStatusResponse;
 import com.sprint.mission.discodeit.domain.response.GetReadStatusResponse;
 import com.sprint.mission.discodeit.domain.response.UpdateReadStatusResponse;
@@ -37,19 +39,19 @@ public class BasicReadStatusService implements ReadStatusService {
 		UUID userId = dto.getUserId();
 		Instant lastReadAt = dto.getLastReadAt();
 
-		if (!channelRepository.existsById(channelId)) {
-			throw new NoSuchElementException("channel with id " + channelId + "not found");
-		}
-		if (userRepository.existsById(userId)) {
-			throw new NoSuchElementException("user with id " + userId + "not found");
+		Channel channel = channelRepository.findById(channelId).orElseThrow(() ->
+		  new NoSuchElementException("channel with id " + channelId + "not found"));
 
-		}
+		User user = userRepository.findById(userId).orElseThrow(() ->
+		  new NoSuchElementException("user with id " + userId + "not found")
+		);
+
 		if (readStatusRepository.findByUserIdAndChannelId(userId, channelId).isPresent()) {
 			throw new IllegalArgumentException(
 			  "ReadStatus with userId " + userId + "  and channelId " + channelId + " already exists");
 		}
 
-		ReadStatus readStatuses = new ReadStatus(userId, channelId, lastReadAt);
+		ReadStatus readStatuses = new ReadStatus(user, channel, lastReadAt);
 
 		return readStatusRepository.save(readStatuses);
 	}

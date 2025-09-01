@@ -62,7 +62,11 @@ public class BasicChannelService implements ChannelService {
 
 		dto.getUserIds().forEach(
 		  id -> readStatusRepository.save(
-			new ReadStatus(id, newChannel.getId(), null))
+			new ReadStatus(
+			  userRepository.findById(id)
+				.orElseThrow(() -> new NoSuchElementException("userId with" + id + "notFound")),
+			  newChannel,
+			  null))
 		);
 
 		Channel savedChannel = channelRepository.save(newChannel);

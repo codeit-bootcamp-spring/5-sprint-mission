@@ -5,10 +5,10 @@ import java.util.Objects;
 import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,7 +20,7 @@ import lombok.Setter;
 public class Channel extends BaseUpdatableEntity {
 
 	@Enumerated(EnumType.STRING)
-	@JoinColumn(nullable = false)
+	@Column(nullable = false)
 	private ChannelType type;
 	private String name;
 	private String description;

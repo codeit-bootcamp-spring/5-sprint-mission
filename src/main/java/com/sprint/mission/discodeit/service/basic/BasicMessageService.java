@@ -68,26 +68,11 @@ public class BasicMessageService implements MessageService {
 		  .orElseThrow(() -> new NoSuchElementException("Message with ID " + id + " not found"));
 
 		// 메시지 관련 Attachment 도 삭제
-		// TODO
-		// messageToDelete.getAttachmentIds().forEach(binaryContentRepository::delete);
+		binaryContentRepository.deleteByIdIn(
+		  messageToDelete.getAttachments().stream().map(BinaryContent::getId).toList());
 
 		// 메시지 삭제
 		messageRepository.deleteById(id);
-	}
-
-	@Override
-	@Transactional
-	public void deleteAll() {
-		messageRepository.deleteAll();
-	}
-
-	@Override
-	@Transactional
-	public void deleteAllByChannelId(UUID channelId) {
-		if (!channelRepository.existsById(channelId)) {
-			throw new IllegalArgumentException("Channel ID cannot be null or empty");
-		}
-		messageRepository.deleteByChannelId(channelId);
 	}
 
 	@Override
@@ -119,11 +104,7 @@ public class BasicMessageService implements MessageService {
 			List<BinaryContent> newFiles = newAttachments.stream()
 			  .map(binaryContentService::create)
 			  .toList();
-			// TODO
-			// List<UUID> newAttachmentIds = newFiles.stream()
-			//   .map(BinaryContent::getId)
-			//   .toList();
-			// targetMessages.getAttachmentIds().addAll(newAttachmentIds);
+			targetMessage.getAttachments().addAll(newFiles);
 		}
 
 		return messageRepository.save(targetMessage);

@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -26,6 +25,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,6 +38,7 @@ public class BasicUserService implements UserService {
 	private final UserRepository userRepository;
 	private final BinaryContentRepository binaryContentRepository;
 	private final UserStatusRepository userStatusRepository;
+	private final BinaryContentStorage binaryContentStorage;
 
 	@Override
 	@Transactional
@@ -54,9 +55,8 @@ public class BasicUserService implements UserService {
 		}
 
 		// 2. Profile Image 저장
-		UUID profileId = Optional.ofNullable(profileImage)
+		BinaryContent userProfile = Optional.ofNullable(profileImage)
 		  .map(binaryContentService::create)
-		  .map(BinaryContent::getId)
 		  .orElse(null);
 
 		// 3. 인스턴스 생성
@@ -64,16 +64,16 @@ public class BasicUserService implements UserService {
 		  username,
 		  email,
 		  password,
-		  profileId
+		  userProfile
 		);
+		userRepository.save(newUser);
 
 		// 4. User Status 생성
-		UserStatus userStatus = new UserStatus(newUser.getId());
-		userStatus.setLastActiveAt(Instant.now()); // 현재 시간을 LastActiveAt으로 설정
+		UserStatus userStatus = new UserStatus(newUser);
 		userStatusRepository.save(userStatus);
 
 		// 5. 데이터 저장
-		return userRepository.save(newUser);
+		return newUser;
 	}
 
 	@Override
@@ -87,6 +87,7 @@ public class BasicUserService implements UserService {
 		// 2. Profile Image 삭제
 		if (binaryContentRepository.findById(targetUser.getProfileImage().getId()).isPresent()) {
 			binaryContentRepository.deleteById(targetUser.getProfileImage().getId());
+			binaryContentStorage.put(targetUser.getProfileImage().getId(), null); // 스토리지에서 삭제
 		}
 		// 3. User 삭제
 		userRepository.deleteById(userId);
@@ -114,13 +115,15 @@ public class BasicUserService implements UserService {
 
 		// 프로필 사진 업데이트
 		BinaryContent oldProfile = targetUser.getProfileImage();
-		UUID newProfileId = Optional.ofNullable(newProfileImage)
+		Optional<UUID> newProfileId = Optional.ofNullable(newProfileImage)
 		  .map((profileContent) -> {
 			  binaryContentService.delete(oldProfile.getId());
-			  return binaryContentService.create(newProfileImage).getId();
-		  })
-		  .orElse(oldProfile != null ? oldProfile.getId() : null);
+			  binaryContentStorage.put(oldProfile.getId(), null); // 스토리지 삭제
 
+			  BinaryContent savedProfile = binaryContentService.create(newProfileImage);
+			  binaryContentStorage.put(savedProfile.getId(), profileContent.getContent()); // 스토리지 저장
+			  return savedProfile.getId();
+		  });
 		userRepository.save(targetUser);
 		return UserUpdateResult.builder()
 		  .id(targetUser.getId())
@@ -128,7 +131,7 @@ public class BasicUserService implements UserService {
 		  .updatedAt(targetUser.getUpdatedAt())
 		  .username(targetUser.getUsername())
 		  .email(targetUser.getEmail())
-		  .profileId(newProfileId)
+		  .profileId(newProfileId.orElse(null))
 		  .build();
 	}
 
@@ -159,13 +162,6 @@ public class BasicUserService implements UserService {
 		return userRepository.existsById(userId);
 	}
 
-	@Override
-	@Transactional
-	public void deleteAll() {
-		userRepository.deleteAll();
-
-	}
-
 	private UserReadResult toUserReadResult(User user, boolean isOnline) {
 		return UserReadResult.builder()
 		  .id(user.getId())
@@ -173,7 +169,7 @@ public class BasicUserService implements UserService {
 		  .updatedAt(user.getUpdatedAt())
 		  .username(user.getUsername())
 		  .email(user.getEmail())
-		  .profileId(user.getProfileImage().getId())
+		  .profileId(user.getProfileImage() != null ? user.getProfileImage().getId() : null)
 		  .online(isOnline)
 		  .build();
 
@@ -192,7 +188,7 @@ public class BasicUserService implements UserService {
 		  .id(user.getId())
 		  .username(user.getUsername())
 		  .email(user.getEmail())
-		  .profileId(user.getProfileImage().getId())
+		  .profileId(user.getProfileImage() != null ? user.getProfileImage().getId() : null)
 		  .createdAt(user.getCreatedAt())
 		  .updatedAt(user.getUpdatedAt())
 		  .build();

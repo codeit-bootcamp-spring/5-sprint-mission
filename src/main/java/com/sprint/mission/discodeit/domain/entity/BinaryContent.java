@@ -1,8 +1,5 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import java.time.Instant;
-import java.util.UUID;
-
 import com.sprint.mission.discodeit.domain.entity.base.BaseEntity;
 
 import jakarta.persistence.Entity;
@@ -21,12 +18,11 @@ public class BinaryContent extends BaseEntity {
 	private String contentType;
 	@NotNull
 	private long size;
-	@NotNull
-	private byte[] bytes;
+	// @NotNull
+	// private byte[] bytes;
 
-	public BinaryContent(byte[] bytes, long size, String contentType, String fileName) {
-		super(UUID.randomUUID(), Instant.now());
-		this.bytes = bytes;
+	public BinaryContent(long size, String contentType, String fileName) {
+		// this.bytes = bytes;
 		this.size = size;
 		this.contentType = contentType;
 		this.fileName = fileName;
