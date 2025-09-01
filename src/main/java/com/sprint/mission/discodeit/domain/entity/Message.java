@@ -40,10 +40,13 @@ public class Message extends BaseUpdatableEntity {
 	)
 	private final List<BinaryContent> attachments = new ArrayList<>();
 
-	public Message(String content, @NonNull User user, @NonNull Channel channel) {
+	public Message(String content, @NonNull User user, @NonNull Channel channel, List<BinaryContent> attachments) {
 		this.content = content;
 		this.user = user;
 		this.channel = channel;
+		if (attachments != null) {
+			this.attachments.addAll(attachments);
+		}
 	}
 
 	public Instant getLastEditedAt() {

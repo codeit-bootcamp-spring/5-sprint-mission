@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.sprint.mission.discodeit.domain.dto.CreateMessageDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateMessageDTO;
@@ -18,7 +19,7 @@ public interface MessageService {
 
 	Message read(UUID id);
 
-	Page<Message> findAllByChannelId(UUID channelId);
+	Page<Message> findAllByChannelId(UUID channelId, Pageable pageable);
 
 	boolean isEmpty(UUID channelId);
 

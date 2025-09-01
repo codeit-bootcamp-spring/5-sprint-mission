@@ -18,11 +18,8 @@ public class BinaryContent extends BaseEntity {
 	private String contentType;
 	@NotNull
 	private long size;
-	// @NotNull
-	// private byte[] bytes;
 
 	public BinaryContent(long size, String contentType, String fileName) {
-		// this.bytes = bytes;
 		this.size = size;
 		this.contentType = contentType;
 		this.fileName = fileName;

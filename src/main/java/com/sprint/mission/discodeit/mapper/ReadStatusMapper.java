@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReadStatusMapper {
 
-	ReadStatusDto toDto(ReadStatus readStatus) {
+	public ReadStatusDto toDto(ReadStatus readStatus) {
 		return ReadStatusDto.builder()
 		  .id(readStatus.getId())
 		  .userId(readStatus.getUser().getId())

@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-import static com.sprint.mission.discodeit.service.basic.BasicMessageService.*;
 import static org.springframework.http.MediaType.*;
 
 import java.io.IOException;
@@ -11,6 +10,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +29,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
 import com.sprint.mission.discodeit.domain.dto.CreateMessageDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateMessageDTO;
+import com.sprint.mission.discodeit.domain.dto.message.MessageDto;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.request.UpdateMessageRequest;
-import com.sprint.mission.discodeit.domain.response.CreateMessageResponse;
 import com.sprint.mission.discodeit.domain.response.PageResponse;
-import com.sprint.mission.discodeit.domain.response.UpdateMessageResponse;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.service.MessageService;
 
@@ -47,10 +49,11 @@ import lombok.RequiredArgsConstructor;
 public class MessageController {
 
 	private final MessageService messageService;
-	private final PageResponseMapper<Message> pageResponseMapper;
+	private final PageResponseMapper<MessageDto> pageResponseMapper;
+	private final MessageMapper messageMapper;
 
 	@PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<CreateMessageResponse> createMessage(
+	public ResponseEntity<MessageDto> createMessage(
 	  @RequestPart MessageCreateRequest messageCreateRequest,
 	  @RequestPart(required = false) List<MultipartFile> attachments) {
 
@@ -76,11 +79,11 @@ public class MessageController {
 		  .build());
 
 		URI location = URI.create("api/messages");
-		return ResponseEntity.created(location).body(toCreateMessageResponse(newMessage));
+		return ResponseEntity.created(location).body(messageMapper.toDto(newMessage));
 	}
 
 	@PatchMapping
-	public ResponseEntity<UpdateMessageResponse> updateMessage(
+	public ResponseEntity<MessageDto> updateMessage(
 	  @RequestParam UUID messageId,
 	  @RequestBody @Valid UpdateMessageRequest updateMessageRequest
 	) {
@@ -93,7 +96,7 @@ public class MessageController {
 		  .newAttachments(biContentDTOs)
 		  .build());
 
-		return ResponseEntity.ok().body(toUpdateMessageResponse(updatedMessage));
+		return ResponseEntity.ok().body(messageMapper.toDto(updatedMessage));
 	}
 
 	@DeleteMapping("/{id}")
@@ -103,8 +106,12 @@ public class MessageController {
 	}
 
 	@GetMapping
-	public ResponseEntity<PageResponse<Message>> getMessagesInChannel(@RequestParam UUID channelId) {
-		Page<Message> readMessages = messageService.findAllByChannelId(channelId);
+	public ResponseEntity<PageResponse<MessageDto>> getMessagesInChannel(
+	  @RequestParam UUID channelId,
+	  @PageableDefault(size = 50, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+	) {
+		Page<MessageDto> readMessages = messageService.findAllByChannelId(channelId, pageable)
+		  .map(messageMapper::toDto);
 		return ResponseEntity.ok((pageResponseMapper.fromPage(readMessages)));
 	}
 }

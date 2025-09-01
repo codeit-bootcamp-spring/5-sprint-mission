@@ -6,8 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,9 +17,6 @@ import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.response.CreateMessageResponse;
-import com.sprint.mission.discodeit.domain.response.MessageResponse;
-import com.sprint.mission.discodeit.domain.response.MessagesInChannelResponse;
 import com.sprint.mission.discodeit.domain.response.UpdateMessageResponse;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -47,7 +43,7 @@ public class BasicMessageService implements MessageService {
 		UUID channelId = dto.getChannelId();
 		UUID userId = dto.getUserId();
 		List<CreateBiContentDTO> attachmentsInMessage = dto.getAttachments();
-
+		
 		// Validate
 		Channel channel = channelRepository.findById(channelId).orElseThrow(() ->
 		  new NoSuchElementException("channel with id " + channelId + "not found")
@@ -57,11 +53,10 @@ public class BasicMessageService implements MessageService {
 		  new NoSuchElementException("Author with id " + userId + "not found")
 		);
 
-		if (attachmentsInMessage != null && !attachmentsInMessage.isEmpty()) {
-			attachmentsInMessage.forEach(binaryContentService::create);
-		}
-
-		return messageRepository.save(new Message(content, user, channel));
+		List<BinaryContent> attachments = Optional.ofNullable(attachmentsInMessage)
+		  .map(a -> a.stream().map(binaryContentService::create).toList())
+		  .orElse(List.of());
+		return messageRepository.save(new Message(content, user, channel, attachments));
 	}
 
 	@Override
@@ -122,9 +117,8 @@ public class BasicMessageService implements MessageService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<Message> findAllByChannelId(UUID channelId) {
-		PageRequest pageRequest = PageRequest.of(0, 50, Sort.by("createdAt").descending());
-		return messageRepository.findAllByChannelId(channelId, pageRequest);
+	public Page<Message> findAllByChannelId(UUID channelId, Pageable pageable) {
+		return messageRepository.findAllByChannelId(channelId, pageable);
 	}
 
 	@Override
@@ -136,18 +130,6 @@ public class BasicMessageService implements MessageService {
 	@Override
 	public List<UUID> findAttachmentsIds(UUID messageId) {
 		return List.of();
-	}
-
-	public static CreateMessageResponse toCreateMessageResponse(Message newMessage) {
-		return CreateMessageResponse.builder()
-		  .id(newMessage.getId())
-		  .createdAt(newMessage.getCreatedAt())
-		  .updatedAt(newMessage.getUpdatedAt())
-		  .content(newMessage.getContent())
-		  .authorId(newMessage.getUser().getId())
-		  .channelId(newMessage.getChannel().getId())
-		  // .attachmentIds(newMessages.getAttachmentIds())
-		  .build();
 	}
 
 	public static UpdateMessageResponse toUpdateMessageResponse(Message newMessage) {
@@ -162,19 +144,8 @@ public class BasicMessageService implements MessageService {
 		  .build();
 	}
 
-	public static MessagesInChannelResponse toMessagesInChannelResponse(List<Message> messages) {
-		return new MessagesInChannelResponse(
-		  messages.stream().map(message ->
-			new MessageResponse(
-			  message.getId(),
-			  message.getCreatedAt(),
-			  message.getUpdatedAt(),
-			  message.getContent(),
-			  message.getUser().getId(),
-			  message.getChannel().getId(),
-			  null
-			)
-		  ).toList()
-		);
+	private BinaryContent toBinaryContent(CreateBiContentDTO dto) {
+		return new BinaryContent(dto.getSize(), dto.getContentType(), dto.getContentType());
 	}
+
 }
