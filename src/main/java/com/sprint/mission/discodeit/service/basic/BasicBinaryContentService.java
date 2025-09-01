@@ -15,16 +15,16 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class BasicBinaryContentService implements BinaryContentService {
 	private final BinaryContentRepository binaryContentRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
 
 	@Override
+    @Transactional
 	public BinaryContentResponse create(UserProfileImageRequest request) {
 		BinaryContent binaryContent = new BinaryContent(
 			request.getFileName(),
@@ -39,6 +39,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public BinaryContentResponse getById(UUID id) {
 		BinaryContent binaryContent = binaryContentRepository.findById(id)
 			.orElseThrow(BinaryContentNotFoundException::new);
@@ -47,6 +48,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public List<BinaryContentResponse> getAllByIdIn(List<UUID> ids) {
 		List<BinaryContent> binaryContents = binaryContentRepository.findAllByIdIn(ids);
 
@@ -56,13 +58,12 @@ public class BasicBinaryContentService implements BinaryContentService {
 	}
 
 	@Override
+    @Transactional
 	public BinaryContentResponse delete(UUID id) {
 		BinaryContent binaryContent = binaryContentRepository.findById(id)
 			.orElseThrow(BinaryContentNotFoundException::new);
 
 		binaryContentRepository.deleteById(id);
-        entityManager.clear();
-
 		return BinaryContentResponse.success(binaryContent);
 	}
 }

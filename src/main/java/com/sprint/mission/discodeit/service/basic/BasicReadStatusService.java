@@ -20,6 +20,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class BasicReadStatusService implements ReadStatusService {
     private final ChannelRepository channelRepository;
 
     @Override
+    @Transactional
     public ReadStatusResponse create(ReadStatusCreateRequest request) {
         if (!userRepository.existsById(request.getUserId())
                 || channelRepository.findById(request.getChannelId()).isEmpty()) {
@@ -37,7 +39,7 @@ public class BasicReadStatusService implements ReadStatusService {
         }
 
 
-        if (readStatusRepository.existsByChannelIdAndUserId(request.getChannelId(), request.getUserId())) {
+        if (readStatusRepository.findByUserIdAndChannelId(request.getChannelId(), request.getUserId()).isPresent()) {
 
             ReadStatus existingReadStatus = readStatusRepository.findByChannelIdAndUserId(request.getChannelId(), request.getUserId());
 
@@ -60,6 +62,7 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
+    @Transactional
     public ReadStatusResponse getById(UUID id) {
         ReadStatus readStatus = readStatusRepository.findById(id)
                 .orElseThrow(ReadStatusNotFoundException::new);
@@ -67,6 +70,7 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
+    @Transactional
     public List<ReadStatusResponse> getAllByUserId(UUID userId) {
         List<ReadStatus> readStatuses = readStatusRepository.findByUserId(userId);
 
@@ -76,6 +80,7 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
+    @Transactional
     public List<ReadStatusResponse> getAllByChannelId(UUID channelId) {
         List<ReadStatus> readStatuses = readStatusRepository.findByUserId(channelId);
 
@@ -85,6 +90,7 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
+    @Transactional
     public ReadStatusResponse updateById(UUID id, ReadStatusUpdateRequest request) {
         ReadStatus readStatus = readStatusRepository.findById(id)
                 .orElseThrow(ReadStatusNotFoundException::new);
@@ -96,6 +102,7 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
+    @Transactional
     public ReadStatusResponse updateByChannelIdAndUserId(UUID channelId, UUID userId,
                                                          ReadStatusUpdateRequest request) {
         ReadStatus readStatus = readStatusRepository.findByChannelIdAndUserId(channelId, userId);
@@ -110,6 +117,7 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
+    @Transactional
     public ReadStatusResponse delete(UUID id) {
         ReadStatus readStatus = readStatusRepository.findById(id)
                 .orElseThrow(ReadStatusNotFoundException::new);

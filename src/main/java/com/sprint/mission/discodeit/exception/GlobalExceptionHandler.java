@@ -1,6 +1,9 @@
 package com.sprint.mission.discodeit.exception;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -106,8 +109,14 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(400).body(e.getMessage());
 	}
 
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<String> handleDatabaseError(DataAccessException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("데이터베이스 오류: " + e.getMessage());
+    }
+
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<String> handleGenericException(Exception e) {
-		return ResponseEntity.status(500).body("서버 내부 오류");
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 내부 오류");
 	}
 }

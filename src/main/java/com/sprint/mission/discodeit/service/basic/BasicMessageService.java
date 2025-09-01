@@ -15,10 +15,9 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,11 +30,10 @@ public class BasicMessageService implements MessageService {
 	private final UserRepository userRepository;
 	private final BinaryContentRepository binaryContentRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
 
 
 	@Override
+    @Transactional
 	public MessageResponse createMessage(MessageCreateRequest request) {
         User author = userRepository.findById(request.getAuthorId())
                 .orElseThrow(() -> new RuntimeException("User not found: " + request.getAuthorId()));
@@ -52,6 +50,7 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public MessageResponse findMessage(UUID messageId) {
 		Message message = messageRepository.findById(messageId)
 			.orElseThrow(MessageNotFoundException::new);
@@ -59,6 +58,7 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public List<Message> getAllMessages() {
 		return messageRepository.findAll();
 	}
@@ -90,6 +90,7 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public List<MessageResponse> findMessagesByChannelId(UUID channelId) {
 		List<Message> messages = messageRepository.findByChannelId(channelId);
 
@@ -99,6 +100,7 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
+    @Transactional
 	public MessageResponse updateMessage(UUID messageId, MessageUpdateRequest request) {
 		Message message = messageRepository.findById(messageId)
 				.orElseThrow(MessageNotFoundException::new);
@@ -123,6 +125,7 @@ public class BasicMessageService implements MessageService {
 	}
 
 	@Override
+    @Transactional
 	public MessageDeleteResponse deleteMessage(UUID messageId, UUID authorId) {
 		Message message = messageRepository.findById(messageId)
 			.orElseThrow(MessageNotFoundException::new);
@@ -137,7 +140,6 @@ public class BasicMessageService implements MessageService {
 		}
 
 		messageRepository.deleteById(messageId);
-        entityManager.clear();
 
 		return MessageDeleteResponse.success(message);
 	}

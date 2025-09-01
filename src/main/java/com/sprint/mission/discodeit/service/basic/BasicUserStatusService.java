@@ -19,6 +19,7 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class BasicUserStatusService implements UserStatusService {
 	private final UserRepository userRepository;
 
 	@Override
+    @Transactional
 	public UserStatusResponse create(UserStatusCreateRequest request) {
 		if (!userRepository.existsById(request.getUserId())) {
             throw new UserNotFoundException();
@@ -46,6 +48,7 @@ public class BasicUserStatusService implements UserStatusService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public UserStatusResponse getById(UUID id) {
 		UserStatus userStatus = userStatusRepository.findById(id)
 			.orElseThrow(UserStatusNotFoundException::new);
@@ -54,6 +57,7 @@ public class BasicUserStatusService implements UserStatusService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public List<UserStatusResponse> getAll() {
 		List<UserStatus> userStatuses = userStatusRepository.findAll();
 
@@ -64,6 +68,7 @@ public class BasicUserStatusService implements UserStatusService {
 
 
 	@Override
+    @Transactional
 	public UserStatusResponse update(UUID userStatusId, UserStatusUpdateRequest request) {
 		UserStatus userStatus = userStatusRepository.findById(userStatusId)
 			.orElseThrow(UserStatusNotFoundException::new);
@@ -75,6 +80,7 @@ public class BasicUserStatusService implements UserStatusService {
 	}
 
 	@Override
+    @Transactional
 	public UserStatusResponse updateByUserId(UUID userId, UserStatusUpdateRequest request) {
 		UserStatus userStatus = userStatusRepository.findByUserId(userId)
 			.orElseThrow(UserStatusNotFoundException::new);
@@ -86,6 +92,7 @@ public class BasicUserStatusService implements UserStatusService {
 	}
 
 	@Override
+    @Transactional
 	public UserStatusResponse delete(UUID id) {
 		UserStatus userStatus = userStatusRepository.findById(id)
 			.orElseThrow(UserStatusNotFoundException::new);
@@ -96,6 +103,7 @@ public class BasicUserStatusService implements UserStatusService {
 	}
 
 	@Override
+    @Transactional
 	public boolean isOnline(UUID userId) {
 		UserStatus userStatus = userStatusRepository.findByUserId(userId)
 			.orElseThrow(UserStatusNotFoundException::new);

@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,9 +19,9 @@ public class BasicAuthService implements AuthService {
 	private final UserRepository userRepository;
 
 	@Override
+    @Transactional
 	public LoginResponse login(LoginRequest request) {
-
-		User user = userRepository.findByLoginId(request.getUsername())
+		User user = userRepository.findByUsername(request.getUsername())
 			.orElseThrow(UserNotFoundException::new);
 
 		if (user.getPassword() == null || !user.getPassword().equals(request.getPassword())) {

@@ -24,6 +24,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -39,6 +40,7 @@ public class BasicChannelService implements ChannelService {
 
 
 	@Override
+    @Transactional
 	public ChannelCreateResponse create(PublicChannelCreateRequest request) {
 		if (channelRepository.existsByName(request.getName())) {
 			throw new DuplicateChannelNameException();
@@ -57,6 +59,7 @@ public class BasicChannelService implements ChannelService {
 	}
 
 	@Override
+    @Transactional
 	public ChannelCreateResponse create(PrivateChannelCreateRequest request) {
 
 		List<java.util.UUID> participantIds = request.getParticipantIds().stream().distinct().toList();
@@ -85,6 +88,7 @@ public class BasicChannelService implements ChannelService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public ChannelResponse findByName(String channelName) {
 		Channel channel = channelRepository.findByName(channelName)
 			.orElseThrow(ChannelNotFoundException::new);
@@ -93,6 +97,7 @@ public class BasicChannelService implements ChannelService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public ChannelResponse find(UUID channelId) {
 		Channel channel = channelRepository.findById(channelId)
 			.orElseThrow(ChannelNotFoundException::new);
@@ -101,6 +106,7 @@ public class BasicChannelService implements ChannelService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public List<ChannelResponse> findChannelsByUserId(UUID userId) {
 
 		List<UUID> myChannelIds = readStatusRepository.findByUserId(userId).stream()
@@ -116,6 +122,7 @@ public class BasicChannelService implements ChannelService {
 
 	// updateChannel 메서드
 	@Override
+    @Transactional
 	public ChannelResponse updateChannel(UUID channelId, ChannelUpdateRequest request) {
 		Channel channel = channelRepository.findById(channelId)
 			.orElseThrow(ChannelNotFoundException::new);
@@ -140,6 +147,7 @@ public class BasicChannelService implements ChannelService {
 	}
 
 	@Override
+    @Transactional
 	public ChannelLeaveResponse leaveChannel(ChannelLeaveRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
 				.orElseThrow(ChannelNotFoundException::new);
@@ -163,12 +171,12 @@ public class BasicChannelService implements ChannelService {
 	}
 
 	@Override
+    @Transactional
 	public ChannelDeleteResponse deleteChannel(UUID channelId) {
 		// userId는 나중에 admin 혹은 권한 체크를 위해서 남겨둠
 
 		Channel channel = channelRepository.findById(channelId)
 			.orElseThrow(ChannelNotFoundException::new);
-		messageRepository.deleteByChannelId(channelId);
 		channelRepository.deleteById(channelId);
 		return ChannelDeleteResponse.success(channel);
 	}
