@@ -3,11 +3,12 @@ package com.sprint.mission.discodeit.entity;
 import lombok.Getter;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
 @Getter
-public class Channel extends BaseEntity {
+public class Channel extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private String name;
