@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sprint.mission.discodeit.dto.request.message.*;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.dto.response.message.*;
 import com.sprint.mission.discodeit.entity.Message;
 
@@ -16,7 +17,10 @@ public interface MessageService {
 	List<MessageResponse> findMessagesByChannelId(UUID channelId);
 	List<MessageResponse> findMessageByAuthor(MessagesGetByAuthorRequest request);
 
-	List<Message> getAllMessages();
+    PageResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size);
+    PageResponse<MessageResponse> getSliceMessagesByChannel(UUID channelId, int page, int size);
+
+	List<Message> findAll();
 
 	// 수정
 	MessageResponse updateMessage(UUID messageId, MessageUpdateRequest request);

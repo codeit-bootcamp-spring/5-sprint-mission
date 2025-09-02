@@ -35,7 +35,7 @@ public class Message extends BaseUpdatableEntity implements Serializable {
     private Channel channel;
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<MessageAttachment> attachments;
+    private List<MessageAttachment> attachments = new ArrayList<>();
 
     public Message(User author, Channel channel,String content) {
         this.author = author;

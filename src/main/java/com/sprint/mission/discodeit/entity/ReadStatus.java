@@ -40,6 +40,7 @@ public class ReadStatus extends BaseUpdatableEntity implements Serializable {
     public ReadStatus(User user, Channel channel) {
         this.user = user;
         this.channel = channel;
+        this.lastReadAt = Instant.EPOCH;
     }
 
     public ReadStatus(ReadStatus original) {

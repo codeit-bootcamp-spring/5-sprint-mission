@@ -26,7 +26,8 @@ public class UserCreateRequest {
 	}
 
     public User toUserWithProfile(BinaryContent profile) {
-        return new User(username, password, defaultNickname, email, profile);
+        String nickname = (defaultNickname != null) ? defaultNickname : username;
+        return new User(username, password, nickname, email, profile);
     }
 
 }

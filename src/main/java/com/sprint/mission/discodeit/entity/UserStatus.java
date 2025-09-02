@@ -29,6 +29,7 @@ public class UserStatus extends BaseUpdatableEntity implements Serializable {
 
     public UserStatus(User user) {
         this.user = user;
+        this.lastActiveAt = Instant.EPOCH;
     }
 
 	public UserStatus(UserStatus original) {

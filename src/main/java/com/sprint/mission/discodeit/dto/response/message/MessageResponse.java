@@ -23,7 +23,6 @@ public class MessageResponse {
 	private UUID channelId;
 	private String content;
 	private List<UUID> attachmentIds;
-	private boolean success;
 
 	private MessageResponse(Message message) {
 		this.id = message.getId();
@@ -33,7 +32,6 @@ public class MessageResponse {
 		this.channelId = message.getChannel().getId();
 		this.content = message.getContent();
 		this.attachmentIds = message.getAttachments().stream().map(ma -> ma.getAttachment().getId()).toList();
-		this.success = true;
 	}
 
 	public static MessageResponse success(Message message) {

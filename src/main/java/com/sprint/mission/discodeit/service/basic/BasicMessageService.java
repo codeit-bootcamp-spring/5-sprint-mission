@@ -4,12 +4,14 @@ import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreat
 import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessagesGetByAuthorRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.message.UnauthorizedMessageAccessException;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -17,11 +19,13 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,7 @@ public class BasicMessageService implements MessageService {
 	private final UserRepository userRepository;
 	private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
+    private final PageResponseMapper pageResponseMapper;
 
 
 
@@ -61,11 +66,14 @@ public class BasicMessageService implements MessageService {
 
 	@Override
     @Transactional(readOnly = true)
-	public List<Message> getAllMessages() {
+	public List<Message> findAll() {
 		return messageRepository.findAll();
 	}
 
+
+
 	@Override
+    @Transactional(readOnly = true)
 	public List<MessageResponse> findMessageByAuthor(MessagesGetByAuthorRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
 				.orElseThrow(ChannelNotFoundException::new);
@@ -93,6 +101,30 @@ public class BasicMessageService implements MessageService {
 			.map(MessageResponse::success)
 			.toList();
 	}
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createAt"));
+
+        Page<Message> messagePage = messageRepository.findPageByChannelId(channelId, pageable);
+        Page<MessageResponse> responsePage = messagePage.map(MessageResponse::success);
+        return pageResponseMapper.fromPage(responsePage);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<MessageResponse> getSliceMessagesByChannel(UUID channelId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Slice<Message> messageSlice = messageRepository.findByChannelId(channelId, pageable);
+
+        // Message → DTO 변환
+        Slice<MessageResponse> responseSlice = messageSlice.map(MessageResponse::success);
+
+        return pageResponseMapper.fromSlice(responseSlice);
+    }
 
 	@Override
     @Transactional

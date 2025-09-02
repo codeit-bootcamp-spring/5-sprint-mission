@@ -24,7 +24,8 @@ public class Channel extends BaseUpdatableEntity implements Serializable {
 //	private static final long serialVersionUID = 1L;
 
     @Column(nullable = false)
-	private ChannelType type = ChannelType.PUBLIC; // 채널 타입, PUBLIC 또는 PRIVATE
+    @Enumerated(EnumType.STRING)
+	private ChannelType type;// 채널 타입, PUBLIC 또는 PRIVATE
     @Column(unique = true, nullable = false, length = 100)
 	private String name;
     @Column(length = 1000)
@@ -38,6 +39,7 @@ public class Channel extends BaseUpdatableEntity implements Serializable {
 
 
 	public Channel(String name, String description) {
+        type = ChannelType.PUBLIC;
 		this.name = Objects.requireNonNull(name, "채널 이름은 필수 입력값입니다.");
 		this.description = description;
 	}
