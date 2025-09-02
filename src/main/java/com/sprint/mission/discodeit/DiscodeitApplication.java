@@ -1,14 +1,21 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.test.ChannelServiceTest;
-import com.sprint.mission.discodeit.test.MessageServiceTest;
-import com.sprint.mission.discodeit.test.UserServiceTest;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootApplication
 public class DiscodeitApplication {
@@ -20,16 +27,31 @@ public class DiscodeitApplication {
 		ChannelService channelService = context.getBean(ChannelService.class);
 		MessageService messageService = context.getBean(MessageService.class);
 
-		UserServiceTest userServiceTest = new UserServiceTest(userService);
-		userServiceTest.runAllTest();
-		System.out.println("-----------------------------------------\n");
+		User user = setupUser(userService);
+		Channel channel = setupChannel(channelService);
 
-		ChannelServiceTest channelServiceTest = new ChannelServiceTest(channelService);
-		channelServiceTest.runAllTest();
-		System.out.println("-----------------------------------------\n");
-
-		MessageServiceTest messageServiceTest = new MessageServiceTest(messageService, userService, channelService);
-		messageServiceTest.runAllTest();
+		messageCreateTest(messageService, channel, user);
 	}
 
+	static User setupUser(UserService userService) {
+		UserCreateRequest request = new UserCreateRequest("woody", "우딤당", "woody@codeit.com", "woody1234");
+        return userService.create(request, null);
+	}
+
+	static Channel setupChannel(ChannelService channelService) {
+		PublicChannelCreateRequest request = new PublicChannelCreateRequest("공지", "공지 채널입니다.");
+        return channelService.create(request);
+	}
+
+	static void messageCreateTest(MessageService messageService, Channel channel, User author) {
+		MessageCreateRequest request = new MessageCreateRequest(channel.getId(), author.getId(), "안녕하세요.");
+		List<BinaryContentCreateRequest> attachment = new ArrayList<>();
+		BinaryContentCreateRequest binaryContentCreateRequest = new BinaryContentCreateRequest("사진1", "jpg", new byte[]{1, 2, 3});
+		BinaryContentCreateRequest binaryContentCreateRequest2 = new BinaryContentCreateRequest("사진2", "jpg", new byte[]{3, 4, 5});
+		attachment.add(binaryContentCreateRequest);
+		attachment.add(binaryContentCreateRequest2);
+
+		Message message = messageService.create(request, attachment);
+		System.out.println("메시지 생성: " + message.toString());
+	}
 }

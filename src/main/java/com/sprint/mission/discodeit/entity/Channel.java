@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.entity;
 import lombok.Getter;
 
 import java.io.Serial;
+import java.time.Instant;
 import java.util.Objects;
 
 @Getter
@@ -11,17 +12,28 @@ public class Channel extends BaseEntity {
     private static final long serialVersionUID = 1L;
     private String name;
     private String description;
+    private ChannelType channelType;
 
-    public Channel(String name, String description) {
+    public Channel(String name, String description, ChannelType channelType) {
         this.name = name;
         this.description = description;
+        this.channelType = channelType;
     }
 
-    public void update(String name, String description) {
-        if (name != null && !this.name.equals(name) && description != null && !this.description.equals(description)) {
-            this.name = name;
-            this.description = description;
-            this.setUpdatedAt(System.currentTimeMillis());
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.setUpdatedAt(Instant.now());
         }
     }
 
@@ -47,8 +59,9 @@ public class Channel extends BaseEntity {
     @Override
     public String toString() {
         return super.toString() + " Channel{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
+                "newName='" + name + '\'' +
+                ", newDescription='" + description + '\'' +
+                ", channelType=" + channelType +
                 '}';
     }
 }
