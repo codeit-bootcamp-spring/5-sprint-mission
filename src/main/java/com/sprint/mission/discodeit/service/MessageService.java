@@ -92,32 +92,34 @@ public class MessageService {
 
         Message m = messageRepository.save(new Message(content, channel, author));
 
-        StorageRollbackToken rollback = storageRollbackManager.start(binaryContentStorage);
-
         List<BinaryContent> binaryContents = new ArrayList<>();
-        int orderIndex = 0;
-        for (MultipartFile attachment : attachments) {
-            if (attachment == null || attachment.isEmpty()) {
-                continue;
+        if (attachments != null && !attachments.isEmpty()) {
+            StorageRollbackToken rollback = storageRollbackManager.start(binaryContentStorage);
+
+            int orderIndex = 0;
+            for (MultipartFile attachment : attachments) {
+                if (attachment == null || attachment.isEmpty()) {
+                    continue;
+                }
+
+                BinaryContent bc = binaryContentRepository.save(
+                    new BinaryContent(
+                        attachment.getOriginalFilename(),
+                        attachment.getSize(),
+                        attachment.getContentType()
+                    )
+                );
+
+                try {
+                    binaryContentStorage.put(bc.getId(), attachment.getBytes());
+                    rollback.add(bc.getId());
+                } catch (IOException e) {
+                    throw new UncheckedIOException("첨부 파일 저장 실패: " + bc.getId(), e);
+                }
+
+                messageAttachmentRepository.save(new MessageAttachment(m, bc, orderIndex++));
+                binaryContents.add(bc);
             }
-
-            BinaryContent bc = binaryContentRepository.save(
-                new BinaryContent(
-                    attachment.getOriginalFilename(),
-                    attachment.getSize(),
-                    attachment.getContentType()
-                )
-            );
-
-            try {
-                binaryContentStorage.put(bc.getId(), attachment.getBytes());
-                rollback.add(bc.getId());
-            } catch (IOException e) {
-                throw new UncheckedIOException("첨부 파일 저장 실패: " + bc.getId(), e);
-            }
-
-            messageAttachmentRepository.save(new MessageAttachment(m, bc, orderIndex++));
-            binaryContents.add(bc);
         }
 
         return messageMapper.toDto(m, binaryContents);
