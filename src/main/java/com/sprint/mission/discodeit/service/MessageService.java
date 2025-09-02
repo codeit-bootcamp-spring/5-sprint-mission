@@ -30,6 +30,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,14 +56,14 @@ public class MessageService {
     private final MessageMapper messageMapper;
     private final UserMapper userMapper;
 
-    public List<MessageDto> findAllByChannelId(UUID channelId) {
-        List<Message> messages = messageRepository.findAllByChannelId(channelId);
+    public List<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
+        Page<Message> page = messageRepository.findAllByChannelId(channelId, pageable);
 
-        if (messages.isEmpty()) {
+        if (page.isEmpty()) {
             return List.of();
         }
 
-        List<UUID> messageIds = messages.stream().map(Message::getId).toList();
+        List<UUID> messageIds = page.stream().map(Message::getId).toList();
 
         List<MessageBinaryRow> rows =
             messageAttachmentRepository.findBinariesByMessageIds(messageIds);
@@ -73,7 +75,7 @@ public class MessageService {
                     Collectors.toList())
             ));
 
-        return messages.stream()
+        return page.stream()
             .map(m -> messageMapper.toDto(
                 m,
                 messageIdToBinaries.getOrDefault(m.getId(), List.of())

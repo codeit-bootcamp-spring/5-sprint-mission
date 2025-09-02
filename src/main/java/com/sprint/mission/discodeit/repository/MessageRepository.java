@@ -8,6 +8,8 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,15 +38,21 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     )
     Instant findLastMessageAtByChannel(@Param("channel") Channel channel);
 
-    @Query("""
+    @Query(
+        value = """
             SELECT m
             FROM Message m
             JOIN FETCH m.author a
             LEFT JOIN FETCH a.profile
             WHERE m.channel.id = :channelId
-            ORDER BY m.createdAt ASC
-        """)
-    List<Message> findAllByChannelId(UUID channelId);
+            """,
+        countQuery = """
+            SELECT COUNT(m)
+            FROM Message m
+            WHERE m.channel.id = :channelId
+            """
+    )
+    Page<Message> findAllByChannelId(UUID channelId, Pageable pageable);
 
     default Message getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->
