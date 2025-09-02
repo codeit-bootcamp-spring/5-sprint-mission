@@ -1,19 +1,18 @@
-package com.sprint.mission.discodeit.service.basic;
+package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
-import com.sprint.mission.discodeit.dto.mapper.UserMapper;
-import com.sprint.mission.discodeit.dto.message.data.MessageDto;
-import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.dto.user.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.user.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.main.Message;
 import com.sprint.mission.discodeit.entity.sub.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,16 +20,15 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class BasicMessageService implements MessageService {
+public class BasicMessageService {
     private final MessageRepository messageRepository;
-    //
+
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-    //
+
     private final UserMapper userMapper;
 
-    @Override
     public MessageDto create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
         UUID channelId = messageCreateRequest.channelId();
         UUID authorId = messageCreateRequest.authorId();
@@ -71,14 +69,12 @@ public class BasicMessageService implements MessageService {
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
     }
 
-    @Override
     public List<MessageDto> findAllByChannelId(UUID channelId) {
         return messageRepository.findAllByChannelId(channelId).stream()
                 .map(this::toDto)
                 .toList();
     }
 
-    @Override
     public MessageDto update(UUID messageId, MessageUpdateRequest request) {
         String newContent = request.newContent();
         Message message = messageRepository.findById(messageId)
@@ -87,7 +83,6 @@ public class BasicMessageService implements MessageService {
         return toDto(messageRepository.save(message));
     }
 
-    @Override
     public void delete(UUID messageId) {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));

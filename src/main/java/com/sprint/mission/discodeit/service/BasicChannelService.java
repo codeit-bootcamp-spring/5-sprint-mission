@@ -1,19 +1,18 @@
-package com.sprint.mission.discodeit.service.basic;
+package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.channel.data.ChannelDto;
-import com.sprint.mission.discodeit.dto.channel.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.channel.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.channel.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.dto.mapper.UserMapper;
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.main.Channel;
-import com.sprint.mission.discodeit.entity.enums.ChannelType;
+import com.sprint.mission.discodeit.enums.ChannelType;
 import com.sprint.mission.discodeit.entity.main.Message;
 import com.sprint.mission.discodeit.entity.sub.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,15 +21,14 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class BasicChannelService implements ChannelService {
+public class BasicChannelService {
     private final ChannelRepository channelRepository;
-    //
+
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
-    //
+
     private final UserMapper userMapper;
 
-    @Override
     public ChannelDto create(PublicChannelCreateRequest request) {
         String name = request.name();
         String description = request.description();
@@ -39,7 +37,6 @@ public class BasicChannelService implements ChannelService {
         return toDto(channelRepository.save(channel));
     }
 
-    @Override
     public ChannelDto create(PrivateChannelCreateRequest request) {
         Channel channel = new Channel(ChannelType.PRIVATE, null, null);
         Channel createdChannel = channelRepository.save(channel);
@@ -51,14 +48,12 @@ public class BasicChannelService implements ChannelService {
         return toDto(createdChannel);
     }
 
-    @Override
     public ChannelDto find(UUID channelId) {
         return channelRepository.findById(channelId)
                 .map(this::toDto)
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
     }
 
-    @Override
     public List<ChannelDto> findAllByUserId(UUID userId) {
         List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
                 .map(ReadStatus::getChannelId)
@@ -73,7 +68,6 @@ public class BasicChannelService implements ChannelService {
                 .toList();
     }
 
-    @Override
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
         String newName = request.newName();
         String newDescription = request.newDescription();
@@ -86,7 +80,6 @@ public class BasicChannelService implements ChannelService {
         return toDto(channelRepository.save(channel));
     }
 
-    @Override
     public void delete(UUID channelId) {
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
