@@ -6,6 +6,8 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,11 +33,9 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
   @Override
   void deleteById(UUID id);
 
-  // ---- 표준 파생 쿼리 (property path 사용 권장) ----
   List<Message> findByChannel_Id(UUID channelId);
   Optional<Message> findTop1ByChannel_IdOrderByCreatedAtDesc(UUID channelId);
 
-  // ---- 기존 서비스 코드 호환 메서드 ----
   @Query("select m from Message m where m.channel.id = :channelId")
   List<Message> findAllByChannelId(@Param("channelId") UUID channelId);
 
@@ -43,4 +43,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
   @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query("delete from Message m where m.channel.id = :channelId")
   void deleteAllByChannelId(@Param("channelId") UUID channelId);
+
+  // 최신순 + Slice 페이징 (count 쿼리 X)
+  Slice<Message> findByChannel_IdOrderByCreatedAtDesc(UUID channelId, Pageable pageable);
 }

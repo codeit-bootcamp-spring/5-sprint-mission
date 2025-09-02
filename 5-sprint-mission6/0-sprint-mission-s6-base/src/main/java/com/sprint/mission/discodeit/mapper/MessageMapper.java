@@ -15,20 +15,12 @@ public class MessageMapper {
   private final UserMapper userMapper;
 
   public MessageDto toDto(Message m) {
-    if (m == null) return null;
-
     List<BinaryContentDto> files = m.getAttachments().stream()
-        .map(binaryContentMapper::toDto)
-        .toList();
-
+        .map(binaryContentMapper::toDto).toList();
     return new MessageDto(
-        m.getId(),
-        m.getCreatedAt(),
-        m.getUpdatedAt(),
-        m.getContent(),
-        m.getChannel().getId(),
-        userMapper.toDto(m.getAuthor()),
-        files
+        m.getId(), m.getCreatedAt(), m.getUpdatedAt(),
+        m.getContent(), m.getChannel().getId(),
+        userMapper.toDto(m.getAuthor()), files
     );
   }
 }

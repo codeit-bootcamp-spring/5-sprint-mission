@@ -27,8 +27,4 @@ public interface UserStatusRepository extends JpaRepository<UserStatus, UUID> {
   @Override
   void deleteById(UUID id);
 
-  // ---- 커스텀 쿼리 메서드 (연관 엔티티의 ID는 property path 사용) ----
-  Optional<UserStatus> findByUser_Id(UUID userId);
-
-  void deleteByUser_Id(UUID userId);
 }
