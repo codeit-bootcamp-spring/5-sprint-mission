@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.0'
+    id 'org.springframework.boot' version '3.5.4' // 최신 안정 버전으로 업데이트
     id 'io.spring.dependency-management' version '1.1.6'
 }
 
@@ -24,9 +24,22 @@ repositories {
 }
 
 dependencies {
+    // 이 의존성만으로 Tomcat과 Spring MVC를 자동으로 가져옵니다.
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
+
+    // Swagger UI를 위한 의존성은 직접 관리합니다.
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0'
+
+    // json-smart의 취약점 해결을 위해 명시적으로 버전을 지정합니다.
+    implementation 'net.minidev:json-smart:2.5.2'
+
+    // Lombok 의존성
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // 테스트 의존성
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
