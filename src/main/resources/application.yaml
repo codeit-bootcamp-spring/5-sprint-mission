@@ -44,3 +44,9 @@ springdoc:
         url: /docs/openapi-readStatuses.yaml
       - name: Users API
         url: /docs/openapi-users.yaml
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: ${user.dir}/storage

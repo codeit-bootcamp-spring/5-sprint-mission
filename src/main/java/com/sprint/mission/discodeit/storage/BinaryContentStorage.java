@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit.storage;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import java.io.InputStream;
 import java.util.UUID;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 
 public interface BinaryContentStorage {
 
@@ -10,5 +12,7 @@ public interface BinaryContentStorage {
 
     InputStream get(UUID id);
 
-    byte[] download(BinaryContentDto binaryContentDto);
+    ResponseEntity<Resource> download(BinaryContentDto binaryContentDto);
+
+    void delete(UUID id);
 }
