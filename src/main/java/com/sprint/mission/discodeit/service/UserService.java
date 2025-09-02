@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.service;
 
-import static com.sprint.mission.discodeit.support.Utils.toBinaryContentFromMultipartFile;
-
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
@@ -17,6 +15,10 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import jakarta.persistence.EntityManager;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -41,28 +43,44 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final EntityManager em;
+
+    public List<UserDto> findAll() {
+        Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
+
+        return userRepository.findAllWithProfileAndStatus()
+            .stream()
+            .map(u -> userMapper.toDto(u, onlineSince))
+            .toList();
+    }
+
     @Transactional
     public UserDto create(UserCreateRequest req, MultipartFile profile) {
         String username = req.username().strip().toLowerCase(Locale.ROOT);
         String email = req.email().strip().toLowerCase(Locale.ROOT);
         String password = passwordEncoder.encode(req.password());
-        BinaryContent savedProfile = (profile != null && !profile.isEmpty())
-            ? binaryContentRepository.save(toBinaryContentFromMultipartFile(profile))
-            : null;
 
-        User user = userRepository.save(
-            new User(
-                username,
-                email,
-                password,
-                savedProfile,
-                null
+        BinaryContent savedProfile =
+            (profile != null && !profile.isEmpty())
+                ? binaryContentRepository.save(
+                new BinaryContent(
+                    profile.getOriginalFilename(),
+                    profile.getSize(),
+                    profile.getContentType()
+                )
+            )
+                : null;
+
+        return userMapper.toDto(
+            userRepository.save(
+                new User(
+                    username,
+                    email,
+                    password,
+                    savedProfile
+                )
             )
         );
-
-        user.setUserStatus(userStatusRepository.save(new UserStatus(user)));
-
-        return userMapper.toDto(user);
     }
 
     @Transactional
@@ -96,7 +114,13 @@ public class UserService {
         }
 
         BinaryContent newProfile = (profile != null && !profile.isEmpty())
-            ? binaryContentRepository.save(toBinaryContentFromMultipartFile(profile))
+            ? binaryContentRepository.save(
+            new BinaryContent(
+                profile.getOriginalFilename(),
+                profile.getSize(),
+                profile.getContentType()
+            )
+        )
             : null;
 
         if (newProfile != null) {

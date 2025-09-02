@@ -13,7 +13,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(
     componentModel = "spring",
-    uses = { UserMapper.class, BinaryContentMapper.class }
+    uses = UserMapper.class
 )
 public interface ChannelMapper {
 

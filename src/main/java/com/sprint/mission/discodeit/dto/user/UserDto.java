@@ -11,24 +11,4 @@ public record UserDto(
     boolean online
 ) {
 
-    public UserDto(
-        UUID id,
-        String username,
-        String email,
-        UUID pid,
-        String fileName,
-        Long size,
-        String contentType,
-        boolean online
-    ) {
-        this(
-            id,
-            username,
-            email,
-            pid != null
-                ? new BinaryContentDto(pid, fileName, size, contentType)
-                : null,
-            online
-        );
-    }
 }

@@ -1,10 +1,8 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import jakarta.persistence.LockModeType;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -12,28 +10,16 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("""
-        SELECT new com.sprint.mission.discodeit.dto.user.UserDto(
-            u.id,
-            u.username,
-            u.email,
-            p.id,
-            p.fileName,
-            p.size,
-            p.contentType,
-            CASE WHEN us.lastActiveAt IS NOT NULL AND us.lastActiveAt >= :onlineSince
-                 THEN TRUE ELSE FALSE END
-        )
-        FROM User u
-        LEFT JOIN UserStatus us ON us.user = u
-        LEFT JOIN u.profile p
-        """
-    )
-    List<UserDto> findAll(@Param("onlineSince") Instant onlineSince);
+            SELECT u
+            FROM User u
+            LEFT JOIN FETCH u.profile
+            LEFT JOIN FETCH u.userStatus
+        """)
+    List<User> findAllWithProfileAndStatus();
 
     List<User> findAllByIdIn(Collection<UUID> ids);
 

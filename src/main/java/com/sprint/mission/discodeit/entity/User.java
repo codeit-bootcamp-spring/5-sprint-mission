@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -28,8 +29,20 @@ public class User extends BaseUpdatableEntity {
     @JoinColumn(name = "profile_id")
     private BinaryContent profile;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(
+        mappedBy = "user",
+        cascade = { CascadeType.PERSIST, CascadeType.REMOVE },
+        orphanRemoval = true
+    )
     private UserStatus userStatus;
+
+    public User(String username, String email, String password, BinaryContent profile) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.profile = profile;
+        this.userStatus = new UserStatus(this);
+    }
 
     @Override
     public String toString() {

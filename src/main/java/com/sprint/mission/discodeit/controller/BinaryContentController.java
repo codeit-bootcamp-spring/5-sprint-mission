@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,12 +35,12 @@ public class BinaryContentController {
         return binaryContentRepository.getOrThrowToDto(binaryContentId);
     }
 
-    @GetMapping(
-        path = "/{binaryContentId}/download",
-        produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
-    )
-    @ResponseStatus(HttpStatus.OK)
-    public byte[] download(@PathVariable UUID binaryContentId) {
-        return binaryContentRepository.findBytesById(binaryContentId);
-    }
+    // @GetMapping(
+    //     path = "/{binaryContentId}/download",
+    //     produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
+    // )
+    // @ResponseStatus(HttpStatus.OK)
+    // public byte[] download(@PathVariable UUID binaryContentId) {
+    //     return binaryContentRepository.findBytesById(binaryContentId);
+    // }
 }

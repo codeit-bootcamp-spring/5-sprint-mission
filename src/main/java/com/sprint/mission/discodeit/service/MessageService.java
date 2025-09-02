@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.service;
 
-import static com.sprint.mission.discodeit.support.Utils.toBinaryContentFromMultipartFile;
-
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
@@ -48,6 +46,7 @@ public class MessageService {
 
     public List<MessageDto> findAllByChannelId(UUID channelId) {
         List<Message> messages = messageRepository.findAllByChannelId(channelId);
+
         if (messages.isEmpty()) {
             return List.of();
         }
@@ -86,7 +85,13 @@ public class MessageService {
         for (MultipartFile attachment : attachments) {
             if (attachment != null && !attachment.isEmpty()) {
                 BinaryContent bc = binaryContentRepository.save(
-                    toBinaryContentFromMultipartFile(attachment));
+                    new BinaryContent(
+                        attachment.getOriginalFilename(),
+                        attachment.getSize(),
+                        attachment.getContentType()
+                    )
+                );
+
                 messageAttachmentRepository.save(
                     new MessageAttachment(m, bc, orderIndex++));
                 binaryContents.add(bc);

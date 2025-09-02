@@ -8,17 +8,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface BinaryContentRepository extends JpaRepository<BinaryContent, UUID> {
 
     List<BinaryContentDto> findAllByIdIn(Collection<UUID> ids);
 
     Optional<BinaryContentDto> findToDtoById(UUID id);
-
-    @Query("SELECT b.bytes FROM BinaryContent b WHERE b.id = :id")
-    byte[] findBytesById(@Param("id") UUID id);
 
     default BinaryContentDto getOrThrowToDto(UUID id) {
         return findToDtoById(id).orElseThrow(() ->

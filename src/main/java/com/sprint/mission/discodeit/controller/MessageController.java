@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +41,7 @@ public class MessageController {
     public MessageDto create(
         @RequestPart("messageCreateRequest") @Valid MessageCreateRequest req,
         @RequestPart(value = "attachments", required = false)
-        List<@NotNull MultipartFile> attachments
+        List<MultipartFile> attachments
     ) {
         return messageService.create(req, attachments);
     }

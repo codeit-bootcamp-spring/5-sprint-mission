@@ -1,9 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
-import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,9 +20,6 @@ public class BinaryContent extends BaseEntity {
     private String fileName;
     private long size;
     private String contentType;
-
-    @Basic(fetch = FetchType.LAZY)
-    private byte[] bytes;
 
     @Override
     public String toString() {
