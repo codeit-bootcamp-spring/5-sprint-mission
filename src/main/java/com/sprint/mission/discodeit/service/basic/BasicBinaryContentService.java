@@ -6,6 +6,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,26 +42,40 @@ public class BasicBinaryContentService implements BinaryContentService {
 
 	@Override
     @Transactional(readOnly = true)
-	public BinaryContentResponse getById(UUID id) {
+	public BinaryContentResponse getById(UUID id) throws IOException {
 		BinaryContent binaryContent = binaryContentRepository.findById(id)
 			.orElseThrow(BinaryContentNotFoundException::new);
 
-		return BinaryContentResponse.success(binaryContent);
-	}
+        BinaryContentResponse response = BinaryContentResponse.success(binaryContent);
+        try (InputStream inputStream = binaryContentStorage.get(id)) {
+            response.setBytes(inputStream.readAllBytes());
+        }
 
-	@Override
-    @Transactional(readOnly = true)
-	public List<BinaryContentResponse> getAllByIdIn(List<UUID> ids) {
-		List<BinaryContent> binaryContents = binaryContentRepository.findAllByIdIn(ids);
-
-		return binaryContents.stream()
-			.map(BinaryContentResponse::success)
-			.toList();
+		return response;
 	}
 
     @Override
     @Transactional(readOnly = true)
-    public BinaryContentDTO download(UUID id) {
+    public List<BinaryContentResponse> getAllByIdIn(List<UUID> ids) throws IOException {
+        List<BinaryContent> binaryContents = binaryContentRepository.findAllByIdIn(ids);
+        List<BinaryContentResponse> responses = new ArrayList<>();
+
+        for (BinaryContent binaryContent : binaryContents) {
+            BinaryContentResponse response = BinaryContentResponse.success(binaryContent);
+
+            try (InputStream inputStream = binaryContentStorage.get(binaryContent.getId())) {
+                response.setBytes(inputStream.readAllBytes());
+            }
+
+            responses.add(response);
+        }
+
+        return responses;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BinaryContentDTO download(UUID id) throws IOException {
         BinaryContentResponse response = getById(id);
 
         return BinaryContentDTO.builder()

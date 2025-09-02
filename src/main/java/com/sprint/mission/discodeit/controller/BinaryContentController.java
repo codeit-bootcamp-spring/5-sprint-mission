@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +30,7 @@ public class BinaryContentController {
 
   @RequestMapping(path = "/find", method = RequestMethod.GET)
   public ResponseEntity<Base64BinaryContentResponse> findBinaryContentForList(
-      @RequestParam UUID binaryContentId) {
+      @RequestParam UUID binaryContentId) throws IOException {
     BinaryContentResponse response = binaryContentService.getById(binaryContentId);
     Base64BinaryContentResponse base64Response = Base64BinaryContentResponse.fromResponse(response);
     return ResponseEntity.ok(base64Response);
@@ -37,7 +38,7 @@ public class BinaryContentController {
 
   @RequestMapping(path = "/findContents", method = RequestMethod.GET)
   public ResponseEntity<List<Base64BinaryContentResponse>> findBinaryContentsForList(
-      @RequestParam List<UUID> binaryContentIds) {
+      @RequestParam List<UUID> binaryContentIds) throws IOException {
     List<BinaryContentResponse> responses = binaryContentService.getAllByIdIn(binaryContentIds);
 
     List<Base64BinaryContentResponse> base64Responses = responses.stream()
@@ -49,7 +50,7 @@ public class BinaryContentController {
 
   @RequestMapping(path = "/{binaryContentId}", method = RequestMethod.GET)
   public ResponseEntity<Base64BinaryContentResponse> findBinaryContent(
-      @PathVariable UUID binaryContentId) {
+      @PathVariable UUID binaryContentId) throws IOException {
     BinaryContentResponse response = binaryContentService.getById(binaryContentId);
     Base64BinaryContentResponse base64Response = Base64BinaryContentResponse.fromResponse(response);
     return ResponseEntity.ok(base64Response);
@@ -57,7 +58,7 @@ public class BinaryContentController {
 
   @RequestMapping(method = RequestMethod.GET)
   public ResponseEntity<List<Base64BinaryContentResponse>> findBinaryContents(
-      @RequestParam List<UUID> binaryContentIds) {
+      @RequestParam List<UUID> binaryContentIds) throws IOException {
     List<BinaryContentResponse> responses = binaryContentService.getAllByIdIn(binaryContentIds);
 
     List<Base64BinaryContentResponse> base64Responses = responses.stream()
@@ -68,7 +69,7 @@ public class BinaryContentController {
   }
 
     @RequestMapping(path = "/{binaryContentId}/download", method = RequestMethod.GET)
-    public ResponseEntity<Resource> download(@PathVariable UUID binaryContentId) {
+    public ResponseEntity<Resource> download(@PathVariable UUID binaryContentId) throws IOException {
         BinaryContentDTO dto = binaryContentService.download(binaryContentId);
         return binaryContentStorage.download(dto);
     }

@@ -41,7 +41,7 @@ public class BasicMessageService implements MessageService {
 
 	@Override
     @Transactional
-	public MessageResponse createMessage(MessageCreateRequest request) {
+	public MessageResponse create(MessageCreateRequest request) {
         User author = userRepository.findById(request.getAuthorId())
                 .orElseThrow(() -> new RuntimeException("User not found: " + request.getAuthorId()));
 
@@ -50,8 +50,9 @@ public class BasicMessageService implements MessageService {
 
 		Message message = new Message(author, channel, request.getContent());
 
+        messageRepository.save(message);
 		addAttachments(message, request.getAttachments());
-		messageRepository.save(message);
+
 
 		return MessageResponse.success(message);
 	}
@@ -106,7 +107,7 @@ public class BasicMessageService implements MessageService {
     @Transactional(readOnly = true)
     public PageResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Message> messagePage = messageRepository.findPageByChannelId(channelId, pageable);
         Page<MessageResponse> responsePage = messagePage.map(MessageResponse::success);
@@ -115,7 +116,7 @@ public class BasicMessageService implements MessageService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<MessageResponse> getSliceMessagesByChannel(UUID channelId, int page, int size) {
+    public PageResponse<MessageResponse> findSliceMessagesByChannel(UUID channelId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Slice<Message> messageSlice = messageRepository.findByChannelId(channelId, pageable);

@@ -10,7 +10,7 @@ import com.sprint.mission.discodeit.entity.Message;
 
 public interface MessageService {
 	// 생성
-	MessageResponse createMessage(MessageCreateRequest request);
+	MessageResponse create(MessageCreateRequest request);
 
 	// 읽기
 	MessageResponse findMessage(UUID messageId);
@@ -18,7 +18,7 @@ public interface MessageService {
 	List<MessageResponse> findMessageByAuthor(MessagesGetByAuthorRequest request);
 
     PageResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size);
-    PageResponse<MessageResponse> getSliceMessagesByChannel(UUID channelId, int page, int size);
+    PageResponse<MessageResponse> findSliceMessagesByChannel(UUID channelId, int page, int size);
 
 	List<Message> findAll();
 

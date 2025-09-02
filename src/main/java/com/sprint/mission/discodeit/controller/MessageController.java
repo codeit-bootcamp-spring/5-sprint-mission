@@ -37,7 +37,7 @@ public class MessageController {
         List<BinaryContentCreateRequest> attachments = convertFiles(files);
         request.setAttachments(attachments);
       }
-      MessageResponse response = messageService.createMessage(request);
+      MessageResponse response = messageService.create(request);
       URI location = URI.create("/api/messages/" + response.getId());
 
       return ResponseEntity.status(HttpStatus.CREATED)
@@ -65,14 +65,14 @@ public class MessageController {
   }
 
     @GetMapping("/channels/{channelId}")
-    public ResponseEntity<List<MessageResponse>> getMessagesByChannel(
+    public ResponseEntity<PageResponse<MessageResponse>> getMessagesByChannel(
             @PathVariable UUID channelId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size
     ) {
-        PageResponse<MessageResponse> response = messageService.findPageMessagesByChannel(channelId, page, size);
+        PageResponse<MessageResponse> response = messageService.findSliceMessagesByChannel(channelId, page, size);
 
-        return ResponseEntity.ok(response.getContent());
+        return ResponseEntity.ok(response);
     }
 
   @RequestMapping(path = "/{messageId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

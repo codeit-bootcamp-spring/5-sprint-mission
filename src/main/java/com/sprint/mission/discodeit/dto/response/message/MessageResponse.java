@@ -1,15 +1,16 @@
 package com.sprint.mission.discodeit.dto.response.message;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-
+import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.Message;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,6 +25,8 @@ public class MessageResponse {
 	private String content;
 	private List<UUID> attachmentIds;
 
+    private UserResponse author;
+
 	private MessageResponse(Message message) {
 		this.id = message.getId();
 		this.createdAt = message.getCreatedAt();
@@ -32,6 +35,7 @@ public class MessageResponse {
 		this.channelId = message.getChannel().getId();
 		this.content = message.getContent();
 		this.attachmentIds = message.getAttachments().stream().map(ma -> ma.getAttachment().getId()).toList();
+        this.author = UserResponse.success(message.getAuthor());
 	}
 
 	public static MessageResponse success(Message message) {

@@ -224,3 +224,8 @@ ALTER TABLE "message_attachments" ADD CONSTRAINT "FK_binary_contents_TO_message_
         ON DELETE CASCADE ON UPDATE CASCADE;
 
 COMMIT;
+
+BEGIN;
+ALTER TABLE binary_contents DROP COLUMN bytes;
+
+COMMIT;

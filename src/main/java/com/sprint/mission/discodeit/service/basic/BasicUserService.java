@@ -141,7 +141,8 @@ public class BasicUserService implements UserService {
 
 		if (profileImageRequest != null) {
 			BinaryContent newProfileImage = profileImageRequest.toBinaryContent();
-			binaryContentRepository.save(newProfileImage);
+            binaryContentRepository.saveAndFlush(newProfileImage);
+            binaryContentStorage.put(newProfileImage.getId(), profileImageRequest.getBytes());
 
 			if (user.getProfile() != null) {
 				binaryContentRepository.deleteById(user.getProfile().getId());
@@ -189,18 +190,20 @@ public class BasicUserService implements UserService {
 		return UserResponse.success(user);
 	}
 
+
 	@Override
     @Transactional
 	public UserResponse updateUserProfile(UUID userId, UserProfileImageRequest request) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(UserNotFoundException::new);
 
-		UUID oldProfileId = user.getProfile().getId();
+		UUID oldProfileId = user.getProfile() != null ? user.getProfile().getId() : null;
 
 		if (request != null) {
 			// 새로운 프로필 이미지 제공 - 업데이트 (기존과 같아도 새로 저장)
 			BinaryContent newProfileImage = request.toBinaryContent();
-			binaryContentRepository.save(newProfileImage);
+			binaryContentRepository.saveAndFlush(newProfileImage);
+            binaryContentStorage.put(newProfileImage.getId(), request.getBytes());
 
 			// 기존 프로필 이미지가 있으면 삭제
 			if (oldProfileId != null) {

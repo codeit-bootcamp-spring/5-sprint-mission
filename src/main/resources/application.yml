@@ -12,7 +12,7 @@ spring:
     hibernate:
       ddl-auto: validate
       # create, create-drop, update, validate, none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -22,17 +22,23 @@ spring:
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         jdbc.time_zone: UTC
 
-# log
+## log
+#logging:
+#  level:
+#    # Hibernate SQL
+#    org.hibernate.SQL: off
+#    org.hibernate.orm.jdbc.bind: trace
+#    org.hibernate.type.descriptor.sql: trace
+#
+#    # Spring Web
+#    org.springframework.web: trace
+#    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
 logging:
   level:
-    # Hibernate SQL
-    org.hibernate.SQL: off
-    org.hibernate.orm.jdbc.bind: trace
-    org.hibernate.type.descriptor.sql: trace
+    com.sprint.mission.discodeit: DEBUG  # 우리 코드만
+    root: WARN                           # 나머지는 경고 이상만
 
-    # Spring Web
-    org.springframework.web: trace
-    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
 
   pattern:
     console: "%d{HH:mm:ss} %-5level %logger{36} - %msg%n"
