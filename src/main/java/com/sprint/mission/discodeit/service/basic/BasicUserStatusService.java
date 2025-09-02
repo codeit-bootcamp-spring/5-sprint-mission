@@ -34,7 +34,7 @@ public class BasicUserStatusService implements UserStatusService {
             throw new UserNotFoundException();
         }
 
-		if (userStatusRepository.findByUserId(request.getUserId()).isPresent()) {
+		if (userStatusRepository.findByUser_Id(request.getUserId()).isPresent()) {
 			throw new AlreadyExistsUserStatusException();
 		}
 
@@ -82,7 +82,7 @@ public class BasicUserStatusService implements UserStatusService {
 	@Override
     @Transactional
 	public UserStatusResponse updateByUserId(UUID userId, UserStatusUpdateRequest request) {
-		UserStatus userStatus = userStatusRepository.findByUserId(userId)
+		UserStatus userStatus = userStatusRepository.findByUser_Id(userId)
 			.orElseThrow(UserStatusNotFoundException::new);
 
 		userStatus.updateLastActiveAt(request.getNewLastActiveAt());
@@ -105,7 +105,7 @@ public class BasicUserStatusService implements UserStatusService {
 	@Override
     @Transactional
 	public boolean isOnline(UUID userId) {
-		UserStatus userStatus = userStatusRepository.findByUserId(userId)
+		UserStatus userStatus = userStatusRepository.findByUser_Id(userId)
 			.orElseThrow(UserStatusNotFoundException::new);
 
 		Instant lastActiveAt = userStatus.getLastActiveAt();

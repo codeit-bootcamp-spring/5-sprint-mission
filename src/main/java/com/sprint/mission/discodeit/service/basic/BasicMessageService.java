@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class BasicMessageService implements MessageService {
 	private final ChannelRepository channelRepository;
 	private final UserRepository userRepository;
 	private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
 
 
 
@@ -68,25 +70,18 @@ public class BasicMessageService implements MessageService {
 		Channel channel = channelRepository.findById(request.getChannelId())
 				.orElseThrow(ChannelNotFoundException::new);
 
-		UUID authorId = null;
-		List<User> allUsers = userRepository.findAll();
+        User author = userRepository.findByUsername(request.getAuthor())
+                .orElse(null);
 
-		for (User user : allUsers) {
-			if (request.getAuthor().equals(user.getUsername())) {
-				authorId = user.getId();
-				break;
-			}
-		}
+        if (author == null) {
+            return List.of();
+        }
 
-		if (authorId == null) {
-			return List.of();
-		}
+        List<Message> messages = messageRepository.findByAuthorIdAndChannelId(author.getId(), request.getChannelId());
 
-		List<Message> messages = messageRepository.findByAuthorIdAndChannelId(authorId, request.getChannelId());
-
-		return messages.stream()
-				.map(MessageResponse::success)
-				.toList();
+        return messages.stream()
+                .map(MessageResponse::success)
+                .toList();
 	}
 
 	@Override
@@ -153,6 +148,7 @@ public class BasicMessageService implements MessageService {
 					attachment.getSize()
 				);
 				binaryContentRepository.save(binaryContent);
+                binaryContentStorage.put(binaryContent.getId(), attachment.getBytes());
 
 				message.addAttachment(binaryContent);
 			}

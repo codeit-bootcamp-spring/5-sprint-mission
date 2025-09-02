@@ -32,7 +32,7 @@ public class UserResponse {
 		this.email = user.getEmail();
 		this.createdAt = user.getCreatedAt();
 		this.updatedAt = user.getUpdatedAt();
-		this.profileId = user.getProfile().getId();
+        this.profileId = user.getProfile() != null ? user.getProfile().getId() : null;
 		this.username = user.getUsername(); // loginId는 username으로
 	}
 

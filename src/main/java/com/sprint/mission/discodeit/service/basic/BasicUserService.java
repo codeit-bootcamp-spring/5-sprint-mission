@@ -14,6 +14,7 @@ import com.sprint.mission.discodeit.exception.user.InvalidPasswordException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.*;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,10 +32,11 @@ public class BasicUserService implements UserService {
 	private final BinaryContentRepository binaryContentRepository;
 	private final ChannelRepository channelRepository;
 	private final ReadStatusRepository readStatusRepository;
+    private final BinaryContentStorage binaryContentStorage;
 
 	@Override
     @Transactional
-	public UserResponse createUser(UserCreateRequest request) {
+	public UserResponse create(UserCreateRequest request) {
 		if (userRepository.existsByUsername(request.getUsername())) {
 			throw new DuplicateLoginIdException();
 		}
@@ -48,6 +50,7 @@ public class BasicUserService implements UserService {
 		if (request.getProfileImage() != null) {
 			BinaryContent profileImage = request.getProfileImage().toBinaryContent();
 			binaryContentRepository.save(profileImage);
+            binaryContentStorage.put(profileImage.getId(), request.getProfileImage().getBytes());
 
 			user = request.toUserWithProfile(profileImage);
 		} else {
@@ -258,7 +261,7 @@ public class BasicUserService implements UserService {
     }
 
 	private void updateOnlineStatus(UserResponse userResponse) {
-		boolean online = userStatusRepository.findByUserId(userResponse.getId())
+		boolean online = userStatusRepository.findByUser_Id(userResponse.getId())
 				.map(userStatus -> {
 					Instant lastActiveAt = userStatus.getLastActiveAt();
 					if (lastActiveAt == null) {

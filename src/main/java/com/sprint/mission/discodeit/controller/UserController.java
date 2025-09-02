@@ -71,7 +71,7 @@ public class UserController {
 				request.setProfileImage(imageRequest);
 			}
 
-			UserResponse response = userService.createUser(request);
+			UserResponse response = userService.create(request);
 
 			URI location = URI.create("/api/users/" + response.getId());
 			return ResponseEntity.status(HttpStatus.CREATED)

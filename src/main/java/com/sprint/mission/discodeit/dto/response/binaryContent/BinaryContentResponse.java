@@ -20,7 +20,7 @@ public class BinaryContentResponse {
 	private String fileName;
 	private String contentType;
 	private Long size;
-	private byte[] content;
+	private byte[] bytes;
 	private boolean success;
 
 	private BinaryContentResponse(BinaryContent binaryContent) {
