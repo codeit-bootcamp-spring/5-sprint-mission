@@ -437,11 +437,11 @@
 
 ### 데이터베이스
 
-- [ ] **데이터베이스 환경 설정**
+- [x] **데이터베이스 환경 설정**
     - 데이터베이스: `discodeit`
     - 유저: `discodeit_user`
     - 패스워드: `discodeit1234`
-- [ ] **ERD 기반 DDL 작성 및 테이블 생성**
+- [x] **ERD 기반 DDL 작성 및 테이블 생성**
     - DDL 파일 경로: `/src/main/resources/schema.sql`
     - 참고:
         - PK: Primary Key
@@ -453,59 +453,59 @@
 
 ### Spring Data JPA 적용
 
-- [ ] Spring Data JPA와 PostgreSQL 의존성 추가
-- [ ] `application.yaml`에 DB 연결 설정 추가
-- [ ] `application.yaml`에 SQL 로그 디버깅 설정 추가
+- [x] Spring Data JPA와 PostgreSQL 의존성 추가
+- [x] `application.yaml`에 DB 연결 설정 추가
+- [x] `application.yaml`에 SQL 로그 디버깅 설정 추가
 
 ### 엔티티 정의
 
-- [ ] **공통 속성 추상 클래스 정의**
+- [x] **공통 속성 추상 클래스 정의**
     - Serializable 제외
     - 패키지: `com.sprint.mission.discodeit.entity.base`
-- [ ] `@CreatedDate`, `@LastModifiedDate`로 `createdAt`, `updatedAt` 자동 설정
-- [ ] 클래스 참조 관계 수정 (필요 시 생성자 및 `update` 메서드 수정)
-- [ ] **연관관계 매핑 정보 표 작성** (PR에 첨부)
+- [x] `@CreatedDate`, `@LastModifiedDate`로 `createdAt`, `updatedAt` 자동 설정
+- [x] 클래스 참조 관계 수정 (필요 시 생성자 및 `update` 메서드 수정)
+- [x] **연관관계 매핑 정보 표 작성** (PR에 첨부)
   ```
   엔티티 관계 | 다중성 | 방향성    | 부모-자식 관계 | 연관관계의 주인
   A:B         | 1:N    | B → A 단방향 | 부모: A, 자식: B | B
   ```
-- [ ] JPA 어노테이션 적용 (`@Entity`, `@Table`, `@Column`, `@Enumerated`,  
+- [x] JPA 어노테이션 적용 (`@Entity`, `@Table`, `@Column`, `@Enumerated`,  
   `@OneToMany`, `@OneToOne`, `@ManyToOne`, `@JoinColumn`, `@JoinTable`)
-- [ ] **영속성 전이(cascade) & 고아 객체(orphanRemoval)** 설정
+- [x] **영속성 전이(cascade) & 고아 객체(orphanRemoval)** 설정
 
 ### 레포지토리 & 서비스 JPA 도입
 
-- [ ] 기존 Repository → `JpaRepository` 변경
-- [ ] `FileRepository`, `JCFRepository` 구현체 삭제
-- [ ] 서비스 레이어를 **영속성 컨텍스트 특성**에 맞게 수정  
+- [x] 기존 Repository → `JpaRepository` 변경
+- [x] `FileRepository`, `JCFRepository` 구현체 삭제
+- [x] 서비스 레이어를 **영속성 컨텍스트 특성**에 맞게 수정  
   (트랜잭션, 영속성 전이, 변경 감지, 지연 로딩)
 
 ### DTO 적극 도입
 
-- [ ] Entity를 Controller에 그대로 노출했을 때 문제점 정리 (PR에 첨부)
-- [ ] DTO 도입 시 장점 정리
-- [ ] 클래스 다이어그램 참고하여 DTO 정의
-- [ ] Entity ↔ DTO 매핑 Mapper 구현
+- [x] Entity를 Controller에 그대로 노출했을 때 문제점 정리 (PR에 첨부)
+- [x] DTO 도입 시 장점 정리
+- [x] 클래스 다이어그램 참고하여 DTO 정의
+- [x] Entity ↔ DTO 매핑 Mapper 구현
     - 패키지: `com.sprint.mission.discodeit.mapper`
 
 ### BinaryContent 저장 로직 고도화
 
-- [ ] BinaryContent 엔티티에서 `bytes` 속성 제거, 메타 정보만 유지
-- [ ] BinaryContentStorage 인터페이스 설계
+- [x] BinaryContent 엔티티에서 `bytes` 속성 제거, 메타 정보만 유지
+- [x] BinaryContentStorage 인터페이스 설계
     - 기능: `UUID put(UUID, byte[])`, `InputStream get(UUID)`,
       `ResponseEntity<?> download(BinaryContentDto)`
-- [ ] 서비스 레이어에서 BinaryContentStorage 활용하도록 리팩토링
-- [ ] **파일 다운로드 API 추가**
+- [x] 서비스 레이어에서 BinaryContentStorage 활용하도록 리팩토링
+- [x] **파일 다운로드 API 추가**
     - `GET /api/binaryContents/{binaryContentId}/download`
-- [ ] 로컬 디스크 저장 방식 구현 (`discodeit.storage.type=local`)
+- [x] 로컬 디스크 저장 방식 구현 (`discodeit.storage.type=local`)
 
 ### 페이징 & 정렬
 
-- [ ] 메시지 목록 조회 시 **50개씩 최근 메시지 순으로 페이지네이션**
-- [ ] 제네릭 기반 DTO로 페이지네이션 응답 구현
+- [x] 메시지 목록 조회 시 **50개씩 최근 메시지 순으로 페이지네이션**
+- [x] 제네릭 기반 DTO로 페이지네이션 응답 구현
     - 패키지: `com.sprint.mission.discodeit.dto.response`
     - 필드: `content`, `number`, `size`, `totalElements` (nullable)
-- [ ] Slice/Page 객체 → DTO 변환 Mapper 구현 (제네릭 메서드로 확장성 확보)
+- [x] Slice/Page 객체 → DTO 변환 Mapper 구현 (제네릭 메서드로 확장성 확보)
 
 ## 심화 요구사항
 
@@ -515,7 +515,7 @@
 
 ### 읽기전용 트랜잭션 활용
 
-- [ ] 프로덕션 환경에서는 OSIV를 비활성화하는 경우가 많습니다. 이때 서비스 레이어의 조회 메소드에서 발생할 수 있는 문제를 식별하고, 읽기 전용 트랜잭션을 활용해 문제를
+- [x] 프로덕션 환경에서는 OSIV를 비활성화하는 경우가 많습니다. 이때 서비스 레이어의 조회 메소드에서 발생할 수 있는 문제를 식별하고, 읽기 전용 트랜잭션을 활용해 문제를
   해결해보세요.
 
 **OSIV 비활성화 설정**

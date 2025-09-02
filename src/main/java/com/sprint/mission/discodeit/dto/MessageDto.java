@@ -1,5 +1,9 @@
 package com.sprint.mission.discodeit.dto;
 
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
@@ -36,18 +40,27 @@ public class MessageDto {
     UUID authorId;
     String content;
     List<MultipartFile> attachments;
+
+    public Message toEntity(Channel channel, User author, List<BinaryContent> attachments) {
+      return Message.builder()
+                    .channel(channel)
+                    .author(author)
+                    .content(this.content)
+                    .attachments(attachments)
+                    .build();
+    }
   }
 
   @Getter
   @Schema(name = "MessageUpdateRequest")
   public static class UpdateRequest {
 
-    String content;
+    String newContent;
 
     public UpdateCommand toCommand(UUID id) {
       return UpdateCommand.builder()
                           .id(id)
-                          .content(this.content)
+                          .content(this.newContent)
                           .build();
     }
   }
@@ -65,13 +78,11 @@ public class MessageDto {
   @Schema(name = "MessageDetailResponse")
   public static class DetailResponse {
 
-    UUID channelId;
-    UUID authorId;
     UUID id;
-    String authorName;
-    String channelName;
+    UserDto.DetailResponse author;
+    ChannelDto.DetailResponse channel;
     String content;
-    List<UUID> attachmentIds;
+    List<BinaryContentDto.DetailResponse> attachments;
     Instant createdAt;
     Instant updatedAt;
   }
@@ -80,27 +91,29 @@ public class MessageDto {
   @Builder
   public static class Detail {
 
-    UUID channelId;
-    UUID authorId;
     UUID id;
-    String authorName;
-    String channelName;
+    UserDto.Detail author;
+    ChannelDto.Detail channel;
     String content;
-    List<UUID> attachmentIds;
+    List<BinaryContentDto.Detail> attachments;
     Instant createdAt;
     Instant updatedAt;
 
     public DetailResponse toResponse() {
+      if (this.id == null) {
+        return null;
+      }
+
       return DetailResponse.builder()
-                           .channelId(channelId)
-                           .authorId(authorId)
-                           .id(id)
-                           .authorName(authorName)
-                           .channelName(channelName)
-                           .content(content)
-                           .attachmentIds(attachmentIds)
-                           .createdAt(createdAt)
-                           .updatedAt(updatedAt)
+                           .id(this.id)
+                           .author(this.author.toResponse())
+                           .channel(this.channel.toResponse())
+                           .content(this.content)
+                           .attachments(this.attachments.stream()
+                                                        .map(BinaryContentDto.Detail::toResponse)
+                                                        .toList())
+                           .createdAt(this.createdAt)
+                           .updatedAt(this.updatedAt)
                            .build();
     }
   }

@@ -22,7 +22,7 @@ public class UserStatusDto {
 
     private UUID id;
     private UUID userId;
-    private Instant lastLogin;
+    private Instant lastActiveAt;
   }
 
   @Builder
@@ -30,13 +30,17 @@ public class UserStatusDto {
 
     private UUID id;
     private UUID userId;
-    private Instant lastLogin;
+    private Instant lastActiveAt;
 
     public DetailResponse toResponse() {
+      if (this.id == null) {
+        return null;
+      }
+
       return DetailResponse.builder()
-                           .id(id)
-                           .userId(userId)
-                           .lastLogin(lastLogin)
+                           .id(this.id)
+                           .userId(this.userId)
+                           .lastActiveAt(this.lastActiveAt)
                            .build();
     }
   }

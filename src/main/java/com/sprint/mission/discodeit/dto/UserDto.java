@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.dto;
 
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.Instant;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,6 +36,15 @@ public class UserDto {
     private String email;
     private String password;
     private MultipartFile profileImage;
+
+    public User toEntity(BinaryContent profile) {
+      return User.builder()
+                 .username(this.username)
+                 .email(this.email)
+                 .password(this.password)
+                 .profile(profile)
+                 .build();
+    }
   }
 
   @Getter
@@ -75,10 +85,8 @@ public class UserDto {
     private UUID id;
     private String username;
     private String email;
-    private UUID profileId;
+    private BinaryContentDto.DetailResponse profile;
     private Boolean online;
-    private Instant createdAt;
-    private Instant updatedAt;
   }
 
   @Builder
@@ -87,20 +95,20 @@ public class UserDto {
     private UUID id;
     private String username;
     private String email;
-    private UUID profileId;
+    private BinaryContentDto.Detail profile;
     private Boolean online;
-    private Instant createdAt;
-    private Instant updatedAt;
 
     public DetailResponse toResponse() {
+      if (this.id == null) {
+        return null;
+      }
+
       return DetailResponse.builder()
-                           .id(id)
-                           .username(username)
-                           .email(email)
-                           .profileId(profileId)
-                           .online(online)
-                           .createdAt(createdAt)
-                           .updatedAt(updatedAt)
+                           .id(this.id)
+                           .username(this.username)
+                           .email(this.email)
+                           .profile(this.profile != null ? this.profile.toResponse() : null)
+                           .online(this.online)
                            .build();
     }
   }

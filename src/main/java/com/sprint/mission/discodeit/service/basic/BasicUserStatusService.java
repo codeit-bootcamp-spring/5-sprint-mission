@@ -4,22 +4,29 @@ import com.sprint.mission.discodeit.dto.UserStatusDto;
 import com.sprint.mission.discodeit.dto.UserStatusDto.Create;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BasicUserStatusService implements UserStatusService {
 
   private final UserRepository userRepository;
   private final UserStatusRepository userStatusRepository;
 
+  private final UserStatusMapper userStatusMapper;
+
   @Override
+  @Transactional
   public UserStatusDto.Detail create(Create request) {
     User user = userRepository.findById(request.getUserId())
                               .orElseThrow(() -> new RuntimeException("Not Found User"));
@@ -30,13 +37,12 @@ public class BasicUserStatusService implements UserStatusService {
       throw new IllegalArgumentException("Already Registered User Status");
     }
 
-    userStatus = userStatusRepository.save(UserStatus.of(request.getUserId()));
+    userStatus = userStatusRepository.save(UserStatus.builder()
+                                                     .user(user)
+                                                     .lastActiveAt(Instant.now())
+                                                     .build());
 
-    return UserStatusDto.Detail.builder()
-                               .id(userStatus.getId())
-                               .userId(userStatus.getUserId())
-                               .lastLogin(userStatus.getLastLogin())
-                               .build();
+    return userStatusMapper.toDetail(userStatus);
   }
 
   @Override
@@ -45,11 +51,7 @@ public class BasicUserStatusService implements UserStatusService {
                                                 .orElseThrow(() -> new RuntimeException(
                                                     "Not Found User Status"));
 
-    return UserStatusDto.Detail.builder()
-                               .id(userStatus.getId())
-                               .userId(userStatus.getUserId())
-                               .lastLogin(userStatus.getLastLogin())
-                               .build();
+    return userStatusMapper.toDetail(userStatus);
   }
 
   @Override
@@ -57,15 +59,12 @@ public class BasicUserStatusService implements UserStatusService {
     List<UserStatus> userStatuses = userStatusRepository.findAll();
 
     return userStatuses.stream()
-                       .map(us -> UserStatusDto.Detail.builder()
-                                                      .id(us.getId())
-                                                      .userId(us.getUserId())
-                                                      .lastLogin(us.getLastLogin())
-                                                      .build())
+                       .map(userStatusMapper::toDetail)
                        .toList();
   }
 
   @Override
+  @Transactional
   public UserStatusDto.Detail update(UUID id) {
 
     UserStatus userStatus = userStatusRepository.findById(id)
@@ -76,14 +75,11 @@ public class BasicUserStatusService implements UserStatusService {
 
     userStatusRepository.save(userStatus);
 
-    return UserStatusDto.Detail.builder()
-                               .id(userStatus.getId())
-                               .userId(userStatus.getUserId())
-                               .lastLogin(userStatus.getLastLogin())
-                               .build();
+    return userStatusMapper.toDetail(userStatus);
   }
 
   @Override
+  @Transactional
   public UserStatusDto.Detail updateByUserId(UUID userId) {
 
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
@@ -93,19 +89,22 @@ public class BasicUserStatusService implements UserStatusService {
     userStatus.update();
     userStatusRepository.save(userStatus);
 
-    return UserStatusDto.Detail.builder()
-                               .id(userStatus.getId())
-                               .userId(userStatus.getUserId())
-                               .lastLogin(userStatus.getLastLogin())
-                               .build();
+    return userStatusMapper.toDetail(userStatus);
   }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
-    userStatusRepository.delete(id);
+
+    UserStatus userStatus = userStatusRepository.findById(id)
+                                                .orElseThrow(() -> new RuntimeException(
+                                                    "Not Found User Status"));
+
+    userStatusRepository.delete(userStatus);
   }
 
   @Override
+  @Transactional
   public void deleteAll() {
     userStatusRepository.deleteAll();
   }

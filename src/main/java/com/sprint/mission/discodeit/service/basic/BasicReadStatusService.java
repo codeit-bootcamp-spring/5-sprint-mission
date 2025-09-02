@@ -2,7 +2,10 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateCommand;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -11,39 +14,38 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BasicReadStatusService implements ReadStatusService {
 
   private final UserRepository userRepository;
   private final ChannelRepository channelRepository;
   private final ReadStatusRepository readStatusRepository;
 
+  private final ReadStatusMapper readStatusMapper;
+
   @Override
+  @Transactional
   public ReadStatusDto.Detail create(CreateCommand request) {
 
-    userRepository.findById(request.getUserId())
-                  .orElseThrow(() -> new RuntimeException("Not Found User"));
-    channelRepository.findById(request.getChannelId())
-                     .orElseThrow(() -> new RuntimeException("Not Found Channel"));
+    User user = userRepository.findById(request.getUserId())
+                              .orElseThrow(() -> new RuntimeException("Not Found User"));
+    Channel channel = channelRepository.findById(request.getChannelId())
+                                       .orElseThrow(
+                                           () -> new RuntimeException("Not Found Channel"));
 
-    if (readStatusRepository.findAllByUserId(request.getUserId())
-                            .stream()
-                            .anyMatch(rs -> rs.getChannelId()
-                                              .equals(request.getChannelId()))) {
+    if (readStatusRepository.findByUserIdAndChannelId(request.getUserId(), request.getChannelId())
+                            .isPresent()) {
       throw new IllegalArgumentException("Already Registered Read Status");
     }
 
-    ReadStatus readStatus = new ReadStatus(request.getUserId(), request.getChannelId());
+    ReadStatus readStatus = request.toEntity(user, channel);
     readStatusRepository.save(readStatus);
 
-    return ReadStatusDto.Detail.builder()
-                               .id(readStatus.getId())
-                               .channelId(readStatus.getChannelId())
-                               .userId(readStatus.getUserId())
-                               .lastReadAt(readStatus.getLastReadAt())
-                               .build();
+    return readStatusMapper.toDetail(readStatus);
   }
 
   @Override
@@ -52,39 +54,37 @@ public class BasicReadStatusService implements ReadStatusService {
                                                 .orElseThrow(() -> new RuntimeException(
                                                     "Not Found Read Status"));
 
-    return ReadStatusDto.Detail.builder()
-                               .id(readStatus.getId())
-                               .channelId(readStatus.getChannelId())
-                               .userId(readStatus.getUserId())
-                               .lastReadAt(readStatus.getLastReadAt())
-                               .build();
+    return readStatusMapper.toDetail(readStatus);
   }
 
   @Override
   public List<ReadStatusDto.Detail> findAllByUserId(UUID userId) {
-    List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(userId);
+    List<ReadStatus> readStatuses = readStatusRepository.findByUserId(userId);
 
     return readStatuses.stream()
-                       .map(rs -> ReadStatusDto.Detail.builder()
-                                                      .id(rs.getId())
-                                                      .channelId(rs.getChannelId())
-                                                      .userId(rs.getUserId())
-                                                      .lastReadAt(rs.getLastReadAt())
-                                                      .build())
+                       .map(readStatusMapper::toDetail)
                        .toList();
   }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
-    readStatusRepository.delete(id);
+
+    ReadStatus readStatus = readStatusRepository.findById(id)
+                                                .orElseThrow(() -> new RuntimeException(
+                                                    "Not Found Read Status"));
+
+    readStatusRepository.delete(readStatus);
   }
 
   @Override
+  @Transactional
   public void deleteAll() {
     readStatusRepository.deleteAll();
   }
 
   @Override
+  @Transactional
   public ReadStatusDto.Detail update(UUID id) {
 
     ReadStatus readStatus = readStatusRepository.findById(id)
@@ -94,11 +94,6 @@ public class BasicReadStatusService implements ReadStatusService {
     readStatus.update();
     readStatusRepository.save(readStatus);
 
-    return ReadStatusDto.Detail.builder()
-                               .id(readStatus.getId())
-                               .channelId(readStatus.getChannelId())
-                               .userId(readStatus.getUserId())
-                               .lastReadAt(readStatus.getLastReadAt())
-                               .build();
+    return readStatusMapper.toDetail(readStatus);
   }
 }

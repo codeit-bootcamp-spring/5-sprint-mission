@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.dto;
 
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.UUID;
@@ -14,11 +17,13 @@ public class ReadStatusDto {
 
     UUID userId;
     UUID channelId;
+    Instant lastReadAt;
 
     public CreateCommand toCommand() {
       return CreateCommand.builder()
                           .userId(this.userId)
                           .channelId(this.channelId)
+                          .lastReadAt(this.lastReadAt)
                           .build();
     }
   }
@@ -29,6 +34,15 @@ public class ReadStatusDto {
 
     UUID userId;
     UUID channelId;
+    Instant lastReadAt;
+
+    public ReadStatus toEntity(User user, Channel channel) {
+      return ReadStatus.builder()
+                       .user(user)
+                       .channel(channel)
+                       .lastReadAt(this.lastReadAt)
+                       .build();
+    }
   }
 
   @Getter
@@ -51,11 +65,15 @@ public class ReadStatusDto {
     Instant lastReadAt;
 
     public DetailResponse toResponse() {
+      if (this.id == null) {
+        return null;
+      }
+
       return DetailResponse.builder()
-                           .id(id)
-                           .userId(userId)
-                           .channelId(channelId)
-                           .lastReadAt(lastReadAt)
+                           .id(this.id)
+                           .userId(this.userId)
+                           .channelId(this.channelId)
+                           .lastReadAt(this.lastReadAt)
                            .build();
     }
   }

@@ -1,0 +1,14 @@
+package com.sprint.mission.discodeit.storage;
+
+import java.io.InputStream;
+import java.util.UUID;
+import org.springframework.http.ResponseEntity;
+
+public interface BinaryContentStorage {
+
+  UUID put(UUID id, byte[] data);
+
+  InputStream get(UUID id);
+
+  ResponseEntity<?> download(UUID id);
+}
