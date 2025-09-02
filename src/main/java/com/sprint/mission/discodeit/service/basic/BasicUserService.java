@@ -261,7 +261,7 @@ public class BasicUserService implements UserService {
     }
 
 	private void updateOnlineStatus(UserResponse userResponse) {
-		boolean online = userStatusRepository.findByUser_Id(userResponse.getId())
+		boolean online = userStatusRepository.findByUserId(userResponse.getId())
 				.map(userStatus -> {
 					Instant lastActiveAt = userStatus.getLastActiveAt();
 					if (lastActiveAt == null) {
