@@ -8,10 +8,7 @@ import com.sprint.mission.discodeit.dto.response.channel.ChannelCreateResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelLeaveResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.DuplicateChannelNameException;
 import com.sprint.mission.discodeit.exception.channel.NotChannelMemberException;
@@ -127,7 +124,7 @@ public class BasicChannelService implements ChannelService {
 		Channel channel = channelRepository.findById(channelId)
 			.orElseThrow(ChannelNotFoundException::new);
 
-		if (channel.getType().equals("PRIVATE")) {
+		if (channel.getType().equals(ChannelType.PRIVATE)) {
 			throw new PrivateChannelUpdateException();
 		}
 
@@ -184,7 +181,7 @@ public class BasicChannelService implements ChannelService {
 	private ChannelResponse createChannelByType(Channel channel) {
 		Instant lastMessageTime = getLastMessageTime(channel.getId());
 
-		if ("PRIVATE".equals(channel.getType())) {
+		if (ChannelType.PRIVATE.equals(channel.getType())) {
 			List<UUID> participantIds = getPrivateChannelParticipants(channel.getId());
 			return ChannelResponse.fromPrivateChannel(channel, lastMessageTime, participantIds);
 		} else {

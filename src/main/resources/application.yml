@@ -46,3 +46,6 @@ springdoc:
     path: /swagger-ui.html # Swagger UI 접속 경로
     display-request-duration: true   # 요청 소요 시간 표시
     persist-authorization: true      # 새로고침해도 토큰 유지
+
+storage:
+  path: C:/upload
