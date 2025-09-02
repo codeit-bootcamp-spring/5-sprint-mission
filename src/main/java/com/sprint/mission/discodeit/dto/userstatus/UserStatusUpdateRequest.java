@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.userstatus.reqeust;
+package com.sprint.mission.discodeit.dto.userstatus;
 
 import java.time.Instant;
 

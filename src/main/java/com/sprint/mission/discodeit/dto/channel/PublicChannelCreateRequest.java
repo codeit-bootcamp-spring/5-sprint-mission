@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.channel.request;
+package com.sprint.mission.discodeit.dto.channel;
 
 public record PublicChannelCreateRequest(
         String name,

@@ -1,8 +1,7 @@
-package com.sprint.mission.discodeit.dto.channel.data;
+package com.sprint.mission.discodeit.dto.channel;
 
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.entity.enums.ChannelType;
-import com.sprint.mission.discodeit.entity.main.Channel;
+import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.enums.ChannelType;
 
 import java.time.Instant;
 import java.util.List;
