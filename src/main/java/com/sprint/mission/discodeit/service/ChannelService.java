@@ -22,7 +22,6 @@ public interface ChannelService {
 
   void update(UUID channelId, PublicChannelUpdateRequest channel); // 채널 수정
 
-  //void delete(UUID id); //UUID로 채널 삭제
   void delete(UUID channelId);
 
   void createPrivateChannel(PrivateChannelCreateRequest request);
