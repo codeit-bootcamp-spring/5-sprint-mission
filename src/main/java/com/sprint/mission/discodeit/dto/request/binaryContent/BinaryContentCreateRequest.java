@@ -25,10 +25,9 @@ public class BinaryContentCreateRequest {
 	@Positive(message = "파일 크기는 0보다 커야 합니다")
 	private Long size;
 
-	@NotNull(message = "파일 내용은 필수")
 	private byte[] bytes;
 
 	public BinaryContent toBinaryContent() {
-		return new BinaryContent(fileName, contentType, size, bytes);
+		return new BinaryContent(fileName, contentType, size);
 	}
 }

@@ -150,8 +150,7 @@ public class BasicMessageService implements MessageService {
 				BinaryContent binaryContent = new BinaryContent(
 					attachment.getFileName(),
 					attachment.getContentType(),
-					attachment.getSize(),
-					attachment.getBytes()
+					attachment.getSize()
 				);
 				binaryContentRepository.save(binaryContent);
 

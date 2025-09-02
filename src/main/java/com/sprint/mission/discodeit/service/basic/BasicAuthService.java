@@ -19,7 +19,7 @@ public class BasicAuthService implements AuthService {
 	private final UserRepository userRepository;
 
 	@Override
-    @Transactional
+    @Transactional(readOnly = true)
 	public LoginResponse login(LoginRequest request) {
 		User user = userRepository.findByUsername(request.getUsername())
 			.orElseThrow(UserNotFoundException::new);

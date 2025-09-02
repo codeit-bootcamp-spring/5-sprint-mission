@@ -29,10 +29,10 @@ public class MessageResponse {
 		this.id = message.getId();
 		this.createdAt = message.getCreatedAt();
 		this.updatedAt = message.getUpdatedAt();
-		this.authorId = message.getAuthorId();
-		this.channelId = message.getChannelId();
+		this.authorId = message.getAuthor().getId();
+		this.channelId = message.getChannel().getId();
 		this.content = message.getContent();
-		this.attachmentIds = message.getAttachmentIds();
+		this.attachmentIds = message.getAttachments().stream().map(ma -> ma.getAttachment().getId()).toList();
 		this.success = true;
 	}
 

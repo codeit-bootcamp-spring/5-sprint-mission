@@ -44,14 +44,12 @@ public class BasicUserService implements UserService {
 		}
 
 		User user;
-		UUID profileId = null;
 
 		if (request.getProfileImage() != null) {
 			BinaryContent profileImage = request.getProfileImage().toBinaryContent();
 			binaryContentRepository.save(profileImage);
-			profileId = profileImage.getId();
 
-			user = request.toUserWithProfile(profileId);
+			user = request.toUserWithProfile(profileImage);
 		} else {
 			user = request.toUser();
 		}
@@ -62,7 +60,7 @@ public class BasicUserService implements UserService {
 		userStatusRepository.save(userStatus);
 
 		List<Channel> publicChannels = channelRepository.findAll().stream()
-				.filter(channel -> "PUBLIC".equals(channel.getType()))
+				.filter(channel -> ChannelType.PUBLIC.equals(channel.getType()))
 				.toList();
 
 		for (Channel channel : publicChannels) {

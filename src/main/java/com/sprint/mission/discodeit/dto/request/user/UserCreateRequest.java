@@ -1,11 +1,8 @@
 package com.sprint.mission.discodeit.dto.request.user;
 
-import java.time.Instant;
-import java.util.UUID;
-
 import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,19 +25,8 @@ public class UserCreateRequest {
 		return toUserWithProfile(null);
 	}
 
-	public User toUserWithProfile(UUID profileId){
-		Instant now = Instant.now();
-
-		return User.builder()
-				.id(UUID.randomUUID())
-				.createdAt(now)
-				.updatedAt(now)
-				.profileId(profileId)
-				.username(username)
-				.password(password)
-				.defaultNickname(defaultNickname)
-				.email(email)
-				.build();
-	}
+    public User toUserWithProfile(BinaryContent profile) {
+        return new User(username, password, defaultNickname, email, profile);
+    }
 
 }

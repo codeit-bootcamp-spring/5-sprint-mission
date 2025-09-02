@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.BinaryContentDTO;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
@@ -21,19 +23,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class BasicBinaryContentService implements BinaryContentService {
 	private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
 
 
 	@Override
     @Transactional
 	public BinaryContentResponse create(UserProfileImageRequest request) {
-		BinaryContent binaryContent = new BinaryContent(
-			request.getFileName(),
-			request.getContentType(),
-			request.getSize(),
-			request.getBytes()
-		);
+		BinaryContent binaryContent = request.toBinaryContent();
 
 		binaryContentRepository.save(binaryContent);
+        binaryContentStorage.put(binaryContent.getId(), request.getBytes());
 
 		return BinaryContentResponse.success(binaryContent);
 	}
@@ -57,13 +56,27 @@ public class BasicBinaryContentService implements BinaryContentService {
 			.toList();
 	}
 
-	@Override
+    @Override
+    @Transactional(readOnly = true)
+    public BinaryContentDTO download(UUID id) {
+        BinaryContentResponse response = getById(id);
+
+        return BinaryContentDTO.builder()
+                .id(response.getId())
+                .fileName(response.getFileName())
+                .contentType(response.getContentType())
+                .size(response.getSize())
+                .build();
+    }
+
+    @Override
     @Transactional
 	public BinaryContentResponse delete(UUID id) {
 		BinaryContent binaryContent = binaryContentRepository.findById(id)
 			.orElseThrow(BinaryContentNotFoundException::new);
 
 		binaryContentRepository.deleteById(id);
+
 		return BinaryContentResponse.success(binaryContent);
 	}
 }

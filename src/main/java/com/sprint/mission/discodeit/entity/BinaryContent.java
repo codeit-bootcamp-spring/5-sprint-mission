@@ -28,17 +28,14 @@ public class BinaryContent extends BaseEntity implements Serializable {
 	private String contentType;
     @Column(nullable = false)
 	private Long size;
-    @Column(nullable = false)
-	private byte[] bytes;
 
     @OneToMany(mappedBy = "attachment", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<MessageAttachment> attachments;
 
-	public BinaryContent(String fileName, String contentType, Long size, byte[] bytes) {
+	public BinaryContent(String fileName, String contentType, Long size) {
 		this.fileName = fileName;
 		this.contentType = contentType;
 		this.size = size;
-		this.bytes = bytes;
 	}
 
 	private BinaryContent(BinaryContent original) {
@@ -46,7 +43,6 @@ public class BinaryContent extends BaseEntity implements Serializable {
 		this.fileName = original.fileName;
 		this.contentType = original.contentType;
 		this.size = original.size;
-		this.bytes = original.bytes;
         this.attachments = original.attachments;
 	}
 

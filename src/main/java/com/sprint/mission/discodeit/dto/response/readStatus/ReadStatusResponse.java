@@ -25,8 +25,8 @@ public class ReadStatusResponse {
 
 	private ReadStatusResponse(ReadStatus readStatus) {
 		this.id = readStatus.getId();
-		this.userId = readStatus.getUserId();
-		this.channelId = readStatus.getChannelId();
+		this.userId = readStatus.getUser().getId();
+		this.channelId = readStatus.getChannel().getId();
 		this.createdAt = readStatus.getCreatedAt();
 		this.updatedAt = readStatus.getUpdatedAt();
 		this.lastReadAt = readStatus.getLastReadAt();

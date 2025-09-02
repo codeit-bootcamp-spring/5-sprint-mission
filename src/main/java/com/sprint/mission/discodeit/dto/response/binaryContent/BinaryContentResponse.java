@@ -29,7 +29,6 @@ public class BinaryContentResponse {
 		this.fileName = binaryContent.getFileName();
 		this.contentType = binaryContent.getContentType();
 		this.size = binaryContent.getSize();
-		this.content = binaryContent.getBytes();
 		this.success = true;
 	}
 

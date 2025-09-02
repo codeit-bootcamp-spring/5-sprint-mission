@@ -1,94 +1,86 @@
 package com.sprint.mission.discodeit.storage;
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import lombok.RequiredArgsConstructor;
+import com.sprint.mission.discodeit.dto.BinaryContentDTO;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 
-@Repository
+@Component
+@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
 public class LocalBinaryContentStorage implements BinaryContentStorage{
-    private final BinaryContentRepository binaryContentRepository;
-    private final String storagePath;
+    private final Path root;
 
-    public LocalBinaryContentStorage(BinaryContentRepository binaryContentRepository,
-                                     @Value("${storage.path}") String storagePath) {
-        this.binaryContentRepository = binaryContentRepository;
-        this.storagePath = storagePath;
+    public LocalBinaryContentStorage(@Value("${discodeit.storage.local.root-path}") String root) {
+        this.root = Path.of(root);
+        init();
     }
 
-    public void init(){
-        File dir = new File(storagePath);
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                throw new RuntimeException("디렉터리 생성 실패: " + storagePath);
-            }
+    public void init() {
+        try {
+            Files.createDirectories(root);
+        } catch (IOException e) {
+            throw new RuntimeException("디렉터리 생성 실패: " + root, e);
         }
     }
 
     @Override
     public UUID put(UUID id, byte[] bytes) {
-        String path = resolvePath(id);
-        try (FileOutputStream fos = new FileOutputStream(path)) {
-            fos.write(bytes);
+        Path filePath = resolvePath(id);
+        try {
+            Files.write(filePath, bytes);
         } catch (IOException e) {
-            throw new RuntimeException("파일 저장 실패: " + path, e);
+            throw new RuntimeException("파일 저장 실패: " + filePath, e);
         }
         return id;
     }
 
     @Override
     public InputStream get(UUID id) {
-        String path = resolvePath(id);
+        Path filePath = resolvePath(id);
         try {
-            return new FileInputStream(path);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("파일을 찾을 수 없음: " + path, e);
+            return Files.newInputStream(filePath);
+        } catch (IOException e) {
+            throw new RuntimeException("파일을 찾을 수 없음: " + filePath, e);
         }
     }
 
-    @Override
-    public ResponseEntity<?> download(UUID id) {
-        String path = resolvePath(id);
-        File file = new File(path);
-        if (!file.exists()) {
+    public ResponseEntity<Resource> download(BinaryContentDTO binaryContentDTO) {
+        Path filePath = resolvePath(binaryContentDTO.getId());
+
+        if (!Files.exists(filePath)) {
             return ResponseEntity.notFound().build();
         }
 
-        BinaryContent content = binaryContentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("BinaryContent not found: " + id));
-
         try {
-            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+            InputStream inputStream = get(binaryContentDTO.getId());
+            InputStreamResource resource = new InputStreamResource(inputStream);
+
             HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + content.getFileName() + "\"");
+            headers.add(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + binaryContentDTO.getFileName() + "\"");
+
             return ResponseEntity.ok()
                     .headers(headers)
-                    .contentLength(file.length())
-                    .contentType(MediaType.parseMediaType(content.getContentType()))
+                    .contentLength(Files.size(filePath))
+                    .contentType(MediaType.parseMediaType(binaryContentDTO.getContentType()))
                     .body(resource);
-        } catch (FileNotFoundException e) {
-            return ResponseEntity.notFound().build();
+
+        } catch (IOException e) {
+            throw new RuntimeException("파일 다운로드 실패: " + filePath, e);
         }
     }
 
-    private String resolvePath(UUID id) {
-        BinaryContent content = binaryContentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("BinaryContent not found: " + id));
-        String extension = "";
-
-        String fileName = content.getFileName();
-        int idx = fileName.lastIndexOf('.');
-        if (idx > 0) {
-            extension = fileName.substring(idx);
-        }
-        return storagePath + id + extension;
+    private Path resolvePath(UUID id) {
+        return root.resolve(id.toString());
     }
 }

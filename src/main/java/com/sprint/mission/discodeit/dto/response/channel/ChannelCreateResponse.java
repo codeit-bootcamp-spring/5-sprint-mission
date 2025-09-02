@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.sprint.mission.discodeit.entity.Channel;
 
+import com.sprint.mission.discodeit.entity.ChannelType;
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class ChannelCreateResponse {
 	private UUID id;
 	private Instant createdAt;
 	private String name;
-	private String type; // PUBLIC or PRIVATE
+	private ChannelType type; // PUBLIC or PRIVATE
 	private String description;
 	private boolean success;
 
