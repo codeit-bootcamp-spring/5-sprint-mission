@@ -1,9 +1,10 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.presentation.controller;
 
 import com.sprint.mission.discodeit.dto.message.CreateMessageRequest;
 import com.sprint.mission.discodeit.dto.message.MessageResponse;
 import com.sprint.mission.discodeit.dto.message.UpdateMessageRequest;
 import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.presentation.api.MessageApi;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/message")
-public class MessageController {
+public class MessageController implements MessageApi {
     private final MessageService messageService;
 
     @RequestMapping(method = POST)

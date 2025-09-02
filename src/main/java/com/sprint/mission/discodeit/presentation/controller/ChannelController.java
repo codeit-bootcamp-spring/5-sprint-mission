@@ -1,9 +1,10 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.presentation.controller;
 
 import com.sprint.mission.discodeit.dto.channel.ChannelResponse;
 import com.sprint.mission.discodeit.dto.channel.CreateChannelRequest;
 import com.sprint.mission.discodeit.dto.channel.UpdateChannelRequest;
 import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.presentation.api.ChannelApi;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/channel")
-public class ChannelController {
+public class ChannelController implements ChannelApi {
     private final ChannelService channelService;
 
     @RequestMapping(method = POST)

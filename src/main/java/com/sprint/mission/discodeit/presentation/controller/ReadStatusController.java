@@ -1,9 +1,10 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.presentation.controller;
 
 import com.sprint.mission.discodeit.dto.status.read.CreateReadStatusRequest;
 import com.sprint.mission.discodeit.dto.status.read.ReadStatusResponse;
 import com.sprint.mission.discodeit.dto.status.read.UpdateReadStatusRequest;
 import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.presentation.api.ReadStatusApi;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/read-status")
-public class ReadStatusController {
+public class ReadStatusController implements ReadStatusApi {
     private final ReadStatusService readStatusService;
 
     @RequestMapping(method = POST)

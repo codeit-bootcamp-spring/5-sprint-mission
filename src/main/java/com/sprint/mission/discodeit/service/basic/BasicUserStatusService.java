@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.status.user.CreateUserStatusRequest;
-import com.sprint.mission.discodeit.dto.status.user.UpdateUserStatusByUserIdRequest;
 import com.sprint.mission.discodeit.dto.status.user.UpdateUserStatusRequest;
 import com.sprint.mission.discodeit.dto.status.user.UserStatusResponse;
 import com.sprint.mission.discodeit.entity.UserStatus;

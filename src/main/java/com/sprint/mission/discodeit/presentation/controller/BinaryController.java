@@ -1,7 +1,8 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.presentation.controller;
 
 import com.sprint.mission.discodeit.dto.BinaryContentResponse;
 import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.presentation.api.BinaryContentApi;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/binaryContent")
-public class BinaryController {
+public class BinaryController implements BinaryContentApi {
     private final BinaryContentService binaryContentService;
 
     @RequestMapping(value = "/find/{id}", method = RequestMethod.GET)

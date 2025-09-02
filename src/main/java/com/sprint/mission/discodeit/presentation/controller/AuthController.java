@@ -1,7 +1,8 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.presentation.controller;
 
 import com.sprint.mission.discodeit.dto.LoginRequest;
 import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.presentation.api.AuthApi;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class AuthController {
+public class AuthController implements AuthApi {
 
     private final AuthService authService;
 
