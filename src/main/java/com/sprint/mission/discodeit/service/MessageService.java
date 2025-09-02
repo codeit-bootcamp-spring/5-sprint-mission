@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -10,6 +11,7 @@ import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -54,14 +56,11 @@ public class MessageService {
 
     private final BinaryContentMapper binaryContentMapper;
     private final MessageMapper messageMapper;
+    private final PageResponseMapper pageResponseMapper;
     private final UserMapper userMapper;
 
-    public List<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
+    public PageResponse<Message> findAllByChannelId(UUID channelId, Pageable pageable) {
         Page<Message> page = messageRepository.findAllByChannelId(channelId, pageable);
-
-        if (page.isEmpty()) {
-            return List.of();
-        }
 
         List<UUID> messageIds = page.stream().map(Message::getId).toList();
 
@@ -75,12 +74,10 @@ public class MessageService {
                     Collectors.toList())
             ));
 
-        return page.stream()
-            .map(m -> messageMapper.toDto(
-                m,
-                messageIdToBinaries.getOrDefault(m.getId(), List.of())
-            ))
-            .toList();
+        page.stream().forEach(m -> messageMapper.toDto(
+            m,
+            messageIdToBinaries.getOrDefault(m.getId(), List.of())));
+        return pageResponseMapper.fromPage(page);
     }
 
     // 이런식으로 storage put/delete 처리를 여기서 하면 롤백 로직도 들어가고 관심사에 맞지 않는 것 같다.

@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -35,7 +37,7 @@ public class MessageController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<MessageDto> findAllByChannelId(
+    public PageResponse<Message> findAllByChannelId(
         @RequestParam UUID channelId,
         @PageableDefault(sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
     ) {
