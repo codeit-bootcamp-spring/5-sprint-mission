@@ -134,3 +134,6 @@ FROM users;
 
 SELECT *
 FROM read_statuses;
+
+SELECT *
+FROM messages;

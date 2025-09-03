@@ -17,11 +17,13 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.validation.Valid;
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -78,22 +80,23 @@ public class BasicMessageService implements MessageService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<MessageDto> findAllByChannelId(UUID channelId) {
+  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor,
+      Pageable pageable) {
+
     if (!channelRepository.existsById(channelId)) {
       throw new NoSuchElementException("findAllByChannelId : 채널을 찾을 수 없습니다. [" + channelId + "]");
     }
-    return messageRepository.findAll().stream()
-        .filter(m -> m.getChannel().getId().equals(channelId))
-        .map(messageMapper::toDto)
-        .toList();
-  }
 
-  @Override
-  @Transactional(readOnly = true)
-  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
-    return pageResponseMapper.fromPage(
-        messageRepository.findAllByChannelId(channelId, pageable)
-            .map(messageMapper::toDto));
+    Slice<MessageDto> slice = (cursor == null)
+        ? messageRepository.findAllByChannelId(channelId, pageable).map(messageMapper::toDto)
+        : messageRepository.findAllByChannelId(channelId, pageable, cursor)
+            .map(messageMapper::toDto);
+
+    Instant nextCursor = (slice.hasNext() && slice.hasContent())
+        ? slice.getContent().get(slice.getSize() - 1).createdAt()
+        : null;
+
+    return pageResponseMapper.fromSlice(slice, nextCursor);
   }
 
 

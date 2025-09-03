@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -103,15 +104,18 @@ public class MessageController {
           content = @Content(schema = @Schema(implementation = PageResponse.class)))
   })
   @Parameter(name = "channelId", description = "조회할 Channel ID")
-  @Parameter(name = "pageable", description = "페이징 정보", example = "[page:0 size:50 sort:createdAt,desc]")
+  @Parameter(name = "pageable", description = "페이징 정보", example = "{\"size\": 50, \"sort\": \"createdAt,desc\"}")
+  @Parameter(name = "cursor", description = "페이징 커서 정보")
   @GetMapping
   public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
       @RequestParam UUID channelId,
+      @RequestParam(required = false) Instant cursor,
       @PageableDefault(size = 50,
-          page = 0,
           sort = "createdAt",
+          page = 0,
           direction = Direction.DESC) Pageable pageable) {
+    System.out.println("@@@@" + cursor);
     return ResponseEntity.status(HttpStatus.OK)
-        .body(messageService.findAllByChannelId(channelId, pageable));
+        .body(messageService.findAllByChannelId(channelId, cursor, pageable));
   }
 }
