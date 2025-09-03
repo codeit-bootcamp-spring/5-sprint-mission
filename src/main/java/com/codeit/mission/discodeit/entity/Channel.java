@@ -3,6 +3,8 @@ package com.codeit.mission.discodeit.entity;
 import com.codeit.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +17,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class Channel extends BaseUpdatableEntity {
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 10)
     private ChannelType type;
 
