@@ -20,11 +20,11 @@ public class ReadStatus extends BaseUpdatableEntity {
 
   private Instant lastReadAt;
 
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "user_id", updatable = false)
   @ManyToOne(fetch = FetchType.LAZY)
   private User user;
 
-  @JoinColumn(name = "channel_id")
+  @JoinColumn(name = "channel_id", updatable = false)
   @ManyToOne(fetch = FetchType.LAZY)
   private Channel channel;
 

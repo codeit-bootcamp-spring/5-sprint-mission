@@ -99,7 +99,8 @@ public class MessageController {
 
   @Operation(summary = "Channel의 Message 목록 조회")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Message 목록 조회 성공")
+      @ApiResponse(responseCode = "200", description = "Message 목록 조회 성공",
+          content = @Content(schema = @Schema(implementation = PageResponse.class)))
   })
   @Parameter(name = "channelId", description = "조회할 Channel ID")
   @Parameter(name = "pageable", description = "페이징 정보", example = "[page:0 size:50 sort:createdAt,desc]")
