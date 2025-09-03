@@ -25,11 +25,6 @@ spring:
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         jdbc.time_zone: UTC
 
-discodeit:
-  repository:
-    type: file # jcf | file
-    file-directory: .discodeit
-
 # swagger
 springdoc:
   api-docs:
