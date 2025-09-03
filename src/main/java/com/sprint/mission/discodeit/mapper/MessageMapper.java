@@ -1,34 +1,43 @@
 package com.sprint.mission.discodeit.mapper;
 
+import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.MessageDto;
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import com.sprint.mission.discodeit.entity.User;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Component
-@RequiredArgsConstructor
-public class MessageMapper {
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public abstract class MessageMapper {
 
-  private final UserMapper userMapper;
-  private final ChannelMapper channelMapper;
-  private final BinaryContentMapper binaryContentMapper;
+  @Autowired
+  protected BinaryContentMapper binaryContentMapper;
 
-  public MessageDto.Detail toDetail(Message message) {
-    if (message == null) {
-      return null;
-    }
+  @Mapping(target = "attachments", expression = "java(toAttachmentDetails(message.getAttachments()))")
+  public abstract MessageDto.Detail toDetail(Message message);
 
-    return MessageDto.Detail.builder()
-                            .id(message.getId())
-                            .author(userMapper.toDetail(message.getAuthor()))
-                            .channel(channelMapper.toDetail(message.getChannel()))
-                            .content(message.getContent())
-                            .attachments(message.getAttachments()
-                                                .stream()
-                                                .map(binaryContentMapper::toDetail)
-                                                .toList())
-                            .createdAt(message.getCreatedAt())
-                            .updatedAt(message.getUpdatedAt())
-                            .build();
+  public abstract MessageDto.DetailResponse toDetailResponse(MessageDto.Detail detail);
+
+  protected List<BinaryContentDto.Detail> toAttachmentDetails(List<BinaryContent> attachments) {
+
+    return attachments.stream()
+                      .map(binaryContentMapper::toDetail)
+                      .collect(Collectors.toList());
+  }
+
+  public Message toEntity(MessageDto.CreateCommand create, Channel channel, User author,
+      List<BinaryContent> attachments) {
+    return Message.builder()
+                  .channel(channel)
+                  .author(author)
+                  .content(create.getContent())
+                  .attachments(attachments)
+                  .build();
   }
 }

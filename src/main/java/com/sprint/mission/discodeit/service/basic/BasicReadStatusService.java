@@ -42,7 +42,7 @@ public class BasicReadStatusService implements ReadStatusService {
       throw new IllegalArgumentException("Already Registered Read Status");
     }
 
-    ReadStatus readStatus = request.toEntity(user, channel);
+    ReadStatus readStatus = readStatusMapper.toEntity(request, user, channel);
     readStatusRepository.save(readStatus);
 
     return readStatusMapper.toDetail(readStatus);

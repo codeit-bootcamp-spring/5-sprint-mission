@@ -29,12 +29,10 @@ public class Message extends BaseUpdatableEntity {
   @ManyToOne(optional = false)
   @JoinColumn(name = "channel_id", nullable = false)
   private Channel channel;
-
-
+  
   @ManyToOne
   @JoinColumn(name = "author_id")
   private User author;
-
 
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinTable(name = "message_attachments", joinColumns = @JoinColumn(name = "message_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))

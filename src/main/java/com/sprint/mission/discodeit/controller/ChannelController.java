@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.service.ChannelService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChannelController {
 
   private final ChannelService channelService;
+  private final ChannelMapper channelMapper;
 
   @Operation(summary = "Channel 생성(PUBLIC)")
   @PostMapping("/public")
@@ -32,8 +34,9 @@ public class ChannelController {
       @RequestBody ChannelDto.CreateRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-                         .body(channelService.create(request.toCommand(ChannelType.PUBLIC))
-                                             .toResponse());
+                         .body(channelMapper.toDetailResponse(
+                             channelService.create(request.toCommand(ChannelType.PUBLIC))
+                         ));
   }
 
   @Operation(summary = "Channel 생성(PRIVATE)")
@@ -42,25 +45,25 @@ public class ChannelController {
       @RequestBody ChannelDto.CreateRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-                         .body(channelService.create(request.toCommand(ChannelType.PRIVATE))
-                                             .toResponse());
+                         .body(channelMapper.toDetailResponse(
+                             channelService.create(request.toCommand(ChannelType.PRIVATE))
+                         ));
   }
 
-  @Operation(summary = "Channel 생성(PUBLIC)")
+  @Operation(summary = "Channel 정보 수정")
   @PutMapping("/{id}")
   public ResponseEntity<ChannelDto.DetailResponse> updateChannel(@PathVariable UUID id,
       @RequestBody ChannelDto.UpdateRequest request) {
 
-    return ResponseEntity.ok(channelService.update(request.toCommand(id))
-                                           .toResponse());
+    return ResponseEntity.ok(channelMapper.toDetailResponse(
+        channelService.update(request.toCommand(id))
+    ));
   }
 
   @Operation(summary = "Channel 삭제")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteChannel(@PathVariable UUID id) {
-
     channelService.delete(id);
-
     return ResponseEntity.noContent()
                          .build();
   }
@@ -70,9 +73,11 @@ public class ChannelController {
   public ResponseEntity<List<ChannelDto.DetailResponse>> findUserChannels(
       @RequestParam UUID userId) {
 
-    return ResponseEntity.ok(channelService.findAllByUserId(userId)
-                                           .stream()
-                                           .map(ChannelDto.Detail::toResponse)
-                                           .toList());
+    return ResponseEntity.ok(
+        channelService.findAllByUserId(userId)
+                      .stream()
+                      .map(channelMapper::toDetailResponse)
+                      .toList()
+    );
   }
 }

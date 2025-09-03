@@ -3,9 +3,10 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.UserDto.CreateRequest;
-import com.sprint.mission.discodeit.dto.UserDto.Detail;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateRequest;
 import com.sprint.mission.discodeit.dto.UserStatusDto;
+import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,6 +33,8 @@ public class UserController {
 
   private final UserService userService;
   private final UserStatusService userStatusService;
+  private final UserMapper userMapper;
+  private final UserStatusMapper userStatusMapper;
 
   @Operation(summary = "User 생성")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -40,8 +43,8 @@ public class UserController {
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-                         .body(userService.create(request.toCommand(profile))
-                                          .toResponse());
+                         .body(userMapper.toDetailResponse(
+                             userService.create(request.toCommand(profile))));
   }
 
   @Operation(summary = "User 수정")
@@ -50,8 +53,8 @@ public class UserController {
       @RequestPart("userUpdateRequest") UpdateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    return ResponseEntity.ok(userService.update(request.toCommand(id, profile))
-                                        .toResponse());
+    return ResponseEntity.ok(
+        userMapper.toDetailResponse(userService.update(request.toCommand(id, profile))));
   }
 
   @Operation(summary = "User 삭제")
@@ -70,7 +73,7 @@ public class UserController {
 
     return ResponseEntity.ok(userService.findAll()
                                         .stream()
-                                        .map(Detail::toResponse)
+                                        .map(userMapper::toDetailResponse)
                                         .toList());
   }
 
@@ -78,7 +81,7 @@ public class UserController {
   @PatchMapping("/{id}/userStatus")
   public ResponseEntity<UserStatusDto.DetailResponse> updateUserStatus(@PathVariable UUID id) {
 
-    return ResponseEntity.ok(userStatusService.updateByUserId(id)
-                                              .toResponse());
+    return ResponseEntity.ok(
+        userStatusMapper.toDetailResponse(userStatusService.updateByUserId(id)));
   }
 }

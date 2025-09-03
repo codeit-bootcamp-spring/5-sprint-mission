@@ -2,35 +2,39 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Component
-public class BinaryContentMapper {
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public abstract class BinaryContentMapper {
 
-  public BinaryContentDto.Detail toDetail(BinaryContent binaryContent) {
-    if (binaryContent == null) {
-      return null;
-    }
+  @Mapping(target = "bytes", ignore = true)
+  public abstract BinaryContentDto.Detail toDetail(BinaryContent entity);
 
-    return BinaryContentDto.Detail.builder()
-                                  .id(binaryContent.getId())
-                                  .contentType(binaryContent.getContentType())
-                                  .fileName(binaryContent.getFileName())
-                                  .size(binaryContent.getSize())
-                                  .build();
+  @Mapping(target = "bytes", ignore = true)
+  public abstract BinaryContentDto.DetailResponse toDetailResponse(BinaryContentDto.Detail detail);
+
+  public BinaryContent toEntity(BinaryContentDto.CreateCommand command) {
+    return BinaryContent.builder()
+                        .fileName(command.getFileName())
+                        .contentType(command.getContentType())
+                        .size(command.getSize())
+                        .build();
   }
 
-  public BinaryContentDto.Detail toDetail(BinaryContent binaryContent, byte[] bytes) {
-    if (binaryContent == null) {
+  public BinaryContentDto.Detail toDetail(BinaryContent entity, byte[] bytes) {
+
+    if (entity == null) {
       return null;
     }
 
     return BinaryContentDto.Detail.builder()
-                                  .id(binaryContent.getId())
+                                  .id(entity.getId())
+                                  .fileName(entity.getFileName())
+                                  .contentType(entity.getContentType())
+                                  .size(entity.getSize())
                                   .bytes(bytes)
-                                  .contentType(binaryContent.getContentType())
-                                  .fileName(binaryContent.getFileName())
-                                  .size(binaryContent.getSize())
                                   .build();
   }
 }

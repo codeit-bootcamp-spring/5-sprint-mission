@@ -18,15 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class BasicBinaryContentService implements BinaryContentService {
 
   private final BinaryContentRepository binaryContentRepository;
-  private final BinaryContentMapper binaryContentMapper;
   private final LocalBinaryContentStorage localBinaryContentStorage;
+  private final BinaryContentMapper binaryContentMapper;
 
   @Override
   @Transactional
   public BinaryContent create(BinaryContentDto.CreateCommand create) {
     try {
 
-      BinaryContent binaryContent = binaryContentRepository.save(create.toEntity());
+      BinaryContent binaryContent = binaryContentRepository.save(
+          binaryContentMapper.toEntity(create));
       binaryContentRepository.save(binaryContent);
 
       localBinaryContentStorage.put(binaryContent.getId(), create.getBytes());

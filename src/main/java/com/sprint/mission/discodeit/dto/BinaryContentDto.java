@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.dto;
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -53,14 +52,6 @@ public class BinaryContentDto {
         // TODO 예외처리
       }
     }
-
-    public BinaryContent toEntity() {
-      return BinaryContent.builder()
-                          .fileName(this.fileName)
-                          .contentType(this.contentType)
-                          .size(this.size)
-                          .build();
-    }
   }
 
   @Getter
@@ -84,28 +75,5 @@ public class BinaryContentDto {
     String contentType;
     Long size;
     byte[] bytes;
-
-    public DetailResponse toResponse() {
-      if (this.id == null) {
-        return null;
-      }
-
-      return DetailResponse.builder()
-                           .id(this.id)
-                           .fileName(this.fileName)
-                           .contentType(this.contentType)
-                           .size(this.size)
-                           .bytes(this.bytes)
-                           .build();
-    }
-  }
-
-  public static Detail fromEntity(BinaryContent entity) {
-    return Detail.builder()
-                 .id(entity.getId())
-                 .fileName(entity.getFileName())
-                 .contentType(entity.getContentType())
-                 .size(entity.getSize())
-                 .build();
   }
 }

@@ -2,21 +2,15 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.UserStatusDto;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Component
-public class UserStatusMapper {
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public abstract class UserStatusMapper {
 
-  public UserStatusDto.Detail toDetail(UserStatus userStatus) {
-    if (userStatus == null) {
-      return null;
-    }
+  @Mapping(target = "userId", source = "user.id")
+  public abstract UserStatusDto.Detail toDetail(UserStatus userStatus);
 
-    return UserStatusDto.Detail.builder()
-                               .id(userStatus.getId())
-                               .userId(userStatus.getUser()
-                                                 .getId())
-                               .lastActiveAt(userStatus.getLastActiveAt())
-                               .build();
-  }
+  public abstract UserStatusDto.DetailResponse toDetailResponse(UserStatusDto.Detail detail);
 }

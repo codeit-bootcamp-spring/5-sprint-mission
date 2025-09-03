@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.dto;
 
-import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
@@ -8,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 public class ChannelDto {
 
@@ -38,14 +38,6 @@ public class ChannelDto {
     String description;
     UUID adminUserId;
     List<UUID> participantIds;
-
-    public Channel toEntity() {
-      return Channel.builder()
-                    .type(this.type)
-                    .name(this.name)
-                    .description(this.description)
-                    .build();
-    }
   }
 
   @Getter
@@ -98,24 +90,9 @@ public class ChannelDto {
     ChannelType type;
     String name;
     String description;
+    @Setter
     Instant lastMessageAt;
+    @Setter
     List<UserDto.Detail> participants;
-
-    public DetailResponse toResponse() {
-      if (this.id == null) {
-        return null;
-      }
-
-      return DetailResponse.builder()
-                           .id(this.id)
-                           .type(this.type)
-                           .name(this.name)
-                           .description(this.description)
-                           .lastMessageAt(this.lastMessageAt)
-                           .participants(this.participants.stream()
-                                                          .map(UserDto.Detail::toResponse)
-                                                          .toList())
-                           .build();
-    }
   }
 }

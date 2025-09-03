@@ -1,24 +1,29 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateCommand;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import org.springframework.stereotype.Component;
+import com.sprint.mission.discodeit.entity.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Component
-public class ReadStatusMapper {
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public abstract class ReadStatusMapper {
 
-  public ReadStatusDto.Detail toDetail(ReadStatus readStatus) {
-    if (readStatus == null) {
-      return null;
-    }
+  @Mapping(target = "userId", source = "user.id")
+  @Mapping(target = "channelId", source = "channel.id")
+  public abstract ReadStatusDto.Detail toDetail(ReadStatus readStatus);
 
-    return ReadStatusDto.Detail.builder()
-                               .id(readStatus.getId())
-                               .userId(readStatus.getUser()
-                                                 .getId())
-                               .channelId(readStatus.getChannel()
-                                                    .getId())
-                               .lastReadAt(readStatus.getLastReadAt())
-                               .build();
+  public abstract ReadStatusDto.DetailResponse toDetailResponse(ReadStatusDto.Detail detail);
+
+  public ReadStatus toEntity(CreateCommand create, User user, Channel channel) {
+    return ReadStatus.builder()
+                     .user(user)
+                     .channel(channel)
+                     .lastReadAt(create.getLastReadAt() != null ? create.getLastReadAt()
+                         : channel.getCreatedAt())
+                     .build();
   }
 }

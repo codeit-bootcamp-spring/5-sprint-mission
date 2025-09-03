@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateRequest;
-import com.sprint.mission.discodeit.dto.ReadStatusDto.Detail;
+import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
@@ -26,6 +26,7 @@ public class ReadStatusController {
 
   // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
   private final ReadStatusService readStatusService;
+  private final ReadStatusMapper readStatusMapper;
 
   @Operation(summary = "Read Status 생성")
   @PostMapping
@@ -33,8 +34,8 @@ public class ReadStatusController {
       @RequestBody CreateRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-                         .body(readStatusService.create(request.toCommand())
-                                                .toResponse());
+                         .body(readStatusMapper.toDetailResponse(
+                             readStatusService.create(request.toCommand())));
   }
 
   @Operation(summary = "Read Status 수정")
@@ -53,7 +54,7 @@ public class ReadStatusController {
 
     return ResponseEntity.ok(readStatusService.findAllByUserId(userId)
                                               .stream()
-                                              .map(Detail::toResponse)
+                                              .map(readStatusMapper::toDetailResponse)
                                               .toList());
   }
 }

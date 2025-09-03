@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 public class MessageDto {
@@ -40,15 +41,6 @@ public class MessageDto {
     UUID authorId;
     String content;
     List<MultipartFile> attachments;
-
-    public Message toEntity(Channel channel, User author, List<BinaryContent> attachments) {
-      return Message.builder()
-                    .channel(channel)
-                    .author(author)
-                    .content(this.content)
-                    .attachments(attachments)
-                    .build();
-    }
   }
 
   @Getter
@@ -92,29 +84,14 @@ public class MessageDto {
   public static class Detail {
 
     UUID id;
+    @Setter
     UserDto.Detail author;
+    @Setter
     ChannelDto.Detail channel;
     String content;
+    @Setter
     List<BinaryContentDto.Detail> attachments;
     Instant createdAt;
     Instant updatedAt;
-
-    public DetailResponse toResponse() {
-      if (this.id == null) {
-        return null;
-      }
-
-      return DetailResponse.builder()
-                           .id(this.id)
-                           .author(this.author.toResponse())
-                           .channel(this.channel.toResponse())
-                           .content(this.content)
-                           .attachments(this.attachments.stream()
-                                                        .map(BinaryContentDto.Detail::toResponse)
-                                                        .toList())
-                           .createdAt(this.createdAt)
-                           .updatedAt(this.updatedAt)
-                           .build();
-    }
   }
 }

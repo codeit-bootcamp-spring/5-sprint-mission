@@ -25,23 +25,12 @@ public class UserStatusDto {
     private Instant lastActiveAt;
   }
 
+  @Getter
   @Builder
   public static class Detail {
 
     private UUID id;
     private UUID userId;
     private Instant lastActiveAt;
-
-    public DetailResponse toResponse() {
-      if (this.id == null) {
-        return null;
-      }
-
-      return DetailResponse.builder()
-                           .id(this.id)
-                           .userId(this.userId)
-                           .lastActiveAt(this.lastActiveAt)
-                           .build();
-    }
   }
 }

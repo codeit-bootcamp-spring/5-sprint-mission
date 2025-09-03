@@ -1,41 +1,35 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.ChannelDto;
-import com.sprint.mission.discodeit.entity.BaseEntity;
+import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import java.util.Comparator;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Component
-@RequiredArgsConstructor
-public class ChannelMapper {
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public abstract class ChannelMapper {
 
-  private final UserMapper userMapper;
+  @Autowired
+  protected UserMapper userMapper;
 
-  public ChannelDto.Detail toDetail(Channel channel) {
-    if (channel == null) {
-      return null;
-    }
+  @Mapping(target = "lastMessageAt", expression = "java(channel.getMessages().stream()"
+      + "    .max(java.util.Comparator.comparing(c -> c.getCreatedAt()))"
+      + "    .map(c -> c.getCreatedAt())" + "    .orElse(null))")
+  @Mapping(target = "participants", expression = "java(toParticipantDetails(channel.getReadStatuses()))")
+  public abstract ChannelDto.Detail toDetail(Channel channel);
 
-    return ChannelDto.Detail.builder()
-                            .id(channel.getId())
-                            .name(channel.getName())
-                            .type(channel.getType())
-                            .description(channel.getDescription())
-                            .lastMessageAt(channel.getMessages()
-                                                  .stream()
-                                                  .max(Comparator.comparing(
-                                                      BaseEntity::getCreatedAt))
-                                                  .map(BaseEntity::getCreatedAt)
-                                                  .orElse(null))
-                            .participants(channel.getReadStatuses()
-                                                 .stream()
-                                                 .map(ReadStatus::getUser)
-                                                 .map(userMapper::toDetail)
-                                                 .distinct()
-                                                 .toList())
-                            .build();
+  public abstract ChannelDto.DetailResponse toDetailResponse(ChannelDto.Detail detail);
+
+  protected List<UserDto.Detail> toParticipantDetails(List<ReadStatus> readStatuses) {
+    
+    return readStatuses.stream()
+                       .map(ReadStatus::getUser)
+                       .map(userMapper::toDetail)
+                       .distinct()
+                       .toList();
   }
 }

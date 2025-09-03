@@ -30,7 +30,6 @@ public class BasicUserService implements UserService {
 
   private final BinaryContentService binaryContentService;
 
-  private final BinaryContentMapper binaryContentMapper;
   private final UserMapper userMapper;
 
   @Override
@@ -53,7 +52,7 @@ public class BasicUserService implements UserService {
           new BinaryContentDto.CreateCommand(create.getProfileImage()));
     }
 
-    User user = create.toEntity(profile);
+    User user = userMapper.toEntity(create, profile);
     userRepository.save(user);
 
     UserStatus status = UserStatus.builder()
@@ -78,7 +77,6 @@ public class BasicUserService implements UserService {
   public List<UserDto.Detail> findAll() {
 
     List<User> users = userRepository.findAll();
-    List<UserStatus> status = userStatusRepository.findAll();
 
     return users.stream()
                 .map(userMapper::toDetail)
@@ -104,7 +102,6 @@ public class BasicUserService implements UserService {
     user.update(update, newProfile);
     userRepository.save(user);
 
-    // TODO 이전 프로필 삭제 잘 되는지 확인
     if (oldProfile != null) {
       binaryContentService.delete(oldProfile.getId());
     }

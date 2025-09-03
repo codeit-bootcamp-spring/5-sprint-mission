@@ -1,28 +1,34 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.UserDto.CreateCommand;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Component
-@RequiredArgsConstructor
-public class UserMapper {
+@Mapper(componentModel = "spring", uses = {
+    BinaryContentMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public abstract class UserMapper {
 
-  private final BinaryContentMapper binaryContentMapper;
+  @Autowired
+  protected BinaryContentMapper binaryContentMapper;
 
-  public UserDto.Detail toDetail(User user) {
-    if (user == null) {
-      return null;
-    }
+  @Mapping(target = "profile", expression = "java(binaryContentMapper.toDetail(user.getProfile()))")
+  @Mapping(target = "online", expression = "java(user.getStatus() != null && user.getStatus().isOnline())")
+  public abstract UserDto.Detail toDetail(User user);
 
-    return UserDto.Detail.builder()
-                         .id(user.getId())
-                         .username(user.getUsername())
-                         .email(user.getEmail())
-                         .profile(binaryContentMapper.toDetail(user.getProfile()))
-                         .online(user.getStatus() != null && user.getStatus()
-                                                                 .isOnline())
-                         .build();
+  @Mapping(target = "profile", expression = "java(binaryContentMapper.toDetailResponse(detail.getProfile()))")
+  public abstract UserDto.DetailResponse toDetailResponse(UserDto.Detail detail);
+
+  public User toEntity(CreateCommand create, BinaryContent profile) {
+    return User.builder()
+               .username(create.getUsername())
+               .email(create.getEmail())
+               .password(create.getPassword())
+               .profile(profile)
+               .build();
   }
 }

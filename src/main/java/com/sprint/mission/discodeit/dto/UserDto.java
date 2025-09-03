@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 public class UserDto {
@@ -36,15 +37,6 @@ public class UserDto {
     private String email;
     private String password;
     private MultipartFile profileImage;
-
-    public User toEntity(BinaryContent profile) {
-      return User.builder()
-                 .username(this.username)
-                 .email(this.email)
-                 .password(this.password)
-                 .profile(profile)
-                 .build();
-    }
   }
 
   @Getter
@@ -89,6 +81,7 @@ public class UserDto {
     private Boolean online;
   }
 
+  @Getter
   @Builder
   public static class Detail {
 
@@ -96,20 +89,8 @@ public class UserDto {
     private String username;
     private String email;
     private BinaryContentDto.Detail profile;
+    @Setter
     private Boolean online;
 
-    public DetailResponse toResponse() {
-      if (this.id == null) {
-        return null;
-      }
-
-      return DetailResponse.builder()
-                           .id(this.id)
-                           .username(this.username)
-                           .email(this.email)
-                           .profile(this.profile != null ? this.profile.toResponse() : null)
-                           .online(this.online)
-                           .build();
-    }
   }
 }

@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.dto.AuthDto.Login;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
@@ -17,7 +17,7 @@ public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
   private final UserStatusRepository userStatusRepository;
-  private final BinaryContentMapper binaryContentMapper;
+  private final UserMapper userMapper;
 
   @Override
   public UserDto.Detail login(Login login) {
@@ -42,12 +42,6 @@ public class BasicAuthService implements AuthService {
     userStatus.update();
     userStatusRepository.save(userStatus);
 
-    return UserDto.Detail.builder()
-                         .id(user.getId())
-                         .username(user.getUsername())
-                         .email(user.getEmail())
-                         .profile(binaryContentMapper.toDetail(user.getProfile()))
-                         .online(userStatus.isOnline())
-                         .build();
+    return userMapper.toDetail(user);
   }
 }
