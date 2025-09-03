@@ -1,91 +1,68 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-//엔티티
+@Entity
+@Table(name = "channels")
 @Getter
 @Setter
-@AllArgsConstructor
-public class Channel implements Serializable {
+@NoArgsConstructor
+public class Channel extends BaseUpdatableEntity {
 
-  //직렬화된 객체의 버전을 명시적으로 지정
-  @Serial
-  private static final long serialVersionUID = 1L;
-  //필드
-  private final UUID id; // = channelId, (내부 식별자)
-  private final Instant createdAt; // 생성시간
-  private Instant updatedAt; // 수정시간
-  private String title; // 채널 이름
+  @Column(name = "name", length = 100)
+  private String name; // 채널 이름
+
+  @Column(name = "description", length = 500)
   private String description; // 채널 설명
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "type", length = 10, nullable = false)
   private ChannelType channelType; // 음성채널 or 일반채널
-  private String ownerId;
-  private List<String> membersId;
+
+  @Column(name = "last_message_at")
+  private Instant lastMessageAt;
 
 
-  //기본 생성자
-  //매개변수X
-  public Channel(UUID id, String name, String ownerId, ChannelType privateChannel,
-      List<String> membersId) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
-    this.updatedAt = createdAt;
+  public Channel(String name, ChannelType privateChannel) {
+
   }
 
   //일반 생성자
-  public Channel(String title, String description, ChannelType channelType) {
-    this.id = UUID.randomUUID(); //생성자 내부 초기화
-    this.createdAt = Instant.now(); //생성자 내부 초기화
-    this.updatedAt = createdAt; //생성자 내부 초기화
-    this.title = title;
+  public Channel(String name, String description, ChannelType channelType) {
+    this.name = name;
     this.description = description;
     this.channelType = channelType;
   }
-
-  public Channel(UUID id, String name, String ownerId, String description, ChannelType channelType,
-      List<String> membersId) {
-    this.id = id;
-    this.title = name;
-    this.ownerId = ownerId;
-    this.description = description;
-    this.channelType = channelType;
-    this.createdAt = Instant.now();
-    this.updatedAt = createdAt;
-    this.membersId = membersId;
-  }
-
 
   //복사본 생성자
   public Channel(Channel other) {
-    this.id = other.id;
-    this.createdAt = other.createdAt;
-    this.updatedAt = other.updatedAt;
-    this.title = other.title;
+    this.name = other.name;
     this.channelType = other.channelType;
   }
 
 
   //메서드
   public void updateTime() {
-    this.updatedAt = Instant.now();
   }
 
   //toString
+
   @Override
   public String toString() {
     return "Channel{" +
-        "id=" + id +
-        ", createdAt=" + createdAt +
-        ", updatedAt=" + updatedAt +
-        ", title='" + title + '\'' +
+        "name='" + name + '\'' +
         ", description='" + description + '\'' +
-        ", channeltype='" + channelType + '\'' +
-        '}';
+        ", channelType=" + channelType +
+        ", lastMessageAt=" + lastMessageAt +
+        "} " + super.toString();
   }
 }
