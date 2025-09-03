@@ -13,7 +13,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -35,13 +34,6 @@ public class ChannelController {
     @PostMapping("/public")
     @Operation(summary = "공개 채널 생성", description = "공개 채널을 생성합니다.")
     public ResponseEntity<Channel> create(@RequestBody PublicChannelCreateRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("request가 필요합니다.");
-        }
-        if (!StringUtils.hasText(request.name())) {
-            throw new IllegalArgumentException("name이 필요합니다.");
-        }
-
         Channel channel = channelService.create(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(channel);
@@ -50,13 +42,6 @@ public class ChannelController {
     @PostMapping("/private")
     @Operation(summary = "비공개 채널 생성", description = "비공개 채널을 생성합니다.")
     public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("request가 필요합니다.");
-        }
-        if (request.participantIds() == null || request.participantIds().isEmpty()) {
-            throw new IllegalArgumentException("participantIds가 필요합니다.");
-        }
-
         Channel channel = channelService.create(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(channel);
@@ -66,10 +51,6 @@ public class ChannelController {
     @Operation(summary = "채널 수정", description = "해당 Id의 채널을 수정합니다.")
     public ResponseEntity<Channel> update(@PathVariable UUID channelId,
         @RequestBody PublicChannelUpdateRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("request가 필요합니다.");
-        }
-
         Channel channel = channelService.update(channelId, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(channel);
@@ -78,10 +59,6 @@ public class ChannelController {
     @DeleteMapping("/{channelId}")
     @Operation(summary = "채널 삭제", description = "해당 Id의 채널을 삭제합니다.")
     public ResponseEntity<Void> delete(@PathVariable UUID channelId) {
-        if (channelId == null) {
-            throw new IllegalArgumentException("channelId가 필요합니다.");
-        }
-
         channelService.delete(channelId);
         return ResponseEntity.noContent().build();
     }

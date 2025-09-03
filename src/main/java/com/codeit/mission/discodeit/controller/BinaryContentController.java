@@ -40,10 +40,6 @@ public class BinaryContentController {
             required = true
         )
         List<UUID> binaryContentIds) {
-        if (binaryContentIds == null || binaryContentIds.isEmpty()) {
-            throw new IllegalArgumentException("binaryContentIds가 필요합니다.");
-        }
-
         List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
         return ResponseEntity.status(HttpStatus.OK).body(binaryContents);
     }
