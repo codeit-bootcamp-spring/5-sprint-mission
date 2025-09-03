@@ -29,7 +29,7 @@ public record ApiError(
             code,
             message,
             details,
-            exception != null ? exception.getClass().getName() : null,
+            exception != null ? exception.getClass().getSimpleName() : null,
             httpStatus.value(),
             requestId
         );

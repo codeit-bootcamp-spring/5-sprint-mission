@@ -135,12 +135,8 @@ usersRoot:
                   code: "INVALID_BODY_VALUE"
                   message: "Request body value not valid"
                   details:
-                    - "username: 크기가 2에서 32 사이여야 합니다"
                     - "username: 공백일 수 없습니다"
-                    - "email: 올바른 형식의 이메일 주소여야 합니다"
-                    - "email: 크기가 6에서 254 사이여야 합니다"
                     - "email: 공백일 수 없습니다"
-                    - "password: 크기가 8에서 72 사이여야 합니다"
                     - "password: 공백일 수 없습니다"
               invalidJson:
                 description: JSON parsing 실패

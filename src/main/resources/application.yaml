@@ -35,7 +35,6 @@ springdoc:
     path: /docs/ui
     display-request-duration: true
 
-
 discodeit:
   storage:
     type: local

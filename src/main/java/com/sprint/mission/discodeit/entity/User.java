@@ -5,8 +5,11 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,16 +28,27 @@ public class User extends BaseUpdatableEntity {
     private String email;
     private String password;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(
+        fetch = FetchType.LAZY,
+        cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE },
+        orphanRemoval = true
+    )
     @JoinColumn(name = "profile_id")
     private BinaryContent profile;
 
     @OneToOne(
         mappedBy = "user",
-        cascade = { CascadeType.PERSIST, CascadeType.REMOVE },
+        cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE },
         orphanRemoval = true
     )
     private UserStatus userStatus;
+
+    @OneToMany(
+        mappedBy = "user",
+        cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE },
+        orphanRemoval = true
+    )
+    private Set<ReadStatus> readStatuses = new HashSet<>();
 
     public User(String username, String email, String password, BinaryContent profile) {
         this.username = username;

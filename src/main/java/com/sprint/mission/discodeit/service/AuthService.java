@@ -3,11 +3,9 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.auth.LoginRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.UnauthorizedException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import java.time.Instant;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository;
-    private final PasswordEncoder passwordEncoder;
 
     private final UserMapper userMapper;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public UserDto login(LoginRequest req) {
@@ -36,9 +34,7 @@ public class AuthService {
             throw new UnauthorizedException("Username or password incorrect");
         }
 
-        UserStatus userStatus = userStatusRepository.getOrCreateByUser(user);
-        userStatus.setLastActiveAt(Instant.now());
-        user.setUserStatus(userStatus);
+        user.getUserStatus().setLastActiveAt(Instant.now());
 
         return userMapper.toDto(user);
     }

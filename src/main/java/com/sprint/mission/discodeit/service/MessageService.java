@@ -19,7 +19,6 @@ import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository.MessageBinaryRow;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import com.sprint.mission.discodeit.storage.StorageRollbackManager;
 import com.sprint.mission.discodeit.storage.StorageRollbackManager.StorageRollbackToken;
@@ -49,7 +48,6 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final MessageAttachmentRepository messageAttachmentRepository;
     private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository;
 
     private final BinaryContentStorage binaryContentStorage;
     private final StorageRollbackManager storageRollbackManager;

@@ -11,8 +11,8 @@ import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -34,7 +34,6 @@ public class UserService {
 
     private final BinaryContentRepository binaryContentRepository;
     private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository;
 
     private final BinaryContentStorage binaryContentStorage;
 
@@ -42,6 +41,7 @@ public class UserService {
     private final UserStatusMapper userStatusMapper;
 
     private final PasswordEncoder passwordEncoder;
+    private final MessageRepository messageRepository;
 
     public List<UserDto> findAll() {
         Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
@@ -82,22 +82,19 @@ public class UserService {
         );
     }
 
+    // 락을 걸어야하나?
+    // storage delete는 추후 메시지큐나 스케쥴러로 처리
+    // message author set null 또한 이벤트로
     @Transactional
     public void delete(UUID userId) {
-        User user = userRepository.getOrThrowForDelete(userId);
-
-        UUID profileId = user.getProfile() != null ? user.getProfile().getId() : null;
-        if (profileId != null) {
-            binaryContentRepository.deleteById(profileId);
-            binaryContentStorage.delete(profileId);
-        }
-
-        userRepository.delete(user);
+        User u = userRepository.getOrThrow(userId);
+        userRepository.delete(u);
+        messageRepository.nullifyAuthorByUserId(userId);
     }
 
     @Transactional
     public UserDto update(UUID userId, UserUpdateRequest req, MultipartFile profile) {
-        User u = userRepository.getOrThrowForUpdate(userId);
+        User u = userRepository.getOrThrow(userId);
 
         if (req.newUsername() != null && !req.newUsername().isBlank()) {
             u.setUsername(req.newUsername().strip().toLowerCase(Locale.ROOT));
@@ -114,15 +111,16 @@ public class UserService {
             u.setPassword(passwordEncoder.encode(req.newPassword()));
         }
 
-        BinaryContent newProfile = null;
         if (profile != null && !profile.isEmpty()) {
-            newProfile = binaryContentRepository.save(
+            BinaryContent newProfile = binaryContentRepository.save(
                 new BinaryContent(
                     profile.getOriginalFilename(),
                     profile.getSize(),
                     profile.getContentType()
                 )
             );
+
+            u.setProfile(newProfile);
 
             try {
                 binaryContentStorage.put(newProfile.getId(), profile.getBytes());
@@ -131,21 +129,14 @@ public class UserService {
             }
         }
 
-        if (newProfile != null) {
-            UUID oldProfileId = u.getProfile() != null ? u.getProfile().getId() : null;
-            if (oldProfileId != null) {
-                binaryContentRepository.deleteById(oldProfileId);
-                binaryContentStorage.delete(oldProfileId);
-            }
-            u.setProfile(newProfile);
-        }
-
         return userMapper.toDto(u);
     }
 
     @Transactional
     public UserStatusDto updateUserStatusByUserId(UUID userId, UserStatusUpdateRequest req) {
-        UserStatus us = userStatusRepository.getOrThrowByUserId(userId);
+        User user = userRepository.getOrThrow(userId);
+
+        UserStatus us = user.getUserStatus();
 
         if (req.newLastActiveAt() != null) {
             us.setLastActiveAt(req.newLastActiveAt());
