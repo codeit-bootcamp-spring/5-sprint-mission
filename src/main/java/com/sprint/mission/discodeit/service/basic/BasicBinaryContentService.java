@@ -35,9 +35,10 @@ public class BasicBinaryContentService implements BinaryContentService {
     long size = bytes.length;
 
     BinaryContent binaryContent = new BinaryContent(fileName, contentType, size);
+    binaryContentRepository.save(binaryContent);
 
     binaryContentStorage.put(binaryContent.getId(), bytes);
-    return binaryContentRepository.save(binaryContent);
+    return binaryContent;
   }
 
   @Override

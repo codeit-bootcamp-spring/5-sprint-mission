@@ -24,7 +24,7 @@ public class ChannelMapper {
         .type(channel.getType())
         .name(channel.getName())
         .description(channel.getDescription())
-        .participants(readStatusRepository.findByChannelId(channel.getId())
+        .participants(readStatusRepository.findAllByChannelId(channel.getId())
             .stream()
             .map(readStatus -> userMapper.toDto(readStatus.getUser()))
             .toList())

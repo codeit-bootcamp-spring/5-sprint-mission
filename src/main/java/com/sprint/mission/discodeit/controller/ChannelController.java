@@ -95,7 +95,7 @@ public class ChannelController {
   @GetMapping
   public ResponseEntity<List<ChannelDto>> findAllByUserId(
       @RequestParam(value = "userId") UUID userId) {
-    List<ChannelDto> channelFindResponseList = channelService.findAllByUserId(userId);
-    return ResponseEntity.status(HttpStatus.OK).body(channelFindResponseList);
+    List<ChannelDto> channelDtos = channelService.findAllByUserId(userId);
+    return ResponseEntity.status(HttpStatus.OK).body(channelDtos);
   }
 }

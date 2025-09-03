@@ -45,8 +45,9 @@ public class BasicUserService implements UserService {
               dto.fileName(),
               dto.contentType(),
               dto.bytes().length);
+          binaryContentRepository.save(binaryContent);
           binaryContentStorage.put(binaryContent.getId(), dto.bytes());
-          return binaryContentRepository.save(binaryContent);
+          return binaryContent;
         })
         .findFirst()
         .orElse(null);
@@ -92,13 +93,14 @@ public class BasicUserService implements UserService {
               dto.fileName(),
               dto.contentType(),
               dto.bytes().length);
+          binaryContentRepository.save(binaryContent);
           binaryContentStorage.put(binaryContent.getId(), dto.bytes());
-          return binaryContentRepository.save(binaryContent);
+          return binaryContent;
         })
         .findFirst()
         .orElse(null);
 
-    if (newProfile != null) {
+    if (newProfile != null && user.getProfile() != null) {
       binaryContentRepository.deleteById(user.getProfile().getId());
     }
 

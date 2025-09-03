@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.neutral.MessageCreateCommand;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
 import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +19,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -98,9 +102,15 @@ public class MessageController {
       @ApiResponse(responseCode = "200", description = "Message 목록 조회 성공")
   })
   @Parameter(name = "channelId", description = "조회할 Channel ID")
+  @Parameter(name = "pageable", description = "페이징 정보", example = "[page:0 size:50 sort:createdAt,desc]")
   @GetMapping
-  public ResponseEntity<List<MessageDto>> findAllByChannelId(@RequestParam UUID channelId) {
-    List<MessageDto> messageDtos = messageService.findAllByChannelId(channelId);
-    return ResponseEntity.status(HttpStatus.OK).body(messageDtos);
+  public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
+      @RequestParam UUID channelId,
+      @PageableDefault(size = 50,
+          page = 0,
+          sort = "createdAt",
+          direction = Direction.DESC) Pageable pageable) {
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(messageService.findAllByChannelId(channelId, pageable));
   }
 }

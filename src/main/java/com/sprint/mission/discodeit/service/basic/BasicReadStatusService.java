@@ -40,7 +40,7 @@ public class BasicReadStatusService implements ReadStatusService {
         .orElseThrow(
             () -> new NoSuchElementException("Channel not found [" + request.channelId() + "]"));
 
-    if (readStatusRepository.findByUserId(request.userId()).stream()
+    if (readStatusRepository.findAllByUserId(request.userId()).stream()
         .anyMatch(status -> status.getChannel().getId().equals(request.channelId()))) {
       throw new IllegalArgumentException("create : 이미 존재하는 ReadStatus 입니다.");
     }
@@ -65,7 +65,7 @@ public class BasicReadStatusService implements ReadStatusService {
     if (!userRepository.existsById(userId)) {
       throw new NoSuchElementException("findAllByUserId : 유저를 찾을 수 없습니다. [" + userId + "]");
     }
-    return readStatusRepository.findByUserId(userId).stream()
+    return readStatusRepository.findAllByUserId(userId).stream()
         .map(readStatusMapper::toDto)
         .toList();
   }

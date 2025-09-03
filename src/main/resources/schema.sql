@@ -1,3 +1,12 @@
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS channels CASCADE;
+DROP TABLE IF EXISTS messages CASCADE;
+DROP TABLE IF EXISTS user_statuses CASCADE;
+DROP TABLE IF EXISTS read_statuses CASCADE;
+DROP TABLE IF EXISTS message_attachments CASCADE;
+DROP TABLE IF EXISTS binary_contents CASCADE;
+DROP TYPE IF EXISTS channel_type CASCADE;
+
 CREATE TABLE "users"
 (
     "id"         uuid         NOT NULL,
@@ -9,8 +18,6 @@ CREATE TABLE "users"
     "password"   VARCHAR(60)  NOT NULL
 );
 
-CREATE TYPE "channel_type" AS ENUM ('PUBLIC', 'PRIVATE');
-
 CREATE TABLE "channels"
 (
     "id"          uuid         NOT NULL,
@@ -18,7 +25,7 @@ CREATE TABLE "channels"
     "updated_at"  timestamptz  NULL,
     "name"        VARCHAR(100) NULL,
     "description" VARCHAR(500) NULL,
-    "type"        channel_type NOT NULL
+    "type"        VARCHAR(10)  NOT NULL CHECK (type IN ('PUBLIC', 'PRIVATE'))
 );
 
 CREATE TABLE "messages"
@@ -37,8 +44,7 @@ CREATE TABLE "binary_contents"
     "created_at"   timestamptz  NOT NULL,
     "file_name"    VARCHAR(255) NOT NULL,
     "size"         BIGINT       NOT NULL,
-    "content_type" VARCHAR(100) NOT NULL,
-    "bytes"        bytea        NOT NULL
+    "content_type" VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE "message_attachments"
@@ -121,4 +127,10 @@ ALTER TABLE "message_attachments"
     ADD CONSTRAINT "PK_message_attachments" PRIMARY KEY ("message_id", "attachment_id");
 
 SELECT *
+FROM channels;
+
+SELECT *
 FROM users;
+
+SELECT *
+FROM read_statuses;

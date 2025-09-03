@@ -55,13 +55,14 @@ public class BasicChannelService implements ChannelService {
         .toList();
 
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
+    channelRepository.save(channel);
 
     for (User user : participants) {
       readStatusRepository.save(
           new ReadStatus(channel.getCreatedAt(), user, channel));
     }
 
-    return channelMapper.toDto(channelRepository.save(channel));
+    return channelMapper.toDto(channel);
   }
 
   @Override
@@ -76,10 +77,11 @@ public class BasicChannelService implements ChannelService {
   @Transactional(readOnly = true)
   public List<ChannelDto> findAllByUserId(UUID userId) {
     return channelRepository.findAll().stream()
-        .filter(channel -> readStatusRepository.findByUserId(userId).stream()
+        .filter(channel -> (readStatusRepository.findAllByUserId(userId).stream()
             .map(readStatus -> readStatus.getChannel().getId())
             .toList()
-            .contains(channel.getId()))
+            .contains(channel.getId()) && channel.getType().equals(ChannelType.PRIVATE))
+            || channel.getType().equals(ChannelType.PUBLIC))
         .map(channelMapper::toDto)
         .toList();
   }
@@ -107,7 +109,7 @@ public class BasicChannelService implements ChannelService {
       throw new NoSuchElementException("delete : 채널을 찾을 수 없습니다. [" + channelId + "]");
     }
 
-    readStatusRepository.findByChannelId(channelId)
+    readStatusRepository.findAllByChannelId(channelId)
         .forEach(readStatus -> readStatusRepository.deleteById(readStatus.getId()));
     messageRepository.findAll().stream()
         .filter(message -> message.getChannel().getId().equals(channelId))
