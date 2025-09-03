@@ -1,81 +1,99 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.Getter;
 
-//엔티티
+@Entity
+@Table(name = "messages")
 @Getter
-public class Message implements Serializable {
+public class Message extends BaseUpdatableEntity {
 
-    //직렬화된 객체의 버전을 명시적으로 지정
-    @Serial
-    private static final long serialVersionUID = 1L;
-    //필드
-    private final UUID id; // 메시지 고유 ID (내부 식별자)
-    private final Instant createdAt;
-    private Instant updatedAt;
-    private String content; //메세지 내용
-    private UUID channelId; // 채널 ID
-    private UUID sender; // 채널 기준으로 누가 보냈는지
-    private List<UUID> attachmentIds; // Message가 가진 첨부파일 ID 리스트
+  @ManyToOne
+  @JoinColumn(name = "author_id")
+  private User author; // 채널 기준으로 누가 보냈는지
 
 
-    //기본생성자
-    //매개변수X
-    public Message() {
-        this.id = UUID.randomUUID(); //생성자 내부 초기화
-        this.createdAt = Instant.now(); //생성자 내부 초기화
-        this.updatedAt = createdAt; //처음 생성시 수정시간을 생성시간으로 맞춰줌
-    }
+  /* 메세지가 채널을 참조
+   * FK 역할
+   */
+  @ManyToOne
+  @JoinColumn(name = "channel_id")
+  private Channel channel; // 채널 ID
 
 
-    //일반 생성자
-    //사용자로부터 받는 값
-    public Message(String content, UUID sender, UUID channelId) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.updatedAt = createdAt;
-        this.content = content;
-        this.channelId = channelId;
-        this.sender = sender;
-    }
-
-    //복사생성자
-    //메세지 객체 안의 있는 값들 복사해서 새로운 Message 만듦
-    public Message(Message other) {
-        this.id = other.id;
-        this.createdAt = other.createdAt;
-        this.updatedAt = other.updatedAt;
-        this.content = other.content;
-        this.channelId = other.channelId;
-        this.sender = other.sender;
-    }
-
-    //메서드
-    public void updateTime() {
-        this.updatedAt = Instant.now();
-    }
+  /* 메세지와 첨부파일은 다대다 관계라
+   * JPA가 중간 테이블 message_attachments 자동생성
+   * */
+  @ManyToMany
+  @JoinTable(
+      name = "message_attachments",
+      joinColumns = @JoinColumn(name = "message_id"), // Message 참조하는 FK
+      inverseJoinColumns = @JoinColumn(name = "file_id") // BinaryContent 참조하는 FK
+  )
+  private List<BinaryContent> attachments = new ArrayList<>(); // attachment list로 관리
 
 
-    public void setAttachmentIds(List<UUID> attachmentIds) {
-        this.attachmentIds = attachmentIds;
-    }
+  @Column()
+  private String content; //메세지 내용
 
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+  //기본생성자
+  public Message() {
+    super();
+  }
 
-    //toString
-    @Override
-    public String toString() {
-        return "Message{" + "id=" + id + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", content='" + content + '\'' + ", channelId=" + channelId + ", sender=" + sender + '}';
-    }
+
+  //일반 생성자
+  //사용자로부터 받는 값
+  public Message(String content, User author, Channel channel) {
+    this.content = content;
+    this.author = author;
+    this.channel = channel;
+  }
+
+  //복사생성자
+  //메세지 객체 안의 있는 값들 복사해서 새로운 Message 만듦
+  public Message(Message other) {
+    this.content = other.content;
+    this.author = other.author;
+    this.channel = other.channel;
+  }
+
+  //메서드
+  public void updateTime() {
+  }
+
+
+  public void setAttachmentIds(List<UUID> attachmentIds) {
+    this.attachments = attachments;
+  }
+
+
+  public void setContent(String content) {
+    this.content = content;
+  }
+
+  //toString
+  @Override
+  public String toString() {
+    return "Message{" +
+        "content='" + content + '\'' +
+        ", channel=" + (channel != null ? channel.getId() : null) +
+        ", author=" + (author != null ? author.getId() : null) +
+        ", attachmentIds=" + attachments +
+        "} " + super.toString();
+  }
+
 }
 
 

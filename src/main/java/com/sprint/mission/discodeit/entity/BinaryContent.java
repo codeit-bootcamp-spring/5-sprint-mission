@@ -1,45 +1,47 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
-
+@Entity
+@Table(name = "binary_contents")
 @Data
 @Getter
-public class BinaryContent implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private final UUID id;
-    private final Instant createdAt;
+@NoArgsConstructor
+public class BinaryContent extends BaseUpdatableEntity {
 
-    private final String fileName; // 파일 이름
-    private final long size; // 파일 사이즈
-    private final String contentType; // 파일 타입
-    private final UUID ownerId;
-    private byte[] bytes; // 실제 파일 데이터
+  @Column(name = "file_name", length = 255, nullable = false)
+  private String fileName; // 파일 이름
 
-    //기본 생성자
-    public BinaryContent(UUID id, Instant createdAt, UUID ownerId, String fileName, String contentType, long size, byte[] bytes) {
-        this.id = id;
-        this.createdAt = createdAt;
-        this.ownerId = ownerId;
-        this.fileName = fileName;
-        this.contentType = contentType;
-        this.size = size;
-        this.bytes = bytes;
-    }
+  @Column(name = "size", nullable = false)
+  private long size; // 파일 사이즈
 
-    // BinaryContent.java 파일에 추가
-    public BinaryContent(UUID id, Instant createdAt, UUID ownerId, String fileName, String contentType, long size) {
-        this.id = id;
-        this.createdAt = createdAt;
-        this.ownerId = ownerId;
-        this.fileName = fileName;
-        this.contentType = contentType;
-        this.size = size;
-    }
+  @Column(name = "content_type", length = 100, nullable = false)
+  private String contentType; // 파일 타입
+
+
+  @Column(name = "bytes", nullable = false)
+  private byte[] bytes; // 실제 파일 데이터
+
+  //기본 생성자
+  public BinaryContent(String fileName,
+      String contentType, long size, byte[] bytes) {
+    this.fileName = fileName;
+    this.contentType = contentType;
+    this.size = size;
+    this.bytes = bytes;
+  }
+
+  public BinaryContent(String fileName,
+      String contentType, long size) {
+
+    this.fileName = fileName;
+    this.contentType = contentType;
+    this.size = size;
+  }
 }
