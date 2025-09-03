@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.dto.channel;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.Set;
 import java.util.UUID;
 
-public record PrivateChannelCreateRequest(@NotNull Set<@NotNull UUID> participantIds) {
+public record PrivateChannelCreateRequest(
+    @NotNull @Size(min = 2) Set<@NotNull UUID> participantIds) {
 
 }

@@ -46,7 +46,7 @@ public class UserService {
     public List<UserDto> findAll() {
         Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
 
-        return userRepository.findAllWithProfileAndStatus()
+        return userRepository.findAllGraph()
             .stream()
             .map(u -> userMapper.toDto(u, onlineSince))
             .toList();

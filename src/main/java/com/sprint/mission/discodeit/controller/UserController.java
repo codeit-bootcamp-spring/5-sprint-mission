@@ -32,6 +32,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<UserDto> findAll() {
         return userService.findAll();
     }

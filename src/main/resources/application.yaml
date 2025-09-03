@@ -29,21 +29,12 @@ server:
   forward-headers-strategy: native
 
 springdoc:
-  swagger-ui:
+  api-docs:
     path: /docs
-    urls:
-      - name: Auth API
-        url: /docs/openapi-auth.yaml
-      - name: Binary Contents API
-        url: /docs/openapi-binaryContents.yaml
-      - name: Channels API
-        url: /docs/openapi-channels.yaml
-      - name: Messages API
-        url: /docs/openapi-messages.yaml
-      - name: Read Statuses API
-        url: /docs/openapi-readStatuses.yaml
-      - name: Users API
-        url: /docs/openapi-users.yaml
+  swagger-ui:
+    path: /docs/ui
+    display-request-duration: true
+
 
 discodeit:
   storage:

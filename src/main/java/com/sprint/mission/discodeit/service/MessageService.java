@@ -59,7 +59,7 @@ public class MessageService {
     private final PageResponseMapper pageResponseMapper;
     private final UserMapper userMapper;
 
-    public PageResponse<Message> findAllByChannelId(UUID channelId, Pageable pageable) {
+    public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
         Page<Message> page = messageRepository.findAllByChannelId(channelId, pageable);
 
         List<UUID> messageIds = page.stream().map(Message::getId).toList();
@@ -74,10 +74,11 @@ public class MessageService {
                     Collectors.toList())
             ));
 
-        page.stream().forEach(m -> messageMapper.toDto(
-            m,
-            messageIdToBinaries.getOrDefault(m.getId(), List.of())));
-        return pageResponseMapper.fromPage(page);
+        // PageResponse<MessageDto> result = page.stream().map(m -> messageMapper.toDto(
+        //     m,
+        //     messageIdToBinaries.getOrDefault(m.getId(), List.of())));
+        // return pageResponseMapper.fromPage(page);
+        return null;
     }
 
     // 이런식으로 storage put/delete 처리를 여기서 하면 롤백 로직도 들어가고 관심사에 맞지 않는 것 같다.

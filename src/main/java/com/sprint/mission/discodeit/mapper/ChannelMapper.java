@@ -9,7 +9,6 @@ import java.util.List;
 import org.mapstruct.Context;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(
     componentModel = "spring",
@@ -17,7 +16,6 @@ import org.mapstruct.Mapping;
 )
 public interface ChannelMapper {
 
-    @Mapping(source = "channel.id", target = "id")
     ChannelDto toDto(
         Channel channel,
         List<User> participants,
