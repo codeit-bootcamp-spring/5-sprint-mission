@@ -9,13 +9,14 @@ public class PublicChannelCreateRequest { // 공개채널 DTO
 
   private String name;
   private String description;
+  private ChannelType channelType;
 
   //DTO -> Channel 변환 메서드
   public Channel toEntity() {
     return new Channel(
         name,
         description,
-        ChannelType.PUBLIC // 공개 채널 타입 지정
+        channelType
     );
   }
 }

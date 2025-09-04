@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -60,6 +61,12 @@ public class User extends BaseUpdatableEntity {
    */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<ReadStatus> readStatuses;
+
+  /* 유저와 채널 N:N
+   * 읽기 전용 (주인 : Channel)
+   * */
+  @ManyToMany(mappedBy = "participants")
+  private List<Channel> channels;
 
 
   //기본 생성자

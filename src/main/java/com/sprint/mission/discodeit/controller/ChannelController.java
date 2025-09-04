@@ -49,8 +49,8 @@ public class ChannelController {
   //채널 단건 조회
   @Operation(summary = "채널 단건 조회")
   @GetMapping("/api/channels/{channelId}")
-  public ResponseEntity<Channel> findById(@PathVariable UUID channelId) {
-    Channel channel = channelService.findById(channelId);
+  public ResponseEntity<Channel> findById(@PathVariable("channelId") UUID id) {
+    Channel channel = channelService.findById(id);
     return ResponseEntity.ok(channel);
   }
 
@@ -65,9 +65,9 @@ public class ChannelController {
   //채널 수정
   @Operation(summary = "채널 수정")
   @PatchMapping("/api/channels/{channelId}")
-  public ResponseEntity<Void> update(@PathVariable UUID channelId,
+  public ResponseEntity<Void> update(@PathVariable("channelId") UUID id,
       @RequestBody PublicChannelUpdateRequest request) {
-    channelService.update(channelId, request);
+    channelService.update(id, request);
     return ResponseEntity.ok().build();
   }
 
@@ -75,8 +75,8 @@ public class ChannelController {
   //채널 삭제
   @Operation(summary = "채널 삭제")
   @DeleteMapping("/api/channels/{channelId}")
-  public ResponseEntity<Void> delete(@PathVariable UUID channelId) {
-    channelService.delete(channelId);
+  public ResponseEntity<Void> delete(@PathVariable("channelId") UUID id) {
+    channelService.delete(id);
     return ResponseEntity.noContent().build();
   }
 }

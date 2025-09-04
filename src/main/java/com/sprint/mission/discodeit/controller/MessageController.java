@@ -43,9 +43,9 @@ public class MessageController {
 
   //메시지 단건 조회
   @Operation(summary = "메시지 단건 조회")
-  @GetMapping("/api/messages/{messageId}")
-  public ResponseEntity<Message> findById(@PathVariable UUID messageId) {
-    Message found = messageService.findById(messageId);
+  @GetMapping("/api/messages/{id}")
+  public ResponseEntity<Message> findById(@PathVariable("messageId") UUID id) {
+    Message found = messageService.findById(id);
     return ResponseEntity.ok(found);
   }
 
@@ -61,10 +61,10 @@ public class MessageController {
   @Operation(summary = "메시지 수정")
   @PatchMapping("/api/messages/{messageId}")
   public ResponseEntity<Message> update(
-      @PathVariable UUID messageId,
+      @PathVariable("messageId") UUID id,
       @RequestBody MessageUpdateRequest request
   ) {
-    Message updated = messageService.update(messageId, request);
+    Message updated = messageService.update(id, request);
     return ResponseEntity.ok(updated);
   }
 
@@ -72,8 +72,8 @@ public class MessageController {
   //메시지 삭제
   @Operation(summary = "메시지 삭제")
   @DeleteMapping("/api/messages/{messageId}")
-  public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
-    messageService.delete(messageId);
+  public ResponseEntity<Void> delete(@PathVariable("messageId") UUID id) {
+    messageService.delete(id);
     return ResponseEntity.noContent().build();
   }
 
