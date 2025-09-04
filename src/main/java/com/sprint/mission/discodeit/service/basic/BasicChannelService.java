@@ -61,9 +61,9 @@ public class BasicChannelService implements ChannelService {
     @Transactional
 	public ChannelCreateResponse create(PrivateChannelCreateRequest request) {
 
-		List<java.util.UUID> participantIds = request.getParticipantIds().stream().distinct().toList();
+		List<UUID> participantIds = request.getParticipantIds().stream().distinct().toList();
 
-		for (java.util.UUID userId : participantIds) {
+		for (UUID userId : participantIds) {
 			if (userId == null) {
 				throw new IllegalArgumentException("참여자 ID는 null일 수 없습니다.");
 			}
@@ -183,32 +183,21 @@ public class BasicChannelService implements ChannelService {
 	private ChannelResponse createChannelByType(Channel channel) {
 		Instant lastMessageTime = getLastMessageTime(channel.getId());
 
-		if (ChannelType.PRIVATE.equals(channel.getType())) {
-            List<UUID> participantIds = getPrivateChannelParticipants(channel.getId());
 
-            List<UserResponse> participants = participantIds.stream()
-                    .map(userId -> userRepository.findById(userId).orElse(null))
-                    .filter(Objects::nonNull)
+		if (ChannelType.PRIVATE.equals(channel.getType())) {
+            List<User> participants = readStatusRepository.findUsersByChannelId(channel.getId());
+            List<UserResponse> participantResponses = participants.stream()
                     .map(UserResponse::success)
                     .toList();
-			return ChannelResponse.fromPrivateChannel(channel, lastMessageTime, participants);
+
+			return ChannelResponse.fromPrivateChannel(channel, lastMessageTime, participantResponses);
 		} else {
 			return ChannelResponse.fromPublicChannel(channel, lastMessageTime);
 		}
 	}
 
-	private Instant getLastMessageTime(UUID channelId) {
-		List<Message> messages = messageRepository.findByChannelId(channelId);
-		return messages.stream()
-			.map(Message::getCreatedAt)
-			.max(Instant::compareTo)
-			.orElse(null);
-	}
-
-	private List<UUID> getPrivateChannelParticipants(UUID channelId) {
-		return readStatusRepository.findByChannelId(channelId)
-			.stream()
-			.map(rs -> rs.getUser().getId())
-			.toList();
-	}
+    private Instant getLastMessageTime(UUID channelId) {
+        return messageRepository.findLatestMessageTimeByChannelId(channelId)
+                .orElse(null);
+    }
 }

@@ -26,7 +26,7 @@ public class ChannelCreateResponse {
 	private boolean success;
 
 	@Nullable
-	private List<UUID> memberIds;
+	private List<UUID> participants;
 
 
 	private ChannelCreateResponse(Channel channel) {
@@ -45,7 +45,7 @@ public class ChannelCreateResponse {
 	public static ChannelCreateResponse successWithMembers(Channel channel,
 														   List<UUID> memberIds) {
 		ChannelCreateResponse response = new ChannelCreateResponse(channel);
-		response.memberIds = memberIds;
+		response.participants = memberIds;
 		return response;
 	}
 }

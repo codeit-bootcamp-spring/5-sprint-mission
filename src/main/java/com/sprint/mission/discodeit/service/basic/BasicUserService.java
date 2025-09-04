@@ -22,7 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,7 +84,7 @@ public class BasicUserService implements UserService {
 			.orElseThrow(UserNotFoundException::new);
 
 		UserResponse userResponse = UserResponse.success(user);
-		updateOnlineStatus(userResponse);
+		updateOnlineStatus(List.of(userResponse));
 		return userResponse;
 	}
 
@@ -92,7 +95,7 @@ public class BasicUserService implements UserService {
 			.orElseThrow(UserNotFoundException::new);
 
 		UserResponse userResponse = UserResponse.success(user);
-		updateOnlineStatus(userResponse);
+		updateOnlineStatus(List.of(userResponse));
 		return userResponse;
 	}
 
@@ -100,14 +103,15 @@ public class BasicUserService implements UserService {
 	@Override
     @Transactional(readOnly = true)
 	public List<UserResponse> findAll() {
-		List<User> users = userRepository.findAll();
+		List<User> users = userRepository.findAllWithProfile();
 		List<UserResponse> userResponseList = new ArrayList<>();
 
 		for (User user : users) {
 			UserResponse userResponse = UserResponse.success(user);
-			updateOnlineStatus(userResponse);
 			userResponseList.add(userResponse);
 		}
+
+        updateOnlineStatus(userResponseList);
 
 		return userResponseList;
 	}
@@ -263,17 +267,21 @@ public class BasicUserService implements UserService {
         return UserDeleteResponse.success(user);
     }
 
-	private void updateOnlineStatus(UserResponse userResponse) {
-		boolean online = userStatusRepository.findByUserId(userResponse.getId())
-				.map(userStatus -> {
-					Instant lastActiveAt = userStatus.getLastActiveAt();
-					if (lastActiveAt == null) {
-						return false;
-					}
-					return lastActiveAt.isAfter(Instant.now().minusSeconds(300));
-				})
-				.orElse(false);
+    private void updateOnlineStatus(List<UserResponse> userResponses) {
+        List<UUID> userIds = userResponses.stream()
+                .map(UserResponse::getId)
+                .toList();
 
-		userResponse.setOnline(online);
-	}
+        List<UserStatus> userStatuses = userStatusRepository.findByUserIdIn(userIds);
+
+        Map<UUID, UserStatus> statusMap = userStatuses.stream()
+                .collect(Collectors.toMap(us -> us.getUser().getId(), Function.identity()));
+
+        for (UserResponse response : userResponses) {
+            UserStatus status = statusMap.get(response.getId());
+            boolean online = status != null &&
+                    status.getLastActiveAt().isAfter(Instant.now().minusSeconds(300));
+            response.setOnline(online);
+        }
+    }
 }

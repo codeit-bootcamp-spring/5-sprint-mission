@@ -23,10 +23,8 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -118,7 +116,7 @@ public class BasicMessageService implements MessageService {
     public PageResponse<MessageResponse> findSliceMessagesByChannel(UUID channelId, int page, int size, String[] sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Slice<Message> messageSlice = messageRepository.findByChannelId(channelId, pageable);
+        Slice<Message> messageSlice = messageRepository.findSliceByChannelId(channelId, pageable);
 
         Slice<MessageResponse> responseSlice = messageSlice.map(MessageResponse::success);
 
