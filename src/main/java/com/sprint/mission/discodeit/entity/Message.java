@@ -14,17 +14,19 @@ import java.util.List;
 @Table(name = "messages")
 public class Message extends BaseUpdatableEntity {
 
+    @Column(nullable = false, length = 1000)
     private String content;
 
-    @ManyToOne
-    @JoinColumn(name = "channel_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id", nullable = false)
     private Channel channel;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "message")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "message_id")
     private List<BinaryContent> attachments = new ArrayList<>();
 
     public Message(String content, Channel channel, User user) {

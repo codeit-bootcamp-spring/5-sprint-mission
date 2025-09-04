@@ -127,7 +127,7 @@ public class BasicUserService implements UserService {
     }
 
     private UserDto toDto(User user) {
-        Boolean online = userStatusRepository.findByUserId(user.getId())
+        Boolean online = userStatusRepository.findByUser(user.getId())
                 .map(UserStatus::isOnline)
                 .orElse(null);
 

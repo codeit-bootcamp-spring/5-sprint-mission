@@ -34,7 +34,7 @@ public class BasicReadStatusService implements ReadStatusService {
         if (!channelRepository.existsById(channelId)) {
             throw new NoSuchElementException("Channel with id " + channelId + " does not exist");
         }
-        if (readStatusRepository.findAllByUserId(userId).stream()
+        if (readStatusRepository.findAllByUser(userId).stream()
                 .anyMatch(readStatus -> readStatus.getChannelId().equals(channelId))) {
             throw new IllegalArgumentException(
                     "ReadStatus with userId " + userId + " and channelId " + channelId + " already exists");
@@ -54,7 +54,7 @@ public class BasicReadStatusService implements ReadStatusService {
 
     @Override
     public List<ReadStatus> findAllByUserId(UUID userId) {
-        return readStatusRepository.findAllByUserId(userId).stream()
+        return readStatusRepository.findAllByUser(userId).stream()
                 .toList();
     }
 

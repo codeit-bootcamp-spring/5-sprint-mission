@@ -17,12 +17,18 @@ public class User extends BaseUpdatableEntity {
     private String email;
     private String password;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "profile_id")
     private BinaryContent profile;     // BinaryContent
 
+    @OneToMany(mappedBy = "user")
+    private List<Message> messages = new ArrayList<>();
+
     @ManyToMany
-    @JoinTable(name = "channel_members") // 중간 테이블 지정
+    @JoinTable(name = "channel_members",
+               joinColumns = @JoinColumn(name = "user_id"),
+               inverseJoinColumns = @JoinColumn(name = "channel_id")
+    ) // 중간 테이블 지정
     private List<Channel> channels = new ArrayList<>();
 
     public User(String username, String email, String password, BinaryContent profile) {

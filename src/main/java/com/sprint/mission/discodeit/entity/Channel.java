@@ -14,8 +14,13 @@ import java.util.List;
 @Table(name = "channels")
 public class Channel extends BaseUpdatableEntity {
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ChannelType type;
+
+    @Column(nullable = false)
     private String name;
+
     private String description;
 
     @OneToMany(mappedBy = "channel")

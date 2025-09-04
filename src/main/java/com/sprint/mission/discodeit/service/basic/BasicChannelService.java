@@ -58,7 +58,7 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public List<ChannelDto> findAllByUserId(UUID userId) {
-        List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
+        List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUser(userId).stream()
                 .map(ReadStatus::getChannelId)
                 .toList();
 
@@ -92,7 +92,7 @@ public class BasicChannelService implements ChannelService {
                         () -> new NoSuchElementException("Channel with id " + channelId + " not found"));
 
         messageRepository.deleteAllByChannelId(channel.getId());
-        readStatusRepository.deleteAllByChannelId(channel.getId());
+        readStatusRepository.deleteAllByChannel(channel.getId());
 
         channelRepository.deleteById(channelId);
     }
@@ -108,7 +108,7 @@ public class BasicChannelService implements ChannelService {
 
         List<UUID> participantIds = new ArrayList<>();
         if (channel.getType().equals(ChannelType.PRIVATE)) {
-            readStatusRepository.findAllByChannelId(channel.getId())
+            readStatusRepository.findAllByChannel(channel.getId())
                     .stream()
                     .map(ReadStatus::getUserId)
                     .forEach(participantIds::add);
