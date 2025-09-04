@@ -40,4 +40,8 @@ public class Message extends BaseUpdatableEntity {
             this.content = newContent;
         }
     }
+
+    public void addAttachment(BinaryContent attachment) {
+        this.attachments.add(attachment);
+    }
 }
