@@ -1,35 +1,61 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
 @Getter
-public class Message implements Serializable {
+@Entity
+@Table(name = "messages")
+public class Message extends BaseUpdatableEntity {
 
-  private static final long serialVersionUID = 1L;
+//  private static final long serialVersionUID = 1L;
 
-  private UUID id;
-  private Instant createdAt;
-  private Instant updatedAt;
   //
   private String content;
   //
-  private UUID channelId;
-  private UUID authorId;
-  private List<UUID> attachmentIds;
 
-  public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
-    //
+  @ManyToOne
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  private Channel channel;
+
+
+  @ManyToOne
+  @JoinColumn(nullable = false)
+  private User author;
+
+  @OneToMany(fetch = FetchType.EAGER)
+  @JoinColumn(nullable = true)
+  private List<BinaryContent> attachment; //BinaryContent
+
+//  public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+//    this.content = content;
+//    this.channelId = channelId;
+//    this.authorId = authorId;
+//    this.attachmentIds = attachmentIds;
+//  }
+
+  public Message(String content, Channel channel, User author, List<BinaryContent> attachment) {
     this.content = content;
-    this.channelId = channelId;
-    this.authorId = authorId;
-    this.attachmentIds = attachmentIds;
+    this.channel = channel;
+    this.author = author;
+    this.attachment = attachment;
+  }
+
+  public Message(String content, Channel channel, User author) {
+    this.content = content;
+    this.channel = channel;
+    this.author = author;
+  }
+
+  public Message() {
+
   }
 
   public void update(String newContent) {
