@@ -466,8 +466,16 @@
 - [x] 클래스 참조 관계 수정 (필요 시 생성자 및 `update` 메서드 수정)
 - [x] **연관관계 매핑 정보 표 작성** (PR에 첨부)
   ```
-  엔티티 관계 | 다중성 | 방향성    | 부모-자식 관계 | 연관관계의 주인
-  A:B         | 1:N    | B → A 단방향 | 부모: A, 자식: B | B
+  | 엔티티 관계          | 다중성 | 방향성            | 부모-자식 관계           | 연관관계의 주인     |
+  |--------------------|-------|-----------------|-----------------------|-----------------|
+  | Channel:Message    | 1:N   | Message → Channel | 부모: Channel, 자식: Message | Message        |
+  | Channel:ReadStatus | 1:N   | ReadStatus → Channel | 부모: Channel, 자식: ReadStatus | ReadStatus    |
+  | Message:User       | N:1   | Message → User    | 부모: User, 자식: Message | Message        |
+  | Message:BinaryContent | N:M | 양방향 (Message ↔ BinaryContent) | -                     | Message        |
+  | ReadStatus:User    | N:1   | ReadStatus → User | 부모: User, 자식: ReadStatus | ReadStatus    |
+  | User:BinaryContent | 1:1   | User → BinaryContent | 부모: User, 자식: BinaryContent | User          |
+  | User:UserStatus    | 1:1   | UserStatus → User | 부모: User, 자식: UserStatus | UserStatus    |
+
   ```
 - [x] JPA 어노테이션 적용 (`@Entity`, `@Table`, `@Column`, `@Enumerated`,  
   `@OneToMany`, `@OneToOne`, `@ManyToOne`, `@JoinColumn`, `@JoinTable`)
@@ -511,7 +519,7 @@
 
 ### N+1 문제
 
-- [ ] N+1 문제가 발생하는 쿼리를 찾고 해결해보세요.
+- [x] N+1 문제가 발생하는 쿼리를 찾고 해결해보세요.
 
 ### 읽기전용 트랜잭션 활용
 
