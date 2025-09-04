@@ -78,7 +78,6 @@ public class MessageController implements MessageApi {
           sort = "createdAt",
           page = 0,
           direction = Direction.DESC) Pageable pageable) {
-    System.out.println("@@@@" + cursor);
     return ResponseEntity.status(HttpStatus.OK)
         .body(messageService.findAllByChannelId(channelId, cursor, pageable));
   }

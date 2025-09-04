@@ -88,12 +88,13 @@ public class BasicMessageService implements MessageService {
     }
 
     Slice<MessageDto> slice = (cursor == null)
-        ? messageRepository.findAllByChannelId(channelId, pageable).map(messageMapper::toDto)
-        : messageRepository.findAllByChannelId(channelId, pageable, cursor)
+        ? messageRepository.findAllByChannelIdOrderByCreatedAtDescIdDesc(channelId, pageable)
+        .map(messageMapper::toDto)
+        : messageRepository.findNextPage(channelId, cursor, channelId, pageable)
             .map(messageMapper::toDto);
 
     Instant nextCursor = (slice.hasNext() && slice.hasContent())
-        ? slice.getContent().get(slice.getSize() - 1).createdAt()
+        ? slice.getContent().get(slice.getContent().size() - 1).createdAt()
         : null;
 
     return pageResponseMapper.fromSlice(slice, nextCursor);
