@@ -19,7 +19,7 @@ public interface MessageService {
 
   List<Message> findAllByChannelId(UUID channelId);
 
-  Message update(UUID massageId, MessageUpdateRequest request); // 수정
+  Message update(UUID messageId, MessageUpdateRequest request); // 수정
 
   void delete(UUID message); //삭제
 
