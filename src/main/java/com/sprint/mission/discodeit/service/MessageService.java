@@ -13,14 +13,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface MessageService {
 
+  //메세지 생성 content,channelId, authorId
   Message create(MessageCreateRequest request, List<MultipartFile> attachments);
 
-  Message findById(UUID messageId); //하나만 찾기
+  //하나만 찾기
+  Message findById(UUID id);
 
-  List<Message> findAllByChannelId(UUID channelId);
+  //특정 채널에 속한 모든 메세지 기록 가져옴
+  List<Message> findAllByChannelId(UUID id);
 
-  Message update(UUID messageId, MessageUpdateRequest request); // 수정
+  //기존 메세지 수정
+  Message update(UUID id, MessageUpdateRequest request); // 수정
 
-  void delete(UUID message); //삭제
+  //메세지 삭제
+  void delete(UUID id); //삭제
 
 }
