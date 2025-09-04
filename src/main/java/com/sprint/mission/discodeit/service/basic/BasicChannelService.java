@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
@@ -15,6 +16,7 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import jakarta.validation.Valid;
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -37,10 +39,15 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   public ChannelDto create(@Valid PublicChannelCreateRequest request) {
-    return channelMapper.toDto(channelRepository.save(new Channel(
+    Channel channel = channelRepository.save(new Channel(
         ChannelType.PUBLIC,
         request.name(),
-        request.description())));
+        request.description()));
+
+    return channelMapper.toDto(
+        channel,
+        findParticipants(channel.getId()),
+        findLastMessageAt(channel.getId()));
   }
 
   @Override
@@ -62,16 +69,20 @@ public class BasicChannelService implements ChannelService {
           new ReadStatus(channel.getCreatedAt(), user, channel));
     }
 
-    return channelMapper.toDto(channel);
+    return channelMapper.toDto(
+        channel,
+        findParticipants(channel.getId()),
+        findLastMessageAt(channel.getId()));
   }
 
   @Override
   @Transactional(readOnly = true)
   public ChannelDto findById(UUID channelId) {
-    return channelMapper.toDto(channelRepository.findById(channelId)
-        .orElseThrow(() -> new NoSuchElementException("Channel not found [" + channelId + "]")));
-  }
+    Channel channel = channelRepository.findById(channelId)
+        .orElseThrow(() -> new NoSuchElementException("Channel not found [" + channelId + "]"));
 
+    return channelMapper.toDto(channel, findParticipants(channelId), findLastMessageAt(channelId));
+  }
 
   @Override
   @Transactional(readOnly = true)
@@ -83,7 +94,10 @@ public class BasicChannelService implements ChannelService {
                 .toList()
                 .contains(channel.getId()) && channel.getType().equals(ChannelType.PRIVATE))
             || channel.getType().equals(ChannelType.PUBLIC))
-        .map(channelMapper::toDto)
+        .map(channel -> channelMapper.toDto(
+            channel,
+            findParticipants(channel.getId()),
+            findLastMessageAt(channel.getId())))
         .toList();
   }
 
@@ -99,8 +113,12 @@ public class BasicChannelService implements ChannelService {
     }
     channel.update(publicChannelUpdateRequest.newName(),
         publicChannelUpdateRequest.newDescription());
+    channelRepository.save(channel);
 
-    return channelMapper.toDto(channelRepository.save(channel));
+    return channelMapper.toDto(
+        channel,
+        findParticipants(channelId),
+        findLastMessageAt(channelId));
   }
 
   @Override
@@ -116,5 +134,19 @@ public class BasicChannelService implements ChannelService {
         .filter(message -> message.getChannel().getId().equals(channelId))
         .forEach(message -> messageRepository.deleteById(message.getId()));
     channelRepository.deleteById(channelId);
+  }
+
+  private List<User> findParticipants(UUID channelId) {
+    return userRepository.findAllByIdIn(
+        readStatusRepository.findAllByChannelId(channelId).stream()
+            .map(readStatus -> readStatus.getUser().getId())
+            .toList()
+    );
+  }
+
+  private Instant findLastMessageAt(UUID channelId) {
+    return messageRepository.findTopByChannelIdOrderByCreatedAtDescIdDesc(channelId)
+        .map(Message::getCreatedAt)
+        .orElse(null);
   }
 }

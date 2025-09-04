@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -29,5 +30,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
       """)
   Slice<Message> findNextPage(UUID channelId, Instant createdAt, UUID id, Pageable pageable);
 
+  @EntityGraph(attributePaths = {"channel"})
   Optional<Message> findTopByChannelIdOrderByCreatedAtDescIdDesc(UUID channelId);
 }
