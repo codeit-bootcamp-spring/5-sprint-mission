@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @Getter
 @Entity
@@ -29,13 +30,14 @@ public class Message extends BaseUpdatableEntity {
   @ManyToOne(optional = false)
   @JoinColumn(name = "channel_id", nullable = false)
   private Channel channel;
-  
+
   @ManyToOne
   @JoinColumn(name = "author_id")
   private User author;
 
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinTable(name = "message_attachments", joinColumns = @JoinColumn(name = "message_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  @BatchSize(size = 50)
   @Builder.Default
   private List<BinaryContent> attachments = new ArrayList<>();
 

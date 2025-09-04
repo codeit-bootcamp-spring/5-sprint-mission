@@ -16,13 +16,10 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,11 +51,8 @@ public class BasicMessageService implements MessageService {
 
       contents = create.getAttachments()
                        .stream()
-                       .map(file -> {
-
-                         return binaryContentService.create(
-                             new BinaryContentDto.CreateCommand(file));
-                       })
+                       .map(file -> binaryContentService.create(
+                           new BinaryContentDto.CreateCommand(file)))
                        .toList();
     }
 
@@ -76,14 +70,6 @@ public class BasicMessageService implements MessageService {
                                        .orElseThrow(
                                            () -> new RuntimeException("Message not found"));
 
-    User author = userRepository.findById(message.getAuthor()
-                                                 .getId())
-                                .orElseThrow(() -> new RuntimeException("User not found"));
-    Channel channel = channelRepository.findById(message.getChannel()
-                                                        .getId())
-                                       .orElseThrow(
-                                           () -> new RuntimeException("Channel not found"));
-
     message.update(update.getContent());
 
     return messageMapper.toDetail(message);
@@ -96,14 +82,6 @@ public class BasicMessageService implements MessageService {
                                        .orElseThrow(
                                            () -> new RuntimeException("Message not found"));
 
-    User author = userRepository.findById(message.getAuthor()
-                                                 .getId())
-                                .orElseThrow(() -> new RuntimeException("User not found"));
-    Channel channel = channelRepository.findById(message.getChannel()
-                                                        .getId())
-                                       .orElseThrow(
-                                           () -> new RuntimeException("Channel not found"));
-
     return messageMapper.toDetail(message);
   }
 
@@ -111,7 +89,7 @@ public class BasicMessageService implements MessageService {
   public PageResponse<MessageDto.Detail> findAllByChannelId(UUID channelId, Instant cursor,
       Pageable pageable) {
 
-    List<Message> messages = null;
+    List<Message> messages;
 
     if (cursor == null) {
       messages = messageRepository.findByChannelIdOrderByCreatedAtDesc(channelId, pageable);
