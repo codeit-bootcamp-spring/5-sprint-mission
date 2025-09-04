@@ -35,26 +35,26 @@ public class ChannelController implements ChannelControllerDocs {
         return channelService.findAll(userId);
     }
 
-    @PostMapping(path = "/public")
+    @PostMapping("/public")
     @ResponseStatus(HttpStatus.CREATED)
     public ChannelDto createPublic(@RequestBody @Valid PublicChannelCreateRequest req
     ) {
         return channelService.create(req);
     }
 
-    @PostMapping(path = "/private")
+    @PostMapping("/private")
     @ResponseStatus(HttpStatus.CREATED)
     public ChannelDto createPrivate(@RequestBody @Valid PrivateChannelCreateRequest req) {
         return channelService.create(req);
     }
 
-    @DeleteMapping(path = "/{channelId}")
+    @DeleteMapping("/{channelId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID channelId) {
         channelService.delete(channelId);
     }
 
-    @PatchMapping(path = "/{channelId}")
+    @PatchMapping("/{channelId}")
     @ResponseStatus(HttpStatus.OK)
     public ChannelDto update(
         @PathVariable UUID channelId,
