@@ -57,7 +57,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 	@Override
 	@Transactional
 	public void delete(UUID id) {
-		if (binaryContentRepository.existsById(id)) {
+		if (!binaryContentRepository.existsById(id)) {
 			throw new IllegalArgumentException("Binary content not found for ID: " + id);
 		}
 		binaryContentStorage.put(id, null);

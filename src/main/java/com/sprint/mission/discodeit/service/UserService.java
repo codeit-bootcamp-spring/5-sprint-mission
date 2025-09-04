@@ -7,22 +7,20 @@ import com.sprint.mission.discodeit.domain.dto.CreateUserDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateUserDTO;
 import com.sprint.mission.discodeit.domain.dto.UserDeleteResult;
 import com.sprint.mission.discodeit.domain.dto.UserReadResult;
-import com.sprint.mission.discodeit.domain.dto.UserUpdateResult;
 import com.sprint.mission.discodeit.domain.entity.User;
 
 public interface UserService {
 	User create(CreateUserDTO dto);
 
-	List<UserReadResult> readAll();
+	List<User> readAll();
 
 	UserDeleteResult delete(UUID userId);
 
-	UserUpdateResult update(UpdateUserDTO dto);
+	User update(UpdateUserDTO dto);
 
 	UserReadResult read(UUID userId);
 
 	boolean isEmpty(UUID userId);
 
 	boolean isOnline(UUID id);
-
 }

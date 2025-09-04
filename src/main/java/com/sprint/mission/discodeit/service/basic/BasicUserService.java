@@ -100,7 +100,7 @@ public class BasicUserService implements UserService {
 
 	@Override
 	@Transactional
-	public UserUpdateResult update(UpdateUserDTO dto) {
+	public User update(UpdateUserDTO dto) {
 		UUID userId = dto.getUserId();
 		String newUsername = dto.getNewUsername();
 		String newEmail = dto.getNewEmail();
@@ -117,22 +117,17 @@ public class BasicUserService implements UserService {
 		BinaryContent oldProfile = targetUser.getProfileImage();
 		Optional<UUID> newProfileId = Optional.ofNullable(newProfileImage)
 		  .map((profileContent) -> {
-			  binaryContentService.delete(oldProfile.getId());
+			  binaryContentRepository.deleteById(oldProfile.getId());
 			  binaryContentStorage.put(oldProfile.getId(), null); // 스토리지 삭제
 
-			  BinaryContent savedProfile = binaryContentService.create(newProfileImage);
+			  BinaryContent savedProfile = binaryContentRepository.save(newProfileImage.toBinaryContent());
 			  binaryContentStorage.put(savedProfile.getId(), profileContent.getContent()); // 스토리지 저장
+
+			  targetUser.setProfileImage(savedProfile);
 			  return savedProfile.getId();
 		  });
-		userRepository.save(targetUser);
-		return UserUpdateResult.builder()
-		  .id(targetUser.getId())
-		  .createdAt(targetUser.getCreatedAt())
-		  .updatedAt(targetUser.getUpdatedAt())
-		  .username(targetUser.getUsername())
-		  .email(targetUser.getEmail())
-		  .profileId(newProfileId.orElse(null))
-		  .build();
+
+		return userRepository.save(targetUser);
 	}
 
 	@Override
@@ -150,10 +145,8 @@ public class BasicUserService implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<UserReadResult> readAll() {
-		return userRepository.findAll().stream().map(u ->
-		  toUserReadResult(u, userStatusRepository.findByUserId(u.getId()).map(UserStatus::isOnline).orElse(false))
-		).toList();
+	public List<User> readAll() {
+		return userRepository.findAll();
 	}
 
 	@Override

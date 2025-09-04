@@ -82,16 +82,16 @@ public class MessageController {
 		return ResponseEntity.created(location).body(messageMapper.toDto(newMessage));
 	}
 
-	@PatchMapping
+	@PatchMapping("/{id}")
 	public ResponseEntity<MessageDto> updateMessage(
-	  @RequestParam UUID messageId,
+	  @PathVariable UUID id,
 	  @RequestBody @Valid UpdateMessageRequest updateMessageRequest
 	) {
 
 		List<CreateBiContentDTO> biContentDTOs = new ArrayList<>();
 
 		Message updatedMessage = messageService.update(UpdateMessageDTO.builder()
-		  .id(messageId)
+		  .id(id)
 		  .newContent(updateMessageRequest.getNewContent())
 		  .newAttachments(biContentDTOs)
 		  .build());

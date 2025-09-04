@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.domain.dto;
 
+import com.sprint.mission.discodeit.domain.entity.BinaryContent;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,5 +27,9 @@ public class CreateBiContentDTO {
 	@NotNull
 	@NotBlank
 	private final String fileName;
+
+	public BinaryContent toBinaryContent() {
+		return new BinaryContent(size, contentType, fileName);
+	}
 
 }

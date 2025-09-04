@@ -108,7 +108,8 @@ CREATE TABLE "message_attachment"
 
 ALTER TABLE "read_status"
     ADD CONSTRAINT "FK_channels_TO_read_statuses_1" FOREIGN KEY ("channel_id")
-        REFERENCES "channel" ("id");
+        REFERENCES "channel" ("id")
+        ON DELETE CASCADE;
 
 ALTER TABLE "read_status"
     ADD CONSTRAINT "FK_users_TO_read_status_1" FOREIGN KEY ("user_id")
@@ -122,11 +123,15 @@ ALTER TABLE "user_status"
 
 ALTER TABLE "user"
     ADD CONSTRAINT "FK_binary_content_TO_user_1" FOREIGN KEY ("profile_id")
-        REFERENCES "binary_content" ("id");
+        REFERENCES "binary_content" ("id")
+        ON DELETE SET NULL
+;
 
 ALTER TABLE "message"
     ADD CONSTRAINT "FK_user_TO_message_1" FOREIGN KEY ("author_id")
-        REFERENCES "user" ("id");
+        REFERENCES "user" ("id")
+        ON DELETE SET NULL
+;
 
 ALTER TABLE "message"
     ADD CONSTRAINT "FK_channel_TO_message_1" FOREIGN KEY ("channel_id")
