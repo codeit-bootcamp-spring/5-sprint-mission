@@ -55,19 +55,19 @@ public class UserController {
   //유저 단건조회
   @Operation(summary = "유저 단건조회")
   @GetMapping("/{userId}")
-  public ResponseEntity<UserDto> findById(@PathVariable UUID userId) {
-    return ResponseEntity.ok(userService.findById(userId));
+  public ResponseEntity<UserDto> findById(@PathVariable("userId") UUID id) {
+    return ResponseEntity.ok(userService.findById(id));
   }
 
   // 사용자 수정 : username,email,password
   @Operation(summary = "회원 정보 수정")
   @PatchMapping(value = "/{userId}", consumes = "multipart/form-data")
   public ResponseEntity<User> update(
-      @PathVariable UUID userId,
+      @PathVariable("userId") UUID id,
       @RequestPart("userUpdateRequest") UserUpdateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) throws IOException {
-    User updatedUser = userService.update(userId, request, profile);
+    User updatedUser = userService.update(id, request, profile);
     return ResponseEntity.ok(updatedUser);
   }
 
@@ -75,8 +75,8 @@ public class UserController {
   // 사용자 삭제
   @Operation(summary = "회원 탈퇴")
   @DeleteMapping("/{userId}")
-  public ResponseEntity<Void> delete(@PathVariable UUID userId) {
-    userService.delete(userId);
+  public ResponseEntity<Void> delete(@PathVariable("userId") UUID id) {
+    userService.delete(id);
     return ResponseEntity.noContent().build();
   }
 }
