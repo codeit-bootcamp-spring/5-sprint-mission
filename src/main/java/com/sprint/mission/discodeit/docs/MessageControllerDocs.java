@@ -1,0 +1,240 @@
+package com.sprint.mission.discodeit.docs;
+
+import com.sprint.mission.discodeit.controller.advice.ApiError;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
+import com.sprint.mission.discodeit.dto.message.MessageCreateMultipartForm;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.dto.response.Pageable;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
+
+@SuppressWarnings("checkstyle:LineLength")
+@Tag(name = "Message")
+public interface MessageControllerDocs {
+
+    @Operation(summary = "Channel의 Message 목록 조회")
+    @Parameters({
+        @Parameter(
+            name = "channelId",
+            description = "조회할 Channel ID"
+        ),
+        @Parameter(
+            name = "cursor",
+            description = "페이징 커서 정보"
+        ),
+        @Parameter(
+            name = "pageable",
+            description = "페이징 정보",
+            schema = @Schema(implementation = Pageable.class),
+            example = """
+                {
+                  "size": 50,
+                  "sort": "createdAt,desc"
+                }
+                """
+        )
+    })
+    @ApiResponse(
+        responseCode = "200",
+        description = "Channel 목록 조회 성공",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = PageResponse.class),
+            examples = @ExampleObject("""
+                {
+                  "content": [
+                    {
+                      "id": "e547b966-51cb-4e5a-9df0-f8996da38839",
+                      "createdAt": "2025-09-04T09:40:04.880177Z",
+                      "updatedAt": "2025-09-04T09:40:04.880177Z",
+                      "content": "",
+                      "channelId": "cce7f6a2-f709-4d43-a234-b18c5f43b662",
+                      "author": {
+                        "id": "0d5d2d3e-b3d8-48b3-b880-3711bd8c520f",
+                        "username": "test",
+                        "email": "test@example.com",
+                        "profile": null,
+                        "online": true
+                      },
+                      "attachments": [
+                        {
+                          "id": "d4c8c572-70c7-46cd-9cc8-403730dc62d4",
+                          "fileName": "attachment.png",
+                          "size": 14123,
+                          "contentType": "image/png"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "27cdfb8e-7732-433f-9ddf-a66e4146e8d4",
+                      "createdAt": "2025-09-04T09:27:55.378176Z",
+                      "updatedAt": "2025-09-04T09:27:55.378176Z",
+                      "content": "살려주세요",
+                      "channelId": "cce7f6a2-f709-4d43-a234-b18c5f43b662",
+                      "author": {
+                        "id": "661608b2-469b-457f-b22f-8c2290f8d80f",
+                        "username": "test2",
+                        "email": "test2@example.com",
+                        "profile": {
+                          "id": "3a44bc04-e179-4533-bcf1-cfdc3aa86a4a",
+                          "fileName": "profile2.webp",
+                          "size": 12529,
+                          "contentType": "image/webp"
+                        },
+                        "online": false
+                      },
+                      "attachments": null
+                    }
+                  ],
+                  "nextCursor": "2025-09-04T09:27:55.378176Z",
+                  "size": 2,
+                  "hasNext": true,
+                  "totalElements": 86
+                }
+                """
+            )
+        )
+    )
+    @ApiResponse(
+        responseCode = "400",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ApiError.class),
+            examples = {
+                @ExampleObject(
+                    name = "invalidParameterType",
+                    description = "parameter(channelId) 타입이 유효하지 않음",
+                    value = """
+                        {
+                          "timestamp": "2025-09-04T09:52:02.420208Z",
+                          "code": "INVALID_PARAMETER_TYPE",
+                          "message": "parameter=channelId, value=not-uuid, expectedType=UUID",
+                          "details": {
+                            "path": "/api/messages",
+                            "method": "GET",
+                            "query": "channelId=not-uuid"
+                          },
+                          "exceptionType": "MethodArgumentTypeMismatchException",
+                          "status": 400,
+                          "requestId": "e2d4906d-670a-40ad-8330-0c44c849f177"
+                        }
+                        """
+                ),
+                @ExampleObject(
+                    name = "missingParameter",
+                    description = "요청에 parameter(channelId)가 포함되지 않음",
+                    value = """
+                        {
+                          "timestamp": "2025-09-04T09:48:50.140730Z",
+                          "code": "MISSING_PARAMETER",
+                          "message": "missing parameter: channelId (required type: UUID)",
+                          "details": {
+                            "path": "/api/messages",
+                            "method": "GET"
+                          },
+                          "exceptionType": "MissingServletRequestParameterException",
+                          "status": 400,
+                          "requestId": "6e339446-019d-4a5b-a2dd-17ebb405936a"
+                        }
+                        """
+                )
+            }
+        )
+    )
+    PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor, Pageable pageable);
+
+    @Operation(summary = "Message 생성")
+    @RequestBody(
+        required = true,
+        content = @Content(
+            schema = @Schema(implementation = MessageCreateMultipartForm.class),
+            encoding = {
+                @Encoding(
+                    name = "messageCreateRequest",
+                    contentType = "application/json"
+                )
+            }
+        )
+    )
+    @ApiResponse(
+        responseCode = "201",
+        description = "Message가 성공적으로 생성됨",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = MessageDto.class),
+            examples = @ExampleObject("""
+                {
+                  "id": "e547b966-51cb-4e5a-9df0-f8996da38839",
+                  "createdAt": "2025-09-04T09:40:04.880177Z",
+                  "updatedAt": "2025-09-04T09:40:04.880177Z",
+                  "content": "",
+                  "channelId": "cce7f6a2-f709-4d43-a234-b18c5f43b662",
+                  "author": {
+                    "id": "0d5d2d3e-b3d8-48b3-b880-3711bd8c520f",
+                    "username": "test",
+                    "email": "test@example.com",
+                    "profile": null,
+                    "online": true
+                  },
+                  "attachments": [
+                    {
+                      "id": "d4c8c572-70c7-46cd-9cc8-403730dc62d4",
+                      "fileName": "attachment.png",
+                      "size": 14123,
+                      "contentType": "image/png"
+                    }
+                  ]
+                }
+                """
+            )
+        )
+    )
+    MessageDto create(MessageCreateRequest req, List<MultipartFile> attachments);
+
+    @Operation(summary = "Message 삭제")
+    @Parameter(
+        name = "messageId",
+        description = "삭제할 Message ID"
+    )
+    @ApiResponse(
+        responseCode = "204",
+        description = "Message가 성공적으로 삭제됨"
+    )
+    void delete(UUID messageId);
+
+    @Operation(summary = "Message 내용 수정")
+    @Parameter(
+        name = "messageId",
+        description = "수정할 Message ID"
+    )
+    @RequestBody(
+        required = true,
+        content = @Content(
+            schema = @Schema(implementation = MessageUpdateRequest.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Message가 성공적으로 수정됨",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ChannelDto.class)
+        )
+    )
+    MessageDto update(UUID messageId, MessageUpdateRequest req);
+}

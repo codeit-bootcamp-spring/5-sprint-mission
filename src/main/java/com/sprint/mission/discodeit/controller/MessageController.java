@@ -1,17 +1,17 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.docs.MessageControllerDocs;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.dto.response.Pageable;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.validation.Valid;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/messages")
-public class MessageController {
+public class MessageController implements MessageControllerDocs {
 
     private final MessageService messageService;
 
@@ -38,9 +38,10 @@ public class MessageController {
     @ResponseStatus(HttpStatus.OK)
     public PageResponse<MessageDto> findAllByChannelId(
         @RequestParam UUID channelId,
-        @PageableDefault(sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
+        @RequestParam(required = false) Instant cursor,
+        @Valid Pageable pageable
     ) {
-        return messageService.findAllByChannelId(channelId, pageable);
+        return messageService.findAllByChannelId(channelId, cursor, pageable);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

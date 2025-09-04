@@ -1,11 +1,13 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.entity.MessageAttachmentId;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -22,14 +24,8 @@ public interface MessageAttachmentRepository extends
         """)
     List<BinaryContent> findAttachmentsByMessageId(@Param("messageId") UUID messageId);
 
-    @Query("""
-            SELECT ma.message.id as messageId, ma.attachment
-            FROM MessageAttachment ma
-            WHERE ma.message.id IN :messageIds
-            ORDER BY ma.message.id, ma.orderIndex
-        """)
-    List<MessageBinaryRow> findBinariesByMessageIds(
-        @Param("messageIds") Collection<UUID> messageIds);
+    @EntityGraph(attributePaths = { "attachment" })
+    List<MessageAttachment> findAllByMessageIn(Collection<Message> messages);
 
     @Modifying
     @Query(
@@ -46,11 +42,4 @@ public interface MessageAttachmentRepository extends
         nativeQuery = true
     )
     int deleteAllByMessageId(@Param("messageId") UUID messageId);
-
-    interface MessageBinaryRow {
-
-        UUID getMessageId();
-
-        BinaryContent getAttachment();
-    }
 }

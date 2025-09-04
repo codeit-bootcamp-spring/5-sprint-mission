@@ -4,23 +4,27 @@ import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.dto.response.Pageable;
+import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
-import com.sprint.mission.discodeit.mapper.PageResponseMapper;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
-import com.sprint.mission.discodeit.repository.MessageAttachmentRepository.MessageBinaryRow;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -28,7 +32,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,33 +51,78 @@ public class MessageService {
 
     private final BinaryContentStorage binaryContentStorage;
 
+    private final UserMapper userMapper;
     private final MessageMapper messageMapper;
-    private final PageResponseMapper pageResponseMapper;
 
-    public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
-        Page<Message> page = messageRepository.findAllByChannelId(channelId, pageable);
+    public PageResponse<MessageDto> findAllByChannelId(
+        UUID channelId,
+        Instant cursor,
+        Pageable pageable
+    ) {
+        PageRequest pageRequest = Pageable.toPageRequest(pageable);
 
-        List<UUID> messageIds = page.stream().map(Message::getId).toList();
+        Page<Message> page;
+        if (cursor != null) {
+            page = messageRepository.findPageByChannelId(channelId, cursor, pageRequest);
+        } else {
+            page = messageRepository.findPageWithoutCursorByChannelId(channelId, pageRequest);
+        }
 
-        List<MessageBinaryRow> rows =
-            messageAttachmentRepository.findBinariesByMessageIds(messageIds);
+        if (page.isEmpty()) {
+            return new PageResponse<>(
+                List.of(),
+                null,
+                page.getSize(),
+                page.hasNext(),
+                page.getTotalElements()
+            );
+        }
 
-        Map<UUID, List<BinaryContent>> messageIdToBinaries = rows.stream()
+        List<Message> messages = page.getContent();
+
+        List<MessageAttachment> messageAttachmentList =
+            messageAttachmentRepository.findAllByMessageIn(messages);
+
+        Map<UUID, List<BinaryContent>> messageIdToAttachments = messageAttachmentList.stream()
             .collect(Collectors.groupingBy(
-                MessageBinaryRow::getMessageId,
-                Collectors.mapping(MessageBinaryRow::getAttachment,
-                    Collectors.toList())
+                ma -> ma.getMessage().getId(),
+                Collectors.mapping(MessageAttachment::getAttachment, Collectors.toList())
             ));
 
-        // PageResponse<MessageDto> result = page.stream().map(m -> messageMapper.toDto(
-        //     m,
-        //     messageIdToBinaries.getOrDefault(m.getId(), List.of())));
-        // return pageResponseMapper.fromPage(page);
-        return null;
+        Map<UUID, UserDto> userCache = new HashMap<>();
+        Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
+
+        List<MessageDto> result = messages.stream()
+            .map(m -> {
+                User author = m.getAuthor();
+                UserDto authorDto = null;
+                if (author != null) {
+                    authorDto = userCache.computeIfAbsent(
+                        author.getId(),
+                        id -> userMapper.toDto(author, onlineSince)
+                    );
+                }
+                return messageMapper.toDtoWithAuthorDto(
+                    m,
+                    authorDto,
+                    messageIdToAttachments.get(m.getId())
+                );
+            })
+            .toList();
+
+        Instant nextCursor = page.hasNext()
+            ? result.get(result.size() - 1).createdAt()
+            : null;
+
+        return new PageResponse<>(
+            result,
+            nextCursor,
+            page.getSize(),
+            page.hasNext(),
+            page.getTotalElements()
+        );
     }
 
-    // 이런식으로 storage put/delete 처리를 여기서 하면 롤백 로직도 들어가고 관심사에 맞지 않는 것 같다.
-    // storage에 put/delete 하는 것은 다른 서비스에서 처리하고 싶다.
     @Transactional
     public MessageDto create(MessageCreateRequest req, List<MultipartFile> attachments) {
         Channel channel = channelRepository.getOrThrow(req.channelId());

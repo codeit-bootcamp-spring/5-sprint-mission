@@ -11,12 +11,37 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
+
+    @EntityGraph(
+        attributePaths = {
+            "author", "author.profile", "author.userStatus"
+        }
+    )
+    Page<Message> findPageWithoutCursorByChannelId(UUID channelId, Pageable pageable);
+
+    @EntityGraph(
+        attributePaths = {
+            "author", "author.profile", "author.userStatus"
+        }
+    )
+    @Query("""
+        SELECT m
+        FROM Message m
+        WHERE m.channel.id = :channelId AND m.createdAt < :cursor
+        """
+    )
+    Page<Message> findPageByChannelId(
+        @Param("channelId") UUID channelId,
+        @Param("cursor") Instant cursor,
+        Pageable pageable
+    );
 
     @Query("""
         SELECT new com.sprint.mission.discodeit.dto.channel.ChannelLastMessageAtDto(
@@ -39,22 +64,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         """
     )
     Instant findLastMessageAtByChannelId(@Param("channelId") UUID channelId);
-
-    @Query(
-        value = """
-            SELECT m
-            FROM Message m
-            JOIN FETCH m.author a
-            LEFT JOIN FETCH a.profile
-            WHERE m.channel.id = :channelId
-            """,
-        countQuery = """
-            SELECT COUNT(m)
-            FROM Message m
-            WHERE m.channel.id = :channelId
-            """
-    )
-    Page<Message> findAllByChannelId(UUID channelId, Pageable pageable);
 
     @Modifying
     @Query("""
