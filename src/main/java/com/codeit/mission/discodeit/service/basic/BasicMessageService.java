@@ -7,11 +7,11 @@ import com.codeit.mission.discodeit.entity.BinaryContent;
 import com.codeit.mission.discodeit.entity.Channel;
 import com.codeit.mission.discodeit.entity.Message;
 import com.codeit.mission.discodeit.entity.User;
-import com.codeit.mission.discodeit.repository.BinaryContentRepository;
 import com.codeit.mission.discodeit.repository.ChannelRepository;
 import com.codeit.mission.discodeit.repository.MessageRepository;
 import com.codeit.mission.discodeit.repository.UserRepository;
 import com.codeit.mission.discodeit.service.MessageService;
+import com.codeit.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -27,7 +27,7 @@ public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
-    private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
 
     @Override
     public Message create(MessageCreateRequest messageCreateRequest,
@@ -47,7 +47,12 @@ public class BasicMessageService implements MessageService {
                 String fileName = attachmentRequest.fileName();
                 String contentType = attachmentRequest.contentType();
                 byte[] bytes = attachmentRequest.bytes();
-                return new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
+
+                BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+                    contentType);
+                binaryContentStorage.put(binaryContent.getId(), bytes);
+
+                return binaryContent;
             })
             .toList();
 

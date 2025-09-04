@@ -7,9 +7,11 @@ import com.codeit.mission.discodeit.dto.request.UserUpdateRequest;
 import com.codeit.mission.discodeit.entity.BinaryContent;
 import com.codeit.mission.discodeit.entity.User;
 import com.codeit.mission.discodeit.entity.UserStatus;
+import com.codeit.mission.discodeit.mapper.UserMapper;
 import com.codeit.mission.discodeit.repository.UserRepository;
 import com.codeit.mission.discodeit.repository.UserStatusRepository;
 import com.codeit.mission.discodeit.service.UserService;
+import com.codeit.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -26,6 +28,8 @@ public class BasicUserService implements UserService {
 
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
+    private final BinaryContentStorage binaryContentStorage;
+    private final UserMapper userMapper;
 
     @Override
     public User create(UserCreateRequest userCreateRequest,
@@ -46,7 +50,12 @@ public class BasicUserService implements UserService {
                 String fileName = profileRequest.fileName();
                 String contentType = profileRequest.contentType();
                 byte[] bytes = profileRequest.bytes();
-                return new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
+
+                BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+                    contentType);
+                binaryContentStorage.put(binaryContent.getId(), bytes);
+
+                return binaryContent;
             })
             .orElse(null);
 
@@ -62,7 +71,7 @@ public class BasicUserService implements UserService {
     @Override
     public UserDto find(UUID userId) {
         return userRepository.findById(userId)
-            .map(this::toDto)
+            .map(userMapper::toDto)
             .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
     }
 
@@ -70,7 +79,7 @@ public class BasicUserService implements UserService {
     public List<UserDto> findAll() {
         return userRepository.findAll()
             .stream()
-            .map(this::toDto)
+            .map(userMapper::toDto)
             .toList();
     }
 
@@ -95,9 +104,14 @@ public class BasicUserService implements UserService {
                 String fileName = profileRequest.fileName();
                 String contentType = profileRequest.contentType();
                 byte[] bytes = profileRequest.bytes();
-                return new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
+
+                BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+                    contentType);
+                binaryContentStorage.put(binaryContent.getId(), bytes);
+
+                return binaryContent;
             })
-            .orElse(null);
+            .orElse(user.getProfile());
 
         String newPassword = userUpdateRequest.newPassword();
         user.update(newUsername, newEmail, newPassword, newProfile);
@@ -111,25 +125,5 @@ public class BasicUserService implements UserService {
             .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
         userRepository.deleteById(userId);
-    }
-
-    private UserDto toDto(User user) {
-        Boolean online = Optional.ofNullable(user.getStatus())
-            .map(UserStatus::isOnline)
-            .orElse(null);
-
-        UUID profileId = Optional.ofNullable(user.getProfile())
-            .map(BinaryContent::getId)
-            .orElse(null);
-
-        return new UserDto(
-            user.getId(),
-            user.getCreatedAt(),
-            user.getUpdatedAt(),
-            user.getUsername(),
-            user.getEmail(),
-            profileId,
-            online
-        );
     }
 }
