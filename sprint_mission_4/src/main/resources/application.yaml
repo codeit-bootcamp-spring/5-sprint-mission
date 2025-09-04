@@ -5,6 +5,30 @@ spring:
     multipart:
       maxFileSize: 10MB # 파일 하나의 최대 크기
       maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: discodeit_user
+    password: discodeit1234
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate #테이블 자동 생성/업데이트 옵션
+    show-sql: true #실행되는 SQL 콘솔 출력 여부
+    properties:
+      hibernate:
+        format_sql: true #SQL문을 보기 좋게 줄바꿈/ 들여쓰기 출력
+        hightlight_sql: true #콘솔에 SQL키워드를 색상 강조
+        use_sql_comments: true # SQL에 JPQL/HQL 주석 추가(어떤 쿼리인지 표시)
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        physical_naming_strategy:  org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+        jdbc.time_zone: UTC
+
+logging: #SQL 쿼리와 바인딩된 파라미터 값을 로그로 확인할수있게하는
+  level:
+    org.hibernate.SQL: debug
+    # 실행되는 SQL 출력
+    org.hibernate.orm.jdbc.bind: trace # 바인딩된 파라미터 값 출력
+    org.hibernate.type.descriptor.sql: trace # (추가) 컬럼 값 변환 로깅
 
 
 discodeit:
