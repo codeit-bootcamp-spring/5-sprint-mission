@@ -15,20 +15,18 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
 
-//약속
-//다중 구현 가능
 public interface UserService {
 
   User create(UserCreateRequest request, MultipartFile profile);
 
-  UserDto findById(UUID userId); //조회
+  UserDto findById(UUID id);
 
-  List<UserDto> findAll(); //리스트에 넣기
+  List<UserDto> findAll(); //전체 조회후 응답용 DTO로 반환
 
-  User update(UUID userId, UserUpdateRequest request, MultipartFile profileImage)
+  User update(UUID id, UserUpdateRequest request, MultipartFile profileImage)
       throws IOException;
 
-  void delete(UUID userId); //삭제
+  void delete(UUID id); //삭제
 
   boolean existsByUsername(String username); // username 중복 확인
 
