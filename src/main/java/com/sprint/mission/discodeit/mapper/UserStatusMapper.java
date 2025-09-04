@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.mapper;
 import org.springframework.stereotype.Component;
 
 import com.sprint.mission.discodeit.domain.dto.userStatus.UserStatusDto;
+import com.sprint.mission.discodeit.domain.dto.userStatus.UserStatusResponse;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,14 @@ public class UserStatusMapper {
 		  .id(userStatus.getId())
 		  .userId(userStatus.getUser().getId())
 		  .lastActiveAt(userStatus.getLastActiveAt())
+		  .build();
+	}
+
+	public UserStatusResponse toResponse(UserStatusDto dto) {
+		return UserStatusResponse.builder()
+		  .id(dto.getId())
+		  .userId(dto.getUserId())
+		  .lastActiveAt(dto.getLastActiveAt())
 		  .build();
 	}
 }

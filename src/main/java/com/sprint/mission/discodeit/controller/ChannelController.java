@@ -21,7 +21,7 @@ import com.sprint.mission.discodeit.domain.dto.CreatePrivateChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.CreatePublicChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.channel.ChannelDto;
-import com.sprint.mission.discodeit.domain.entity.Channel;
+import com.sprint.mission.discodeit.domain.dto.channel.ChannelResponse;
 import com.sprint.mission.discodeit.domain.request.CreatePrivateChannelRequest;
 import com.sprint.mission.discodeit.domain.request.CreatePublicChannelRequest;
 import com.sprint.mission.discodeit.domain.request.UpdatePublicChannelRequest;
@@ -49,29 +49,29 @@ public class ChannelController {
 	private final ChannelMapper channelMapper;
 
 	@PostMapping("/public")
-	public ResponseEntity<ChannelDto> createPublicChannel(
+	public ResponseEntity<ChannelResponse> createPublicChannel(
 	  @RequestBody @Valid CreatePublicChannelRequest request) {
 
-		Channel result = channelService.createPublic(CreatePublicChannelDTO.builder()
+		ChannelDto result = channelService.createPublic(CreatePublicChannelDTO.builder()
 		  .name(request.getName())
 		  .description(request.getDescription())
 		  .build());
 
 		URI location = URI.create("api/channels");
-		return ResponseEntity.created(location).body(channelMapper.toDto(result));
+		return ResponseEntity.created(location).body(channelMapper.toResponse(result));
 
 	}
 
 	@PostMapping("/private")
-	public ResponseEntity<ChannelDto> createPrivateChannel(
+	public ResponseEntity<ChannelResponse> createPrivateChannel(
 	  @RequestBody @Valid CreatePrivateChannelRequest request) {
 
-		Channel result = channelService.createPrivate(CreatePrivateChannelDTO.builder()
+		ChannelDto result = channelService.createPrivate(CreatePrivateChannelDTO.builder()
 		  .UserIds(request.getParticipantIds())
 		  .build());
 
 		URI location = URI.create("api/channels");
-		return ResponseEntity.created(location).body(channelMapper.toDto(result));
+		return ResponseEntity.created(location).body(channelMapper.toResponse(result));
 	}
 
 	@ApiResponses(value = {
@@ -104,27 +104,27 @@ public class ChannelController {
 	}
 
 	@PatchMapping("/{channelId}")
-	public ResponseEntity<ChannelDto> updatePublicChannel(
+	public ResponseEntity<ChannelResponse> updatePublicChannel(
 	  @Parameter(
 		description = "수정할 Channel ID"
 	  )
 	  @PathVariable UUID channelId,
 	  @RequestBody @Valid UpdatePublicChannelRequest request) {
-		Channel result = channelService.update(UpdateChannelDTO.builder()
+		ChannelDto result = channelService.update(UpdateChannelDTO.builder()
 		  .id(channelId)
 		  .name(request.getNewName())
 		  .description(request.getNewDescription())
 		  .build());
-		return ResponseEntity.status(OK).body(channelMapper.toDto(result));
+		return ResponseEntity.status(OK).body(channelMapper.toResponse(result));
 	}
 
 	@GetMapping
-	public ResponseEntity<List<ChannelDto>> getAllByUserId(
+	public ResponseEntity<List<ChannelResponse>> getAllByUserId(
 	  @Parameter(description = "조회할 User ID")
 	  @RequestParam UUID userId) {
-		List<Channel> channels = channelService.readAllByUserId(userId);
+		List<ChannelDto> channels = channelService.readAllByUserId(userId);
 
-		List<ChannelDto> body = channels.stream().map(channelMapper::toDto).toList();
+		List<ChannelResponse> body = channels.stream().map(channelMapper::toResponse).toList();
 
 		return ResponseEntity.ok(body);
 	}

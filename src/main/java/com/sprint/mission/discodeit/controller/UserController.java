@@ -25,9 +25,9 @@ import com.sprint.mission.discodeit.domain.dto.CreateUserDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateStatusByUserIdDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateUserDTO;
 import com.sprint.mission.discodeit.domain.dto.user.UserDto;
+import com.sprint.mission.discodeit.domain.dto.user.UserResponse;
 import com.sprint.mission.discodeit.domain.dto.userStatus.UserStatusDto;
-import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.domain.dto.userStatus.UserStatusResponse;
 import com.sprint.mission.discodeit.domain.request.UpdateUserStatusRequest;
 import com.sprint.mission.discodeit.domain.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.request.UserUpdateRequest;
@@ -52,7 +52,7 @@ public class UserController {
 	private final UserStatusMapper userStatusMapper;
 
 	@PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<UserDto> createUser(
+	public ResponseEntity<UserResponse> createUser(
 	  @RequestPart @Valid UserCreateRequest userCreateRequest,
 	  @RequestPart(required = false) MultipartFile profile
 
@@ -67,7 +67,8 @@ public class UserController {
 			  profile.getOriginalFilename()
 			));
 		}
-		User createdUser = userService.create(CreateUserDTO.builder()
+
+		UserDto createdUser = userService.create(CreateUserDTO.builder()
 		  .username(userCreateRequest.getUsername())
 		  .email(userCreateRequest.getEmail())
 		  .password(userCreateRequest.getPassword())
@@ -75,22 +76,22 @@ public class UserController {
 		  .build());
 
 		URI location = URI.create("api/users");
-		return ResponseEntity.created(location).body(userMapper.toDto(createdUser));
+		return ResponseEntity.created(location).body(userMapper.toResponse(createdUser));
 	}
 
 	@GetMapping
-	public ResponseEntity<List<UserDto>> getAllUser() {
+	public ResponseEntity<List<UserResponse>> getAllUser() {
 
-		List<UserDto> body = userService.readAll().stream()
-		  .map(userMapper::toDto)
+		List<UserResponse> body = userService.readAll().stream()
+		  .map(userMapper::toResponse)
 		  .toList();
 
 		return ResponseEntity.ok(body);
 	}
 
 	@PatchMapping(value = "/{id}", consumes = MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<UserDto> updateUser(
-	  @RequestPart @Valid UserUpdateRequest userUpdateRequest,
+	public ResponseEntity<UserResponse> updateUser(
+	  @RequestPart UserUpdateRequest userUpdateRequest,
 	  @RequestPart(required = false) MultipartFile profile,
 	  @PathVariable UUID id
 	) throws IOException {
@@ -106,7 +107,7 @@ public class UserController {
 			));
 		}
 
-		User result = userService.update(UpdateUserDTO.builder()
+		UserDto result = userService.update(UpdateUserDTO.builder()
 		  .userId(id)
 		  .newUsername(userUpdateRequest.getNewUsername())
 		  .newEmail(userUpdateRequest.getNewEmail())
@@ -114,26 +115,26 @@ public class UserController {
 		  .newProfilePicture(biContentDTO.orElse(null))
 		  .build());
 
-		return ResponseEntity.ok(userMapper.toDto(result));
+		return ResponseEntity.ok(userMapper.toResponse(result));
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<UserDto> deleteUser(@PathVariable UUID id) {
+	public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
 		userService.delete(id);
 		return ResponseEntity.noContent().build();
 	}
 
 	@PatchMapping("/{userId}/userStatus")
-	public ResponseEntity<UserStatusDto> updateUserStatus(
+	public ResponseEntity<UserStatusResponse> updateUserStatus(
 	  @PathVariable UUID userId,
 	  @RequestBody UpdateUserStatusRequest updateUserStatusRequest) {
 
-		UserStatus newUserStatus = userStatusService.updateStatusByUserId(UpdateStatusByUserIdDTO.builder()
+		UserStatusDto newUserStatus = userStatusService.updateStatusByUserId(UpdateStatusByUserIdDTO.builder()
 		  .userId(userId)
 		  .newLastActiveAt(updateUserStatusRequest.getNewLastActiveAt())
 		  .build());
 
-		return ResponseEntity.ok(userStatusMapper.toDto(newUserStatus));
+		return ResponseEntity.ok(userStatusMapper.toResponse(newUserStatus));
 	}
 
 }

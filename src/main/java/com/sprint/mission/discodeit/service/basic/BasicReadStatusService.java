@@ -10,12 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sprint.mission.discodeit.domain.dto.CreateReadStatusDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateReadStatusDTO;
+import com.sprint.mission.discodeit.domain.dto.readStatus.ReadStatusDto;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.response.CreateReadStatusResponse;
 import com.sprint.mission.discodeit.domain.response.GetReadStatusResponse;
 import com.sprint.mission.discodeit.domain.response.UpdateReadStatusResponse;
+import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -30,10 +32,11 @@ public class BasicReadStatusService implements ReadStatusService {
 	private final ReadStatusRepository readStatusRepository;
 	private final UserRepository userRepository;
 	private final ChannelRepository channelRepository;
+	private final ReadStatusMapper readStatusMapper;
 
 	@Override
 	@Transactional
-	public ReadStatus create(CreateReadStatusDTO dto) {
+	public ReadStatusDto create(CreateReadStatusDTO dto) {
 
 		UUID channelId = dto.getChannelId();
 		UUID userId = dto.getUserId();
@@ -52,13 +55,13 @@ public class BasicReadStatusService implements ReadStatusService {
 		}
 
 		ReadStatus readStatuses = new ReadStatus(user, channel);
-
-		return readStatusRepository.save(readStatuses);
+		readStatusRepository.save(readStatuses);
+		return readStatusMapper.toDto(readStatuses);
 	}
 
 	@Override
 	@Transactional
-	public ReadStatus update(UpdateReadStatusDTO dto) {
+	public ReadStatusDto update(UpdateReadStatusDTO dto) {
 
 		UUID id = dto.getId();
 		Instant newLastReadAt = dto.getNewLastReadAt();
@@ -67,18 +70,18 @@ public class BasicReadStatusService implements ReadStatusService {
 		  .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + id + " not found"));
 
 		readStatuses.setLastReadAt(newLastReadAt);
-
-		return readStatusRepository.save(readStatuses);
+		readStatusRepository.save(readStatuses);
+		return readStatusMapper.toDto(readStatuses);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ReadStatus> findAllByUserId(UUID userId) {
+	public List<ReadStatusDto> findAllByUserId(UUID userId) {
 		if (!userRepository.existsById(userId)) {
 			throw new NoSuchElementException("user with id " + userId + "not found");
 		}
 
-		return readStatusRepository.findAllByUserId(userId);
+		return readStatusRepository.findAllByUserId(userId).stream().map(readStatusMapper::toDto).toList();
 	}
 
 	@Override

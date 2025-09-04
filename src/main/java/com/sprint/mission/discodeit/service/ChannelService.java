@@ -6,23 +6,19 @@ import java.util.UUID;
 import com.sprint.mission.discodeit.domain.dto.CreatePrivateChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.CreatePublicChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateChannelDTO;
-import com.sprint.mission.discodeit.domain.entity.Channel;
-import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.dto.channel.ChannelDto;
 
 public interface ChannelService {
-	public Channel createPublic(CreatePublicChannelDTO dto);
+	public ChannelDto createPublic(CreatePublicChannelDTO dto);
 
-	public Channel createPrivate(CreatePrivateChannelDTO dto);
+	public ChannelDto createPrivate(CreatePrivateChannelDTO dto);
 
-	public List<Channel> readAllByUserId(UUID userId);
+	public List<ChannelDto> readAllByUserId(UUID userId);
 
 	public boolean delete(UUID id);
 
-	public Channel update(UpdateChannelDTO dto);
+	public ChannelDto update(UpdateChannelDTO dto);
 
 	boolean isEmpty(UUID id);
 
-	void deleteAll();
-
-	public List<User> getChannelParticipants(UUID id);
 }

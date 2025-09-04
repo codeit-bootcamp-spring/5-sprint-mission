@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sprint.mission.discodeit.domain.dto.LoginParams;
 import com.sprint.mission.discodeit.domain.dto.user.UserDto;
-import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.dto.user.UserResponse;
 import com.sprint.mission.discodeit.domain.request.UserLoginRequest;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.service.AuthService;
@@ -27,16 +27,16 @@ public class AuthController {
 	private final UserMapper userMapper;
 
 	@PostMapping("/login")
-	public ResponseEntity<UserDto> login(@Valid @RequestBody UserLoginRequest request) {
+	public ResponseEntity<UserResponse> login(@Valid @RequestBody UserLoginRequest request) {
 
-		User user = authService.login(
+		UserDto userDto = authService.login(
 		  LoginParams.builder()
 			.username(request.getUsername())
 			.password(request.getPassword())
 			.build()
 		);
 
-		return ResponseEntity.ok(userMapper.toDto(user));
+		return ResponseEntity.ok(userMapper.toResponse(userDto));
 	}
 
 }

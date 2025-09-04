@@ -13,15 +13,18 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
 import com.sprint.mission.discodeit.domain.dto.CreateMessageDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateMessageDTO;
+import com.sprint.mission.discodeit.domain.dto.message.MessageDto;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.response.UpdateMessageResponse;
+import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import lombok.RequiredArgsConstructor;
@@ -35,15 +38,17 @@ public class BasicMessageService implements MessageService {
 	private final ChannelRepository channelRepository;
 	private final BinaryContentRepository binaryContentRepository;
 	private final BasicBinaryContentService binaryContentService;
+	private final MessageMapper messageMapper;
+	private final UserStatusRepository userStatusRepository;
 
 	@Override
 	@Transactional
-	public Message create(CreateMessageDTO dto) {
+	public MessageDto create(CreateMessageDTO dto) {
 		String content = dto.getContent();
 		UUID channelId = dto.getChannelId();
 		UUID userId = dto.getUserId();
 		List<CreateBiContentDTO> attachmentsInMessage = dto.getAttachments();
-		
+
 		// Validate
 		Channel channel = channelRepository.findById(channelId).orElseThrow(() ->
 		  new NoSuchElementException("channel with id " + channelId + "not found")
@@ -53,10 +58,16 @@ public class BasicMessageService implements MessageService {
 		  new NoSuchElementException("Author with id " + userId + "not found")
 		);
 
+		boolean isOnline = userStatusRepository.findByUserId(user.getId())
+		  .map(UserStatus::isOnline).orElse(false);
+
 		List<BinaryContent> attachments = Optional.ofNullable(attachmentsInMessage)
 		  .map(a -> a.stream().map(binaryContentService::create).toList())
 		  .orElse(List.of());
-		return messageRepository.save(new Message(content, user, channel, attachments));
+
+		Message savedMessage = messageRepository.save(new Message(content, user, channel, attachments));
+
+		return messageMapper.toDto(savedMessage, user, isOnline);
 	}
 
 	@Override
@@ -75,7 +86,7 @@ public class BasicMessageService implements MessageService {
 
 	@Override
 	@Transactional
-	public Message update(UpdateMessageDTO dto) {
+	public MessageDto update(UpdateMessageDTO dto) {
 		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("UpdateMessageDTO cannot be null"));
 		UUID id = dto.getId();
 		String newContent = dto.getNewContent();
@@ -105,47 +116,51 @@ public class BasicMessageService implements MessageService {
 			targetMessage.getAttachments().addAll(newFiles);
 		}
 
-		return messageRepository.save(targetMessage);
+		// TODO N+1
+		// 4. User 정보 가져오기
+		boolean isOnline = userStatusRepository.findByUserId(targetMessage.getUser().getId())
+		  .map(UserStatus::isOnline)
+		  .orElse(false);
+
+		messageRepository.save(targetMessage);
+		return messageMapper.toDto(targetMessage, targetMessage.getUser(), isOnline);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Message read(UUID id) {
-		return messageRepository.findById(id)
+	// TODO N+1
+	public MessageDto read(UUID id) {
+		Message message = messageRepository.findById(id)
 		  .orElseThrow(() -> new NoSuchElementException("Message with ID " + id + " not found"));
+
+		boolean isOnline = userStatusRepository.findByUserId(message.getUser().getId())
+		  .map(UserStatus::isOnline)
+		  .orElse(false);
+
+		return messageMapper.toDto(message, message.getUser(), isOnline);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<Message> findAllByChannelId(UUID channelId, Pageable pageable) {
-		return messageRepository.findAllByChannelId(channelId, pageable);
+	public Page<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
+		Page<Message> messages = messageRepository.findAllByChannelId(channelId, pageable);
+
+		// TODO N+1
+		return messageRepository.findAllByChannelId(channelId, pageable).map(message ->
+		  messageMapper.toDto(
+			message,
+			message.getUser(),
+			userStatusRepository.findByUserId(message.getUser().getId())
+			  .map(UserStatus::isOnline)
+			  .orElse(false)
+		  )
+		);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public boolean isEmpty(UUID id) {
 		return messageRepository.existsById(id);
-	}
-
-	@Override
-	public List<UUID> findAttachmentsIds(UUID messageId) {
-		return List.of();
-	}
-
-	public static UpdateMessageResponse toUpdateMessageResponse(Message newMessage) {
-		return UpdateMessageResponse.builder()
-		  .id(newMessage.getId())
-		  .createdAt(newMessage.getCreatedAt())
-		  .updatedAt(newMessage.getUpdatedAt())
-		  .content(newMessage.getContent())
-		  .authorId(newMessage.getUser().getId())
-		  .channelId(newMessage.getChannel().getId())
-		  // .attachmentIds(newMessages.getAttachmentIds())
-		  .build();
-	}
-
-	private BinaryContent toBinaryContent(CreateBiContentDTO dto) {
-		return new BinaryContent(dto.getSize(), dto.getContentType(), dto.getContentType());
 	}
 
 }

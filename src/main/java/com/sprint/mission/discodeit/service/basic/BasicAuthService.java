@@ -1,12 +1,17 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sprint.mission.discodeit.domain.dto.LoginParams;
+import com.sprint.mission.discodeit.domain.dto.user.UserDto;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.response.UserLoginResponse;
+import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
@@ -15,27 +20,23 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BasicAuthService implements AuthService {
 	private final UserRepository userRepository;
+	private final UserMapper userMapper;
+	private final UserStatusRepository userStatusRepository;
 
 	@Override
 	@Transactional(readOnly = true)
-	public User login(LoginParams params) {
+	public UserDto login(LoginParams params) {
 		User user = userRepository.findByUsername(params.getUsername())
 		  .orElseThrow(() -> new IllegalArgumentException("User with username " + params.getUsername() + " not found"));
 		if (!user.getPassword().equals(params.getPassword())) {
 			throw new IllegalArgumentException("Wrong password");
 		}
 
-		return user;
+		UserStatus userStatus = userStatusRepository.findByUserId(user.getId()).orElseThrow(() ->
+		  new NoSuchElementException("userStatus With userID" + user.getId() + "not found")
+		);
+
+		return userMapper.toDto(user, userStatus.isOnline());
 	}
 
-	public static UserLoginResponse toUserLoginResponse(User user) {
-		return UserLoginResponse.builder()
-		  .id(user.getId())
-		  .username(user.getUsername())
-		  .email(user.getEmail())
-		  .createdAt(user.getCreatedAt())
-		  .updatedAt(user.getUpdatedAt())
-		  .profileId(user.getProfileImage().getId())
-		  .build();
-	}
 }

@@ -3,8 +3,8 @@ package com.sprint.mission.discodeit.mapper;
 import org.springframework.stereotype.Component;
 
 import com.sprint.mission.discodeit.domain.dto.user.UserDto;
+import com.sprint.mission.discodeit.domain.dto.user.UserResponse;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,15 +12,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserMapper {
 	private final BinaryContentMapper binaryContentMapper;
-	private final UserService userService;
 
-	public UserDto toDto(User user) {
+	public UserDto toDto(User user, boolean isOnline) {
 		return UserDto.builder()
 		  .id(user.getId())
 		  .username(user.getUsername())
 		  .email(user.getEmail())
 		  .profile(binaryContentMapper.toDto(user.getProfileImage()))
-		  .online(userService.isOnline(user.getId()))
+		  .online(isOnline)
+		  .build();
+	}
+
+	public UserResponse toResponse(UserDto userDto) {
+		return UserResponse.builder()
+		  .id(userDto.getId())
+		  .username(userDto.getUsername())
+		  .email(userDto.getEmail())
+		  .profile(userDto.getProfile())
+		  .online(userDto.getOnline())
 		  .build();
 	}
 }

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sprint.mission.discodeit.domain.dto.CreateReadStatusDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateReadStatusDTO;
 import com.sprint.mission.discodeit.domain.dto.readStatus.ReadStatusDto;
-import com.sprint.mission.discodeit.domain.entity.ReadStatus;
+import com.sprint.mission.discodeit.domain.dto.readStatus.ReadStatusResponse;
 import com.sprint.mission.discodeit.domain.request.CreateReadStatusRequest;
 import com.sprint.mission.discodeit.domain.request.UpdateReadStatusRequest;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
@@ -38,32 +38,32 @@ public class ReadStatusController {
 	private final ReadStatusMapper readStatusMapper;
 
 	@PostMapping
-	public ResponseEntity<ReadStatusDto> createReadStatus(
+	public ResponseEntity<ReadStatusResponse> createReadStatus(
 	  @RequestBody @Valid CreateReadStatusRequest request) {
-		ReadStatus newReadStatuses = readStatusService.create(CreateReadStatusDTO.builder()
+		ReadStatusDto newReadStatuses = readStatusService.create(CreateReadStatusDTO.builder()
 		  .userId(request.getUserId())
 		  .channelId(request.getChannelId())
 		  .lastReadAt(request.getLastReadAt())
 		  .build());
 
-		return ResponseEntity.status(CREATED).body(readStatusMapper.toDto(newReadStatuses));
+		return ResponseEntity.status(CREATED).body(readStatusMapper.toResponse(newReadStatuses));
 	}
 
 	@PatchMapping("/{readStatusId}")
-	public ResponseEntity<ReadStatusDto> updateReadStatus(
+	public ResponseEntity<ReadStatusResponse> updateReadStatus(
 	  @PathVariable UUID readStatusId,
 	  @RequestBody @Valid UpdateReadStatusRequest request) {
-		ReadStatus updatedReadStatuses = readStatusService.update(
+		ReadStatusDto updatedReadStatuses = readStatusService.update(
 		  UpdateReadStatusDTO.builder().id(readStatusId).newLastReadAt(request.getNewLastReadAt()).build());
 
-		return ResponseEntity.ok(readStatusMapper.toDto(updatedReadStatuses));
+		return ResponseEntity.ok(readStatusMapper.toResponse(updatedReadStatuses));
 	}
 
 	@GetMapping
-	public ResponseEntity<List<ReadStatusDto>> getReadStatusesByUserId(
+	public ResponseEntity<List<ReadStatusResponse>> getReadStatusesByUserId(
 	  @RequestParam UUID userId) {
-		List<ReadStatus> readStatuses = readStatusService.findAllByUserId(userId);
-		return ResponseEntity.ok(readStatuses.stream().map(readStatusMapper::toDto).toList());
+		List<ReadStatusDto> readStatuses = readStatusService.findAllByUserId(userId);
+		return ResponseEntity.ok(readStatuses.stream().map(readStatusMapper::toResponse).toList());
 	}
 
 }

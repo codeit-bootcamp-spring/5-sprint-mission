@@ -30,7 +30,7 @@ import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
 import com.sprint.mission.discodeit.domain.dto.CreateMessageDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateMessageDTO;
 import com.sprint.mission.discodeit.domain.dto.message.MessageDto;
-import com.sprint.mission.discodeit.domain.entity.Message;
+import com.sprint.mission.discodeit.domain.dto.message.MessageResponse;
 import com.sprint.mission.discodeit.domain.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.request.UpdateMessageRequest;
 import com.sprint.mission.discodeit.domain.response.PageResponse;
@@ -49,11 +49,11 @@ import lombok.RequiredArgsConstructor;
 public class MessageController {
 
 	private final MessageService messageService;
-	private final PageResponseMapper<MessageDto> pageResponseMapper;
+	private final PageResponseMapper<MessageResponse> pageResponseMapper;
 	private final MessageMapper messageMapper;
 
 	@PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<MessageDto> createMessage(
+	public ResponseEntity<MessageResponse> createMessage(
 	  @RequestPart MessageCreateRequest messageCreateRequest,
 	  @RequestPart(required = false) List<MultipartFile> attachments) {
 
@@ -71,7 +71,7 @@ public class MessageController {
 			  }
 		  }).toList();
 
-		Message newMessage = messageService.create(CreateMessageDTO.builder()
+		MessageDto newMessage = messageService.create(CreateMessageDTO.builder()
 		  .content(messageCreateRequest.getContent())
 		  .channelId(messageCreateRequest.getChannelId())
 		  .userId(messageCreateRequest.getAuthorId())
@@ -79,24 +79,24 @@ public class MessageController {
 		  .build());
 
 		URI location = URI.create("api/messages");
-		return ResponseEntity.created(location).body(messageMapper.toDto(newMessage));
+		return ResponseEntity.created(location).body(messageMapper.toResponse(newMessage));
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseEntity<MessageDto> updateMessage(
+	public ResponseEntity<MessageResponse> updateMessage(
 	  @PathVariable UUID id,
 	  @RequestBody @Valid UpdateMessageRequest updateMessageRequest
 	) {
 
 		List<CreateBiContentDTO> biContentDTOs = new ArrayList<>();
 
-		Message updatedMessage = messageService.update(UpdateMessageDTO.builder()
+		MessageDto updatedMessage = messageService.update(UpdateMessageDTO.builder()
 		  .id(id)
 		  .newContent(updateMessageRequest.getNewContent())
 		  .newAttachments(biContentDTOs)
 		  .build());
 
-		return ResponseEntity.ok().body(messageMapper.toDto(updatedMessage));
+		return ResponseEntity.ok().body(messageMapper.toResponse(updatedMessage));
 	}
 
 	@DeleteMapping("/{id}")
@@ -106,12 +106,13 @@ public class MessageController {
 	}
 
 	@GetMapping
-	public ResponseEntity<PageResponse<MessageDto>> getMessagesInChannel(
+	public ResponseEntity<PageResponse<MessageResponse>> getMessagesInChannel(
 	  @RequestParam UUID channelId,
 	  @PageableDefault(size = 50, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
-		Page<MessageDto> readMessages = messageService.findAllByChannelId(channelId, pageable)
-		  .map(messageMapper::toDto);
+		Page<MessageResponse> readMessages = messageService.findAllByChannelId(channelId, pageable).map(
+		  messageMapper::toResponse);
+
 		return ResponseEntity.ok((pageResponseMapper.fromPage(readMessages)));
 	}
 }

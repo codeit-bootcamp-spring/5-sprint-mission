@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sprint.mission.discodeit.domain.dto.FindBiContentsIdInDTO;
 import com.sprint.mission.discodeit.domain.dto.binaryContent.BinaryContentDto;
+import com.sprint.mission.discodeit.domain.dto.binaryContent.BinaryContentResponse;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 
@@ -29,22 +31,23 @@ public class BinaryContentController {
 
 	private final BinaryContentService binaryContentService;
 	private final BinaryContentStorage binaryContentStorage;
+	private final BinaryContentMapper binaryContentMapper;
 
 	@GetMapping
-	public ResponseEntity<List<BinaryContentDto>> getBinaryContents(
+	public ResponseEntity<List<BinaryContentResponse>> getBinaryContents(
 	  @RequestParam @Size(min = 1) List<UUID> binaryContentIds) {
 
 		List<BinaryContentDto> binaryContents = binaryContentService.findAllByIdIn(FindBiContentsIdInDTO.builder()
 		  .ids(binaryContentIds).build());
 
-		return ResponseEntity.ok(binaryContents);
+		return ResponseEntity.ok(binaryContents.stream().map(binaryContentMapper::toResponse).toList());
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<BinaryContentDto> getBinaryContents(@PathVariable @NotNull UUID id) {
+	public ResponseEntity<BinaryContentResponse> getBinaryContents(@PathVariable @NotNull UUID id) {
 		BinaryContentDto result = binaryContentService.find(id);
 
-		return ResponseEntity.ok(result);
+		return ResponseEntity.ok(binaryContentMapper.toResponse(result));
 	}
 
 	@GetMapping("/{binaryContentId}/download")

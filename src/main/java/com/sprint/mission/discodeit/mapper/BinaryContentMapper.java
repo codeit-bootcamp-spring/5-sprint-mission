@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.mapper;
 import org.springframework.stereotype.Component;
 
 import com.sprint.mission.discodeit.domain.dto.binaryContent.BinaryContentDto;
+import com.sprint.mission.discodeit.domain.dto.binaryContent.BinaryContentResponse;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 
 import lombok.RequiredArgsConstructor;
@@ -20,4 +21,14 @@ public class BinaryContentMapper {
 		  .bytes(null)
 		  .build();
 	}
+
+	public BinaryContentResponse toResponse(BinaryContentDto dto) {
+		return BinaryContentResponse.builder()
+		  .id(dto.getId())
+		  .fileName(dto.getFileName())
+		  .size(dto.getSize())
+		  .contentType(dto.getContentType())
+		  .build();
+	}
+
 }

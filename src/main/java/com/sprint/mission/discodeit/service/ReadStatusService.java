@@ -5,14 +5,14 @@ import java.util.UUID;
 
 import com.sprint.mission.discodeit.domain.dto.CreateReadStatusDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateReadStatusDTO;
-import com.sprint.mission.discodeit.domain.entity.ReadStatus;
+import com.sprint.mission.discodeit.domain.dto.readStatus.ReadStatusDto;
 
 public interface ReadStatusService {
-	public ReadStatus create(CreateReadStatusDTO dto);
+	public ReadStatusDto create(CreateReadStatusDTO dto);
 
-	public List<ReadStatus> findAllByUserId(UUID userId);
+	public List<ReadStatusDto> findAllByUserId(UUID userId);
 
-	public ReadStatus update(UpdateReadStatusDTO dto);
+	public ReadStatusDto update(UpdateReadStatusDTO dto);
 
 	public void delete(UUID id);
 }
