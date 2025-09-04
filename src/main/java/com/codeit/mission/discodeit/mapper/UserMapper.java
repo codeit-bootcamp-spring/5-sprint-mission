@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserMapper {
 
-    private BinaryContentMapper binaryContentMapper;
+    private final BinaryContentMapper binaryContentMapper;
 
     public UserDto toDto(User user) {
         BinaryContentDto profile = Optional.ofNullable(user.getProfile())

@@ -76,3 +76,5 @@ CREATE TABLE message_attachments
     CONSTRAINT message_attachments_attachment_id_fk FOREIGN KEY (attachment_id) REFERENCES binary_contents (id) ON DELETE CASCADE
 );
 
+ALTER TABLE binary_contents
+    DROP COLUMN bytes;
