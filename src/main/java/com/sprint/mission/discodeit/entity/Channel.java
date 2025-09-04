@@ -9,34 +9,39 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "channels")
 @Getter
-@Setter
 @NoArgsConstructor
 public class Channel extends BaseUpdatableEntity {
 
+  //채널 이름
   @Column(name = "name", length = 100)
-  private String name; // 채널 이름
+  private String name;
 
+  // 채널 설명
   @Column(name = "description", length = 500)
-  private String description; // 채널 설명
+  private String description;
 
+  // 음성채널 or 일반채널
   @Enumerated(EnumType.STRING)
   @Column(name = "type", length = 10, nullable = false)
-  private ChannelType channelType; // 음성채널 or 일반채널
+  private ChannelType channelType;
 
+  // 마지막 읽은 시간
   @Column(name = "last_message_at")
   private Instant lastMessageAt;
 
 
-  public Channel(String name, ChannelType privateChannel) {
-
+  //일반 생성자 (1)
+  public Channel(String name, ChannelType channelType) {
+    this.name = name;
+    this.channelType = channelType;
   }
 
-  //일반 생성자
+
+  //일반 생성자 (2)
   public Channel(String name, String description, ChannelType channelType) {
     this.name = name;
     this.description = description;
@@ -49,13 +54,13 @@ public class Channel extends BaseUpdatableEntity {
     this.channelType = other.channelType;
   }
 
-
   //메서드
   public void updateTime() {
+    this.lastMessageAt = Instant.now();
   }
 
-  //toString
 
+  //toString
   @Override
   public String toString() {
     return "Channel{" +

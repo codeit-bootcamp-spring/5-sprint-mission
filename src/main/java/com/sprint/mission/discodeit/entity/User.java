@@ -16,8 +16,8 @@ import lombok.Getter;
 
 
 @Data
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class User extends BaseUpdatableEntity {
@@ -31,7 +31,7 @@ public class User extends BaseUpdatableEntity {
   @Column(name = "password", length = 60, nullable = false)
   private String password;
 
-  /* 프로필 이미지 1:1
+  /* 유저와 프로필 이미지 1:1
    * User의 profile_id 칼럼은
    * BinaryContent의 id 칼럼을 참조한다
    */
@@ -39,15 +39,15 @@ public class User extends BaseUpdatableEntity {
   @JoinColumn(name = "profile_id", foreignKey = @ForeignKey(name = "fk_users_profile"))
   private BinaryContent profile;
 
-  /* 유저 상태 1:1
-   * 한 명의 User는 하나의 UserStatus를 가진다
+  /* 유저와 유저 상태 1:1
+   * 하나의 User는 하나의 UserStatus를 가진다
    * FK관리 (주인: UserStatus)
    */
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private UserStatus status; // User 상태
 
-  /* 유저가 쓴 메세지들 1:N
-   * 한 명의 User는 여러 Message를 가질 수 있다
+  /* 유저와 메세지들 1:N
+   * 하나의 User는 여러 Message를 가질 수 있다
    * FK관리 (주인: Message)
    */
   @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
@@ -68,15 +68,15 @@ public class User extends BaseUpdatableEntity {
   }
 
   //일반 생성자 (1)
-  public User(String userId, String password) {
-    this.username = userId;
+  public User(String username, String password) {
+    this.username = username;
     this.password = password;
     this.email = null; // 이메일은 null 처리
   }
 
   //일반 생성자 (2)
-  public User(String userId, String password, String email) {
-    this.username = userId; //파라미터로 받음
+  public User(String username, String password, String email) {
+    this.username = username; //파라미터로 받음
     this.password = password; //파라미터로 받음
     this.email = email;
   }

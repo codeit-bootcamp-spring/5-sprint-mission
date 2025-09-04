@@ -1,16 +1,14 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import lombok.Getter;
 
 @Entity
@@ -18,12 +16,15 @@ import lombok.Getter;
 @Getter
 public class Message extends BaseUpdatableEntity {
 
+  /* 메세지가 작성자 참조 N:1
+   * FK 역할
+   * */
   @ManyToOne
   @JoinColumn(name = "author_id")
   private User author; // 채널 기준으로 누가 보냈는지
 
 
-  /* 메세지가 채널을 참조
+  /* 메세지가 채널을 참조 N:1
    * FK 역할
    */
   @ManyToOne
@@ -31,19 +32,14 @@ public class Message extends BaseUpdatableEntity {
   private Channel channel; // 채널 ID
 
 
-  /* 메세지와 첨부파일은 다대다 관계라
-   * JPA가 중간 테이블 message_attachments 자동생성
-   * */
-  @ManyToMany
-  @JoinTable(
-      name = "message_attachments",
-      joinColumns = @JoinColumn(name = "message_id"), // Message 참조하는 FK
-      inverseJoinColumns = @JoinColumn(name = "file_id") // BinaryContent 참조하는 FK
-  )
-  private List<BinaryContent> attachments = new ArrayList<>(); // attachment list로 관리
+  /* 메세지는 첨부파일을 참조 1:N
+   *FK 역할
+   */
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "message_id")
+  private List<BinaryContent> attachments;
 
-
-  @Column()
+  @Column
   private String content; //메세지 내용
 
 
@@ -53,16 +49,14 @@ public class Message extends BaseUpdatableEntity {
   }
 
 
-  //일반 생성자
-  //사용자로부터 받는 값
+  //일반 생성자 - 사용자로부터 받는 값
   public Message(String content, User author, Channel channel) {
     this.content = content;
     this.author = author;
     this.channel = channel;
   }
 
-  //복사생성자
-  //메세지 객체 안의 있는 값들 복사해서 새로운 Message 만듦
+  //복사생성자 - 메세지 객체 안의 있는 값들 복사해서 새로운 Message 만듦
   public Message(Message other) {
     this.content = other.content;
     this.author = other.author;
@@ -74,13 +68,12 @@ public class Message extends BaseUpdatableEntity {
   }
 
 
-  public void setAttachmentIds(List<UUID> attachmentIds) {
-    this.attachments = attachments;
-  }
-
-
-  public void setContent(String content) {
-    this.content = content;
+  // 메시지 내용 수정
+  public void updateContent(String newContent) {
+    if (newContent == null || newContent.trim().isEmpty()) {
+      throw new IllegalArgumentException("내용은 비어 있을 수 없습니다.");
+    }
+    this.content = newContent;
   }
 
   //toString

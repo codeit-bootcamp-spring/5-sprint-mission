@@ -4,13 +4,11 @@ import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "binary_contents")
-@Data
 @Getter
 @NoArgsConstructor
 public class BinaryContent extends BaseUpdatableEntity {

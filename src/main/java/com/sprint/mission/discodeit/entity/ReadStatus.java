@@ -17,14 +17,21 @@ import lombok.NoArgsConstructor;
 public class ReadStatus extends BaseUpdatableEntity {
 
 
+  /* 읽음상태가 사용자 참조 N:1
+   * FK 역할
+   * */
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
+  /* 읽음상태가 채널 참조 N:1
+   * FK 역할
+   * */
   @ManyToOne
   @JoinColumn(name = "channel_id", nullable = false)
   private Channel channel;
 
+  //마지막으로 읽은 시간
   @Column(name = "last_read_at", nullable = false)
   private Instant lastReadAt;
 
@@ -35,7 +42,7 @@ public class ReadStatus extends BaseUpdatableEntity {
   }
 
 
-  //lastReadAt 업데이트 메서드
+  //마지막으로 읽은 시간 갱신 메서드
   public void update(Instant newLastReadAt) {
     this.lastReadAt = newLastReadAt;
   }

@@ -6,17 +6,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "userstatuses")
-@Data
+@Getter
 @NoArgsConstructor
 public class UserStatus extends BaseUpdatableEntity {
 
   @OneToOne
-  @JoinColumn(name = "userId", nullable = false)
+  @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
   private Instant lastActiveAt; // 마지막 접속시간
