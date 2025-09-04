@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.dto.response.channel.ChannelCreateResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelLeaveResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.DuplicateChannelNameException;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -182,8 +184,14 @@ public class BasicChannelService implements ChannelService {
 		Instant lastMessageTime = getLastMessageTime(channel.getId());
 
 		if (ChannelType.PRIVATE.equals(channel.getType())) {
-			List<UUID> participantIds = getPrivateChannelParticipants(channel.getId());
-			return ChannelResponse.fromPrivateChannel(channel, lastMessageTime, participantIds);
+            List<UUID> participantIds = getPrivateChannelParticipants(channel.getId());
+
+            List<UserResponse> participants = participantIds.stream()
+                    .map(userId -> userRepository.findById(userId).orElse(null))
+                    .filter(Objects::nonNull)
+                    .map(UserResponse::success)
+                    .toList();
+			return ChannelResponse.fromPrivateChannel(channel, lastMessageTime, participants);
 		} else {
 			return ChannelResponse.fromPublicChannel(channel, lastMessageTime);
 		}

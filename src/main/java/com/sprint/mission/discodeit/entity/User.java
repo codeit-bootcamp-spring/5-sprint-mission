@@ -40,8 +40,8 @@ public class User extends BaseUpdatableEntity implements Serializable {
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private UserStatus userStatus;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private ReadStatus readStatus;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ReadStatus> readStatus;
 
     @OneToMany(mappedBy = "author")
     private List<Message> messages;

@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -54,6 +55,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage{
         }
     }
 
+    @Override
+    @Transactional
     public ResponseEntity<Resource> download(BinaryContentDTO binaryContentDTO) {
         Path filePath = resolvePath(binaryContentDTO.getId());
 
@@ -67,7 +70,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage{
 
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=\"" + binaryContentDTO.getFileName() + "\"");
+                    "attachment; filename=\"" + binaryContentDTO.getFileName());
 
             return ResponseEntity.ok()
                     .headers(headers)

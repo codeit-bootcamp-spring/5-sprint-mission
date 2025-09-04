@@ -34,8 +34,13 @@ public class Message extends BaseUpdatableEntity implements Serializable {
     @JoinColumn(name = "channel_id", nullable = false, updatable = false)
     private Channel channel;
 
-    @OneToMany(mappedBy = "message", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<MessageAttachment> attachments = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(
+            name = "message_attachments",
+            joinColumns = @JoinColumn(name = "message_id"),
+            inverseJoinColumns = @JoinColumn(name = "attachment_id")
+    )
+    private List<BinaryContent> attachments = new ArrayList<>();
 
     public Message(User author, Channel channel,String content) {
         this.author = author;
@@ -54,16 +59,14 @@ public class Message extends BaseUpdatableEntity implements Serializable {
     public void addAttachment(BinaryContent attachment) {
         if (attachment == null) return;
         if (attachments == null) attachments = new ArrayList<>();
-        boolean exists = attachments.stream()
-                .anyMatch(ma -> ma.getAttachment().getId().equals(attachment.getId()));
-        if (!exists) {
-            attachments.add(new MessageAttachment(this, attachment));
+        if (!attachments.contains(attachment)) {
+            attachments.add(attachment);
         }
     }
 
 	public void removeAttachment(UUID attachmentId) {
         if (attachments == null || attachmentId == null) return;
-        attachments.removeIf(ma -> ma.getAttachment().getId().equals(attachmentId));
+        attachments.removeIf(attachment -> attachment.getId().equals(attachmentId));
 	}
 
 	public Message copy() {

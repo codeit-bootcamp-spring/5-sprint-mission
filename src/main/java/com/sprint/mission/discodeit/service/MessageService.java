@@ -17,8 +17,8 @@ public interface MessageService {
 	List<MessageResponse> findMessagesByChannelId(UUID channelId);
 	List<MessageResponse> findMessageByAuthor(MessagesGetByAuthorRequest request);
 
-    PageResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size);
-    PageResponse<MessageResponse> findSliceMessagesByChannel(UUID channelId, int page, int size);
+    PageResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size, String[] sort);
+    PageResponse<MessageResponse> findSliceMessagesByChannel(UUID channelId, int page, int size, String[] sort);
 
 	List<Message> findAll();
 

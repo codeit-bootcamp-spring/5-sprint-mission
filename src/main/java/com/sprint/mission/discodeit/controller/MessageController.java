@@ -48,8 +48,8 @@ public class MessageController {
     }
   }
 
-  @RequestMapping(method = RequestMethod.GET)
-  public ResponseEntity<List<MessageResponse>> getMessagesByChannel(@RequestParam UUID channelId) {
+  @RequestMapping(path ="/old", method = RequestMethod.GET)
+  public ResponseEntity<List<MessageResponse>> getMessagesByChannelOld(@RequestParam UUID channelId) {
     List<MessageResponse> messages = messageService.findMessagesByChannelId(channelId);
     return ResponseEntity.ok(messages);
   }
@@ -64,13 +64,14 @@ public class MessageController {
     }
   }
 
-    @GetMapping("/channels/{channelId}")
+    @GetMapping()
     public ResponseEntity<PageResponse<MessageResponse>> getMessagesByChannel(
-            @PathVariable UUID channelId,
+            @RequestParam UUID channelId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "createdAt,desc") String[] sort
     ) {
-        PageResponse<MessageResponse> response = messageService.findSliceMessagesByChannel(channelId, page, size);
+        PageResponse<MessageResponse> response = messageService.findSliceMessagesByChannel(channelId, page, size, sort);
 
         return ResponseEntity.ok(response);
     }

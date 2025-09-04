@@ -23,6 +23,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -50,9 +51,8 @@ public class BasicMessageService implements MessageService {
 
 		Message message = new Message(author, channel, request.getContent());
 
-        messageRepository.save(message);
 		addAttachments(message, request.getAttachments());
-
+        messageRepository.save(message);
 
 		return MessageResponse.success(message);
 	}
@@ -105,8 +105,7 @@ public class BasicMessageService implements MessageService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size) {
-
+    public PageResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size, String[] sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Message> messagePage = messageRepository.findPageByChannelId(channelId, pageable);
@@ -116,12 +115,11 @@ public class BasicMessageService implements MessageService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<MessageResponse> findSliceMessagesByChannel(UUID channelId, int page, int size) {
+    public PageResponse<MessageResponse> findSliceMessagesByChannel(UUID channelId, int page, int size, String[] sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Slice<Message> messageSlice = messageRepository.findByChannelId(channelId, pageable);
 
-        // Message → DTO 변환
         Slice<MessageResponse> responseSlice = messageSlice.map(MessageResponse::success);
 
         return pageResponseMapper.fromSlice(responseSlice);
@@ -162,10 +160,9 @@ public class BasicMessageService implements MessageService {
 			throw new UnauthorizedMessageAccessException();
 		}
 
-		for (MessageAttachment attachment : message.getAttachments()) {
-            UUID attachmentId = attachment.getAttachment().getId();
-			binaryContentRepository.deleteById(attachmentId);
-		}
+        for (BinaryContent attachment : message.getAttachments()) {
+            binaryContentRepository.deleteById(attachment.getId());
+        }
 
 		messageRepository.deleteById(messageId);
 
@@ -180,10 +177,9 @@ public class BasicMessageService implements MessageService {
 					attachment.getContentType(),
 					attachment.getSize()
 				);
-				binaryContentRepository.save(binaryContent);
+				BinaryContent bc = binaryContentRepository.save(binaryContent);
+                message.addAttachment(bc);
                 binaryContentStorage.put(binaryContent.getId(), attachment.getBytes());
-
-				message.addAttachment(binaryContent);
 			}
 		}
 	}

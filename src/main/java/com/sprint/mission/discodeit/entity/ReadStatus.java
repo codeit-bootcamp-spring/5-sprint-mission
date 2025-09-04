@@ -28,7 +28,7 @@ public class ReadStatus extends BaseUpdatableEntity implements Serializable {
     @Column(nullable = false)
     private Instant lastReadAt;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

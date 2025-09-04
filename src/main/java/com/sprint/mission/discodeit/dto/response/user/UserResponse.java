@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.dto.response.user;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 
 import jakarta.annotation.Nullable;
@@ -23,7 +24,7 @@ public class UserResponse {
 	private Instant createdAt;
 	private Instant updatedAt;
 	@Nullable
-	private UUID profileId;
+	private BinaryContent profile;
 	boolean online;
 
 	private UserResponse(User user) {
@@ -32,7 +33,7 @@ public class UserResponse {
 		this.email = user.getEmail();
 		this.createdAt = user.getCreatedAt();
 		this.updatedAt = user.getUpdatedAt();
-        this.profileId = user.getProfile() != null ? user.getProfile().getId() : null;
+        this.profile = user.getProfile() != null ? user.getProfile() : null;
 		this.username = user.getUsername(); // loginId는 username으로
 	}
 
