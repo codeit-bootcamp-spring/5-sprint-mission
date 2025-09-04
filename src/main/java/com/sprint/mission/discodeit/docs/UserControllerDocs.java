@@ -257,7 +257,7 @@ public interface UserControllerDocs {
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
-                    description = "매개변수(userId) 타입이 UUID가 아님",
+                    description = "parameter(userId) 타입이 UUID가 아님",
                     value = """
                         {
                            "timestamp": "2025-09-03T09:49:27.703663Z",
@@ -339,7 +339,7 @@ public interface UserControllerDocs {
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
-                    description = "매개변수(userId) 타입이 UUID가 아님",
+                    description = "parameter(userId) 타입이 UUID가 아님",
                     value = """
                         {
                            "timestamp": "2025-09-03T09:49:27.703663Z",
@@ -419,19 +419,19 @@ public interface UserControllerDocs {
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
-                    description = "매개변수(userId) 타입이 UUID가 아님",
+                    description = "parameter(userId) 타입이 UUID가 아님",
                     value = """
                         {
-                           "timestamp": "2025-09-03T09:49:27.703663Z",
-                           "code": "INVALID_PARAMETER_TYPE",
-                           "message": "parameter=userId, value=not-uuid, expectedType=UUID",
-                           "details": {
-                             "path": "/api/users/not-uuid/userStatus",
-                             "method": "PATCH"
-                           },
-                           "exceptionType": "MethodArgumentTypeMismatchException",
-                           "status": 400,
-                           "requestId": "2014bf9c-387a-443b-a59b-6c00edfea84b"
+                          "timestamp": "2025-09-03T09:49:27.703663Z",
+                          "code": "INVALID_PARAMETER_TYPE",
+                          "message": "parameter=userId, value=not-uuid, expectedType=UUID",
+                          "details": {
+                            "path": "/api/users/not-uuid/userStatus",
+                            "method": "PATCH"
+                          },
+                          "exceptionType": "MethodArgumentTypeMismatchException",
+                          "status": 400,
+                          "requestId": "2014bf9c-387a-443b-a59b-6c00edfea84b"
                         }
                         """
                 )

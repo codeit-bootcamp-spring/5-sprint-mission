@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -29,6 +30,22 @@ public interface MessageAttachmentRepository extends
         """)
     List<MessageBinaryRow> findBinariesByMessageIds(
         @Param("messageIds") Collection<UUID> messageIds);
+
+    @Modifying
+    @Query(
+        value = """
+            DELETE FROM binary_contents bc
+            WHERE bc.id IN (
+                SELECT ma.attachment_id
+                FROM message_attachments ma
+                WHERE ma.message_id = :messageId
+            );
+            DELETE FROM message_attachments ma
+            WHERE ma.message_id = :messageId
+            """,
+        nativeQuery = true
+    )
+    int deleteAllByMessageId(@Param("messageId") UUID messageId);
 
     interface MessageBinaryRow {
 

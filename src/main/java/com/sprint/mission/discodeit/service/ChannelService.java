@@ -10,19 +10,21 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.enums.ChannelType;
 import com.sprint.mission.discodeit.exception.AccessDeniedException;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -35,11 +37,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChannelService {
 
     private final ChannelRepository channelRepository;
-    private final UserRepository userRepository;
     private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
-
-    private final EntityManager em;
+    private final UserRepository userRepository;
 
     private final ChannelMapper channelMapper;
 
@@ -50,6 +50,7 @@ public class ChannelService {
         }
 
         List<ReadStatus> readStatuses = readStatusRepository.findAllByChannelIn(channels);
+
         Map<UUID, List<UUID>> channelToUserIds = readStatuses.stream()
             .collect(Collectors.groupingBy(
                 rs -> rs.getChannel().getId(),
@@ -62,7 +63,7 @@ public class ChannelService {
         Map<UUID, User> userMap = allUserIds.isEmpty()
             ? Map.of()
             : userRepository.findAllByIdIn(allUserIds).stream()
-                .collect(Collectors.toMap(User::getId, u -> u));
+                .collect(Collectors.toMap(User::getId, Function.identity()));
 
         Map<UUID, Instant> channelToLastMessageAt =
             messageRepository.findLastMessageAtByChannels(channels).stream()
@@ -102,6 +103,12 @@ public class ChannelService {
     @Transactional
     public ChannelDto create(PrivateChannelCreateRequest req) {
         List<User> users = userRepository.findAllByIdIn(req.participantIds());
+        if (users.size() != req.participantIds().size()) {
+            Set<UUID> missingIds = req.participantIds().stream()
+                .filter(id -> users.stream().noneMatch(u -> u.getId().equals(id)))
+                .collect(Collectors.toSet());
+            throw new NotFoundException("Users not found: " + missingIds);
+        }
 
         if (users.size() == 2) {
             UUID userId1 = users.get(0).getId();
@@ -125,14 +132,20 @@ public class ChannelService {
         return channelMapper.toDto(c, users, null, now.minus(Duration.ofMinutes(5)));
     }
 
+    // readStatus, message, messageAttachment 삭제 분리 예정
     @Transactional
     public void delete(UUID channelId) {
-        channelRepository.deleteById(channelId);
+        Channel c = channelRepository.getOrThrow(channelId);
+
+        messageRepository.deleteAllByChannelId(c.getId());
+        readStatusRepository.deleteAllByChannelId(c.getId());
+
+        channelRepository.delete(c);
     }
 
     @Transactional
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest req) {
-        Channel c = channelRepository.getOrThrowForUpdate(channelId);
+        Channel c = channelRepository.getOrThrow(channelId);
 
         if (c.getType() == ChannelType.PRIVATE) {
             throw new AccessDeniedException("Private channel cannot be updated");
@@ -147,10 +160,9 @@ public class ChannelService {
             c.setDescription(req.newDescription().strip());
         }
 
-        List<User> participants = readStatusRepository.findUsersByChannel(c);
-        Instant lastMessageAt = messageRepository.findLastMessageAtByChannel(c);
+        Instant lastMessageAt = messageRepository.findLastMessageAtByChannelId(c.getId());
         Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
 
-        return channelMapper.toDto(c, participants, lastMessageAt, onlineSince);
+        return channelMapper.toDto(c, new ArrayList<>(), lastMessageAt, onlineSince);
     }
 }

@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.io.IOException;
@@ -42,6 +43,7 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final MessageRepository messageRepository;
+    private final ReadStatusRepository readStatusRepository;
 
     public List<UserDto> findAll() {
         Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
@@ -84,12 +86,15 @@ public class UserService {
 
     // 락을 걸어야하나?
     // storage delete는 추후 메시지큐나 스케쥴러로 처리
-    // message author set null 또한 이벤트로
+    // message author set null, readStatus set delete 또한 이벤트로
     @Transactional
     public void delete(UUID userId) {
         User u = userRepository.getOrThrow(userId);
+
+        messageRepository.nullifyAuthorByUser(u);
+        readStatusRepository.deleteAllByUser(u);
+
         userRepository.delete(u);
-        messageRepository.nullifyAuthorByUserId(userId);
     }
 
     @Transactional

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReadStatusController {
 
     private final ReadStatusRepository readStatusRepository;
+
     private final ReadStatusService readStatusService;
 
     @GetMapping

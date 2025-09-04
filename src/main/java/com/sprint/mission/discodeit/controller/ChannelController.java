@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.docs.ChannelControllerDocs;
 import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -25,9 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/channels")
-public class ChannelController {
+public class ChannelController implements ChannelControllerDocs {
 
-    private final ChannelRepository channelRepository;
     private final ChannelService channelService;
 
     @GetMapping

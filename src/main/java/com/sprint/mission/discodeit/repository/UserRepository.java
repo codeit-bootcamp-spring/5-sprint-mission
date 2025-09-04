@@ -16,6 +16,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u FROM User u")
     List<User> findAllGraph();
 
+    @EntityGraph(attributePaths = { "profile", "userStatus" })
     List<User> findAllByIdIn(Collection<UUID> ids);
 
     @EntityGraph(attributePaths = { "profile", "userStatus" })

@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository;
 import com.sprint.mission.discodeit.dto.channel.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import java.time.Instant;
 import java.util.Collection;
@@ -34,10 +35,10 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     @Query("""
         SELECT MAX(m.createdAt)
         FROM Message m
-        WHERE m.channel = :channel
+        WHERE m.channel.id = :channelId
         """
     )
-    Instant findLastMessageAtByChannel(@Param("channel") Channel channel);
+    Instant findLastMessageAtByChannelId(@Param("channelId") UUID channelId);
 
     @Query(
         value = """
@@ -59,9 +60,30 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     @Query("""
         UPDATE Message m
            SET m.author = null
-         WHERE m.author.id = :userId
+         WHERE m.author = :user
         """)
-    int nullifyAuthorByUserId(@Param("userId") UUID userId);
+    int nullifyAuthorByUser(@Param("user") User user);
+
+    @Modifying
+    @Query(
+        value = """
+            DELETE FROM binary_contents bc
+            WHERE bc.id IN (
+                SELECT ma.attachment_id
+                FROM message_attachments ma
+                WHERE ma.channel_id = :channelId
+            );
+            DELETE FROM message_attachments ma
+            WHERE ma.message_id IN (
+                SELECT id
+                FROM messages
+                WHERE channel_id = :channelId
+            );
+            DELETE FROM messages WHERE channel_id = :channelId;
+            """,
+        nativeQuery = true
+    )
+    int deleteAllByChannelId(@Param("channelId") UUID channelId);
 
     default Message getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->

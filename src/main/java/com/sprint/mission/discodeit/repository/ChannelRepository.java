@@ -2,12 +2,9 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.exception.NotFoundException;
-import jakarta.persistence.LockModeType;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,11 +15,9 @@ public interface ChannelRepository extends JpaRepository<Channel, UUID> {
         FROM Channel c
         LEFT JOIN ReadStatus rs ON rs.channel = c AND rs.user.id = :userId
         WHERE c.type = 'PUBLIC' OR rs.user.id = :userId
+        ORDER BY CASE WHEN c.type = 'PRIVATE' THEN 0 ELSE 1 END
         """)
     List<Channel> findAllByUserId(@Param("userId") UUID userId);
-
-    @Lock(LockModeType.PESSIMISTIC_READ)
-    Optional<Channel> findForUpdateById(UUID id);
 
     @Query("""
         SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END
@@ -37,13 +32,6 @@ public interface ChannelRepository extends JpaRepository<Channel, UUID> {
 
     default Channel getOrThrow(UUID id) {
         return findById(id).orElseThrow(() ->
-            new NotFoundException(
-                "Channel with id %s not found".formatted(id))
-        );
-    }
-
-    default Channel getOrThrowForUpdate(UUID id) {
-        return findForUpdateById(id).orElseThrow(() ->
             new NotFoundException(
                 "Channel with id %s not found".formatted(id))
         );

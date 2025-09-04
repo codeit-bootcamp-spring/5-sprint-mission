@@ -9,10 +9,8 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
-import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
@@ -20,8 +18,6 @@ import com.sprint.mission.discodeit.repository.MessageAttachmentRepository.Messa
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import com.sprint.mission.discodeit.storage.StorageRollbackManager;
-import com.sprint.mission.discodeit.storage.StorageRollbackManager.StorageRollbackToken;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
@@ -50,12 +46,9 @@ public class MessageService {
     private final UserRepository userRepository;
 
     private final BinaryContentStorage binaryContentStorage;
-    private final StorageRollbackManager storageRollbackManager;
 
-    private final BinaryContentMapper binaryContentMapper;
     private final MessageMapper messageMapper;
     private final PageResponseMapper pageResponseMapper;
-    private final UserMapper userMapper;
 
     public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
         Page<Message> page = messageRepository.findAllByChannelId(channelId, pageable);
@@ -92,7 +85,6 @@ public class MessageService {
 
         List<BinaryContent> binaryContents = new ArrayList<>();
         if (attachments != null && !attachments.isEmpty()) {
-            StorageRollbackToken rollback = storageRollbackManager.start(binaryContentStorage);
 
             int orderIndex = 0;
             for (MultipartFile attachment : attachments) {
@@ -110,7 +102,6 @@ public class MessageService {
 
                 try {
                     binaryContentStorage.put(bc.getId(), attachment.getBytes());
-                    rollback.add(bc.getId());
                 } catch (IOException e) {
                     throw new UncheckedIOException("첨부 파일 저장 실패: " + bc.getId(), e);
                 }
@@ -123,14 +114,10 @@ public class MessageService {
         return messageMapper.toDto(m, binaryContents);
     }
 
-    // db에서 삭제하면 됐지, storage 삭제는 나중에 처리해도 되는 것
     @Transactional
     public void delete(UUID messageId) {
-        List<BinaryContent> attachments =
-            messageAttachmentRepository.findAttachmentsByMessageId(messageId);
-        for (BinaryContent attachment : attachments) {
-            binaryContentStorage.delete(attachment.getId());
-        }
+        messageRepository.getOrThrow(messageId);
+        messageAttachmentRepository.deleteAllByMessageId(messageId);
         messageRepository.deleteById(messageId);
     }
 
