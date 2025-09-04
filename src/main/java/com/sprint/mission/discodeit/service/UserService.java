@@ -11,7 +11,6 @@ import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,16 +20,18 @@ public interface UserService {
 
   UserDto findById(UUID id);
 
-  List<UserDto> findAll(); //전체 조회후 응답용 DTO로 반환
+  //전체 조회후 응답용 DTO로 반환
+  List<UserDto> findAll();
 
   User update(UUID id, UserUpdateRequest request, MultipartFile profileImage)
       throws IOException;
 
-  void delete(UUID id); //삭제
+  void delete(UUID id);
 
-  boolean existsByUsername(String username); // username 중복 확인
+  // username 중복 확인
+  boolean existsByUsername(String username);
 
-  boolean existsByEmail(String email);       // email 중복 확인
+  // email 중복 확인
+  boolean existsByEmail(String email);
 
-  Optional<User> findEntityById(UUID id);
 }

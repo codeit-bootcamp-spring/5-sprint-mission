@@ -7,15 +7,15 @@ import java.util.UUID;
 
 public interface UserRepository {
 
-  void save(User user); // 유저 저장
+  void save(User user);
 
-  User findById(UUID id); // 조회
+  User findById(UUID id);
 
-  List<User> findAll(); // 전체 조회
+  List<User> findAll();
 
-  void update(User user); // 수정
+  void update(User user);
 
-  void delete(UUID id); // 삭제
+  void delete(UUID id);
 
   //username : 로그인용 ID
   boolean existsByUsername(String username);

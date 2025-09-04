@@ -13,33 +13,29 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BinaryContent extends BaseUpdatableEntity {
 
+  // 파일 이름
   @Column(name = "file_name", length = 255, nullable = false)
-  private String fileName; // 파일 이름
+  private String fileName;
 
+  // 파일 사이즈
   @Column(name = "size", nullable = false)
-  private long size; // 파일 사이즈
+  private long size;
 
+  // 파일 타입
   @Column(name = "content_type", length = 100, nullable = false)
-  private String contentType; // 파일 타입
+  private String contentType;
 
 
+  // 실제 파일 데이터
   @Column(name = "bytes", nullable = false)
-  private byte[] bytes; // 실제 파일 데이터
+  private byte[] bytes;
 
-  //기본 생성자
+  //일반생성자 - 파일 등록할때 필요한 값만 받음
   public BinaryContent(String fileName,
       String contentType, long size, byte[] bytes) {
     this.fileName = fileName;
     this.contentType = contentType;
     this.size = size;
     this.bytes = bytes;
-  }
-
-  public BinaryContent(String fileName,
-      String contentType, long size) {
-
-    this.fileName = fileName;
-    this.contentType = contentType;
-    this.size = size;
   }
 }

@@ -40,7 +40,7 @@ public class UserController {
       @RequestPart("userCreateRequest") UserCreateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
-    User createdUser = userService.create(request, profile);
+    User createdUser = userService.create(request, profile); //요청 & 프로필 받기
     return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
   }
 

@@ -46,16 +46,16 @@ public class BinaryContentController {
   //파일 1개 조회
   @Operation(summary = "파일 1개 조회")
   @GetMapping("/api/binaryContents/{binaryContentId}")
-  public ResponseEntity<BinaryContent> findById(@PathVariable UUID binaryContentId) {
-    BinaryContent file = binaryContentService.findById(binaryContentId);
+  public ResponseEntity<BinaryContent> findById(@PathVariable UUID id) {
+    BinaryContent file = binaryContentService.findById(id);
     return ResponseEntity.ok(file);
   }
 
   //바이너리 파일 다운로드
   @Operation(summary = "파일 다운로드")
   @RequestMapping(value = "/download", method = RequestMethod.GET)
-  public ResponseEntity<byte[]> downloadFile(@RequestParam UUID binaryContentId) {
-    BinaryContent file = binaryContentService.findById(binaryContentId);
+  public ResponseEntity<byte[]> downloadFile(@RequestParam UUID id) {
+    BinaryContent file = binaryContentService.findById(id);
 
     return ResponseEntity.ok()
         .header("Content-Disposition", "attachment; filename=\"" + file.getFileName() + "\"")
@@ -77,8 +77,8 @@ public class BinaryContentController {
   //파일 삭제
   @Operation(summary = "파일 삭제")
   @DeleteMapping("/api/binaryContents/{binaryContentId}")
-  public ResponseEntity<Void> deleteById(@PathVariable UUID binaryContentId) {
-    binaryContentService.deleteById(binaryContentId);
+  public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
+    binaryContentService.deleteById(id);
     return ResponseEntity.noContent().build();
   }
 }
