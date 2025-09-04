@@ -1,7 +1,10 @@
 package com.codeit.mission.discodeit.controller;
 
+import com.codeit.mission.discodeit.dto.data.BinaryContentDto;
 import com.codeit.mission.discodeit.entity.BinaryContent;
+import com.codeit.mission.discodeit.mapper.BinaryContentMapper;
 import com.codeit.mission.discodeit.service.BinaryContentService;
+import com.codeit.mission.discodeit.storage.BinaryContentStorage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;
+    private final BinaryContentMapper binaryContentMapper;
+    private final BinaryContentStorage binaryContentStorage;
 
     @GetMapping("/{binaryContentId}")
     @Operation(summary = "단건 파일 조회", description = "한 개의 파일을 가져옵니다.")
@@ -42,5 +47,15 @@ public class BinaryContentController {
         List<UUID> binaryContentIds) {
         List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
         return ResponseEntity.status(HttpStatus.OK).body(binaryContents);
+    }
+
+    @GetMapping("/{binaryContentId}/download")
+    @Operation(summary = "파일 다운로드", description = "파일을 다운로드합니다.")
+    public ResponseEntity<?> download(@PathVariable UUID binaryContentId) {
+        BinaryContent binaryContent = binaryContentService.find(binaryContentId);
+
+        BinaryContentDto binaryContentDto = binaryContentMapper.toDto(binaryContent);
+
+        return binaryContentStorage.download(binaryContentDto);
     }
 }
