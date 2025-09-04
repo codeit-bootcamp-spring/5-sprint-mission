@@ -2,8 +2,6 @@ package com.sprint.mission.discodeit.dto.binarycontent;
 
 import lombok.Value;
 
-import java.util.UUID;
-
 /* Data에서 Value로 변경
  * 한번 값을 넣어서 보내는 용도이니
  * 나중에 수정할 필요가 없어서 불변으로 변경
@@ -11,10 +9,10 @@ import java.util.UUID;
 
 @Value
 public class BinaryContentCreateRequest {
-    private byte[] data;
-    private String contentType;
-    private long size;
-    private UUID ownerId;
-    private String fileName;
+
+  private byte[] data;
+  private String fileName;
+  private long size;
+  private String contentType;
 
 }

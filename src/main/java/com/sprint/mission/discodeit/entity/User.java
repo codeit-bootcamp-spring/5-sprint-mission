@@ -23,6 +23,7 @@ import lombok.Getter;
 @Table(name = "users")
 public class User extends BaseUpdatableEntity {
 
+  //로그인ID: usermame
   @Column(name = "username", length = 50, nullable = false)
   private String username;
 
@@ -74,20 +75,12 @@ public class User extends BaseUpdatableEntity {
     super(); // 생략가능, 기본 생성자 호출됨
   }
 
-  //일반 생성자 (1)
-  public User(String username, String password) {
+  //일반 생성자
+  public User(String username, String password, String email) {
     this.username = username;
     this.password = password;
-    this.email = null; // 이메일은 null 처리
-  }
-
-  //일반 생성자 (2)
-  public User(String username, String password, String email) {
-    this.username = username; //파라미터로 받음
-    this.password = password; //파라미터로 받음
     this.email = email;
   }
-
 
   //복사본 생성자 (id, createdAt, updatedAt 복사X)
   public User(User other) {
@@ -96,6 +89,9 @@ public class User extends BaseUpdatableEntity {
     this.email = other.email;
     this.profile = other.profile;
     this.status = other.status;
+    this.messages = other.messages;
+    this.readStatuses = other.readStatuses;
+    this.channels = other.channels;
   }
 
   //toString
@@ -107,6 +103,9 @@ public class User extends BaseUpdatableEntity {
         ", password='" + password + '\'' +
         ", profile=" + profile +
         ", status=" + status +
-        '}';
+        ", messages=" + messages +
+        ", readStatuses=" + readStatuses +
+        ", channels=" + channels +
+        "} " + super.toString();
   }
 }

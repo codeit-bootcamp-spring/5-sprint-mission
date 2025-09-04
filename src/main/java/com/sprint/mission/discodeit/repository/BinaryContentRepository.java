@@ -1,20 +1,23 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
-
 import java.util.List;
 import java.util.UUID;
 
 public interface BinaryContentRepository {
-    void save(BinaryContent image);
 
-    void deleteByOwnerId(UUID ownerId);
+  //첨부파일 저장
+  void save(BinaryContent image);
 
+  //첨부파일 한개만 조회
+  BinaryContent findById(UUID id);
 
-    // ✅ 전체 조회 (추가 기능)
-    List<BinaryContent> findAll();
+  //모든 첨부파일 리스트로 반환
+  List<BinaryContent> findAll();
 
-    BinaryContent findById(UUID id);
+  //여러 UUID 받아서 여러 파일 조회
+  List<BinaryContent> findAllByIdIn(List<UUID> ids);
 
-    void deleteById(UUID id);
+  //첨부파일 한개만 삭제
+  void deleteById(UUID id);
 }
