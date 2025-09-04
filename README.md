@@ -465,18 +465,18 @@
 - [x] `@CreatedDate`, `@LastModifiedDate`로 `createdAt`, `updatedAt` 자동 설정
 - [x] 클래스 참조 관계 수정 (필요 시 생성자 및 `update` 메서드 수정)
 - [x] **연관관계 매핑 정보 표 작성** (PR에 첨부)
-  ```
-  | 엔티티 관계          | 다중성 | 방향성            | 부모-자식 관계           | 연관관계의 주인     |
-  |--------------------|-------|-----------------|-----------------------|-----------------|
-  | Channel:Message    | 1:N   | Message → Channel | 부모: Channel, 자식: Message | Message        |
-  | Channel:ReadStatus | 1:N   | ReadStatus → Channel | 부모: Channel, 자식: ReadStatus | ReadStatus    |
-  | Message:User       | N:1   | Message → User    | 부모: User, 자식: Message | Message        |
-  | Message:BinaryContent | N:M | 양방향 (Message ↔ BinaryContent) | -                     | Message        |
-  | ReadStatus:User    | N:1   | ReadStatus → User | 부모: User, 자식: ReadStatus | ReadStatus    |
-  | User:BinaryContent | 1:1   | User → BinaryContent | 부모: User, 자식: BinaryContent | User          |
-  | User:UserStatus    | 1:1   | UserStatus → User | 부모: User, 자식: UserStatus | UserStatus    |
 
-  ```
+| 엔티티 관계                                | 다중성 | 방향성                                   | 부모-자식 관계                                      | 연관관계의 주인            |
+|---------------------------------------|-----|---------------------------------------|-----------------------------------------------|---------------------|
+| users - binary_contents               | 1:1 | users → binary_contents               | users(부모) - binary_contents(자식)               | users               |
+| users - user_statuses                 | 1:N | users → user_statuses                 | users(부모) - user_statuses(자식)                 | user_statuses       |
+| users - read_statuses                 | 1:N | users → read_statuses                 | users(부모) - read_statuses(자식)                 | read_statuses       |
+| users - messages                      | 1:N | users → messages                      | users(부모) - messages(자식)                      | messages            |
+| channels - messages                   | 1:N | channels → messages                   | channels(부모) - messages(자식)                   | messages            |
+| channels - read_statuses              | 1:N | channels → read_statuses              | channels(부모) - read_statuses(자식)              | read_statuses       |
+| messages - message_attachments        | 1:N | messages → message_attachments        | messages(부모) - message_attachments(자식)        | message_attachments |
+| binary_contents - message_attachments | 1:N | binary_contents → message_attachments | binary_contents(부모) - message_attachments(자식) | message_attachments |
+
 - [x] JPA 어노테이션 적용 (`@Entity`, `@Table`, `@Column`, `@Enumerated`,  
   `@OneToMany`, `@OneToOne`, `@ManyToOne`, `@JoinColumn`, `@JoinTable`)
 - [x] **영속성 전이(cascade) & 고아 객체(orphanRemoval)** 설정
