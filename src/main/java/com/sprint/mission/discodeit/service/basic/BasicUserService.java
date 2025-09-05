@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,14 +53,13 @@ public class BasicUserService implements UserService {
     // 프로필 메타 저장 + 바이트는 Storage에 저장
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(req -> {
-          BinaryContent meta = new BinaryContent(req.fileName(), (long) req.bytes().length, req.contentType());
-          BinaryContent savedMeta = binaryContentRepository.save(meta);
+          var meta = new BinaryContent(req.fileName(), (long) req.bytes().length, req.contentType());
           try {
-            binaryContentStorage.put(savedMeta.getId(), req.bytes());
-          } catch (Exception e) {
-            throw e instanceof RuntimeException ? (RuntimeException) e : new UncheckedIOException((java.io.IOException) e);
+            binaryContentStorage.put(meta.getId(), req.bytes());
+          } catch (IOException e) {
+            throw new UncheckedIOException("Failed to store profile binary: " + meta.getId(), e);
           }
-          return savedMeta;
+          return binaryContentRepository.save(meta);
         })
         .orElse(null);
 
@@ -123,14 +123,14 @@ public class BasicUserService implements UserService {
       Optional.ofNullable(user.getProfile())
           .ifPresent(old -> binaryContentRepository.deleteById(old.getId()));
 
-      BinaryContent meta = new BinaryContent(req.fileName(), (long) req.bytes().length, req.contentType());
-      BinaryContent savedMeta = binaryContentRepository.save(meta);
+      var meta = new BinaryContent(req.fileName(), (long) req.bytes().length, req.contentType());
       try {
-        binaryContentStorage.put(savedMeta.getId(), req.bytes());
-      } catch (Exception e) {
-        throw e instanceof RuntimeException ? (RuntimeException) e : new UncheckedIOException((java.io.IOException) e);
+        binaryContentStorage.put(meta.getId(), req.bytes());
+      } catch (IOException e) {
+        throw new UncheckedIOException("Failed to store profile binary: " + meta.getId(), e);
       }
-      user.changeProfile(savedMeta);
+      var saved = binaryContentRepository.save(meta);
+      user.changeProfile(saved);
     });
 
     user.update(newUsername, newEmail);

@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.storage.local;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.annotation.PostConstruct;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
@@ -15,7 +14,10 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.UUID;
 
 @Component
@@ -34,12 +36,18 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     Files.createDirectories(root);
   }
 
-  private Path resolvePath(UUID id) { return root.resolve(id.toString()); }
+  private Path resolvePath(UUID id) {
+    return root.resolve(id.toString());
+  }
 
   @Override
   public UUID put(UUID id, byte[] bytes) throws IOException {
-    Files.write(resolvePath(id), bytes,
-        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    Files.write(
+        resolvePath(id),
+        bytes,
+        StandardOpenOption.CREATE,
+        StandardOpenOption.TRUNCATE_EXISTING
+    );
     return id;
   }
 
@@ -50,15 +58,26 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   @Override
   public ResponseEntity<Resource> download(BinaryContentDto dto) throws IOException {
-    InputStreamResource resource = new InputStreamResource(get(dto.id()));
-    MediaType mediaType = Optional.ofNullable(dto.contentType())
-        .map(MediaType::parseMediaType)
-        .orElse(MediaType.APPLICATION_OCTET_STREAM);
+    Path path = resolvePath(dto.id());
+
+    // 스트림은 응답이 전송되며 프레임워크가 닫아줍니다.
+    Resource resource = new InputStreamResource(
+        Files.newInputStream(path, StandardOpenOption.READ)
+    );
+
+    String contentType = dto.contentType() != null
+        ? dto.contentType()
+        : MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+    long length = dto.size() != null ? dto.size() : Files.size(path);
+
     return ResponseEntity.ok()
-        .header(HttpHeaders.CONTENT_DISPOSITION,
-            "attachment; filename=\"" + dto.fileName() + "\"")
-        .contentType(mediaType)
-        .contentLength(dto.size() == null ? -1 : dto.size())
+        .header(
+            HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"" + dto.fileName() + "\""
+        )
+        .contentType(MediaType.parseMediaType(contentType))
+        .contentLength(length)
         .body(resource);
   }
 }

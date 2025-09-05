@@ -8,25 +8,24 @@ DO $$
         END IF;
     END $$;
 
--- ===== 1) 바이너리 컨텐츠 (메타+바이너리) =====
+-- ===== 1) 바이너리 컨텐츠 (메타 전용) =====
 CREATE TABLE IF NOT EXISTS binary_contents (
-                                               id            UUID PRIMARY KEY,
-                                               created_at    TIMESTAMPTZ NOT NULL,
-                                               file_name     VARCHAR(255) NOT NULL,
-                                               size          BIGINT       NOT NULL,
-                                               content_type  VARCHAR(100) NOT NULL,
-                                               bytes         BYTEA        NOT NULL
+                                               id           UUID PRIMARY KEY,
+                                               created_at   TIMESTAMPTZ NOT NULL,
+                                               file_name    VARCHAR(255) NOT NULL,
+                                               size         BIGINT       NOT NULL,
+                                               content_type VARCHAR(100) NOT NULL
 );
 
 -- ===== 2) 유저 =====
 CREATE TABLE IF NOT EXISTS users (
-                                     id           UUID PRIMARY KEY,
-                                     created_at   TIMESTAMPTZ NOT NULL,
-                                     updated_at   TIMESTAMPTZ,
-                                     username     VARCHAR(50)  NOT NULL,
-                                     email        VARCHAR(100) NOT NULL,
-                                     password     VARCHAR(60)  NOT NULL,
-                                     profile_id   UUID,
+                                     id         UUID PRIMARY KEY,
+                                     created_at TIMESTAMPTZ NOT NULL,
+                                     updated_at TIMESTAMPTZ,
+                                     username   VARCHAR(50)  NOT NULL,
+                                     email      VARCHAR(100) NOT NULL,
+                                     password   VARCHAR(60)  NOT NULL,
+                                     profile_id UUID,
                                      CONSTRAINT uk_users_username UNIQUE (username),
                                      CONSTRAINT uk_users_email    UNIQUE (email),
                                      CONSTRAINT fk_users_profile
@@ -53,9 +52,9 @@ CREATE TABLE IF NOT EXISTS channels (
                                         id          UUID PRIMARY KEY,
                                         created_at  TIMESTAMPTZ NOT NULL,
                                         updated_at  TIMESTAMPTZ,
-                                        name        VARCHAR(100)  NOT NULL,
+                                        name        VARCHAR(100) NOT NULL,
                                         description VARCHAR(500),
-                                        type        channel_type  NOT NULL
+                                        type        channel_type NOT NULL
 );
 
 -- ===== 5) 메시지 =====
@@ -76,7 +75,7 @@ CREATE TABLE IF NOT EXISTS messages (
                                                 ON DELETE SET NULL
 );
 
--- 성능 인덱스(권장)
+-- 권장 인덱스
 CREATE INDEX IF NOT EXISTS idx_messages_channel_id ON messages(channel_id);
 CREATE INDEX IF NOT EXISTS idx_messages_author_id  ON messages(author_id);
 

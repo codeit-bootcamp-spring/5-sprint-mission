@@ -74,11 +74,8 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
-  @Transactional(readOnly = true)
   public Slice<Message> findAllByChannelId(UUID channelId, int page, int size) {
-    // 요구사항: 50개씩, 최신순
-    int pageSize = 50; // 외부 size 무시하고 고정하려면 이 값만 사용
-    var pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+    var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
     return messageRepository.findAllByChannel_Id(channelId, pageable);
   }
 
@@ -102,6 +99,5 @@ public class BasicMessageService implements MessageService {
 
     messageRepository.deleteById(messageId);
 
-    // TODO: BinaryContentStorage에 delete(UUID) 추가했다면 여기서 파일도 함께 삭제하세요.
   }
 }

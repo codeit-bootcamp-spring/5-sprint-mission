@@ -1,31 +1,42 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.NoSuchElementException;
+import java.io.IOException;
 import java.util.UUID;
 
-@RequiredArgsConstructor
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 @RestController
 @RequestMapping("/api/binaryContents")
+@RequiredArgsConstructor
 public class BinaryContentController {
 
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentMapper binaryContentMapper;
-  private final BinaryContentStorage binaryContentStorage;
+  private final BinaryContentStorage storage;
 
-  @GetMapping("/{binaryContentId}/download")
-  public ResponseEntity<?> download(@PathVariable UUID binaryContentId) throws IOException {
-    BinaryContentDto dto = binaryContentRepository.findById(binaryContentId)
-        .map(binaryContentMapper::toDto)
-        .orElseThrow(() -> new NoSuchElementException("BinaryContent with id " + binaryContentId + " not found"));
-    return binaryContentStorage.download(dto);
+  @GetMapping("/{id}/download")  // ← 슬래시 추가
+  public ResponseEntity<Resource> download(@PathVariable("id") UUID id) {
+    var meta = binaryContentRepository.findById(id)
+        .orElseThrow(() ->
+            new ResponseStatusException(NOT_FOUND, "BinaryContent with id " + id + " not found"));
+
+    try {
+      return storage.download(binaryContentMapper.toDto(meta));
+    } catch (IOException e) {
+      throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "Failed to read binary content", e);
+    }
   }
 }
