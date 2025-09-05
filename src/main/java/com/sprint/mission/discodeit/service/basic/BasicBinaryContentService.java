@@ -8,11 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
-import com.sprint.mission.discodeit.domain.dto.FindBiContentResult;
 import com.sprint.mission.discodeit.domain.dto.FindBiContentsIdInDTO;
 import com.sprint.mission.discodeit.domain.dto.binaryContent.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
-import com.sprint.mission.discodeit.domain.response.BinaryContentResponse;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
@@ -72,24 +70,4 @@ public class BasicBinaryContentService implements BinaryContentService {
 		return new BinaryContent(size, contentType, filename);
 	}
 
-	public FindBiContentResult toFindBinaryContentResult(BinaryContent content) {
-		return FindBiContentResult.builder()
-		  .createdAt(content.getCreatedAt())
-		  .id(content.getId())
-		  .fileName(content.getFileName())
-		  .contentType(content.getContentType())
-		  // .bytes(content.getBytes())
-		  .size(content.getSize())
-		  .build();
-	}
-
-	public static BinaryContentResponse biContentResultToResponse(BinaryContentDto result) {
-		return BinaryContentResponse.builder()
-		  .id(result.getId())
-		  .fileName(result.getFileName())
-		  .contentType(result.getContentType())
-		  .bytes(result.getBytes())
-		  .size(result.getSize())
-		  .build();
-	}
 }

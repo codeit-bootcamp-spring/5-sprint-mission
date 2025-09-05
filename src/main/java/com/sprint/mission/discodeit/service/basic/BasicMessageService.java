@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,7 +56,7 @@ public class BasicMessageService implements MessageService {
 		  new NoSuchElementException("channel with id " + channelId + "not found")
 		);
 
-		User user = userRepository.findById(userId).orElseThrow(() ->
+		User user = userRepository.findUserWithProfileImageByID(userId).orElseThrow(() ->
 		  new NoSuchElementException("Author with id " + userId + "not found")
 		);
 
@@ -90,34 +92,17 @@ public class BasicMessageService implements MessageService {
 		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("UpdateMessageDTO cannot be null"));
 		UUID id = dto.getId();
 		String newContent = dto.getNewContent();
-		List<UUID> AttachmentIdsToRemove = dto.getRemoveAttachmentIds();
-		List<CreateBiContentDTO> newAttachments = dto.getNewAttachments();
 
 		if (newContent == null || newContent.isEmpty()) {
 			throw new IllegalArgumentException("New content cannot be null or empty");
 		}
 
-		Message targetMessage = messageRepository.findById(id).orElseThrow(
+		Message targetMessage = messageRepository.findMessageDetailsById(id).orElseThrow(
 		  () -> new NoSuchElementException("Message with ID " + id + " not found"));
-
 		// 1. 내용 수정
 		targetMessage.setContent(newContent);
-		// 2. 삭제할 attachmentId가 있다면 삭제
-		if (AttachmentIdsToRemove != null && !AttachmentIdsToRemove.isEmpty()) {
-			// 기존 첨부파일 삭제
-			AttachmentIdsToRemove.forEach(binaryContentRepository::deleteById);
-			// targetMessages.getAttachmentIds().removeAll(AttachmentIdsToRemove);
-		}
-		// 3. 새로 추가할 첨부파일이 있다면 추가
-		if (newAttachments != null && !newAttachments.isEmpty()) {
-			List<BinaryContent> newFiles = newAttachments.stream()
-			  .map(binaryContentService::create)
-			  .toList();
-			targetMessage.getAttachments().addAll(newFiles);
-		}
 
-		// TODO N+1
-		// 4. User 정보 가져오기
+		// 2. User 정보 가져오기
 		boolean isOnline = userStatusRepository.findByUserId(targetMessage.getUser().getId())
 		  .map(UserStatus::isOnline)
 		  .orElse(false);
@@ -128,9 +113,8 @@ public class BasicMessageService implements MessageService {
 
 	@Override
 	@Transactional(readOnly = true)
-	// TODO N+1
 	public MessageDto read(UUID id) {
-		Message message = messageRepository.findById(id)
+		Message message = messageRepository.findMessageDetailsById(id)
 		  .orElseThrow(() -> new NoSuchElementException("Message with ID " + id + " not found"));
 
 		boolean isOnline = userStatusRepository.findByUserId(message.getUser().getId())
@@ -143,16 +127,18 @@ public class BasicMessageService implements MessageService {
 	@Override
 	@Transactional(readOnly = true)
 	public Page<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
-		Page<Message> messages = messageRepository.findAllByChannelId(channelId, pageable);
+		Page<Message> messages = messageRepository.findAllDetailsByChannelId(channelId, pageable);
 
-		// TODO N+1
-		return messageRepository.findAllByChannelId(channelId, pageable).map(message ->
+		List<UUID> userIds = messages.map(m -> m.getUser().getId()).stream().toList();
+
+		Map<UUID, Boolean> userId2Status = userStatusRepository.findByUserIdIn(userIds)
+		  .stream()
+		  .collect(Collectors.toMap(us -> us.getUser().getId(), UserStatus::isOnline));
+		return messages.map(message ->
 		  messageMapper.toDto(
 			message,
 			message.getUser(),
-			userStatusRepository.findByUserId(message.getUser().getId())
-			  .map(UserStatus::isOnline)
-			  .orElse(false)
+			userId2Status.get(message.getUser().getId())
 		  )
 		);
 	}

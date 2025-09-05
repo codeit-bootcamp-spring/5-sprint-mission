@@ -4,7 +4,6 @@ import static org.springframework.http.MediaType.*;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -88,12 +87,9 @@ public class MessageController {
 	  @RequestBody @Valid UpdateMessageRequest updateMessageRequest
 	) {
 
-		List<CreateBiContentDTO> biContentDTOs = new ArrayList<>();
-
 		MessageDto updatedMessage = messageService.update(UpdateMessageDTO.builder()
 		  .id(id)
 		  .newContent(updateMessageRequest.getNewContent())
-		  .newAttachments(biContentDTOs)
 		  .build());
 
 		return ResponseEntity.ok().body(messageMapper.toResponse(updatedMessage));

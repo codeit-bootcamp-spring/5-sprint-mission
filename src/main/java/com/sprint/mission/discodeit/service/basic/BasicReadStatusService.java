@@ -14,9 +14,6 @@ import com.sprint.mission.discodeit.domain.dto.readStatus.ReadStatusDto;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.response.CreateReadStatusResponse;
-import com.sprint.mission.discodeit.domain.response.GetReadStatusResponse;
-import com.sprint.mission.discodeit.domain.response.UpdateReadStatusResponse;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -40,7 +37,6 @@ public class BasicReadStatusService implements ReadStatusService {
 
 		UUID channelId = dto.getChannelId();
 		UUID userId = dto.getUserId();
-		Instant lastReadAt = dto.getLastReadAt();
 
 		Channel channel = channelRepository.findById(channelId).orElseThrow(() ->
 		  new NoSuchElementException("channel with id " + channelId + "not found"));
@@ -66,7 +62,7 @@ public class BasicReadStatusService implements ReadStatusService {
 		UUID id = dto.getId();
 		Instant newLastReadAt = dto.getNewLastReadAt();
 
-		ReadStatus readStatuses = readStatusRepository.findById(id)
+		ReadStatus readStatuses = readStatusRepository.findReadStatusDetailsById(id)
 		  .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + id + " not found"));
 
 		readStatuses.setLastReadAt(newLastReadAt);
@@ -81,7 +77,10 @@ public class BasicReadStatusService implements ReadStatusService {
 			throw new NoSuchElementException("user with id " + userId + "not found");
 		}
 
-		return readStatusRepository.findAllByUserId(userId).stream().map(readStatusMapper::toDto).toList();
+		return readStatusRepository.findReadStatusDetailAllByUserId(userId)
+		  .stream()
+		  .map(readStatusMapper::toDto)
+		  .toList();
 	}
 
 	@Override
@@ -93,35 +92,4 @@ public class BasicReadStatusService implements ReadStatusService {
 
 		readStatusRepository.deleteById(id);
 	}
-
-	public static CreateReadStatusResponse toCreateReadStatusResponse(ReadStatus readStatuses) {
-		return CreateReadStatusResponse.builder()
-		  .id(readStatuses.getId())
-		  .userId(readStatuses.getUser().getId())
-		  .channelId(readStatuses.getChannel().getId())
-		  .lastReadAt(readStatuses.getLastReadAt())
-		  .build();
-	}
-
-	public static UpdateReadStatusResponse toUpdateReadStatusResponse(ReadStatus readStatuses) {
-		return UpdateReadStatusResponse.builder()
-		  .id(readStatuses.getId())
-		  .userId(readStatuses.getUser().getId())
-		  .channelId(readStatuses.getChannel().getId())
-		  .lastReadAt(readStatuses.getLastReadAt())
-		  .build();
-	}
-
-	public static List<GetReadStatusResponse> toGetReadStatusResponses(List<ReadStatus> readStatuses) {
-		return readStatuses.stream()
-		  .map(rs -> GetReadStatusResponse.builder()
-			.id(rs.getId())
-			.userId(rs.getUser().getId())
-			.channelId(rs.getChannel().getId())
-			.lastReadAt(rs.getLastReadAt())
-			.build())
-		  .toList();
-
-	}
-
 }

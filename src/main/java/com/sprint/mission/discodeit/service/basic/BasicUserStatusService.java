@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -13,7 +12,6 @@ import com.sprint.mission.discodeit.domain.dto.UpdateStatusByUserIdDTO;
 import com.sprint.mission.discodeit.domain.dto.userStatus.UserStatusDto;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
-import com.sprint.mission.discodeit.domain.response.UpdateUserStatusByUserIdResponse;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -51,12 +49,6 @@ public class BasicUserStatusService implements UserStatusService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
-	public List<UserStatusDto> findAll() {
-		return userStatusRepository.findAll().stream().map(userStatusMapper::toDto).toList();
-	}
-
-	@Override
 	@Transactional
 	public UserStatusDto updateStatusByUserId(UpdateStatusByUserIdDTO dto) {
 		UUID userID = dto.getUserId();
@@ -79,17 +71,6 @@ public class BasicUserStatusService implements UserStatusService {
 			throw new IllegalArgumentException("User status not found for ID: " + id);
 		}
 		userStatusRepository.deleteById(id);
-	}
-
-	public static UpdateUserStatusByUserIdResponse toUpdateUserStatusByUserIdResponse(UserStatus userStatus) {
-		return UpdateUserStatusByUserIdResponse.builder()
-		  .id(userStatus.getId())
-		  .createdAt(userStatus.getCreatedAt())
-		  .updatedAt(userStatus.getUpdatedAt())
-		  .userId(userStatus.getUser().getId())
-		  .lastActiveAt(userStatus.getLastActiveAt())
-		  .isOnline(userStatus.isOnline())
-		  .build();
 	}
 
 }

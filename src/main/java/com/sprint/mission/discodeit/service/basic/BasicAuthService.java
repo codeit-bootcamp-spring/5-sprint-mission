@@ -26,7 +26,7 @@ public class BasicAuthService implements AuthService {
 	@Override
 	@Transactional(readOnly = true)
 	public UserDto login(LoginParams params) {
-		User user = userRepository.findByUsername(params.getUsername())
+		User user = userRepository.findByUsernameWithProfileImage(params.getUsername())
 		  .orElseThrow(() -> new IllegalArgumentException("User with username " + params.getUsername() + " not found"));
 		if (!user.getPassword().equals(params.getPassword())) {
 			throw new IllegalArgumentException("Wrong password");

@@ -162,7 +162,7 @@ public class BasicUserService implements UserService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<UserDto> readAll() {
-		List<User> users = userRepository.findAll();
+		List<User> users = userRepository.findUserDetailsAll();
 		List<UUID> UserIds = users.stream().map(User::getId).toList();
 		List<UserStatus> userStatuses = userStatusRepository.findByUserIdIn(UserIds);
 

@@ -3,12 +3,15 @@ package com.sprint.mission.discodeit.service.basic;
 import static com.sprint.mission.discodeit.domain.enums.ChannelType.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +22,6 @@ import com.sprint.mission.discodeit.domain.dto.UpdateChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.domain.dto.user.UserDto;
 import com.sprint.mission.discodeit.domain.entity.Channel;
-import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
@@ -63,16 +65,19 @@ public class BasicChannelService implements ChannelService {
 
 		Channel newChannel = new Channel(PRIVATE);
 		channelRepository.save(newChannel);
-		List<ReadStatus> newReadStatuses = dto.getUserIds().stream().map(id ->
+		List<User> participants = userRepository.findUsersWithProfileByIdIn(dto.getUserIds());
+		if (participants.size() != dto.getUserIds().size()) {
+			throw new IllegalArgumentException("missing participants ID Contain");
+		}
+
+		List<ReadStatus> newReadStatuses = participants.stream().map(u ->
 		  new ReadStatus(
-			userRepository.findById(id)
-			  .orElseThrow(() -> new NoSuchElementException("userId with" + id + "notFound")),
+			u,
 			newChannel
 		  )
 		).toList();
 		readStatusRepository.saveAll(newReadStatuses);
 
-		List<User> participants = newReadStatuses.stream().map(ReadStatus::getUser).toList();
 		List<UserStatus> userStatuses = userStatusRepository.findByUserIdIn(
 		  participants.stream().map(User::getId).toList());
 
@@ -96,16 +101,58 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional(readOnly = true)
-	// TODO N+1문제 해결해야함
 	public List<ChannelDto> readAllByUserId(UUID userId) {
 		// 필터링: PUBLIC 채널 또는 사용자가 참여한 PRIVATE 채널
-		List<Channel> filteredChannels = channelRepository.findAll().stream()
-		  .filter(c -> c.getType() == PUBLIC || readStatusRepository.findAllByUserId(userId)
-			.stream()
-			.anyMatch(us -> us.getChannel().getId().equals(c.getId())))
-		  .toList();
+		List<Channel> publicChannels = channelRepository.findPublicChannels(PUBLIC);
+		List<ReadStatus> readStatusesOnlyUser = readStatusRepository.findAllByUserId(userId);
+		List<Channel> privateChannels = readStatusesOnlyUser.stream()
+		  .map(ReadStatus::getChannel).filter(channel -> channel.getType() == PRIVATE).toList();
+		List<Channel> allChannels = Stream.concat(publicChannels.stream(), privateChannels.stream()).toList();
 
-		return filteredChannels.stream().map(this::buildChannelDto).toList();
+		List<ReadStatus> allReadStatusesDetails = readStatusRepository.findReadStatusDetailAllByChannelIds(
+		  allChannels.stream().map(Channel::getId).toList());
+
+		Map<UUID, List<User>> ChannelID2Participants = new HashMap<>();
+
+		// 퍼블릭 채널은 participants 빈 배열
+		publicChannels.forEach(c -> ChannelID2Participants.put(c.getId(), List.of()));
+
+		// PRIVATE 채널 참여자 추가
+		allReadStatusesDetails.stream()
+		  .filter(rs -> rs.getChannel().getType() == PRIVATE)
+		  .forEach(rs -> {
+			  UUID channelID = rs.getChannel().getId();
+			  // 기존 리스트 가져오기
+			  List<User> participants = ChannelID2Participants.computeIfAbsent(channelID, k -> new ArrayList<>());
+			  participants.add(rs.getUser());
+		  });
+
+		// 1. channel to lastMessagedAt Map
+		Map<UUID, Instant> ChannelId2lastMessagedAtMap = new HashMap<>();
+		allReadStatusesDetails.forEach(rs -> {
+			UUID channelID = rs.getChannel().getId();
+			ChannelId2lastMessagedAtMap.compute(channelID, (k, v) -> {
+				if (v == null) {
+					return rs.getLastReadAt();
+				}
+				return v.isAfter(rs.getLastReadAt()) ? rs.getLastReadAt() : v;
+			});
+		});
+
+		List<UserStatus> userStatuses = userStatusRepository.findByUserIdIn(
+		  allReadStatusesDetails.stream().map(rs -> rs.getUser().getId()).toList());
+
+		Map<UUID, Boolean> UserId2IsOnlineMap = new HashMap<>();
+		userStatuses.forEach(us -> UserId2IsOnlineMap.put(us.getUser().getId(), us.isOnline()));
+
+		return allChannels.stream().map(c -> channelMapper.toDto(
+			c,
+			ChannelID2Participants.get(c.getId())
+			  .stream()
+			  .map(u -> userMapper.toDto(u, UserId2IsOnlineMap.get(u.getId())))
+			  .toList(),
+			ChannelId2lastMessagedAtMap.get(c.getId())))
+		  .toList();
 	}
 
 	@Override
@@ -156,10 +203,6 @@ public class BasicChannelService implements ChannelService {
 	@Transactional(readOnly = true)
 	public boolean isEmpty(UUID id) {
 		return !channelRepository.existsById(id);
-	}
-
-	private Instant getMessageLastEditAt(Message message) {
-		return message.getUpdatedAt() != null ? message.getUpdatedAt() : message.getCreatedAt();
 	}
 
 	private ChannelDto buildChannelDto(Channel channel) {

@@ -22,7 +22,7 @@ public class MessageMapper {
 		  .updatedAt(message.getUpdatedAt())
 		  .content(message.getContent())
 		  .channelId(message.getChannel().getId())
-		  .author(userMapper.toDto(message.getUser(), isOnline))
+		  .author(userMapper.toDto(user, isOnline))
 		  .attachments(message.getAttachments().stream().map(binaryContentMapper::toDto).toList())
 		  .build();
 	}
