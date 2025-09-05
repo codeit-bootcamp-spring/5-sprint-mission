@@ -55,7 +55,7 @@ public class ReadStatusController {
   //안읽은 메세지 3개, 마지막으로 읽은 위치 등과 같은
   @Operation(summary = "내 모든 채팅방 읽음상태 조회", description = "userId로 내가 어디까지 읽었는지 전체 조회")
   @GetMapping
-  public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam("userId") UUID userId) {
+  public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam UUID userId) {
     return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
   }
 

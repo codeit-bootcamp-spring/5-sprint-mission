@@ -16,7 +16,7 @@ import lombok.Getter;
 @Getter
 public class Message extends BaseUpdatableEntity {
 
-  /* 메세지가 작성자 참조 N:1
+  /* 여러 메세지는 한명의 작성자를 참조 N:1
    * FK 역할
    * */
   @ManyToOne
@@ -24,7 +24,7 @@ public class Message extends BaseUpdatableEntity {
   private User author; // 채널 기준으로 누가 보냈는지
 
 
-  /* 메세지가 채널을 참조 N:1
+  /* 여러 메세지는 한개의 채널을 참조 N:1
    * FK 역할
    */
   @ManyToOne
@@ -32,7 +32,7 @@ public class Message extends BaseUpdatableEntity {
   private Channel channel; // 채널 ID
 
 
-  /* 메세지는 첨부파일을 참조 1:N
+  /* 한개의 메세지는 여러개의 첨부파일을 참조 1:N
    *FK 역할
    */
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

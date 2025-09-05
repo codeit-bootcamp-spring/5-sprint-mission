@@ -17,7 +17,10 @@ public record UserDto(
     Boolean online
 ) {
 
-  public static UserDto fromEntity(User user, boolean online) {
+  //Entity에서 Dto로 변환
+  public static UserDto fromEntity(User user) {
+    // UserStatus의 NULL 체크
+    boolean online = user.getStatus() != null && user.getStatus().isOnline();
     return new UserDto(
         user.getId(),
         user.getUsername(),

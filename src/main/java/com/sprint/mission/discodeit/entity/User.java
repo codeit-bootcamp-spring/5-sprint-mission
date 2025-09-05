@@ -64,7 +64,8 @@ public class User extends BaseUpdatableEntity {
   private List<ReadStatus> readStatuses;
 
   /* 유저와 채널 N:N
-   * 읽기 전용 (주인 : Channel)
+   * 여러 유저는 여러 채널을 가질 수 있다
+   * FK관리 (주인 : Channel)
    * */
   @ManyToMany(mappedBy = "participants")
   private List<Channel> channels;
@@ -82,7 +83,7 @@ public class User extends BaseUpdatableEntity {
     this.email = email;
   }
 
-  //복사본 생성자 (id, createdAt, updatedAt 복사X)
+  //복사본 생성자 - id, createdAt, updatedAt 복사X
   public User(User other) {
     this.username = other.username;
     this.password = other.password;

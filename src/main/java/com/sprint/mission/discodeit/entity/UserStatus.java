@@ -15,11 +15,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserStatus extends BaseUpdatableEntity {
 
+
+  /* 유저상태와 유저 1:1
+   * 하나의 UserStatus는 하나의 User를 가진다
+   * FK주인이다.
+   */
   @OneToOne
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  private Instant lastActiveAt; // 마지막 접속시간
+  // 마지막 접속시간
+  private Instant lastActiveAt;
 
 
   public UserStatus(Instant lastActiveAt) {
