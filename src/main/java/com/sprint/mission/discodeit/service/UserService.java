@@ -85,7 +85,6 @@ public class UserService {
     }
 
     // 락을 걸어야하나?
-    // storage delete는 추후 메시지큐나 스케쥴러로 처리
     // message author set null, readStatus set delete 또한 이벤트로
     @Transactional
     public void delete(UUID userId) {

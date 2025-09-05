@@ -21,12 +21,17 @@ public interface ChannelRepository extends JpaRepository<Channel, UUID> {
 
     @Query("""
         SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END
-                    FROM ReadStatus rs1
-                    JOIN ReadStatus rs2 ON rs1.channel = rs2.channel
-                    JOIN Channel c ON c = rs1.channel
-                    WHERE c.type = 'PRIVATE'
-                      AND rs1.user.id = :userId1
-                      AND rs2.user.id = :userId2
+        FROM Channel c
+        WHERE c.type = 'PRIVATE'
+          AND EXISTS (
+              SELECT rs FROM ReadStatus rs
+              WHERE rs.channel = c AND rs.user.id = :userId1
+          )
+          AND EXISTS (
+              SELECT rs FROM ReadStatus rs
+              WHERE rs.channel = c AND rs.user.id = :userId2
+          )
+          AND (SELECT COUNT(rs3) FROM ReadStatus rs3 WHERE rs3.channel = c) = 2
         """)
     boolean existsBetweenUsers(@Param("userId1") UUID userId1, @Param("userId2") UUID userId2);
 

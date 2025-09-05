@@ -68,8 +68,8 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     @Modifying
     @Query("""
         UPDATE Message m
-           SET m.author = null
-         WHERE m.author = :user
+        SET m.author = null
+        WHERE m.author = :user
         """)
     int nullifyAuthorByUser(@Param("user") User user);
 
