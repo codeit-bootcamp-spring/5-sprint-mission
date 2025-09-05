@@ -7,7 +7,6 @@ import java.util.UUID;
 import com.sprint.mission.discodeit.entity.Channel;
 
 import com.sprint.mission.discodeit.entity.ChannelType;
-import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +24,6 @@ public class ChannelCreateResponse {
 	private String description;
 	private boolean success;
 
-	@Nullable
 	private List<UUID> participants;
 
 

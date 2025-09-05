@@ -26,12 +26,8 @@ public class ChannelResponse {
 	private String description;
 	private ChannelType type; // PUBLIC or PRIVATE
 
-
-	@Nullable
 	private Instant lastMessageAt;
 
-
-	@Nullable
 	private List<UserResponse> participants;
 
 	private ChannelResponse(Channel channel, @Nullable Instant lastMessageAt, @Nullable List<UserResponse> participants) {

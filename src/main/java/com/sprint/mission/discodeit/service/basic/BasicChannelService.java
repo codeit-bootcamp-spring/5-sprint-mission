@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -40,7 +39,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
     @Transactional
-	public ChannelCreateResponse create(PublicChannelCreateRequest request) {
+	public ChannelResponse create(PublicChannelCreateRequest request) {
 		if (channelRepository.existsByName(request.getName())) {
 			throw new DuplicateChannelNameException();
 		}
@@ -54,12 +53,12 @@ public class BasicChannelService implements ChannelService {
 			readStatusRepository.save(readStatus);
 		}
 
-		return ChannelCreateResponse.success(channel);
+        return createChannelByType(channel);
 	}
 
 	@Override
     @Transactional
-	public ChannelCreateResponse create(PrivateChannelCreateRequest request) {
+	public ChannelResponse create(PrivateChannelCreateRequest request) {
 
 		List<UUID> participantIds = request.getParticipantIds().stream().distinct().toList();
 
@@ -83,7 +82,7 @@ public class BasicChannelService implements ChannelService {
 			readStatusRepository.save(readStatus);
 		}
 
-		return ChannelCreateResponse.successWithMembers(channel, participantIds);
+        return createChannelByType(channel);
 	}
 
 	@Override
@@ -182,7 +181,6 @@ public class BasicChannelService implements ChannelService {
 
 	private ChannelResponse createChannelByType(Channel channel) {
 		Instant lastMessageTime = getLastMessageTime(channel.getId());
-
 
 		if (ChannelType.PRIVATE.equals(channel.getType())) {
             List<User> participants = readStatusRepository.findUsersByChannelId(channel.getId());
