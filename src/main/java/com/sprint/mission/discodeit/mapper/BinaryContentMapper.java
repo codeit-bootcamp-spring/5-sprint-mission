@@ -13,7 +13,7 @@ public class BinaryContentMapper {
         entity.getFileName(),
         entity.getSize(),
         entity.getContentType(),
-        entity.getBytes()
+        entity.getBytes() // ※ 스토리지 분리 전 단계 — 이후 제거 예정
     );
   }
 }
