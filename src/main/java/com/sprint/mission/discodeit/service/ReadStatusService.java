@@ -20,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ReadStatusService {
 
-    private final UserRepository userRepository;
-    private final ReadStatusRepository readStatusRepository;
     private final ChannelRepository channelRepository;
+    private final ReadStatusRepository readStatusRepository;
+    private final UserRepository userRepository;
 
     private final ReadStatusMapper readStatusMapper;
 

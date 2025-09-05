@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.docs;
 
 import com.sprint.mission.discodeit.controller.advice.ApiError;
-import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.message.MessageCreateMultipartForm;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
@@ -204,6 +203,122 @@ public interface MessageControllerDocs {
             )
         )
     )
+    @ApiResponse(
+        responseCode = "400",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ApiError.class),
+            examples = {
+                @ExampleObject(
+                    name = "invalidField",
+                    description = "Body Field 값이 유효하지 않음",
+                    value = """
+                        {
+                           "timestamp": "2025-09-03T15:44:53.822173Z",
+                           "code": "INVALID_BODY_VALUE",
+                           "message": "Request body value not valid",
+                           "details": {
+                             "path": "/api/messages",
+                             "fieldErrors": [
+                               {
+                                 "field": "channelId",
+                                 "rejected": null,
+                                 "message": "널이어서는 안됩니다"
+                               },
+                               {
+                                 "field": "authorId",
+                                 "rejected": null,
+                                 "message": "널이어서는 안됩니다"
+                               },
+                               {
+                                 "field": "content",
+                                 "rejected": "...",
+                                 "message": "크기가 0에서 2000 사이여야 합니다"
+                               }
+                             ],
+                             "method": "POST"
+                           },
+                           "exceptionType": "MethodArgumentNotValidException",
+                           "status": 400,
+                           "requestId": "fd58b987-702b-4bf7-a1de-55506eb0babc"
+                        }
+                        """
+                )
+            }
+        )
+    )
+    @ApiResponse(
+        responseCode = "404",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ApiError.class),
+            examples = {
+                @ExampleObject(
+                    name = "channelNotFound",
+                    description = "Channel을 찾을 수 없음",
+                    value = """
+                        {
+                          "timestamp": "2025-09-04T04:23:03.208002Z",
+                          "code": "RESOURCE_NOT_FOUND",
+                          "message": "Channel with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found",
+                          "details": {
+                            "path": "/api/messages",
+                            "method": "POST"
+                          },
+                          "exceptionType": "NotFoundException",
+                          "status": 404,
+                          "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
+                        }
+                        """
+                ),
+                @ExampleObject(
+                    name = "userNotFound",
+                    description = "User를 찾을 수 없음",
+                    value = """
+                        {
+                          "timestamp": "2025-09-04T04:23:03.208002Z",
+                          "code": "RESOURCE_NOT_FOUND",
+                          "message": "User with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found",
+                          "details": {
+                            "path": "/api/messages",
+                            "method": "DELETE"
+                          },
+                          "exceptionType": "NotFoundException",
+                          "status": 404,
+                          "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
+                        }
+                        """
+                )
+            }
+        )
+    )
+    @ApiResponse(
+        responseCode = "413",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ApiError.class),
+            examples = {
+                @ExampleObject(
+                    name = "payloadTooLarge",
+                    description = "첨부 파일 용량 초과",
+                    value = """
+                        {
+                          "timestamp": "2025-09-04T04:23:03.208002Z",
+                          "code": "PAYLOAD_TOO_LARGE",
+                          "message": "Maximum upload size exceeded",
+                          "details": {
+                            "path": "/api/messages",
+                            "method": "POST"
+                          },
+                          "exceptionType": "MaxUploadSizeExceededException",
+                          "status": 413,
+                          "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
+                        }
+                        """
+                )
+            }
+        )
+    )
     MessageDto create(MessageCreateRequest req, List<MultipartFile> attachments);
 
     @Operation(summary = "Message 삭제")
@@ -214,6 +329,33 @@ public interface MessageControllerDocs {
     @ApiResponse(
         responseCode = "204",
         description = "Message가 성공적으로 삭제됨"
+    )
+    @ApiResponse(
+        responseCode = "404",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ApiError.class),
+            examples = {
+                @ExampleObject(
+                    name = "messageNotFound",
+                    description = "Message를 찾을 수 없음",
+                    value = """
+                        {
+                          "timestamp": "2025-09-04T04:23:03.208002Z",
+                          "code": "RESOURCE_NOT_FOUND",
+                          "message": "Message with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found",
+                          "details": {
+                            "path": "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327",
+                            "method": "DELETE"
+                          },
+                          "exceptionType": "NotFoundException",
+                          "status": 404,
+                          "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
+                        }
+                        """
+                )
+            }
+        )
     )
     void delete(UUID messageId);
 
@@ -233,7 +375,68 @@ public interface MessageControllerDocs {
         description = "Message가 성공적으로 수정됨",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ChannelDto.class)
+            schema = @Schema(implementation = MessageDto.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "400",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ApiError.class),
+            examples = {
+                @ExampleObject(
+                    name = "invalidField",
+                    description = "Body Field 값이 유효하지 않음",
+                    value = """
+                        {
+                           "timestamp": "2025-09-03T15:44:53.822173Z",
+                           "code": "INVALID_BODY_VALUE",
+                           "message": "Request body value not valid",
+                           "details": {
+                             "path": "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327",
+                             "fieldErrors": [
+                               {
+                                 "field": "newContent",
+                                 "rejected": "...",
+                                 "message": "크기가 0에서 2000 사이여야 합니다"
+                               }
+                             ],
+                             "method": "PATCH"
+                           },
+                           "exceptionType": "MethodArgumentNotValidException",
+                           "status": 400,
+                           "requestId": "fd58b987-702b-4bf7-a1de-55506eb0babc"
+                        }
+                        """
+                )
+            }
+        )
+    )
+    @ApiResponse(
+        responseCode = "404",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ApiError.class),
+            examples = {
+                @ExampleObject(
+                    name = "messageNotFound",
+                    description = "Message를 찾을 수 없음",
+                    value = """
+                        {
+                          "timestamp": "2025-09-04T04:23:03.208002Z",
+                          "code": "RESOURCE_NOT_FOUND",
+                          "message": "Message with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found",
+                          "details": {
+                            "path": "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327",
+                            "method": "PATCH"
+                          },
+                          "exceptionType": "NotFoundException",
+                          "status": 404,
+                          "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
+                        }
+                        """
+                )
+            }
         )
     )
     MessageDto update(UUID messageId, MessageUpdateRequest req);
