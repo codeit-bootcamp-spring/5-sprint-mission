@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.entity.base;
 
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -15,19 +13,16 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
-  protected UUID id;
+  @Id
+  @Column(name = "id", columnDefinition = "uuid")
+  private UUID id;
+
   @CreatedDate
-  protected Instant createdAt;
-
-  protected BaseEntity() { }
-
-  protected BaseEntity(UUID id) {
-    this.id = id;
-  }
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private Instant createdAt;
 
   @PrePersist
-  protected void onCreateFallback() {
-    if (this.id == null) this.id = UUID.randomUUID();
-    if (this.createdAt == null) this.createdAt = Instant.now();
+  void prePersist() {
+    if (id == null) id = UUID.randomUUID(); // UUID 자동 세팅
   }
 }
