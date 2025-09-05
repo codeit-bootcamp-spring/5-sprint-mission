@@ -8,6 +8,8 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,11 +29,17 @@ public class ChannelMapper {
   @Transactional(readOnly = true)
   public ChannelDto toDto(Channel channel) {
     // 최근 메시지 시간
-    Instant lastMessageAt = messageRepository.findAllByChannel_Id(channel.getId())
-        .stream()
-        .map(Message::getCreatedAt)
-        .max(Comparator.naturalOrder())
-        .orElse(Instant.MIN);
+    Instant lastMessageAt =
+        messageRepository
+            .findAllByChannel_Id(
+                channel.getId(),
+                PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"))
+            )
+            .getContent()
+            .stream()
+            .map(Message::getCreatedAt)
+            .findFirst()
+            .orElse(Instant.MIN);
 
     // PRIVATE 일때만 참가자(UserDto) 조회
     List<UserDto> participants = new ArrayList<>();

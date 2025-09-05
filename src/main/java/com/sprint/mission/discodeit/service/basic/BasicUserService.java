@@ -12,10 +12,12 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -29,12 +31,14 @@ public class BasicUserService implements UserService {
   private final UserRepository userRepository;
   private final BinaryContentRepository binaryContentRepository;
   private final UserStatusRepository userStatusRepository;
-  private final UserMapper userMapper; // ✅ 매퍼 주입
+  private final UserMapper userMapper;
+  private final BinaryContentStorage binaryContentStorage; // ⬅ 바이너리 저장소
 
   @Override
-  public User create(UserCreateRequest userCreateRequest,
-      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
-
+  public User create(
+      UserCreateRequest userCreateRequest,
+      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest
+  ) {
     String username = userCreateRequest.username();
     String email = userCreateRequest.email();
 
@@ -45,10 +49,18 @@ public class BasicUserService implements UserService {
       throw new IllegalArgumentException("User with username " + username + " already exists");
     }
 
+    // 프로필 메타 저장 + 바이트는 Storage에 저장
     BinaryContent nullableProfile = optionalProfileCreateRequest
-        .map(req -> binaryContentRepository.save(
-            new BinaryContent(req.fileName(), (long) req.bytes().length, req.contentType(), req.bytes())
-        ))
+        .map(req -> {
+          BinaryContent meta = new BinaryContent(req.fileName(), (long) req.bytes().length, req.contentType());
+          BinaryContent savedMeta = binaryContentRepository.save(meta);
+          try {
+            binaryContentStorage.put(savedMeta.getId(), req.bytes());
+          } catch (Exception e) {
+            throw e instanceof RuntimeException ? (RuntimeException) e : new UncheckedIOException((java.io.IOException) e);
+          }
+          return savedMeta;
+        })
         .orElse(null);
 
     User createdUser = userRepository.save(
@@ -68,7 +80,7 @@ public class BasicUserService implements UserService {
               .map(us -> us.getLastActiveAt() != null
                   && us.getLastActiveAt().isAfter(Instant.now().minusSeconds(300)))
               .orElse(null);
-          return userMapper.toDto(user, online); // ✅ 매퍼 사용
+          return userMapper.toDto(user, online);
         })
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
   }
@@ -82,20 +94,23 @@ public class BasicUserService implements UserService {
               .map(us -> us.getLastActiveAt() != null
                   && us.getLastActiveAt().isAfter(Instant.now().minusSeconds(300)))
               .orElse(null);
-          return userMapper.toDto(user, online); // ✅ 매퍼 사용
+          return userMapper.toDto(user, online);
         })
         .toList();
   }
 
   @Override
-  public User update(UUID userId,
+  public User update(
+      UUID userId,
       UserUpdateRequest userUpdateRequest,
-      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest
+  ) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
     String newUsername = userUpdateRequest.newUsername();
     String newEmail = userUpdateRequest.newEmail();
+
     if (userRepository.existsByEmail(newEmail)) {
       throw new IllegalArgumentException("User with email " + newEmail + " already exists");
     }
@@ -103,14 +118,19 @@ public class BasicUserService implements UserService {
       throw new IllegalArgumentException("User with username " + newUsername + " already exists");
     }
 
+    // 프로필 교체: 메타 새로 저장 + Storage에 바이트 저장
     optionalProfileCreateRequest.ifPresent(req -> {
       Optional.ofNullable(user.getProfile())
           .ifPresent(old -> binaryContentRepository.deleteById(old.getId()));
 
-      BinaryContent saved = binaryContentRepository.save(
-          new BinaryContent(req.fileName(), (long) req.bytes().length, req.contentType(), req.bytes())
-      );
-      user.changeProfile(saved);
+      BinaryContent meta = new BinaryContent(req.fileName(), (long) req.bytes().length, req.contentType());
+      BinaryContent savedMeta = binaryContentRepository.save(meta);
+      try {
+        binaryContentStorage.put(savedMeta.getId(), req.bytes());
+      } catch (Exception e) {
+        throw e instanceof RuntimeException ? (RuntimeException) e : new UncheckedIOException((java.io.IOException) e);
+      }
+      user.changeProfile(savedMeta);
     });
 
     user.update(newUsername, newEmail);

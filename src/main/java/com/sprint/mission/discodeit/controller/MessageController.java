@@ -5,10 +5,13 @@ import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,37 +27,38 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/messages")
-public class MessageController implements MessageApi { // ← MessageApi가 DTO 시그니처를 갖도록 함께 수정하세요.
+public class MessageController implements MessageApi {
 
   private final MessageService messageService;
   private final MessageMapper messageMapper;
+  private final PageResponseMapper pageResponseMapper;
 
-  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Override
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<MessageDto> create(
       @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
     List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
-        .map(files -> files.stream()
-            .map(file -> {
-              try {
-                return new BinaryContentCreateRequest(
-                    file.getOriginalFilename(),
-                    file.getContentType(),
-                    file.getBytes()
-                );
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
-            })
-            .toList())
+        .map(files -> files.stream().map(file -> {
+          try {
+            return new BinaryContentCreateRequest(
+                file.getOriginalFilename(),
+                file.getContentType(),
+                file.getBytes()
+            );
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        }).toList())
         .orElse(new ArrayList<>());
 
     Message created = messageService.create(messageCreateRequest, attachmentRequests);
-    MessageDto body = messageMapper.toDto(created);
-    return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    return ResponseEntity.status(HttpStatus.CREATED).body(messageMapper.toDto(created));
   }
 
+  @Override
   @PatchMapping(path = "{messageId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<MessageDto> update(
       @PathVariable("messageId") UUID messageId,
@@ -64,21 +68,23 @@ public class MessageController implements MessageApi { // ← MessageApi가 DTO 
     return ResponseEntity.ok(messageMapper.toDto(updated));
   }
 
-  @DeleteMapping(path = "{messageId}")
+  @Override
+  @DeleteMapping("{messageId}")
   public ResponseEntity<Void> delete(@PathVariable("messageId") UUID messageId) {
     messageService.delete(messageId);
     return ResponseEntity.noContent().build();
   }
 
+  @Override
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<List<MessageDto>> findAllByChannelId(
-      @RequestParam("channelId") UUID channelId
+  public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
+      @RequestParam("channelId") UUID channelId,
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "50") int size
   ) {
-    List<MessageDto> dtos = messageService.findAllByChannelId(channelId)
-        .stream()
-        .map(messageMapper::toDto)
-        .toList();
-
-    return ResponseEntity.ok(dtos);
+    Slice<Message> slice = messageService.findAllByChannelId(channelId, page, size);
+    var dtoSlice = slice.map(messageMapper::toDto);
+    var body = pageResponseMapper.fromSlice(dtoSlice);
+    return ResponseEntity.ok(body);
   }
 }

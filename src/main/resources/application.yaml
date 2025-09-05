@@ -16,13 +16,19 @@ spring:
         default_batch_fetch_size: 50
         jdbc.time_zone: UTC
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 40MB
+
 logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
 
-
 discodeit:
-  repository:
-    type: file           # jcf | file
-    file-directory: .discodeit
+  storage:
+    type: local
+    local:
+      root-path: ${DISCODEIT_STORAGE_ROOT:.discodeit/storage}
+
