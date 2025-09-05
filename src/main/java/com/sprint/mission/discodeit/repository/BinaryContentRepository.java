@@ -16,7 +16,7 @@ public interface BinaryContentRepository extends JpaRepository<BinaryContent, UU
     @Query("SELECT b.id from BinaryContent b")
     Set<UUID> findAllIds();
 
-    List<BinaryContentDto> findAllByIdIn(Collection<UUID> ids);
+    List<BinaryContentDto> findAllToDtoByIdIn(Collection<UUID> ids);
 
     Optional<BinaryContentDto> findToDtoById(UUID id);
 

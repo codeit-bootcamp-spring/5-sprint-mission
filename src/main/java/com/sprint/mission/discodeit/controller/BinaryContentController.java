@@ -31,7 +31,7 @@ public class BinaryContentController implements BinaryContentControllerDocs {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<BinaryContentDto> findAllByIn(@RequestParam Set<UUID> binaryContentIds) {
-        return binaryContentRepository.findAllByIdIn(binaryContentIds);
+        return binaryContentRepository.findAllToDtoByIdIn(binaryContentIds);
     }
 
     @GetMapping("/{binaryContentId}")

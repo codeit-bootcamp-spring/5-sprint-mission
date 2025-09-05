@@ -40,3 +40,4 @@ discodeit:
     type: local
     local:
       root-path: ${user.dir}/storage
+      orphan-grace: 10m
