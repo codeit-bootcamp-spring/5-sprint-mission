@@ -9,6 +9,7 @@ spring:
 
   # JPA
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate
       # create, create-drop, update, validate, none
