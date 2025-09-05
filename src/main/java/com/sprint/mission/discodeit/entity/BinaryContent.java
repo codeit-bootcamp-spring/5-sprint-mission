@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +32,12 @@ public class BinaryContent extends BaseUpdatableEntity {
   @Column(name = "bytes", nullable = false)
   private byte[] bytes;
 
+  // 여러개의 파일은 하나의 메세지에 첨부될 수 있다 N:1
+  @ManyToOne
+  @JoinColumn(name = "message_id")
+  private Message message;
+
+
   //일반생성자 - 파일 등록할때 필요한 값만 받음
   public BinaryContent(String fileName,
       String contentType, long size, byte[] bytes) {
@@ -37,5 +45,9 @@ public class BinaryContent extends BaseUpdatableEntity {
     this.contentType = contentType;
     this.size = size;
     this.bytes = bytes;
+  }
+
+  public void setMessage(Message message) {
+    this.message = message;
   }
 }

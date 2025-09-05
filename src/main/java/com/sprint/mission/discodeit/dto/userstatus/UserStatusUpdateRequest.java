@@ -11,8 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserStatusUpdateRequest {
 
-  private UUID id;
-  private String userId;
+  private UUID userId;
   private Instant newLastActiveAt;
 
 }
