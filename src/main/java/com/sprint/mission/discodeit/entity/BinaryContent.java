@@ -15,6 +15,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BinaryContent extends BaseUpdatableEntity {
 
+  /* 파일의 이름, 사이즈, 타입, 파일 데이터를 가짐
+   * 메시지에 첨부되는 파일로 연결될 수 있음
+   */
+
   // 파일 이름
   @Column(name = "file_name", length = 255, nullable = false)
   private String fileName;
@@ -32,7 +36,7 @@ public class BinaryContent extends BaseUpdatableEntity {
   @Column(name = "bytes", nullable = false)
   private byte[] bytes;
 
-  // 여러개의 파일은 하나의 메세지에 첨부될 수 있다 N:1
+  // 여러개의 파일은 하나의 메세지에 첨부될 수 있음 N:1
   @ManyToOne
   @JoinColumn(name = "message_id")
   private Message message;

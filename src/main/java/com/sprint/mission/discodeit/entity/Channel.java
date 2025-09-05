@@ -67,10 +67,20 @@ public class Channel extends BaseUpdatableEntity {
     this.channelType = other.channelType;
   }
 
-  //메서드
+  // 이름 변경
+  public void updateName(String newName) {
+    this.name = newName;
+  }
+
+  // 설명 변경
+  public void updateDescription(String newDescription) {
+    this.description = newDescription;
+  }
+
   public void updateTime() {
     this.lastMessageAt = Instant.now();
   }
+
 
   //toString
   @Override
