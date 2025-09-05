@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import lombok.Data;
 
-@Data // getter & setter 자동 생성
+@Data
 public class PublicChannelCreateRequest { // 공개채널 DTO
 
   private String name;

@@ -16,6 +16,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReadStatus extends BaseUpdatableEntity {
 
+  /* 어떤 유저가 어떤 메시지를 읽었는지 추적
+   * 읽은 사용자, 읽은 메세지, 읽은 시간을 가짐
+   */
 
   /* 읽음상태가 사용자 참조 N:1
    * FK 역할

@@ -10,10 +10,10 @@ public interface BinaryContentService {
   //파일 저장
   UUID create(BinaryContentCreateRequest request);
 
-  //파일 1개 조회
+  //파일 단건 조회
   BinaryContent findById(UUID id);
 
-  //여러 UUID 받아서 여러 파일 조회 (파일 여러개 미리보기할때)
+  //여러 UUID 받아서 여러 파일 조회 (예: 파일 여러개 미리보기할때)
   List<BinaryContent> findAllByIdIn(List<UUID> ids);
 
   //파일 한개 삭제

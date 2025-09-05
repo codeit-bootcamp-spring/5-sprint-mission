@@ -23,6 +23,10 @@ import lombok.Getter;
 @Table(name = "users")
 public class User extends BaseUpdatableEntity {
 
+  /* 유저의 username, email, password,
+   * profile 이미지ID, 유저 상태정보를 가짐
+   */
+
   //로그인ID: usermame
   @Column(name = "username", length = 50, nullable = false)
   private String username;

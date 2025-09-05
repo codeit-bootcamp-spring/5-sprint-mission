@@ -16,6 +16,10 @@ import lombok.Getter;
 @Getter
 public class Message extends BaseUpdatableEntity {
 
+  /* 메시지내용, 작성자, 채널, 첨부파일을 가짐
+   */
+
+
   /* 여러 메세지는 한명의 작성자를 참조 N:1
    * FK 역할
    * */
