@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
+
   List<Message> findAllByChannel_Id(UUID channelId);
+
   void deleteAllByChannel_Id(UUID channelId);
 }

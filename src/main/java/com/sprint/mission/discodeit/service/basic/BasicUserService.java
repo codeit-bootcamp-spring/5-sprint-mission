@@ -42,7 +42,6 @@ public class BasicUserService implements UserService {
       throw new IllegalArgumentException("User with username " + username + " already exists");
     }
 
-    // 프로필 메타 생성 후 객체 자체를 보관
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(req -> {
           BinaryContent bc = new BinaryContent(
@@ -60,7 +59,7 @@ public class BasicUserService implements UserService {
     User user = new User(username, email, password, nullableProfile);
     User createdUser = userRepository.save(user);
 
-    // UserStatus 는 User 객체 참조
+    // UserStatus 는 User 참조 보유
     UserStatus userStatus = new UserStatus(createdUser, Instant.now());
     userStatusRepository.save(userStatus);
 
@@ -100,7 +99,6 @@ public class BasicUserService implements UserService {
       throw new IllegalArgumentException("User with username " + newUsername + " already exists");
     }
 
-    // 프로필 교체 요청이 있으면 기존 메타 삭제 후 새 메타 저장 + 교체
     optionalProfileCreateRequest.ifPresent(req -> {
       Optional.ofNullable(user.getProfile())
           .map(BinaryContent::getId)
@@ -117,8 +115,8 @@ public class BasicUserService implements UserService {
     });
 
     String newPassword = userUpdateRequest.newPassword();
-    user.update(newUsername, newEmail);     // 이름/이메일 갱신
-    user.changePassword(newPassword);       // 비밀번호 갱신
+    user.update(newUsername, newEmail);
+    user.changePassword(newPassword);
 
     return userRepository.save(user);
   }
@@ -131,15 +129,18 @@ public class BasicUserService implements UserService {
     Optional.ofNullable(user.getProfile())
         .map(BinaryContent::getId)
         .ifPresent(binaryContentRepository::deleteById);
-    userStatusRepository.deleteByUserId(userId);
+
+    // 경로 기반 메서드 사용
+    userStatusRepository.deleteByUser_Id(userId);
 
     userRepository.deleteById(userId);
   }
 
   private UserDto toDto(User user) {
-    Boolean online = userStatusRepository.findByUserId(user.getId())
-        .map(us -> us.getLastActiveAt() != null
-            && us.getLastActiveAt().isAfter(Instant.now().minusSeconds(300)))
+    // 최근 5분 이내 활동 → online = true
+    Boolean online = userStatusRepository.findByUser_Id(user.getId())
+        .map(UserStatus::getLastActiveAt)                 // ← 필드 getter
+        .map(ts -> ts.isAfter(Instant.now().minusSeconds(300)))
         .orElse(null);
 
     return new UserDto(
@@ -148,9 +149,7 @@ public class BasicUserService implements UserService {
         user.getUpdatedAt(),
         user.getUsername(),
         user.getEmail(),
-        Optional.ofNullable(user.getProfile())        // profileId 대신 객체에서 id 추출
-            .map(BinaryContent::getId)
-            .orElse(null),
+        Optional.ofNullable(user.getProfile()).map(BinaryContent::getId).orElse(null),
         online
     );
   }

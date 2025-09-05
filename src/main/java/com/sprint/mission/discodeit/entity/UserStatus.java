@@ -10,7 +10,6 @@ import java.time.Instant;
 @Table(name = "user_statuses")
 @Getter
 public class UserStatus extends BaseUpdatableEntity {
-
   @OneToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "user_id", nullable = false, unique = true)
   private User user;
@@ -19,13 +18,10 @@ public class UserStatus extends BaseUpdatableEntity {
   private Instant lastActiveAt;
 
   protected UserStatus() {}
-
   public UserStatus(User user, Instant lastActiveAt) {
     this.user = user;
     this.lastActiveAt = lastActiveAt;
   }
-
-  public void update(Instant newLastActiveAt) {
-    if (newLastActiveAt != null) this.lastActiveAt = newLastActiveAt;
-  }
+  public void update(Instant newLastActiveAt) { this.lastActiveAt = newLastActiveAt; }
 }
+
