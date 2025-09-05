@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +23,9 @@ import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -41,7 +45,9 @@ public class BasicMessageService implements MessageService {
 	private final BinaryContentRepository binaryContentRepository;
 	private final BasicBinaryContentService binaryContentService;
 	private final MessageMapper messageMapper;
+	private final UserMapper userMapper;
 	private final UserStatusRepository userStatusRepository;
+	private final BinaryContentMapper binaryContentMapper;
 
 	@Override
 	@Transactional
@@ -69,7 +75,9 @@ public class BasicMessageService implements MessageService {
 
 		Message savedMessage = messageRepository.save(new Message(content, user, channel, attachments));
 
-		return messageMapper.toDto(savedMessage, user, isOnline);
+		return messageMapper.toDto(
+		  savedMessage,
+		  userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage())));
 	}
 
 	@Override
@@ -103,25 +111,15 @@ public class BasicMessageService implements MessageService {
 		targetMessage.setContent(newContent);
 
 		// 2. User 정보 가져오기
+		User user = targetMessage.getUser();
 		boolean isOnline = userStatusRepository.findByUserId(targetMessage.getUser().getId())
 		  .map(UserStatus::isOnline)
 		  .orElse(false);
 
 		messageRepository.save(targetMessage);
-		return messageMapper.toDto(targetMessage, targetMessage.getUser(), isOnline);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public MessageDto read(UUID id) {
-		Message message = messageRepository.findMessageDetailsById(id)
-		  .orElseThrow(() -> new NoSuchElementException("Message with ID " + id + " not found"));
-
-		boolean isOnline = userStatusRepository.findByUserId(message.getUser().getId())
-		  .map(UserStatus::isOnline)
-		  .orElse(false);
-
-		return messageMapper.toDto(message, message.getUser(), isOnline);
+		return messageMapper.toDto(
+		  targetMessage,
+		  userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage())));
 	}
 
 	@Override
@@ -135,11 +133,36 @@ public class BasicMessageService implements MessageService {
 		  .stream()
 		  .collect(Collectors.toMap(us -> us.getUser().getId(), UserStatus::isOnline));
 		return messages.map(message ->
-		  messageMapper.toDto(
-			message,
-			message.getUser(),
-			userId2Status.get(message.getUser().getId())
-		  )
+		  {
+			  User user = message.getUser();
+			  boolean isOnline = userId2Status.get(user.getId());
+			  return messageMapper.toDto(
+				message,
+				userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage()))
+			  );
+		  }
+		);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Slice<MessageDto> findAllCursorByChannelId(UUID channelId, Instant cursor, Pageable pageable) {
+		Slice<Message> messages = messageRepository.findAllDetailsByChannelIdAndCursor(channelId, cursor, pageable);
+
+		List<UUID> userIds = messages.map(m -> m.getUser().getId()).stream().toList();
+
+		Map<UUID, Boolean> userId2Status = userStatusRepository.findByUserIdIn(userIds)
+		  .stream()
+		  .collect(Collectors.toMap(us -> us.getUser().getId(), UserStatus::isOnline));
+		return messages.map(message ->
+		  {
+			  User user = message.getUser();
+			  boolean isOnline = userId2Status.get(user.getId());
+			  return messageMapper.toDto(
+				message,
+				userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage()))
+			  );
+		  }
 		);
 	}
 

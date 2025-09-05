@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.domain.dto.LoginParams;
 import com.sprint.mission.discodeit.domain.dto.user.UserDto;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -22,6 +23,7 @@ public class BasicAuthService implements AuthService {
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
 	private final UserStatusRepository userStatusRepository;
+	private final BinaryContentMapper binaryContentMapper;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -36,7 +38,7 @@ public class BasicAuthService implements AuthService {
 		  new NoSuchElementException("userStatus With userID" + user.getId() + "not found")
 		);
 
-		return userMapper.toDto(user, userStatus.isOnline());
+		return userMapper.toDto(user, userStatus.isOnline(), binaryContentMapper.toDto(user.getProfileImage()));
 	}
 
 }

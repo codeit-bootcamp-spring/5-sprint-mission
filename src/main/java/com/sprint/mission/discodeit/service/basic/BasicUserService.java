@@ -22,6 +22,7 @@ import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.request.CreateUserResponse;
 import com.sprint.mission.discodeit.domain.response.UserReadResponse;
 import com.sprint.mission.discodeit.domain.response.UserUpdateResponse;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -43,6 +44,7 @@ public class BasicUserService implements UserService {
 	private final UserStatusRepository userStatusRepository;
 	private final BinaryContentStorage binaryContentStorage;
 	private final UserMapper userMapper;
+	private final BinaryContentMapper binaryContentMapper;
 
 	@Override
 	@Transactional
@@ -77,7 +79,7 @@ public class BasicUserService implements UserService {
 		userStatusRepository.save(userStatus);
 
 		// 5. 데이터 저장
-		return userMapper.toDto(newUser, userStatus.isOnline());
+		return userMapper.toDto(newUser, userStatus.isOnline(), binaryContentMapper.toDto(newUser.getProfileImage()));
 	}
 
 	@Override
@@ -143,7 +145,7 @@ public class BasicUserService implements UserService {
 
 		boolean isOnline = userStatusRepository.findByUserId(userId).map(UserStatus::isOnline).orElse(false);
 
-		return userMapper.toDto(targetUser, isOnline);
+		return userMapper.toDto(targetUser, isOnline, binaryContentMapper.toDto(targetUser.getProfileImage()));
 	}
 
 	@Override
@@ -156,7 +158,7 @@ public class BasicUserService implements UserService {
 
 		boolean isOnline = status.map(UserStatus::isOnline).orElse(false);
 
-		return userMapper.toDto(user, isOnline);
+		return userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage()));
 	}
 
 	@Override
@@ -173,7 +175,8 @@ public class BasicUserService implements UserService {
 		  ));
 
 		return users.stream()
-		  .map(u -> userMapper.toDto(u, userID2IsOnlineMap.get(u.getId())))
+		  .map(
+			u -> userMapper.toDto(u, userID2IsOnlineMap.get(u.getId()), binaryContentMapper.toDto(u.getProfileImage())))
 		  .toList();
 	}
 

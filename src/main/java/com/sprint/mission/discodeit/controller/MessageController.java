@@ -4,12 +4,14 @@ import static org.springframework.http.MediaType.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +50,7 @@ import lombok.RequiredArgsConstructor;
 public class MessageController {
 
 	private final MessageService messageService;
-	private final PageResponseMapper<MessageResponse> pageResponseMapper;
+	private final PageResponseMapper pageResponseMapper;
 	private final MessageMapper messageMapper;
 
 	@PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
@@ -104,11 +106,21 @@ public class MessageController {
 	@GetMapping
 	public ResponseEntity<PageResponse<MessageResponse>> getMessagesInChannel(
 	  @RequestParam UUID channelId,
+	  @RequestParam(required = false) Instant cursor,
 	  @PageableDefault(size = 50, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
-		Page<MessageResponse> readMessages = messageService.findAllByChannelId(channelId, pageable).map(
-		  messageMapper::toResponse);
 
-		return ResponseEntity.ok((pageResponseMapper.fromPage(readMessages)));
+		if (cursor != null) {
+			Slice<MessageResponse> readMessages = messageService.findAllCursorByChannelId(channelId, cursor, pageable)
+			  .map(messageMapper::toResponse);
+			readMessages.forEach(m -> System.out.println(m.getAuthor()));
+			return ResponseEntity.ok((pageResponseMapper.fromSlice(readMessages)));
+		} else {
+			Page<MessageResponse> readMessages = messageService.findAllByChannelId(channelId, pageable).map(
+			  messageMapper::toResponse);
+			readMessages.forEach(m -> System.out.println(m.getAuthor()));
+			
+			return ResponseEntity.ok((pageResponseMapper.fromPage(readMessages)));
+		}
 	}
 }

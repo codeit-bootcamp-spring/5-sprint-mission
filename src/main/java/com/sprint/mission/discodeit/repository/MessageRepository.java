@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.repository;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,8 +16,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 
 	void deleteByChannelId(UUID channelId);
 
-	Page<Message> findAllByChannelId(UUID channelId, Pageable pageable);
-
 	@Query(value = """
 	  SELECT m
 	  FROM Message m
@@ -25,11 +24,24 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 	  JOIN FETCH m.user u
 	  LEFT JOIN FETCH u.profileImage
 	  WHERE m.channel.id = :channelId
-	  """,
-	  countQuery = """
-		  SELECT COUNT(m) FROM Message m WHERE m.channel.id = :channelId
-		""")
-	Page<Message> findAllDetailsByChannelId(UUID channelId, Pageable pageable);
+	  """)
+	Page<Message> findAllDetailsByChannelId(@Param("channelId") UUID channelId, Pageable pageable);
+
+	@Query("""
+	      SELECT m
+	      FROM Message m
+	      JOIN FETCH m.channel
+	      JOIN FETCH m.attachments
+	      JOIN FETCH m.user u
+	      LEFT JOIN FETCH u.profileImage
+	      WHERE m.channel.id = :channelId
+	        AND m.createdAt < :cursor
+	      ORDER BY m.createdAt DESC
+	  """)
+	Page<Message> findAllDetailsByChannelIdAndCursor(
+	  @Param("channelId") UUID channelId,
+	  @Param("cursor") Instant cursor,
+	  Pageable pageable);
 
 	@Query("""
 	  SELECT m
@@ -42,18 +54,4 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 	  """)
 	Optional<Message> findMessageDetailsById(@Param("id") UUID id);
 
-	@Query(value = """
-	  SELECT m 
-	  FROM Message m
-	  JOIN FETCH m.attachments
-	  JOIN FETCH m.user u
-	  LEFT JOIN FETCH u.profileImage
-	  WHERE m.channel.id = :channelId
-	  """,
-	  countQuery = """
-		SELECT COUNT(m) 
-		FROM Message m
-		WHERE m.channel.id = :channelId
-		""")
-	Page<Message> findAllByChannelIdWithUser(@Param("channelId") UUID channelId, Pageable pageable);
 }

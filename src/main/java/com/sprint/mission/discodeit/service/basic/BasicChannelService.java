@@ -25,6 +25,7 @@ import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -47,6 +48,7 @@ public class BasicChannelService implements ChannelService {
 	private final ChannelMapper channelMapper;
 	private final UserStatusRepository userStatusRepository;
 	private final UserMapper userMapper;
+	private final BinaryContentMapper binaryContentMapper;
 
 	@Override
 	@Transactional
@@ -88,8 +90,12 @@ public class BasicChannelService implements ChannelService {
 		  ));
 
 		List<UserDto> userDtoList = participants.stream()
-		  .map(u -> userMapper.toDto(u, userID2IsOnlineMap.get(u.getId())))
-		  .toList();
+		  .map(u -> userMapper.toDto(
+			  u,
+			  userID2IsOnlineMap.get(u.getId()),
+			  binaryContentMapper.toDto(u.getProfileImage())
+			)
+		  ).toList();
 
 		Instant lastMessageAt = newReadStatuses.stream()
 		  .map(ReadStatus::getLastReadAt)
@@ -149,7 +155,8 @@ public class BasicChannelService implements ChannelService {
 			c,
 			ChannelID2Participants.get(c.getId())
 			  .stream()
-			  .map(u -> userMapper.toDto(u, UserId2IsOnlineMap.get(u.getId())))
+			  .map(u -> userMapper.toDto(u, UserId2IsOnlineMap.get(u.getId()),
+				binaryContentMapper.toDto(u.getProfileImage())))
 			  .toList(),
 			ChannelId2lastMessagedAtMap.get(c.getId())))
 		  .toList();
@@ -223,7 +230,8 @@ public class BasicChannelService implements ChannelService {
 		  ));
 
 		List<UserDto> userDtos = participants.stream()
-		  .map(u -> userMapper.toDto(u, userID2IsOnlineMap.getOrDefault(u.getId(), false)))
+		  .map(u -> userMapper.toDto(u, userID2IsOnlineMap.getOrDefault(u.getId(), false),
+			binaryContentMapper.toDto(u.getProfileImage())))
 		  .toList();
 
 		Instant lastMessageAt = readStatuses.stream()

@@ -37,7 +37,7 @@ public class BasicUserStatusService implements UserStatusService {
 
 		UserStatus userStatus = new UserStatus(user);
 		userStatusRepository.save(userStatus);
-		return userStatusMapper.toDto(userStatus);
+		return userStatusMapper.toDto(userStatus, user);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class BasicUserStatusService implements UserStatusService {
 	public UserStatusDto find(UUID id) {
 		UserStatus userStatus = userStatusRepository.findById(id)
 		  .orElseThrow(() -> new IllegalArgumentException("User status not found for ID: " + id));
-		return userStatusMapper.toDto(userStatus);
+		return userStatusMapper.toDto(userStatus, userStatus.getUser());
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class BasicUserStatusService implements UserStatusService {
 		userStatus.setLastActiveAt(newLastActiveAt);
 		userStatusRepository.save(userStatus);
 
-		return userStatusMapper.toDto(userStatus);
+		return userStatusMapper.toDto(userStatus, userStatus.getUser());
 
 	}
 

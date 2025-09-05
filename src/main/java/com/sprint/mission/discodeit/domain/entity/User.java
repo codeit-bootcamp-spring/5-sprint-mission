@@ -12,11 +12,13 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
+@ToString
 @Table(name = "\"user\"")
 public class User extends BaseUpdatableEntity {
 

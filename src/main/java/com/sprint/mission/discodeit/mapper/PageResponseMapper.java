@@ -1,31 +1,40 @@
 package com.sprint.mission.discodeit.mapper;
 
+import java.util.List;
+
+import org.mapstruct.Mapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
-import org.springframework.stereotype.Component;
 
 import com.sprint.mission.discodeit.domain.response.PageResponse;
 
-@Component
-public class PageResponseMapper<T> {
+@Mapper(componentModel = "spring")
+public interface PageResponseMapper {
 
-	public PageResponse<T> fromSlice(Slice<T> slice) {
+	default <T> PageResponse<T> fromSlice(Slice<T> slice) {
 		return PageResponse.<T>builder()
 		  .content(slice.getContent())
-		  .number(slice.getNumber())
 		  .size(slice.getSize())
 		  .hasNext(slice.hasNext())
+		  .nextCursor(extractCursorFromPage(slice.getContent()))
 		  .totalElements(slice.get().count())
 		  .build();
 	}
 
-	public PageResponse<T> fromPage(Page<T> page) {
+	default <T> PageResponse<T> fromPage(Page<T> page) {
 		return PageResponse.<T>builder()
 		  .content(page.getContent())
-		  .number(page.getNumber())
 		  .size(page.getSize())
 		  .hasNext(page.hasNext())
+		  .nextCursor(extractCursorFromPage(page.getContent()))
 		  .totalElements(page.getTotalElements())
 		  .build();
 	}
+
+	default <T> T extractCursorFromPage(List<T> content) {
+		if (content.isEmpty())
+			return null;
+		return content.get(content.size() - 1); // 마지막 요소 그대로 반환
+	}
+
 }

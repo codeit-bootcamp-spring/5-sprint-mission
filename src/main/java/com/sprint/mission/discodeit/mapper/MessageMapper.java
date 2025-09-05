@@ -1,42 +1,25 @@
 package com.sprint.mission.discodeit.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.sprint.mission.discodeit.domain.dto.message.MessageDto;
 import com.sprint.mission.discodeit.domain.dto.message.MessageResponse;
+import com.sprint.mission.discodeit.domain.dto.user.UserDto;
 import com.sprint.mission.discodeit.domain.entity.Message;
-import com.sprint.mission.discodeit.domain.entity.User;
 
-import lombok.RequiredArgsConstructor;
+@Mapper(componentModel = "spring", uses = {BinaryContentMapper.class, UserMapper.class})
+public interface MessageMapper {
 
-@Component
-@RequiredArgsConstructor
-public class MessageMapper {
-	private final BinaryContentMapper binaryContentMapper;
-	private final UserMapper userMapper;
+	@Mapping(source = "message.id", target = "id")
+	@Mapping(source = "message.createdAt", target = "createdAt")
+	@Mapping(source = "message.updatedAt", target = "updatedAt")
+	@Mapping(source = "message.content", target = "content")
+	@Mapping(source = "message.channel.id", target = "channelId")
+	@Mapping(source = "author", target = "author")
+	@Mapping(source = "message.attachments", target = "attachments")
+	MessageDto toDto(Message message, UserDto author);
 
-	public MessageDto toDto(Message message, User user, boolean isOnline) {
-		return MessageDto.builder()
-		  .id(message.getId())
-		  .createdAt(message.getCreatedAt())
-		  .updatedAt(message.getUpdatedAt())
-		  .content(message.getContent())
-		  .channelId(message.getChannel().getId())
-		  .author(userMapper.toDto(user, isOnline))
-		  .attachments(message.getAttachments().stream().map(binaryContentMapper::toDto).toList())
-		  .build();
-	}
-
-	public MessageResponse toResponse(MessageDto dto) {
-		return MessageResponse.builder()
-		  .id(dto.getId())
-		  .createdAt(dto.getCreatedAt())
-		  .updatedAt(dto.getUpdatedAt())
-		  .content(dto.getContent())
-		  .channelId(dto.getChannelId())
-		  .author(dto.getAuthor())
-		  .attachments(dto.getAttachments())
-		  .build();
-	}
+	public MessageResponse toResponse(MessageDto dto);
 
 }

@@ -11,7 +11,7 @@ import lombok.Getter;
 @Builder
 public class PageResponse<T> {
 	private final List<T> content;
-	private final int number;
+	Object nextCursor;
 	private final int size;
 	private final boolean hasNext;
 	private final Long totalElements;
