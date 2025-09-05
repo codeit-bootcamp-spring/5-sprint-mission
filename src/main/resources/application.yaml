@@ -8,7 +8,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: validate    # 초기 스키마 작업 중엔 update, 이후엔 validate 권장
+      ddl-auto: none    # 초기 스키마 작업 중엔 update, 이후엔 validate 권장
     properties:
       hibernate:
         format_sql: true

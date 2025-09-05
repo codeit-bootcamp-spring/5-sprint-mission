@@ -23,6 +23,6 @@ public abstract class BaseEntity {
 
   @PrePersist
   void prePersist() {
-    if (id == null) id = UUID.randomUUID(); // UUID 자동 세팅
+    if (id == null) id = UUID.randomUUID();
   }
 }
