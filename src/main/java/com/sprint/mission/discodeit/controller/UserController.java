@@ -10,6 +10,8 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,11 +27,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "User", description = "User API")
 public class UserController implements UserApi {
 
   private final UserService userService;
   private final UserStatusService userStatusService;
 
+  @Operation(summary = "User 등록")
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @Override
   public ResponseEntity<User> create(
@@ -44,6 +48,7 @@ public class UserController implements UserApi {
         .body(createdUser);
   }
 
+  @Operation(summary = "User 정보 수정")
   @PatchMapping(
       path = "{userId}",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
@@ -62,6 +67,7 @@ public class UserController implements UserApi {
         .body(updatedUser);
   }
 
+  @Operation(summary = "User 삭제")
   @DeleteMapping(path = "{userId}")
   @Override
   public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
@@ -71,6 +77,7 @@ public class UserController implements UserApi {
         .build();
   }
 
+  @Operation(summary = "전체 User 목록 조회")
   @GetMapping
   @Override
   public ResponseEntity<List<UserDto>> findAll() {
@@ -80,6 +87,7 @@ public class UserController implements UserApi {
         .body(users);
   }
 
+  @Operation(summary = "User 온라인 상태 업데이트")
   @PatchMapping(path = "{userId}/userStatus")
   @Override
   public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
