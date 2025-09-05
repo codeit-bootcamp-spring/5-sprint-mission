@@ -36,7 +36,7 @@ public class FileUtils {
 
             oos.writeObject(data);
         } catch (IOException e) {
-            throw new RuntimeException(data.getClass().getName() + " file saving exception");
+            throw new RuntimeException(data.getClass().getName() + " file saving exception", e);
         }
     }
 
