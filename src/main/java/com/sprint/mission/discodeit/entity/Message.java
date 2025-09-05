@@ -3,45 +3,29 @@ package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import lombok.Getter;
 
-import java.io.Serializable;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 public class Message extends BaseUpdatableEntity {
-
-  private static final long serialVersionUID = 1L;
-
-  private UUID id;
-  private Instant createdAt;
-  private Instant updatedAt;
-  //
   private String content;
-  //
-  private UUID channelId;
-  private UUID authorId;
-  private List<UUID> attachmentIds;
+  private Channel channel;                 // 1
+  private User author;                     // 1
+  private final List<BinaryContent> attachments = new ArrayList<>(); // *
 
-  public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
-    //
+  public Message(String content, Channel channel, User author) {
     this.content = content;
-    this.channelId = channelId;
-    this.authorId = authorId;
-    this.attachmentIds = attachmentIds;
+    this.channel = channel;
+    this.author = author;
   }
 
-  public void update(String newContent) {
-    boolean anyValueUpdated = false;
-    if (newContent != null && !newContent.equals(this.content)) {
-      this.content = newContent;
-      anyValueUpdated = true;
-    }
+  public void update(String content) { this.content = content; }
 
-    if (anyValueUpdated) {
-      this.updatedAt = Instant.now();
-    }
+  public void addAttachment(BinaryContent file) {
+    if (file != null) attachments.add(file);
+  }
+
+  public void removeAttachment(BinaryContent file) {
+    attachments.remove(file);
   }
 }

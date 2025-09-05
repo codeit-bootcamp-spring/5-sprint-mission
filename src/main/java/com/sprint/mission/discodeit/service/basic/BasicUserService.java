@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,13 +24,14 @@ import java.util.UUID;
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
-  //
   private final BinaryContentRepository binaryContentRepository;
   private final UserStatusRepository userStatusRepository;
 
   @Override
-  public User create(UserCreateRequest userCreateRequest,
-      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+  public User create(
+      UserCreateRequest userCreateRequest,
+      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest
+  ) {
     String username = userCreateRequest.username();
     String email = userCreateRequest.email();
 
@@ -42,23 +42,26 @@ public class BasicUserService implements UserService {
       throw new IllegalArgumentException("User with username " + username + " already exists");
     }
 
-    UUID nullableProfileId = optionalProfileCreateRequest
-        .map(profileRequest -> {
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType, bytes);
-          return binaryContentRepository.save(binaryContent).getId();
+    // 프로필 메타 생성 후 객체 자체를 보관
+    BinaryContent nullableProfile = optionalProfileCreateRequest
+        .map(req -> {
+          BinaryContent bc = new BinaryContent(
+              req.fileName(),
+              (long) req.bytes().length,
+              req.contentType(),
+              req.bytes()
+          );
+          return binaryContentRepository.save(bc);
         })
         .orElse(null);
+
     String password = userCreateRequest.password();
 
-    User user = new User(username, email, password, nullableProfileId);
+    User user = new User(username, email, password, nullableProfile);
     User createdUser = userRepository.save(user);
 
-    Instant now = Instant.now();
-    UserStatus userStatus = new UserStatus(createdUser.getId(), now);
+    // UserStatus 는 User 객체 참조
+    UserStatus userStatus = new UserStatus(createdUser, Instant.now());
     userStatusRepository.save(userStatus);
 
     return createdUser;
@@ -72,7 +75,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public List<UserDto> findAll() {
+  public java.util.List<UserDto> findAll() {
     return userRepository.findAll()
         .stream()
         .map(this::toDto)
@@ -80,8 +83,11 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public User update(UUID userId, UserUpdateRequest userUpdateRequest,
-      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+  public User update(
+      UUID userId,
+      UserUpdateRequest userUpdateRequest,
+      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest
+  ) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
@@ -94,22 +100,25 @@ public class BasicUserService implements UserService {
       throw new IllegalArgumentException("User with username " + newUsername + " already exists");
     }
 
-    UUID nullableProfileId = optionalProfileCreateRequest
-        .map(profileRequest -> {
-          Optional.ofNullable(user.getProfileId())
-              .ifPresent(binaryContentRepository::deleteById);
+    // 프로필 교체 요청이 있으면 기존 메타 삭제 후 새 메타 저장 + 교체
+    optionalProfileCreateRequest.ifPresent(req -> {
+      Optional.ofNullable(user.getProfile())
+          .map(BinaryContent::getId)
+          .ifPresent(binaryContentRepository::deleteById);
 
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType, bytes);
-          return binaryContentRepository.save(binaryContent).getId();
-        })
-        .orElse(null);
+      BinaryContent newMeta = new BinaryContent(
+          req.fileName(),
+          (long) req.bytes().length,
+          req.contentType(),
+          req.bytes()
+      );
+      BinaryContent saved = binaryContentRepository.save(newMeta);
+      user.changeProfile(saved);
+    });
 
     String newPassword = userUpdateRequest.newPassword();
-    user.update(newUsername, newEmail, newPassword, nullableProfileId);
+    user.update(newUsername, newEmail);     // 이름/이메일 갱신
+    user.changePassword(newPassword);       // 비밀번호 갱신
 
     return userRepository.save(user);
   }
@@ -119,7 +128,8 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
-    Optional.ofNullable(user.getProfileId())
+    Optional.ofNullable(user.getProfile())
+        .map(BinaryContent::getId)
         .ifPresent(binaryContentRepository::deleteById);
     userStatusRepository.deleteByUserId(userId);
 
@@ -128,7 +138,8 @@ public class BasicUserService implements UserService {
 
   private UserDto toDto(User user) {
     Boolean online = userStatusRepository.findByUserId(user.getId())
-        .map(UserStatus::isOnline)
+        .map(us -> us.getLastActiveAt() != null
+            && us.getLastActiveAt().isAfter(Instant.now().minusSeconds(300)))
         .orElse(null);
 
     return new UserDto(
@@ -137,7 +148,9 @@ public class BasicUserService implements UserService {
         user.getUpdatedAt(),
         user.getUsername(),
         user.getEmail(),
-        user.getProfileId(),
+        Optional.ofNullable(user.getProfile())        // profileId 대신 객체에서 id 추출
+            .map(BinaryContent::getId)
+            .orElse(null),
         online
     );
   }
