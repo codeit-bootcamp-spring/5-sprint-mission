@@ -6,6 +6,6 @@ import java.util.UUID;
 public record ReadStatusCreateRequest(
         UUID userId,
         UUID channelId,
-        Instant lastReadAt // TODO 왜 필요한지?
+        Instant lastReadAt
 ) {
 }
