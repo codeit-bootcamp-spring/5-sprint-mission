@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.dto.response.page.PageResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -16,7 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,11 +69,11 @@ public class MessageController {
     @GetMapping()
     public ResponseEntity<PageResponse<MessageResponse>> getMessagesByChannel(
             @RequestParam UUID channelId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Instant cursor,
             @RequestParam(defaultValue = "50") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String[] sort
+            @RequestParam(defaultValue = "createdAt,desc") String sort
     ) {
-        PageResponse<MessageResponse> response = messageService.findSliceMessagesByChannel(channelId, page, size, sort);
+        PageResponse<MessageResponse> response = messageService.findMessagesByChannelWithCursor(channelId, cursor, size, sort);
 
         return ResponseEntity.ok(response);
     }

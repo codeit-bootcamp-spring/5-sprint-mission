@@ -4,10 +4,14 @@ import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreat
 import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessagesGetByAuthorRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
-import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.dto.response.page.PageOffsetResponse;
+import com.sprint.mission.discodeit.dto.response.page.PageResponse;
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.message.UnauthorizedMessageAccessException;
@@ -23,6 +27,9 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -103,24 +110,44 @@ public class BasicMessageService implements MessageService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size, String[] sort) {
+    public PageOffsetResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size, String[] sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Message> messagePage = messageRepository.findPageByChannelId(channelId, pageable);
         Page<MessageResponse> responsePage = messagePage.map(MessageResponse::success);
-        return pageResponseMapper.fromPage(responsePage);
+        return pageResponseMapper.fromPageToOffset(responsePage);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<MessageResponse> findSliceMessagesByChannel(UUID channelId, int page, int size, String[] sort) {
+    public PageOffsetResponse<MessageResponse> findSliceMessagesByChannel(UUID channelId, int page, int size, String[] sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Slice<Message> messageSlice = messageRepository.findSliceByChannelId(channelId, pageable);
 
         Slice<MessageResponse> responseSlice = messageSlice.map(MessageResponse::success);
 
-        return pageResponseMapper.fromSlice(responseSlice);
+        return pageResponseMapper.fromSliceToOffset(responseSlice);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<MessageResponse> findMessagesByChannelWithCursor(UUID channelId, Instant cursor, int size, String sort) {
+        Sort sortObj = createSort(sort);
+        Pageable pageable = PageRequest.of(0, size, sortObj);
+
+        if (cursor == null) {
+            cursor = Instant.parse("9999-12-31T23:59:59Z");
+        }
+        Slice<Message> messageSlice = messageRepository.findByChannelIdWithCursor(channelId, cursor, pageable);
+
+        Object nextCursor = null;
+        if (messageSlice.hasNext() && !messageSlice.getContent().isEmpty()) {
+            Message lastMessage = messageSlice.getContent().get(messageSlice.getContent().size() - 1);
+            nextCursor = lastMessage.getCreatedAt();
+        }
+
+        return pageResponseMapper.fromSliceToCursor(messageSlice.map(MessageResponse::success), nextCursor);
     }
 
 	@Override
@@ -181,4 +208,14 @@ public class BasicMessageService implements MessageService {
 			}
 		}
 	}
+
+    private Sort createSort(String sort) {
+        String[] parts = sort.split(",");
+        String property = parts[0];
+        Sort.Direction direction = (parts.length > 1 && "desc".equals(parts[1]))
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        return Sort.by(direction, property);
+    }
 }

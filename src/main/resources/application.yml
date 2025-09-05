@@ -33,7 +33,7 @@ logging:
 
     # Spring Web
 #    org.springframework.web: trace, info
-    org.springframework.web: INFO
+    org.springframework.web: trace
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
 
 #logging:

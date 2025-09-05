@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
@@ -42,6 +43,17 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     ORDER BY m.createdAt DESC
     """)
     Slice<Message> findSliceByChannelId(UUID channelId, Pageable pageable);
+
+    @Query("""
+        SELECT m FROM Message m
+        JOIN FETCH m.author a
+        LEFT JOIN FETCH a.profile
+        LEFT JOIN FETCH a.userStatus
+        LEFT JOIN FETCH m.attachments
+        WHERE m.channel.id = :channelId
+        AND m.createdAt < :cursor
+        """)
+    Slice<Message> findByChannelIdWithCursor(UUID channelId, Instant cursor, Pageable pageable);
 
     @Query("SELECT MAX(m.createdAt) FROM Message m WHERE m.channel.id = :channelId")
     Optional<Instant> findLatestMessageTimeByChannelId(UUID channelId);
