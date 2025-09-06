@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,39 +37,39 @@ public class BinaryContentController {
   //파일 등록
   @Operation(summary = "파일 등록")
   @PostMapping("/api/binaryContents")
-  public ResponseEntity<UUID> create(@RequestBody BinaryContentCreateRequest request) {
-    UUID id = binaryContentService.create(request);
-    return ResponseEntity.ok(id);
+  public ResponseEntity<UUID> create(@RequestBody BinaryContentDto dto) {
+    UUID id = binaryContentService.create(dto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(id);
   }
 
 
   //파일 1개 조회
   @Operation(summary = "파일 1개 조회")
   @GetMapping("/api/binaryContents/{binaryContentId}")
-  public ResponseEntity<BinaryContent> findById(@PathVariable UUID id) {
-    BinaryContent file = binaryContentService.findById(id);
-    return ResponseEntity.ok(file);
+  public ResponseEntity<BinaryContentDto> findById(@PathVariable UUID id) {
+    BinaryContentDto fileDto = binaryContentService.findById(id);
+    return ResponseEntity.ok(fileDto);
   }
 
   //바이너리 파일 다운로드
   @Operation(summary = "파일 다운로드")
   @RequestMapping(value = "/download", method = RequestMethod.GET)
   public ResponseEntity<byte[]> downloadFile(@RequestParam UUID id) {
-    BinaryContent file = binaryContentService.findById(id);
+    BinaryContentDto fileDto = binaryContentService.findById(id);
 
     return ResponseEntity.ok()
-        .header("Content-Disposition", "attachment; filename=\"" + file.getFileName() + "\"")
-        .header("Content-Type", file.getContentType())
-        .body(file.getBytes());
+        .header("Content-Disposition", "attachment; filename=\"" + fileDto.getFileName() + "\"")
+        .header("Content-Type", fileDto.getContentType())
+        .body(fileDto.getData());
   }
 
 
   //파일 여러개 조회
   @Operation(summary = "파일 여러개 조회")
   @GetMapping("/api/binaryContents")
-  public ResponseEntity<List<BinaryContent>> findAllByIdIn(
-      @RequestParam List<UUID> binaryContentIds) {
-    List<BinaryContent> files = binaryContentService.findAllByIdIn(binaryContentIds);
+  public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
+      @RequestParam List<UUID> Ids) {
+    List<BinaryContentDto> files = binaryContentService.findAllByIdIn(Ids);
     return ResponseEntity.ok(files);
   }
 

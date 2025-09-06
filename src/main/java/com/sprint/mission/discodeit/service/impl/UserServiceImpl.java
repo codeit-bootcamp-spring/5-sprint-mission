@@ -1,15 +1,16 @@
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,18 +21,42 @@ public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
+  private final BinaryContentRepository binaryContentRepository; // 프로필 이미지 저장을 위해 추가
 
-  /*회원가입
-   * username, email, password
+  /* 회원가입
+   * DTO를 받아서 처리하고, DTO를 반환
    */
   @Override
-  public User create(User user, MultipartFile profile) {
-    return userRepository.save(user);
+  @Transactional
+  public UserDto create(UserDto dto, MultipartFile profile) throws IOException {
+    if (existsByUsername(dto.getUsername())) {
+      throw new IllegalArgumentException("사용자 이름이 이미 존재합니다.");
+    }
+    if (existsByEmail(dto.getEmail())) {
+      throw new IllegalArgumentException("이메일이 이미 존재합니다.");
+    }
+
+    // DTO -> Entity 변환
+    User user = userMapper.toEntityForCreate(dto);
+
+    // 프로필 이미지 처리
+    if (profile != null && !profile.isEmpty()) {
+      BinaryContent profileImage = new BinaryContent(
+          profile.getOriginalFilename(),
+          profile.getContentType(),
+          profile.getSize(),
+          profile.getBytes()
+      );
+      user.setProfile(binaryContentRepository.save(profileImage));
+    }
+
+    // DB 저장 후 Entity -> DTO 변환하여 반환
+    User createdUser = userRepository.save(user);
+    return userMapper.toDto(createdUser);
   }
 
-  /*단일 조회
+  /* 단일 조회
    * User -> UserDto 변환
-   * 영속성 컨텍스트에 엔티티 올림
    */
   @Override
   @Transactional
@@ -42,46 +67,45 @@ public class UserServiceImpl implements UserService {
   }
 
   /* 전체 유저 조회
-   *  User -> UserDto 변환
-   * 영속성 컨텍스트에 엔티티 올림
-   * */
-  //너무 비효율적인데? 수정 예정
-  @Override
-  @Transactional
-  public List<UserDto> findAll() {
-    return userRepository.findAll().stream() //1. DB에서 모든 UserEntity 꺼내옴
-        .map(userMapper::toDto) //2. 각각의 User 엔티티를 UserDto로 변환
-        .collect(Collectors.toList()); //3. 변환된 UserDto들을 리스트로 모음
-  }
-
-
-  /* 정보 수정
-   * findById로 영속성 컨텍스트에 올린후
-   * set~메서드로 필드값만 수정
-   * save 호출X,
-   * 트랜잭션 끝나면 자동 DB update
+   * User -> UserDto 변환
    */
   @Override
   @Transactional
-  public User update(UUID id, UserDto dto, MultipartFile profileImage)
-      throws IOException {
+  public List<UserDto> findAll() {
+    List<User> users = userRepository.findAll();
+    return userMapper.toDtoList(users);
+  }
+
+  /* 정보 수정
+   * DTO를 받아서 처리하고, DTO를 반환
+   */
+  @Override
+  @Transactional
+  public UserDto update(UUID id, UserDto dto, MultipartFile profileImage) throws IOException {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음"));
 
-    //값만 바꿔주면 트랜잭션 끝날때 자동 update
-    if (dto.getNewUsername() != null) {
-      user.setUsername(dto.getNewUsername());
-    }
-    if (dto.getNewEmail() != null) {
-      user.setEmail(dto.getNewEmail());
-    }
-    if (dto.getNewPassword() != null) {
-      user.setPassword(dto.getNewPassword());
+    // Mapper를 통해 엔티티 값 업데이트
+    userMapper.updateEntityFromDto(user, dto);
+
+    // 프로필 이미지 수정 로직 (새 이미지가 있다면 기존 이미지 삭제 후 새 이미지 저장)
+    if (profileImage != null && !profileImage.isEmpty()) {
+      // 기존 프로필 이미지 삭제
+      if (user.getProfile() != null) {
+        binaryContentRepository.delete(user.getProfile());
+      }
+      // 새 프로필 이미지 저장
+      BinaryContent newProfile = new BinaryContent(
+          profileImage.getOriginalFilename(),
+          profileImage.getContentType(),
+          profileImage.getSize(),
+          profileImage.getBytes()
+      );
+      user.setProfile(binaryContentRepository.save(newProfile));
     }
 
-    //트랜잭션 끝, JPA가 알아서 update 쿼리 실행
-    // DB에 최신 내용 제출
-    return user; // Dirty checking
+    // 변경된 엔티티를 DTO로 변환하여 반환 (Dirty Checking으로 자동 업데이트)
+    return userMapper.toDto(user);
   }
 
   @Override
@@ -92,13 +116,14 @@ public class UserServiceImpl implements UserService {
     userRepository.delete(user);
   }
 
-
   @Override
+  @Transactional
   public boolean existsByUsername(String username) {
     return userRepository.existsByUsername(username);
   }
 
   @Override
+  @Transactional
   public boolean existsByEmail(String email) {
     return userRepository.existsByEmail(email);
   }

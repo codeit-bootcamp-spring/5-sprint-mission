@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import jakarta.transaction.Transactional;
@@ -15,36 +16,32 @@ import org.springframework.stereotype.Service;
 public class BinaryContentServiceImpl implements BinaryContentService {
 
   private final BinaryContentRepository binaryContentRepository;
+  private final BinaryContentMapper binaryContentMapper;
 
   //파일 등록
   @Override
   @Transactional
-  public UUID create(BinaryContentCreateRequest request) {
-    BinaryContent file = new BinaryContent(
-        request.getFileName(),
-        request.getContentType(),
-        request.getSize(),
-        request.getData()
-    );
-    // 영속상태 등록
+  public UUID create(BinaryContentDto dto) {
+    BinaryContent file = binaryContentMapper.toEntity(dto); // dto 변환 메서드 호출
     BinaryContent saved = binaryContentRepository.save(file);
-    return saved.getId(); // PK UUID id 반환 <- 다른 곳에서 파일 조회&식별 가능
+    return saved.getId();
   }
 
   //파일 1개 조회
   @Override
   @Transactional
-  public BinaryContent findById(UUID id) {
-    return binaryContentRepository.findById(id)
+  public BinaryContentDto findById(UUID id) {
+    BinaryContent file = binaryContentRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없음"));
+    return binaryContentMapper.toDto(file);
   }
-
 
   //여러 파일 조회
   @Override
   @Transactional
-  public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
-    return binaryContentRepository.findAllByIdIn(ids);
+  public List<BinaryContentDto> findAllByIdIn(List<UUID> ids) {
+    List<BinaryContent> files = binaryContentRepository.findAllByIdIn(ids);
+    return binaryContentMapper.toDtoList(files);
   }
 
   //파일 삭제

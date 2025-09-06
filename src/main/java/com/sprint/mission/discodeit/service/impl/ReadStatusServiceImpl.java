@@ -1,10 +1,12 @@
+// src/main/java/com/sprint/mission/discodeit/service/impl/ReadStatusServiceImpl.java
+
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -19,69 +21,62 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ReadStatusServiceImpl implements ReadStatusService {
 
-
   private final ReadStatusRepository readStatusRepository;
   private final UserRepository userRepository;
   private final ChannelRepository channelRepository;
+  private final ReadStatusMapper readStatusMapper;
 
-  //읽음상태 생성
   @Override
   @Transactional
-  public ReadStatus create(ReadStatusCreateRequest request) {
-
-    //1.User, Channel 엔티티 조회 (영속성 컨텍스트에 올리기)
-    User user = userRepository.findById(request.getUserId())
+  public ReadStatusDto create(ReadStatusDto dto) { // DTO를 받아서 DTO를 반환
+    User user = userRepository.findById(dto.getUserId())
         .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없음"));
-    Channel channel = channelRepository.findById(request.getChannelId())
+    Channel channel = channelRepository.findById(dto.getChannelId())
         .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
 
-    //2. ReadStatus 엔티티 생성
-    ReadStatus readStatus = new ReadStatus(user, channel, request.getLastReadAt());
+    // 매퍼를 사용해 엔티티로 변환
+    ReadStatus readStatus = readStatusMapper.toEntity(dto, user, channel);
 
-    //3. 저장(영속 상태 올림)
-    return readStatusRepository.save(readStatus);
-
-
+    // 저장 후 DTO로 변환하여 반환
+    ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
+    return readStatusMapper.toDto(savedReadStatus);
   }
 
-  /* 읽음상태 업데이트
-   * setter 호출, 트랜잭션 끝나면 자동 update
-   */
   @Override
   @Transactional
-  public ReadStatus update(UUID readStatusId, ReadStatusUpdateRequest request) {
+  public ReadStatusDto update(UUID readStatusId, ReadStatusDto dto) { // DTO를 받아서 DTO를 반환
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new IllegalArgumentException("해당 읽음상태 없음"));
 
-    if (request.getNewLastReadAt() != null) {
-      readStatus.update(request.getNewLastReadAt());
-    }
-    return readStatus;
+    // 매퍼를 사용해 엔티티 값 업데이트
+    readStatusMapper.updateEntityFromDto(readStatus, dto);
+
+    // DTO로 변환하여 반환
+    return readStatusMapper.toDto(readStatus);
   }
 
-  /*특정 유저 읽음상태 전부 조회
-   * 예: 어떤 채널에서 읽지 않은 메시지가 몇 개인지
-   */
   @Override
-  @Transactional(readOnly = true)
-  public List<ReadStatus> findAllByUserId(UUID userId) {
-    return readStatusRepository.findByUser_Id(userId);
+  @Transactional
+  public List<ReadStatusDto> findAllByUserId(UUID userId) { //  DTO 리스트 반환
+    List<ReadStatus> readStatuses = readStatusRepository.findByUser_Id(userId);
+
+    // 매퍼를 사용해 DTO 리스트로 변환
+    return readStatusMapper.toDtoList(readStatuses);
   }
 
-  /*채널 삭제시, 해당 채널의 모든 읽음기록 삭제
-   */
   @Override
   @Transactional
   public void deleteByChannelId(UUID channelId) {
     readStatusRepository.deleteByChannel_Id(channelId);
   }
 
-  /*읽음상태 단건 조회
-   */
   @Override
   @Transactional
-  public ReadStatus findById(UUID id) {
-    return readStatusRepository.findById(id)
+  public ReadStatusDto findById(UUID id) { // DTO 반환
+    ReadStatus readStatus = readStatusRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("해당 읽음 상태 없음"));
+
+    // DTO로 변환하여 반환
+    return readStatusMapper.toDto(readStatus);
   }
 }

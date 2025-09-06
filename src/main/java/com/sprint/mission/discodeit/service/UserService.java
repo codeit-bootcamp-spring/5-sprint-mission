@@ -5,8 +5,7 @@ package com.sprint.mission.discodeit.service;
 //CRUD(생성,읽기,모두읽기,수정,삭제) 기능 구현하기
 
 
-import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.dto.UserDto;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -16,16 +15,17 @@ public interface UserService {
 
 
   /*회원가입
+   * DTO 를 받아 DTO를 반환하도록 변경
    * username, email, password
    */
-  User create(User user, MultipartFile profile);
+  UserDto create(UserDto Dto, MultipartFile profile) throws IOException;
 
   UserDto findById(UUID id);
 
   //전체 조회후 응답용 DTO로 반환
   List<UserDto> findAll();
 
-  User update(UUID id, UserDto dto, MultipartFile profileImage)
+  UserDto update(UUID id, UserDto dto, MultipartFile profileImage)
       throws IOException;
 
   void delete(UUID id);
