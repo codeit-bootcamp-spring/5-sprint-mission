@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.user;
+package com.sprint.mission.discodeit.dto;
 
 import java.util.UUID;
 import lombok.Data;
@@ -16,10 +16,10 @@ public class UserDto {
   private String email;
 
   // Create/Update 요청용
-  private String password;        // create 용
-  private String newUsername;     // update 용
-  private String newEmail;        // update 용
-  private String newPassword;     // update 용
+  private String password;
+  private String newUsername;
+  private String newEmail;
+  private String newPassword;
 
   // 응답용
   private UUID profileId;

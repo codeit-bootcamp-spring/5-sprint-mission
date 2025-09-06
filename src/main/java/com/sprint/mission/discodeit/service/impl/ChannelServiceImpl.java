@@ -1,9 +1,8 @@
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import jakarta.transaction.Transactional;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ChannelServiceImpl implements ChannelService {
 
+  private final ChannelMapper channelMapper;
   private ChannelRepository channelRepository;
 
   //채널 생성
@@ -28,16 +28,18 @@ public class ChannelServiceImpl implements ChannelService {
   //채널 단건 조회
   @Override
   @Transactional
-  public Channel findById(UUID id) {
-    return channelRepository.findById(id)
+  public ChannelDto findById(UUID id) {
+    Channel channel = channelRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
+    return channelMapper.toDto(channel);
   }
 
   //채널 리스트 조회
   @Override
   @Transactional
-  public List<Channel> findAll() {
-    return channelRepository.findAll();
+  public List<ChannelDto> findAll() {
+    List<Channel> channels = channelRepository.findAll();
+    return channelMapper.toDtoList(channels);
   }
 
   /* 채널 정보 수정
@@ -46,17 +48,13 @@ public class ChannelServiceImpl implements ChannelService {
    * */
   @Override
   @Transactional
-  public void update(UUID id, PublicChannelUpdateRequest request) {
-    Channel channel = channelRepository.findById(id)
+  public void update(UUID id, ChannelDto dto) {
+    Channel channel = channelRepository.findById(id) // 영속성 컨텍스트에 의해 관리
         .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
 
-    if (request.newName() != null && !request.newName().isEmpty()) {
-      channel.updateName(request.newName());
-    }
-    if (request.newDescription() != null && !request.newDescription().isEmpty()) {
-      channel.updateDescription(request.newDescription());
-    }
+    channelMapper.updateEntityFromDto(channel, dto);
   }
+
 
   //채널 삭제
   @Override
@@ -75,16 +73,16 @@ public class ChannelServiceImpl implements ChannelService {
   //비공개채널 생성
   @Override
   @Transactional
-  public void createPrivateChannel(PrivateChannelCreateRequest request) {
-    Channel channel = request.toEntity();
+  public void createPrivateChannel(ChannelDto dto) {
+    Channel channel = channelMapper.toEntity(dto);
     channelRepository.save(channel);
   }
 
   //공개채널 생성
   @Override
   @Transactional
-  public void createPublicChannel(PublicChannelCreateRequest request) {
-    Channel channel = request.toEntity();
+  public void createPublicChannel(ChannelDto dto) {
+    Channel channel = channelMapper.toEntity(dto);
     channelRepository.save(channel);
   }
 }

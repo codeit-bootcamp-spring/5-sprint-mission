@@ -1,10 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
@@ -30,8 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
   private final UserService userService;
-  private final UserStatusService userStatusService;
-  private final UserMapper userMapper;
+
 
   //회원가입
   @Operation(summary = "회원가입")
@@ -39,29 +35,28 @@ public class UserController {
   public ResponseEntity<UserDto> create(
       @RequestPart("userDto") UserDto dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile
-  ) {
-    User user = userMapper.toEntityForCreate(dto); // 요청
-    User createdUser = userService.create(user, profile);
-    UserDto responseDto = userMapper.toDto(createdUser); // 응답
+  ) throws IOException {
+    UserDto responseDto = userService.create(dto, profile);
     return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
   }
 
-  //유저 전체조회
+  //유저 조회
   @Operation(summary = "유저 전체조회")
   @GetMapping
   public ResponseEntity<List<UserDto>> findAll() {
-    return ResponseEntity.ok(userService.findAll());
+    List<UserDto> users = userService.findAll();
+    return ResponseEntity.ok(users);
   }
 
-
-  //유저 단건조회
+  //단건조회
   @Operation(summary = "유저 단건조회")
   @GetMapping("/{userId}")
   public ResponseEntity<UserDto> findById(@PathVariable("userId") UUID id) {
-    return ResponseEntity.ok(userService.findById(id));
+    UserDto user = userService.findById(id);
+    return ResponseEntity.ok(user);
   }
 
-  // 사용자 수정 : username,email,password
+  //정보 수정
   @Operation(summary = "회원 정보 수정")
   @PatchMapping(value = "/{userId}", consumes = "multipart/form-data")
   public ResponseEntity<UserDto> update(
@@ -69,12 +64,11 @@ public class UserController {
       @RequestPart("userDto") UserDto dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) throws IOException {
-    User updated = userService.update(id, dto, profile);
-    return ResponseEntity.ok(userMapper.toDto(updated));
+    UserDto updatedUser = userService.update(id, dto, profile);
+    return ResponseEntity.ok(updatedUser);
   }
 
-
-  // 사용자 삭제
+  //회원 탈퇴
   @Operation(summary = "회원 탈퇴")
   @DeleteMapping("/{userId}")
   public ResponseEntity<Void> delete(@PathVariable("userId") UUID id) {
