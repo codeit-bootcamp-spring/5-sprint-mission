@@ -1,9 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,16 +31,19 @@ public class UserController {
 
   private final UserService userService;
   private final UserStatusService userStatusService;
+  private final UserMapper userMapper;
 
   //회원가입
   @Operation(summary = "회원가입")
   @PostMapping(consumes = "multipart/form-data")
-  public ResponseEntity<User> create(
-      @RequestPart("userCreateRequest") UserCreateRequest request,
+  public ResponseEntity<UserDto> create(
+      @RequestPart("userDto") UserDto dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
-    User createdUser = userService.create(request, profile); //요청 & 프로필 받기
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    User user = userMapper.toEntityForCreate(dto); // 요청
+    User createdUser = userService.create(user, profile);
+    UserDto responseDto = userMapper.toDto(createdUser); // 응답
+    return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
   }
 
   //유저 전체조회
@@ -62,13 +64,13 @@ public class UserController {
   // 사용자 수정 : username,email,password
   @Operation(summary = "회원 정보 수정")
   @PatchMapping(value = "/{userId}", consumes = "multipart/form-data")
-  public ResponseEntity<User> update(
+  public ResponseEntity<UserDto> update(
       @PathVariable("userId") UUID id,
-      @RequestPart("userUpdateRequest") UserUpdateRequest request,
+      @RequestPart("userDto") UserDto dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) throws IOException {
-    User updatedUser = userService.update(id, request, profile);
-    return ResponseEntity.ok(updatedUser);
+    User updated = userService.update(id, dto, profile);
+    return ResponseEntity.ok(userMapper.toDto(updated));
   }
 
 

@@ -1,33 +1,29 @@
 package com.sprint.mission.discodeit.dto.user;
 
-import com.sprint.mission.discodeit.entity.User;
 import java.util.UUID;
+import lombok.Data;
 
 
-/* 응답용 record
- *자동으로 getter, toString, equals, hashCode,
- *생성자 다 만들어줌
+/* 요청,응답 dto 통합
  */
 
-public record UserDto(
-    UUID id,
-    String username,
-    String email,
-    UUID profileId,
-    Boolean online
-) {
+@Data
+public class UserDto {
 
-  //Entity에서 Dto로 변환
-  public static UserDto fromEntity(User user) {
-    // UserStatus의 NULL 체크
-    boolean online = user.getStatus() != null && user.getStatus().isOnline();
-    return new UserDto(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        (user.getProfile() != null) ? user.getProfile().getId() : null,
-        online
-    );
-  }
+  // 공통 필드
+  private UUID id;
+  private String username;
+  private String email;
+
+  // Create/Update 요청용
+  private String password;        // create 용
+  private String newUsername;     // update 용
+  private String newEmail;        // update 용
+  private String newPassword;     // update 용
+
+  // 응답용
+  private UUID profileId;
+  private Boolean online;
+
 }
 
