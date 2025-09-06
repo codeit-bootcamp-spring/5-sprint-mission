@@ -7,13 +7,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageRepository {
-    Message save(Message messageDto);
-
+    Message save(Message message);
     Optional<Message> findById(UUID id);
-
-    List<Message> findAll();
-
+    Optional<Message> findLatestByChannelId(UUID channelId);
+    List<Message> findAllByChannelId(UUID channelId);
     void delete(UUID id);
-
-    void deleteAll();
+    void deleteAllByChannelId(UUID channelId);
 }

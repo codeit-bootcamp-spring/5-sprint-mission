@@ -1,39 +1,61 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
+import java.util.UUID;
 
+@Getter
 public class User extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private String name;
+    private String username; // 사용자명 (아이디)
     private String nickname;
+    private String email;
     private String password;
+    private UUID profileId;
 
-    public User(String name, String nickname, String password) {
-        this.name = name;
+    public User(String username, String nickname, String email, String password, UUID profileId) {
+        this.username = username;
         this.nickname = nickname;
+        this.email = email;
         this.password = password;
+        this.profileId = profileId;
     }
 
-    public String getName() {
-        return name;
-    }
+    public void update(String newUsername, String newNickname, String newEmail, String newPassword, UUID newProfileId) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
 
-    public String getNickname() {
-        return nickname;
-    }
+        if (newNickname != null && !newNickname.equals(this.nickname)) {
+            this.nickname = newNickname;
+            anyValueUpdated = true;
+        }
 
-    public String getPassword() {
-        return password;
-    }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
 
-    public void update(String name, String nickname, String password) {
-        this.name = name;
-        this.nickname = nickname;
-        this.password = password;
-        this.setUpdatedAt(System.currentTimeMillis());
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+
+        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+            this.profileId = newProfileId;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.setUpdatedAt(Instant.now());
+        }
     }
 
     @Override
@@ -57,9 +79,12 @@ public class User extends BaseEntity implements Serializable {
 
     @Override
     public String toString() {
-        return super.toString() + " User{" +
-                "name='" + name + '\'' +
-                ", nickname='" + nickname + '\'' +
+        return "User{" +
+                "newUsername='" + username + '\'' +
+                ", newNickname='" + nickname + '\'' +
+                ", newEmail='" + email + '\'' +
+                ", newPassword='" + password + '\'' +
+                ", profileId=" + profileId +
                 '}';
     }
 }

@@ -1,18 +1,24 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
 public class Message extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private UUID channelId;
     private UUID authorId;
     private String content;
+    private List<UUID> attachmentIds; // BinaryFile이 messageId를 갖고 있는게 낫지 않나
 
-    public Message(UUID channelId, UUID authorId, String content) {
+    public Message(UUID channelId, UUID authorId, String content, List<UUID> attachmentIds) {
         if (channelId == null) {
             throw new IllegalArgumentException("Channel ID is required");
         }
@@ -26,27 +32,19 @@ public class Message extends BaseEntity implements Serializable {
         this.channelId = channelId;
         this.authorId = authorId;
         this.content = content;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public UUID getAuthorId() {
-        return authorId;
-    }
-
-    public String getContent() {
-        return content;
+        this.attachmentIds = attachmentIds;
     }
 
     public void editContent(String content) {
-        if (content == null || content.equals(this.content)) {
-            return;
+        boolean anyValueUpdated = false;
+        if (content != null && !content.equals(this.content)) {
+            this.content = content;
+            anyValueUpdated = true;
         }
 
-        this.content = content;
-        this.setUpdatedAt(System.currentTimeMillis());
+        if (anyValueUpdated) {
+            this.setUpdatedAt(Instant.now());
+        }
     }
 
     @Override
@@ -74,6 +72,7 @@ public class Message extends BaseEntity implements Serializable {
                 "channelId=" + channelId +
                 ", authorId=" + authorId +
                 ", content='" + content + '\'' +
+                ", attachmentIds=" + attachmentIds +
                 '}';
     }
 }

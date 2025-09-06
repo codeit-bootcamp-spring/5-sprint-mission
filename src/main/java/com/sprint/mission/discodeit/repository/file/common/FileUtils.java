@@ -3,14 +3,20 @@ package com.sprint.mission.discodeit.repository.file.common;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class FileUtils {
-    private static final Path BASE_PATH = Paths.get(System.getProperty("user.dir"), "data");
+    private static Path BASE_PATH;
     private static final String EXTENSION = ".ser";
+
+    private FileUtils() {
+    }
+
+    public static void setBasePath(Path basePath) {
+        BASE_PATH = basePath;
+    }
 
     public static void init(Path subDir) {
         Path path = BASE_PATH.resolve(subDir);
@@ -30,7 +36,7 @@ public class FileUtils {
 
             oos.writeObject(data);
         } catch (IOException e) {
-            throw new RuntimeException(data.getClass().getName() + " file saving exception");
+            throw new RuntimeException(data.getClass().getName() + " file saving exception", e);
         }
     }
 
@@ -79,6 +85,11 @@ public class FileUtils {
         }
     }
 
+    public static boolean fileExists(Path subDir) {
+        Path path = BASE_PATH.resolve(subDir.toString().concat(EXTENSION));
+        return Files.exists(path);
+    }
+
     public static void delete(Path subDir) {
         Path path = BASE_PATH.resolve(subDir.toString().concat(EXTENSION));
 
@@ -89,19 +100,19 @@ public class FileUtils {
         }
     }
 
-    public static <T> void deleteAll(Path subDir) {
+    public static void deleteAll(Path subDir) {
         Path directory = BASE_PATH.resolve(subDir);
-        File folder = new File(directory.toString());
 
-        if (folder.exists()) {
-            File[] files = folder.listFiles();
-            if (files == null) {
-                return;
-            }
-
-            for (int i = files.length - 1; i >= 0; i--) {
-                files[i].delete();
-            }
+        try (Stream<Path> stream = Files.list(directory)) {
+            stream.forEach(path -> {
+                try {
+                    Files.delete(path);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to delete file: " + path);
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to list files deletion in " + directory);
         }
     }
 }
