@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.MessageApi;
 import com.sprint.mission.discodeit.dto.request.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
@@ -20,10 +21,10 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/messages")
-public class MessageController {
+public class MessageController implements MessageApi {
     private final MessageService messageService;
 
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     public ResponseEntity<Message> create(@RequestPart("messageCreateRequest") MessageCreateRequest request,
                                           @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
 
@@ -49,20 +50,20 @@ public class MessageController {
                 .body(createdMessage);
     }
 
-    @RequestMapping(path = "{messageId}", method = RequestMethod.PATCH)
+    @PatchMapping("{messageId}")
     public ResponseEntity<Message> update(@PathVariable("messageId") UUID messageId, @RequestBody MessageUpdateRequest request) {
         Message updatedMessage = messageService.update(messageId, request);
         return ResponseEntity.ok(updatedMessage);
     }
 
-    @RequestMapping(path = "{messageId}", method = RequestMethod.DELETE)
+    @DeleteMapping("{messageId}")
     public ResponseEntity<Void> delete(@PathVariable("messageId") UUID messageId) {
         messageService.delete(messageId);
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<Message>> findAll(@RequestParam("channelId") UUID channelId) {
+    @GetMapping
+    public ResponseEntity<List<Message>> findAllByChannelId(@RequestParam("channelId") UUID channelId) {
         List<Message> messages = messageService.findAllByChannelId(channelId);
         return ResponseEntity.ok(messages);
     }

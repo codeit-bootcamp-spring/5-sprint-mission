@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
@@ -23,13 +24,13 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
-public class UserController {
+public class UserController implements UserApi {
 
     private final UserService userService;
     private final UserStatusService userStatusService;
 
-    // TODO 메서드 2개로 분리: POST /users, POST /users/{id}/profile
-    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // 메서드 2개로 분리하는게 좋지 않을까: POST /users, POST /users/{id}/profile
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<User> create(
             @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profile) {
@@ -42,7 +43,7 @@ public class UserController {
                 .body(user);
     }
 
-    @RequestMapping(path = "{userId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(path = "{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<User> update(
             @PathVariable("userId") UUID userId,
             @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
@@ -53,19 +54,19 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    @RequestMapping(path = "{userId}", method = RequestMethod.DELETE)
+    @DeleteMapping(path = "{userId}")
     public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
         userService.delete(userId);
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public ResponseEntity<List<UserDto>> findAll() {
         List<UserDto> users = userService.findAll();
         return ResponseEntity.ok(users);
     }
 
-    @RequestMapping(path = "{userId}/user-status", method = RequestMethod.PATCH)
+    @PatchMapping("{userId}/user-status")
     public ResponseEntity<UserStatus> updateUserStatusByUserId(
             @PathVariable("userId") UUID userId,
             @RequestBody UserStatusUpdateRequest userStatusUpdateRequest) {
@@ -89,5 +90,4 @@ public class UserController {
             throw new RuntimeException(e);
         }
     }
-
 }

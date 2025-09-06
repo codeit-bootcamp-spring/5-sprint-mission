@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.ReadStatusApi;
 import com.sprint.mission.discodeit.dto.request.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -15,10 +16,10 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/read-statuses")
-public class ReadStatusController {
+public class ReadStatusController implements ReadStatusApi {
     private final ReadStatusService readStatusService;
 
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
         ReadStatus readStatus = readStatusService.create(request);
         return ResponseEntity
@@ -26,15 +27,15 @@ public class ReadStatusController {
                 .body(readStatus);
     }
 
-    @RequestMapping(path = {"{readStatusId}"}, method = RequestMethod.PATCH)
+    @PatchMapping("{readStatusId}")
     public ResponseEntity<ReadStatus> update(@PathVariable("readStatusId") UUID id,
                                              @RequestBody ReadStatusUpdateRequest request) {
         ReadStatus updatedReadStatus = readStatusService.update(id, request);
         return ResponseEntity.ok(updatedReadStatus);
     }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<ReadStatus>> findAll(@RequestParam("userId") UUID userId) {
+    @GetMapping
+    public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam("userId") UUID userId) {
         List<ReadStatus> readStatuses = readStatusService.findAllByUserId(userId);
         return ResponseEntity.ok(readStatuses);
     }
