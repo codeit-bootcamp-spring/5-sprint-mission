@@ -1,17 +1,14 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import lombok.Getter;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
-public class UserStatus extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class UserStatus extends BaseUpdatableEntity {
     private UUID userId;
     private Instant lastActiveAt;
 
@@ -35,13 +32,5 @@ public class UserStatus extends BaseEntity implements Serializable {
         if (anyValueUpdated) {
             this.setUpdatedAt(Instant.now());
         }
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() + " UserStatus{" +
-                "userId=" + userId +
-                ", lastActiveAt=" + lastActiveAt +
-                '}';
     }
 }

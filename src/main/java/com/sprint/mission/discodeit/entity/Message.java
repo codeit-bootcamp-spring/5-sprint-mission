@@ -1,18 +1,14 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import lombok.Getter;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Getter
-public class Message extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class Message extends BaseUpdatableEntity {
     private UUID channelId;
     private UUID authorId;
     private String content;
@@ -45,34 +41,5 @@ public class Message extends BaseEntity implements Serializable {
         if (anyValueUpdated) {
             this.setUpdatedAt(Instant.now());
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        Message message = (Message) o;
-        return Objects.equals(getId(), message.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId());
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() + "Message{" +
-                "channelId=" + channelId +
-                ", authorId=" + authorId +
-                ", content='" + content + '\'' +
-                ", attachmentIds=" + attachmentIds +
-                '}';
     }
 }

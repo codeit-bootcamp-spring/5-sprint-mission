@@ -1,17 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import lombok.Getter;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.UUID;
 
 @Getter
-public class User extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class User extends BaseUpdatableEntity {
     private String username; // 사용자명 (아이디)
     private String email;
     private String password;
@@ -49,34 +45,5 @@ public class User extends BaseEntity implements Serializable {
         if (anyValueUpdated) {
             this.setUpdatedAt(Instant.now());
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        User user = (User) o;
-        return Objects.equals(getId(), user.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId());
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "newUsername='" + username + '\'' +
-                ", newEmail='" + email + '\'' +
-                ", newPassword='" + password + '\'' +
-                ", profileId=" + profileId +
-                '}';
     }
 }
