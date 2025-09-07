@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ReadStatusService {
-
-  /** user의 모든 read-status. 없으면 빈 리스트 반환 */
+  // user의 모든 read-status. 없으면 빈 리스트 반환
   List<ReadStatusDto> findByUser(UUID userId);
-
-  /** (user, channel) 읽음 시각 갱신. 없으면 생성해서 사용 (단조증가) */
+  //(user, channel) 읽음 시각 갱신
   ReadStatusDto markRead(UUID userId, UUID channelId, ReadStatusUpdateRequest req);
 }

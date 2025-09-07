@@ -43,5 +43,4 @@ public class Message extends BaseUpdatableEntity {
   public void update(String content) { this.content = content; }
 
   public void addAttachment(BinaryContent file) { if (file != null) attachments.add(file); }
-  public void removeAttachment(BinaryContent file) { attachments.remove(file); }
 }

@@ -91,8 +91,6 @@ public class BasicMessageService implements MessageService {
   public void delete(UUID messageId) {
     var message = messageRepository.findById(messageId)
         .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
-
-    // 메타만 삭제 (스토리지 파일 삭제는 BinaryContentStorage에 delete(UUID) 추가 후 함께 처리 권장)
     message.getAttachments().stream()
         .map(BinaryContent::getId)
         .forEach(binaryContentRepository::deleteById);

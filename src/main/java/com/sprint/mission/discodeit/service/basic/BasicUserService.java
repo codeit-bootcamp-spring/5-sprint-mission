@@ -38,9 +38,7 @@ public class BasicUserService implements UserService {
   private final UserMapper userMapper;
   private final BinaryContentStorage binaryContentStorage;
 
-  // --------------------
   // CREATE → UserDto 반환
-  // --------------------
   @Override
   public UserDto create(UserCreateRequest req,
       Optional<BinaryContentCreateRequest> optionalProfile) {
@@ -56,13 +54,12 @@ public class BasicUserService implements UserService {
       throw new ResponseStatusException(CONFLICT, "username already exists");
     }
 
-    // 프로필 메타 저장 + (중요) 먼저 save 해서 id 생성 → 그 다음 storage.put
     BinaryContent profile = optionalProfile
         .map(c -> {
           BinaryContent meta = new BinaryContent(c.fileName(), (long) c.bytes().length, c.contentType());
-          // 1) 메타 저장 → @PrePersist에서 id 생성
+          // 1) 메타 저장 → id 생성
           BinaryContent saved = binaryContentRepository.save(meta);
-          // 2) 스토리지 저장 (id 필수)
+          // 2) 스토리지 저장
           try {
             binaryContentStorage.put(saved.getId(), c.bytes());
           } catch (IOException e) {
@@ -74,8 +71,7 @@ public class BasicUserService implements UserService {
 
     User user = userRepository.save(new User(username, email, req.password(), profile));
     userStatusRepository.save(new UserStatus(user, Instant.now()));
-
-    // 가입 직후 online은 false로 내려주는 게 자연스럽다
+    // 가입 직후 online은 false
     return userMapper.toDto(user, false);
   }
 
@@ -107,9 +103,7 @@ public class BasicUserService implements UserService {
         .toList();
   }
 
-  // --------------------
   // UPDATE → UserDto 반환
-  // --------------------
   @Override
   public UserDto update(UUID userId,
       UserUpdateRequest req,
@@ -131,25 +125,21 @@ public class BasicUserService implements UserService {
 
     // 프로필 교체
     optionalProfile.ifPresent(c -> {
-      // 기존 메타 삭제(필요시 스토리지 파일 삭제 로직도 추가 가능)
       Optional.ofNullable(user.getProfile()).ifPresent(old -> binaryContentRepository.deleteById(old.getId()));
 
       BinaryContent meta = new BinaryContent(c.fileName(), (long) c.bytes().length, c.contentType());
       BinaryContent saved = binaryContentRepository.save(meta);        // 먼저 save 해서 id 생성
       try {
-        binaryContentStorage.put(saved.getId(), c.bytes());            // 그 다음 storage.put
+        binaryContentStorage.put(saved.getId(), c.bytes());
       } catch (IOException e) {
         throw new UncheckedIOException("Failed to store profile binary: " + saved.getId(), e);
       }
       user.changeProfile(saved);
     });
-
     // 부분 업데이트(널이면 유지)
     if (newUsername != null) user.update(newUsername, user.getEmail());
     if (newEmail != null)    user.update(user.getUsername(), newEmail);
     if (req.newPassword() != null) user.changePassword(req.newPassword());
-
-    // 변경감지로 flush, DTO 리턴
     return userMapper.toDto(user);
   }
 

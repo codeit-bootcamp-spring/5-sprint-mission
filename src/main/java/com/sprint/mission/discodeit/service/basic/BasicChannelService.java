@@ -65,7 +65,7 @@ public class BasicChannelService implements ChannelService {
 
     return channelRepository.findAll().stream()
         .filter(ch -> ch.getType() == ChannelType.PUBLIC || mySubscribed.contains(ch.getId()))
-        .map(channelMapper::toDto) // ✅ 매퍼 사용
+        .map(channelMapper::toDto) // 매퍼 사용
         .toList();
   }
 

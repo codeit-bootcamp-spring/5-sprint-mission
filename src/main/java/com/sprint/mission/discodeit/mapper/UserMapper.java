@@ -16,7 +16,7 @@ public class UserMapper {
 
   private final BinaryContentMapper binaryContentMapper;
 
-  /** online 값을 알고 있을 때 (null-safe) */
+  // online 값을 알고 있을 때
   public @Nullable UserDto toDto(@Nullable User user, @Nullable Boolean online) {
     if (user == null) return null; // 필요시 IllegalArgumentException으로 바꿔도 OK
     return new UserDto(
@@ -28,12 +28,12 @@ public class UserMapper {
     );
   }
 
-  /** online 값을 아직 모르면 null 로 둡니다. */
+  // online 값을 아직 모르면 null
   public @Nullable UserDto toDto(@Nullable User user) {
     return toDto(user, null);
   }
 
-  /** 컬렉션 변환 유틸(빈/NULL 안전) */
+  //컬렉션 변환 유틸(빈/NULL 안전)
   public List<UserDto> toDtoList(@Nullable Collection<User> users) {
     if (users == null || users.isEmpty()) return List.of();
     return users.stream()

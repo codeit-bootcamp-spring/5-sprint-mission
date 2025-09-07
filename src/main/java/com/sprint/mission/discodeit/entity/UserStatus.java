@@ -8,13 +8,11 @@ import java.time.Instant;
 
 @Getter
 @Entity
-@Table(name = "user_statuses",
-    uniqueConstraints = @UniqueConstraint(name = "uk_user_status_user",
-        columnNames = "user_id"))
+@Table(name = "user_statuses")
 public class UserStatus extends BaseUpdatableEntity {
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "user_id", nullable = false)
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false, unique = true) // 1:1 보장
   private User user;
 
   @Column(name = "last_active_at", nullable = false)

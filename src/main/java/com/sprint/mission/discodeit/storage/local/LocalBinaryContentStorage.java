@@ -60,7 +60,6 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   public ResponseEntity<Resource> download(BinaryContentDto dto) throws IOException {
     Path path = resolvePath(dto.id());
 
-    // 스트림은 응답이 전송되며 프레임워크가 닫아줍니다.
     Resource resource = new InputStreamResource(
         Files.newInputStream(path, StandardOpenOption.READ)
     );

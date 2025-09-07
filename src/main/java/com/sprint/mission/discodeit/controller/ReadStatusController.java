@@ -18,14 +18,12 @@ public class ReadStatusController implements ReadStatusApi {
 
   private final ReadStatusService readStatusService;
 
-  /** 예: GET /api/readStatuses?userId=...  → [] 가능 */
   @GetMapping
   @Override
   public ResponseEntity<List<ReadStatusDto>> findByUser(@RequestParam("userId") UUID userId) {
     return ResponseEntity.ok(readStatusService.findByUser(userId));
   }
 
-  /** 예: PUT /api/readStatuses/{channelId}?userId=...  body(optional): { "newLastReadAt": "..." } */
   @PutMapping("{channelId}")
   @Override
   public ResponseEntity<ReadStatusDto> markRead(

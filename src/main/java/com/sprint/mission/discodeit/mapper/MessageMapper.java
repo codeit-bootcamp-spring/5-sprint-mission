@@ -19,11 +19,11 @@ public class MessageMapper {
   public @Nullable MessageDto toDto(@Nullable Message message) {
     if (message == null) return null;
 
-    // attachments: null/빈 컬렉션 안전 (BinaryContentMapper에 toDtoList가 있어야 함)
+    // attachments: null/빈 컬렉션 안전
     List<BinaryContentDto> attachments =
         binaryContentMapper.toDtoList(message.getAttachments());
 
-    // 채널/작성자 null 안전 (author_id는 SET NULL 가능)
+    // 채널/작성자 null 안전
     var channelId = (message.getChannel() != null) ? message.getChannel().getId() : null;
 
     return new MessageDto(

@@ -70,7 +70,7 @@ public class UserController implements UserApi {
     return ResponseEntity.ok(userService.findAll());
   }
 
-  // === 여기만 기존 @PatchMapping 메서드를 이걸로 교체 ===
+  // 여기만 @PatchMapping 메서드를 이걸로 교체
   @RequestMapping(path = "/{userId}/userStatus", method = {RequestMethod.PUT, RequestMethod.PATCH})
   @Override
   public ResponseEntity<UserDto> updateUserStatusByUserId(
@@ -78,7 +78,6 @@ public class UserController implements UserApi {
       @RequestBody(required = false) @Nullable UserStatusUpdateRequest request
   ) {
     var status = userStatusService.updateByUserId(userId, request);
-    // 온라인 핑이므로 online 표시를 true로 내려도 무방
     return ResponseEntity.ok(userMapper.toDto(status.getUser(), true));
   }
 

@@ -79,7 +79,7 @@ public class BasicUserStatusService implements UserStatusService {
     if (status.getLastActiveAt() == null || candidate.isAfter(status.getLastActiveAt())) {
       status.update(candidate); // 엔티티에 update(Instant) 존재
     }
-    return status; // 변경감지로 커밋 시 반영
+    return status;
   }
 
   @Override

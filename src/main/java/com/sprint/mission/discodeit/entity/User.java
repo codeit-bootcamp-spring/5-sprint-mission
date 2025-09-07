@@ -28,10 +28,10 @@ public class User extends BaseUpdatableEntity {
   @JoinColumn(name = "profile_id")
   private BinaryContent profile;
 
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private UserStatus status;
 
-  protected User() {}  // JPA 기본 생성자
+  protected User() {}
 
   public User(String username, String email, String password, BinaryContent profile) {
     this.username = username;
@@ -46,6 +46,5 @@ public class User extends BaseUpdatableEntity {
   }
   public void changePassword(String newPassword) { this.password = newPassword; }
   public void changeProfile(BinaryContent newProfile) { this.profile = newProfile; }
-  public void attachStatus(UserStatus status) { this.status = status; }
 }
 

@@ -27,7 +27,7 @@ public class BinaryContentController {
   private final BinaryContentMapper binaryContentMapper;
   private final BinaryContentStorage storage;
 
-  @GetMapping("/{id}/download")  // ← 슬래시 추가
+  @GetMapping("/{id}/download")
   public ResponseEntity<Resource> download(@PathVariable("id") UUID id) {
     var meta = binaryContentRepository.findById(id)
         .orElseThrow(() ->

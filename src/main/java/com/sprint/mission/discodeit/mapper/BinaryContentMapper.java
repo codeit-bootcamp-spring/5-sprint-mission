@@ -26,7 +26,7 @@ public class BinaryContentMapper {
   public List<BinaryContentDto> toDtoList(Collection<BinaryContent> list) {
     if (list == null || list.isEmpty()) return List.of();
     return list.stream()
-        .map(this::toDto)              // 위의 null-safe 사용
+        .map(this::toDto)
         .filter(Objects::nonNull)
         .toList();
   }
