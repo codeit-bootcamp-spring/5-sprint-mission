@@ -8,10 +8,13 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +23,14 @@ import java.util.*;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class BasicChannelService implements ChannelService {
 
   private final ChannelRepository channelRepository;
   //
   private final ReadStatusRepository readStatusRepository;
   private final MessageRepository messageRepository;
+  private final UserRepository userRepository;
 
   @Override
   public Channel create(PublicChannelCreateRequest request) {
@@ -42,7 +47,9 @@ public class BasicChannelService implements ChannelService {
     Channel createdChannel = channelRepository.save(channel);
 
     request.participantIds().stream()
-        .map(userId -> new ReadStatus(userId, createdChannel.getId(), Instant.MIN))
+        .map(userId -> userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")))
+        .map(userId -> new ReadStatus(userId, createdChannel, Instant.MIN))
         .forEach(readStatusRepository::save);
 
     return createdChannel;
@@ -58,14 +65,15 @@ public class BasicChannelService implements ChannelService {
 
   @Override
   public List<ChannelDto> findAllByUserId(UUID userId) {
-    List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
-        .map(ReadStatus::getChannelId)
+    List<Channel> mySubscribedChannels = readStatusRepository.findAllByUserId(userId).stream()
+        .map(ReadStatus::getChannel)
         .toList();
 
     return channelRepository.findAll().stream()
         .filter(channel ->
             channel.getType().equals(ChannelType.PUBLIC)
-                || mySubscribedChannelIds.contains(channel.getId())
+                || mySubscribedChannels
+                .contains(channel)
         )
         .map(this::toDto)
         .toList();
@@ -110,7 +118,8 @@ public class BasicChannelService implements ChannelService {
     if (channel.getType().equals(ChannelType.PRIVATE)) {
       readStatusRepository.findAllByChannelId(channel.getId())
           .stream()
-          .map(ReadStatus::getUserId)
+          .map(ReadStatus::getUser)
+          .map(User::getId)
           .forEach(participantIds::add);
     }
 

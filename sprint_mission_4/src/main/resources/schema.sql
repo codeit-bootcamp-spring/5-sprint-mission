@@ -10,7 +10,7 @@ DROP TYPE channelType;
 
 create table binary_contents
 (
-    id         UUID PRIMARY KEY,
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     file_name varchar(255) NOT NULL,
     size bigint not null ,
@@ -21,7 +21,7 @@ create table binary_contents
 
 CREATE TABLE users
 (
-    id         UUID PRIMARY KEY,
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE          DEFAULT now(),
     username   VARCHAR(50)              NOT NULL UNIQUE,
@@ -35,7 +35,7 @@ CREATE TABLE users
 CREATE TYPE channelType AS ENUM ('PUBLIC', 'PRIVATE');
 CREATE TABLE channels
 (
-    id         UUID PRIMARY KEY,
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE          DEFAULT now(),
     name       VARCHAR(100)             not null,
@@ -45,7 +45,7 @@ CREATE TABLE channels
 
 create table messages
 (
-    id         UUID PRIMARY KEY,
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE          DEFAULT now(),
     content text,
@@ -59,7 +59,7 @@ create table messages
 
 create table user_statuses
 (
-    id         UUID PRIMARY KEY,
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE          DEFAULT now(),
     user_id uuid not null,
@@ -69,11 +69,12 @@ create table user_statuses
 
 create table read_statuses
 (
-    id         UUID PRIMARY KEY,
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE          DEFAULT now(),
     user_id uuid UNIQUE,
     channel_id uuid UNIQUE,
+    last_read_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE,
     UNIQUE(user_id, channel_id)
