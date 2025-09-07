@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface UserStatusService {
 
-    UserStatusResponseDto create(UserStatusCreateRequest request);
+    UserStatusResponseDto create(UUID userId, UserStatusCreateRequest request);
 
     UserStatusResponseDto find(UUID id);
 

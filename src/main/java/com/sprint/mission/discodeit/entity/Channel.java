@@ -1,44 +1,47 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
+import lombok.Locked.Read;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-@Getter
-@ToString
-public class Channel implements Serializable {
+@Getter @Setter
+@NoArgsConstructor
+@Entity
+public class Channel extends BaseUpdatableEntity {
     private static final long serialVersionUID = 1L;
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
+
+    @Enumerated(EnumType.STRING)
     private ChannelType type;
+
     private String name;
+
     private String description;
 
-    public Channel(ChannelType type, String name, String description) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.type = type;
-        this.name = name;
-        this.description = description;
-    }
+    @OneToMany(mappedBy = "channel")
+    private List<Message> messages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "channel")
+    private List<ReadStatus> readStatuses = new ArrayList<>();
 
     public void update(String newName, String newDescription) {
-        boolean anyValueUpdated = false;
-
         if(newName != null && !newName.equals(this.name)) {
             this.name = newName;
-            anyValueUpdated = true;
         }
-        if(newDescription != null & !newDescription.equals(this.description)) {
-        this.description = newDescription;
-        anyValueUpdated = true;}
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
+        if(newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
         }
     }
 }

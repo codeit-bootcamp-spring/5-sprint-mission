@@ -12,18 +12,7 @@ public record UserResponseDto(
         Instant updatedAt,
         String username,
         String email,
-        UUID profileId,
+        BinaryContentResponse profile,
         Boolean online
 ) {
-    public static UserResponseDto fromEntity(User user, UserStatus status) {
-        return new UserResponseDto(
-                user.getId(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getProfileId(),
-                status != null && status.isOnline()
-        );
-    }
 }

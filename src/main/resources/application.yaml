@@ -2,7 +2,35 @@ spring:
   application:
     name: discodeit
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: user1
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        user_sql_comments: true
+    show-sql: true
+    sql:
+      init:
+        mode: never
+    open-in-view: false
+
+  logging:
+    level:
+      org.hibernate.SQL: debug
+      org.hibernate.type.descriptor.sql: trace
+
 discodeit:
   repository:
-    type: file   # jcf | file
-    file-directory: .discodeit
+    type: jpa
+  storage:
+    type: local
+    local:
+      root-path: ./storage/binary

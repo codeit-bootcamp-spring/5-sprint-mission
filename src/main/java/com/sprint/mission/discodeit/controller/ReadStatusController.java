@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/read-status")
+@RequestMapping("/api/readStatuses")
 public class ReadStatusController {
 
     private final ReadStatusService readStatusService;
@@ -26,12 +26,12 @@ public class ReadStatusController {
     }
 
     // 특정 채널의 메시지 수신 정보 수정
-    @PutMapping("/{id}")
+    @PutMapping("/{readStatusId}")
     public ResponseEntity<ReadStatusResponseDto> update(
-            @PathVariable UUID id,
+            @PathVariable UUID readStatusId,
             @RequestBody ReadStatusUpdateRequest request
     ) {
-        ReadStatusResponseDto response = readStatusService.update(id, request);
+        ReadStatusResponseDto response = readStatusService.update(readStatusId, request);
         return ResponseEntity.ok(response);
     }
 

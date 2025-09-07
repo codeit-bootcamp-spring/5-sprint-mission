@@ -1,50 +1,44 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-
-import java.io.Serial;
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JacksonInject.Value;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-@Getter
-@ToString
-public class UserStatus implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+@Getter @Setter
+@NoArgsConstructor
+@Entity
+public class UserStatus extends BaseUpdatableEntity {
 
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    private UUID userId;
     private Instant lastActiveAt;
 
-    public UserStatus(UUID userId, Instant lastActiveAt) {
-        this.id = UUID.randomUUID();
-        this.userId = userId;
-        this.createdAt = Instant.now();
+    public UserStatus(User user, Instant lastActiveAt) {
+        this.user = user;
         this.lastActiveAt = lastActiveAt;
     }
 
+    // === 도메인 메서드 ===
     public void update(Instant lastActiveAt) {
-        boolean anyValueUpdated = false;
-
-        if(lastActiveAt!=null && !lastActiveAt.equals(this.lastActiveAt)){
+        if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
             this.lastActiveAt = lastActiveAt;
-            anyValueUpdated = true;
-        }
-
-        if(anyValueUpdated){
-            this.updatedAt = Instant.now();
+            // updatedArt은 @LastModifiedDate에 의해 자동 세팅됨
         }
     }
 
     public boolean isOnline() {
         Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
-
-        return lastActiveAt.isAfter(instantFiveMinutesAgo);
+        return lastActiveAt != null && lastActiveAt.isAfter(instantFiveMinutesAgo);
     }
 }

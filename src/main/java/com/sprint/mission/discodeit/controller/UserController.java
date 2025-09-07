@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -47,7 +47,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponseDto> update(
             @PathVariable UUID id,
             @RequestPart("user") UserUpdateRequest request,
@@ -68,23 +68,23 @@ public class UserController {
     }
 
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userId}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/findAll")
+    @GetMapping
     public ResponseEntity<List<UserResponseDto>> findAll() {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/{userId}/userStatus")
     public ResponseEntity<UserStatusResponseDto> updateStatus(
-            @PathVariable UUID id,
+            @PathVariable UUID userId,
             @RequestBody UserStatusUpdateRequest request
     ) {
-        return ResponseEntity.ok(userStatusService.update(id, request));
+        return ResponseEntity.ok(userStatusService.update(userId, request));
     }
 }
 

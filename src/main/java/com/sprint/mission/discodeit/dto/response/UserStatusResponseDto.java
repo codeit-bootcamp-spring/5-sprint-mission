@@ -12,13 +12,4 @@ public record UserStatusResponseDto(
         Instant createdAt,
         Instant updatedAt
 ) {
-    public static UserStatusResponseDto fromEntity(UserStatus userStatus) {
-        return new UserStatusResponseDto(
-                userStatus.getId(),
-                userStatus.getUserId(),
-                userStatus.getLastActiveAt(),
-                userStatus.getCreatedAt(),
-                userStatus.getUpdatedAt()
-        );
-    }
 }

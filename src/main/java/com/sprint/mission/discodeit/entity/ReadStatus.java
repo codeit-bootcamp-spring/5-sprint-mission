@@ -1,43 +1,34 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-
-import java.io.Serializable;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.time.Instant;
-import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
-@ToString
-public class ReadStatus implements Serializable {
-    private static final long serialVersionUID = 1L;
+@Getter @Setter
+@NoArgsConstructor
+@Entity
+public class ReadStatus extends BaseUpdatableEntity {
 
-    private final UUID id;
-    private final Instant createdAt;
-    private Instant updatedAt;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    private final UUID userId;
-    private final UUID channelId;
+    @ManyToOne
+    @JoinColumn(name = "channel_id")
+    private Channel channel;
+
     private Instant lastReadAt;
 
-    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
-        this.id = UUID.randomUUID();
-        this.userId = userId;
-        this.channelId = channelId;
-        this.createdAt = Instant.now();
-        this.lastReadAt = lastReadAt;
-    }
-
+    // === 도메인 메서드 ===
     public void update(Instant newLastReadAt) {
-        boolean anyValueUpdated = false;
-
-        if(newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
             this.lastReadAt = newLastReadAt;
-            anyValueUpdated = true;
-        }
-
-        if(anyValueUpdated) {
-            this.updatedAt = Instant.now();
+            // updatedAt은 JPA Auditing이 자동 처리
         }
     }
 }

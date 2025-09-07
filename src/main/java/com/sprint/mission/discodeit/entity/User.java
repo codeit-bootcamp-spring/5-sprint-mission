@@ -1,59 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
-
-@Getter
-@ToString
-public class User implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
+@Getter @Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "users") // user 예약어 충돌 방지
+public class User extends BaseUpdatableEntity {
 
     private String username;
+
     private String email;
+
     private String password;
-    private UUID profileId;
 
-    public User(String username, String email, String password, UUID profileId) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.profileId = profileId;
-    }
+    @OneToOne
+    @JoinColumn(name = "profile_id")
+    private BinaryContent profile;
 
-    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
-        boolean anyValueUpdated = false;
+    // === 도메인 메서드 ===
+    public void update(String newUsername, String newEmail, String newPassword, BinaryContent newProfile) {
         if (newUsername != null && !newUsername.equals(this.username)) {
             this.username = newUsername;
-            anyValueUpdated = true;
         }
         if (newEmail != null && !newEmail.equals(this.email)) {
             this.email = newEmail;
-            anyValueUpdated = true;
         }
         if (newPassword != null && !newPassword.equals(this.password)) {
             this.password = newPassword;
-            anyValueUpdated = true;
         }
-
-        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
-            this.profileId = newProfileId;
-            anyValueUpdated = true;
+        if (newProfile != null && !newProfile.equals(this.profile)) {
+            this.profile = newProfile;
         }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
+        // updatedAt은 JPA Auditing이 자동으로 갱신
     }
 }
