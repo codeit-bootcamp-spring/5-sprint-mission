@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.message.data.MessageDto;
-import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.entity.main.Message;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.dto.user.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -69,10 +69,15 @@ public class MessageController {
         return ResponseEntity.noContent().build();
     }
 
-    // 채널별 메시지 조회
+    // 채널별 메시지 페이징 조회
     @GetMapping
-    public ResponseEntity<List<MessageDto>> findAllByChannelId(@RequestParam UUID channelId) {
-        List<MessageDto> messages = messageService.findAllByChannelId(channelId);
+    public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
+            @RequestParam UUID channelId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort
+    ) {
+        PageResponse<MessageDto> messages = messageService.findAllByChannelId(channelId, page, size, sort);
         return ResponseEntity.ok(messages);
     }
 }
