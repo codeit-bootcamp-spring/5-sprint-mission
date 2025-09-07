@@ -28,10 +28,10 @@ public class BinaryContentController {
     }
 
     // 바이너리 콘텐츠 복수 조회
-    @PostMapping
-    public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(@RequestBody List<UUID> binaryContentIds) {
+    @GetMapping
+    public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(@RequestParam List<UUID> binaryContentIds) {
         List<BinaryContentDto> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
-        return ResponseEntity.status(HttpStatus.OK).body(binaryContents);
+        return ResponseEntity.ok(binaryContents);
     }
 
     // 바이너리 콘텐츠 원본 다운로드
