@@ -47,8 +47,7 @@ public class BasicUserService implements UserService {
                 .map(profileRequest -> new BinaryContent(
                         profileRequest.fileName(),
                         (long) profileRequest.bytes().length,
-                        profileRequest.contentType(),
-                        profileRequest.bytes()
+                        profileRequest.contentType()
                 ))
                 .orElse(null);
         String password = userCreateRequest.password();
@@ -105,8 +104,7 @@ public class BasicUserService implements UserService {
                 .map(profileRequest -> new BinaryContent(
                         profileRequest.fileName(),
                         (long) profileRequest.bytes().length,
-                        profileRequest.contentType(),
-                        profileRequest.bytes()
+                        profileRequest.contentType()
                 ))
                 .orElse(user.getProfile());
 
@@ -125,7 +123,7 @@ public class BasicUserService implements UserService {
 
         Optional.ofNullable(user.getProfile().getId())
                 .ifPresent(binaryContentRepository::deleteById);
-        userStatusRepository.deleteByUser(userId);
+        userStatusRepository.deleteByUser(user);
 
         userRepository.deleteById(userId);
     }
