@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -22,15 +23,18 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class BasicUserService implements UserService {
+@Transactional
+public class UserService {
     private final UserRepository userRepository;
-    //
+
     private final BinaryContentRepository binaryContentRepository;
     private final UserStatusRepository userStatusRepository;
 
     private final UserMapper userMapper;
 
-    public UserDto create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+    public UserDto create(UserCreateRequest userCreateRequest,
+                          Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+
         String username = userCreateRequest.username();
         String email = userCreateRequest.email();
 
@@ -41,22 +45,26 @@ public class BasicUserService implements UserService {
             throw new IllegalArgumentException("User with username " + username + " already exists");
         }
 
-        UUID nullableProfileId = optionalProfileCreateRequest
-                .map(profileRequest -> {
-                    String fileName = profileRequest.fileName();
-                    String contentType = profileRequest.contentType();
-                    byte[] bytes = profileRequest.bytes();
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long)bytes.length, contentType, bytes);
-                    return binaryContentRepository.save(binaryContent).getId();
-                })
-                .orElse(null);
-        String password = userCreateRequest.password();
+        User user = userMapper.toEntity(userCreateRequest);
 
-        User user = new User(username, email, password, nullableProfileId);
+        optionalProfileCreateRequest.ifPresent(profileRequest -> {
+            BinaryContent profile = BinaryContent.builder()
+                    .fileName(profileRequest.fileName())
+                    .size((long) profileRequest.bytes().length)
+                    .contentType(profileRequest.contentType())
+                    .bytes(profileRequest.bytes())
+                    .build();
+
+            binaryContentRepository.save(profile);
+            user.setProfile(profile);
+        });
+
         User createdUser = userRepository.save(user);
 
-        Instant now = Instant.now();
-        UserStatus userStatus = new UserStatus(createdUser.getId(), now);
+        UserStatus userStatus = UserStatus.builder()
+                .user(createdUser)
+                .lastActiveAt(Instant.now())
+                .build();
         userStatusRepository.save(userStatus);
 
         return userMapper.toDto(createdUser);
@@ -75,12 +83,16 @@ public class BasicUserService implements UserService {
                 .toList();
     }
 
-    public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+    public UserDto update(UUID userId,
+                          UserUpdateRequest userUpdateRequest,
+                          Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
         String newUsername = userUpdateRequest.newUsername();
         String newEmail = userUpdateRequest.newEmail();
+        String newPassword = userUpdateRequest.newPassword();
+
         if (userRepository.existsByEmail(newEmail)) {
             throw new IllegalArgumentException("User with email " + newEmail + " already exists");
         }
@@ -88,21 +100,24 @@ public class BasicUserService implements UserService {
             throw new IllegalArgumentException("User with username " + newUsername + " already exists");
         }
 
-        UUID nullableProfileId = optionalProfileCreateRequest
-                .map(profileRequest -> {
-                    Optional.ofNullable(user.getProfileId())
-                            .ifPresent(binaryContentRepository::deleteById);
+        optionalProfileCreateRequest.ifPresent(profileRequest -> {
+            Optional.ofNullable(user.getProfile())
+                    .ifPresent(profile -> binaryContentRepository.deleteById(profile.getId()));
 
-                    String fileName = profileRequest.fileName();
-                    String contentType = profileRequest.contentType();
-                    byte[] bytes = profileRequest.bytes();
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
-                    return binaryContentRepository.save(binaryContent).getId();
-                })
-                .orElse(null);
+            BinaryContent newProfile = BinaryContent.builder()
+                    .fileName(profileRequest.fileName())
+                    .size((long) profileRequest.bytes().length)
+                    .contentType(profileRequest.contentType())
+                    .bytes(profileRequest.bytes())
+                    .build();
 
-        String newPassword = userUpdateRequest.newPassword();
-        user.update(newUsername, newEmail, newPassword, nullableProfileId);
+            binaryContentRepository.save(newProfile);
+            user.setProfile(newProfile);
+        });
+
+        user.setUsername(newUsername);
+        user.setEmail(newEmail);
+        user.setPassword(newPassword);
 
         return userMapper.toDto(userRepository.save(user));
     }
@@ -111,7 +126,7 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
-        Optional.ofNullable(user.getProfileId())
+        Optional.ofNullable(user.getProfile().getId())
                 .ifPresent(binaryContentRepository::deleteById);
         userStatusRepository.deleteByUserId(userId);
 

@@ -7,12 +7,14 @@ import com.sprint.mission.discodeit.entity.main.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
-public class BasicAuthService {
+@Transactional
+public class AuthService {
     private final UserRepository userRepository;
 
     private final UserMapper userMapper;

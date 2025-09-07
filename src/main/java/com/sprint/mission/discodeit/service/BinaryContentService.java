@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.entity.sub.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -13,19 +14,22 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class BasicBinaryContentService {
+@Transactional
+public class BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
     public BinaryContentDto create(BinaryContentCreateRequest request) {
         String fileName = request.fileName();
         byte[] bytes = request.bytes();
         String contentType = request.contentType();
-        BinaryContent binaryContent = new BinaryContent(
-                fileName,
-                (long) bytes.length,
-                contentType,
-                bytes
-        );
+
+        BinaryContent binaryContent = BinaryContent.builder()
+                .fileName(fileName)
+                .size((long) bytes.length)
+                .contentType(contentType)
+                .bytes(bytes)
+                .build();
+
         return BinaryContentDto.from(binaryContentRepository.save(binaryContent));
     }
 
