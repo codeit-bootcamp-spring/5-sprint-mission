@@ -128,7 +128,7 @@ public class BasicUserService implements UserService {
 
     private Boolean isOnline(UUID userId) {
         return userStatusRepository.findByUserId(userId)
-                .map(UserStatus::online)
+                .map(UserStatus::isOnline)
                 .orElse(null);
     }
 }

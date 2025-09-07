@@ -30,7 +30,7 @@ public class BasicUserStatusService implements UserStatusService {
             throw new IllegalArgumentException("UserStatus already exists. userId: " + userId);
         }
 
-        Instant lastAccessAt = request.lastAccessAt();
+        Instant lastAccessAt = request.lastActiveAt();
         UserStatus userStatus = new UserStatus(userId, lastAccessAt);
         return userStatusRepository.save(userStatus);
     }
@@ -51,8 +51,8 @@ public class BasicUserStatusService implements UserStatusService {
         UserStatus userStatus = userStatusRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("UserStatus not found: " + id));
 
-        Instant lastAccessAt = request.lastAccessAt();
-        userStatus.update(lastAccessAt);
+        Instant newLastAccessAt = request.newLastActiveAt();
+        userStatus.update(newLastAccessAt);
         return userStatusRepository.save(userStatus);
     }
 
@@ -61,8 +61,8 @@ public class BasicUserStatusService implements UserStatusService {
         UserStatus userStatus = userStatusRepository.findByUserId(userId)
                 .orElseThrow(() -> new NoSuchElementException("UserStatus not found: userId: " + userId));
 
-        Instant lastAccessAt = request.lastAccessAt();
-        userStatus.update(lastAccessAt);
+        Instant newLastAccessAt = request.newLastActiveAt();
+        userStatus.update(newLastAccessAt);
         return userStatusRepository.save(userStatus);
     }
 

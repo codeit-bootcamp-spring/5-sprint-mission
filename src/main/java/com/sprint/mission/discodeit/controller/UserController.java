@@ -66,7 +66,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok(users);
     }
 
-    @PatchMapping("{userId}/user-status")
+    @PatchMapping("{userId}/userStatus")
     public ResponseEntity<UserStatus> updateUserStatusByUserId(
             @PathVariable("userId") UUID userId,
             @RequestBody UserStatusUpdateRequest userStatusUpdateRequest) {

@@ -66,7 +66,7 @@ public class BasicMessageService implements MessageService {
     @Override
     public Message update(UUID id, MessageUpdateRequest request) {
         Message message = find(id);
-        String newContent = request.content();
+        String newContent = request.newContent();
         message.editContent(newContent);
         return messageRepository.save(message);
     }

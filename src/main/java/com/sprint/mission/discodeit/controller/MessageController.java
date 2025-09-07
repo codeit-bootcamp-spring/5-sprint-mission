@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +25,7 @@ import java.util.UUID;
 public class MessageController implements MessageApi {
     private final MessageService messageService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Message> create(@RequestPart("messageCreateRequest") MessageCreateRequest request,
                                           @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
 

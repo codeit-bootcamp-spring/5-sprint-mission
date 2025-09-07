@@ -13,12 +13,12 @@ public class Channel extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     private String name;
     private String description;
-    private ChannelType channelType;
+    private ChannelType type;
 
-    public Channel(String name, String description, ChannelType channelType) {
+    public Channel(String name, String description, ChannelType type) {
         this.name = name;
         this.description = description;
-        this.channelType = channelType;
+        this.type = type;
     }
 
     public void update(String newName, String newDescription) {
@@ -62,7 +62,7 @@ public class Channel extends BaseEntity implements Serializable {
         return super.toString() + " Channel{" +
                 "newName='" + name + '\'' +
                 ", newDescription='" + description + '\'' +
-                ", channelType=" + channelType +
+                ", channelType=" + type +
                 '}';
     }
 }

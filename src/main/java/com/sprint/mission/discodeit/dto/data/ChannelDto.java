@@ -20,7 +20,7 @@ public record ChannelDto(
                 channel.getId(),
                 channel.getName(),
                 channel.getDescription(),
-                channel.getChannelType(),
+                channel.getType(),
                 lastMessageAt,
                 participantIds
         );

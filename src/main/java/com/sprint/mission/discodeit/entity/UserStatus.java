@@ -13,22 +13,22 @@ public class UserStatus extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private UUID userId;
-    private Instant lastAccessAt;
+    private Instant lastActiveAt;
 
-    public UserStatus(UUID userId, Instant lastAccessAt) {
+    public UserStatus(UUID userId, Instant lastActiveAt) {
         this.userId = userId;
-        this.lastAccessAt = lastAccessAt;
+        this.lastActiveAt = lastActiveAt;
     }
 
-    public boolean online() {
-        Duration duration = Duration.between(lastAccessAt, Instant.now());
+    public boolean isOnline() {
+        Duration duration = Duration.between(lastActiveAt, Instant.now());
         return duration.toMinutes() <= 5;
     }
 
     public void update(Instant lastAccessAt) {
         boolean anyValueUpdated = false;
-        if (lastAccessAt != null && !lastAccessAt.equals(this.lastAccessAt)) {
-            this.lastAccessAt = lastAccessAt;
+        if (lastAccessAt != null && !lastAccessAt.equals(this.lastActiveAt)) {
+            this.lastActiveAt = lastAccessAt;
             anyValueUpdated = true;
         }
 
@@ -41,7 +41,7 @@ public class UserStatus extends BaseEntity implements Serializable {
     public String toString() {
         return super.toString() + " UserStatus{" +
                 "userId=" + userId +
-                ", lastAccessAt=" + lastAccessAt +
+                ", lastActiveAt=" + lastActiveAt +
                 '}';
     }
 }
