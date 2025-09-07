@@ -13,28 +13,21 @@ public class User extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private String username; // 사용자명 (아이디)
-    private String nickname;
     private String email;
     private String password;
     private UUID profileId;
 
-    public User(String username, String nickname, String email, String password, UUID profileId) {
+    public User(String username, String email, String password, UUID profileId) {
         this.username = username;
-        this.nickname = nickname;
         this.email = email;
         this.password = password;
         this.profileId = profileId;
     }
 
-    public void update(String newUsername, String newNickname, String newEmail, String newPassword, UUID newProfileId) {
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
         boolean anyValueUpdated = false;
         if (newUsername != null && !newUsername.equals(this.username)) {
             this.username = newUsername;
-            anyValueUpdated = true;
-        }
-
-        if (newNickname != null && !newNickname.equals(this.nickname)) {
-            this.nickname = newNickname;
             anyValueUpdated = true;
         }
 
@@ -81,7 +74,6 @@ public class User extends BaseEntity implements Serializable {
     public String toString() {
         return "User{" +
                 "newUsername='" + username + '\'' +
-                ", newNickname='" + nickname + '\'' +
                 ", newEmail='" + email + '\'' +
                 ", newPassword='" + password + '\'' +
                 ", profileId=" + profileId +

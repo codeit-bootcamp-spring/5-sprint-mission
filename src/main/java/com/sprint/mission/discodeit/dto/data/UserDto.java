@@ -12,7 +12,6 @@ public record UserDto(
         Instant createdAt,
         Instant updatedAt,
         String username,
-        String nickname,
         String email,
         UUID profileId,
         Boolean online
@@ -24,7 +23,6 @@ public record UserDto(
                 .updatedAt(user.getUpdatedAt())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .nickname(user.getNickname())
                 .profileId(user.getProfileId())
                 .online(online)
                 .build();

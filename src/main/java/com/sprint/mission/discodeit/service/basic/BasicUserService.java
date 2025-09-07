@@ -50,10 +50,9 @@ public class BasicUserService implements UserService {
             profileId = binaryContentRepository.save(binaryContent).getId();
         }
 
-        String nickname = userCreateRequest.nickname();
         String password = userCreateRequest.password();
 
-        User user = new User(username, nickname, email, password, profileId);
+        User user = new User(username, email, password, profileId);
         userRepository.save(user);
 
         UserStatus userStatus = new UserStatus(user.getId(), Instant.now());
@@ -107,10 +106,9 @@ public class BasicUserService implements UserService {
             newProfileId = binaryContentRepository.save(binaryContent).getId();
         }
 
-        String newNickname = userUpdateRequest.newNickname();
         String newPassword = userUpdateRequest.newPassword();
 
-        user.update(newUsername, newNickname, newEmail, newPassword, newProfileId);
+        user.update(newUsername, newEmail, newPassword, newProfileId);
         return userRepository.save(user);
     }
 
