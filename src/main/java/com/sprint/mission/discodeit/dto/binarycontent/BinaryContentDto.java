@@ -8,7 +8,8 @@ public record BinaryContentDto(
         UUID id,
         String fileName,
         Long size,
-        String contentType
+        String contentType,
+        byte[] bytes
 ) {
 
     public static BinaryContentDto from(BinaryContent binaryContent) {
@@ -16,7 +17,8 @@ public record BinaryContentDto(
                 binaryContent.getId(),
                 binaryContent.getFileName(),
                 binaryContent.getSize(),
-                binaryContent.getContentType()
+                binaryContent.getContentType(),
+                binaryContent.getBytes()
         );
     }
 }
