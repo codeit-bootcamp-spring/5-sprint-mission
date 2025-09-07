@@ -1,133 +1,169 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.data.UserDto;                           // 응답 DTO
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;     // 프로필 업로드 DTO
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;              // 사용자 생성 DTO
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;              // 사용자 수정 DTO
+import com.sprint.mission.discodeit.entity.BinaryContent;                       // 바이너리 엔티티
+import com.sprint.mission.discodeit.entity.User;                                // 사용자 엔티티
+import com.sprint.mission.discodeit.entity.UserStatus;                          // 상태 엔티티
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;         // 바이너리 레포지토리
+import com.sprint.mission.discodeit.repository.UserRepository;                  // 사용자 레포지토리
+import com.sprint.mission.discodeit.repository.UserStatusRepository;            // 상태 레포지토리
+import com.sprint.mission.discodeit.service.UserService;                        // 서비스 인터페이스
+import jakarta.transaction.Transactional;                                       // 트랜잭션
+import lombok.RequiredArgsConstructor;                                          // 생성자 주입
+import org.springframework.stereotype.Service;                                  // 스테레오타입
 
-import java.time.Instant;
-import java.util.*;
+import java.time.Instant;                                                       // 시간
+import java.util.List;                                                          // 리스트
+import java.util.NoSuchElementException;                                        // 예외
+import java.util.Optional;                                                      // 선택형
+import java.util.UUID;                                                          // 식별자
 
 @RequiredArgsConstructor
 @Service
 public class BasicUserService implements UserService {
 
-    private final UserRepository userRepository;
-
-    private final BinaryContentRepository binaryContentRepository;
-    private final UserStatusRepository userStatusRepository;
-
+    private final UserRepository userRepository;                                 // User JPA 레포지토리
+    private final BinaryContentRepository binaryContentRepository;               // BinaryContent JPA 레포지토리
+    private final UserStatusRepository userStatusRepository;                     // UserStatus JPA 레포지토리
+    private final BinaryContentMapper binaryContentMapper; // ★ 추가
 
     @Override
-    public User create(UserCreateRequest userCreateRequest, // 사용자가 입력한 기본 회원 정보 DTO를 가져옴
-                       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) { // 프로필 이미지 업로드 요청 DTO가 있을 수도 있고 없을 수도 있음
-        String username = userCreateRequest.username(); // DTO에서 사용자 이름 가져옴
-        String email = userCreateRequest.email(); // DTO에서 사용자 이메일 가져옴
+    @Transactional                                                               // 생성 로직 전체 원자성 보장
+    public User create(                                                          // 사용자 생성
+        UserCreateRequest userCreateRequest,                                 // 기본 정보 DTO
+        Optional<BinaryContentCreateRequest> optionalProfileCreateRequest    // 선택 프로필 DTO
+    ) {
+        String username = userCreateRequest.username();                          // 사용자명 추출
+        String email = userCreateRequest.email();                                 // 이메일 추출
+        String password = userCreateRequest.password();                           // 비밀번호 추출(해시 전제)
 
-        if (userRepository.existsByEmail(email)) { // 이메일이 이미 존재하면 예외 발생
-            throw new IllegalArgumentException("User with email " + email + "already exists");
+        // --- 중복 검증 ---
+        if (userRepository.existsByEmail(email)) {                                // 이메일 중복?
+            throw new IllegalArgumentException("User with email " + email + " already exists"); // 예외
         }
-        if (userRepository.existsByUsername(username)) { // 사용자명이 이미 존재하면 예외 발생
-            throw new IllegalArgumentException("User with username " + username + " already exists");
+        if (userRepository.existsByUsername(username)) {                          // 사용자명 중복?
+            throw new IllegalArgumentException("User with username " + username + " already exists"); // 예외
         }
 
-        UUID nullableProfileId = optionalProfileCreateRequest // 프로필 이미지가 있으면 BinaryContent 엔티티를 만들어 저장하고, 저장된 ID를 반환.
-                .map(profileRequest -> { // Optional이 값이 있으면 변환 로직 실행.
-                    String fileName = profileRequest.fileName(); // 파일이름 저장
-                    String contentType = profileRequest.contentType(); // ContentType 저장
-                    byte[] bytes = profileRequest.bytes(); // 파일 데이터 저장
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long)bytes.length, contentType, bytes); // 파일 크기 (bytes.length를 long으로 캐스팅
-                    return binaryContentRepository.save(binaryContent).getId(); // 저장된 ID를 반환
-                })
-                .orElse(null); // 이미지가 없으면 null 반환.
-        String password = userCreateRequest.password(); // 비밀번호 꺼냄
+        // --- 사용자 엔티티 생성 ---
+        User user = new User(username, email, password);                          // 필수 필드로 생성
 
-        User user = new User(username, email, password, nullableProfileId); // User 엔티티 생성 후 저장.
-        User createdUser = userRepository.save(user); // 저장된 객체(createdUser)를 받음 → DB가 자동 생성한 ID 포함.
+        // --- 프로필(선택) 생성 및 부착 ---
+        optionalProfileCreateRequest.ifPresent(req -> {                           // 프로필 업로드가 있다면
+            String fileName = req.fileName();                                     // 파일명
+            String contentType = req.contentType();                               // 콘텐츠 타입
+            byte[] bytes = req.bytes();                                           // 바이트 배열
+            BinaryContent profile = new BinaryContent(                             // BinaryContent 생성
+                    fileName, (long) bytes.length, contentType//, bytes
+            );
+            BinaryContent saved = binaryContentRepository.save(profile);          // 저장
+            user.changeProfile(saved);                                            // 사용자에 부착(1:1)
+        });
 
-        Instant now = Instant.now(); // 현재 시각(Instant.now())을 가져옴.
-        UserStatus userStatus = new UserStatus(createdUser.getId(), now); // 회원의 상태(UserStatus)를 “현재 시각” 기준으로 저장.
-        userStatusRepository.save(userStatus); // UserStatus 엔티티로 “마지막 활동 시간” 같은 상태로 저장
+        // --- 상태 엔티티 생성 및 양방향 연관관계 설정 ---
+        User savedUser = userRepository.save(user);                               // 먼저 User 저장(id 필요)
+        UserStatus status = new UserStatus(Instant.now());                        // 현재 시각으로 상태 생성
+        savedUser.attachStatus(status);                                           // 양방향 세팅(user<->status)
+        userStatusRepository.save(status);                                        // 상태 저장(FK: user_id)
 
-        return createdUser; // 최종적으로 생성된 User 엔티티를 반환.
+        return savedUser;                                                         // 생성된 사용자 반환
     }
 
     @Override
-    public UserDto find(UUID userId) {
-        return userRepository.findById(userId) // UUID로 User 엔티티를 찾음. 반환 타입은 Optional<User>
-                .map(this::toDto) // 값이 있으면 User -> UserDto로 변환. (User엔티티를 DTO로 바꿈, 밑에 구현함)
-                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found")); // 값이 없으면 예외 던짐
+    @Transactional                                                               // 지연 로딩 고려(읽기 트랜잭션)
+    public UserDto find(UUID userId) {                                           // 사용자 단건 조회
+        return userRepository.findById(userId)                                   // ID로 조회
+                .map(this::toDto)                                                // 있으면 DTO 변환
+                .orElseThrow(() -> new NoSuchElementException(                   // 없으면 예외
+                        "User with id " + userId + " not found"
+                ));
     }
 
     @Override
-    public List<UserDto> findAll() {
-        return userRepository.findAll() // 전체 사용자 엔티티 목록을 가져옴. 반환 타입은 List<User>
-                .stream() // 스트림으로 변환
-                .map(this::toDto) // User -> UserDto로 변환. (User엔티티를 DTO로 바꿈, 밑에 구현함)
-                .toList(); // 변환된 요소들을 리스트로 모아 반환.
+    @Transactional                                                               // 읽기 트랜잭션
+    public List<UserDto> findAll() {                                             // 전체 사용자 조회
+        return userRepository.findAll()                                          // 전부 가져오기
+                .stream()                                                        // 스트림
+                .map(this::toDto)                                                // DTO 변환
+                .toList();                                                       // 리스트로 수집
     }
 
-
     @Override
-    public User update(UUID userId, UserUpdateRequest userUpdateRequest,
-                       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
-        User user = userRepository.findById(userId) // userId로 사용자 엔티티를 찾음
-                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found")); // 없으면 예외 발생
+    @Transactional                                                               // 업데이트 트랜잭션
+    public User update(                                                          // 사용자 수정
+       UUID userId,                                                         // 대상 ID
+       UserUpdateRequest userUpdateRequest,                                 // 변경 DTO
+       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest    // 프로필 교체(선택)
+    ) {
+        User user = userRepository.findById(userId)                              // 먼저 엔티티 로딩
+                .orElseThrow(() -> new NoSuchElementException(                   // 없으면 예외
+                        "User with id " + userId + " not found"
+                ));
 
-        String newUsername = userUpdateRequest.newUsername(); // DTO에서 사용자 이름 가져옴
-        String newEmail = userUpdateRequest.newEmail(); // DTO에서 사용자 이메일 가져옴
-        if (userRepository.existsByEmail(newEmail)) {  // 이메일이 이미 존재하면 예외 발생
+        String newUsername = userUpdateRequest.newUsername();                    // 새 사용자명
+        String newEmail = userUpdateRequest.newEmail();                          // 새 이메일
+        String newPassword = userUpdateRequest.newPassword();                    // 새 비밀번호
+
+        // --- 중복 검증(자기 자신 제외) ---
+        if (newEmail != null && !newEmail.equals(user.getEmail())                // 이메일 변경 의도 &&
+                && userRepository.existsByEmail(newEmail)) {                     // 이미 존재?
             throw new IllegalArgumentException("User with email " + newEmail + " already exists");
         }
-        if (userRepository.existsByUsername(newUsername)) { // 사용자명이 이미 존재하면 예외 발생
+        if (newUsername != null && !newUsername.equals(user.getUsername())       // 사용자명 변경 의도 &&
+                && userRepository.existsByUsername(newUsername)) {               // 이미 존재?
             throw new IllegalArgumentException("User with username " + newUsername + " already exists");
         }
 
-        UUID nullableProfileId = optionalProfileCreateRequest
-                .map(profileRequest -> {
-                    Optional.ofNullable(user.getProfileId()) // Optional<BinaryContentCreateRequest>를 이용해 프로필 이미지 변경 요청이 있는 경우만 실행.
-                            .ifPresent(binaryContentRepository::deleteById); // 기존 profileId가 있으면 binaryContentRepository.deleteById()로 삭제.
+        // --- 기본 정보 업데이트 ---
+        user.update(newUsername, newEmail, newPassword);                         // 필요한 필드만 변경
 
-                    String fileName = profileRequest.fileName(); // 새 파일의 이름, 타입, 내용(byte[])을 꺼내 BinaryContent 객체 생성.
-                    String contentType = profileRequest.contentType();
-                    byte[] bytes = profileRequest.bytes();
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType, bytes); // BinaryContent 객체 생성.
-                    return binaryContentRepository.save(binaryContent).getId(); // 저장 후 새 프로필 ID(UUID) 반환.
-                })
-                .orElse(null); // 요청이 없으면 null.
+        // --- 프로필 교체 처리(옵션) ---
+        if (optionalProfileCreateRequest.isPresent()) {                          // 교체 요청이 있으면
+            // 기존 프로필이 있었다면 JPA orphanRemoval로 자동 제거됨(교체 시 대입만 하면 됨)
+            BinaryContentCreateRequest req = optionalProfileCreateRequest.get(); // 요청 꺼내기
+            BinaryContent newProfile = new BinaryContent(                        // 새 프로필 생성
+                    req.fileName(),
+                    (long) req.bytes().length,
+                    req.contentType()
+                    //req.bytes()
+            );
+            BinaryContent saved = binaryContentRepository.save(newProfile);      // 저장
+            user.changeProfile(saved);                                           // 교체(대입)
+        }
 
-        String newPassword = userUpdateRequest.newPassword(); // DTO에서 새로운 비밀번호를 받아 newPassword로 담고 적용함. 이게 밑에 객체 선언값으로 들어감
-        user.update(newUsername, newEmail, newPassword, nullableProfileId); // 엔티티의 update() 메서드를 호출해 변경사항 적용.
-
-        return userRepository.save(user); // 변경된 엔티티를 저장후 User 객체 반환
+        return userRepository.save(user);                                        // 변경 사항 저장 및 반환
     }
-
 
     @Override
-    public void delete(UUID userId) {
-        User user = userRepository.findById(userId) // userId로 사용자 조회
-                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found")); // 사용자 없으면 예외 발생
+    @Transactional                                                               // 삭제 트랜잭션
+    public void delete(UUID userId) {                                            // 사용자 삭제
+        User user = userRepository.findById(userId)                              // 존재 확인
+                .orElseThrow(() -> new NoSuchElementException(                   // 없으면 예외
+                        "User with id " + userId + " not found"
+                ));
 
-        Optional.ofNullable(user.getProfileId()) // null이 아니면(즉, 프로필 이미지가 존재하면)
-                .ifPresent(binaryContentRepository::deleteById); // 해당 이미지 삭제.
-        userStatusRepository.deleteByUserId(userId); // UserStatus 테이블에서 해당 userId에 해당하는 상태(온라인 여부, 마지막 접속 시간 등) 삭제.
-
-        userRepository.deleteById(userId); // 최종적으로 User 엔티티 삭제. 반환값 X
+        // 프로필은 orphanRemoval=true 이므로 사용자에서 연관 제거/삭제 시 자동 정리
+        // 상태(UserStatus) 역시 orphanRemoval=true(부모: User)로 함께 삭제됨
+        userRepository.delete(user);                                             // 최종 삭제
     }
 
+    // --- 엔티티 -> DTO 변환 ---
     private UserDto toDto(User user) {
-        Boolean online = userStatusRepository.findByUserId(user.getId()) //해당 사용자의 상태(UserStatus)를 찾음. 반환 타입이 Optional<UserStatus>
-                .map(UserStatus::isOnline) // 값이 있으면 UserStatus 객체의 isOnline() 메서드 실행 -> Boolean 값으로 변환.
-                .orElse(null); // 값이 없으면 null 반환
+        Boolean online = userStatusRepository.findByUserId(user.getId())
+                .map(UserStatus::isOnline)
+                .orElse(null);
+
+        // ★ 변경: BinaryContent -> BinaryContentDto
+        BinaryContentDto profileDto = null;
+        BinaryContent profile = user.getProfile();
+        if (profile != null) {
+            profileDto = binaryContentMapper.toDto(profile); // bytes는 null로 매핑되는 구현이면 그대로 사용
+        }
 
         return new UserDto(
                 user.getId(),
@@ -135,8 +171,9 @@ public class BasicUserService implements UserService {
                 user.getUpdatedAt(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getProfileId(),
+                profileDto,   // ★ 여기 이제 BinaryContentDto
                 online
         );
     }
+
 }

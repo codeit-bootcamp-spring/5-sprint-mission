@@ -1,62 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
 
-/**
- * 사용자의 마지막 접속 시각을 표현하는 도메인.
- * - 온라인 여부 판단에 사용
- */
+@Getter // ✅ 조회용 Getter만 공개
+@Entity
+@Table(name = "user_statuses")
+public class UserStatus extends BaseUpdatableEntity {
 
-@Getter
-public class UserStatus implements Serializable {
+    @Setter
+    @OneToOne                                  // 1:1 단방향(여기서 FK 가짐)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;                         // 소유 사용자
 
-    private static final long serialVersionUID = 1L;
-    // 고유 식별자
-    private UUID id;
-    // 생성/수정 시각
-    private Instant createdAt;
-    private Instant updatedAt;
+    @Column(nullable = false)
+    private Instant lastActiveAt;              // 마지막 활동 시각
 
-    // 사용자 식별자(단방향 ID 참조키)
-    private UUID userId;
-    // 마지막 접속 시각
-    private Instant lastActiveAt;
+    protected UserStatus() { }                 // JPA 기본 생성자
 
-
-    public UserStatus(UUID userId, Instant lastActiveAt){
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-
-        this.userId=userId;
-        this.lastActiveAt=lastActiveAt;
+    public UserStatus(Instant lastActiveAt) {
+        this.lastActiveAt = lastActiveAt;      // 마지막 활동 시각 설정
     }
 
-    public void update(Instant lastActiveAt) {
-        boolean anyValueUpdated = false;
 
-        if ( lastActiveAt != null && this.lastActiveAt.equals(lastActiveAt)){
-            this.lastActiveAt = lastActiveAt;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
-    }
-
-    // 요구사항 메서드: 현재 시각 기준 온라인 여부
+    /** 최근 5분 내 활동 여부 */
     public boolean isOnline() {
-        // 1. 현재 시각에서 5분을 뺀 시각을 구함
-        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
-        // 2. lastActiveAt이 "5분 전 시각" 이후인지 비교
-        return lastActiveAt.isAfter(instantFiveMinutesAgo);
+        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5)); // 5분 전
+        return lastActiveAt.isAfter(instantFiveMinutesAgo);                          // 이후면 온라인
     }
 
-
+    /** 활동 시간 갱신(옵션) */
+    public void touch(Instant now) {
+        this.lastActiveAt = now;               // 활동 시각 업데이트
+    }
 }

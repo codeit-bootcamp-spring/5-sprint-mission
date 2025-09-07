@@ -1,43 +1,63 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
 
-import java.io.Serializable;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-@Getter
-public class Message implements Serializable {
-    private static final long serialVersionUID = 1L;
+@Entity
+@Table(name = "messages")
+public class Message extends BaseUpdatableEntity {
 
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
-    //
+    @Column
     private String content;
-    //
-    private UUID channelId;
-    private UUID authorId;
-    private List<UUID> attachmentIds; // BinaryContent를 위존하기 위해 사용됨 (User, Message)
 
-    public Message (String content, UUID channelId, UUID authorId, List<UUID> attachmentIds){
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        //
+    /**
+     * 작성 채널: N:1(다대일), Message가 연관관계 주인(FK: channel_id)
+     */
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id")
+    private Channel channel;
+
+    /**
+     * 작성자: N:1(다대일), Message가 연관관계 주인(FK: author_id)
+     */
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
+    private User author;
+
+    /**
+     * 첨부파일: N:N 단방향. 재사용 가능성을 고려해 @ManyToMany + 조인테이블
+     * - 저장/수정 시 첨부 신규 생성은 cascade=PERSIST만 주는 것이 안전하지만
+     *   단순화를 위해 ALL 사용(공유 파일을 삭제하지 않도록 orphanRemoval 미사용)
+     */
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "message_attachments",
+            joinColumns = @JoinColumn(name = "message_id"),
+            inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+    private List<BinaryContent> attachments = new ArrayList<>();
+
+    protected Message() {}
+
+    public Message(String content, Channel channel, User author) {
         this.content = content;
-        this.channelId = channelId;
-        this.authorId = authorId;
-        this.attachmentIds = attachmentIds;
+        this.channel = channel;
+        this.author = author;
     }
 
-    public void update (String newContent){
-        boolean anyValueUpdated = false;
-        if (newContent != null && newContent.equals(this.content)) {
+    public void addAttachment(BinaryContent file) { this.attachments.add(file); }
+
+    public String getContent() { return content; }
+    public Channel getChannel() { return channel; }
+    public User getAuthor() { return author; }
+    public List<BinaryContent> getAttachments() { return attachments; }
+
+    // update 보조 메서드 추가
+    public void update(String newContent) {
+        if (newContent != null && !newContent.equals(this.content)) {
             this.content = newContent;
         }
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
     }
+
 }

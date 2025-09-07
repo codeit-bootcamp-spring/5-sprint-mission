@@ -1,151 +1,93 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.controller; // 컨트롤러 패키지 선언
 
+import com.sprint.mission.discodeit.controller.api.ChannelApi;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
-// ===== Swagger/OpenAPI 애너테이션 =====
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-// ====================================
+@RequiredArgsConstructor                                         // 생성자 주입(Lombok)
+@RestController                                                  // REST 컨트롤러 선언
+@RequestMapping("/api/channels")                                 // 기본 URL 매핑
+public class ChannelController implements ChannelApi {                                 // 클래스 시작 (메서드명/라우트는 기존과 동일 유지)
 
-@RequiredArgsConstructor
-@RestController
-@RequestMapping("/api/channels")
-@Tag(
-    name = "Channels",
-    description = "공개/비공개 채널 생성·수정·삭제·조회 API"
-)
-public class ChannelController {
+    private final ChannelService channelService;                 // 채널 비즈니스 로직 의존성
+    private final ChannelMapper channelMapper;                   // 엔티티→DTO 변환 매퍼 의존성(2개 인자 요구)
 
-    private final ChannelService channelService;
-
-    @PostMapping(
-        path = "/public",
-        consumes = "application/json",
-        produces = "application/json"
-    )
-    @Operation(summary = "공개 채널 생성", description = "공개 채널을 생성합니다.", operationId = "createPublicChannel")
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "201",
-            description = "생성 성공",
-            content = {
-            @Content(mediaType = MediaType.APPLICATION_JSON_VALUE),
-            @Content(mediaType = MediaType.ALL_VALUE) // ← 추가
-        }
-        ),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청 본문"), // 유효성 실패 등
-        @ApiResponse(responseCode = "500", description = "서버 내부 오류") // 서버 오류
-    })
-    public ResponseEntity<Channel> createPublic(@RequestBody PublicChannelCreateRequest request) {
-        Channel createdChannel = channelService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
-    }
-
-    @PostMapping(
-        path = "/private",
-        consumes = "application/json",
-        produces = "application/json"
-    )
-    @Operation(summary = "비공개 채널 생성", description = "비공개 채널을 생성합니다.", operationId = "createPrivateChannel")
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "201",
-            description = "생성 성공",
-            content = {
-            @Content(mediaType = MediaType.APPLICATION_JSON_VALUE),
-            @Content(mediaType = MediaType.ALL_VALUE) // ← 추가
-        }
-        ),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청 본문"), // 유효성 실패 등
-        @ApiResponse(responseCode = "500", description = "서버 내부 오류") // 서버 오류
-    })
-    public ResponseEntity<Channel> createPrivate(@RequestBody PrivateChannelCreateRequest request) {
-        Channel createdChannel = channelService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
-    }
-
-    @PatchMapping(
-        path = "/{channelId}",
-        consumes = "application/json",
-        produces = "application/json"
-    )
-    @Operation(summary = "채널 수정", description = "채널 정보를 수정합니다.", operationId = "updateChannel")
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "수정 성공",
-            content = {
-                @Content(mediaType = MediaType.APPLICATION_JSON_VALUE),
-                @Content(mediaType = MediaType.ALL_VALUE) // ← 추가
-            }
-        ),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청 본문",
-            content = {
-                @Content(mediaType = MediaType.APPLICATION_JSON_VALUE),
-                @Content(mediaType = MediaType.ALL_VALUE)
-        }), // 유효성 실패 등
-        @ApiResponse(responseCode = "404", description = "대상 리소스를 찾을 수 없음",
-            content = {
-                @Content(mediaType = MediaType.APPLICATION_JSON_VALUE),
-                @Content(mediaType = MediaType.ALL_VALUE)
-        }), // 없는 채널
-        @ApiResponse(responseCode = "500", description = "서버 내부 오류") // 서버 오류
-    })
-    public ResponseEntity<Channel> update(
-        @PathVariable("channelId") UUID channelId,
-        @RequestBody PublicChannelUpdateRequest request
+    @PostMapping(path = "public")                                // 공개 채널 생성 엔드포인트(기존 메서드명: create)
+    public ResponseEntity<ChannelDto> create(                    // 반환 타입을 ChannelDto로 리팩토링
+                                                                 @RequestBody PublicChannelCreateRequest request      // 요청 본문 바인딩
     ) {
-        Channel udpatedChannel = channelService.update(channelId, request);
-        return ResponseEntity.status(HttpStatus.OK).body(udpatedChannel);
+        Channel createdChannel = channelService.create(request); // 서비스 호출로 엔티티 생성/저장
+        ChannelDto tmp = channelService.find(createdChannel.getId()); // 서비스의 find로 DTO 재조회(참가자 IDs 포함)
+        ChannelDto body = channelMapper.toDto(                   // 최종 응답 DTO 생성
+                createdChannel,                                  // 1) 엔티티
+                tmp.participantIds()                             // 2) 참가자 ID 목록(서비스 DTO에서 추출)
+        );
+        return ResponseEntity                                    // 응답 빌더 시작
+                .status(HttpStatus.CREATED)                      // 201 Created
+                .body(body);                                     // DTO 본문 반환
     }
 
-    @DeleteMapping(path = "/{channelId}")
-    @Operation(summary = "채널 삭제", description = "채널을 삭제합니다.", operationId = "deleteChannel")
-    @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "삭제 성공"), // 본문 없이 204
-        @ApiResponse(responseCode = "404", description = "대상 리소스를 찾을 수 없음",
-            content = {
-                @Content(mediaType = MediaType.APPLICATION_JSON_VALUE),
-                @Content(mediaType = MediaType.ALL_VALUE) // ← 추가
-            }), // 없는 채널
-        @ApiResponse(responseCode = "500", description = "서버 내부 오류") // 서버 오류
-    })
-    public ResponseEntity<Void> delete(@PathVariable("channelId") UUID channelId) {
-        channelService.delete(channelId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @PostMapping(path = "private")                               // 비공개 채널 생성 엔드포인트(기존 메서드명: create)
+    public ResponseEntity<ChannelDto> create(                    // 오버로드된 create 유지, 반환은 ChannelDto
+                                                                 @RequestBody PrivateChannelCreateRequest request     // 요청 본문 바인딩
+    ) {
+        Channel createdChannel = channelService.create(request); // 서비스 호출로 엔티티 생성/저장
+        ChannelDto tmp = channelService.find(createdChannel.getId()); // 서비스의 find로 DTO 재조회
+        ChannelDto body = channelMapper.toDto(                   // 최종 응답 DTO 생성
+                createdChannel,                                  // 1) 엔티티
+                tmp.participantIds()                             // 2) 참가자 ID 목록
+        );
+        return ResponseEntity                                    // 응답 빌더 시작
+                .status(HttpStatus.CREATED)                      // 201 Created
+                .body(body);                                     // DTO 본문 반환
     }
 
-    @GetMapping(produces = "application/json")
-    @Operation(summary = "사용자 채널 조회", description = "사용자 UUID로 채널 목록을 조회합니다.", operationId = "findAllChannelsByUserId")
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "조회 성공",
-            content = {
-                @Content(mediaType = MediaType.APPLICATION_JSON_VALUE),
-                @Content(mediaType = MediaType.ALL_VALUE) // ← 추가
-            }
-        )
-    })
-    public ResponseEntity<List<ChannelDto>> findAllByUserId(@RequestParam("userId") UUID userId) {
-        List<ChannelDto> channels = channelService.findAllByUserId(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(channels);
+    @PatchMapping(path = "{channelId}")                          // 채널 정보 수정 엔드포인트(기존 메서드명: update)
+    public ResponseEntity<ChannelDto> update(                    // 반환 타입을 ChannelDto로 리팩토링
+                                                                 @PathVariable("channelId") UUID channelId,           // 경로 변수: 채널 ID
+                                                                 @RequestBody PublicChannelUpdateRequest request      // 요청 본문 바인딩
+    ) {
+        Channel updatedChannel = channelService.update(channelId, request); // 서비스 호출로 엔티티 수정
+        ChannelDto tmp = channelService.find(updatedChannel.getId());       // 서비스의 find로 DTO 재조회
+        ChannelDto body = channelMapper.toDto(                   // 최종 응답 DTO 생성
+                updatedChannel,                                  // 1) 엔티티
+                tmp.participantIds()                             // 2) 참가자 ID 목록
+        );
+        return ResponseEntity                                    // 응답 빌더 시작
+                .status(HttpStatus.OK)                           // 200 OK
+                .body(body);                                     // DTO 본문 반환
+    }
+
+    @DeleteMapping(path = "{channelId}")                         // 채널 삭제 엔드포인트(기존 메서드명: delete)
+    public ResponseEntity<Void> delete(                          // 본문 없는 응답
+                                                                 @PathVariable("channelId") UUID channelId            // 경로 변수: 채널 ID
+    ) {
+        channelService.delete(channelId);                        // 서비스 호출로 삭제 처리
+        return ResponseEntity                                    // 응답 빌더 시작
+                .status(HttpStatus.NO_CONTENT)                   // 204 No Content
+                .build();                                        // 본문 없이 반환
+    }
+
+    @GetMapping                                                 // 채널 목록 조회 엔드포인트(기존 메서드명: findAll)
+    public ResponseEntity<List<ChannelDto>> findAll(            // 반환 타입 동일: List<ChannelDto>
+                                                                @RequestParam("userId") UUID userId                 // 쿼리 파라미터: 사용자 ID
+    ) {
+        List<ChannelDto> channels =                             // 서비스가 DTO 리스트 반환
+                channelService.findAllByUserId(userId);         // 사용자 기준 채널 조회
+        return ResponseEntity                                   // 응답 빌더 시작
+                .status(HttpStatus.OK)                          // 200 OK
+                .body(channels);                                // DTO 목록 본문 반환
     }
 }

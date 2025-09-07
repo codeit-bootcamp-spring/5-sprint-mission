@@ -1,39 +1,43 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 import lombok.Getter;
-
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
+import lombok.NoArgsConstructor;
 
 /**
- * 바이너리 데이터(이미지/파일)를 표현하는 불변 도메인.
- * - 수정 불가 요구사항: updatedAt 필드 없음
- * - User/Message에서 BinaryContent의 id만 참조(이쪽에서 역참조하지 않음)
+ * 파일 바이너리 저장소
+ * - Message의 첨부파일(N:N, 조인테이블)
+ * - User/Channel의 프로필 이미지(1:1, 소유측이 FK 가짐)
  */
 @Getter
-public final class BinaryContent implements Serializable {
+@Entity
+@Table(name = "binary_contents")
+public class BinaryContent extends BaseEntity {
 
-    private static final long serialVersionUID = 1L;
-    // 고유 식별자
-    private final UUID id;
-    // 생성 시각
-    private final Instant createdAt;
-
+    @Column(nullable = false)
     private String fileName;
+
+    @Column(nullable = false)
     private Long size;
+
+    @Column(nullable = false)
     private String contentType;
-    private byte[] bytes;
 
-    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes){
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
+//    @Lob
+//    @Column(nullable = false)
+//    private byte[] bytes;
 
-        this.fileName=fileName;
-        this.size=size;
-        this.contentType=contentType;
-        this.bytes = bytes;
+    protected BinaryContent() {} // 이걸 왜 만들었지
+
+    public BinaryContent(String fileName, Long size, String contentType) {
+        this.fileName = fileName;
+        this.size = size;
+        this.contentType = contentType;
+//        this.bytes = bytes;
     }
 
 }
