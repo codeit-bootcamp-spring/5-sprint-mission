@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.sub.ReadStatus;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
@@ -21,25 +22,25 @@ public class ReadStatusController {
 
     // 생성
     @PostMapping
-    public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
-        ReadStatus created = readStatusService.create(request);
+    public ResponseEntity<ReadStatusDto> create(@RequestBody ReadStatusCreateRequest request) {
+        ReadStatusDto created = readStatusService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     // 수정
     @PatchMapping("/{readStatusId}")
-    public ResponseEntity<ReadStatus> update(
+    public ResponseEntity<ReadStatusDto> update(
             @PathVariable UUID readStatusId,
             @RequestBody ReadStatusUpdateRequest request
     ) {
-        ReadStatus updated = readStatusService.update(readStatusId, request);
+        ReadStatusDto updated = readStatusService.update(readStatusId, request);
         return ResponseEntity.ok(updated);
     }
 
     // 특정 User ReadStatus 목록 조회
     @GetMapping
-    public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam UUID userId) {
-        List<ReadStatus> statuses = readStatusService.findAllByUserId(userId);
+    public ResponseEntity<List<ReadStatusDto>> findAllByUserId(@RequestParam UUID userId) {
+        List<ReadStatusDto> statuses = readStatusService.findAllByUserId(userId);
         return ResponseEntity.ok(statuses);
     }
 }
