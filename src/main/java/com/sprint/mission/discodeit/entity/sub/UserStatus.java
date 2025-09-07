@@ -1,51 +1,27 @@
 package com.sprint.mission.discodeit.entity.sub;
 
-import lombok.Getter;
+import com.sprint.mission.discodeit.entity.main.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.entity.main.User;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Duration;
 import java.time.Instant;
-import java.util.UUID;
 
+
+@Entity
+@Table(name = "USER_STATUSES")
 @Getter
-public class UserStatus implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private final UUID id;
-    private final UUID userId;
+@Setter
+@SuperBuilder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UserStatus extends BaseUpdatableEntity {
 
-    private final Instant createdAt;
-    private Instant updatedAt;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+
+    @Column(name = "last_active_at", nullable = false)
     private Instant lastActiveAt;
-
-    public UserStatus(UUID userId, Instant lastActiveAt) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-
-        this.userId = userId;
-        this.lastActiveAt = lastActiveAt;
-    }
-
-    public void update(Instant lastActiveAt) {
-        boolean anyValueUpdated = false;
-
-        if (isLasActiveAtChanged(lastActiveAt)) {
-            this.lastActiveAt = lastActiveAt;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
-    }
-
-    private boolean isLasActiveAtChanged(Instant lastActiveAt) {
-        return lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt);
-    }
-
-    public Boolean isOnline() {
-        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
-        return lastActiveAt.isAfter(instantFiveMinutesAgo);
-    }
 }

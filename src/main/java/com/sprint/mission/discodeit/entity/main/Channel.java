@@ -1,80 +1,38 @@
 package com.sprint.mission.discodeit.entity.main;
 
-import com.sprint.mission.discodeit.entity.enums.ChannelType;
-import lombok.Getter;
+import com.sprint.mission.discodeit.enums.ChannelType;
+import com.sprint.mission.discodeit.entity.sub.ReadStatus;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
-import static java.time.Instant.*;
-
+@Entity
+@Table(name = "CHANNELS")
 @Getter
-public class Channel implements Serializable {
+@Setter
+@SuperBuilder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Channel extends BaseUpdatableEntity {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private final UUID id;
-
-    private ChannelType type;
-
+    @Column(length = 100)
     private String name;
+
+    @Column(length = 500)
     private String description;
 
-    private final Instant createdAt;
-    private Instant updatedAt;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private ChannelType type;
 
-    public Channel(ChannelType type, String name, String description) {
-        this.id = UUID.randomUUID();
-        this.createdAt = now();
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Message> messages = new ArrayList<>();
 
-        this.type = type;
-        this.name = name;
-        this.description = description;
-    }
-
-    public void update(String newName, String newDescription) {
-        boolean anyValueUpdated = false;
-
-        if(isNameChanged(newName)) {
-            this.name = newName;
-            anyValueUpdated = true;
-        }
-
-        if(isDescriptionChanged(newDescription)) {
-            this.description = newDescription;
-            anyValueUpdated = true;
-        }
-
-        if(anyValueUpdated) {
-            this.updatedAt = now();
-        }
-    }
-
-    public boolean isNameChanged(String name) {
-        return name != null && !Objects.equals(this.name, name);
-    }
-
-    public boolean isDescriptionChanged(String description) {
-        return description != null && !Objects.equals(this.description, description);
-    }
-
-    public boolean isTypeChanged(ChannelType type) {
-        return type != null && !Objects.equals(this.type, type);
-    }
-
-    @Override
-    public String toString() {
-        return "Channel{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", type=" + type +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                '}';
-    }
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ReadStatus> readStatuses = new ArrayList<>();
 }
