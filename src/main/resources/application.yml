@@ -1,8 +1,47 @@
 spring:
   application:
     name: discodeit
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
 
-discodeit:
-  repository:
-    type: file   # jcf | file
-    file-directory: .discodeit
+  jpa:
+    hibernate:
+      ddl-auto: validate   # 개발 중엔 update, 운영에선 validate 권장
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comment: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        physical_name_strategy: org.hibernate.bot.model.naming.CamelCaseToUnderscoresNamingStrategy
+        jdbc.time_zone: UTC
+
+# swagger
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    display-request-duration: true
+    persist-authorization: true
+
+# log
+logging:
+  level:
+    # Hibernate SQL
+    org.hibernate.SQL: off
+    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.type.descriptor.sql: trace
+
+    # Spring Web
+    org.springframework.web: trace
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
+  pattern:
+    console: "%d{HH:mm:ss} %-5level %logger{36} - %msg%n"
