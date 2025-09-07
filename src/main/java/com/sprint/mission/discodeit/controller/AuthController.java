@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
 
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
+import com.sprint.mission.discodeit.dto.response.LoginResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,17 +29,14 @@ public class AuthController {
   @Operation(summary = "로그인")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "로그인 성공"),
-      @ApiResponse(responseCode = "400", description = "비밀버호가 일치하지 않음",
+      @ApiResponse(responseCode = "400", description = "비밀번호가 일치하지 않음",
           content = @Content(examples = @ExampleObject(value = "Wrong password"))),
       @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
           content = @Content(examples = @ExampleObject(value = "User with username {username} not found")))
   })
   @PostMapping(path = "login")
-  public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
-    User user = authService.login(loginRequest);
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(user);
+  public ResponseEntity<UserDto> login(@RequestBody LoginRequest loginRequest) {
+    UserDto user = authService.login(loginRequest);
+    return ResponseEntity.status(HttpStatus.OK).body(user);
   }
-
 }

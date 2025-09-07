@@ -1,9 +1,12 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.*;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,14 +47,14 @@ public class UserController {
       @ApiResponse(responseCode = "400", description = "같은 email 또는 username를 사용하는 User가 이미 존재함",
           content = @Content(examples = @ExampleObject(value = "User with email {email} already exists")))
   })
-  public ResponseEntity<User> create(
+  public ResponseEntity<UserDto> create(
       @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
     // 파일 처리 로직
     Optional<BinaryContentCreateRequest> request = ofNullable(profile).flatMap(
         this::resolveProfileRequest);
-    User user = userService.create(userCreateRequest, request);
+    UserDto user = userService.create(userCreateRequest, request);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(user);
   }
@@ -66,16 +69,16 @@ public class UserController {
       @ApiResponse(responseCode = "404", description = "User를 찾을 수 없음",
           content = @Content(examples = @ExampleObject(value = "User with id {userId} not found")))
   })
-  public ResponseEntity<User> update(
+  public ResponseEntity<UserDto> update(
       @PathVariable("userId") UUID userId,
       @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
-    User updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
+    UserDto updated = userService.update(userId, userUpdateRequest, profileRequest);
 
-    return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+    return ResponseEntity.status(HttpStatus.OK).body(updated);
   }
 
   @DeleteMapping(path = "{userId}")
@@ -109,11 +112,11 @@ public class UserController {
       @ApiResponse(responseCode = "404", description = "해당 User의 UserStatus를 찾을 수 없음",
           content = @Content(examples = @ExampleObject(value = "UserStatus with userId {userId} not found")))
   })
-  public ResponseEntity<UserStatus> updateUserStatusByUserId(
+  public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
       @PathVariable("userId") UUID userId,
       @RequestBody UserStatusUpdateRequest request
   ) {
-    UserStatus userStatus = userStatusService.updateByUserId(userId, request);
+    UserStatusDto userStatus = userStatusService.updateByUserId(userId, request);
     return ResponseEntity.status(HttpStatus.OK).body(userStatus);
   }
 

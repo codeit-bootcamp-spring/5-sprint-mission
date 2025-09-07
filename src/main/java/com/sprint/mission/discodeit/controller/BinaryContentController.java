@@ -1,6 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,6 +35,7 @@ public class BinaryContentController {
 
   private final BinaryContentService binaryContentService;
 
+
   @Operation(summary = "첨부 파일 조회", description = "조회할 첨부 파일 ID")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "첨부 파일 조회 성공"),
@@ -39,8 +43,8 @@ public class BinaryContentController {
           content = @Content(examples = @ExampleObject(value = "BinaryContent with id {binaryContentId} not found")))
   })
   @GetMapping(path = "{binaryContentId}")
-  public ResponseEntity<BinaryContent> find(@PathVariable("binaryContentId") UUID binaryContentId) {
-    BinaryContent binaryContent = binaryContentService.find(binaryContentId);
+  public ResponseEntity<BinaryContentDto> find(@PathVariable("binaryContentId") UUID binaryContentId) {
+    BinaryContentDto binaryContent = binaryContentService.find(binaryContentId);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(binaryContent);
@@ -52,9 +56,9 @@ public class BinaryContentController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "첨부 파일 목록 조회 성공")
   })
-  public ResponseEntity<List<BinaryContent>> findAll(
+  public ResponseEntity<List<BinaryContentDto>> findAll(
       @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
-    List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
+    List<BinaryContentDto> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(binaryContents);
