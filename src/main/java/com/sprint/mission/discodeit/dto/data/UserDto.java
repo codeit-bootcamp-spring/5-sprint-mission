@@ -9,7 +9,7 @@ public record UserDto (
     Instant updatedAt,
     String username,
     String email,
-    UUID profied,
+    BinaryContentDto profile,
     Boolean online
 ) {
 }

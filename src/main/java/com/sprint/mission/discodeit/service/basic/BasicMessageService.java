@@ -1,96 +1,103 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
-    private final MessageRepository messageRepository;
 
-    private final ChannelRepository channelRepository;
-    private final UserRepository userRepository;
-    private final BinaryContentRepository binaryContentRepository;
+    private final MessageRepository messageRepository; // 메시지 CRUD 담당 레포지토리
+    private final ChannelRepository channelRepository; // 채널 존재/조회용 레포지토리
+    private final UserRepository userRepository; // 작성자(유저) 존재/조회용 레포지토리
+    private final BinaryContentRepository binaryContentRepository; // 첨부 바이너리 저장 레포지토리
 
     @Override
-    public Message create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
-        UUID channelId = messageCreateRequest.channelId(); // 메시지가 등록될 채널 ID 추출
-        UUID authorId = messageCreateRequest.authorId(); // 작성자(유저) ID 추출
+    @Transactional // 생성 전체를 하나의 트랜잭션으로 처리
+    public Message create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests) { // 메시지 생성 메서드
+        UUID channelId = messageCreateRequest.channelId(); // 요청에서 채널 ID 추출
+        UUID authorId = messageCreateRequest.authorId(); // 요청에서 작성자 ID 추출
 
-        // 존재성만 검사 (View/다른 Service 의존 X)
-        if (!channelRepository.existsById(channelId)) {
-            throw new NoSuchElementException("Channel with id " + channelId + " does not exist");
+        Channel channel = channelRepository.findById(channelId) // 채널 엔티티 로딩
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " does not exist")); // 없으면 예외
+
+        User author = userRepository.findById(authorId) // 작성자 엔티티 로딩
+                .orElseThrow(() -> new NoSuchElementException("User with id " + authorId + " does not exist")); // 없으면 예외
+
+        String content = messageCreateRequest.content(); // 메시지 본문 추출
+        Message message = new Message(content, channel, author); // 채널/작성자 연관을 가진 메시지 엔티티 생성
+
+        if (binaryContentCreateRequests != null) { // 첨부 요청 목록이 존재한다면
+            for (BinaryContentCreateRequest req : binaryContentCreateRequests) { // 각 첨부 요청에 대해 반복
+                byte[] bytes = req.bytes(); // 파일 데이터 추출
+                BinaryContent file = new BinaryContent( // BinaryContent 엔티티 생성
+                        req.fileName(), (long) bytes.length, req.contentType()//, bytes
+                );
+                BinaryContent saved = binaryContentRepository.save(file); // 첨부를 별도 저장
+                message.addAttachment(saved); // 메시지에 첨부 연결(N:N, 조인테이블)
+            }
         }
-        if (!userRepository.existsById(authorId)) {
-            throw new NoSuchElementException("Channel with id " + authorId + " does not exist");
-        }
 
-        List<UUID> attachmentIds = binaryContentCreateRequests.stream()
-                .map(attachmentRequest-> {
-                    String fileName = attachmentRequest.fileName(); // 파일명
-                    String contentType = attachmentRequest.contentType(); // MIME 타입
-                    byte[] bytes = attachmentRequest.bytes(); // 파일 데이터
-
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType, bytes); // 첨부 엔티티 생성
-                    BinaryContent createdBinaryContent = binaryContentRepository.save(binaryContent); // 저장
-                    return createdBinaryContent.getId(); // 저장된 첨부의 ID만 모음
-                })
-                .toList(); // 그걸 attachmentIds로 받음
-
-        String content = messageCreateRequest.content(); // 본문 내용
-        Message message = new Message( // 메시지 엔티티 생성
-                content,
-                channelId,
-                authorId,
-                attachmentIds
-        );
-        return messageRepository.save(message); // 최종 저장 후 반환
+        return messageRepository.save(message); // 메시지 저장 후 반환(첨부 조인테이블도 함께 반영)
     }
 
     @Override
-    public Message find(UUID messageId) {
-        return messageRepository.findById(messageId) // 메세지 아이디에 해당하는 Message 엔티티를 가져온다
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+    @Transactional(readOnly = true) // 조회 전용 트랜잭션
+    public Message find(UUID messageId) { // 메시지 단건 조회
+        return messageRepository.findById(messageId) // PK로 조회
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found")); // 없으면 예외
     }
 
     @Override
-    public List<Message> findAllByChannelId(UUID channelId) {
-        return messageRepository.findAllByChannelId(channelId).stream() // channelId(채널 식별자)에 해당하는 모든 메시지를 찾아서 리스트로 반환합니다.
-                .toList();
+    @Transactional(readOnly = true) // 조회 전용 트랜잭션
+    public List<Message> findAllByChannelId(UUID channelId) { // 채널 기준 메시지 목록 조회
+        return messageRepository.findAllByChannelId(channelId); // 레포지토리 메서드 결과 그대로 반환
     }
 
     @Override
-    public Message update(UUID messageId, MessageUpdateRequest request) {
-        String newContent = request.newContent(); // MessageUpdateRequest DTO에서 수정할 새로운 메시지 내용을 꺼냅니다.
-        Message message = messageRepository.findById(messageId) // messageRepository를 이용해 해당 ID의 메시지를 찾습니다.
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
-        message.update(newContent); // Message 엔티티의 update 메서드를 호출해 새로운 내용으로 변경합니다.
-        return messageRepository.save(message); // 수정된 엔티티를 저장합니다.
+    @Transactional // 수정 트랜잭션
+    public Message update(UUID messageId, MessageUpdateRequest request) { // 메시지 내용 수정
+        String newContent = request.newContent(); // 새 본문 추출
+        Message message = messageRepository.findById(messageId) // 대상 메시지 로딩
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found")); // 없으면 예외
+
+        message.update(newContent); // 엔티티 보조 메서드로 본문 변경(전제: Message에 update(String) 존재)
+        return messageRepository.save(message); // 저장 후 변경된 엔티티 반환
+    }
+
+    @Override
+    @Transactional // 삭제 트랜잭션
+    public void delete(UUID messageId) { // 메시지 삭제
+        Message message = messageRepository.findById(messageId) // 삭제 대상 로딩
+                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found")); // 없으면 예외
+
+        // ⚠️ 첨부(BinaryContent)는 N:N 공유 가능 엔티티이며 orphanRemoval이 아님 → 메시지 삭제 시 첨부 자체는 삭제하지 않음
+        messageRepository.delete(message); // 메시지 레코드 및 조인테이블 레코드만 삭제
     }
 
 
     @Override
-    public void delete(UUID messageId) {
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
-
-        message.getAttachmentIds() // 메시지에 연결된 첨부파일 ID 리스트를 가져옵니다.
-                .forEach(binaryContentRepository::deleteById); // 각 첨부파일을 binaryContentRepository를 통해 개별 삭제합니다.
-
-        messageRepository.deleteById(messageId); // 첨부파일 삭제를 먼저 하고, 메시지를 삭제하는 순서로 진행하여 참조 무결성을 유지합니다.
+    @Transactional(readOnly = true)
+    public Slice<Message> findSliceByChannelId(UUID channelId, Pageable pageable) {
+        return messageRepository.findByChannelIdOrderByCreatedAtDesc(channelId, pageable);
     }
-
 }

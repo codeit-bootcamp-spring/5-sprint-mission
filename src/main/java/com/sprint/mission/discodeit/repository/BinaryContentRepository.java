@@ -1,26 +1,16 @@
-package com.sprint.mission.discodeit.repository; // 레포지토리 패키지 선언
+package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import java.util.Collection;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
- * BinaryContent 전용 레포지토리 인터페이스(불변 도메인)
- * - updatedAt이 없으므로 생성/조회/삭제 중심
- * - Message의 attachmentIds, User의 profileId가 이 ID를 참조
+ * BinaryContent 전용 레포지토리
+ * - 기본 CRUD는 JpaRepository가 제공
+ * - 첨부파일 일괄 조회용 쿼리 메서드만 선언
  */
-public interface BinaryContentRepository { // BinaryContent 저장소 계약 정의 시작
-
-    BinaryContent save(BinaryContent binaryContent); // 신규 BinaryContent 저장(불변이므로 갱신 개념 없음)
-
-    Optional<BinaryContent> findById(UUID id); // 식별자로 단건 조회
-
-    List<BinaryContent> findAllByIdIn(List<UUID> ids); // 다건 식별자 기반 일괄 조회(첨부파일 목록 조회에 유용)
-
-    boolean existsById(UUID id);
-
-    void deleteById(UUID id); // 식별자로 삭제(파일 정리 등)
-
+public interface BinaryContentRepository extends JpaRepository<BinaryContent, UUID> {
+    List<BinaryContent> findAllByIdIn(List<UUID> ids);
 }

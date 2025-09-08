@@ -1,136 +1,65 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.controller; // 컨트롤러 패키지 선언
 
+import com.sprint.mission.discodeit.controller.api.ReadStatusApi;
+import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.service.ReadStatusService;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
-// -------------------- Swagger(OpenAPI) 임포트(간단 버전) --------------------
-import io.swagger.v3.oas.annotations.Operation; // 엔드포인트 요약/설명
-import io.swagger.v3.oas.annotations.media.Content; // 응답 Content
-import io.swagger.v3.oas.annotations.media.Schema; // 스키마 정의
-import io.swagger.v3.oas.annotations.media.ArraySchema; // 배열 스키마
-import io.swagger.v3.oas.annotations.responses.ApiResponse; // 단일 응답
-import io.swagger.v3.oas.annotations.responses.ApiResponses; // 복수 응답
-import io.swagger.v3.oas.annotations.tags.Tag; // 컨트롤러 태그
-// ---------------------------------------------------------------------------
+@RequiredArgsConstructor                                         // 생성자 주입(Lombok)
+@RestController                                                  // REST 컨트롤러 선언
+@RequestMapping("/api/readStatuses")                             // 기본 URL 매핑
+public class ReadStatusController implements ReadStatusApi {                              // 클래스 시작(메서드/라우트는 기존과 동일 유지)
 
-@RequiredArgsConstructor
-@RestController
-@RequestMapping("/api/readStatuses")
-@Tag(name = "ReadStatus", description = "읽음 상태(ReadStatus) 생성/수정/조회 API")
-public class ReadStatusController {
+    private final ReadStatusService readStatusService;           // 읽음 상태 서비스 의존성
+    private final ReadStatusMapper readStatusMapper;             // 엔티티→DTO 매퍼 의존성
 
-    private final ReadStatusService readStatusService;
-
-    @PostMapping( // 생성은 POST 메서드로 명시
-        consumes = "application/json", // 요청 본문 타입(JSON) 명시
-        produces = "application/json" // 응답 본문 타입(JSON) 명시
-    )
-    @Operation( // 생성 API 문서(간단 요약/설명만)
-        summary = "읽음 상태 생성",
-        description = "요청 본문(JSON)의 필드로 읽음 상태를 생성합니다.",
-        operationId = "createReadStatus"
-    )
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "201",
-            description = "생성 성공",
-            content = {
-                @Content(schema = @Schema(implementation = ReadStatus.class)),
-                @Content(mediaType = MediaType.ALL_VALUE) // ← 추가
-            }
-        ),
-        @ApiResponse(responseCode = "400", description = "요청 값 검증 실패 또는 형식 오류",
-                        content = @Content(mediaType = MediaType.ALL_VALUE)),
-        @ApiResponse(responseCode = "500", description = "서버 내부 오류")
-    })
-    public ResponseEntity<ReadStatus> create( // 생성 엔드포인트
-        @RequestBody ReadStatusCreateRequest request // 요청 본문을 DTO로 바인딩
+    @PostMapping                                                 // 생성 엔드포인트(기존 메서드명: create)
+    public ResponseEntity<ReadStatusDto> create(                 // 반환 타입을 ReadStatusDto로 리팩토링
+                                                                 @RequestBody ReadStatusCreateRequest request         // 요청 본문을 DTO로 바인딩
     ) {
-        ReadStatus createdReadStatus = readStatusService.create(request); // 서비스에 생성 위임
-        return ResponseEntity
-            .status(HttpStatus.CREATED) // 201 Created
-            .body(createdReadStatus); // 생성된 리소스 반환
+        ReadStatus created = readStatusService.create(request);  // 서비스에 생성 위임(엔티티 반환)
+        ReadStatusDto body = readStatusMapper.toDto(created);    // 엔티티를 DTO로 변환
+        return ResponseEntity                                    // 응답 빌더 시작
+                .status(HttpStatus.CREATED)                      // 201 Created
+                .body(body);                                     // 생성된 DTO 반환
     }
 
-    @PatchMapping( // 수정은 Patch 메서드로 명시
-        path = "/{readStatusId}", // 기존 경로명 유지 + PathVariable 적용
-        consumes = "application/json", // 요청 본문 타입(JSON)
-        produces = "application/json" // 응답 본문 타입(JSON)
-    )
-    @Operation( // 수정 API 문서(간단 요약/설명만)
-        summary = "읽음 상태 수정",
-        description = "readStatusId로 대상을 지정하여 요청 본문(JSON) 값으로 읽음 상태를 수정합니다.",
-        operationId = "updateReadStatus"
-    )
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "수정 성공",
-            content = {@Content(schema = @Schema(implementation = ReadStatus.class)),
-                @Content(mediaType = MediaType.ALL_VALUE) }
-        ),
-        @ApiResponse(responseCode = "404", description = "대상 리소스를 찾을 수 없음",
-        content = @Content(mediaType = MediaType.ALL_VALUE)),
-        @ApiResponse(responseCode = "400", description = "요청 값 검증 실패 또는 형식 오류"),
-        @ApiResponse(responseCode = "500", description = "서버 내부 오류")
-    })
-    public ResponseEntity<ReadStatus> update( // 수정 엔드포인트
-        @PathVariable("readStatusId") UUID readStatusId, // PathVariable로 대상 지정
-        @RequestBody ReadStatusUpdateRequest request // 수정 값 바인딩
+    @PatchMapping(path = "/{readStatusId}")                      // 수정 엔드포인트(기존 메서드명: update)
+    public ResponseEntity<ReadStatusDto> update(                 // 반환 타입을 ReadStatusDto로 리팩토링
+                                                                 @PathVariable("readStatusId") UUID readStatusId,     // PathVariable로 대상 지정
+                                                                 @RequestBody ReadStatusUpdateRequest request         // 수정 값 바인딩
     ) {
-        ReadStatus updatedReadStatus = readStatusService.update(readStatusId, request); // 서비스에 수정 위임
-        return ResponseEntity
-            .status(HttpStatus.OK) // 200 OK
-            .body(updatedReadStatus); // 수정 결과 반환
+        ReadStatus updated = readStatusService.update(           // 서비스에 수정 위임
+                readStatusId, request                            // 식별자/요청 전달
+        );                                                       // 엔티티 반환
+        ReadStatusDto body = readStatusMapper.toDto(updated);    // 엔티티→DTO 변환
+        return ResponseEntity                                    // 응답 빌더 시작
+                .status(HttpStatus.OK)                           // 200 OK
+                .body(body);                                     // 수정 결과 DTO 반환
     }
 
-    @GetMapping( // 조회는 GET 메서드로 명시
-        produces = "application/json" // 응답 본문 타입(JSON)
-    )
-    @Operation( // 조회 API 문서(간단 요약/설명만)
-        summary = "사용자별 읽음 상태 목록 조회",
-        description = "userId로 지정한 사용자의 전체 읽음 상태 목록을 조회합니다.",
-        operationId = "findAllByUserId",
-        parameters = {
-            @Parameter(
-                name = "userId",
-                description = "조회할 사용자 ID",
-                required = true,
-                in = ParameterIn.QUERY,
-                schema = @Schema(type = "string", format = "uuid")
-            )
-        }
-    )
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "조회 성공",
-            content = {
-                @Content(array = @ArraySchema(schema = @Schema(implementation = ReadStatus.class))),
-                @Content(mediaType = MediaType.ALL_VALUE)
-            }),
-        @ApiResponse(responseCode = "400", description = "요청 파라미터 형식 오류(예: UUID 파싱 실패)"),
-        @ApiResponse(responseCode = "500", description = "서버 내부 오류")
-    })
-    public ResponseEntity<List<ReadStatus>> findAllByUserId( // 사용자별 목록 조회 엔드포인트
-        @Parameter(description = "조회할 사용자 ID", required = true) // ★ 문서에 필수로 노출
-        @RequestParam(name = "userId", required = true) UUID userId // ★ 필수 쿼리 파라미터
+    @GetMapping                                                 // 사용자별 목록 조회 엔드포인트(기존 메서드명: findAllByUserId)
+    public ResponseEntity<List<ReadStatusDto>> findAllByUserId( // 반환 타입을 List<ReadStatusDto>로 리팩토링
+                                                                @RequestParam(name = "userId", required = true) UUID userId // ★ 필수 쿼리 파라미터
     ) {
-        List<ReadStatus> readStatuses = readStatusService.findAllByUserId(userId); // 서비스에 조회 위임
-        return ResponseEntity
-            .status(HttpStatus.OK) // 200 OK
-            .body(readStatuses); // 조회 결과 리스트 반환
+        List<ReadStatus> entities =                              // 서비스에 조회 위임(엔티티 목록)
+                readStatusService.findAllByUserId(userId);       // 사용자 기준 조회
+        List<ReadStatusDto> body =                               // 엔티티 목록→DTO 목록 변환
+                entities.stream()                                // 스트림 시작
+                        .map(readStatusMapper::toDto)            // 개별 매핑
+                        .toList();                                // 리스트 수집(JDK 16+; 낮으면 Collectors.toList())
+        return ResponseEntity                                    // 응답 빌더 시작
+                .status(HttpStatus.OK)                           // 200 OK
+                .body(body);                                     // DTO 리스트 반환
     }
 }

@@ -1,65 +1,33 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.controller; // 컨트롤러 패키지 선언
 
+import com.sprint.mission.discodeit.controller.api.AuthApi;
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-// --- Swagger(OpenAPI) 애너테이션 임포트 ---
-import io.swagger.v3.oas.annotations.Operation; // API 요약/설명 애너테이션
-import io.swagger.v3.oas.annotations.tags.Tag; // API 그룹(태그) 애너테이션
-import io.swagger.v3.oas.annotations.media.Content; // 요청/응답 콘텐츠 메타데이터
-import io.swagger.v3.oas.annotations.media.Schema; // 스키마 정의
-import io.swagger.v3.oas.annotations.responses.ApiResponse; // 응답 코드 정의
-import io.swagger.v3.oas.annotations.responses.ApiResponses; // 응답 묶음
-// -----------------------------------------
+@RequiredArgsConstructor                                   // 생성자 주입(Lombok)
+@RestController                                            // REST 컨트롤러
+@RequestMapping("/api/auth")                               // 기본 URL 매핑
+public class AuthController implements AuthApi {                              // 클래스 시작 (인터페이스 구현 제거)
 
-@RequiredArgsConstructor
-@RestController
-@RequestMapping("/api/auth")
-@Tag(
-    name = "Auth",
-    description = "인증 관련 API (로그인)"
-)
-public class AuthController {
+    private final AuthService authService;                 // 인증 서비스 의존성
+    private final UserMapper userMapper;                   // User 엔티티 → UserDto 매퍼 의존성
 
-    private final AuthService authService;
-
-    @PostMapping(
-        value = "/login",
-        consumes = "application/json", // 요청 본문 타입을 명시
-        produces = "application/json" // 응답 본문 타입을 명시
-         )
-    @Operation(
-        summary = "로그인",
-        description = "자격 증명(아이디/비밀번호 등)을 제출해 로그인합니다."
-        , operationId = "login"
-    )
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "로그인 성공",
-            content =
-                {
-                    @Content(schema = @Schema(implementation = User.class)),
-                    @Content(mediaType = MediaType.ALL_VALUE)
-                }),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청 본문"
-            , content = {
-            @Content(mediaType = MediaType.APPLICATION_JSON_VALUE),
-            @Content(mediaType = MediaType.ALL_VALUE) // ← 추가
-        }),
-        @ApiResponse(responseCode = "401", description = "인증 실패"),
-        @ApiResponse(responseCode = "500", description = "서버 내부 오류")
-    })
-    public ResponseEntity<User> login(
-        @Valid @RequestBody LoginRequest loginRequest
+    @PostMapping(path = "/login")                          // 로그인 엔드포인트(기존 라우트/이름 유지)
+    public ResponseEntity<UserDto> login(                  // 반환 타입을 UserDto로 리팩토링
+                                                           @Valid @RequestBody LoginRequest loginRequest  // 요청 본문 검증 + 바인딩
     ) {
-        User user = authService.login(loginRequest);
-        return ResponseEntity.ok(user);
+        User user = authService.login(loginRequest);       // 서비스에서 인증 처리(엔티티 반환)
+        UserDto body = userMapper.toDto(user);             // 엔티티를 DTO로 매핑
+        return ResponseEntity                              // 응답 빌더 시작
+                .status(HttpStatus.OK)                     // 200 OK
+                .body(body);                               // DTO 본문 반환
     }
 }

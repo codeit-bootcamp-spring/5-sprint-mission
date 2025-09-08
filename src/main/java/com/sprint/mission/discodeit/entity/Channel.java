@@ -1,43 +1,37 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
-
 @Getter
-public class Channel implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
-    //
+@Entity
+@Table(name = "channels")
+public class Channel extends BaseUpdatableEntity {
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ChannelType type;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(length = 500)
     private String description;
 
-    public Channel(ChannelType type, String name, String description){
-        this.id=UUID.randomUUID();
-        this.createdAt= Instant.now();
-        //
+    protected Channel() {} // 왜 쓰는가?
+
+    public Channel(ChannelType type, String name, String description) {
         this.type = type;
         this.name = name;
         this.description = description;
     }
 
+    // update 보조 메서드 추가
     public void update(String newName, String newDescription) {
-        boolean anyValueUpdated = false;
-        if(newName != null && !newName.equals(this.name)) {
-            this.name = newName;
-            anyValueUpdated = true;
-        }
-        if (newDescription != null && newDescription.equals(this.description)) {
-            this.description = newDescription;
-            anyValueUpdated = true;
-        }
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
+        if (newName != null && !newName.equals(this.name)) this.name = newName;
+        if (newDescription != null && !newDescription.equals(this.description)) this.description = newDescription;
     }
+
+
 }

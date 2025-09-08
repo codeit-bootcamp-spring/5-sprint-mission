@@ -1,56 +1,62 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
 
 /**
- * 사용자가 특정 채널에서 마지막으로 메시지를 읽은 시각을 표현하는 도메인.
- * - unread 계산에 활용
- * - 단순 ID 참조로 결합도 최소화(userId, channelId)
+ * 사용자-채널 단위의 마지막 읽음 시각.
+ * - (user_id, channel_id) 유니크 제약
+ * - 다대일 관계 양쪽 모두에 매핑(연관관계 주인은 ReadStatus)
  */
-@Getter
-public class ReadStatus implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    // 고유 식별자
-    private UUID id;
-    // 생성/수정 시각 (BinaryContent 제외 모델은 갱신 가능하므로 updatedAt 유지)
-    private Instant createdAt;
-    private Instant updatedAt;
+@Entity
+@Table(name = "read_statuses", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_readstatus_user_channel", columnNames = {"user_id", "channel_id"})
+})
+public class ReadStatus extends BaseUpdatableEntity {
 
+    @Getter
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    // 사용자 식별자(단방향 ID 참조키)
-    private UUID userId;
-    // 채널 식별자(단방향 ID 참조키)
-    private UUID channelId;
-    // 마지막으로 읽은 시각
+    @Getter
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id")
+    private Channel channel;
+
+    @Getter
+    @Column(nullable = false)
     private Instant lastReadAt;
 
-    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
+    protected ReadStatus() {}
 
-        this.userId = userId;
-        this.channelId = channelId;
+    public ReadStatus(User user, Channel channel, Instant lastReadAt) {
+        this.user = user;
+        this.channel = channel;
         this.lastReadAt = lastReadAt;
     }
 
-    public void update(Instant newLastReadAt) {
-        boolean anyValueUpdated = false;
-
-        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
-            this.lastReadAt = newLastReadAt;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt=Instant.now();
-        }
-    }
-
+    public void mark(Instant now) { this.lastReadAt = now; }
 
 }
+
+//    public void update(Instant newLastReadAt) {
+//        boolean anyValueUpdated = false;
+//
+//        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+//            this.lastReadAt = newLastReadAt;
+//            anyValueUpdated = true;
+//        }
+//
+//        if (anyValueUpdated) {
+//            this.updatedAt=Instant.now();
+//        }
+//    }
+
+
+
+
