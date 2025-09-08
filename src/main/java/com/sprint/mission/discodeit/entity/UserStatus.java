@@ -37,4 +37,9 @@ public class UserStatus extends BaseUpdatableEntity {
       this.lastActiveAt = newLastActiveAt;
     }
   }
+
+  public boolean isOnline() {
+    Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
+    return lastActiveAt.isAfter(instantFiveMinutesAgo);
+  }
 }
