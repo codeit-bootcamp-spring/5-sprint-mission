@@ -4,23 +4,22 @@ import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import lombok.Getter;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 public class User extends BaseUpdatableEntity {
     private String username; // 사용자명 (아이디)
     private String email;
     private String password;
-    private UUID profileId;
+    private BinaryContent profile;
 
-    public User(String username, String email, String password, UUID profileId) {
+    public User(String username, String email, String password, BinaryContent profile) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.profileId = profileId;
+        this.profile = profile;
     }
 
-    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+    public void update(String newUsername, String newEmail, String newPassword, BinaryContent newProfile) {
         boolean anyValueUpdated = false;
         if (newUsername != null && !newUsername.equals(this.username)) {
             this.username = newUsername;
@@ -37,8 +36,8 @@ public class User extends BaseUpdatableEntity {
             anyValueUpdated = true;
         }
 
-        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
-            this.profileId = newProfileId;
+        if (newProfile != null && !newProfile.equals(this.profile)) {
+            this.profile = newProfile;
             anyValueUpdated = true;
         }
 

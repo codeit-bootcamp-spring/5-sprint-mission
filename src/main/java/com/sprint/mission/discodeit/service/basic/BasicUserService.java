@@ -40,22 +40,22 @@ public class BasicUserService implements UserService {
             throw new IllegalArgumentException("This email is already taken");
         }
 
-        UUID profileId = null;
+        BinaryContent profile = null;
         if (binaryContentCreateRequest != null) {
             String fileName = binaryContentCreateRequest.fileName();
             String contentType = binaryContentCreateRequest.contentType();
             byte[] bytes = binaryContentCreateRequest.bytes();
             BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
 
-            profileId = binaryContentRepository.save(binaryContent).getId();
+            profile = binaryContentRepository.save(binaryContent);
         }
 
         String password = userCreateRequest.password();
 
-        User user = new User(username, email, password, profileId);
+        User user = new User(username, email, password, profile);
         userRepository.save(user);
 
-        UserStatus userStatus = new UserStatus(user.getId(), Instant.now());
+        UserStatus userStatus = new UserStatus(user, Instant.now());
         userStatusRepository.save(userStatus);
 
         return user;
@@ -93,22 +93,22 @@ public class BasicUserService implements UserService {
             throw new IllegalArgumentException("This email is already taken");
         }
 
-        UUID newProfileId = null;
+        BinaryContent newProfile = null;
         if (binaryContentCreateRequest != null) {
-            Optional.ofNullable(user.getProfileId())
-                    .ifPresent(binaryContentRepository::delete);
+            Optional.ofNullable(user.getProfile())
+                    .ifPresent(profile -> binaryContentRepository.delete(profile.getId()));
 
             String fileName = binaryContentCreateRequest.fileName();
             String contentType = binaryContentCreateRequest.contentType();
             byte[] bytes = binaryContentCreateRequest.bytes();
             BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
 
-            newProfileId = binaryContentRepository.save(binaryContent).getId();
+            newProfile = binaryContentRepository.save(binaryContent);
         }
 
         String newPassword = userUpdateRequest.newPassword();
 
-        user.update(newUsername, newEmail, newPassword, newProfileId);
+        user.update(newUsername, newEmail, newPassword, newProfile);
         return userRepository.save(user);
     }
 
@@ -117,8 +117,8 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
 
-        Optional.ofNullable(user.getProfileId())
-                        .ifPresent(binaryContentRepository::delete);
+        Optional.ofNullable(user.getProfile())
+                        .ifPresent(profile -> binaryContentRepository.delete(profile.getId()));
 
         userStatusRepository.deleteByUserId(user.getId());
         userRepository.delete(user.getId());

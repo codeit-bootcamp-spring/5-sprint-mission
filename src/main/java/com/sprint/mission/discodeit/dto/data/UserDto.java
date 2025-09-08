@@ -23,7 +23,7 @@ public record UserDto(
                 .updatedAt(user.getUpdatedAt())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .profileId(user.getProfileId())
+                .profileId(user.getProfile().getId())
                 .online(online)
                 .build();
     }

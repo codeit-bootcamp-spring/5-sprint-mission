@@ -2,7 +2,9 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.readstatus.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -27,20 +29,19 @@ public class BasicReadStatusService implements ReadStatusService {
         UUID userId = request.userId();
         UUID channelId = request.channelId();
 
-        if (!userRepository.existsById(userId)) {
-            throw new NoSuchElementException("User not found: " + userId);
-        }
-        if (!channelRepository.existsById(channelId)) {
-            throw new NoSuchElementException("Channel not found: " + channelId);
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + channelId));
 
         if (readStatusRepository.findAllByUserId(userId).stream()
-                .anyMatch(readStatus -> readStatus.getChannelId().equals(channelId))) {
+                .anyMatch(readStatus -> readStatus.getChannel().getId().equals(channelId))) {
             throw new IllegalArgumentException("ReadStatus already exists. userId: " + userId + ", channelId: " + channelId);
         }
 
         Instant lastReadAt = request.lastReadAt();
-        ReadStatus readStatus = new ReadStatus(userId, channelId, lastReadAt);
+        ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt);
         return readStatusRepository.save(readStatus);
     }
 

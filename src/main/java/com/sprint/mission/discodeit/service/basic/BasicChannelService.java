@@ -4,13 +4,11 @@ import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.channel.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +25,7 @@ public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Channel create(PublicChannelCreateRequest request) {
@@ -43,7 +42,11 @@ public class BasicChannelService implements ChannelService {
 
         List<UUID> participantIds = request.participantIds();
         participantIds.stream()
-                .map(userId -> new ReadStatus(userId, channel.getId(), Instant.MIN))
+                .map(userId -> {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                    return new ReadStatus(user, channel, Instant.MIN);
+                })
                 .forEach(readStatusRepository::save);
 
         return channelRepository.save(channel);
@@ -58,14 +61,15 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public List<ChannelDto> findAllByUserId(UUID userId) {
-        List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
-                .map(ReadStatus::getChannelId)
+        List<Channel> mySubscribedChannels = readStatusRepository.findAllByUserId(userId).stream()
+                .map(ReadStatus::getChannel)
                 .toList();
 
         return channelRepository.findAll().stream()
                 .filter(channel ->
                         channel.getType().equals(ChannelType.PUBLIC)
-                                || mySubscribedChannelIds.contains(channel.getId()))
+                                || mySubscribedChannels.stream()
+                                .anyMatch(subscribedChannel -> subscribedChannel.getId().equals(channel.getId())))
                 .map(this::toDto)
                 .toList();
     }
@@ -87,7 +91,7 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public void delete(UUID id) {
-        Channel channel = channelRepository.findById(id)
+        channelRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
 
         messageRepository.deleteAllByChannelId(id);
@@ -113,7 +117,7 @@ public class BasicChannelService implements ChannelService {
         List<UUID> participantIds = new ArrayList<>();
         if (channel.getType().equals(ChannelType.PRIVATE)) {
             readStatusRepository.findAllByChannelId(channel.getId()).stream()
-                    .map(ReadStatus::getUserId)
+                    .map(readStatus -> readStatus.getUser().getId())
                     .forEach(participantIds::add);
         }
         return participantIds;

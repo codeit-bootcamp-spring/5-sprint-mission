@@ -36,14 +36,14 @@ public class FileReadStatusRepository implements ReadStatusRepository {
     @Override
     public List<ReadStatus> findAllByChannelId(UUID channelId) {
         return FileUtils.findAll(READ_STATUS_DIR, ReadStatus.class).stream()
-                .filter(readStatus -> readStatus.getChannelId().equals(channelId))
+                .filter(readStatus -> readStatus.getChannel().getId().equals(channelId))
                 .toList();
     }
 
     @Override
     public List<ReadStatus> findAllByUserId(UUID userId) {
         return FileUtils.findAll(READ_STATUS_DIR, ReadStatus.class).stream()
-                .filter(readStatus -> readStatus.getUserId().equals(userId))
+                .filter(readStatus -> readStatus.getUser().getId().equals(userId))
                 .toList();
     }
 
@@ -56,7 +56,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
     @Override
     public void deleteAllByChannelId(UUID channelId) {
         FileUtils.findAll(READ_STATUS_DIR, ReadStatus.class).stream()
-                .filter(readStatus -> readStatus.getChannelId().equals(channelId))
+                .filter(readStatus -> readStatus.getChannel().getId().equals(channelId))
                 .map(ReadStatus::getId)
                 .forEach(this::delete);
     }

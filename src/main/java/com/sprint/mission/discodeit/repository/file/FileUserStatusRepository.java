@@ -36,7 +36,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
     @Override
     public Optional<UserStatus> findByUserId(UUID userId) {
         return this.findAll().stream()
-                .filter(userStatus -> userStatus.getUserId().equals(userId))
+                .filter(userStatus -> userStatus.getUser().getId().equals(userId))
                 .findFirst();
     }
 
