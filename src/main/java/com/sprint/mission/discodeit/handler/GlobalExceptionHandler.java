@@ -13,6 +13,9 @@ import org.springframework.web.context.request.WebRequest;
  * GlobalExceptionHandler : 던져진 예외를 받아 클라이언트에게 적절한 응답 반환
  */
 
+/* ErrorReponseDTO로
+ * 공통된 포멧 통일 예정
+ * */
 @ControllerAdvice // 모든 컨트롤러에서 발생하는 예외 가로채는 역할
 public class GlobalExceptionHandler {
 
