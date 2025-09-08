@@ -55,9 +55,3 @@ logging:
 
   pattern:
     console: "%d{HH:mm:ss} %-5level %logger{36} - %msg%n"
-
-
-discodeit:
-  repository:
-    type: file   # jcf | file
-    file-directory: .discodeit
