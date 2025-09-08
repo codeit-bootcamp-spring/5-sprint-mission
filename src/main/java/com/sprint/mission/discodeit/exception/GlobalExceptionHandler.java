@@ -7,8 +7,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -37,6 +39,21 @@ public class GlobalExceptionHandler {
     pd.setProperty("timestamp", nowUtc());
     pd.setProperty("method", request.getMethod());
     pd.setProperty("code", "BAD_REQUEST");
+
+    return pd;
+  }
+
+  @ExceptionHandler({DataIntegrityViolationException.class, MethodArgumentNotValidException.class})
+  public ProblemDetail handleValidation(Exception e, HttpServletRequest request) {
+    log.warn("Validation failed: {}", e.getMessage(), e);
+
+    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    pd.setTitle("Validation Failed");
+    pd.setDetail(safeDetail(e));
+    pd.setInstance(URI.create(request.getRequestURI()));
+    pd.setProperty("timestamp", nowUtc());
+    pd.setProperty("method", request.getMethod());
+    pd.setProperty("code", "VALIDATION_FAILED");
 
     return pd;
   }

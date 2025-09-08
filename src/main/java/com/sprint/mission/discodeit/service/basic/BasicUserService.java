@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.neutral.NewBinaryContent;
 import com.sprint.mission.discodeit.dto.neutral.UserCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
@@ -15,6 +16,7 @@ import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,6 @@ import org.springframework.validation.annotation.Validated;
 
 @Service("userService")
 @RequiredArgsConstructor
-@Validated
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
@@ -34,23 +35,11 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
-  public UserDto create(@Valid UserCommand userCommand) {
+  public UserDto create(UserCommand userCommand) {
     String username = userCommand.username();
     String password = userCommand.password();
     String email = userCommand.email();
-
-    BinaryContent profile = userCommand.profile().stream()
-        .map(dto -> {
-          BinaryContent binaryContent = new BinaryContent(
-              dto.fileName(),
-              dto.contentType(),
-              dto.bytes().length);
-          binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), dto.bytes());
-          return binaryContent;
-        })
-        .findFirst()
-        .orElse(null);
+    BinaryContent profile = profileMapper(userCommand.profile());
 
     User user = new User(username, email, password, profile);
     UserStatus userStatus = new UserStatus();
@@ -87,18 +76,7 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다. [" + userId + "]"));
 
-    BinaryContent newProfile = userCommand.profile().stream()
-        .map(dto -> {
-          BinaryContent binaryContent = new BinaryContent(
-              dto.fileName(),
-              dto.contentType(),
-              dto.bytes().length);
-          binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), dto.bytes());
-          return binaryContent;
-        })
-        .findFirst()
-        .orElse(null);
+    BinaryContent newProfile = profileMapper(userCommand.profile());
 
     if (newProfile != null && user.getProfile() != null) {
       binaryContentRepository.deleteById(user.getProfile().getId());
@@ -123,5 +101,20 @@ public class BasicUserService implements UserService {
         .ifPresent(userStatus -> userStatusRepository.deleteById(userStatus.getId()));
 
     userRepository.deleteById(user.getId());
+  }
+
+  private BinaryContent profileMapper(@Valid Optional<NewBinaryContent> profile) {
+    return profile.stream()
+        .map(dto -> {
+          BinaryContent binaryContent = new BinaryContent(
+              dto.fileName(),
+              dto.contentType(),
+              dto.bytes().length);
+          binaryContentRepository.save(binaryContent);
+          binaryContentStorage.put(binaryContent.getId(), dto.bytes());
+          return binaryContent;
+        })
+        .findFirst()
+        .orElse(null);
   }
 }

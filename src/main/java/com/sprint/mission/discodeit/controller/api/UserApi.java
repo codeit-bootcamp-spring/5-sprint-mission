@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +29,7 @@ public interface UserApi {
           content = @Content(examples = @ExampleObject(value = "User with email {email} already exists")))
   })
   ResponseEntity<UserDto> create(
-      @Parameter(description = "User 생성 정보") UserCreateRequest userCreateRequest,
+      @Parameter(description = "User 생성 정보") @Valid UserCreateRequest userCreateRequest,
       @Parameter(description = "User 프로필 이미지") MultipartFile profile
   ) throws IOException;
 
@@ -42,7 +43,7 @@ public interface UserApi {
   })
   ResponseEntity<UserDto> update(
       @Parameter(description = "수정할 User ID") UUID userId,
-      @Parameter(description = "수정할 User 정보") UserUpdateRequest userUpdateRequest,
+      @Parameter(description = "수정할 User 정보") @Valid UserUpdateRequest userUpdateRequest,
       @Parameter(description = "수정할 User 프로필 이미지") MultipartFile profile
   ) throws IOException;
 
@@ -70,7 +71,7 @@ public interface UserApi {
   })
   ResponseEntity<UserStatusDto> updateUserStatusByUserId(
       @Parameter(description = "상태를 변경할 User ID") UUID userId,
-      @Parameter(description = "변경할 User 온라인 상태 정보") UserStatusUpdateRequest userStatusUpdateRequest
+      @Parameter(description = "변경할 User 온라인 상태 정보") @Valid UserStatusUpdateRequest userStatusUpdateRequest
   );
 
 }

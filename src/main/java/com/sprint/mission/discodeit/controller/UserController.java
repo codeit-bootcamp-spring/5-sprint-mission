@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -31,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
+@Validated
 public class UserController implements UserApi {
 
   private final UserService userService;
@@ -39,7 +42,7 @@ public class UserController implements UserApi {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserDto> create(
-      @RequestPart UserCreateRequest userCreateRequest,
+      @RequestPart @Valid UserCreateRequest userCreateRequest,
       @RequestPart(required = false) MultipartFile profile
   ) throws IOException {
 
@@ -56,7 +59,7 @@ public class UserController implements UserApi {
   @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserDto> update(
       @PathVariable UUID userId,
-      @RequestPart UserUpdateRequest userUpdateRequest,
+      @RequestPart @Valid UserUpdateRequest userUpdateRequest,
       @RequestPart(required = false) MultipartFile profile
   ) throws IOException {
 
@@ -87,7 +90,7 @@ public class UserController implements UserApi {
   @PatchMapping("/{userId}/userStatus")
   public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
       @PathVariable UUID userId,
-      @RequestBody UserStatusUpdateRequest userStatusUpdateRequest) {
+      @RequestBody @Valid UserStatusUpdateRequest userStatusUpdateRequest) {
     UserStatusDto userStatusDto = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
     return ResponseEntity.status(HttpStatus.OK).body(userStatusDto);
   }
