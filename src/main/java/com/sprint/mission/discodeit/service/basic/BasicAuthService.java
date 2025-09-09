@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.AuthDto.Login;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
@@ -16,6 +17,7 @@ public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
   private final UserStatusRepository userStatusRepository;
+  private final UserMapper userMapper;
 
   @Override
   public UserDto.Detail login(Login login) {
@@ -23,7 +25,7 @@ public class BasicAuthService implements AuthService {
     String username = login.getUsername();
     String password = login.getPassword();
 
-    User user = userRepository.findByName(username)
+    User user = userRepository.findByUsername(username)
                               .orElse(null);
 
     if (user == null || user.getPassword() == null || !user.getPassword()
@@ -40,14 +42,6 @@ public class BasicAuthService implements AuthService {
     userStatus.update();
     userStatusRepository.save(userStatus);
 
-    return UserDto.Detail.builder()
-                         .id(user.getId())
-                         .username(user.getName())
-                         .email(user.getEmail())
-                         .profileId(user.getProfileId())
-                         .online(userStatus.isOnline())
-                         .createdAt(user.getCreatedAt())
-                         .updatedAt(user.getUpdatedAt())
-                         .build();
+    return userMapper.toDetail(user);
   }
 }

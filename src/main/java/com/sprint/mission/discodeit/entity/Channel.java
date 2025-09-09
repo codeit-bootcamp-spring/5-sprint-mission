@@ -1,32 +1,46 @@
 package com.sprint.mission.discodeit.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
-@ToString
-public class Channel extends BaseEntity {
+@Entity
+@Table(name = "channels")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Channel extends BaseUpdatableEntity {
 
+
+  @Enumerated(EnumType.STRING)
+  @Column(columnDefinition = "channel_type", nullable = false)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   private ChannelType type;
+  @Column(nullable = false)
   private String name;
+  @Column
   private String description;
-  private final UUID adminUserId;
-  private List<UUID> userIds;
-  private List<UUID> messageIds;
 
-  public Channel(ChannelType type, String name, String description, UUID adminUserId,
-      List<UUID> userIds) {
-    super();
-    this.type = type == null ? ChannelType.PUBLIC : type;
-    this.name = name;
-    this.description = description;
-    this.adminUserId = adminUserId;
-    this.userIds = userIds == null ? new ArrayList<>(List.of()) : userIds;
-    this.messageIds = new ArrayList<>(List.of());
-  }
+  @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<Message> messages = new ArrayList<>();
+
+  @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<ReadStatus> readStatuses = new ArrayList<>();
 
   public void update(String newName, String newDescription) {
     boolean anyValueUpdated = false;
@@ -42,30 +56,6 @@ public class Channel extends BaseEntity {
 
     if (anyValueUpdated) {
       updateTimestamp();
-    }
-  }
-
-  public void addUser(UUID userId) {
-    if (userId != null) {
-      this.userIds.add(userId);
-    }
-  }
-
-  public void removeUser(UUID userId) {
-    if (userId != null) {
-      this.userIds.remove(userId);
-    }
-  }
-
-  public void addMessage(UUID messageId) {
-    if (messageId != null) {
-      this.messageIds.add(messageId);
-    }
-  }
-
-  public void removeMessage(UUID messageId) {
-    if (messageId != null) {
-      this.messageIds.remove(messageId);
     }
   }
 }

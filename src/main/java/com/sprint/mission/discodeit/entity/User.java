@@ -1,40 +1,55 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.dto.UserDto.CreateCommand;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
-import java.util.UUID;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 @Getter
-@ToString
-public class User extends BaseEntity {
+@Entity
+@Table(name = "users")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class User extends BaseUpdatableEntity {
 
-  private String name;
+  @Column(nullable = false, unique = true)
+  private String username;
+
+  @Column(nullable = false, unique = true)
   private String email;
+
+  @Column(nullable = false)
   private String password;
-  private UUID profileId;
 
-  public User(String name, String email, String password, UUID profileId) {
-    super();
-    this.name = name;
-    this.email = email;
-    this.password = password;
-    this.profileId = profileId;
-  }
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "profile_id")
+  private BinaryContent profile;
 
-  public void update(String name, UUID profileId) {
-    this.name = name;
-    this.profileId = profileId;
-  }
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private UserStatus status;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<ReadStatus> readStatuses = new ArrayList<>();
 
 
-  public void update(UpdateCommand update, UUID profileId) {
+  public void update(UpdateCommand update, BinaryContent profile) {
     boolean anyValueUpdated = false;
 
     if (update.getUsername() != null && !update.getUsername()
-                                               .equals(this.name)) {
-      this.name = update.getUsername();
+                                               .equals(this.username)) {
+      this.username = update.getUsername();
       anyValueUpdated = true;
     }
     if (update.getEmail() != null && !update.getEmail()
@@ -47,18 +62,13 @@ public class User extends BaseEntity {
       this.password = update.getPassword();
       anyValueUpdated = true;
     }
-    if (profileId != null && !profileId.equals(this.profileId)) {
-      this.profileId = profileId;
+    if (profile != null && !profile.equals(this.profile)) {
+      this.profile = profile;
       anyValueUpdated = true;
     }
 
     if (anyValueUpdated) {
       updateTimestamp();
     }
-  }
-
-
-  public static User of(CreateCommand request, UUID profileId) {
-    return new User(request.getUsername(), request.getEmail(), request.getPassword(), profileId);
   }
 }

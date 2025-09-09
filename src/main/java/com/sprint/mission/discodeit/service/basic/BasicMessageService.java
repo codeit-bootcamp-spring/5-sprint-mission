@@ -1,33 +1,42 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.MessageDto.CreateCommand;
 import com.sprint.mission.discodeit.dto.MessageDto.UpdateCommand;
+import com.sprint.mission.discodeit.dto.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BasicMessageService implements MessageService {
 
   private final UserRepository userRepository;
   private final ChannelRepository channelRepository;
   private final MessageRepository messageRepository;
-  private final BinaryContentRepository binaryContentRepository;
+
+  private final BinaryContentService binaryContentService;
+  private final MessageMapper messageMapper;
 
   @Override
+  @Transactional
   public MessageDto.Detail create(CreateCommand create) {
 
     User author = userRepository.findById(create.getAuthorId())
@@ -36,64 +45,34 @@ public class BasicMessageService implements MessageService {
                                        .orElseThrow(
                                            () -> new RuntimeException("Channel not found"));
 
-    List<BinaryContent> contents = new ArrayList<>();
+    List<BinaryContent> contents = null;
     if (create.getAttachments() != null && !create.getAttachments()
                                                   .isEmpty()) {
-      contents.addAll(create.getAttachments()
-                            .stream()
-                            .map(file -> binaryContentRepository.save(BinaryContent.of(file)))
-                            .toList());
+
+      contents = create.getAttachments()
+                       .stream()
+                       .map(file -> binaryContentService.create(
+                           new BinaryContentDto.CreateCommand(file)))
+                       .toList();
     }
 
     Message message = messageRepository.save(
-        new Message(create.getContent(), create.getChannelId(), create.getAuthorId(),
-            contents.stream()
-                    .map(BinaryContent::getId)
-                    .toList()));
+        messageMapper.toEntity(create, channel, author, contents));
 
-    channel.addMessage(message.getId());
-    channelRepository.save(channel);
-
-    return MessageDto.Detail.builder()
-                            .id(message.getId())
-                            .channelId(message.getChannelId())
-                            .authorId(message.getAuthorId())
-                            .channelName(channel.getName())
-                            .authorName(author.getName())
-                            .content(message.getText())
-                            .createdAt(message.getCreatedAt())
-                            .updatedAt(message.getUpdatedAt())
-                            .attachmentIds(contents.stream()
-                                                   .map(BinaryContent::getId)
-                                                   .toList())
-                            .build();
+    return messageMapper.toDetail(message);
   }
 
   @Override
+  @Transactional
   public MessageDto.Detail update(UpdateCommand update) {
 
     Message message = messageRepository.findById(update.getId())
                                        .orElseThrow(
                                            () -> new RuntimeException("Message not found"));
 
-    User author = userRepository.findById(message.getAuthorId())
-                                .orElseThrow(() -> new RuntimeException("User not found"));
-    Channel channel = channelRepository.findById(message.getChannelId())
-                                       .orElseThrow(
-                                           () -> new RuntimeException("Channel not found"));
-
     message.update(update.getContent());
-    return MessageDto.Detail.builder()
-                            .id(message.getId())
-                            .channelId(message.getChannelId())
-                            .authorId(message.getAuthorId())
-                            .channelName(channel.getName())
-                            .authorName(author.getName())
-                            .content(message.getText())
-                            .createdAt(message.getCreatedAt())
-                            .updatedAt(message.getUpdatedAt())
-                            .attachmentIds(message.getAttachmentIds())
-                            .build();
+
+    return messageMapper.toDetail(message);
   }
 
   @Override
@@ -103,82 +82,55 @@ public class BasicMessageService implements MessageService {
                                        .orElseThrow(
                                            () -> new RuntimeException("Message not found"));
 
-    User author = userRepository.findById(message.getAuthorId())
-                                .orElseThrow(() -> new RuntimeException("User not found"));
-    Channel channel = channelRepository.findById(message.getChannelId())
-                                       .orElseThrow(
-                                           () -> new RuntimeException("Channel not found"));
-
-    return MessageDto.Detail.builder()
-                            .id(message.getId())
-                            .channelId(message.getChannelId())
-                            .authorId(message.getAuthorId())
-                            .channelName(channel.getName())
-                            .authorName(author.getName())
-                            .content(message.getText())
-                            .createdAt(message.getCreatedAt())
-                            .updatedAt(message.getUpdatedAt())
-                            .attachmentIds(message.getAttachmentIds())
-                            .build();
+    return messageMapper.toDetail(message);
   }
 
   @Override
-  public List<MessageDto.Detail> findAllByChannelId(UUID channelId) {
+  public PageResponse<MessageDto.Detail> findAllByChannelId(UUID channelId, Instant cursor,
+      Pageable pageable) {
 
-    List<Message> messages = messageRepository.findAllByChannelId(channelId);
+    List<Message> messages;
 
-    Channel channel = channelRepository.findById(channelId)
-                                       .orElseThrow(
-                                           () -> new RuntimeException("Channel not found"));
+    if (cursor == null) {
+      messages = messageRepository.findByChannelIdOrderByCreatedAtDesc(channelId, pageable);
+    } else {
+      messages = messageRepository.findByChannelIdAndCreatedAtBeforeOrderByCreatedAtDesc(channelId,
+          cursor, pageable);
+    }
 
-    List<User> users = messages.stream()
-                               .map(Message::getAuthorId)
-                               .distinct()
-                               .map(id -> userRepository.findById(id)
-                                                        .orElse(null))
-                               .toList();
+    List<MessageDto.Detail> result = messages.stream()
+                                             .map(messageMapper::toDetail)
+                                             .toList();
 
-    return messages.stream()
-                   .map(m -> MessageDto.Detail.builder()
-                                              .id(m.getId())
-                                              .channelId(m.getChannelId())
-                                              .authorId(m.getAuthorId())
-                                              .channelName(channel.getName())
-                                              .authorName(users.stream()
-                                                               .filter(u -> u.getId()
-                                                                             .equals(
-                                                                                 m.getAuthorId()))
-                                                               .findFirst()
-                                                               .orElse(null)
-                                                               .getName())
-                                              .content(m.getText())
-                                              .createdAt(m.getCreatedAt())
-                                              .updatedAt(m.getUpdatedAt())
-                                              .attachmentIds(m.getAttachmentIds())
-                                              .build())
-                   .toList();
+    int size = pageable.getPageSize();
+    boolean hasNext = messages.size() == size;
+    Object nextCursor = hasNext ? messages.get(messages.size() - 1)
+                                          .getCreatedAt() : null;
+    long totalElements = messageRepository.countByChannelId(channelId);
+
+    return PageResponse.of(result, nextCursor, size, hasNext, totalElements);
   }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
 
     Message message = messageRepository.findById(id)
                                        .orElseThrow(
                                            () -> new RuntimeException("Message not found"));
 
-    messageRepository.delete(id);
+    messageRepository.delete(message);
 
-    if (!message.getAttachmentIds()
+    if (!message.getAttachments()
                 .isEmpty()) {
 
-      List<BinaryContent> contents = binaryContentRepository.findAllByIdIn(
-          message.getAttachmentIds());
-
-      contents.forEach(c -> binaryContentRepository.delete(c.getId()));
+      message.getAttachments()
+             .forEach(a -> binaryContentService.delete(a.getId()));
     }
   }
 
   @Override
+  @Transactional
   public void deleteAll() {
     messageRepository.deleteAll();
   }

@@ -1,29 +1,38 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.UserDto.CreateCommand;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
-  private final BinaryContentRepository binaryContentRepository;
   private final UserStatusRepository userStatusRepository;
 
+  private final BinaryContentService binaryContentService;
+
+  private final UserMapper userMapper;
+
   @Override
+  @Transactional
   public UserDto.Detail create(CreateCommand create) {
 
     if (userRepository.existsByUsername(create.getUsername())) {
@@ -37,25 +46,21 @@ public class BasicUserService implements UserService {
     BinaryContent profile = null;
     if (create.getProfileImage() != null && !create.getProfileImage()
                                                    .isEmpty()) {
-      profile = BinaryContent.of(create.getProfileImage());
-      binaryContentRepository.save(profile);
+
+      profile = binaryContentService.create(
+          new BinaryContentDto.CreateCommand(create.getProfileImage()));
     }
 
-    User user = User.of(create, profile != null ? profile.getId() : null);
+    User user = userMapper.toEntity(create, profile);
     userRepository.save(user);
 
-    UserStatus status = UserStatus.of(user.getId());
+    UserStatus status = UserStatus.builder()
+                                  .user(user)
+                                  .lastActiveAt(Instant.now())
+                                  .build();
     userStatusRepository.save(status);
 
-    return UserDto.Detail.builder()
-                         .id(user.getId())
-                         .username(user.getName())
-                         .email(user.getEmail())
-                         .profileId(user.getProfileId())
-                         .online(status.isOnline())
-                         .createdAt(user.getCreatedAt())
-                         .updatedAt(user.getUpdatedAt())
-                         .build();
+    return userMapper.toDetail(user);
   }
 
   @Override
@@ -64,93 +69,63 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
                               .orElseThrow(() -> new RuntimeException("User not found"));
 
-    UserStatus status = userStatusRepository.findByUserId(userId)
-                                            .orElse(null);
-
-    return UserDto.Detail.builder()
-                         .id(user.getId())
-                         .username(user.getName())
-                         .email(user.getEmail())
-                         .profileId(user.getProfileId())
-                         .online(status != null && status.isOnline())
-                         .createdAt(user.getCreatedAt())
-                         .updatedAt(user.getUpdatedAt())
-                         .build();
+    return userMapper.toDetail(user);
   }
 
   @Override
   public List<UserDto.Detail> findAll() {
 
     List<User> users = userRepository.findAll();
-    List<UserStatus> status = userStatusRepository.findAll();
 
     return users.stream()
-                .map(u -> {
-                  UserStatus s = status.stream()
-                                       .filter(t -> t.getUserId()
-                                                     .equals(u.getId()))
-                                       .findFirst()
-                                       .orElse(null);
-
-                  return UserDto.Detail.builder()
-                                       .id(u.getId())
-                                       .username(u.getName())
-                                       .email(u.getEmail())
-                                       .profileId(u.getProfileId())
-                                       .online(s != null && s.isOnline())
-                                       .createdAt(u.getCreatedAt())
-                                       .updatedAt(u.getUpdatedAt())
-                                       .build();
-                })
+                .map(userMapper::toDetail)
                 .toList();
   }
 
   @Override
+  @Transactional
   public UserDto.Detail update(UpdateCommand update) {
 
     User user = userRepository.findById(update.getId())
                               .orElseThrow(() -> new RuntimeException("User not found"));
 
-    UUID newProfileId = user.getProfileId();
+    BinaryContent oldProfile = user.getProfile();
+    BinaryContent newProfile = null;
     if (update.getProfileImage() != null && !update.getProfileImage()
                                                    .isEmpty()) {
-      BinaryContent newProfile = BinaryContent.of(update.getProfileImage());
-      binaryContentRepository.save(newProfile);
-      newProfileId = newProfile.getId();
+
+      newProfile = binaryContentService.create(
+          new BinaryContentDto.CreateCommand(update.getProfileImage()));
     }
 
-    user.update(update, newProfileId);
+    user.update(update, newProfile);
     userRepository.save(user);
 
-    UserStatus status = userStatusRepository.findByUserId(update.getId())
-                                            .orElse(null);
+    if (oldProfile != null) {
+      binaryContentService.delete(oldProfile.getId());
+    }
 
-    return UserDto.Detail.builder()
-                         .id(user.getId())
-                         .username(user.getName())
-                         .email(user.getEmail())
-                         .profileId(user.getProfileId())
-                         .online(status != null && status.isOnline())
-                         .createdAt(user.getCreatedAt())
-                         .updatedAt(user.getUpdatedAt())
-                         .build();
+    return userMapper.toDetail(user);
   }
 
   @Override
+  @Transactional
   public void delete(UUID userId) {
 
     User user = userRepository.findById(userId)
                               .orElseThrow(() -> new RuntimeException("User not found"));
 
-    userStatusRepository.delete(userId);
-    if (user.getProfileId() != null) {
-      binaryContentRepository.delete(user.getProfileId());
+    userStatusRepository.delete(user.getStatus());
+    if (user.getProfile() != null) {
+      binaryContentService.delete(user.getProfile()
+                                      .getId());
     }
 
-    userRepository.delete(userId);
+    userRepository.delete(user);
   }
 
   @Override
+  @Transactional
   public void deleteAll() {
     userRepository.deleteAll();
   }

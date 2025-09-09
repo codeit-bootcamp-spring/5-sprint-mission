@@ -22,22 +22,15 @@ public class UserStatusDto {
 
     private UUID id;
     private UUID userId;
-    private Instant lastLogin;
+    private Instant lastActiveAt;
   }
 
+  @Getter
   @Builder
   public static class Detail {
 
     private UUID id;
     private UUID userId;
-    private Instant lastLogin;
-
-    public DetailResponse toResponse() {
-      return DetailResponse.builder()
-                           .id(id)
-                           .userId(userId)
-                           .lastLogin(lastLogin)
-                           .build();
-    }
+    private Instant lastActiveAt;
   }
 }

@@ -1,10 +1,12 @@
 package com.sprint.mission.discodeit.dto;
 
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.Instant;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 public class UserDto {
@@ -75,33 +77,20 @@ public class UserDto {
     private UUID id;
     private String username;
     private String email;
-    private UUID profileId;
+    private BinaryContentDto.DetailResponse profile;
     private Boolean online;
-    private Instant createdAt;
-    private Instant updatedAt;
   }
 
+  @Getter
   @Builder
   public static class Detail {
 
     private UUID id;
     private String username;
     private String email;
-    private UUID profileId;
+    private BinaryContentDto.Detail profile;
+    @Setter
     private Boolean online;
-    private Instant createdAt;
-    private Instant updatedAt;
 
-    public DetailResponse toResponse() {
-      return DetailResponse.builder()
-                           .id(id)
-                           .username(username)
-                           .email(email)
-                           .profileId(profileId)
-                           .online(online)
-                           .createdAt(createdAt)
-                           .updatedAt(updatedAt)
-                           .build();
-    }
   }
 }

@@ -1,33 +1,52 @@
 package com.sprint.mission.discodeit.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @Getter
-@ToString
-public class Message extends BaseEntity {
+@Entity
+@Table(name = "messages")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Message extends BaseUpdatableEntity {
 
-  private String text;
-  private final UUID channelId;
-  private final UUID authorId;
-  private final List<UUID> attachmentIds;
 
-  public Message(String text, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
-    super();
-    this.text = text;
-    this.channelId = channelId;
-    this.authorId = authorId;
-    this.attachmentIds = attachmentIds != null ? attachmentIds : new ArrayList<>();
-  }
+  @Column(columnDefinition = "text", nullable = false)
+  private String content;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "channel_id", nullable = false)
+  private Channel channel;
 
-  public void update(String newText) {
+  @ManyToOne
+  @JoinColumn(name = "author_id")
+  private User author;
+
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinTable(name = "message_attachments", joinColumns = @JoinColumn(name = "message_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  @BatchSize(size = 50)
+  @Builder.Default
+  private List<BinaryContent> attachments = new ArrayList<>();
+
+
+  public void update(String newContent) {
     boolean anyValueUpdated = false;
 
-    if (newText != null && !newText.equals(this.text)) {
-      this.text = newText;
+    if (newContent != null && !newContent.equals(this.content)) {
+      this.content = newContent;
       anyValueUpdated = true;
     }
 

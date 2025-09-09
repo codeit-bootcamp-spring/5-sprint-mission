@@ -14,11 +14,13 @@ public class ReadStatusDto {
 
     UUID userId;
     UUID channelId;
+    Instant lastReadAt;
 
     public CreateCommand toCommand() {
       return CreateCommand.builder()
                           .userId(this.userId)
                           .channelId(this.channelId)
+                          .lastReadAt(this.lastReadAt)
                           .build();
     }
   }
@@ -29,6 +31,7 @@ public class ReadStatusDto {
 
     UUID userId;
     UUID channelId;
+    Instant lastReadAt;
   }
 
   @Getter
@@ -42,6 +45,7 @@ public class ReadStatusDto {
     Instant lastReadAt;
   }
 
+  @Getter
   @Builder
   public static class Detail {
 
@@ -49,14 +53,5 @@ public class ReadStatusDto {
     UUID userId;
     UUID channelId;
     Instant lastReadAt;
-
-    public DetailResponse toResponse() {
-      return DetailResponse.builder()
-                           .id(id)
-                           .userId(userId)
-                           .channelId(channelId)
-                           .lastReadAt(lastReadAt)
-                           .build();
-    }
   }
 }

@@ -1,11 +1,16 @@
 package com.sprint.mission.discodeit.dto;
 
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 public class MessageDto {
@@ -42,12 +47,12 @@ public class MessageDto {
   @Schema(name = "MessageUpdateRequest")
   public static class UpdateRequest {
 
-    String content;
+    String newContent;
 
     public UpdateCommand toCommand(UUID id) {
       return UpdateCommand.builder()
                           .id(id)
-                          .content(this.content)
+                          .content(this.newContent)
                           .build();
     }
   }
@@ -65,13 +70,11 @@ public class MessageDto {
   @Schema(name = "MessageDetailResponse")
   public static class DetailResponse {
 
-    UUID channelId;
-    UUID authorId;
     UUID id;
-    String authorName;
-    String channelName;
+    UserDto.DetailResponse author;
+    ChannelDto.DetailResponse channel;
     String content;
-    List<UUID> attachmentIds;
+    List<BinaryContentDto.DetailResponse> attachments;
     Instant createdAt;
     Instant updatedAt;
   }
@@ -80,28 +83,15 @@ public class MessageDto {
   @Builder
   public static class Detail {
 
-    UUID channelId;
-    UUID authorId;
     UUID id;
-    String authorName;
-    String channelName;
+    @Setter
+    UserDto.Detail author;
+    @Setter
+    ChannelDto.Detail channel;
     String content;
-    List<UUID> attachmentIds;
+    @Setter
+    List<BinaryContentDto.Detail> attachments;
     Instant createdAt;
     Instant updatedAt;
-
-    public DetailResponse toResponse() {
-      return DetailResponse.builder()
-                           .channelId(channelId)
-                           .authorId(authorId)
-                           .id(id)
-                           .authorName(authorName)
-                           .channelName(channelName)
-                           .content(content)
-                           .attachmentIds(attachmentIds)
-                           .createdAt(createdAt)
-                           .updatedAt(updatedAt)
-                           .build();
-    }
   }
 }
