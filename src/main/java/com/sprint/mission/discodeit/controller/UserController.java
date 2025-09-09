@@ -30,7 +30,7 @@ public class UserController implements UserApi {
     private final UserService userService;
     private final UserStatusService userStatusService;
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "/", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Override
     public ResponseEntity<User> create(
             @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
@@ -44,10 +44,7 @@ public class UserController implements UserApi {
                 .body(createdUser);
     }
 
-    @PatchMapping(
-            path = "{userId}",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-    )
+    @PatchMapping(path = "{userId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Override
     public ResponseEntity<User> update(
             @PathVariable("userId") UUID userId,
@@ -71,7 +68,7 @@ public class UserController implements UserApi {
                 .build();
     }
 
-    @GetMapping
+    @GetMapping(path = "/")
     @Override
     public ResponseEntity<List<UserDto>> findAll() {
         List<UserDto> users = userService.findAll();
