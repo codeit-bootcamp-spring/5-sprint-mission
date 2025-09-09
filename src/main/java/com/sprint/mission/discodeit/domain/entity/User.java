@@ -1,56 +1,44 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
 import java.util.Objects;
-import java.util.UUID;
 
+import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
-public class User implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
+@Setter
+@NoArgsConstructor
+@Entity
+@ToString
+@Table(name = "\"user\"")
+public class User extends BaseUpdatableEntity {
 
-	private final UUID id;
-	private final Instant createdAt;
-	private Instant updatedAt;
+	@Column(nullable = false, unique = true)
 	private String username;
+	@Column(nullable = false, unique = true)
 	private String email;
+	@Column(nullable = false)
 	private String password;
 
 	// Foreign key
-	private UUID profileId;
+	@OneToOne(orphanRemoval = true)
+	@JoinColumn(name = "profile_id")
+	private BinaryContent profileImage;
 
-	public User(String username, String email, String password, UUID profileId) {
-		this.id = UUID.randomUUID();
-		this.createdAt = Instant.now();
-		this.updatedAt = null;
+	public User(String username, String email, String password, BinaryContent profileImage) {
 		this.username = username;
 		this.email = email;
 		this.password = password;
-		this.profileId = profileId;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-		this.updatedAt = Instant.now();
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-		this.updatedAt = Instant.now();
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-		this.updatedAt = Instant.now();
-	}
-
-	public void setProfileId(UUID profileId) {
-		this.profileId = profileId;
-		this.updatedAt = Instant.now();
+		this.profileImage = profileImage;
 	}
 
 	@Override
@@ -68,17 +56,6 @@ public class User implements Serializable {
 		return Objects.hashCode(id);
 	}
 
-	@Override
-	public String toString() {
-		return "User{" +
-		  "id=" + id +
-		  ", createdAt=" + createdAt +
-		  ", updatedAt=" + updatedAt +
-		  ", username='" + username + '\'' +
-		  ", email='" + email + '\'' +
-		  ", password='" + password + '\'' +
-		  '}';
-	}
 }
 
 

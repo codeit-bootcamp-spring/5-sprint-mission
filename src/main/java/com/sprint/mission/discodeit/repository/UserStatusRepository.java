@@ -4,24 +4,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 
-public interface UserStatusRepository {
-
-	public UserStatus save(UserStatus userStatus);
-
-	public Optional<UserStatus> find(UUID id);
-
-	public Optional<UserStatus> findByUserId(UUID userId);
-
-	public List<UserStatus> findAll();
-
-	public void delete(UUID id);
-
-	boolean isEmpty(UUID id);
-
-	void deleteAll();
+public interface UserStatusRepository extends JpaRepository<UserStatus, UUID> {
 
 	void deleteByUserId(UUID userId);
 
+	Optional<UserStatus> findByUserId(UUID uuid);
+
+	List<UserStatus> findByUserIdIn(List<UUID> userIds);
+
+	@Query("""
+	  SELECT us
+	  FROM UserStatus  us
+	  JOIN FETCH us.user
+	  WHERE us.id in :userIds
+	  """)
+	List<UserStatus> findUserStatusWithUserByUserIdIn(@Param("userIds") List<UUID> userIds);
 }

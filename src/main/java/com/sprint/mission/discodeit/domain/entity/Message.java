@@ -1,48 +1,52 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
+import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @Getter
-public class Message implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
+@NoArgsConstructor
+@Entity
+public class Message extends BaseUpdatableEntity {
 
-	private final UUID id;
-	private final Instant createdAt;
-	private Instant updatedAt;
 	private String content;
+
 	// Foreign key
-	private final UUID authorId;
-	private final UUID channelId;
-	private final List<UUID> attachmentIds;
+	@ManyToOne
+	@JoinColumn(name = "author_id")
+	private User user;
+	@ManyToOne(cascade = CascadeType.REMOVE)
+	@JoinColumn(name = "channel_id", nullable = false)
+	private Channel channel;
 
-	public Message(String content, @NonNull UUID authorId, @NonNull UUID channelId) {
-		this.id = UUID.randomUUID();
-		this.createdAt = Instant.now();
-		this.updatedAt = null;
-		this.content = content;
-		this.authorId = authorId;
-		this.channelId = channelId;
-		this.attachmentIds = new ArrayList<>();
-	}
+	@ManyToMany
+	@JoinTable(
+	  name = "message_attachment",
+	  joinColumns = @JoinColumn(name = "message_id"),
+	  inverseJoinColumns = @JoinColumn(name = "attachment_id")
+	)
+	private final List<BinaryContent> attachments = new ArrayList<>();
 
-	public Message(String content, @NonNull UUID authorId, @NonNull UUID channelId, List<UUID> attachmentIds) {
-		this.id = UUID.randomUUID();
-		this.createdAt = Instant.now();
-		this.updatedAt = null;
+	public Message(String content, @NonNull User user, @NonNull Channel channel, List<BinaryContent> attachments) {
 		this.content = content;
-		this.authorId = authorId;
-		this.channelId = channelId;
-		this.attachmentIds = attachmentIds != null ? new ArrayList<>(attachmentIds) : new ArrayList<>();
+		this.user = user;
+		this.channel = channel;
+		if (attachments != null) {
+			this.attachments.addAll(attachments);
+		}
 	}
 
 	public Instant getLastEditedAt() {
@@ -67,18 +71,6 @@ public class Message implements Serializable {
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(id);
-	}
-
-	@Override
-	public String toString() {
-		return "Message{" +
-		  "id=" + id +
-		  ", createdAt=" + createdAt +
-		  ", updatedAt=" + updatedAt +
-		  ", content='" + content + '\'' +
-		  ", authorId=" + authorId +
-		  ", channelId=" + channelId +
-		  '}';
 	}
 
 }

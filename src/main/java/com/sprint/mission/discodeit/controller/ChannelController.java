@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-import static com.sprint.mission.discodeit.service.basic.BasicChannelService.*;
 import static org.springframework.http.HttpStatus.*;
 
 import java.net.URI;
@@ -18,23 +17,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sprint.mission.discodeit.domain.dto.ChannelDetail;
 import com.sprint.mission.discodeit.domain.dto.CreatePrivateChannelDTO;
-import com.sprint.mission.discodeit.domain.dto.CreatePrivateChannelResult;
 import com.sprint.mission.discodeit.domain.dto.CreatePublicChannelDTO;
-import com.sprint.mission.discodeit.domain.dto.CreatePublicChannelResult;
 import com.sprint.mission.discodeit.domain.dto.UpdateChannelDTO;
-import com.sprint.mission.discodeit.domain.dto.UpdateChannelResult;
+import com.sprint.mission.discodeit.domain.dto.channel.ChannelDto;
+import com.sprint.mission.discodeit.domain.dto.channel.ChannelResponse;
 import com.sprint.mission.discodeit.domain.request.CreatePrivateChannelRequest;
 import com.sprint.mission.discodeit.domain.request.CreatePublicChannelRequest;
 import com.sprint.mission.discodeit.domain.request.UpdatePublicChannelRequest;
-import com.sprint.mission.discodeit.domain.response.CreatePrivateChannelResponse;
-import com.sprint.mission.discodeit.domain.response.CreatePublicChannelResponse;
 import com.sprint.mission.discodeit.domain.response.ErrorResponse;
-import com.sprint.mission.discodeit.domain.response.ReadChannelResponse;
-import com.sprint.mission.discodeit.domain.response.UpdateChannelResponse;
+import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -53,45 +46,32 @@ import lombok.RequiredArgsConstructor;
 public class ChannelController {
 
 	private final ChannelService channelService;
+	private final ChannelMapper channelMapper;
 
-	@ApiResponses(value = {
-	  @ApiResponse(
-		responseCode = "201",
-		description = "Public Channel이 성공적으로 생성됨",
-		content = @Content(schema = @Schema(implementation = CreatePublicChannelResponse.class))
-	  )
-	})
 	@PostMapping("/public")
-	public ResponseEntity<CreatePublicChannelResponse> createPublicChannel(
+	public ResponseEntity<ChannelResponse> createPublicChannel(
 	  @RequestBody @Valid CreatePublicChannelRequest request) {
 
-		CreatePublicChannelResult result = channelService.createPublic(CreatePublicChannelDTO.builder()
+		ChannelDto result = channelService.createPublic(CreatePublicChannelDTO.builder()
 		  .name(request.getName())
 		  .description(request.getDescription())
 		  .build());
 
 		URI location = URI.create("api/channels");
-		return ResponseEntity.created(location).body(toCreatePublicChannelResponse(result));
+		return ResponseEntity.created(location).body(channelMapper.toResponse(result));
 
 	}
 
-	@ApiResponses(value = {
-	  @ApiResponse(
-		responseCode = "201",
-		description = "Private Channel이 성공적으로 생성됨",
-		content = @Content(schema = @Schema(implementation = CreatePrivateChannelResponse.class))
-	  )
-	})
 	@PostMapping("/private")
-	public ResponseEntity<CreatePrivateChannelResponse> createPrivateChannel(
+	public ResponseEntity<ChannelResponse> createPrivateChannel(
 	  @RequestBody @Valid CreatePrivateChannelRequest request) {
 
-		CreatePrivateChannelResult result = channelService.createPrivate(CreatePrivateChannelDTO.builder()
+		ChannelDto result = channelService.createPrivate(CreatePrivateChannelDTO.builder()
 		  .UserIds(request.getParticipantIds())
 		  .build());
 
 		URI location = URI.create("api/channels");
-		return ResponseEntity.created(location).body(toCreatePrivateChannelResponse(result));
+		return ResponseEntity.created(location).body(channelMapper.toResponse(result));
 	}
 
 	@ApiResponses(value = {
@@ -124,66 +104,27 @@ public class ChannelController {
 	}
 
 	@PatchMapping("/{channelId}")
-	@ApiResponses(value = {
-	  @ApiResponse(
-		responseCode = "200",
-		description = "Channel 정보가 성공적으로 수정됨",
-		content = @Content(schema = @Schema(implementation = UpdateChannelResponse.class))
-	  ),
-	  @ApiResponse(
-		responseCode = "400",
-		description = "Private Channel은 수정할 수 없음",
-		content = @Content(
-		  schema = @Schema(implementation = ErrorResponse.class),
-		  examples = {
-			@ExampleObject(
-			  value = "{ \"status\": 400, \"errMessage\": \"Private channel cannot be updated\" }"
-			)
-		  }
-		)
-	  ),
-	  @ApiResponse(
-		responseCode = "404",
-		description = "Channel을 찾을 수 없음",
-		content = @Content(
-		  schema = @Schema(implementation = ErrorResponse.class),
-		  examples = {
-			@ExampleObject(
-			  value = "{ \"status\": 404, \"errMessage\": \"Channel with id {channelId} not found\" }"
-			)
-		  }
-		)
-	  )
-	})
-	public ResponseEntity<UpdateChannelResponse> updatePublicChannel(
+	public ResponseEntity<ChannelResponse> updatePublicChannel(
 	  @Parameter(
 		description = "수정할 Channel ID"
 	  )
 	  @PathVariable UUID channelId,
 	  @RequestBody @Valid UpdatePublicChannelRequest request) {
-		UpdateChannelResult result = channelService.update(UpdateChannelDTO.builder()
+		ChannelDto result = channelService.update(UpdateChannelDTO.builder()
 		  .id(channelId)
 		  .name(request.getNewName())
 		  .description(request.getNewDescription())
 		  .build());
-		return ResponseEntity.status(OK).body(toUpdateChannelResponse(result));
+		return ResponseEntity.status(OK).body(channelMapper.toResponse(result));
 	}
 
-	@ApiResponses(value = {
-	  @ApiResponse(
-		responseCode = "200",
-		description = "Channel 목록 조회 성공"
-	  )
-	})
 	@GetMapping
-	public ResponseEntity<List<ReadChannelResponse>> getAllByUserId(
+	public ResponseEntity<List<ChannelResponse>> getAllByUserId(
 	  @Parameter(description = "조회할 User ID")
 	  @RequestParam UUID userId) {
-		List<ChannelDetail> channelDetails = channelService.readAllByUserId(userId);
+		List<ChannelDto> channels = channelService.readAllByUserId(userId);
 
-		List<ReadChannelResponse> body = channelDetails.stream().map(
-			BasicChannelService::channelDetailsToReadChannelResponse)
-		  .toList();
+		List<ChannelResponse> body = channels.stream().map(channelMapper::toResponse).toList();
 
 		return ResponseEntity.ok(body);
 	}

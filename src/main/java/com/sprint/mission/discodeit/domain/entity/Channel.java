@@ -1,53 +1,38 @@
 package com.sprint.mission.discodeit.domain.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
 import java.util.Objects;
-import java.util.UUID;
 
+import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class Channel implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
+@NoArgsConstructor
+@Entity
+public class Channel extends BaseUpdatableEntity {
 
-	private final UUID id;
-	private final Instant createdAt;
-	private Instant updatedAt;
-	private ChannelType channelType;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private ChannelType type;
 	private String name;
 	private String description;
 
 	public Channel(ChannelType channelType, String name, String description) {
-		this.id = UUID.randomUUID();
-		this.createdAt = Instant.now();
-		this.updatedAt = null;
-		this.channelType = channelType;
+		this.type = channelType;
 		this.name = name;
 		this.description = description;
 	}
 
 	public Channel(ChannelType channelType) {
-		this.id = UUID.randomUUID();
-		this.createdAt = Instant.now();
-		this.updatedAt = null;
-		this.channelType = channelType;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-		this.updatedAt = Instant.now();
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-		this.updatedAt = Instant.now();
+		this.type = channelType;
 	}
 
 	@Override
@@ -63,18 +48,5 @@ public class Channel implements Serializable {
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(id);
-	}
-
-	@Override
-	public String toString() {
-		return "Channel{" +
-		  "id=" + id +
-		  ", createdAt=" + createdAt +
-		  ", updatedAt=" + updatedAt +
-		  ", channelType=" + channelType +
-		  ", name='" + name + '\'' +
-		  ", description='" + description + '\'' +
-		  ", channelType=" + channelType +
-		  '}';
 	}
 }
