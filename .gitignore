@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-*.iws
-out/
-
-
-=======
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
@@ -46,4 +40,4 @@ bin/
 
 ### Discodeit ###
 .discodeit
->>>>>>> origin/이예림-sprint4
+
