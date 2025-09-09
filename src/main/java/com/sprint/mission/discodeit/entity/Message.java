@@ -1,56 +1,65 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+import java.util.Set;
+import java.util.LinkedHashSet;
 
-@Getter
+@Entity
+@Table(name = "messages")
+@Getter @SuperBuilder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(name = "Message")
-public class Message implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class Message extends BaseUpdatableEntity {
 
-    @Schema(description = "Message ID", format = "uuid")
-    private UUID id;
-    @Schema(description = "생성 시각", format = "date-time")
-    private Instant createdAt;
-    @Schema(description = "수정 시각", format = "date-time")
-    private Instant updatedAt;
-    //
-    @Schema(description = "메시지 내용")
+    @Column(name = "content", columnDefinition = "text")
     private String content;
-    //
-    @Schema(description = "Channel ID", format = "uuid")
-    private UUID channelId;
-    @Schema(description = "작성자 User ID", format = "uuid")
-    private UUID authorId;
-    @Schema(description = "첨부 파일 ID 목록", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private List<UUID> attachmentIds;
 
-    public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        //
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "channel_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_messages_channel")
+    )
+    private Channel channel;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "author_id",
+            foreignKey = @ForeignKey(name = "fk_messages_author")
+    )
+    private User author;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(
+            name = "message_attachments",
+            joinColumns = @JoinColumn(
+                    name = "message_id",
+                    foreignKey = @ForeignKey(name = "fk_message_attachments_message")
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "attachment_id",
+                    foreignKey = @ForeignKey(name = "fk_message_attachments_attachment")
+            )
+    )
+    private Set<BinaryContent> attachments = new LinkedHashSet<>();
+
+    public Message(String content, Channel channel, User author, Set<BinaryContent> attachmentList) {
         this.content = content;
-        this.channelId = channelId;
-        this.authorId = authorId;
-        this.attachmentIds = attachmentIds;
+        this.channel = channel;
+        this.author = author;
+        this.attachments = attachmentList;
     }
 
     public void update(String newContent) {
-        boolean anyValueUpdated = false;
         if (newContent != null && !newContent.equals(this.content)) {
             this.content = newContent;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
         }
     }
 }

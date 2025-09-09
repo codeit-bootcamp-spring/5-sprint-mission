@@ -1,15 +1,20 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-public interface ChannelRepository {
-    Channel save(Channel channel);
-    Optional<Channel> findById(UUID id);
-    List<Channel> findAll();
-    boolean existsById(UUID id);
-    void deleteById(UUID id);
+public interface ChannelRepository extends JpaRepository<Channel, UUID> {
+
+    @Query("""
+       select distinct c
+       from Channel c
+       left join fetch c.messageList
+       left join fetch c.readStatusList
+       where c.type = 'PUBLIC' or c.id in :channelIds
+       """)
+    List<Channel> findPublicOrSubscribedWithMessagesAndStatuses(List<UUID> channelIds);
 }

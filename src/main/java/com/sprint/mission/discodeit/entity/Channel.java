@@ -1,55 +1,63 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
+import java.util.HashSet;
+import java.util.Set;
 
-@Getter
+@Entity
+@Table(name = "channels")
+@Getter @SuperBuilder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(name = "Channel")
-public class Channel implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class Channel extends BaseUpdatableEntity {
 
-    @Schema(description = "Channel ID", format = "uuid")
-    private UUID id;
-    @Schema(description = "생성 시각", format = "date-time")
-    private Instant createdAt;
-    @Schema(description = "수정 시각", format = "date-time")
-    private Instant updatedAt;
-    //
-    @Schema(description = "채널 타입(PUBLIC/PRIVATE)", allowableValues = {"PUBLIC", "PRIVATE"})
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 10)
     private ChannelType type;
-    @Schema(description = "채널명")
+
+    @Column(name = "name", length = 100)
     private String name;
-    @Schema(description = "채널 설명")
+
+    @Column(name = "description", length = 500)
     private String description;
 
+    @OneToMany(
+            mappedBy = "channel",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private Set<Message> messageList = new HashSet<>();
+
+    @OneToMany(
+            mappedBy = "channel",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private Set<ReadStatus> readStatusList = new HashSet<>();
+
     public Channel(ChannelType type, String name, String description) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        //
         this.type = type;
         this.name = name;
         this.description = description;
     }
 
     public void update(String newName, String newDescription) {
-        boolean anyValueUpdated = false;
         if (newName != null && !newName.equals(this.name)) {
             this.name = newName;
-            anyValueUpdated = true;
         }
         if (newDescription != null && !newDescription.equals(this.description)) {
             this.description = newDescription;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
         }
     }
 }

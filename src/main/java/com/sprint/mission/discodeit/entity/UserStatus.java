@@ -1,57 +1,48 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.UUID;
 
-@Getter
+@Entity
+@Table(name = "user_statuses")
+@Getter @SuperBuilder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(name = "UserStatus")
-public class UserStatus implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class UserStatus extends BaseUpdatableEntity {
 
-    @Schema(description = "UserStatus ID", format = "uuid")
-    private UUID id;
-    @Schema(description = "생성 시각", format = "date-time")
-    private Instant createdAt;
-    @Schema(description = "수정 시각", format = "date-time")
-    private Instant updatedAt;
-    //
-    @Schema(description = "User ID", format = "uuid")
-    private UUID userId;
-    @Schema(description = "마지막 활동 시각", format = "date-time")
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            unique = true,
+            foreignKey = @ForeignKey(name = "fk_user_statuses_user")
+    )
+    private User user;
+
+    @Column(name = "last_active_at", nullable = false)
     private Instant lastActiveAt;
-    @Schema(description = "온라인 여부")
-    private Boolean online;
 
-    public UserStatus(UUID userId, Instant lastActiveAt) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        //
-        this.userId = userId;
+    public UserStatus(User user, Instant lastActiveAt) {
+        this.user = user;
         this.lastActiveAt = lastActiveAt;
     }
 
     public void update(Instant lastActiveAt) {
-        boolean anyValueUpdated = false;
         if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
             this.lastActiveAt = lastActiveAt;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
         }
     }
 
     public Boolean isOnline() {
         Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
-
         return lastActiveAt.isAfter(instantFiveMinutesAgo);
     }
 }
