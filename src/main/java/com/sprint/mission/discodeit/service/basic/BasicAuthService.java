@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 
@@ -16,6 +17,7 @@ public class BasicAuthService implements AuthService {
   private final UserRepository userRepository;
 
   @Override
+  @Transactional
   public User login(LoginRequest loginRequest) {
     String username = loginRequest.username();
     String password = loginRequest.password();
