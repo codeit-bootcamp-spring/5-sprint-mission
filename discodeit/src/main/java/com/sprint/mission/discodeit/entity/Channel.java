@@ -1,5 +1,10 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -7,24 +12,28 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Getter
-public class Channel implements Serializable {
+@Entity
+@Table(name = "channels")
+public class Channel extends BaseUpdatableEntity {
+//implements Serializable
+//  private static final long serialVersionUID = 1L;
 
-  private static final long serialVersionUID = 1L;
-  private UUID id;
-  private Instant createdAt;
-  private Instant updatedAt;
   //
+
+  @Enumerated(EnumType.STRING)
   private ChannelType type;
+
   private String name;
   private String description;
 
   public Channel(ChannelType type, String name, String description) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
-    //
     this.type = type;
     this.name = name;
     this.description = description;
+  }
+
+  public Channel() {
+
   }
 
   public void update(String newName, String newDescription) {

@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface UserService {
 
   User create(UserCreateRequest userCreateRequest,
-              Optional<BinaryContentCreateRequest> profileCreateRequest);
+      Optional<BinaryContentCreateRequest> profileCreateRequest);
 
   UserDto find(UUID userId);
 
