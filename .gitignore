@@ -37,4 +37,6 @@ out/
 .vscode/
 
 ### storage ###
-/file-data-map/**/*.ser
+/storage
+
+.sdkmanrc

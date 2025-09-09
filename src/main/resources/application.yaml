@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+        jdbc.lob.non_contextual_creation: true
+        jdbc.time_zone: UTC
+
+logging:
+  level:
+    org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo: OFF
+    org.hibernate.orm.connections.pooling: OFF
+
+server:
+  shutdown: graceful
+  forward-headers-strategy: native
+
+springdoc:
+  api-docs:
+    path: /docs
+  swagger-ui:
+    path: /docs/ui
+    display-request-duration: true
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: ${user.dir}/storage
+      orphan-grace: 10m

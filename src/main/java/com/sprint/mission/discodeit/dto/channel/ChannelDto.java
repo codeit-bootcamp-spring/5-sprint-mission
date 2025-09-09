@@ -1,0 +1,56 @@
+package com.sprint.mission.discodeit.dto.channel;
+
+import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.enums.ChannelType;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+@Schema(
+    example = """
+        {
+          "id": "7e297daa-aeec-47ae-b1e0-c63f7a8f9824",
+          "type": "PRIVATE",
+          "name": null,
+          "description": null,
+          "participants": [
+            {
+              "id": "dd210d1a-ebe6-499f-8936-859790fd3716",
+              "username": "test",
+              "email": "test@example.com",
+              "profile": {
+                "id": "957a0ce6-8fde-4397-bb9a-446dcb49578e",
+                "fileName": "profile.png",
+                "size": 32122,
+                "contentType": "image/png"
+              },
+              "online": false
+            },
+            {
+              "id": "8fb5dd71-b7a0-4b5d-bf37-ea410473c618",
+              "username": "test2",
+              "email": "test2@example.com",
+              "profile": {
+                "id": "3a44bc04-e179-4533-bcf1-cfdc3aa86a4a",
+                "fileName": "profile2.webp",
+                "size": 12529,
+                "contentType": "image/webp"
+              },
+              "online": true
+            }
+          ],
+          "lastMessageAt": null
+        }
+        """
+)
+public record ChannelDto(
+    UUID id,
+    ChannelType type,
+    String name,
+    String description,
+    List<UserDto> participants,
+    Instant lastMessageAt
+) {
+
+}

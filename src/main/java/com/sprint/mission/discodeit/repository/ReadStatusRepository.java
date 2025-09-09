@@ -1,23 +1,39 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.domain.entity.ReadStatus;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.NotFoundException;
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-public interface ReadStatusRepository extends AbstractRepository<ReadStatus> {
+public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
-  Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
+    List<ReadStatusDto> findAllByUserId(UUID userId);
 
-  List<ReadStatus> findAllByUserId(UUID userId);
+    @EntityGraph(attributePaths = { "userStatus", "profile" })
+    @Query("""
+            SELECT DISTINCT rs.user
+            FROM ReadStatus rs
+            WHERE rs.channel = :channel
+        """)
+    List<User> findUsersByChannel(Channel channel);
 
-  List<ReadStatus> findAllByChannelId(UUID channelId);
+    List<ReadStatus> findAllByChannelIn(Collection<Channel> channels);
 
-  List<ReadStatus> findUnreadByUserId(UUID userId);
+    int deleteAllByChannelId(UUID channelId);
 
-  long countUnreadByUserId(UUID userId);
+    int deleteAllByUser(User user);
 
-  void deleteAllByUserId(UUID userId);
-
-  void deleteAllByChannelId(UUID channelId);
+    default ReadStatus getOrThrow(UUID id) {
+        return findById(id).orElseThrow(() ->
+            new NotFoundException(
+                "ReadStatus with id %s not found".formatted(id))
+        );
+    }
 }
