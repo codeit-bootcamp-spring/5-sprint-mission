@@ -33,7 +33,7 @@ public class LoginResponse {
 		this.email = user.getEmail();
 		this.username = user.getUsername();
 		this.defaultNickname = user.getDefaultNickname();
-		this.profileId = user.getProfileId();
+        this.profileId = user.getProfile() != null ? user.getProfile().getId() : null;
 		this.success = true;
 	}
 

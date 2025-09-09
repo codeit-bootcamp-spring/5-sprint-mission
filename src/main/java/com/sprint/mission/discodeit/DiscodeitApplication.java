@@ -9,19 +9,20 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+@EnableJpaAuditing
 @SpringBootApplication
 public class DiscodeitApplication {
 	public static void main(String[] args) throws InterruptedException, IOException {
 		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
 
-		testing(context);
+//		testing(context);
 
 	}
 
 	private static void testing(ConfigurableApplicationContext context) throws InterruptedException {
 		// cleanDirectory(new File("data/"));
-
 		Thread.sleep(10000);
 
 		System.out.println("서비스 테스트 시작\n");

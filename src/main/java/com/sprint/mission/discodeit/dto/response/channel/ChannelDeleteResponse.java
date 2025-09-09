@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.sprint.mission.discodeit.entity.Channel;
 
+import com.sprint.mission.discodeit.entity.ChannelType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class ChannelDeleteResponse {
 	private UUID channelId;
 	private String name;
-	private String type;
+	private ChannelType type;
 	private boolean success;
 
 	private ChannelDeleteResponse(Channel channel) {

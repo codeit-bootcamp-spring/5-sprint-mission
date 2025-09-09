@@ -30,9 +30,9 @@ public class ChannelController {
   private final ChannelService channelService;
 
   @RequestMapping(path = "/public", method = RequestMethod.POST)
-  public ResponseEntity<ChannelCreateResponse> createPublicChannel(
+  public ResponseEntity<ChannelResponse> createPublicChannel(
       @RequestBody PublicChannelCreateRequest request) {
-    ChannelCreateResponse response = channelService.create(request);
+    ChannelResponse response = channelService.create(request);
 
     URI location = URI.create("/api/channels/" + response.getName());
 
@@ -42,9 +42,9 @@ public class ChannelController {
   }
 
   @RequestMapping(path = "/private", method = RequestMethod.POST)
-  public ResponseEntity<ChannelCreateResponse> createPrivateChannel(
+  public ResponseEntity<ChannelResponse> createPrivateChannel(
       @RequestBody PrivateChannelCreateRequest request) {
-    ChannelCreateResponse response = channelService.create(request);
+    ChannelResponse response = channelService.create(request);
 
     URI location = URI.create("/api/channels/" + response.getName());
 

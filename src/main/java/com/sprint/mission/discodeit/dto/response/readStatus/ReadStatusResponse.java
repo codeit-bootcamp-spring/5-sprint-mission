@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.dto.response.readStatus;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 
 import lombok.AllArgsConstructor;
@@ -23,14 +24,18 @@ public class ReadStatusResponse {
 	private Instant lastReadAt;
 	private boolean success;
 
+    private UserResponse user;
+
+
 	private ReadStatusResponse(ReadStatus readStatus) {
 		this.id = readStatus.getId();
-		this.userId = readStatus.getUserId();
-		this.channelId = readStatus.getChannelId();
+		this.userId = readStatus.getUser().getId();
+		this.channelId = readStatus.getChannel().getId();
 		this.createdAt = readStatus.getCreatedAt();
 		this.updatedAt = readStatus.getUpdatedAt();
 		this.lastReadAt = readStatus.getLastReadAt();
 		this.success = true;
+        this.user = UserResponse.success(readStatus.getUser());
 	}
 
 	public static ReadStatusResponse success(ReadStatus readStatus) {

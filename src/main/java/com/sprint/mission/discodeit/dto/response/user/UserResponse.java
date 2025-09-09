@@ -1,15 +1,16 @@
 package com.sprint.mission.discodeit.dto.response.user;
 
-import java.time.Instant;
-import java.util.UUID;
-
+import com.sprint.mission.discodeit.dto.BinaryContentDTO;
 import com.sprint.mission.discodeit.entity.User;
-
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,7 +24,7 @@ public class UserResponse {
 	private Instant createdAt;
 	private Instant updatedAt;
 	@Nullable
-	private UUID profileId;
+	private BinaryContentDTO profile;
 	boolean online;
 
 	private UserResponse(User user) {
@@ -32,7 +33,14 @@ public class UserResponse {
 		this.email = user.getEmail();
 		this.createdAt = user.getCreatedAt();
 		this.updatedAt = user.getUpdatedAt();
-		this.profileId = user.getProfileId();
+        if (user.getProfile() != null) {
+            this.profile = BinaryContentDTO.builder()
+                    .id(user.getProfile().getId())
+                    .fileName(user.getProfile().getFileName())
+                    .contentType(user.getProfile().getContentType())
+                    .size(user.getProfile().getSize())
+                    .build();
+        }
 		this.username = user.getUsername(); // loginId는 username으로
 	}
 

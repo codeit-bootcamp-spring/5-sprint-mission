@@ -21,8 +21,8 @@ public class MessageDeleteResponse {
 
 	private MessageDeleteResponse(Message message) {
 		this.id = message.getId();
-		this.authorId = message.getAuthorId();
-		this.channelId = message.getChannelId();
+		this.authorId = message.getAuthor().getId();
+		this.channelId = message.getChannel().getId();
 		this.success = true;
 	}
 

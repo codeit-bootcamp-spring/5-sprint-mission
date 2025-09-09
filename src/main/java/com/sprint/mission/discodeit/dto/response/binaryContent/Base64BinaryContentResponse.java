@@ -24,18 +24,14 @@ public class Base64BinaryContentResponse {
 	private String bytes;
 	private boolean success;
 
-	private Base64BinaryContentResponse(BinaryContent binaryContent) {
+	private Base64BinaryContentResponse(BinaryContent binaryContent, byte[] bytes) {
 		this.id = binaryContent.getId();
 		this.createdAt = binaryContent.getCreatedAt();
 		this.fileName = binaryContent.getFileName();
 		this.contentType = binaryContent.getContentType();
 		this.size = binaryContent.getSize();
-		this.bytes = Base64.getEncoder().encodeToString(binaryContent.getBytes());
+		this.bytes = Base64.getEncoder().encodeToString(bytes);
 		this.success = true;
-	}
-
-	public static Base64BinaryContentResponse success(BinaryContent binaryContent) {
-		return new Base64BinaryContentResponse(binaryContent);
 	}
 
 	public static Base64BinaryContentResponse fromResponse(BinaryContentResponse response) {
@@ -45,7 +41,7 @@ public class Base64BinaryContentResponse {
 			.fileName(response.getFileName())
 			.contentType(response.getContentType())
 			.size(response.getSize())
-			.bytes(Base64.getEncoder().encodeToString(response.getContent()))
+			.bytes(Base64.getEncoder().encodeToString(response.getBytes()))
 			.success(response.isSuccess())
 			.build();
 	}

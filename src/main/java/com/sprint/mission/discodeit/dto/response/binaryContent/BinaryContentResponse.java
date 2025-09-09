@@ -20,7 +20,7 @@ public class BinaryContentResponse {
 	private String fileName;
 	private String contentType;
 	private Long size;
-	private byte[] content;
+	private byte[] bytes;
 	private boolean success;
 
 	private BinaryContentResponse(BinaryContent binaryContent) {
@@ -29,7 +29,6 @@ public class BinaryContentResponse {
 		this.fileName = binaryContent.getFileName();
 		this.contentType = binaryContent.getContentType();
 		this.size = binaryContent.getSize();
-		this.content = binaryContent.getBytes();
 		this.success = true;
 	}
 

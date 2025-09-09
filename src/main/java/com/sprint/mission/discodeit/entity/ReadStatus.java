@@ -1,59 +1,63 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sprint.mission.discodeit.entity.common.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+@Entity
+@Table(name = "read_statuses",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "channel_id"})
+        })
+@Getter
+@Setter
+@SuperBuilder /*@ToString*/
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ReadStatus extends BaseUpdatableEntity implements Serializable {
+//	@Serial
+//	private static final long serialVersionUID = 1L;
 
-@AllArgsConstructor
-@Data
-@Builder
-public class ReadStatus implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
+    @Column(nullable = false)
+    private Instant lastReadAt;
 
-	private final UUID id;
-	private final UUID userId;
-	private final UUID channelId;
-	private final Instant createdAt;
-	private Instant updatedAt;
-	private Instant lastReadAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id", nullable = false)
+    private Channel channel;
 
 
-	public ReadStatus(UUID userId, UUID channelId) {
-		this.id = UUID.randomUUID();
-		this.userId = userId;
-		this.channelId = channelId;
-		this.createdAt = Instant.now();
-	}
+    public ReadStatus(User user, Channel channel) {
+        this.user = user;
+        this.channel = channel;
+        this.lastReadAt = Instant.EPOCH;
+    }
 
-	public ReadStatus(ReadStatus original) {
-		this.id = original.id;
-		this.userId = original.userId;
-		this.channelId = original.channelId;
-		this.createdAt = original.createdAt;
-		this.updatedAt = original.updatedAt;
-		this.lastReadAt = original.lastReadAt;
-	}
+    public ReadStatus(ReadStatus original) {
+        super(original.getId(), original.getCreatedAt(), original.getUpdatedAt());
+        this.user = original.user;
+        this.channel = original.channel;
+        this.lastReadAt = original.lastReadAt;
+    }
 
-	public ReadStatus copy() {
-		return new ReadStatus(this);
-	}
+    public ReadStatus copy() {
+        return new ReadStatus(this);
+    }
 
-	public void update(Instant newLastReadAt) {
-		boolean anyValueUpdated = false;
-		if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
-			this.lastReadAt = newLastReadAt;
-			anyValueUpdated = true;
-		}
-
-		if (anyValueUpdated) {
-			this.updatedAt = Instant.now();
-		}
-	}
+    public void update(Instant newLastReadAt) {
+        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+            this.lastReadAt = newLastReadAt;
+        }
+    }
 
 }

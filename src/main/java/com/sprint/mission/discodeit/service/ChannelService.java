@@ -3,16 +3,16 @@ package com.sprint.mission.discodeit.service;
 import java.util.List;
 
 import com.sprint.mission.discodeit.dto.request.channel.*;
-import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
-import com.sprint.mission.discodeit.dto.response.channel.ChannelCreateResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelLeaveResponse;
+import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
+
 import java.util.UUID;
 
 public interface ChannelService {
 	// 생성
-	ChannelCreateResponse create(PublicChannelCreateRequest request);
-	ChannelCreateResponse create(PrivateChannelCreateRequest request);
+	ChannelResponse create(PublicChannelCreateRequest request);
+	ChannelResponse create(PrivateChannelCreateRequest request);
 
 	// 참가, 퇴장
 	ChannelLeaveResponse leaveChannel(ChannelLeaveRequest request);

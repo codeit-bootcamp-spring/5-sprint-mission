@@ -1,25 +1,34 @@
 package com.sprint.mission.discodeit.repository;
 
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
+public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
+    @Query("""
+    SELECT rs FROM ReadStatus rs
+    JOIN FETCH rs.user u
+    LEFT JOIN FETCH u.profile
+    WHERE u.id = :userId
+    """)
+    List<ReadStatus> findByUserId(UUID userId);
+    List<ReadStatus> findByChannelId(UUID channelId);
+    Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
 
-public interface ReadStatusRepository {
-	void save(ReadStatus status);
-	Optional<ReadStatus> findById(UUID id);
-	List<ReadStatus> findByUserId(UUID UserId);
-	List<ReadStatus> findByChannelId(UUID ChannelId);
-	ReadStatus findByChannelIdAndUserId(UUID channelId, UUID userId);
-	List<ReadStatus> findAll();
-	void deleteById(UUID id);
-	void deleteByChannelId(UUID channelId);
-	void deleteByUserIdAndChannelId(UUID userId, UUID channelId);
-	boolean existsByChannelIdAndUserId(UUID channelId, UUID userId);
+    default ReadStatus findByChannelIdAndUserId(UUID channelId, UUID userId) {
+        return findByUserIdAndChannelId(userId, channelId).orElse(null);
+    }
 
-	void createDirectoryIfNotExists();
-	void loadFile();
-	void saveFile();
+    @Query("""
+            SELECT u FROM ReadStatus rs
+            JOIN rs.user u
+            LEFT JOIN FETCH u.profile
+            WHERE rs.channel.id = :channelId
+            """)
+    List<User> findUsersByChannelId(UUID channelId);
 }

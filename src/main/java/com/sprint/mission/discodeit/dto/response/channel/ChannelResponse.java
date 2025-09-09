@@ -4,8 +4,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 
+import com.sprint.mission.discodeit.entity.ChannelType;
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,17 +24,13 @@ public class ChannelResponse {
 	private Instant updatedAt;
 	private String name;
 	private String description;
-	private String type; // PUBLIC or PRIVATE
+	private ChannelType type; // PUBLIC or PRIVATE
 
-
-	@Nullable
 	private Instant lastMessageAt;
 
+	private List<UserResponse> participants;
 
-	@Nullable
-	private List<UUID> participantIds;
-
-	private ChannelResponse(Channel channel, @Nullable Instant lastMessageAt, @Nullable List<UUID> participantIds) {
+	private ChannelResponse(Channel channel, @Nullable Instant lastMessageAt, @Nullable List<UserResponse> participants) {
 		this.id = channel.getId();
 		this.createdAt = channel.getCreatedAt();
 		this.updatedAt = channel.getUpdatedAt();
@@ -40,7 +38,7 @@ public class ChannelResponse {
 		this.description = channel.getDescription();
 		this.type = channel.getType();
 		this.lastMessageAt = lastMessageAt;
-		this.participantIds = participantIds;
+		this.participants = participants;
 	}
 
 	public static ChannelResponse fromPublicChannel(Channel channel,
@@ -50,7 +48,7 @@ public class ChannelResponse {
 
 	public static ChannelResponse fromPrivateChannel(Channel channel,
 													 @Nullable Instant lastMessageTime,
-													 List<UUID> memberIds) {
+													 List<UserResponse> memberIds) {
 		return new ChannelResponse(channel, lastMessageTime, memberIds);
 	}
 }

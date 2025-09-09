@@ -1,60 +1,61 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sprint.mission.discodeit.entity.common.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
 import java.io.Serializable;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+@Entity
+@Table(name = "channels")
+@Getter @Setter @SuperBuilder /*@ToString*/
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Channel extends BaseUpdatableEntity implements Serializable {
+//	@Serial
+//	private static final long serialVersionUID = 1L;
 
-@AllArgsConstructor
-@Data
-@Builder
-public class Channel implements Serializable {
-	@Serial
-	private static final long serialVersionUID = 1L;
-
-	private final UUID id;
-	private final Instant createdAt;
-	private String type = "PUBLIC"; // 채널 타입, PUBLIC 또는 PRIVATE
-	private Instant updatedAt;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+	private ChannelType type;// 채널 타입, PUBLIC 또는 PRIVATE
+    @Column(unique = true, nullable = false, length = 100)
 	private String name;
+    @Column(length = 1000)
 	private String description;
+
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ReadStatus> readStatus;
+
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Message> messages;
 
 
 	public Channel(String name, String description) {
+        type = ChannelType.PUBLIC;
 		this.name = Objects.requireNonNull(name, "채널 이름은 필수 입력값입니다.");
-		id = UUID.randomUUID();
-		createdAt = Instant.now();
 		this.description = description;
 	}
 
 	public Channel(List<UUID> userUUIDs) {
-		id = UUID.randomUUID();
-		type = "PRIVATE";
-		name = "private-"+id;
-		createdAt = Instant.now();
+		type = ChannelType.PRIVATE;
+		name = "private-"+super.getId();
 	}
 
 	public Channel(Channel original) {
-		this.id = original.id;
-		this.createdAt = original.createdAt;
+        super(original.getId(), original.getCreatedAt(), original.getUpdatedAt());
 		this.name = original.name;
-		this.updatedAt = original.updatedAt;
 		this.type = original.type;
 		this.description = original.description;
-	}
-
-	public void updateUpdatedAt() {
-		this.updatedAt = Instant.now();
+        this.readStatus = original.readStatus;
+        this.messages = original.messages;
 	}
 
 	public Channel copy() {

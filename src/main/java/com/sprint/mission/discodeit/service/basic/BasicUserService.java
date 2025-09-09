@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
@@ -8,31 +7,28 @@ import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.entity.*;
 import org.springframework.stereotype.Service;
 import com.sprint.mission.discodeit.dto.request.user.*;
 import com.sprint.mission.discodeit.dto.response.user.*;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
 import com.sprint.mission.discodeit.exception.user.DuplicateLoginIdException;
 import com.sprint.mission.discodeit.exception.user.InvalidPasswordException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundException;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.repository.*;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,10 +38,12 @@ public class BasicUserService implements UserService {
 	private final BinaryContentRepository binaryContentRepository;
 	private final ChannelRepository channelRepository;
 	private final ReadStatusRepository readStatusRepository;
+    private final BinaryContentStorage binaryContentStorage;
 
 	@Override
-	public UserResponse createUser(UserCreateRequest request) {
-		if (userRepository.existsByLoginId(request.getUsername())) {
+    @Transactional
+	public UserResponse create(UserCreateRequest request) {
+		if (userRepository.existsByUsername(request.getUsername())) {
 			throw new DuplicateLoginIdException();
 		}
 
@@ -54,29 +52,28 @@ public class BasicUserService implements UserService {
 		}
 
 		User user;
-		UUID profileId = null;
 
 		if (request.getProfileImage() != null) {
 			BinaryContent profileImage = request.getProfileImage().toBinaryContent();
 			binaryContentRepository.save(profileImage);
-			profileId = profileImage.getId();
+            binaryContentStorage.put(profileImage.getId(), request.getProfileImage().getBytes());
 
-			user = request.toUserWithProfile(profileId);
+			user = request.toUserWithProfile(profileImage);
 		} else {
 			user = request.toUser();
 		}
 
 		userRepository.save(user);
 
-		UserStatus userStatus = new UserStatus(user.getId());
+		UserStatus userStatus = new UserStatus(user);
 		userStatusRepository.save(userStatus);
 
 		List<Channel> publicChannels = channelRepository.findAll().stream()
-				.filter(channel -> "PUBLIC".equals(channel.getType()))
+				.filter(channel -> ChannelType.PUBLIC.equals(channel.getType()))
 				.toList();
 
 		for (Channel channel : publicChannels) {
-			ReadStatus readStatus = new ReadStatus(user.getId(), channel.getId());
+			ReadStatus readStatus = new ReadStatus(user, channel);
 			readStatusRepository.save(readStatus);
 		}
 
@@ -84,41 +81,46 @@ public class BasicUserService implements UserService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public UserResponse findById(UUID userId) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(UserNotFoundException::new);
 
 		UserResponse userResponse = UserResponse.success(user);
-		updateOnlineStatus(userResponse);
+		updateOnlineStatus(List.of(userResponse));
 		return userResponse;
 	}
 
 	@Override
-	public UserResponse findByLoginId(String loginId) {
-		User user = userRepository.findByLoginId(loginId)
+    @Transactional(readOnly = true)
+	public UserResponse findByUsername(String username) {
+		User user = userRepository.findByUsername(username)
 			.orElseThrow(UserNotFoundException::new);
 
 		UserResponse userResponse = UserResponse.success(user);
-		updateOnlineStatus(userResponse);
+		updateOnlineStatus(List.of(userResponse));
 		return userResponse;
 	}
 
 
 	@Override
+    @Transactional(readOnly = true)
 	public List<UserResponse> findAll() {
-		List<User> users = userRepository.findAll();
+		List<User> users = userRepository.findAllWithProfile();
 		List<UserResponse> userResponseList = new ArrayList<>();
 
 		for (User user : users) {
 			UserResponse userResponse = UserResponse.success(user);
-			updateOnlineStatus(userResponse);
 			userResponseList.add(userResponse);
 		}
+
+        updateOnlineStatus(userResponseList);
 
 		return userResponseList;
 	}
 
 	@Override
+    @Transactional
 	public UserResponse update(UUID id, UserUpdateRequest request,
 			UserProfileImageRequest profileImageRequest) {
 
@@ -127,7 +129,7 @@ public class BasicUserService implements UserService {
 		String newUsername = request.getNewUsername();
 		String newEmail = request.getNewEmail();
 
-		if (request.getNewUsername() != null && userRepository.existsByLoginId(newUsername)) {
+		if (request.getNewUsername() != null && userRepository.existsByUsername(newUsername)) {
 			throw new DuplicateLoginIdException();
 		}
 		if (request.getNewEmail() != null && userRepository.existsByEmail(newEmail)) {
@@ -146,26 +148,27 @@ public class BasicUserService implements UserService {
 
 		if (profileImageRequest != null) {
 			BinaryContent newProfileImage = profileImageRequest.toBinaryContent();
-			binaryContentRepository.save(newProfileImage);
+            binaryContentRepository.saveAndFlush(newProfileImage);
+            binaryContentStorage.put(newProfileImage.getId(), profileImageRequest.getBytes());
 
-			if (user.getProfileId() != null) {
-				binaryContentRepository.deleteById(user.getProfileId());
+			if (user.getProfile() != null) {
+				binaryContentRepository.deleteById(user.getProfile().getId());
 			}
 
-			user.updateProfileId(newProfileImage.getId());
+			user.updateProfile(newProfileImage);
 		} else {
-			if (user.getProfileId() != null) {
-				binaryContentRepository.deleteById(user.getProfileId());
+			if (user.getProfile() != null) {
+				binaryContentRepository.deleteById(user.getProfile().getId());
 				user.removeProfile();
 			}
 		}
 
 		userRepository.save(user);
-
 		return UserResponse.success(user);
 	}
 
 	@Override
+    @Transactional
 	public UserResponse updateUserPassword(UUID userId, UserUpdatePasswordRequest request) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(UserNotFoundException::new);
@@ -175,7 +178,6 @@ public class BasicUserService implements UserService {
 		}
 
 		user.updatePassword(request.getNewPassword());
-
 		userRepository.save(user);
 
 		// 만약 비밀번호 설정 제약이 있다면 받은 비밀번호 검사 후 Response 반환
@@ -183,36 +185,39 @@ public class BasicUserService implements UserService {
 	}
 
 	@Override
+    @Transactional
 	public UserResponse updateUserDefalutNickname(UUID userId,
 			UserUpdateDefaultNicknameRequest request) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(UserNotFoundException::new);
 
 		user.updateDefaultNickname(request.getNewNickname());
-
 		userRepository.save(user);
 
 		return UserResponse.success(user);
 	}
 
+
 	@Override
+    @Transactional
 	public UserResponse updateUserProfile(UUID userId, UserProfileImageRequest request) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(UserNotFoundException::new);
 
-		UUID oldProfileId = user.getProfileId();
+		UUID oldProfileId = user.getProfile() != null ? user.getProfile().getId() : null;
 
 		if (request != null) {
 			// 새로운 프로필 이미지 제공 - 업데이트 (기존과 같아도 새로 저장)
 			BinaryContent newProfileImage = request.toBinaryContent();
-			binaryContentRepository.save(newProfileImage);
+			binaryContentRepository.saveAndFlush(newProfileImage);
+            binaryContentStorage.put(newProfileImage.getId(), request.getBytes());
 
 			// 기존 프로필 이미지가 있으면 삭제
 			if (oldProfileId != null) {
 				binaryContentRepository.deleteById(oldProfileId);
 			}
 
-			user.updateProfileId(newProfileImage.getId());
+			user.updateProfile(newProfileImage);
 		} else {
 			// null 제공 - 기존 프로필 제거
 			if (oldProfileId != null) {
@@ -220,58 +225,66 @@ public class BasicUserService implements UserService {
 				user.removeProfile();
 			}
 		}
-
 		userRepository.save(user);
 
 		return UserResponse.success(user);
 	}
 
-	@Override
-	public UserDeleteResponse delete(UUID id) {
-		User user = userRepository.findById(id)
-			.orElseThrow(UserNotFoundException::new);
+    @Override
+    @Transactional
+    public UserDeleteResponse delete(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
 
-		UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-			.orElseThrow(UserNotFoundException::new);
+        UUID profileId = null;
+        if (user.getProfile() != null) {
+            profileId = user.getProfile().getId();
+        }
 
-		if(user.getProfileId() != null) {
-			binaryContentRepository.deleteById(user.getProfileId());
-		}
-		userStatusRepository.deleteById(userStatus.getId());
-		userRepository.deleteById(user.getId());
+        userRepository.deleteById(user.getId());
 
+        if (profileId != null) {
+            binaryContentRepository.deleteById(profileId);
+        }
 
-		return UserDeleteResponse.success(user);
-	}
+        return UserDeleteResponse.success(user);
+    }
 
-	@Override
-	public UserDeleteResponse delete(String loginId) {
-		User user = userRepository.findByLoginId(loginId)
-			.orElseThrow(UserNotFoundException::new);
+    @Override
+    @Transactional
+    public UserDeleteResponse delete(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
 
-		UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
-			.orElseThrow(UserStatusNotFoundException::new);
+        UUID profileId = null;
+        if (user.getProfile() != null) {
+            profileId = user.getProfile().getId();
+        }
 
-		if(user.getProfileId() != null) {
-			binaryContentRepository.deleteById(user.getProfileId());
-		}
-		userStatusRepository.deleteById(userStatus.getId());
-		userRepository.deleteById(user.getId());
+        userRepository.deleteById(user.getId());
 
-		return UserDeleteResponse.success(user);
-	}
+        if (profileId != null) {
+            binaryContentRepository.deleteById(profileId);
+        }
 
-	private void updateOnlineStatus(UserResponse userResponse) {
-		boolean online = userStatusRepository.findByUserId(userResponse.getId())
-				.map(userStatus -> {
-					Instant lastActiveAt = userStatus.getLastActiveAt();
-					if (lastActiveAt == null) {
-						return false;
-					}
-					return lastActiveAt.isAfter(Instant.now().minusSeconds(300));
-				})
-				.orElse(false);
+        return UserDeleteResponse.success(user);
+    }
 
-		userResponse.setOnline(online);
-	}
+    private void updateOnlineStatus(List<UserResponse> userResponses) {
+        List<UUID> userIds = userResponses.stream()
+                .map(UserResponse::getId)
+                .toList();
+
+        List<UserStatus> userStatuses = userStatusRepository.findByUserIdIn(userIds);
+
+        Map<UUID, UserStatus> statusMap = userStatuses.stream()
+                .collect(Collectors.toMap(us -> us.getUser().getId(), Function.identity()));
+
+        for (UserResponse response : userResponses) {
+            UserStatus status = statusMap.get(response.getId());
+            boolean online = status != null &&
+                    status.getLastActiveAt().isAfter(Instant.now().minusSeconds(300));
+            response.setOnline(online);
+        }
+    }
 }

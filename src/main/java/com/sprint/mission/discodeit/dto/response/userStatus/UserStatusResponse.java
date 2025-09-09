@@ -24,7 +24,7 @@ public class UserStatusResponse {
 
 	private UserStatusResponse(UserStatus userStatus) {
 		this.id = userStatus.getId();
-		this.userId = userStatus.getUserId();
+		this.userId = userStatus.getUser().getId();
 		this.updatedAt = userStatus.getUpdatedAt();
 		this.success = true;
 	}

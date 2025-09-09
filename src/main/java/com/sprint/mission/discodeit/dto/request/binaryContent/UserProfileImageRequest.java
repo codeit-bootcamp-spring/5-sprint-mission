@@ -30,6 +30,6 @@ public class UserProfileImageRequest {
 	private byte[] bytes;
 
 	public BinaryContent toBinaryContent() {
-		return new BinaryContent(fileName, contentType, size, bytes);
+		return new BinaryContent(fileName, contentType, size);
 	}
 }

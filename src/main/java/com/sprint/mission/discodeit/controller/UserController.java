@@ -45,7 +45,7 @@ public class UserController {
 	// username(=loginId)로 조회
 	@RequestMapping(path = "/username/{username}", method = RequestMethod.GET)
 	public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
-		UserResponse userResponse = userService.findByLoginId(username);
+		UserResponse userResponse = userService.findByUsername(username);
 		boolean online = userStatusService.isOnline(userResponse.getId());
 		userResponse.setOnline(online);
 		return ResponseEntity.ok(userResponse);
@@ -71,7 +71,7 @@ public class UserController {
 				request.setProfileImage(imageRequest);
 			}
 
-			UserResponse response = userService.createUser(request);
+			UserResponse response = userService.create(request);
 
 			URI location = URI.create("/api/users/" + response.getId());
 			return ResponseEntity.status(HttpStatus.CREATED)
