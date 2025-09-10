@@ -29,7 +29,7 @@ public class BasicUserService implements UserService {
 
     @Transactional
     @Override
-    public User create(UserCreateRequest userCreateRequest, BinaryContentCreateRequest binaryContentCreateRequest) {
+    public UserDto create(UserCreateRequest userCreateRequest, BinaryContentCreateRequest binaryContentCreateRequest) {
         String username = userCreateRequest.username();
         String email = userCreateRequest.email();
 
@@ -46,32 +46,28 @@ public class BasicUserService implements UserService {
         String password = userCreateRequest.password();
 
         User user = new User(username, email, password, profile, null);
-        UserStatus userStatus = new UserStatus(null, Instant.now());
-        user.addUserStatus(userStatus);
+        UserStatus userStatus = new UserStatus(user, Instant.now());
 
-        return userRepository.save(user);
+        return userMapper.toDto(userRepository.save(user));
     }
 
     @Override
     public UserDto find(UUID id) {
-        User user = userRepository.findById(id)
-                        .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
-
-        return userMapper.toDto(user);
+        return userRepository.findById(id)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
     }
 
-    // TODO fetch 필요
     @Override
     public List<UserDto> findAll() {
-        return userRepository.findAll()
-                .stream()
+        return userRepository.findAll().stream()
                 .map(userMapper::toDto)
                 .toList();
     }
 
     @Transactional
     @Override
-    public User update(UUID id, UserUpdateRequest userUpdateRequest, BinaryContentCreateRequest binaryContentCreateRequest) {
+    public UserDto update(UUID id, UserUpdateRequest userUpdateRequest, BinaryContentCreateRequest binaryContentCreateRequest) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
 
@@ -91,16 +87,17 @@ public class BasicUserService implements UserService {
         String newPassword = userUpdateRequest.newPassword();
 
         user.update(newUsername, newEmail, newPassword, newProfile);
-        return user;
+        return userMapper.toDto(user);
     }
 
     @Transactional
     @Override
     public void delete(UUID id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
+        if (!userRepository.existsById(id)) {
+            throw new NoSuchElementException("User not found: " + id);
+        }
 
-        userRepository.delete(user);
+        userRepository.deleteById(id);
     }
 
     private BinaryContent getBinaryContentNullable(BinaryContentCreateRequest binaryContentCreateRequest) {

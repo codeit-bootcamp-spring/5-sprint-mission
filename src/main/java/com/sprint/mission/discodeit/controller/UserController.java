@@ -2,12 +2,11 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.userstatus.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +30,12 @@ public class UserController implements UserApi {
 
     // 메서드 2개로 분리하는게 좋지 않을까: POST /users, POST /users/{id}/profile
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<User> create(
+    public ResponseEntity<UserDto> create(
             @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
         BinaryContentCreateRequest binaryContentCreateRequest = resolveProfileRequest(profile);
-        User user = userService.create(userCreateRequest, binaryContentCreateRequest);
+        UserDto user = userService.create(userCreateRequest, binaryContentCreateRequest);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -44,13 +43,13 @@ public class UserController implements UserApi {
     }
 
     @PatchMapping(path = "{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<User> update(
+    public ResponseEntity<UserDto> update(
             @PathVariable("userId") UUID userId,
             @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
         BinaryContentCreateRequest binaryContentCreateRequest = resolveProfileRequest(profile);
-        User updatedUser = userService.update(userId, userUpdateRequest, binaryContentCreateRequest);
+        UserDto updatedUser = userService.update(userId, userUpdateRequest, binaryContentCreateRequest);
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -67,11 +66,11 @@ public class UserController implements UserApi {
     }
 
     @PatchMapping("{userId}/userStatus")
-    public ResponseEntity<UserStatus> updateUserStatusByUserId(
+    public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
             @PathVariable("userId") UUID userId,
             @RequestBody UserStatusUpdateRequest userStatusUpdateRequest) {
 
-        UserStatus userStatus = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
+        UserStatusDto userStatus = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
         return ResponseEntity.ok(userStatus);
     }
 

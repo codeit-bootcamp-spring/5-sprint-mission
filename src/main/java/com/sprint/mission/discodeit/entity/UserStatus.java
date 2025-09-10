@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -20,12 +19,11 @@ public class UserStatus extends BaseUpdatableEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
-    @Setter
     private User user;
     private Instant lastActiveAt;
 
     public UserStatus(User user, Instant lastActiveAt) {
-        this.user = user;
+        setUser(user);
         this.lastActiveAt = lastActiveAt;
     }
 
@@ -44,5 +42,10 @@ public class UserStatus extends BaseUpdatableEntity {
         if (anyValueUpdated) {
             this.setUpdatedAt(Instant.now());
         }
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        user.setUserStatus(this);
     }
 }

@@ -2,10 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -22,6 +19,7 @@ public class User extends BaseUpdatableEntity {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private BinaryContent profile;
 
+    @Setter
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserStatus userStatus;
 
@@ -50,10 +48,5 @@ public class User extends BaseUpdatableEntity {
         if (anyValueUpdated) {
             this.setUpdatedAt(Instant.now());
         }
-    }
-
-    public void addUserStatus(UserStatus userStatus) {
-        this.userStatus = userStatus;
-        userStatus.setUser(this); // 양방향
     }
 }

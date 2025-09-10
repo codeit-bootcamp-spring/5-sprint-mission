@@ -7,7 +7,6 @@ import com.sprint.mission.discodeit.dto.request.channel.PublicChannelUpdateReque
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -34,29 +32,25 @@ public class BasicChannelService implements ChannelService {
 
     @Transactional
     @Override
-    public Channel create(PublicChannelCreateRequest request) {
+    public ChannelDto create(PublicChannelCreateRequest request) {
         String name = request.name();
         String description = request.description();
         Channel channel = new Channel(name, description, ChannelType.PUBLIC);
 
-        return channelRepository.save(channel);
+        return channelMapper.toDto(channelRepository.save(channel));
     }
 
     @Transactional
     @Override
-    public Channel create(PrivateChannelCreateRequest request) {
+    public ChannelDto create(PrivateChannelCreateRequest request) {
         Channel channel = new Channel(null, null, ChannelType.PRIVATE);
 
-        List<UUID> participantIds = request.participantIds();
-        participantIds.stream()
-                .map(userId -> {
-                    User user = userRepository.findById(userId)
-                            .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
-                    return new ReadStatus(user, channel, Instant.MIN);
-                })
-                .forEach(readStatusRepository::save);
+        List<ReadStatus> readStatuses = userRepository.findAllById(request.participantIds()).stream()
+                .map(user -> new ReadStatus(user, channel, channel.getCreatedAt()))
+                .toList();
+        readStatusRepository.saveAll(readStatuses);
 
-        return channelRepository.save(channel);
+        return channelMapper.toDto(channelRepository.save(channel));
     }
 
     @Override
@@ -68,22 +62,18 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public List<ChannelDto> findAllByUserId(UUID userId) {
-        List<Channel> mySubscribedChannels = readStatusRepository.findAllByUserId(userId).stream()
-                .map(ReadStatus::getChannel)
+        List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
+                .map(readStatus -> readStatus.getChannel().getId())
                 .toList();
 
-        return channelRepository.findAll().stream()
-                .filter(channel ->
-                        channel.getType().equals(ChannelType.PUBLIC)
-                                || mySubscribedChannels.stream()
-                                .anyMatch(subscribedChannel -> subscribedChannel.getId().equals(channel.getId())))
+        return channelRepository.findAllByTypeOrIdIn(ChannelType.PUBLIC, mySubscribedChannelIds).stream()
                 .map(channelMapper::toDto)
                 .toList();
     }
 
     @Transactional
     @Override
-    public Channel update(UUID id, PublicChannelUpdateRequest request) {
+    public ChannelDto update(UUID id, PublicChannelUpdateRequest request) {
         String newName = request.newName();
         String newDescription = request.newDescription();
 
@@ -94,14 +84,15 @@ public class BasicChannelService implements ChannelService {
         }
 
         channel.update(newName, newDescription);
-        return channel;
+        return channelMapper.toDto(channel);
     }
 
     @Transactional
     @Override
     public void delete(UUID id) {
-        channelRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
+        if (!channelRepository.existsById(id)) {
+            throw new NoSuchElementException("Channel not found: " + id);
+        }
 
         messageRepository.deleteAllByChannelId(id);
         readStatusRepository.deleteAllByChannelId(id);
