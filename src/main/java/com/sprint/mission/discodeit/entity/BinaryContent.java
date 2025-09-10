@@ -17,5 +17,4 @@ public class BinaryContent extends BaseEntity {
     private String fileName;
     private Long size;
     private String contentType;
-    private byte[] bytes;
 }

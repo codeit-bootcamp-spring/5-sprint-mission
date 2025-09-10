@@ -9,10 +9,12 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,8 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final MessageMapper messageMapper;
+    private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
 
     @Transactional
     @Override
@@ -47,7 +51,13 @@ public class BasicMessageService implements MessageService {
                     String contentType = request.contentType();
                     byte[] bytes = request.bytes();
 
-                    return new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
+                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
+
+                    // @GeneratedValue(strategy = GenerationType.UUID)는 애플리케이션 레벨에서 UUID 를 만든다는데 save 안 해도 id 있는지 추후 확인하기!!
+                    // -> 메시지에서 바이너리컨텐트 cascade.All 하기 때문에 저장 굳이 X (위 내용이 맞으면 binaryContent.save 삭제!!)
+                    binaryContentRepository.save(binaryContent);
+                    binaryContentStorage.put(binaryContent.getId(), bytes);
+                    return binaryContent;
                 }).toList();
 
         String content = messageCreateRequest.content();

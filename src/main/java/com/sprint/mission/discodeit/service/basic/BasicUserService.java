@@ -8,9 +8,10 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +25,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository;
     private final UserMapper userMapper;
+    private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
 
     @Transactional
     @Override
@@ -107,7 +109,9 @@ public class BasicUserService implements UserService {
             String contentType = binaryContentCreateRequest.contentType();
             byte[] bytes = binaryContentCreateRequest.bytes();
             if (bytes.length > 0) {
-                profile = new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
+                profile = new BinaryContent(fileName, (long) bytes.length, contentType);
+                binaryContentRepository.save(profile);
+                binaryContentStorage.put(profile.getId(), bytes);
             }
         }
         return profile;
