@@ -107,12 +107,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
                 throw new NoSuchFileException(filePath.toString());
             }
 
-            long size;
-            try {
-                size = Files.size(filePath);
-            } catch (IOException e) {
-                size = -1;
-            }
+            long size = Files.size(filePath);
 
             MediaType mediaType;
             try {
