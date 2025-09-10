@@ -48,7 +48,7 @@ public class BasicUserService implements UserService {
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType, bytes);
+              contentType);
           return binaryContentRepository.save(binaryContent).getId();
         })
         .orElse(null);
@@ -58,7 +58,7 @@ public class BasicUserService implements UserService {
     User createdUser = userRepository.save(user);
 
     Instant now = Instant.now();
-    UserStatus userStatus = new UserStatus(createdUser.getId(), now);
+    UserStatus userStatus = new UserStatus(createdUser, now);
     userStatusRepository.save(userStatus);
 
     return createdUser;
@@ -103,7 +103,7 @@ public class BasicUserService implements UserService {
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType, bytes);
+              contentType);
           return binaryContentRepository.save(binaryContent).getId();
         })
         .orElse(null);
@@ -119,7 +119,7 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
-    Optional.ofNullable(user.getProfileId())
+    Optional.ofNullable(user.getProfile())
         .ifPresent(binaryContentRepository::deleteById);
     userStatusRepository.deleteByUserId(userId);
 
