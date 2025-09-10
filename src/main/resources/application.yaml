@@ -20,3 +20,9 @@ logging:
     org.hibernate.sql: debug
     org.hibernate.type.descriptor.sql.BasicBinder: Trace
     root: INFO
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: .discodeit/storage
