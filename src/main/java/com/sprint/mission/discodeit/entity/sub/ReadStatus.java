@@ -1,48 +1,31 @@
 package com.sprint.mission.discodeit.entity.sub;
 
-import lombok.Getter;
+import com.sprint.mission.discodeit.entity.main.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.entity.main.Channel;
+import com.sprint.mission.discodeit.entity.main.User;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.UUID;
 
+@Entity
+@Table(name = "READ_STATUSES")
 @Getter
-public class ReadStatus implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+@Setter
+@SuperBuilder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ReadStatus extends BaseUpdatableEntity {
 
-    private final UUID id;
-    private final UUID userId;
-    private final UUID channelId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    private final Instant createdAt;
-    private Instant updatedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id", nullable = false)
+    private Channel channel;
+
+    @Column(name = "last_read_at", nullable = false)
     private Instant lastReadAt;
-
-    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-
-        this.userId = userId;
-        this.channelId = channelId;
-        this.lastReadAt = lastReadAt;
-    }
-
-    public void update(Instant newLastReadAt) {
-        boolean anyValueUpdated = false;
-
-        if (isLasReadAtChanged(newLastReadAt)) {
-            this.lastReadAt = newLastReadAt;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
-    }
-
-    private boolean isLasReadAtChanged(Instant newLastReadAt) {
-        return newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt);
-    }
 }

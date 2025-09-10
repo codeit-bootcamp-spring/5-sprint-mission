@@ -1,6 +1,9 @@
 package com.sprint.mission.discodeit.entity.main;
 
-import lombok.Getter;
+import com.sprint.mission.discodeit.entity.sub.BinaryContent;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -11,60 +14,31 @@ import java.util.UUID;
 
 import static java.time.Instant.*;
 
+@Entity
+@Table(name = "MESSAGES")
 @Getter
-public class Message implements Serializable {
+@Setter
+@SuperBuilder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Message extends BaseUpdatableEntity {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private final UUID id;
-    private final UUID authorId;
-    private final UUID channelId;
-
+    @Column(columnDefinition = "TEXT")
     private String content;
 
-    private List<UUID> attachmentIds;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
+    private User author;
 
-    private final Instant createdAt;
-    private Instant updatedAt;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "channel_id", nullable = false)
+    private Channel channel;
 
-
-    public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
-        this.id = UUID.randomUUID();
-        this.createdAt = now();
-
-        this.content = content;
-        this.channelId = channelId;
-        this.authorId = authorId;
-        this.attachmentIds = attachmentIds;
-    }
-
-    public void update(String content) {
-        boolean anyValueUpdated = false;
-
-        if(isContentChanged(content)) {
-            this.content = content;
-            anyValueUpdated = true;
-        }
-
-        if(anyValueUpdated) {
-            this.updatedAt = now();
-        }
-    }
-
-    public boolean isContentChanged(String newContent) {
-        return newContent != null && !Objects.equals(this.content, newContent);
-    }
-
-    @Override
-    public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", authorId=" + authorId +
-                ", channelId=" + channelId +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", content='" + content + '\'' +
-                '}';
-    }
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "MESSAGE_ATTACHMENTS",
+            joinColumns = @JoinColumn(name = "message_id"),
+            inverseJoinColumns = @JoinColumn(name = "attachment_id")
+    )
+    private List<BinaryContent> attachments = new java.util.ArrayList<>();
 }

@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.entity.main.Message;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.dto.user.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class MessageController {
 
     // 메시지 생성
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Message> create(
+    public ResponseEntity<MessageDto> create(
             @RequestPart("messageCreateRequest") MessageCreateRequest request,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
@@ -47,17 +48,17 @@ public class MessageController {
                         .toList())
                 .orElse(new ArrayList<>());
 
-        Message created = messageService.create(request, attachmentRequests);
+        MessageDto created = messageService.create(request, attachmentRequests);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     // 수정
     @PatchMapping("/{messageId}")
-    public ResponseEntity<Message> update(
+    public ResponseEntity<MessageDto> update(
             @PathVariable UUID messageId,
             @RequestBody MessageUpdateRequest request
     ) {
-        Message updated = messageService.update(messageId, request);
+        MessageDto updated = messageService.update(messageId, request);
         return ResponseEntity.ok(updated);
     }
 
@@ -68,10 +69,15 @@ public class MessageController {
         return ResponseEntity.noContent().build();
     }
 
-    // 채널별 메시지 조회
+    // 채널별 메시지 페이징 조회
     @GetMapping
-    public ResponseEntity<List<Message>> findAllByChannelId(@RequestParam UUID channelId) {
-        List<Message> messages = messageService.findAllByChannelId(channelId);
+    public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
+            @RequestParam UUID channelId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort
+    ) {
+        PageResponse<MessageDto> messages = messageService.findAllByChannelId(channelId, page, size, sort);
         return ResponseEntity.ok(messages);
     }
 }

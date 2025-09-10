@@ -1,10 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.channel.data.ChannelDto;
-import com.sprint.mission.discodeit.dto.channel.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.channel.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.channel.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.entity.main.Channel;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,25 +22,25 @@ public class ChannelController {
 
     // 공개
     @PostMapping("/public")
-    public ResponseEntity<Channel> createPublic(@RequestBody PublicChannelCreateRequest request) {
-        Channel created = channelService.create(request);
+    public ResponseEntity<ChannelDto> createPublic(@RequestBody PublicChannelCreateRequest request) {
+        ChannelDto created = channelService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     // 비공개
     @PostMapping("/private")
-    public ResponseEntity<Channel> createPrivate(@RequestBody PrivateChannelCreateRequest request) {
-        Channel created = channelService.create(request);
+    public ResponseEntity<ChannelDto> createPrivate(@RequestBody PrivateChannelCreateRequest request) {
+        ChannelDto created = channelService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     // 수정
     @PatchMapping("/{channelId}")
-    public ResponseEntity<Channel> update(
+    public ResponseEntity<ChannelDto> update(
             @PathVariable UUID channelId,
             @RequestBody PublicChannelUpdateRequest request
     ) {
-        Channel updated = channelService.update(channelId, request);
+        ChannelDto updated = channelService.update(channelId, request);
         return ResponseEntity.ok(updated);
     }
 

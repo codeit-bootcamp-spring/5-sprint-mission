@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.dto.user.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.userstatus.reqeust.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.entity.main.User;
+import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.user.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.sub.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -38,24 +38,24 @@ public class UserController {
 
     // 등록
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<User> create(
+    public ResponseEntity<UserDto> create(
             @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
         Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile).flatMap(this::resolveProfileRequest);
-        User createdUser = userService.create(userCreateRequest, profileRequest);
+        UserDto createdUser = userService.create(userCreateRequest, profileRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     // 수정
     @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<User> update(
+    public ResponseEntity<UserDto> update(
             @PathVariable UUID userId,
             @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
         Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile).flatMap(this::resolveProfileRequest);
-        User updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
+        UserDto updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -68,11 +68,11 @@ public class UserController {
 
     // 수정
     @PatchMapping("/{userId}/userStatus")
-    public ResponseEntity<UserStatus> updateUserStatusByUserId(
+    public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
             @PathVariable UUID userId,
             @RequestBody UserStatusUpdateRequest request
     ) {
-        UserStatus updatedStatus = userStatusService.updateByUserId(userId, request);
+        UserStatusDto updatedStatus = userStatusService.updateByUserId(userId, request);
         return ResponseEntity.ok(updatedStatus);
     }
 
