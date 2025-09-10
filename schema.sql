@@ -13,8 +13,7 @@ CREATE TABLE binary_contents
     created_at   TIMESTAMP WITH TIME ZONE NOT NULL,
     file_name    VARCHAR(255)             NOT NULL,
     size         BIGINT                   NOT NULL,
-    content_type VARCHAR(100)             NOT NULL,
-    bytes        bytea                    NOT NULL
+    content_type VARCHAR(100)             NOT NULL
 );
 
 -- users 테이블
@@ -23,8 +22,8 @@ CREATE TABLE users
     id         uuid PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
-    username   VARCHAR(50)              NOT NULL UNIQUE,
-    email      VARCHAR(100)             NOT NULL UNIQUE,
+    username   VARCHAR(50) UNIQUE       NOT NULL,
+    email      VARCHAR(100) UNIQUE      NOT NULL,
     password   VARCHAR(60)              NOT NULL,
     profile_id uuid,
     CONSTRAINT fk_users_binary_contents FOREIGN KEY (profile_id) REFERENCES binary_contents (id) ON DELETE SET NULL
@@ -47,7 +46,7 @@ CREATE TABLE user_statuses
     id             uuid PRIMARY KEY,
     created_at     TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at     TIMESTAMP WITH TIME ZONE,
-    user_id        uuid                     NOT NULL UNIQUE,
+    user_id        uuid UNIQUE              NOT NULL,
     last_active_at TIMESTAMP WITH TIME ZONE,
     CONSTRAINT fk_user_statuses_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );

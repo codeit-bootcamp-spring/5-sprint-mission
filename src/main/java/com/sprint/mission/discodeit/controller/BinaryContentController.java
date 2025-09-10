@@ -34,4 +34,9 @@ public class BinaryContentController implements BinaryContentApi {
         .status(HttpStatus.OK)
         .body(binaryContents);
   }
+
+  @PostMapping("/{binaryContentId}/download")
+  public ResponseEntity<?> download(@PathVariable("binaryContentId") UUID binaryContentId){
+
+  }
 }

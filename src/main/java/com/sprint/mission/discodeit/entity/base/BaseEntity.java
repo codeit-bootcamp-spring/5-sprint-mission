@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 public abstract class BaseEntity {
     @Id
-    @Column()
+    @Column
     private UUID id;
 
     @CreatedDate
