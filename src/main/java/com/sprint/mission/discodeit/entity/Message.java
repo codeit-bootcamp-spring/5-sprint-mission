@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -47,14 +46,8 @@ public class Message extends BaseUpdatableEntity {
     }
 
     public void editContent(String content) {
-        boolean anyValueUpdated = false;
         if (content != null && !content.equals(this.content)) {
             this.content = content;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.setUpdatedAt(Instant.now());
         }
     }
 }

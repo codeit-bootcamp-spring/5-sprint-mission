@@ -10,8 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,19 +23,11 @@ public class Channel extends BaseUpdatableEntity {
     private ChannelType type;
 
     public void update(String newName, String newDescription) {
-        boolean anyValueUpdated = false;
-
         if (newName != null && !newName.equals(this.name)) {
             this.name = newName;
-            anyValueUpdated = true;
         }
         if (newDescription != null && !newDescription.equals(this.description)) {
             this.description = newDescription;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.setUpdatedAt(Instant.now());
         }
     }
 }

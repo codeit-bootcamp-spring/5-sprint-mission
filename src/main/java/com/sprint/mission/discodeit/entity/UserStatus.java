@@ -33,14 +33,8 @@ public class UserStatus extends BaseUpdatableEntity {
     }
 
     public void update(Instant lastAccessAt) {
-        boolean anyValueUpdated = false;
         if (lastAccessAt != null && !lastAccessAt.equals(this.lastActiveAt)) {
             this.lastActiveAt = lastAccessAt;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.setUpdatedAt(Instant.now());
         }
     }
 
