@@ -3,12 +3,11 @@ package com.sprint.mission.discodeit.dto.data;
 import java.time.Instant;
 import java.util.UUID;
 
-public record UserDto(
+public record ReadStatusDto(
     UUID id,
-    String username,
-    String email,
-    BinaryContentDto profile,
-    Boolean online
+    UUID userId,
+    UUID channelId,
+    Instant lastReadAt
 ) {
 
 }
