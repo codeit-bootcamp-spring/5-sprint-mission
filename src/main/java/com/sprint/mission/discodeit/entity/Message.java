@@ -1,39 +1,45 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
-public class Message implements Serializable {
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "messages")
+public class Message extends BaseUpdatableEntity {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  private final UUID id;
-  private final List<UUID> attachmentIds;
-  private final Instant createdAt;
-  private Instant updatedAt;
-  //
   private String content;
-  //
-  private final UUID channelId;
-  private final UUID authorId;
 
-  public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
-    this.attachmentIds = List.copyOf(attachmentIds);
-    //
-    this.content = content;
-    this.channelId = channelId;
-    this.authorId = authorId;
-  }
+  @JoinColumn(name = "channel_id", updatable = false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Channel channel;
+
+  @JoinColumn(name = "author_id", updatable = false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  private User author;
+
+  @ManyToMany
+  @JoinTable(
+      name = "message_attachments",
+      joinColumns = @JoinColumn(name = "message_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id")
+  )
+  private List<BinaryContent> attachments;
 
   public void update(String content) {
     boolean anyValueUpdated = false;
@@ -43,7 +49,7 @@ public class Message implements Serializable {
     }
 
     if (anyValueUpdated) {
-      this.updatedAt = Instant.now();
+      super.setUpdatedAt(Instant.now());
     }
   }
 }

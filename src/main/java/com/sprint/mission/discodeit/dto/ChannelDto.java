@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.response;
+package com.sprint.mission.discodeit.dto;
 
 import com.sprint.mission.discodeit.entity.ChannelType;
 import java.time.Instant;
@@ -7,13 +7,13 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record ChannelFindResponse(
+public record ChannelDto(
     UUID id,
-    Instant lastMessageAt,
     ChannelType type,
     String name,
     String description,
-    List<UUID> participantIds
+    List<UserDto> participants,
+    Instant lastMessageAt
 ) {
 
 }

@@ -1,10 +1,12 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 /*[ ]  BinaryContent
@@ -13,37 +15,19 @@ import lombok.Getter;
         [ ] 수정 불가능한 도메인 모델로 간주합니다. 따라서 updatedAt 필드는 정의하지 않습니다.
 [ ] User, Message 도메인 모델과의 의존 관계 방향성을 잘 고려하여 id 참조 필드를 추가하세요.*/
 
+@Entity
+@Table(name = "binary_contents")
 @Getter
-public class BinaryContent implements Serializable {
+@AllArgsConstructor
+@NoArgsConstructor
+public class BinaryContent extends BaseEntity {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Column(updatable = false)
+  private String fileName;
 
-  private final UUID id;
-  private final Instant createdAt;
+  @Column(updatable = false)
+  private String contentType;
 
-  private final String fileName;
-  private final String contentType;
-  private final byte[] bytes;
-  private final long size;
-
-  public BinaryContent(String fileName, String contentType, byte[] bytes) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
-
-    this.fileName = fileName;
-    this.contentType = contentType;
-    this.bytes = bytes;
-    this.size = bytes.length;
-  }
-
-  @Override
-  public String toString() {
-    return "BinaryContent{" +
-        "id=" + id +
-        ", createdAt=" + createdAt +
-        ", fileName='" + fileName + '\'' +
-        ", contentType='" + contentType + '\'' +
-        '}';
-  }
+  @Column(updatable = false)
+  private long size;
 }

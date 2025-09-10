@@ -1,45 +1,57 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.time.Instant;
-import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 @Getter
-@ToString
-public class User implements Serializable {
+@Entity
+@Table(name = "users")
+@NoArgsConstructor
+@AllArgsConstructor
+public class User extends BaseUpdatableEntity {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  private final UUID id;
-  private final Instant createdAt;
-  private Instant updatedAt;
-  //
-  private UUID profileId;
   private String username;
   private String email;
   private String password;
 
-  public User(String username, String email, String password, UUID profileId) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
+  @OneToOne
+  @JoinColumn(name = "profile_id")
+  private BinaryContent profile;
 
-    this.profileId = profileId;
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
+  private UserStatus status;
+
+  public User(String username, String email, String password, BinaryContent profile) {
+    super();
     this.username = username;
     this.email = email;
     this.password = password;
+    this.profile = profile;
   }
 
-  public void update(String username, String email, String password, UUID profileId) {
-    if (checkUpdated(username, email, password, profileId)) {
-      this.updatedAt = Instant.now();
+  public void attachStatus(UserStatus status) {
+    this.status = status;
+    status.linkToUser(this);
+  }
+
+  public void update(String username, String email, String password, BinaryContent profile) {
+    if (checkUpdated(username, email, password, profile)) {
+      super.setUpdatedAt(Instant.now());
     }
   }
 
-  private boolean checkUpdated(String username, String email, String password, UUID profileId) {
+  private boolean checkUpdated(String username, String email, String password,
+      BinaryContent profile) {
     boolean anyValueUpdated = false;
 
     if (username != null && !username.equals(this.username)) {
@@ -54,8 +66,8 @@ public class User implements Serializable {
       this.password = password;
       anyValueUpdated = true;
     }
-    if (profileId != null && !profileId.equals(this.profileId)) {
-      this.profileId = profileId;
+    if (profile != null && !profile.equals(this.profile)) {
+      this.profile = profile;
       anyValueUpdated = true;
     }
 
