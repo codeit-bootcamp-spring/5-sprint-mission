@@ -6,17 +6,17 @@ import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateReque
 import com.sprint.mission.discodeit.dto.request.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -27,95 +27,77 @@ public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
+    private final ChannelMapper channelMapper;
 
+    @Transactional
     @Override
-    public Channel create(PublicChannelCreateRequest request) {
+    public ChannelDto create(PublicChannelCreateRequest request) {
         String name = request.name();
         String description = request.description();
         Channel channel = new Channel(name, description, ChannelType.PUBLIC);
 
-        return channelRepository.save(channel);
+        return channelMapper.toDto(channelRepository.save(channel));
     }
 
+    @Transactional
     @Override
-    public Channel create(PrivateChannelCreateRequest request) {
+    public ChannelDto create(PrivateChannelCreateRequest request) {
         Channel channel = new Channel(null, null, ChannelType.PRIVATE);
 
-        List<UUID> participantIds = request.participantIds();
-        participantIds.stream()
-                .map(userId -> new ReadStatus(userId, channel.getId(), Instant.MIN))
-                .forEach(readStatusRepository::save);
+        List<ReadStatus> readStatuses = userRepository.findAllById(request.participantIds()).stream()
+                .map(user -> new ReadStatus(user, channel, channel.getCreatedAt()))
+                .toList();
+        readStatusRepository.saveAll(readStatuses);
 
-        return channelRepository.save(channel);
+        return channelMapper.toDto(channelRepository.save(channel));
     }
 
     @Override
     public ChannelDto find(UUID id) {
         return channelRepository.findById(id)
-                .map(this::toDto)
+                .map(channelMapper::toDto)
                 .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
     }
 
     @Override
     public List<ChannelDto> findAllByUserId(UUID userId) {
         List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
-                .map(ReadStatus::getChannelId)
+                .map(readStatus -> readStatus.getChannel().getId())
                 .toList();
 
-        return channelRepository.findAll().stream()
-                .filter(channel ->
-                        channel.getChannelType().equals(ChannelType.PUBLIC)
-                                || mySubscribedChannelIds.contains(channel.getId()))
-                .map(this::toDto)
+        return channelRepository.findAllByTypeOrIdIn(ChannelType.PUBLIC, mySubscribedChannelIds).stream()
+                .map(channelMapper::toDto)
                 .toList();
     }
 
+    @Transactional
     @Override
-    public Channel update(UUID id, PublicChannelUpdateRequest request) {
+    public ChannelDto update(UUID id, PublicChannelUpdateRequest request) {
         String newName = request.newName();
         String newDescription = request.newDescription();
 
         Channel channel = channelRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
-        if (channel.getChannelType().equals(ChannelType.PRIVATE)) {
+        if (channel.getType().equals(ChannelType.PRIVATE)) {
             throw new IllegalArgumentException("Private channel cannot be updated");
         }
 
         channel.update(newName, newDescription);
-        return channelRepository.save(channel);
+        return channelMapper.toDto(channel);
     }
 
+    @Transactional
     @Override
     public void delete(UUID id) {
-        Channel channel = channelRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
+        if (!channelRepository.existsById(id)) {
+            throw new NoSuchElementException("Channel not found: " + id);
+        }
 
         messageRepository.deleteAllByChannelId(id);
         readStatusRepository.deleteAllByChannelId(id);
 
-        channelRepository.delete(id);
+        channelRepository.deleteById(id);
     }
 
-    private ChannelDto toDto(Channel channel) {
-        Instant lastMessageAt = getLastMessageAt(channel.getId());
-        List<UUID> participantIds = getParticipantIds(channel);
-
-        return ChannelDto.from(channel, lastMessageAt, participantIds);
-    }
-
-    private Instant getLastMessageAt(UUID channelId) {
-        return messageRepository.findLatestByChannelId(channelId)
-                .map(Message::getCreatedAt)
-                .orElse(Instant.MIN);
-    }
-
-    private List<UUID> getParticipantIds(Channel channel) {
-        List<UUID> participantIds = new ArrayList<>();
-        if (channel.getChannelType().equals(ChannelType.PRIVATE)) {
-            readStatusRepository.findAllByChannelId(channel.getId()).stream()
-                    .map(ReadStatus::getUserId)
-                    .forEach(participantIds::add);
-        }
-        return participantIds;
-    }
 }

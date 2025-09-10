@@ -1,78 +1,53 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 @Getter
-public class Message extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private UUID channelId;
-    private UUID authorId;
-    private String content;
-    private List<UUID> attachmentIds; // BinaryFile이 messageId를 갖고 있는게 낫지 않나
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "messages")
+public class Message extends BaseUpdatableEntity {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id")
+    private Channel channel;
 
-    public Message(UUID channelId, UUID authorId, String content, List<UUID> attachmentIds) {
-        if (channelId == null) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
+    private User author;
+    private String content;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(name = "message_attachments",
+            joinColumns = @JoinColumn(name = "message_id"),
+            inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+    private List<BinaryContent> attachments;
+
+    public Message(Channel channel, User author, String content, List<BinaryContent> attachments) {
+        if (channel == null) {
             throw new IllegalArgumentException("Channel ID is required");
         }
-        if (authorId == null) {
+        if (author == null) {
             throw new IllegalArgumentException("Author ID is required");
         }
         if (content == null || content.isBlank()) {
             throw new IllegalArgumentException("Content is required");
         }
 
-        this.channelId = channelId;
-        this.authorId = authorId;
+        this.channel = channel;
+        this.author = author;
         this.content = content;
-        this.attachmentIds = attachmentIds;
+        this.attachments = attachments;
     }
 
     public void editContent(String content) {
-        boolean anyValueUpdated = false;
         if (content != null && !content.equals(this.content)) {
             this.content = content;
-            anyValueUpdated = true;
         }
-
-        if (anyValueUpdated) {
-            this.setUpdatedAt(Instant.now());
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        Message message = (Message) o;
-        return Objects.equals(getId(), message.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId());
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() + "Message{" +
-                "channelId=" + channelId +
-                ", authorId=" + authorId +
-                ", content='" + content + '\'' +
-                ", attachmentIds=" + attachmentIds +
-                '}';
     }
 }

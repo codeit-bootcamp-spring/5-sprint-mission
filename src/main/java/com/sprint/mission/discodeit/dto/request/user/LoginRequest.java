@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.dto.request.user;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record UserLoginRequest(
+public record LoginRequest(
         @NotBlank
         String username,
         @NotBlank

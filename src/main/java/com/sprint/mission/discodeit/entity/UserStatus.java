@@ -1,47 +1,45 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
-public class UserStatus extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private UUID userId;
-    private Instant lastAccessAt;
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "user_statuses")
+public class UserStatus extends BaseUpdatableEntity {
 
-    public UserStatus(UUID userId, Instant lastAccessAt) {
-        this.userId = userId;
-        this.lastAccessAt = lastAccessAt;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
+    private Instant lastActiveAt;
+
+    public UserStatus(User user, Instant lastActiveAt) {
+        setUser(user);
+        this.lastActiveAt = lastActiveAt;
     }
 
-    public boolean online() {
-        Duration duration = Duration.between(lastAccessAt, Instant.now());
+    public boolean isOnline() {
+        Duration duration = Duration.between(lastActiveAt, Instant.now());
         return duration.toMinutes() <= 5;
     }
 
     public void update(Instant lastAccessAt) {
-        boolean anyValueUpdated = false;
-        if (lastAccessAt != null && !lastAccessAt.equals(this.lastAccessAt)) {
-            this.lastAccessAt = lastAccessAt;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.setUpdatedAt(Instant.now());
+        if (lastAccessAt != null && !lastAccessAt.equals(this.lastActiveAt)) {
+            this.lastActiveAt = lastAccessAt;
         }
     }
 
-    @Override
-    public String toString() {
-        return super.toString() + " UserStatus{" +
-                "userId=" + userId +
-                ", lastAccessAt=" + lastAccessAt +
-                '}';
+    public void setUser(User user) {
+        this.user = user;
+        user.setUserStatus(this);
     }
 }

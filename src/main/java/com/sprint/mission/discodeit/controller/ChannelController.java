@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.channel.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,24 +21,24 @@ public class ChannelController implements ChannelApi {
     private final ChannelService channelService;
 
     @PostMapping("public")
-    public ResponseEntity<Channel> create(@RequestBody PublicChannelCreateRequest request) {
-        Channel createdChannel = channelService.create(request);
+    public ResponseEntity<ChannelDto> create(@RequestBody PublicChannelCreateRequest request) {
+        ChannelDto createdChannel = channelService.create(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdChannel);
     }
 
     @PostMapping("private")
-    public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
-        Channel createdChannel = channelService.create(request);
+    public ResponseEntity<ChannelDto> create(@RequestBody PrivateChannelCreateRequest request) {
+        ChannelDto createdChannel = channelService.create(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdChannel);
     }
 
     @PatchMapping("{channelId}")
-    public ResponseEntity<Channel> update(@PathVariable("channelId") UUID id, @RequestBody PublicChannelUpdateRequest request) {
-        Channel updatedChannel = channelService.update(id, request);
+    public ResponseEntity<ChannelDto> update(@PathVariable("channelId") UUID id, @RequestBody PublicChannelUpdateRequest request) {
+        ChannelDto updatedChannel = channelService.update(id, request);
         return ResponseEntity.ok(updatedChannel);
     }
 
