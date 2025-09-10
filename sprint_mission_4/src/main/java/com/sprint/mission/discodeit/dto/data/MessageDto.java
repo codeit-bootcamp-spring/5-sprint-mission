@@ -2,20 +2,19 @@ package com.sprint.mission.discodeit.dto.data;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 
 @Builder
-public record UserDto(
+public record MessageDto(
     UUID id,
-    String username,
-    String email,
-    BinaryContentDto profile,
-    Boolean online
+    Instant createdAt,
+    Instant updatedAt,
+    String content,
+    UUID channelId,
+    UserDto author,
+    List<BinaryContentDto> attachments
 ) {
 
 }

@@ -3,13 +3,16 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -79,5 +82,19 @@ public class MessageController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(messages);
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+  public ResponseEntity<PageResponse<Message>> findPage(
+      @PageableDefault(
+          size = 50,
+          page = 0,
+          sort = "createdAt",
+          direction = Sort.Direction.DESC
+      ) Pageable pageable,
+        @RequestParam("channelId") UUID channelId) {
+      return ResponseEntity
+          .status(HttpStatus.OK)
+          .body(messageService.findPage(channelId, pageable));
     }
 }
