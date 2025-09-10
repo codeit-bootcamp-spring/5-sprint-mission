@@ -1,28 +1,28 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.AuthApi;
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.service.AuthService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Auth")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController {
+public class AuthController implements AuthApi {
 
   private final AuthService authService;
+  private final UserMapper userMapper;
 
-  @Operation(summary = "로그인")
-  @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<User> login(@Valid @RequestBody LoginRequest loginRequest) {
+  @PostMapping("/login")
+  public ResponseEntity<UserDto> login(@RequestBody LoginRequest loginRequest) {
     User user = authService.login(loginRequest);
-    return ResponseEntity.ok(user);
+
+    UserDto dto = userMapper.toDto(user, true);
+    return ResponseEntity.ok(dto);
   }
 }

@@ -7,17 +7,14 @@ import com.sprint.mission.discodeit.entity.Message;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Slice;
 
 public interface MessageService {
 
   Message create(MessageCreateRequest messageCreateRequest,
       List<BinaryContentCreateRequest> binaryContentCreateRequests);
-
   Message find(UUID messageId);
-
-  List<Message> findAllByChannelId(UUID channelId);
-
+  Slice<Message> findAllByChannelId(UUID channelId, int page, int size);
   Message update(UUID messageId, MessageUpdateRequest request);
-
   void delete(UUID messageId);
 }

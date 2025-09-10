@@ -1,96 +1,88 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Tag(name = "User")
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/users") // ← 스펙: 복수형 /api/users
-public class UserController {
+@RequestMapping("/api/users")
+public class UserController implements UserApi {
 
   private final UserService userService;
   private final UserStatusService userStatusService;
+  private final UserMapper userMapper;
 
-  @Operation(summary = "전체 User 목록 조회")
-  @GetMapping
-  public ResponseEntity<List<UserDto>> findAll() {
-    List<UserDto> users = userService.findAll();
-    return ResponseEntity.ok(users);
-  }
-
-  @Operation(summary = "User 등록 (multipart)")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<User> create(
-      @Valid @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
+  @Override
+  public ResponseEntity<UserDto> create(
+      @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
-    Optional<BinaryContentCreateRequest> profileRequest =
-        Optional.ofNullable(profile).flatMap(this::resolveProfileRequest);
-
-    User createdUser = userService.create(userCreateRequest, profileRequest);
-    return ResponseEntity
-        .created(URI.create("/api/users/" + createdUser.getId()))
-        .body(createdUser);
+    var profileRequest = resolveProfileRequest(profile);
+    UserDto createdUser = userService.create(userCreateRequest, profileRequest);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
   }
 
-  @Operation(summary = "User 정보 수정 (multipart)")
   @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<User> update(
+  @Override
+  public ResponseEntity<UserDto> update(
       @PathVariable UUID userId,
-      @Valid @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
+      @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
-    Optional<BinaryContentCreateRequest> profileRequest =
-        Optional.ofNullable(profile).flatMap(this::resolveProfileRequest);
-
-    User updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
+    var profileRequest = resolveProfileRequest(profile);
+    UserDto updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
     return ResponseEntity.ok(updatedUser);
   }
 
-  @Operation(summary = "User 삭제")
   @DeleteMapping("/{userId}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable UUID userId) {
+  @Override
+  public ResponseEntity<Void> delete(@PathVariable UUID userId) {
     userService.delete(userId);
+    return ResponseEntity.noContent().build();
   }
 
-  @Operation(summary = "User 온라인 상태 업데이트")
-  @PatchMapping("/{userId}/userStatus")
-  public ResponseEntity<UserStatus> updateUserStatusByUserId(
+  @GetMapping
+  @Override
+  public ResponseEntity<List<UserDto>> findAll() {
+    return ResponseEntity.ok(userService.findAll());
+  }
+
+  // 여기만 @PatchMapping 메서드를 이걸로 교체
+  @RequestMapping(path = "/{userId}/userStatus", method = {RequestMethod.PUT, RequestMethod.PATCH})
+  @Override
+  public ResponseEntity<UserDto> updateUserStatusByUserId(
       @PathVariable UUID userId,
-      @Valid @RequestBody UserStatusUpdateRequest request
+      @RequestBody(required = false) @Nullable UserStatusUpdateRequest request
   ) {
-    UserStatus updatedUserStatus = userStatusService.updateByUserId(userId, request);
-    return ResponseEntity.ok(updatedUserStatus);
+    var status = userStatusService.updateByUserId(userId, request);
+    return ResponseEntity.ok(userMapper.toDto(status.getUser(), true));
   }
 
   private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {
-    if (profileFile == null || profileFile.isEmpty()) {
-      return Optional.empty();
-    }
+    if (profileFile == null || profileFile.isEmpty()) return Optional.empty();
     try {
       return Optional.of(new BinaryContentCreateRequest(
           profileFile.getOriginalFilename(),
@@ -98,7 +90,7 @@ public class UserController {
           profileFile.getBytes()
       ));
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "Failed to read profile file", e);
     }
   }
 }
