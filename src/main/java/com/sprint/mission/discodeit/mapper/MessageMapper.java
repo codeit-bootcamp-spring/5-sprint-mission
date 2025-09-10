@@ -14,6 +14,8 @@ import org.mapstruct.Mapping;
 )
 public interface MessageMapper {
 
+    @Mapping(source = "message.id", target = "id")
+    @Mapping(source = "message.channel.id", target = "channelId")
     MessageDto toDto(Message message, List<BinaryContent> attachments);
 
     @Mapping(source = "message.id", target = "id")
