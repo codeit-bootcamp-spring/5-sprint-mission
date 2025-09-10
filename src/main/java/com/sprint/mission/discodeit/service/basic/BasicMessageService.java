@@ -7,13 +7,13 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -25,8 +25,8 @@ public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
-    private final BinaryContentRepository binaryContentRepository;
 
+    @Transactional
     @Override
     public Message create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
         UUID channelId = messageCreateRequest.channelId();
@@ -44,8 +44,7 @@ public class BasicMessageService implements MessageService {
                     String contentType = request.contentType();
                     byte[] bytes = request.bytes();
 
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
-                    return binaryContentRepository.save(binaryContent);
+                    return new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
                 }).toList();
 
         String content = messageCreateRequest.content();
@@ -64,18 +63,19 @@ public class BasicMessageService implements MessageService {
         return messageRepository.findAllByChannelId(channelId);
     }
 
+    @Transactional
     @Override
     public Message update(UUID id, MessageUpdateRequest request) {
         Message message = find(id);
         String newContent = request.newContent();
         message.editContent(newContent);
-        return messageRepository.save(message);
+        return message;
     }
 
+    @Transactional
     @Override
     public void delete(UUID id) {
         Message message = find(id);
-        message.getAttachments().forEach(binaryContent -> binaryContentRepository.delete(binaryContent.getId()));
-        messageRepository.delete(message.getId());
+        messageRepository.deleteById(id);
     }
 }

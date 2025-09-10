@@ -20,8 +20,3 @@ logging:
     org.hibernate.sql: debug
     org.hibernate.type.descriptor.sql.BasicBinder: Trace
     root: INFO
-
-discodeit:
-  repository:
-    type: file   # jcf | file
-    file-directory: .discodeit

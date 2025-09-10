@@ -12,12 +12,10 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +25,7 @@ public class BasicChannelService implements ChannelService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public Channel create(PublicChannelCreateRequest request) {
         String name = request.name();
@@ -36,6 +35,7 @@ public class BasicChannelService implements ChannelService {
         return channelRepository.save(channel);
     }
 
+    @Transactional
     @Override
     public Channel create(PrivateChannelCreateRequest request) {
         Channel channel = new Channel(null, null, ChannelType.PRIVATE);
@@ -74,6 +74,7 @@ public class BasicChannelService implements ChannelService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public Channel update(UUID id, PublicChannelUpdateRequest request) {
         String newName = request.newName();
@@ -86,9 +87,10 @@ public class BasicChannelService implements ChannelService {
         }
 
         channel.update(newName, newDescription);
-        return channelRepository.save(channel);
+        return channel;
     }
 
+    @Transactional
     @Override
     public void delete(UUID id) {
         channelRepository.findById(id)
@@ -97,7 +99,7 @@ public class BasicChannelService implements ChannelService {
         messageRepository.deleteAllByChannelId(id);
         readStatusRepository.deleteAllByChannelId(id);
 
-        channelRepository.delete(id);
+        channelRepository.deleteById(id);
     }
 
     private ChannelDto toDto(Channel channel) {
@@ -108,7 +110,8 @@ public class BasicChannelService implements ChannelService {
     }
 
     private Instant getLastMessageAt(UUID channelId) {
-        return messageRepository.findLatestByChannelId(channelId)
+        return messageRepository.findAllByChannelId(channelId).stream()
+                .max(Comparator.comparing(Message::getCreatedAt))
                 .map(Message::getCreatedAt)
                 .orElse(Instant.MIN);
     }

@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
+    @Transactional
     @Override
     public BinaryContent create(BinaryContentCreateRequest request) {
         String fileName = request.fileName();
@@ -36,11 +38,12 @@ public class BasicBinaryContentService implements BinaryContentService {
         return binaryContentRepository.findAllByIdIn(ids);
     }
 
+    @Transactional
     @Override
     public void delete(UUID id) {
         binaryContentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("BinaryContent not found: " + id));
 
-        binaryContentRepository.delete(id);
+        binaryContentRepository.deleteById(id);
     }
 }

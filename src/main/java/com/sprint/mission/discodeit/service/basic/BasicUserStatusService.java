@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -21,6 +22,7 @@ public class BasicUserStatusService implements UserStatusService {
     private final UserStatusRepository userStatusRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public UserStatus create(UserStatusCreateRequest request) {
         UUID userId = request.userId();
@@ -30,7 +32,6 @@ public class BasicUserStatusService implements UserStatusService {
         if (userStatusRepository.findByUserId(userId).isPresent()) {
             throw new IllegalArgumentException("UserStatus already exists. userId: " + userId);
         }
-
 
         Instant lastAccessAt = request.lastActiveAt();
         UserStatus userStatus = new UserStatus(user, lastAccessAt);
@@ -48,6 +49,7 @@ public class BasicUserStatusService implements UserStatusService {
         return userStatusRepository.findAll();
     }
 
+    @Transactional
     @Override
     public UserStatus update(UUID id, UserStatusUpdateRequest request) {
         UserStatus userStatus = userStatusRepository.findById(id)
@@ -58,6 +60,7 @@ public class BasicUserStatusService implements UserStatusService {
         return userStatusRepository.save(userStatus);
     }
 
+    @Transactional
     @Override
     public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest request) {
         UserStatus userStatus = userStatusRepository.findByUserId(userId)
@@ -65,15 +68,15 @@ public class BasicUserStatusService implements UserStatusService {
 
         Instant newLastAccessAt = request.newLastActiveAt();
         userStatus.update(newLastAccessAt);
-        return userStatusRepository.save(userStatus);
+        return userStatus;
     }
 
+    @Transactional
     @Override
     public void delete(UUID id) {
-        if (userStatusRepository.findById(id).isEmpty()) {
-            throw new NoSuchElementException("UserStatus not found: " + id);
-        }
+        UserStatus userStatus = userStatusRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("UserStatus not found: " + id));
 
-        userStatusRepository.delete(id);
+        userStatusRepository.delete(userStatus);
     }
 }

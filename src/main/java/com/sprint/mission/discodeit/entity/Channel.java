@@ -1,21 +1,28 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
 @Getter
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Table(name = "channels")
 public class Channel extends BaseUpdatableEntity {
     private String name;
     private String description;
-    private ChannelType type;
 
-    public Channel(String name, String description, ChannelType type) {
-        this.name = name;
-        this.description = description;
-        this.type = type;
-    }
+    @Enumerated(EnumType.STRING)
+    private ChannelType type;
 
     public void update(String newName, String newDescription) {
         boolean anyValueUpdated = false;

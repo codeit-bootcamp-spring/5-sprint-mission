@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,6 +25,7 @@ public class BasicReadStatusService implements ReadStatusService {
     private final UserRepository userRepository;
     private final ChannelRepository channelRepository;
 
+    @Transactional
     @Override
     public ReadStatus create(ReadStatusCreateRequest request) {
         UUID userId = request.userId();
@@ -56,19 +58,21 @@ public class BasicReadStatusService implements ReadStatusService {
         return readStatusRepository.findAllByUserId(userId);
     }
 
+    @Transactional
     @Override
     public ReadStatus update(UUID id, ReadStatusUpdateRequest request) {
         Instant newLastReadAt = request.newLastReadAt();
         ReadStatus readStatus = readStatusRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("ReadStatus not found: " + id));
         readStatus.update(newLastReadAt);
-        return readStatusRepository.save(readStatus);
+        return readStatus;
     }
 
+    @Transactional
     @Override
     public void delete(UUID id) {
         ReadStatus readStatus = readStatusRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("ReadStatus not found: " + id));
-        readStatusRepository.delete(readStatus.getId());
+        readStatusRepository.delete(readStatus);
     }
 }
