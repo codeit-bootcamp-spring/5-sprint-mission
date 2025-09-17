@@ -16,9 +16,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class ChannelService {
@@ -32,24 +34,27 @@ public class ChannelService {
 
   @Transactional
   public ChannelDto create(PublicChannelCreateRequest request) {
+    log.info("Creating new Public Channel. name={}", request.name());
     String name = request.name();
     String description = request.description();
     Channel channel = new Channel(ChannelType.PUBLIC, name, description);
 
     channelRepository.save(channel);
+    log.info("Channel created successfully. name={}", request.name());
     return channelMapper.toDto(channel);
   }
 
   @Transactional
   public ChannelDto create(PrivateChannelCreateRequest request) {
+    log.info("Creating new Private Channel. participant={}", request.participantIds());
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
-    channelRepository.save(channel);
+    Channel createdChannel = channelRepository.save(channel);
 
     List<ReadStatus> readStatuses = userRepository.findAllById(request.participantIds()).stream()
         .map(user -> new ReadStatus(user, channel, channel.getCreatedAt()))
         .toList();
     readStatusRepository.saveAll(readStatuses);
-
+    log.info("Private Channel created successfully. name={}", createdChannel.getName());
     return channelMapper.toDto(channel);
   }
 
@@ -90,6 +95,7 @@ public class ChannelService {
 
   @Transactional
   public void delete(UUID channelId) {
+    log.warn("Deleting channel. id={}", channelId);
     if (!channelRepository.existsById(channelId)) {
       throw new NoSuchElementException("Channel with id " + channelId + " not found");
     }
@@ -98,5 +104,6 @@ public class ChannelService {
     readStatusRepository.deleteAllByChannelId(channelId);
 
     channelRepository.deleteById(channelId);
+    log.info("Channel deleted successfully. id={}", channelId);
   }
 }
