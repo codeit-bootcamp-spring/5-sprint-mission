@@ -16,6 +16,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class MessageService {
@@ -45,7 +47,7 @@ public class MessageService {
       List<BinaryContentCreateRequest> binaryContentCreateRequests) {
     UUID channelId = messageCreateRequest.channelId();
     UUID authorId = messageCreateRequest.authorId();
-
+    log.info("Creating new Message. 채널 아이디={}, 작성자 아이디={}", channelId, authorId );
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(
             () -> new NoSuchElementException("Channel with id " + channelId + " does not exist"));
@@ -77,6 +79,7 @@ public class MessageService {
     );
 
     messageRepository.save(message);
+    log.info("Created new Message. 채널 아이디={}, 작성자={}", message.getId(), message.getAuthor() );
     return messageMapper.toDto(message);
   }
 
@@ -108,19 +111,23 @@ public class MessageService {
   @Transactional
   public MessageDto update(UUID messageId, MessageUpdateRequest request) {
     String newContent = request.newContent();
+    log.info("Updating message. 메시지내용={}", newContent);
     Message message = messageRepository.findById(messageId)
         .orElseThrow(
             () -> new NoSuchElementException("Message with id " + messageId + " not found"));
     message.update(newContent);
+    log.info("Updated message. 메시지내용={}", message.getContent());
     return messageMapper.toDto(message);
   }
 
   @Transactional
   public void delete(UUID messageId) {
+    log.warn("Deleting Message. 아이디={}", messageId);
     if (!messageRepository.existsById(messageId)) {
       throw new NoSuchElementException("Message with id " + messageId + " not found");
     }
 
+    log.warn("Message deleted successfully. id={}", messageId);
     messageRepository.deleteById(messageId);
   }
 }
