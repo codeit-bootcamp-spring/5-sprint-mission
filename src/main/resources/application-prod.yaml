@@ -1,0 +1,18 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: discodeit_user  # 운영 DB 계정 (예시, 실제 운영에서는 환경변수로 관리)
+    password: discodeit1234
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+    #        default_batch_fetch_size: 100
+    open-in-view: false
