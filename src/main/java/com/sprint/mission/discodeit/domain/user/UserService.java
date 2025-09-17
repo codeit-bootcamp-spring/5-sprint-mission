@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.domain.user.dto.UserDto;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.UserUpdateRequest;
+import com.sprint.mission.discodeit.domain.user.exception.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -41,10 +42,10 @@ public class UserService {
     log.info("Creating new user. username={}, email={}", username, email);
 
     if (userRepository.existsByEmail(email)) {
-      throw new IllegalArgumentException("User with email " + email + " already exists");
+      throw UserAlreadyExistsException.byEmail(email);
     }
     if (userRepository.existsByUsername(username)) {
-      throw new IllegalArgumentException("User with username " + username + " already exists");
+      throw UserAlreadyExistsException.byUsername(username);
     }
 
     BinaryContent nullableProfile = optionalProfileCreateRequest
