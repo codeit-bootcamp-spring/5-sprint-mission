@@ -17,9 +17,11 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserService {
@@ -35,6 +37,8 @@ public class UserService {
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     String username = userCreateRequest.username();
     String email = userCreateRequest.email();
+
+    log.info("Creating new user. username={}, email={}", username, email);
 
     if (userRepository.existsByEmail(email)) {
       throw new IllegalArgumentException("User with email " + email + " already exists");
@@ -62,14 +66,22 @@ public class UserService {
     UserStatus userStatus = new UserStatus(user, now);
 
     userRepository.save(user);
+    log.info("User created successfully. userId={}", user.getId());
+
     return userMapper.toDto(user);
   }
 
 
   public UserDto find(UUID userId) {
-    return userRepository.findById(userId)
-        .map(userMapper::toDto)
-        .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+    log.info("Finding user. userId={}", userId);
+
+    return userRepository.findById(userId).map(user -> {
+        log.debug("User found. userId={}, userName={}", userId, user.getUsername());
+        return userMapper.toDto(user);
+    }).orElseThrow(() -> {
+        log.error("User not found. userId={}", userId);
+        return new NoSuchElementException("User with id " + userId + " not found");
+    });
   }
 
 
@@ -83,11 +95,13 @@ public class UserService {
   @Transactional
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+      log.info("Updating user. userName={}", userUpdateRequest.newUsername());
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
     String newUsername = userUpdateRequest.newUsername();
     String newEmail = userUpdateRequest.newEmail();
+
     if (userRepository.existsByEmail(newEmail)) {
       throw new IllegalArgumentException("User with email " + newEmail + " already exists");
     }
@@ -112,15 +126,18 @@ public class UserService {
     String newPassword = userUpdateRequest.newPassword();
     user.update(newUsername, newEmail, newPassword, nullableProfile);
 
+    log.info("User updated successfully. userId={}", user.getId());
     return userMapper.toDto(user);
   }
 
   @Transactional
   public void delete(UUID userId) {
+      log.warn("Deleting user. userId={}", userId);
     if (userRepository.existsById(userId)) {
       throw new NoSuchElementException("User with id " + userId + " not found");
     }
 
     userRepository.deleteById(userId);
+    log.info("User deleted successfully. userId={}", userId);
   }
 }
