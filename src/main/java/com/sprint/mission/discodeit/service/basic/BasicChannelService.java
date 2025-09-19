@@ -9,6 +9,9 @@ import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -18,7 +21,6 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -57,8 +59,7 @@ public class BasicChannelService implements ChannelService {
     List<User> participants = request.participantIds()
         .stream()
         .map(userId -> userRepository.findById(userId)
-            .orElseThrow(() -> new NoSuchElementException("User not found [" + userId + "]"))
-        )
+            .orElseThrow(() -> UserNotFoundException.withDetail("userId", userId)))
         .toList();
 
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
@@ -78,8 +79,7 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional(readOnly = true)
   public ChannelDto findById(UUID channelId) {
-    Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(() -> new NoSuchElementException("Channel not found [" + channelId + "]"));
+    Channel channel = validateId(channelId);
 
     return channelMapper.toDto(channel, findParticipants(channelId), findLastMessageAt(channelId));
   }
@@ -105,11 +105,10 @@ public class BasicChannelService implements ChannelService {
   @Transactional
   public ChannelDto update(UUID channelId,
       @Valid PublicChannelUpdateRequest publicChannelUpdateRequest) {
-    Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(
-            () -> new NoSuchElementException("update : 채널을 찾을 수 없습니다. [" + channelId + "]"));
+    Channel channel = validateId(channelId);
+
     if (channel.getType() == ChannelType.PRIVATE) {
-      throw new IllegalArgumentException("update : Private 채널은 업데이트 할 수 없습니다. [" + channelId + "]");
+      throw PrivateChannelUpdateException.withDetail("channelId", channelId);
     }
     channel.update(publicChannelUpdateRequest.newName(),
         publicChannelUpdateRequest.newDescription());
@@ -124,9 +123,7 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   public void delete(UUID channelId) {
-    if (!channelRepository.existsById(channelId)) {
-      throw new NoSuchElementException("delete : 채널을 찾을 수 없습니다. [" + channelId + "]");
-    }
+    validateId(channelId);
 
     readStatusRepository.findAllByChannelId(channelId)
         .forEach(readStatus -> readStatusRepository.deleteById(readStatus.getId()));
@@ -148,5 +145,10 @@ public class BasicChannelService implements ChannelService {
     return messageRepository.findTopByChannelIdOrderByCreatedAtDescIdDesc(channelId)
         .map(Message::getCreatedAt)
         .orElse(null);
+  }
+
+  private Channel validateId(UUID channelId) {
+    return channelRepository.findById(channelId)
+        .orElseThrow(() -> ChannelNotFoundException.withDetail("channelId", channelId));
   }
 }
