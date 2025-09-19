@@ -8,9 +8,9 @@ public class UserStatusNotFoundException extends UserStatusException {
     super(ErrorCode.USER_STATUS_NOT_FOUND);
   }
 
-  public static UserStatusNotFoundException withDetail(String detail) {
+  public static UserStatusNotFoundException withDetail(String key, Object value) {
     UserStatusNotFoundException exception = new UserStatusNotFoundException();
-    exception.addDetail("detail", detail);
+    exception.addDetail(key, value);
     return exception;
   }
 

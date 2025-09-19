@@ -8,9 +8,9 @@ public class UserAlreadyExistsException extends UserException {
     super(ErrorCode.DUPLICATE_USER);
   }
 
-  public static UserAlreadyExistsException withDetails(String detail) {
+  public static UserAlreadyExistsException withDetail(String key, Object value) {
     UserAlreadyExistsException exception = new UserAlreadyExistsException();
-    exception.addDetail("detail", detail);
+    exception.addDetail(key, value);
     return exception;
   }
 

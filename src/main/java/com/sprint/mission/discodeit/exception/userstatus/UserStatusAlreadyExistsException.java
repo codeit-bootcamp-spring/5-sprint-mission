@@ -8,9 +8,9 @@ public class UserStatusAlreadyExistsException extends UserStatusException {
     super(ErrorCode.DUPLICATE_USER_STATUS);
   }
 
-  public static UserStatusAlreadyExistsException withDetail(String detail) {
+  public static UserStatusAlreadyExistsException withDetail(String key, Object value) {
     UserStatusAlreadyExistsException exception = new UserStatusAlreadyExistsException();
-    exception.addDetail("detail", detail);
+    exception.addDetail(key, value);
     return exception;
   }
 

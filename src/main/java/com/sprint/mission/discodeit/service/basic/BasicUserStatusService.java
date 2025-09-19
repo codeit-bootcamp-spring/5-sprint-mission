@@ -40,7 +40,7 @@ public class BasicUserStatusService implements UserStatusService {
     UserStatus userStatus = userStatusRepository.findByUserId(request.userId()).orElse(null);
 
     if (userStatus != null) {
-      throw UserStatusAlreadyExistsException.withDetail("id=" + userStatus.getId());
+      throw UserStatusAlreadyExistsException.withDetail("id", userStatus.getId());
     }
 
     userStatus = new UserStatus(user, Instant.now());
@@ -56,10 +56,7 @@ public class BasicUserStatusService implements UserStatusService {
   @Override
   @Transactional(readOnly = true)
   public UserStatusDto findByUserId(UUID userid) {
-    return userStatusMapper.toDto(
-        userStatusRepository.findByUserId(userid)
-            .orElseThrow(() -> new NoSuchElementException(
-                "findByUserId : UserStatus를 찾을 수 없습니다. [" + userid + "]")));
+    return userStatusMapper.toDto(validateId(userid));
   }
 
   @Override
@@ -84,8 +81,7 @@ public class BasicUserStatusService implements UserStatusService {
   @Transactional
   public UserStatusDto updateByUserId(UUID userId,
       @Valid UserStatusUpdateRequest userStatusUpdateRequest) {
-    UserStatus userStatus = userStatusRepository.findByUserId(userId)
-        .orElseThrow(() -> UserStatusNotFoundException.withDetail("userId=" + userId));
+    UserStatus userStatus = validateUserId(userId);
 
     userStatus.update(userStatusUpdateRequest.newLastActiveAt());
 
@@ -101,6 +97,11 @@ public class BasicUserStatusService implements UserStatusService {
 
   private UserStatus validateId(UUID id) {
     return userStatusRepository.findById(id)
-        .orElseThrow(() -> UserStatusNotFoundException.withDetail("id=" + id));
+        .orElseThrow(() -> UserStatusNotFoundException.withDetail("id", id));
+  }
+
+  private UserStatus validateUserId(UUID userId) {
+    return userStatusRepository.findByUserId(userId)
+        .orElseThrow(() -> UserStatusNotFoundException.withDetail("userId", userId));
   }
 }

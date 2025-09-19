@@ -115,19 +115,19 @@ public class BasicUserService implements UserService {
 
   private User validateId(UUID userId) {
     return userRepository.findById(userId)
-        .orElseThrow(() -> UserNotFoundException.withDetails(userId.toString()));
+        .orElseThrow(() -> UserNotFoundException.withDetail("userId", userId));
   }
 
   private String validateUsername(String username) {
     if (userRepository.existsByUsername(username)) {
-      throw UserAlreadyExistsException.withDetails(username);
+      throw UserAlreadyExistsException.withDetail("username", username);
     }
     return username;
   }
 
   private String validateEmail(String email) {
     if (userRepository.existsByEmail(email)) {
-      throw UserAlreadyExistsException.withDetails(email);
+      throw UserAlreadyExistsException.withDetail("email", email);
     }
     return email;
   }
