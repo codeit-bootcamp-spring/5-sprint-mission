@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.exception.userstatus.UserStatusAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
@@ -34,8 +35,7 @@ public class BasicUserStatusService implements UserStatusService {
   @Transactional
   public UserStatusDto create(@Valid UserStatusCreateRequest request) {
     User user = userRepository.findById(request.userId())
-        .orElseThrow(() -> new NoSuchElementException(
-            "create : 유저를 찾을 수 없습니다. [" + request.userId() + "]"));
+        .orElseThrow(() -> UserNotFoundException.withDetail("id", request.userId()));
 
     UserStatus userStatus = userStatusRepository.findByUserId(request.userId()).orElse(null);
 

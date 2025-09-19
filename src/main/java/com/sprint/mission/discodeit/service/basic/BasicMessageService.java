@@ -8,6 +8,9 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -46,9 +49,9 @@ public class BasicMessageService implements MessageService {
   public MessageDto create(@Valid MessageCreateCommand command) {
     String content = command.content();
     User author = userRepository.findById(command.authorId())
-        .orElseThrow(() -> new NoSuchElementException("user not found :" + command.authorId()));
+        .orElseThrow(() -> UserNotFoundException.withDetail("author", command.authorId()));
     Channel channel = channelRepository.findById(command.channelId())
-        .orElseThrow(() -> new NoSuchElementException("channel not found :" + command.channelId()));
+        .orElseThrow(() -> ChannelNotFoundException.withDetail("channel", command.channelId()));
 
     List<BinaryContent> attachments = command.attachments().stream()
         .map(request -> {
@@ -71,11 +74,7 @@ public class BasicMessageService implements MessageService {
   @Override
   @Transactional(readOnly = true)
   public MessageDto findById(UUID messageId) {
-    return messageMapper.toDto(
-        messageRepository.findById(messageId)
-            .orElseThrow(
-                () -> new NoSuchElementException(
-                    "findById : 메세지를 찾을 수 없습니다. [" + messageId + "]")));
+    return messageMapper.toDto(validateId(messageId));
   }
 
   @Override
@@ -84,7 +83,7 @@ public class BasicMessageService implements MessageService {
       Pageable pageable) {
 
     if (!channelRepository.existsById(channelId)) {
-      throw new NoSuchElementException("findAllByChannelId : 채널을 찾을 수 없습니다. [" + channelId + "]");
+      throw ChannelNotFoundException.withDetail("channel", channelId);
     }
 
     Slice<MessageDto> slice = (cursor == null)
@@ -104,9 +103,7 @@ public class BasicMessageService implements MessageService {
   @Override
   @Transactional
   public MessageDto update(UUID messageId, @Valid MessageUpdateRequest messageUpdateRequest) {
-    Message message = messageRepository.findById(messageId)
-        .orElseThrow(
-            () -> new NoSuchElementException("update : 메세지를 찾을 수 없습니다. [" + messageId + "]"));
+    Message message = validateId(messageId);
     message.update(messageUpdateRequest.newContent());
 
     return messageMapper.toDto(messageRepository.save(message));
@@ -115,13 +112,16 @@ public class BasicMessageService implements MessageService {
   @Override
   @Transactional
   public void delete(UUID messageId) {
-    Message message = messageRepository.findById(messageId)
-        .orElseThrow(
-            () -> new NoSuchElementException("delete : 메세지를 찾을 수 없습니다. [" + messageId + "]"));
+    Message message = validateId(messageId);
 
     for (BinaryContent binaryContent : message.getAttachments()) {
       binaryContentRepository.deleteById(binaryContent.getId());
     }
     messageRepository.deleteById(message.getId());
+  }
+
+  private Message validateId(UUID messageId) {
+    return messageRepository.findById(messageId)
+        .orElseThrow(() -> MessageNotFoundException.withDetail("id", messageId));
   }
 }

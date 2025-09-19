@@ -21,6 +21,9 @@ public enum ErrorCode {
   CHANNEL_NOT_FOUND("채널을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
   INVALID_CHANNEL_UPDATE("개인 채널은 수정할 수 없습니다."),
 
+  // Message 관련 에러 코드
+  MESSAGE_NOT_FOUND("메세지를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
   // Server 에러 코드
   INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
   INVALID_REQUEST("잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
