@@ -3,6 +3,10 @@ package com.sprint.mission.discodeit.storage;
 import com.sprint.mission.discodeit.configuration.StorageProps;
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.exception.ThrowableIOException;
+import com.sprint.mission.discodeit.exception.binarycontent.StorageInitException;
+import com.sprint.mission.discodeit.exception.binarycontent.StorageNotFoundException;
+import com.sprint.mission.discodeit.exception.binarycontent.StorageReadException;
+import com.sprint.mission.discodeit.exception.binarycontent.StorageWriteException;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
@@ -37,7 +40,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
       try {
         Files.createDirectories(root);
       } catch (IOException e) {
-        throw new ThrowableIOException("파일 저장에 실패하였습니다. : " + root, e);
+        throw StorageInitException.withDetail("root", root, e);
       }
     }
   }
@@ -55,7 +58,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         Files.write(path, bytes);
       }
     } catch (IOException e) {
-      throw new ThrowableIOException("파일 저장에 실패하였습니다. : " + path, e);
+      throw StorageWriteException.withDetail("path", path, e);
     }
     return id;
   }
@@ -66,7 +69,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     try {
       return Files.newInputStream(path);
     } catch (IOException e) {
-      throw new ThrowableIOException("파일 읽기에 실패하였습니다. : " + path, e);
+      throw StorageReadException.withDetail("path", path, e);
     }
   }
 
@@ -75,7 +78,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     Path path = resolvePath(dto.id());
 
     if (Files.notExists(path)) {
-      throw new NoSuchElementException("파일이 존재하지 않습니다. : " + path);
+      throw StorageNotFoundException.withDetail("path", path);
     }
 
     Resource resource = new InputStreamResource(get(dto.id()));

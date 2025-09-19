@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.neutral.NewBinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
@@ -44,10 +45,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   @Override
   @Transactional(readOnly = true)
   public BinaryContentDto findById(UUID id) {
-    return binaryContentRepository.findById(id)
-        .map(binaryContentMapper::toDto)
-        .orElseThrow(
-            () -> new NoSuchElementException("findById : BinaryContent를 찾을 수 없습니다. [" + id + "]"));
+    return binaryContentMapper.toDto(validateId(id));
   }
 
   @Override
@@ -56,15 +54,18 @@ public class BasicBinaryContentService implements BinaryContentService {
     return binaryContentRepository.findAll().stream()
         .filter(binaryContent -> ids.contains(binaryContent.getId()))
         .map(binaryContentMapper::toDto)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
   @Transactional
   public void delete(UUID id) {
-    if (!binaryContentRepository.existsById(id)) {
-      throw new NoSuchElementException("delete : BinaryContent를 찾을 수 없습니다. [" + id + "]");
-    }
+    validateId(id);
     binaryContentRepository.deleteById(id);
+  }
+
+  private BinaryContent validateId(UUID id) {
+    return binaryContentRepository.findById(id)
+        .orElseThrow(() -> BinaryContentNotFoundException.withDetail("id", id));
   }
 }
