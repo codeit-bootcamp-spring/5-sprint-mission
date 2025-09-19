@@ -20,8 +20,6 @@ spring:
     #        default_batch_fetch_size: 100
     open-in-view: false
 
-
-
 logging:
   level:
     org.hibernate.SQL: debug
@@ -32,3 +30,15 @@ discodeit:
     type: local
     local:
       root-path: .discodeit/storage
+
+
+  logging:
+    level:
+      root: info  # 전체 기본 로그 레벨
+    pattern:
+      console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file:
+      name: logs/app.log  # logs 디렉토리에 app.log 파일 생성
+
+
+
