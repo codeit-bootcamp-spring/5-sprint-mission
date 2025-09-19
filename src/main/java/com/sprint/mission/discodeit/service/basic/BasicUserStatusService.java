@@ -15,7 +15,6 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
