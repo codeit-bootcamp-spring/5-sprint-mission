@@ -35,6 +35,13 @@ public enum ErrorCode {
   STORAGE_READ_FAILED("파일 읽기에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
   STORAGE_NOT_FOUND("파일을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
+  // MultiPartFile 관련 에러 코드
+  MULTIPART_EMPTY,
+  MULTIPART_READ_FAILED("멀티파트 바이트 변환에 실패하였습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
+  MULTIPART_UNSUPPORTED_TYPE,
+  FILENAME_INVALID,
+  MULTIPART_TOO_LARGE,
+
   // Server 에러 코드
   INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
   INVALID_REQUEST("잘못된 요청입니다."),
@@ -42,6 +49,11 @@ public enum ErrorCode {
 
   private final String message;
   private final HttpStatus status;
+
+  ErrorCode() {
+    this.status = HttpStatus.BAD_REQUEST;
+    this.message = this.name();
+  }
 
   ErrorCode(String message) {
     this.message = message;

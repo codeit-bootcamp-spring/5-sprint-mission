@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.storage;
 
 import com.sprint.mission.discodeit.configuration.StorageProps;
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
-import com.sprint.mission.discodeit.exception.ThrowableIOException;
 import com.sprint.mission.discodeit.exception.binarycontent.StorageInitException;
 import com.sprint.mission.discodeit.exception.binarycontent.StorageNotFoundException;
 import com.sprint.mission.discodeit.exception.binarycontent.StorageReadException;
