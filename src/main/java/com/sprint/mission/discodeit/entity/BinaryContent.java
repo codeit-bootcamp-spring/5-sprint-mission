@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,13 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BinaryContent extends BaseEntity {
 
-  @Column(name = "file_name", nullable = false, length = 255)
+  @Column(nullable = false)
   private String fileName;
-
-  @Column(name = "size", nullable = false)
+  @Column(nullable = false)
   private Long size;
-
-  @Column(name = "content_type", nullable = false, length = 100)
+  @Column(length = 100, nullable = false)
   private String contentType;
 
   public BinaryContent(String fileName, Long size, String contentType) {
@@ -26,6 +26,4 @@ public class BinaryContent extends BaseEntity {
     this.size = size;
     this.contentType = contentType;
   }
-
-  public void rename(String newFileName) { this.fileName = newFileName; }
 }
