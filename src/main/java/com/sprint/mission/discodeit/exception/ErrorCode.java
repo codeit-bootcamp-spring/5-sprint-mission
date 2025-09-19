@@ -24,6 +24,10 @@ public enum ErrorCode {
   // Message 관련 에러 코드
   MESSAGE_NOT_FOUND("메세지를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
+  // ReadStatus 관련 에러 코드
+  READ_STATUS_NOT_FOUND("메세지 읽음 상태를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+  DUPLICATE_READ_STATUS("이미 존재하는 메세지 읽음 상태입니다.", HttpStatus.CONFLICT),
+
   // Server 에러 코드
   INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
   INVALID_REQUEST("잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
