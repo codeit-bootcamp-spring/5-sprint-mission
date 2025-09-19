@@ -1,6 +1,7 @@
 spring:
   application:
-    name: discodeit
+    name: Discodeit
+    version: 1.7.0
   servlet:
     multipart:
       max-file-size: 10MB
@@ -48,3 +49,24 @@ logging:
     org.hibernate.SQL: off
     org.hibernate.orm.jdbc.bind: trace
     org.hibernate.type.descriptor.sql: trace
+
+# Actuator 노출 범위
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true   # liveness/readiness
+  info:
+    env:
+      enabled: true     # info.* 노출
+    java:
+      enabled: true
+    os:
+      enabled: true
+    build:
+      enabled: true
