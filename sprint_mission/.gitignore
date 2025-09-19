@@ -41,4 +41,6 @@ bin/
 ### Discodeit ###
 .discodeit
 
-*.ser
+### 숨김 파일 ###
+.*
+!.gitignore

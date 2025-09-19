@@ -1,83 +1,59 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.domain.Auditable;
 
 @Entity
-@Table(name="users")
-@Getter @Setter @Builder
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "users")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA를 위한 기본 생성자
 public class User extends BaseUpdatableEntity {
 
-
-  @Column(name = "username",unique = true,  nullable = false, length = 50)
+  @Column(length = 50, nullable = false, unique = true)
   private String username;
-  @Column(name = "email",unique = true,  nullable = false, length = 100)
+  @Column(length = 100, nullable = false, unique = true)
   private String email;
-  @Column(name = "password",nullable = false, length = 200)
+  @Column(length = 60, nullable = false)
   private String password;
-
-  @JoinColumn(name = "profile_id")
-  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JoinColumn(name = "profile_id", columnDefinition = "uuid")
   private BinaryContent profile;
-
-  @OneToOne(mappedBy = "user")
+  @JsonManagedReference
+  @Setter(AccessLevel.PROTECTED)
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private UserStatus status;
 
   public User(String username, String email, String password, BinaryContent profile) {
-
     this.username = username;
     this.email = email;
     this.password = password;
     this.profile = profile;
   }
 
-  public void update(String newUsername, String newEmail, String newPassword, BinaryContent newProfileId) {
-    boolean anyValueUpdated = false;
+  public void update(String newUsername, String newEmail, String newPassword,
+      BinaryContent newProfile) {
     if (newUsername != null && !newUsername.equals(this.username)) {
       this.username = newUsername;
-      anyValueUpdated = true;
     }
     if (newEmail != null && !newEmail.equals(this.email)) {
       this.email = newEmail;
-      anyValueUpdated = true;
     }
     if (newPassword != null && !newPassword.equals(this.password)) {
       this.password = newPassword;
-      anyValueUpdated = true;
     }
-    if (newProfileId != null && !newProfileId.getId().equals(profile.getId())) {
-      profile = newProfileId;
-      anyValueUpdated = true;
-    }
-
-    if (anyValueUpdated) {
-      this.updatedAt = Instant.now();
+    if (newProfile != null) {
+      this.profile = newProfile;
     }
   }
-
-
 }

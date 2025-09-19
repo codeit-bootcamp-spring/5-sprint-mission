@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.entity.base;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
@@ -10,28 +11,21 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SuperBuilder
 public abstract class BaseEntity {
 
-  @Id //pk
-  @Column(name = "id", updatable = false, nullable = false)
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(columnDefinition = "uuid", updatable = false, nullable = false)
   private UUID id;
 
   @CreatedDate
-  @Column(name = "created_at", updatable = false, nullable = false)
+  @Column(columnDefinition = "timestamp with time zone", updatable = false, nullable = false)
   private Instant createdAt;
-
-
-
-
 }
