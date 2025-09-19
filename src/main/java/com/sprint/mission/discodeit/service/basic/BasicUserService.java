@@ -6,6 +6,8 @@ import com.sprint.mission.discodeit.dto.neutral.UserCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -15,13 +17,11 @@ import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 @Service("userService")
 @RequiredArgsConstructor
@@ -36,9 +36,9 @@ public class BasicUserService implements UserService {
   @Override
   @Transactional
   public UserDto create(UserCommand userCommand) {
-    String username = userCommand.username();
+    String username = validateUsername(userCommand.username());
     String password = userCommand.password();
-    String email = userCommand.email();
+    String email = validateEmail(userCommand.email());
     BinaryContent profile = profileMapper(userCommand.profile());
 
     User user = new User(username, email, password, profile);
@@ -52,10 +52,7 @@ public class BasicUserService implements UserService {
   @Override
   @Transactional(readOnly = true)
   public UserDto findById(UUID userId) {
-    return userMapper.toDto(
-        userRepository.findById(userId)
-            .orElseThrow(
-                () -> new NoSuchElementException("findById : 유저를 찾을 수 없습니다. [" + userId + "]")));
+    return userMapper.toDto(validateId(userId));
   }
 
   @Override
@@ -69,12 +66,11 @@ public class BasicUserService implements UserService {
   @Override
   @Transactional
   public UserDto update(UUID userId, @Valid UserCommand userCommand) {
-    String newUserName = userCommand.username();
+    String newUserName = validateUsername(userCommand.username());
     String newPassword = userCommand.password();
-    String newEmail = userCommand.email();
+    String newEmail = validateEmail(userCommand.email());
 
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다. [" + userId + "]"));
+    User user = validateId(userId);
 
     BinaryContent newProfile = profileMapper(userCommand.profile());
 
@@ -90,8 +86,7 @@ public class BasicUserService implements UserService {
   @Override
   @Transactional
   public void delete(UUID userId) {
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("delete : 유저를 찾을 수 없습니다. [" + userId + "]"));
+    User user = validateId(userId);
 
     if (user.getProfile() != null) {
       binaryContentRepository.deleteById(user.getProfile().getId());
@@ -116,5 +111,24 @@ public class BasicUserService implements UserService {
         })
         .findFirst()
         .orElse(null);
+  }
+
+  private User validateId(UUID userId) {
+    return userRepository.findById(userId)
+        .orElseThrow(() -> UserNotFoundException.withDetails(userId.toString()));
+  }
+
+  private String validateUsername(String username) {
+    if (userRepository.existsByUsername(username)) {
+      throw UserAlreadyExistsException.withDetails(username);
+    }
+    return username;
+  }
+
+  private String validateEmail(String email) {
+    if (userRepository.existsByEmail(email)) {
+      throw UserAlreadyExistsException.withDetails(email);
+    }
+    return email;
   }
 }

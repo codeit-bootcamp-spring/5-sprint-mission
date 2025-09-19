@@ -8,9 +8,9 @@ public class UserNotFoundException extends UserException {
     super(ErrorCode.USER_NOT_FOUND);
   }
 
-  public static UserNotFoundException withMessage(String message) {
+  public static UserNotFoundException withDetails(String detail) {
     UserNotFoundException exception = new UserNotFoundException();
-    exception.addDetail("message", message);
+    exception.addDetail("detail", detail);
     return exception;
   }
 }

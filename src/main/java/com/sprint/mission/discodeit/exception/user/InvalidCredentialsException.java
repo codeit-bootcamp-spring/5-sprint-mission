@@ -8,9 +8,9 @@ public class InvalidCredentialsException extends UserException {
     super(ErrorCode.INVALID_USER_CREDENTIALS);
   }
 
-  public static InvalidCredentialsException withMessage(String message) {
+  public static InvalidCredentialsException withDetails(String detail) {
     InvalidCredentialsException exception = new InvalidCredentialsException();
-    exception.addDetail("message", message);
+    exception.addDetail("detail", detail);
     return exception;
   }
 
