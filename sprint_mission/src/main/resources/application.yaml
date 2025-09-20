@@ -41,4 +41,27 @@ discodeit:
       name: logs/app.log  # logs 디렉토리에 app.log 파일 생성
 
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, loggers #활성화할 엔드포인트 목록
 
+#acturator
+info:
+  app:
+    name: Discodeit
+    version: 1.7.0
+    java-version: 17
+    spring-boot-version: 3.4.0
+  datasource:
+    url: ${spring.datasource.url}
+    driver-class-name: ${spring.datasource.driver-class-name}
+  jpa:
+    ddl-auto: ${spring.jpa.hibernate.ddl-auto}
+  storage:
+    type: ${app.storage.type}
+    path: ${app.storage.path}
+  multipart:
+    max-file-size: ${spring.servlet.multipart.max-file-size}
+    max-request-size: ${spring.servlet.multipart.max-request-size}
