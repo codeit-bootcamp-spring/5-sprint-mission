@@ -4,6 +4,10 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.6'
 }
 
+springBoot {
+    buildInfo()
+}
+
 group = 'com.sprint.mission'
 version = '0.0.1-SNAPSHOT'
 
@@ -28,6 +32,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
