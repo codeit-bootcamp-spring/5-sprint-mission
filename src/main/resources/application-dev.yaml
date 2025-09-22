@@ -1,29 +1,22 @@
 spring:
-  config:
-    activate:
-      on-profile: dev
   datasource:
-    url: jdbc:h2:mem:blogdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: discodeit_user
+    password: discodeit1234
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
-  h2:
-    console:
-      enabled: true
-      path: /h2-console # 접속 URL: http://localhost:8080/h2-console
+      ddl-auto: update       # 개발에선 편하게
+    show-sql: true
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+      platform: postgresql   # ⬅️ data-postgresql.sql만 실행
 
 logging:
   level:
-    # Spring Web
     org.springframework.web: debug
-    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
-
-    # 사용자 package
     com.sprint.mission.discodeit: debug
-
-server:
-  port: 8080

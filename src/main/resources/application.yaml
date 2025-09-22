@@ -7,7 +7,7 @@ spring:
       max-file-size: 10MB
       max-request-size: 30MB
   profiles:
-    active: dev # dev | prod
+    active: dev # dev | prod | test
 
   # JPA
   jpa:
