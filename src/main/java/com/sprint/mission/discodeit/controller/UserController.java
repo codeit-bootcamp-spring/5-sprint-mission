@@ -45,7 +45,7 @@ public class UserController {
 
     return ResponseEntity.status(HttpStatus.CREATED)
                          .body(userMapper.toDetailResponse(
-                             userService.create(request.toCommand(profile))));
+                             userService.create(userMapper.toCommand(request, profile))));
   }
 
   @Operation(summary = "User 수정")
@@ -54,8 +54,8 @@ public class UserController {
       @RequestPart("userUpdateRequest") UpdateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    return ResponseEntity.ok(
-        userMapper.toDetailResponse(userService.update(request.toCommand(id, profile))));
+    return ResponseEntity.ok(userMapper.toDetailResponse(
+        userService.update(userMapper.toCommand(id, request, profile))));
   }
 
   @Operation(summary = "User 삭제")

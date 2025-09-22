@@ -35,7 +35,7 @@ public class ReadStatusController {
 
     return ResponseEntity.status(HttpStatus.CREATED)
                          .body(readStatusMapper.toDetailResponse(
-                             readStatusService.create(request.toCommand())));
+                             readStatusService.create(readStatusMapper.toCommand(request))));
   }
 
   @Operation(summary = "Read Status 수정")

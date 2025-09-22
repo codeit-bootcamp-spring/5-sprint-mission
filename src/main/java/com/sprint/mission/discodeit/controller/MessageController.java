@@ -48,7 +48,7 @@ public class MessageController {
 
     return ResponseEntity.status(HttpStatus.CREATED)
                          .body(messageMapper.toDetailResponse(
-                             messageService.create(request.toCommand(attachments))));
+                             messageService.create(messageMapper.toCommand(request, attachments))));
   }
 
   @Operation(summary = "Message 수정")
@@ -56,8 +56,8 @@ public class MessageController {
   public ResponseEntity<MessageDto.DetailResponse> updateMessage(@PathVariable UUID id,
       @RequestBody UpdateRequest request) {
 
-    return ResponseEntity.ok(
-        messageMapper.toDetailResponse(messageService.update(request.toCommand(id))));
+    return ResponseEntity.ok(messageMapper.toDetailResponse(
+        messageService.update(messageMapper.toCommand(request, id))));
   }
 
   @Operation(summary = "Message 삭제")

@@ -19,15 +19,6 @@ public class MessageDto {
     UUID channelId;
     UUID authorId;
     String content;
-
-    public CreateCommand toCommand(List<MultipartFile> attachments) {
-      return CreateCommand.builder()
-                          .channelId(this.channelId)
-                          .authorId(this.authorId)
-                          .content(this.content)
-                          .attachments(attachments)
-                          .build();
-    }
   }
 
   @Getter
@@ -46,13 +37,6 @@ public class MessageDto {
   public static class UpdateRequest {
 
     String newContent;
-
-    public UpdateCommand toCommand(UUID id) {
-      return UpdateCommand.builder()
-                          .id(id)
-                          .content(this.newContent)
-                          .build();
-    }
   }
 
   @Getter

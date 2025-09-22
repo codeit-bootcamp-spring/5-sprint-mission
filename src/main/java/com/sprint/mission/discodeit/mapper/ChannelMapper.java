@@ -1,14 +1,20 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.ChannelDto.CreateCommand;
+import com.sprint.mission.discodeit.dto.ChannelDto.CreateRequest;
+import com.sprint.mission.discodeit.dto.ChannelDto.UpdateCommand;
+import com.sprint.mission.discodeit.dto.ChannelDto.UpdateRequest;
 import com.sprint.mission.discodeit.dto.UserDto;
-import com.sprint.mission.discodeit.entity.BaseEntity;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -40,5 +46,23 @@ public abstract class ChannelMapper {
                        .map(userMapper::toDetail)
                        .distinct()
                        .toList();
+  }
+
+  public CreateCommand toCommand(CreateRequest request, ChannelType type) {
+    return CreateCommand.builder()
+                        .type(type)
+                        .name(request.getName())
+                        .description(request.getDescription())
+                        .participantIds(request.getParticipantIds())
+                        .build();
+  }
+
+  public UpdateCommand toCommand(UpdateRequest request, UUID id) {
+    return UpdateCommand.builder()
+                        .id(id)
+                        .name(request.getName())
+                        .description(request.getDescription())
+                        .participantIds(request.getParticipantIds())
+                        .build();
   }
 }

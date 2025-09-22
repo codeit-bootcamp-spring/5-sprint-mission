@@ -23,15 +23,6 @@ public class UserDto {
     private String email;
     @NotBlank(message = "비밀번호는 필수 입력값입니다.")
     private String password;
-
-    public CreateCommand toCommand(MultipartFile profileImage) {
-      return CreateCommand.builder()
-                          .username(this.username)
-                          .email(this.email)
-                          .password(this.password)
-                          .profileImage(profileImage)
-                          .build();
-    }
   }
 
   @Getter
@@ -52,16 +43,6 @@ public class UserDto {
     private String newUsername;
     private String newEmail;
     private String newPassword;
-
-    public UpdateCommand toCommand(UUID id, MultipartFile profileImage) {
-      return UpdateCommand.builder()
-                          .id(id)
-                          .username(this.newUsername)
-                          .email(this.newEmail)
-                          .password(this.newPassword)
-                          .profileImage(profileImage)
-                          .build();
-    }
   }
 
   @Getter

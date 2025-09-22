@@ -20,9 +20,3 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
-
-db:
-  enum:
-    channelType:
-      prod: channel_type
-      test: VARCHAR(10)
