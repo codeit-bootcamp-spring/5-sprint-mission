@@ -8,6 +8,8 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
 import java.util.UUID;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +34,7 @@ public class ChannelController implements ChannelApi {
   private final ChannelService channelService;
 
   @PostMapping(path = "public")
-  public ResponseEntity<ChannelDto> create(@RequestBody PublicChannelCreateRequest request) {
+  public ResponseEntity<ChannelDto> create(@Valid @RequestBody PublicChannelCreateRequest request) {
     log.info("공개 채널 생성 API 호출: name={}", request.name());
     ChannelDto createdChannel = channelService.create(request);
     log.info("공개 채널 생성 API 응답 완료: channel={}", createdChannel);
@@ -42,7 +44,7 @@ public class ChannelController implements ChannelApi {
   }
 
   @PostMapping(path = "private")
-  public ResponseEntity<ChannelDto> create(@RequestBody PrivateChannelCreateRequest request) {
+  public ResponseEntity<ChannelDto> create(@Valid @RequestBody PrivateChannelCreateRequest request) {
     log.info("비공개 채널 생성 API 호출: participantCount={}", request.participantIds().size());
     ChannelDto createdChannel = channelService.create(request);
     log.info("비공개 채널 생성 API 응답 완료: channel={}", createdChannel.id());
@@ -53,7 +55,7 @@ public class ChannelController implements ChannelApi {
 
   @PatchMapping(path = "{channelId}")
   public ResponseEntity<ChannelDto> update(@PathVariable("channelId") UUID channelId,
-      @RequestBody PublicChannelUpdateRequest request) {
+      @Valid @RequestBody PublicChannelUpdateRequest request) {
     log.info("채널 수정 API 호출: channelId={}", channelId);
     ChannelDto updatedChannel = channelService.update(channelId, request);
     log.info("채널 수정 API 응답 완료: channelId={}", channelId);

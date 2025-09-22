@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,7 +46,7 @@ public class MessageController implements MessageApi {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto> create(
-      @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+      @Valid @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
     log.info("메시지 생성 API 호출: channelId={}, authorId={}",
@@ -73,7 +75,7 @@ public class MessageController implements MessageApi {
 
   @PatchMapping(path = "{messageId}")
   public ResponseEntity<MessageDto> update(@PathVariable("messageId") UUID messageId,
-      @RequestBody MessageUpdateRequest request) {
+      @Valid @RequestBody MessageUpdateRequest request) {
     log.info("메시지 수정 API 호출: messageId={}", messageId);
     MessageDto updatedMessage = messageService.update(messageId, request);
     log.info("메시지 수정 API 응답 완료: messageId={}", messageId);

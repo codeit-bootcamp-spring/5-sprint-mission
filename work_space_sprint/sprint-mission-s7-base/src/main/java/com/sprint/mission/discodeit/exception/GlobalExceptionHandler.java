@@ -1,8 +1,12 @@
 package com.sprint.mission.discodeit.exception;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -27,6 +31,25 @@ public class GlobalExceptionHandler {
     ErrorResponse errorResponse = ErrorResponse.of(
         "INVALID_INPUT",
         e.getMessage(),
+        HttpStatus.BAD_REQUEST.value()
+    );
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
+    log.warn("유효성 검증 실패: {}", e.getMessage());
+
+    Map<String, Object> details = new HashMap<>();
+    e.getBindingResult().getFieldErrors().forEach(error ->
+        details.put(error.getField(), error.getDefaultMessage())
+    );
+
+    ErrorResponse errorResponse = ErrorResponse.of(
+        "VALIDATION_FAILED",
+        "입력값 검증에 실패했습니다.",
+        details,
         HttpStatus.BAD_REQUEST.value()
     );
 
