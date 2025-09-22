@@ -11,9 +11,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BasicBinaryContentService implements BinaryContentService {
@@ -28,6 +30,9 @@ public class BasicBinaryContentService implements BinaryContentService {
     String fileName = request.fileName();
     byte[] bytes = request.bytes();
     String contentType = request.contentType();
+
+    log.info("[FILE][UPLOAD] name={} size={} contentType={}", fileName, bytes.length, contentType);
+
     BinaryContent binaryContent = new BinaryContent(
         fileName,
         (long) bytes.length,
@@ -36,19 +41,28 @@ public class BasicBinaryContentService implements BinaryContentService {
     binaryContentRepository.save(binaryContent);
     binaryContentStorage.put(binaryContent.getId(), bytes);
 
+    log.info("[FILE][UPLOAD][DONE] id={} size={}", binaryContent.getId(), binaryContent.getSize());
     return binaryContentMapper.toDto(binaryContent);
   }
 
   @Override
   public BinaryContentDto find(UUID binaryContentId) {
+    log.info("[FILE][DOWNLOAD] id={}", binaryContentId);
+
     return binaryContentRepository.findById(binaryContentId)
-        .map(binaryContentMapper::toDto)
-        .orElseThrow(() -> new NoSuchElementException(
-            "BinaryContent with id " + binaryContentId + " not found"));
+        .map(binaryContent -> {
+          log.info("[FILE][DOWNLOAD][DONE] id={} size={}", binaryContentId, binaryContent.getSize());
+          return binaryContentMapper.toDto(binaryContent);
+        })
+        .orElseThrow(() -> {
+          log.warn("[FILE][DOWNLOAD] not-found id={}", binaryContentId);
+          return new NoSuchElementException("BinaryContent with id " + binaryContentId + " not found");
+        });
   }
 
   @Override
   public List<BinaryContentDto> findAllByIdIn(List<UUID> binaryContentIds) {
+    log.debug("[FILE][BULK-FIND] ids={}", binaryContentIds);
     return binaryContentRepository.findAllById(binaryContentIds).stream()
         .map(binaryContentMapper::toDto)
         .toList();
@@ -57,9 +71,14 @@ public class BasicBinaryContentService implements BinaryContentService {
   @Transactional
   @Override
   public void delete(UUID binaryContentId) {
+    log.info("[FILE][DELETE] id={}", binaryContentId);
+
     if (!binaryContentRepository.existsById(binaryContentId)) {
+      log.warn("[FILE][DELETE] not-found id={}", binaryContentId);
       throw new NoSuchElementException("BinaryContent with id " + binaryContentId + " not found");
     }
     binaryContentRepository.deleteById(binaryContentId);
+
+    log.info("[FILE][DELETE][DONE] id={}", binaryContentId);
   }
 }
