@@ -13,13 +13,13 @@ public record ErrorResponse(
     int status
 ) {
 
-  public ErrorResponse(DiscodeitException ex, int status) {
+  public ErrorResponse(DiscodeitException ex) {
     this(ex.getTimestamp(),
         ex.getErrorCode().name(),
         ex.getMessage(),
         ex.getDetails(),
         ex.getClass().getSimpleName(),
-        status);
+        ex.getErrorCode().getStatus().value());
   }
 
   public ErrorResponse(Exception ex, int status) {
