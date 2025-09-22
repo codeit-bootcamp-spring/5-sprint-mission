@@ -105,8 +105,9 @@ public class UserController implements UserApi {
       try {
         BinaryContentCreateRequest binaryContentCreateRequest = new BinaryContentCreateRequest(
             profileFile.getOriginalFilename(),
-            profileFile.getContentType(),
-            profileFile.getBytes()
+            profileFile.getBytes(),
+            Optional.ofNullable(profileFile.getContentType())
+                .orElse("application/octet-stream")
         );
         return Optional.of(binaryContentCreateRequest);
       } catch (IOException e) {

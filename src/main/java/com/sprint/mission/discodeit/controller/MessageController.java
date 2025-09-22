@@ -52,8 +52,8 @@ public class MessageController implements MessageApi {
               try {
                 return new BinaryContentCreateRequest(
                     file.getOriginalFilename(),
-                    file.getContentType(),
-                    file.getBytes()
+                    file.getBytes(),          // ✅ bytes가 2번째
+                    file.getContentType()
                 );
               } catch (IOException e) {
                 throw new RuntimeException(e);
