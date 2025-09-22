@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.MessageDto.CreateRequest;
 import com.sprint.mission.discodeit.dto.MessageDto.DetailResponse;
 import com.sprint.mission.discodeit.dto.MessageDto.UpdateRequest;
-import com.sprint.mission.discodeit.dto.PageResponse;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;

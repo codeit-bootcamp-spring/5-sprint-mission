@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.exception;
 
-import com.sprint.mission.discodeit.dto.ErrorResponse;
+import com.sprint.mission.discodeit.dto.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.HashMap;
@@ -22,12 +22,13 @@ public class GlobalExceptionHandler {
 
     log.error("Exception: {}", ex.getMessage());
 
-    return new ResponseEntity<>(ErrorResponse.builder()
-                                             .timestamp(Instant.now())
-                                             .status(500)
-                                             .message(ex.getMessage())
-                                             .path(request.getRequestURI())
-                                             .build(), HttpStatus.INTERNAL_SERVER_ERROR);
+    return ResponseEntity.internalServerError()
+                         .body(ErrorResponse.builder()
+                                            .timestamp(Instant.now())
+                                            .status(500)
+                                            .message(ex.getMessage())
+                                            .path(request.getRequestURI())
+                                            .build());
   }
 
   @ExceptionHandler(DiscodeitException.class)
@@ -35,7 +36,6 @@ public class GlobalExceptionHandler {
       HttpServletRequest request) {
 
     log.error("DiscodeitException: {}", ex.getMessage());
-    log.error("DiscodeitException: {}", ex.getDetails());
 
     return new ResponseEntity<>(ErrorResponse.builder()
                                              .timestamp(ex.getTimestamp())
@@ -53,15 +53,15 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleValidationExceptions(
-      MethodArgumentNotValidException ex, HttpServletRequest request
-  ) {
+      MethodArgumentNotValidException ex, HttpServletRequest request) {
+
+    log.error("MethodArgumentNotValidException: {}", ex.getMessage());
+
     Map<String, Object> details = new HashMap<>();
 
     ex.getBindingResult()
       .getFieldErrors()
-      .forEach(error ->
-          details.put(error.getField(), error.getDefaultMessage())
-      );
+      .forEach(error -> details.put(error.getField(), error.getDefaultMessage()));
 
     ErrorResponse response = ErrorResponse.builder()
                                           .timestamp(Instant.now())
