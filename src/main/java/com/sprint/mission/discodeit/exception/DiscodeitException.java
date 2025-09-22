@@ -7,29 +7,23 @@ import lombok.Getter;
 
 @Getter
 public abstract class DiscodeitException extends RuntimeException {
-
-  private final Instant timestamp;
+  private final Instant timestamp = Instant.now();
   private final ErrorCode errorCode;
   private final Map<String, Object> details;
 
-  protected DiscodeitException(ErrorCode errorCode) {
-    super(errorCode.getMessage());
-    this.timestamp = Instant.now();
-    this.errorCode = errorCode;
+  protected DiscodeitException(ErrorCode code) {
+    super(code.getMessage());
+    this.errorCode = code;
     this.details = Collections.emptyMap();
   }
-
-  protected DiscodeitException(ErrorCode errorCode, Map<String, Object> details) {
-    super(errorCode.getMessage());
-    this.timestamp = Instant.now();
-    this.errorCode = errorCode;
+  protected DiscodeitException(ErrorCode code, Map<String,Object> details) {
+    super(code.getMessage());
+    this.errorCode = code;
     this.details = details == null ? Collections.emptyMap() : Map.copyOf(details);
   }
-
-  protected DiscodeitException(ErrorCode errorCode, String overrideMessage, Map<String, Object> details) {
-    super(overrideMessage == null ? errorCode.getMessage() : overrideMessage);
-    this.timestamp = Instant.now();
-    this.errorCode = errorCode;
+  protected DiscodeitException(ErrorCode code, String message, Map<String,Object> details) {
+    super(message == null ? code.getMessage() : message);
+    this.errorCode = code;
     this.details = details == null ? Collections.emptyMap() : Map.copyOf(details);
   }
 }
