@@ -38,4 +38,12 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+# logs
+logs/
+*.log
+*.log.*
+*.out
+*.err
+*.gz
+
 .discodeit
