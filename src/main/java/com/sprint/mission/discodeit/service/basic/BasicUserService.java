@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserDuplicateException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -16,9 +18,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -36,11 +40,11 @@ public class BasicUserService implements UserService {
   public UserDto.Detail create(CreateCommand create) {
 
     if (userRepository.existsByUsername(create.getUsername())) {
-      throw new IllegalArgumentException("이미 사용 중인 username입니다.");
+      throw new UserDuplicateException(create.getUsername());
     }
 
     if (userRepository.existsByEmail(create.getEmail())) {
-      throw new IllegalArgumentException("이미 사용 중인 email입니다.");
+      throw new UserDuplicateException(create.getEmail());
     }
 
     BinaryContent profile = null;
@@ -60,6 +64,8 @@ public class BasicUserService implements UserService {
                                   .build();
     userStatusRepository.save(status);
 
+    log.info("User {} created", user.getUsername());
+
     return userMapper.toDetail(user);
   }
 
@@ -67,7 +73,7 @@ public class BasicUserService implements UserService {
   public UserDto.Detail findById(UUID userId) {
 
     User user = userRepository.findById(userId)
-                              .orElseThrow(() -> new RuntimeException("User not found"));
+                              .orElseThrow(() -> new UserNotFoundException(userId));
 
     return userMapper.toDetail(user);
   }
@@ -87,7 +93,7 @@ public class BasicUserService implements UserService {
   public UserDto.Detail update(UpdateCommand update) {
 
     User user = userRepository.findById(update.getId())
-                              .orElseThrow(() -> new RuntimeException("User not found"));
+                              .orElseThrow(() -> new UserNotFoundException(update.getId()));
 
     BinaryContent oldProfile = user.getProfile();
     BinaryContent newProfile = null;
@@ -105,6 +111,8 @@ public class BasicUserService implements UserService {
       binaryContentService.delete(oldProfile.getId());
     }
 
+    log.info("User {} updated", user.getUsername());
+
     return userMapper.toDetail(user);
   }
 
@@ -113,7 +121,7 @@ public class BasicUserService implements UserService {
   public void delete(UUID userId) {
 
     User user = userRepository.findById(userId)
-                              .orElseThrow(() -> new RuntimeException("User not found"));
+                              .orElseThrow(() -> new UserNotFoundException(userId));
 
     userStatusRepository.delete(user.getStatus());
     if (user.getProfile() != null) {
@@ -122,6 +130,8 @@ public class BasicUserService implements UserService {
     }
 
     userRepository.delete(user);
+
+    log.info("User {} deleted", user.getUsername());
   }
 
   @Override

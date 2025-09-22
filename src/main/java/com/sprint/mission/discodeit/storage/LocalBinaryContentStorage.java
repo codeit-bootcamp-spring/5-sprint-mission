@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.FileSystemResource;
@@ -14,6 +15,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @ConditionalOnProperty(
     name = "discodeit.storage.type",
@@ -43,6 +45,9 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     } catch (IOException e) {
       throw new RuntimeException("Failed to store binary content", e);
     }
+
+    log.info("Stored file : {}", id);
+
     return id;
   }
 
@@ -60,6 +65,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   public ResponseEntity<Resource> download(UUID id) {
     Path filePath = resolvePath(id);
     Resource resource = new FileSystemResource(filePath.toFile());
+
+    log.info("Downloading file : {}", id);
     return ResponseEntity
         .ok()
         .header("Content-Disposition", "attachment; filename=\"" + id + "\"")

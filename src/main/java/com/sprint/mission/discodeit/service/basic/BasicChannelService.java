@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateNotAllowedException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -16,9 +18,11 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -63,13 +67,15 @@ public class BasicChannelService implements ChannelService {
              .addAll(readStatuses);
     }
 
+    log.info("Channel created: {}", channel);
+
     return channelMapper.toDetail(channel);
   }
 
   public ChannelDto.Detail findById(UUID id) {
 
     Channel channel = channelRepository.findById(id)
-                                       .orElseThrow(() -> new RuntimeException("Not Found"));
+                                       .orElseThrow(() -> new ChannelNotFoundException(id));
 
     return channelMapper.toDetail(channel);
   }
@@ -104,11 +110,12 @@ public class BasicChannelService implements ChannelService {
   public ChannelDto.Detail update(UpdateCommand update) {
 
     Channel channel = channelRepository.findById(update.getId())
-                                       .orElse(null);
+                                       .orElseThrow(
+                                           () -> new ChannelNotFoundException(update.getId()));
 
-    if (channel == null || channel.getType()
-                                  .equals(ChannelType.PRIVATE)) {
-      throw new RuntimeException("Not Found");
+    if (channel.getType()
+               .equals(ChannelType.PRIVATE)) {
+      throw new PrivateChannelUpdateNotAllowedException(update.getId());
     }
 
     if (update.getName() != null && update.getDescription() != null) {
@@ -132,6 +139,8 @@ public class BasicChannelService implements ChannelService {
 
     channelRepository.save(channel);
 
+    log.info("Channel updated: {}", channel);
+
     return channelMapper.toDetail(channel);
   }
 
@@ -140,7 +149,7 @@ public class BasicChannelService implements ChannelService {
   public void delete(UUID id) {
 
     Channel channel = channelRepository.findById(id)
-                                       .orElseThrow(() -> new RuntimeException("Not Found"));
+                                       .orElseThrow(() -> new ChannelNotFoundException(id));
 
     if (channel != null) {
       channelRepository.delete(channel);
@@ -148,6 +157,8 @@ public class BasicChannelService implements ChannelService {
       // TODO 제약조건 걸었으니 안지워도 되나? 나중에 확인
       messageRepository.deleteAll(channel.getMessages());
       readStatusRepository.deleteAll(channel.getReadStatuses());
+
+      log.info("Channel deleted: {}", channel);
     }
   }
 

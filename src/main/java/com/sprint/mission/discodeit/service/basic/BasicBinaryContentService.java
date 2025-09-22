@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentCreateException;
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
@@ -34,8 +36,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 
       return binaryContent;
     } catch (Exception e) {
-      // TODO  예외처리
-      throw new RuntimeException("BinaryContent create error : " + e.getMessage());
+      throw new BinaryContentCreateException(e.getMessage());
     }
 
   }
@@ -43,10 +44,9 @@ public class BasicBinaryContentService implements BinaryContentService {
   @Override
   public BinaryContentDto.Detail find(UUID id) {
     BinaryContent binaryContent = binaryContentRepository.findById(id)
-                                                         .orElse(null);
-    if (binaryContent == null) {
-      return null;
-    }
+                                                         .orElseThrow(
+                                                             () -> new BinaryContentNotFoundException(
+                                                                 id));
 
     try {
       return binaryContentMapper.toDetail(binaryContent, localBinaryContentStorage.get(id)
@@ -77,10 +77,9 @@ public class BasicBinaryContentService implements BinaryContentService {
   @Transactional
   public void delete(UUID id) {
     BinaryContent binaryContent = binaryContentRepository.findById(id)
-                                                         .orElse(null);
-    if (binaryContent == null) {
-      return;
-    }
+                                                         .orElseThrow(
+                                                             () -> new BinaryContentNotFoundException(
+                                                                 id));
 
     binaryContentRepository.delete(binaryContent);
   }

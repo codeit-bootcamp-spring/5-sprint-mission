@@ -4,6 +4,9 @@ import com.sprint.mission.discodeit.dto.UserStatusDto;
 import com.sprint.mission.discodeit.dto.UserStatusDto.Create;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.userstatus.UserStatusAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -29,12 +32,12 @@ public class BasicUserStatusService implements UserStatusService {
   @Transactional
   public UserStatusDto.Detail create(Create request) {
     User user = userRepository.findById(request.getUserId())
-                              .orElseThrow(() -> new RuntimeException("Not Found User"));
+                              .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
 
     UserStatus userStatus = userStatusRepository.findByUserId(request.getUserId())
                                                 .orElse(null);
     if (userStatus != null) {
-      throw new IllegalArgumentException("Already Registered User Status");
+      throw new UserStatusAlreadyExistsException(request.getUserId());
     }
 
     userStatus = userStatusRepository.save(UserStatus.builder()
@@ -48,8 +51,8 @@ public class BasicUserStatusService implements UserStatusService {
   @Override
   public UserStatusDto.Detail find(UUID id) {
     UserStatus userStatus = userStatusRepository.findById(id)
-                                                .orElseThrow(() -> new RuntimeException(
-                                                    "Not Found User Status"));
+                                                .orElseThrow(
+                                                    () -> new UserStatusNotFoundException(id));
 
     return userStatusMapper.toDetail(userStatus);
   }
@@ -68,8 +71,8 @@ public class BasicUserStatusService implements UserStatusService {
   public UserStatusDto.Detail update(UUID id) {
 
     UserStatus userStatus = userStatusRepository.findById(id)
-                                                .orElseThrow(() -> new RuntimeException(
-                                                    "Not Found User Status"));
+                                                .orElseThrow(
+                                                    () -> new UserStatusNotFoundException(id));
 
     userStatus.update();
 
@@ -83,8 +86,8 @@ public class BasicUserStatusService implements UserStatusService {
   public UserStatusDto.Detail updateByUserId(UUID userId) {
 
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
-                                                .orElseThrow(() -> new RuntimeException(
-                                                    "Not Found User Status"));
+                                                .orElseThrow(
+                                                    () -> new UserStatusNotFoundException(userId));
 
     userStatus.update();
     userStatusRepository.save(userStatus);
@@ -97,8 +100,8 @@ public class BasicUserStatusService implements UserStatusService {
   public void delete(UUID id) {
 
     UserStatus userStatus = userStatusRepository.findById(id)
-                                                .orElseThrow(() -> new RuntimeException(
-                                                    "Not Found User Status"));
+                                                .orElseThrow(
+                                                    () -> new UserStatusNotFoundException(id));
 
     userStatusRepository.delete(userStatus);
   }
