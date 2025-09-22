@@ -48,8 +48,8 @@ public class BasicMessageService implements MessageService {
 	@Override
     @Transactional
 	public MessageResponse create(MessageCreateRequest request) {
-        log.info("메시지 생성 시도");
-        log.debug("메시지 생성 요청 데이터 : {}", request);
+        log.info("[Service] 메시지 생성 시도");
+        log.debug("[Service] 메시지 생성 요청 데이터 : {}", request);
         User author = userRepository.findById(request.getAuthorId())
                 .orElseThrow(() -> new RuntimeException("User not found: " + request.getAuthorId()));
 
@@ -61,8 +61,8 @@ public class BasicMessageService implements MessageService {
 		addAttachments(message, request.getAttachments());
         messageRepository.save(message);
 
-        log.info("메시지 생성 성공");
-        log.debug("메시지 생성 완료 데이터 : {}", message);
+        log.info("[Service] 메시지 생성 성공");
+        log.debug("[Service] 메시지 생성 완료 데이터 : {}", message);
 		return MessageResponse.success(message);
 	}
 
@@ -157,13 +157,13 @@ public class BasicMessageService implements MessageService {
 	@Override
     @Transactional
 	public MessageResponse updateMessage(UUID messageId, MessageUpdateRequest request) {
-        log.info("메시지 수정 시도");
-        log.debug("메시지 수정 요청 데이터 : {}", request);
+        log.info("[Service] 메시지 수정 시도");
+        log.debug("[Service] 메시지 수정 요청 데이터 : {}", request);
 		Message message = messageRepository.findById(messageId)
 				.orElseThrow(MessageNotFoundException::new);
 
 		if (!message.getAuthor().getId().equals(request.getAuthorId())) {
-            log.warn("메시지 수정 권한 없음 - messageId: {}, authorId: {}", messageId, request.getAuthorId());
+            log.warn("[Service] 메시지 수정 권한 없음 - messageId: {}, authorId: {}", messageId, request.getAuthorId());
 			throw new UnauthorizedMessageAccessException();
 		}
 
@@ -179,21 +179,21 @@ public class BasicMessageService implements MessageService {
 		addAttachments(message, request.getAttachmentsToAdd());
 		messageRepository.save(message);
 
-        log.info("메시지 수정 성공");
-        log.debug("메시지 수정 완료 데이터 : {}", message);
+        log.info("[Service] 메시지 수정 성공");
+        log.debug("[Service] 메시지 수정 완료 데이터 : {}", message);
 		return MessageResponse.success(message);
 	}
 
 	@Override
     @Transactional
 	public MessageDeleteResponse deleteMessage(UUID messageId, UUID authorId) {
-        log.info("메시지 삭제 시도");
-        log.debug("메시지 삭제 요청 데이터 - messageId: {}, authorId: {}", messageId, authorId);
+        log.info("[Service] 메시지 삭제 시도");
+        log.debug("[Service] 메시지 삭제 요청 데이터 - messageId: {}, authorId: {}", messageId, authorId);
 		Message message = messageRepository.findById(messageId)
 			.orElseThrow(MessageNotFoundException::new);
 
 		if (!message.getAuthor().getId().equals(authorId)) {
-            log.warn("메시지 삭제 권한 없음 - messageId: {}, authorId: {}", messageId, authorId);
+            log.warn("[Service] 메시지 삭제 권한 없음 - messageId: {}, authorId: {}", messageId, authorId);
 			throw new UnauthorizedMessageAccessException();
 		}
 
@@ -203,8 +203,8 @@ public class BasicMessageService implements MessageService {
 
 		messageRepository.deleteById(messageId);
 
-        log.info("메시지 삭제 성공");
-        log.debug("메시지 삭제 완료 데이터 - messageId: {}, authorId: {}", messageId, authorId);
+        log.info("[Service] 메시지 삭제 성공");
+        log.debug("[Service] 메시지 삭제 완료 데이터 - messageId: {}, authorId: {}", messageId, authorId);
 		return MessageDeleteResponse.success(message);
 	}
 

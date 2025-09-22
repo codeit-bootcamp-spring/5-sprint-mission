@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage;
 
 import com.sprint.mission.discodeit.dto.BinaryContentDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
@@ -16,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @ConditionalOnProperty(name = "storage.type", havingValue = "local")
 public class LocalBinaryContentStorage implements BinaryContentStorage{
@@ -36,12 +38,16 @@ public class LocalBinaryContentStorage implements BinaryContentStorage{
 
     @Override
     public UUID put(UUID id, byte[] bytes) {
+        log.info("로컬 파일 저장 시도");
+        log.debug("저장 시도하는 파일 ID: {}", id);
         Path filePath = resolvePath(id);
         try {
             Files.write(filePath, bytes);
         } catch (IOException e) {
+            log.warn("파일 저장 실패: {}", filePath, e);
             throw new RuntimeException("파일 저장 실패: " + filePath, e);
         }
+        log.info("로컬 파일 저장 성공");
         return id;
     }
 
@@ -58,6 +64,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage{
     @Override
     @Transactional
     public ResponseEntity<Resource> download(BinaryContentDTO binaryContentDTO) {
+        log.info("로컬 파일 다운로드 시도");
+        log.debug("다운로드 시도하는 파일 정보: {}", binaryContentDTO);
         Path filePath = resolvePath(binaryContentDTO.getId());
 
         if (!Files.exists(filePath)) {
@@ -79,6 +87,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage{
                     .body(resource);
 
         } catch (IOException e) {
+            log.warn("파일 다운로드 실패: {}", filePath, e);
             throw new RuntimeException("파일 다운로드 실패: " + filePath, e);
         }
     }

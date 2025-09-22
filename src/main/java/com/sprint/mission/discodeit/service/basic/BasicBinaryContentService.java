@@ -34,15 +34,15 @@ public class BasicBinaryContentService implements BinaryContentService {
 	@Override
     @Transactional
 	public BinaryContentResponse create(UserProfileImageRequest request) {
-        log.info("바이너리 컨텐츠 생성 시도");
-        log.debug("바이너리 컨텐츠 생성 요청 데이터: {}", request);
+        log.info("[Service] 바이너리 컨텐츠 생성 시도");
+        log.debug("[Service] 바이너리 컨텐츠 생성 요청 데이터: {}", request);
 		BinaryContent binaryContent = request.toBinaryContent();
 
 		binaryContentRepository.save(binaryContent);
         binaryContentStorage.put(binaryContent.getId(), request.getBytes());
 
-        log.info("바이너리 컨텐츠 생성 성공");
-        log.debug("생성된 바이너리 컨텐츠: {}", binaryContent);
+        log.info("[Service] 바이너리 컨텐츠 생성 성공");
+        log.debug("[Service] 생성된 바이너리 컨텐츠: {}", binaryContent);
 		return BinaryContentResponse.success(binaryContent);
 	}
 
@@ -82,6 +82,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Override
     @Transactional(readOnly = true)
     public BinaryContentDTO download(UUID id) throws IOException {
+        log.info("[Service] 바이너리 컨텐츠 다운로드 시도 (DTO 생성 서비스 접근)");
         BinaryContentResponse response = getById(id);
 
         return BinaryContentDTO.builder()
@@ -95,13 +96,13 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Override
     @Transactional
 	public BinaryContentResponse delete(UUID id) {
-        log.info("바이너리 컨텐츠 삭제 시도");
+        log.info("[Service] 바이너리 컨텐츠 삭제 시도");
 		BinaryContent binaryContent = binaryContentRepository.findById(id)
 			.orElseThrow(BinaryContentNotFoundException::new);
 
 		binaryContentRepository.deleteById(id);
 
-        log.info("바이너리 컨텐츠 삭제 성공");
+        log.info("[Service] 바이너리 컨텐츠 삭제 성공");
 		return BinaryContentResponse.success(binaryContent);
 	}
 }

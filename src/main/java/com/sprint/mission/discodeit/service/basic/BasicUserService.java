@@ -42,29 +42,29 @@ public class BasicUserService implements UserService {
 	@Override
     @Transactional
 	public UserResponse create(UserCreateRequest request) {
-        log.info("유저 생성 시도");
-        log.debug("유저 생성 요청 데이터: {}", request);
+        log.info("[Service] 유저 생성 시도");
+        log.debug("[Service] 유저 생성 요청 데이터: {}", request);
 		if (userRepository.existsByUsername(request.getUsername())) {
-            log.warn("중복된 아이디로 인한 유저 생성 실패: {}", request.getUsername());
+            log.warn("[Service] 중복된 아이디로 인한 유저 생성 실패: {}", request.getUsername());
 			throw new DuplicateLoginIdException();
 		}
 
 		if (userRepository.existsByEmail(request.getEmail())) {
-            log.warn("중복된 이메일로 인한 유저 생성 실패: {}", request.getEmail());
+            log.warn("[Service] 중복된 이메일로 인한 유저 생성 실패: {}", request.getEmail());
 			throw new DuplicateEmailException();
 		}
 
 		User user;
 
 		if (request.getProfileImage() != null) {
-            log.info("프로필 이미지 포함 유저 생성");
+            log.info("[Service] 프로필 이미지 포함 유저 생성");
 			BinaryContent profileImage = request.getProfileImage().toBinaryContent();
 			binaryContentRepository.save(profileImage);
             binaryContentStorage.put(profileImage.getId(), request.getProfileImage().getBytes());
 
 			user = request.toUserWithProfile(profileImage);
 		} else {
-            log.info("프로필 이미지 없는 유저 생성");
+            log.info("[Service] 프로필 이미지 없는 유저 생성");
 			user = request.toUser();
 		}
 
@@ -82,7 +82,7 @@ public class BasicUserService implements UserService {
 			readStatusRepository.save(readStatus);
 		}
 
-        log.info("유저 생성 성공: {}", user.getId());
+        log.info("[Service] 유저 생성 성공: {}", user.getId());
 		return UserResponse.success(user);
 	}
 
@@ -129,18 +129,18 @@ public class BasicUserService implements UserService {
     @Transactional
 	public UserResponse update(UUID id, UserUpdateRequest request,
 			UserProfileImageRequest profileImageRequest) {
-        log.info("유저 정보 수정 시도");
+        log.info("[Service] 유저 정보 수정 시도");
 		User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
 		String newUsername = request.getNewUsername();
 		String newEmail = request.getNewEmail();
 
 		if (request.getNewUsername() != null && userRepository.existsByUsername(newUsername)) {
-            log.info("중복된 아이디로 인한 유저 정보 수정 실패: {}",newUsername);
+            log.info("[Service] 중복된 아이디로 인한 유저 정보 수정 실패: {}",newUsername);
 			throw new DuplicateLoginIdException();
 		}
 		if (request.getNewEmail() != null && userRepository.existsByEmail(newEmail)) {
-            log.info("중복된 이메일로 인한 유저 정보 수정 실패: {}", newEmail);
+            log.info("[Service] 중복된 이메일로 인한 유저 정보 수정 실패: {}", newEmail);
 			throw new DuplicateEmailException();
 		}
 
@@ -172,7 +172,7 @@ public class BasicUserService implements UserService {
 		}
 
 		userRepository.save(user);
-        log.info("유저 정보 수정 성공: {}", user.getId());
+        log.info("[Service] 유저 정보 수정 성공: {}", user.getId());
 		return UserResponse.success(user);
 	}
 
@@ -242,7 +242,7 @@ public class BasicUserService implements UserService {
     @Override
     @Transactional
     public UserDeleteResponse delete(UUID id) {
-        log.info("id로 유저 삭제 시도: {}", id);
+        log.info("[Service] id로 유저 삭제 시도: {}", id);
 
         User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
@@ -258,14 +258,14 @@ public class BasicUserService implements UserService {
             binaryContentRepository.deleteById(profileId);
         }
 
-        log.info("유저 삭제 성공: {}", id);
+        log.info("[Service] 유저 삭제 성공: {}", id);
         return UserDeleteResponse.success(user);
     }
 
     @Override
     @Transactional
     public UserDeleteResponse delete(String username) {
-        log.info("username으로 유저 삭제 시도: {}", username);
+        log.info("[Service] username으로 유저 삭제 시도: {}", username);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
 
@@ -280,12 +280,12 @@ public class BasicUserService implements UserService {
             binaryContentRepository.deleteById(profileId);
         }
 
-        log.info("유저 삭제 성공: {}", username);
+        log.info("[Service] 유저 삭제 성공: {}", username);
         return UserDeleteResponse.success(user);
     }
 
     private void updateOnlineStatus(List<UserResponse> userResponses) {
-        log.info("유저 온라인 상태 업데이트");
+        log.info("[Service] 유저 온라인 상태 업데이트");
         List<UUID> userIds = userResponses.stream()
                 .map(UserResponse::getId)
                 .toList();
