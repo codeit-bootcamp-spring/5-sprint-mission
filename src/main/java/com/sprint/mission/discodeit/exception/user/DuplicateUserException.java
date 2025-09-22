@@ -4,9 +4,9 @@ import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 
 public class DuplicateUserException extends DiscodeitException {
-	public DuplicateUserException() {
-		super(ErrorCode.DUPLICATE_LOGIN_ID);
-	}
+    public DuplicateUserException() {
+        super(ErrorCode.DUPLICATE_LOGIN_ID);
+    }
 
     public static DuplicateUserException withEmail(String email) {
         DuplicateUserException exception = new DuplicateUserException();

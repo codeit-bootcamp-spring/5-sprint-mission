@@ -9,9 +9,13 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BinaryContentService {
-	BinaryContentResponse create(UserProfileImageRequest request);
-	BinaryContentResponse getById(UUID id) throws IOException;
-	List<BinaryContentResponse> getAllByIdIn(List<UUID> ids) throws IOException;
-	BinaryContentResponse delete(UUID id);
+    BinaryContentResponse create(UserProfileImageRequest request);
+
+    BinaryContentResponse getById(UUID id) throws IOException;
+
+    List<BinaryContentResponse> getAllByIdIn(List<UUID> ids) throws IOException;
+
+    BinaryContentResponse delete(UUID id);
+
     BinaryContentDTO download(UUID id) throws IOException;
 }

@@ -8,11 +8,12 @@ import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Table(name = "user_statuses")
-@Getter @Setter @SuperBuilder /*@ToString*/
+@Getter
+@Setter
+@SuperBuilder /*@ToString*/
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,27 +26,27 @@ public class UserStatus extends BaseUpdatableEntity implements Serializable {
     private User user;
 
     @Column(nullable = false)
-	private Instant lastActiveAt;
+    private Instant lastActiveAt;
 
     public UserStatus(User user) {
         this.user = user;
         this.lastActiveAt = Instant.EPOCH;
     }
 
-	public UserStatus(UserStatus original) {
+    public UserStatus(UserStatus original) {
         super(original.getId(), original.getCreatedAt(), original.getUpdatedAt());
-		this.user = original.user;
-		this.lastActiveAt = original.lastActiveAt;
-	}
+        this.user = original.user;
+        this.lastActiveAt = original.lastActiveAt;
+    }
 
-	public UserStatus copy() {
-		return new UserStatus(this);
-	}
+    public UserStatus copy() {
+        return new UserStatus(this);
+    }
 
-	public void updateLastActiveAt(Instant lastActiveAt) {
-		if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
-			this.lastActiveAt = lastActiveAt;
-		}
+    public void updateLastActiveAt(Instant lastActiveAt) {
+        if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+            this.lastActiveAt = lastActiveAt;
+        }
 
-	}
+    }
 }

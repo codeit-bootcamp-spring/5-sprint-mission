@@ -9,6 +9,8 @@ import java.util.UUID;
 public interface ChannelRepository extends JpaRepository<Channel, UUID> {
 
     Optional<Channel> findByName(String name);
+
     boolean existsByName(String name);
+
     void deleteByName(String name);
 }

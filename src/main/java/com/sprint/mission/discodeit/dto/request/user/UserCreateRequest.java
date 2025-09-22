@@ -14,16 +14,16 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class UserCreateRequest {
-	private String username;
-	private String password;
-	private String defaultNickname;
-	private String email;
-	@Nullable
-	private UserProfileImageRequest profileImage;
+    private String username;
+    private String password;
+    private String defaultNickname;
+    private String email;
+    @Nullable
+    private UserProfileImageRequest profileImage;
 
-	public User toUser() {
-		return toUserWithProfile(null);
-	}
+    public User toUser() {
+        return toUserWithProfile(null);
+    }
 
     public User toUserWithProfile(BinaryContent profile) {
         String nickname = (defaultNickname != null) ? defaultNickname : username;

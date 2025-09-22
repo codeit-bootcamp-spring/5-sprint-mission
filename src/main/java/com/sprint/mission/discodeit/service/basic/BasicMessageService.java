@@ -37,57 +37,55 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
-	private final MessageRepository messageRepository;
-	private final ChannelRepository channelRepository;
-	private final UserRepository userRepository;
-	private final BinaryContentRepository binaryContentRepository;
+    private final MessageRepository messageRepository;
+    private final ChannelRepository channelRepository;
+    private final UserRepository userRepository;
+    private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
     private final PageResponseMapper pageResponseMapper;
 
 
-
-	@Override
+    @Override
     @Transactional
-	public MessageResponse create(MessageCreateRequest request) {
+    public MessageResponse create(MessageCreateRequest request) {
         log.info("[Service] 메시지 생성 시도");
         log.debug("[Service] 메시지 생성 요청 데이터 : {}", request);
         User author = userRepository.findById(request.getAuthorId())
                 .orElseThrow(() -> UserNotFoundException.withId(request.getAuthorId()));
 
-		Channel channel = channelRepository.findById(request.getChannelId())
-				.orElseThrow(() -> ChannelNotFoundException.withId(request.getChannelId()));
+        Channel channel = channelRepository.findById(request.getChannelId())
+                .orElseThrow(() -> ChannelNotFoundException.withId(request.getChannelId()));
 
-		Message message = new Message(author, channel, request.getContent());
+        Message message = new Message(author, channel, request.getContent());
 
-		addAttachments(message, request.getAttachments());
+        addAttachments(message, request.getAttachments());
         messageRepository.save(message);
 
         log.info("[Service] 메시지 생성 성공");
         log.debug("[Service] 메시지 생성 완료 데이터 : {}", message);
-		return MessageResponse.success(message);
-	}
+        return MessageResponse.success(message);
+    }
 
-	@Override
+    @Override
     @Transactional(readOnly = true)
-	public MessageResponse findMessage(UUID messageId) {
-		Message message = messageRepository.findById(messageId)
-			.orElseThrow(() -> MessageNotFoundException.withMessageId(messageId));
-		return MessageResponse.success(message);
-	}
+    public MessageResponse findMessage(UUID messageId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> MessageNotFoundException.withMessageId(messageId));
+        return MessageResponse.success(message);
+    }
 
-	@Override
+    @Override
     @Transactional(readOnly = true)
-	public List<Message> findAll() {
-		return messageRepository.findAll();
-	}
+    public List<Message> findAll() {
+        return messageRepository.findAll();
+    }
 
 
-
-	@Override
+    @Override
     @Transactional(readOnly = true)
-	public List<MessageResponse> findMessageByAuthor(MessagesGetByAuthorRequest request) {
-		Channel channel = channelRepository.findById(request.getChannelId())
-				.orElseThrow(() -> ChannelNotFoundException.withId(request.getChannelId()));
+    public List<MessageResponse> findMessageByAuthor(MessagesGetByAuthorRequest request) {
+        Channel channel = channelRepository.findById(request.getChannelId())
+                .orElseThrow(() -> ChannelNotFoundException.withId(request.getChannelId()));
 
         User author = userRepository.findByUsername(request.getAuthor())
                 .orElse(null);
@@ -101,17 +99,17 @@ public class BasicMessageService implements MessageService {
         return messages.stream()
                 .map(MessageResponse::success)
                 .toList();
-	}
+    }
 
-	@Override
+    @Override
     @Transactional(readOnly = true)
-	public List<MessageResponse> findMessagesByChannelId(UUID channelId) {
-		List<Message> messages = messageRepository.findByChannelId(channelId);
+    public List<MessageResponse> findMessagesByChannelId(UUID channelId) {
+        List<Message> messages = messageRepository.findByChannelId(channelId);
 
-		return messages.stream()
-			.map(MessageResponse::success)
-			.toList();
-	}
+        return messages.stream()
+                .map(MessageResponse::success)
+                .toList();
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -155,74 +153,74 @@ public class BasicMessageService implements MessageService {
         return pageResponseMapper.fromSliceToCursor(messageSlice.map(MessageResponse::success), nextCursor);
     }
 
-	@Override
+    @Override
     @Transactional
-	public MessageResponse updateMessage(UUID messageId, MessageUpdateRequest request) {
+    public MessageResponse updateMessage(UUID messageId, MessageUpdateRequest request) {
         log.info("[Service] 메시지 수정 시도");
         log.debug("[Service] 메시지 수정 요청 데이터 : {}", request);
-		Message message = messageRepository.findById(messageId)
-				.orElseThrow(() -> MessageNotFoundException.withMessageId(messageId));
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> MessageNotFoundException.withMessageId(messageId));
 
-		if (!message.getAuthor().getId().equals(request.getAuthorId())) {
+        if (!message.getAuthor().getId().equals(request.getAuthorId())) {
             log.warn("[Service] 메시지 수정 권한 없음 - messageId: {}, authorId: {}", messageId, request.getAuthorId());
-			throw UnauthorizedMessageAccessException.withDetails(messageId, request.getAuthorId(), message.getAuthor().getId(), "update");
-		}
+            throw UnauthorizedMessageAccessException.withDetails(messageId, request.getAuthorId(), message.getAuthor().getId(), "update");
+        }
 
-		message.setContent(request.getContent());
+        message.setContent(request.getContent());
 
-		if (!request.getAttachmentIdsToRemove().isEmpty()) {
-			for (UUID attachmentId : request.getAttachmentIdsToRemove()) {
-				message.removeAttachment(attachmentId);
-				binaryContentRepository.deleteById(attachmentId);
-			}
-		}
+        if (!request.getAttachmentIdsToRemove().isEmpty()) {
+            for (UUID attachmentId : request.getAttachmentIdsToRemove()) {
+                message.removeAttachment(attachmentId);
+                binaryContentRepository.deleteById(attachmentId);
+            }
+        }
 
-		addAttachments(message, request.getAttachmentsToAdd());
-		messageRepository.save(message);
+        addAttachments(message, request.getAttachmentsToAdd());
+        messageRepository.save(message);
 
         log.info("[Service] 메시지 수정 성공");
         log.debug("[Service] 메시지 수정 완료 데이터 : {}", message);
-		return MessageResponse.success(message);
-	}
+        return MessageResponse.success(message);
+    }
 
-	@Override
+    @Override
     @Transactional
-	public MessageDeleteResponse deleteMessage(UUID messageId, UUID authorId) {
+    public MessageDeleteResponse deleteMessage(UUID messageId, UUID authorId) {
         log.info("[Service] 메시지 삭제 시도");
         log.debug("[Service] 메시지 삭제 요청 데이터 - messageId: {}, authorId: {}", messageId, authorId);
-		Message message = messageRepository.findById(messageId)
-			.orElseThrow(() -> MessageNotFoundException.withMessageId(messageId));
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> MessageNotFoundException.withMessageId(messageId));
 
-		if (!message.getAuthor().getId().equals(authorId)) {
+        if (!message.getAuthor().getId().equals(authorId)) {
             log.warn("[Service] 메시지 삭제 권한 없음 - messageId: {}, authorId: {}", messageId, authorId);
-			throw UnauthorizedMessageAccessException.withDetails(messageId, authorId, message.getAuthor().getId(), "delete");
-		}
+            throw UnauthorizedMessageAccessException.withDetails(messageId, authorId, message.getAuthor().getId(), "delete");
+        }
 
         for (BinaryContent attachment : message.getAttachments()) {
             binaryContentRepository.deleteById(attachment.getId());
         }
 
-		messageRepository.deleteById(messageId);
+        messageRepository.deleteById(messageId);
 
         log.info("[Service] 메시지 삭제 성공");
         log.debug("[Service] 메시지 삭제 완료 데이터 - messageId: {}, authorId: {}", messageId, authorId);
-		return MessageDeleteResponse.success(message);
-	}
+        return MessageDeleteResponse.success(message);
+    }
 
-	private void addAttachments(Message message, List<BinaryContentCreateRequest> attachments) {
-		if (attachments != null && !attachments.isEmpty()) {
-			for (BinaryContentCreateRequest attachment : attachments) {
-				BinaryContent binaryContent = new BinaryContent(
-					attachment.getFileName(),
-					attachment.getContentType(),
-					attachment.getSize()
-				);
-				BinaryContent bc = binaryContentRepository.save(binaryContent);
+    private void addAttachments(Message message, List<BinaryContentCreateRequest> attachments) {
+        if (attachments != null && !attachments.isEmpty()) {
+            for (BinaryContentCreateRequest attachment : attachments) {
+                BinaryContent binaryContent = new BinaryContent(
+                        attachment.getFileName(),
+                        attachment.getContentType(),
+                        attachment.getSize()
+                );
+                BinaryContent bc = binaryContentRepository.save(binaryContent);
                 message.addAttachment(bc);
                 binaryContentStorage.put(binaryContent.getId(), attachment.getBytes());
-			}
-		}
-	}
+            }
+        }
+    }
 
     private Sort createSort(String sort) {
         String[] parts = sort.split(",");

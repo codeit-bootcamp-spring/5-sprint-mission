@@ -11,13 +11,15 @@ import java.util.UUID;
 
 public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
     @Query("""
-    SELECT rs FROM ReadStatus rs
-    JOIN FETCH rs.user u
-    LEFT JOIN FETCH u.profile
-    WHERE u.id = :userId
-    """)
+            SELECT rs FROM ReadStatus rs
+            JOIN FETCH rs.user u
+            LEFT JOIN FETCH u.profile
+            WHERE u.id = :userId
+            """)
     List<ReadStatus> findByUserId(UUID userId);
+
     List<ReadStatus> findByChannelId(UUID channelId);
+
     Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
 
     default ReadStatus findByChannelIdAndUserId(UUID channelId, UUID userId) {

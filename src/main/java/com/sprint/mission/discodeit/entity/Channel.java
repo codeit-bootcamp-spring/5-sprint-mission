@@ -16,7 +16,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "channels")
-@Getter @Setter @SuperBuilder /*@ToString*/
+@Getter
+@Setter
+@SuperBuilder /*@ToString*/
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Channel extends BaseUpdatableEntity implements Serializable {
@@ -25,11 +27,11 @@ public class Channel extends BaseUpdatableEntity implements Serializable {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-	private ChannelType type;// 채널 타입, PUBLIC 또는 PRIVATE
+    private ChannelType type;// 채널 타입, PUBLIC 또는 PRIVATE
     @Column(unique = true, nullable = false, length = 100)
-	private String name;
+    private String name;
     @Column(length = 1000)
-	private String description;
+    private String description;
 
     @OneToMany(mappedBy = "channel", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ReadStatus> readStatus;
@@ -38,27 +40,27 @@ public class Channel extends BaseUpdatableEntity implements Serializable {
     private List<Message> messages;
 
 
-	public Channel(String name, String description) {
+    public Channel(String name, String description) {
         type = ChannelType.PUBLIC;
-		this.name = Objects.requireNonNull(name, "채널 이름은 필수 입력값입니다.");
-		this.description = description;
-	}
+        this.name = Objects.requireNonNull(name, "채널 이름은 필수 입력값입니다.");
+        this.description = description;
+    }
 
-	public Channel(List<UUID> userUUIDs) {
-		type = ChannelType.PRIVATE;
-		name = "private-"+super.getId();
-	}
+    public Channel(List<UUID> userUUIDs) {
+        type = ChannelType.PRIVATE;
+        name = "private-" + super.getId();
+    }
 
-	public Channel(Channel original) {
+    public Channel(Channel original) {
         super(original.getId(), original.getCreatedAt(), original.getUpdatedAt());
-		this.name = original.name;
-		this.type = original.type;
-		this.description = original.description;
+        this.name = original.name;
+        this.type = original.type;
+        this.description = original.description;
         this.readStatus = original.readStatus;
         this.messages = original.messages;
-	}
+    }
 
-	public Channel copy() {
-		return new Channel(this);
-	}
+    public Channel copy() {
+        return new Channel(this);
+    }
 }

@@ -12,7 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @Slf4j
 @Component
 @ConditionalOnProperty(name = "storage.type", havingValue = "local")
-public class LocalBinaryContentStorage implements BinaryContentStorage{
+public class LocalBinaryContentStorage implements BinaryContentStorage {
     private final Path root;
 
     public LocalBinaryContentStorage(@Value("${storage.local.root-path}") String root) {

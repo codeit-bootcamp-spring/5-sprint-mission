@@ -4,26 +4,19 @@ import com.sprint.mission.discodeit.dto.request.channel.ChannelLeaveRequest;
 import com.sprint.mission.discodeit.dto.request.channel.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.response.channel.ChannelCreateResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelLeaveResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.service.ChannelService;
-
-import java.net.URI;
-import java.util.List;
-import java.util.UUID;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/channels")
@@ -34,7 +27,7 @@ public class ChannelController {
 
     @RequestMapping(path = "/public", method = RequestMethod.POST)
     public ResponseEntity<ChannelResponse> createPublicChannel(
-        @Valid @RequestBody PublicChannelCreateRequest request) {
+            @Valid @RequestBody PublicChannelCreateRequest request) {
         ChannelResponse response = channelService.create(request);
 
         URI location = URI.create("/api/channels/" + response.getName());
@@ -46,7 +39,7 @@ public class ChannelController {
 
     @RequestMapping(path = "/private", method = RequestMethod.POST)
     public ResponseEntity<ChannelResponse> createPrivateChannel(
-        @Valid @RequestBody PrivateChannelCreateRequest request) {
+            @Valid @RequestBody PrivateChannelCreateRequest request) {
         ChannelResponse response = channelService.create(request);
 
         URI location = URI.create("/api/channels/" + response.getName());

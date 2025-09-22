@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class PublicChannelCreateRequest {
-	@NotBlank(message = "채널명은 필수")
-	private String name;
-	private String description;
+    @NotBlank(message = "채널명은 필수")
+    private String name;
+    private String description;
 }

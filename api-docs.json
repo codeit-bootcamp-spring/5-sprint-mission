@@ -1,1 +1,1714 @@
-{"openapi":"3.1.0","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"paths":{"/api/users":{"get":{"tags":["user-controller"],"operationId":"getUserAll","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/UserResponse"}}}}}}},"post":{"tags":["user-controller"],"operationId":"createUser","requestBody":{"content":{"multipart/form-data":{"schema":{"type":"object","properties":{"userCreateRequest":{"$ref":"#/components/schemas/UserCreateRequest"},"profile":{"type":"string","format":"binary"}},"required":["userCreateRequest"]}}}},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UserResponse"}}}}}}},"/api/readStatuses":{"get":{"tags":["read-status-controller"],"operationId":"getReadStatusByUser","parameters":[{"name":"userId","in":"query","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/ReadStatusResponse"}}}}}}},"post":{"tags":["read-status-controller"],"operationId":"createReadStatus","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ReadStatusCreateRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ReadStatusResponse"}}}}}}},"/api/messages":{"get":{"tags":["message-controller"],"operationId":"getMessagesByChannel","parameters":[{"name":"channelId","in":"query","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/MessageResponse"}}}}}}},"post":{"tags":["message-controller"],"operationId":"createMessage","requestBody":{"content":{"multipart/form-data":{"schema":{"type":"object","properties":{"messageCreateRequest":{"$ref":"#/components/schemas/MessageCreateRequest"},"attachments":{"type":"array","items":{"type":"string","format":"binary"}}},"required":["messageCreateRequest"]}}}},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/MessageResponse"}}}}}}},"/api/channels/{channelId}/leave":{"post":{"tags":["channel-controller"],"operationId":"leaveChannel","parameters":[{"name":"channelId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChannelLeaveRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ChannelLeaveResponse"}}}}}}},"/api/channels/public":{"post":{"tags":["channel-controller"],"operationId":"createPublicChannel","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PublicChannelCreateRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ChannelCreateResponse"}}}}}}},"/api/channels/private":{"post":{"tags":["channel-controller"],"operationId":"createPrivateChannel","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PrivateChannelCreateRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ChannelCreateResponse"}}}}}}},"/api/auth/login":{"post":{"tags":["auth-controller"],"operationId":"login","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/LoginRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/LoginResponse"}}}}}}},"/api/users/{userId}":{"get":{"tags":["user-controller"],"operationId":"getUserById","parameters":[{"name":"userId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UserResponse"}}}}}},"delete":{"tags":["user-controller"],"operationId":"deleteUserById","parameters":[{"name":"userId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UserDeleteResponse"}}}}}},"patch":{"tags":["user-controller"],"operationId":"updateUser","parameters":[{"name":"userId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"multipart/form-data":{"schema":{"type":"object","properties":{"userUpdateRequest":{"$ref":"#/components/schemas/UserUpdateRequest"},"profile":{"type":"string","format":"binary"}},"required":["userUpdateRequest"]}}}},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UserResponse"}}}}}}},"/api/users/{userId}/userStatus":{"patch":{"tags":["user-controller"],"operationId":"getUserStatusById","parameters":[{"name":"userId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserStatusUpdateRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UserStatusResponse"}}}}}}},"/api/users/{userId}/profile":{"patch":{"tags":["user-controller"],"operationId":"updateUserProfile","parameters":[{"name":"userId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserProfileImageRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UserResponse"}}}}}}},"/api/users/{userId}/password":{"patch":{"tags":["user-controller"],"operationId":"updateUserPassword","parameters":[{"name":"userId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserUpdatePasswordRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UserResponse"}}}}}}},"/api/users/{userId}/nickname":{"patch":{"tags":["user-controller"],"operationId":"updateUserNickname","parameters":[{"name":"userId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserUpdateDefaultNicknameRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UserResponse"}}}}}}},"/api/readStatuses/{readStatusId}":{"delete":{"tags":["read-status-controller"],"operationId":"deleteReadStatus","parameters":[{"name":"readStatusId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ReadStatusResponse"}}}}}},"patch":{"tags":["read-status-controller"],"operationId":"updateReadStatus","parameters":[{"name":"readStatusId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ReadStatusUpdateRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ReadStatusResponse"}}}}}}},"/api/messages/{messageId}":{"delete":{"tags":["message-controller"],"operationId":"deleteMessage","parameters":[{"name":"messageId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}},{"name":"authorId","in":"query","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/MessageDeleteResponse"}}}}}},"patch":{"tags":["message-controller"],"operationId":"updateMessage","parameters":[{"name":"messageId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"multipart/form-data":{"schema":{"type":"object","properties":{"messageCreateRequest":{"$ref":"#/components/schemas/MessageUpdateRequest"},"attachments":{"type":"array","items":{"type":"string","format":"binary"}}},"required":["messageCreateRequest"]}}}},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/MessageResponse"}}}}}}},"/api/channels/{channelId}":{"delete":{"tags":["channel-controller"],"operationId":"deleteChannel","parameters":[{"name":"channelId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ChannelDeleteResponse"}}}}}},"patch":{"tags":["channel-controller"],"operationId":"updateChannel","parameters":[{"name":"channelId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChannelUpdateRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ChannelResponse"}}}}}}},"/api/users/username/{username}":{"get":{"tags":["user-controller"],"operationId":"getUserByUsername","parameters":[{"name":"username","in":"path","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UserResponse"}}}}}}},"/api/users/findAll":{"get":{"tags":["user-controller"],"operationId":"findAllUsers","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/UserDto"}}}}}}}},"/api/channels":{"get":{"tags":["channel-controller"],"operationId":"getChannels","parameters":[{"name":"userId","in":"query","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/ChannelResponse"}}}}}}}},"/api/binaryContents":{"get":{"tags":["binary-content-controller"],"operationId":"findBinaryContents","parameters":[{"name":"binaryContentIds","in":"query","required":true,"schema":{"type":"array","items":{"type":"string","format":"uuid"}}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/Base64BinaryContentResponse"}}}}}}}},"/api/binaryContents/{binaryContentId}":{"get":{"tags":["binary-content-controller"],"operationId":"findBinaryContent","parameters":[{"name":"binaryContentId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/Base64BinaryContentResponse"}}}}}}},"/api/binaryContents/find":{"get":{"tags":["binary-content-controller"],"operationId":"findBinaryContentForList","parameters":[{"name":"binaryContentId","in":"query","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/Base64BinaryContentResponse"}}}}}}},"/api/binaryContents/findContents":{"get":{"tags":["binary-content-controller"],"operationId":"findBinaryContentsForList","parameters":[{"name":"binaryContentIds","in":"query","required":true,"schema":{"type":"array","items":{"type":"string","format":"uuid"}}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/Base64BinaryContentResponse"}}}}}}}}},"components":{"schemas":{"UserCreateRequest":{"type":"object","properties":{"username":{"type":"string"},"password":{"type":"string"},"defaultNickname":{"type":"string"},"email":{"type":"string"},"profileImage":{"$ref":"#/components/schemas/UserProfileImageRequest"}}},"UserProfileImageRequest":{"type":"object","properties":{"fileName":{"type":"string","minLength":1},"contentType":{"type":"string","minLength":1},"size":{"type":"integer","format":"int64"},"bytes":{"type":"string","format":"byte"}},"required":["bytes","contentType","fileName","size"]},"UserResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"username":{"type":"string"},"nickname":{"type":"string"},"email":{"type":"string"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"profileId":{"type":"string","format":"uuid"},"online":{"type":"boolean"}}},"ReadStatusCreateRequest":{"type":"object","properties":{"userId":{"type":"string","format":"uuid"},"channelId":{"type":"string","format":"uuid"},"lastReadAt":{"type":"string","format":"date-time"}},"required":["channelId","userId"]},"ReadStatusResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"userId":{"type":"string","format":"uuid"},"channelId":{"type":"string","format":"uuid"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"success":{"type":"boolean"}}},"MessageCreateRequest":{"type":"object","properties":{"authorId":{"type":"string","format":"uuid"},"channelId":{"type":"string","format":"uuid"},"content":{"type":"string","minLength":1},"attachments":{"type":"array","items":{"$ref":"#/components/schemas/UserProfileImageRequest"}}},"required":["authorId","channelId","content"]},"MessageResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"authorId":{"type":"string","format":"uuid"},"channelId":{"type":"string","format":"uuid"},"content":{"type":"string"},"attachmentIds":{"type":"array","items":{"type":"string","format":"uuid"}},"success":{"type":"boolean"}}},"ChannelLeaveRequest":{"type":"object","properties":{"channelId":{"type":"string","format":"uuid"},"userId":{"type":"string","format":"uuid"}},"required":["channelId","userId"]},"ChannelLeaveResponse":{"type":"object","properties":{"channelId":{"type":"string","format":"uuid"},"name":{"type":"string"},"userId":{"type":"string","format":"uuid"},"userNickname":{"type":"string"},"success":{"type":"boolean"}}},"PublicChannelCreateRequest":{"type":"object","properties":{"name":{"type":"string","minLength":1},"description":{"type":"string"}},"required":["name"]},"ChannelCreateResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"createdAt":{"type":"string","format":"date-time"},"name":{"type":"string"},"type":{"type":"string"},"description":{"type":"string"},"success":{"type":"boolean"},"memberIds":{"type":"array","items":{"type":"string","format":"uuid"}}}},"PrivateChannelCreateRequest":{"type":"object","properties":{"participantIds":{"type":"array","items":{"type":"string","format":"uuid"},"maxItems":2147483647,"minItems":2}},"required":["participantIds"]},"LoginRequest":{"type":"object","properties":{"username":{"type":"string","minLength":1},"password":{"type":"string","minLength":1}},"required":["password","username"]},"LoginResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"email":{"type":"string"},"username":{"type":"string"},"defaultNickname":{"type":"string"},"profileId":{"type":"string","format":"uuid"},"success":{"type":"boolean"}}},"UserUpdateRequest":{"type":"object","properties":{"newUsername":{"type":"string"},"newEmail":{"type":"string"},"newPassword":{"type":"string"}}},"UserStatusUpdateRequest":{"type":"object","properties":{"newLastActiveAt":{"type":"string","format":"date-time"}}},"UserStatusResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"userId":{"type":"string","format":"uuid"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"lastActiveAt":{"type":"string","format":"date-time"},"success":{"type":"boolean"}}},"UserUpdatePasswordRequest":{"type":"object","properties":{"currentPassword":{"type":"string","minLength":1},"newPassword":{"type":"string","minLength":1}},"required":["currentPassword","newPassword"]},"UserUpdateDefaultNicknameRequest":{"type":"object","properties":{"newNickname":{"type":"string"}}},"ReadStatusUpdateRequest":{"type":"object","properties":{"newLastReadAt":{"type":"string","format":"date-time"}}},"MessageUpdateRequest":{"type":"object","properties":{"authorId":{"type":"string","format":"uuid"},"content":{"type":"string","minLength":1},"attachmentsToAdd":{"type":"array","items":{"$ref":"#/components/schemas/UserProfileImageRequest"}},"attachmentIdsToRemove":{"type":"array","items":{"type":"string","format":"uuid"}}},"required":["authorId","content"]},"ChannelUpdateRequest":{"type":"object","properties":{"newName":{"type":"string"},"newDescription":{"type":"string"}}},"ChannelResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"name":{"type":"string"},"description":{"type":"string"},"type":{"type":"string"},"lastMessageAt":{"type":"string","format":"date-time"},"participantIds":{"type":"array","items":{"type":"string","format":"uuid"}}}},"UserDto":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"},"username":{"type":"string"},"email":{"type":"string"},"profileId":{"type":"string","format":"uuid"},"online":{"type":"boolean"}}},"Base64BinaryContentResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"createdAt":{"type":"string","format":"date-time"},"fileName":{"type":"string"},"contentType":{"type":"string"},"size":{"type":"integer","format":"int64"},"bytes":{"type":"string"},"success":{"type":"boolean"}}},"UserDeleteResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"username":{"type":"string"},"nickname":{"type":"string"},"email":{"type":"string"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"}}},"MessageDeleteResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"authorId":{"type":"string","format":"uuid"},"channelId":{"type":"string","format":"uuid"},"success":{"type":"boolean"}}},"ChannelDeleteResponse":{"type":"object","properties":{"channelId":{"type":"string","format":"uuid"},"name":{"type":"string"},"type":{"type":"string"},"success":{"type":"boolean"}}}}}}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/api/users": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "getUserAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "createUser",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userCreateRequest": {
+                    "$ref": "#/components/schemas/UserCreateRequest"
+                  },
+                  "profile": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "userCreateRequest"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/readStatuses": {
+      "get": {
+        "tags": [
+          "read-status-controller"
+        ],
+        "operationId": "getReadStatusByUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReadStatusResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "read-status-controller"
+        ],
+        "operationId": "createReadStatus",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadStatusCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/messages": {
+      "get": {
+        "tags": [
+          "message-controller"
+        ],
+        "operationId": "getMessagesByChannel",
+        "parameters": [
+          {
+            "name": "channelId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MessageResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "message-controller"
+        ],
+        "operationId": "createMessage",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messageCreateRequest": {
+                    "$ref": "#/components/schemas/MessageCreateRequest"
+                  },
+                  "attachments": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "required": [
+                  "messageCreateRequest"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/channels/{channelId}/leave": {
+      "post": {
+        "tags": [
+          "channel-controller"
+        ],
+        "operationId": "leaveChannel",
+        "parameters": [
+          {
+            "name": "channelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChannelLeaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChannelLeaveResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/channels/public": {
+      "post": {
+        "tags": [
+          "channel-controller"
+        ],
+        "operationId": "createPublicChannel",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicChannelCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChannelCreateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/channels/private": {
+      "post": {
+        "tags": [
+          "channel-controller"
+        ],
+        "operationId": "createPrivateChannel",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrivateChannelCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChannelCreateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{userId}": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "getUserById",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "deleteUserById",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDeleteResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userUpdateRequest": {
+                    "$ref": "#/components/schemas/UserUpdateRequest"
+                  },
+                  "profile": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "userUpdateRequest"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{userId}/userStatus": {
+      "patch": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "getUserStatusById",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserStatusUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{userId}/profile": {
+      "patch": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "updateUserProfile",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserProfileImageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{userId}/password": {
+      "patch": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "updateUserPassword",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdatePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{userId}/nickname": {
+      "patch": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "updateUserNickname",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdateDefaultNicknameRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/readStatuses/{readStatusId}": {
+      "delete": {
+        "tags": [
+          "read-status-controller"
+        ],
+        "operationId": "deleteReadStatus",
+        "parameters": [
+          {
+            "name": "readStatusId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "read-status-controller"
+        ],
+        "operationId": "updateReadStatus",
+        "parameters": [
+          {
+            "name": "readStatusId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadStatusUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/messages/{messageId}": {
+      "delete": {
+        "tags": [
+          "message-controller"
+        ],
+        "operationId": "deleteMessage",
+        "parameters": [
+          {
+            "name": "messageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "authorId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageDeleteResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "message-controller"
+        ],
+        "operationId": "updateMessage",
+        "parameters": [
+          {
+            "name": "messageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messageCreateRequest": {
+                    "$ref": "#/components/schemas/MessageUpdateRequest"
+                  },
+                  "attachments": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "required": [
+                  "messageCreateRequest"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/channels/{channelId}": {
+      "delete": {
+        "tags": [
+          "channel-controller"
+        ],
+        "operationId": "deleteChannel",
+        "parameters": [
+          {
+            "name": "channelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChannelDeleteResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "channel-controller"
+        ],
+        "operationId": "updateChannel",
+        "parameters": [
+          {
+            "name": "channelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChannelUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChannelResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/username/{username}": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "getUserByUsername",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/findAll": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "findAllUsers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/channels": {
+      "get": {
+        "tags": [
+          "channel-controller"
+        ],
+        "operationId": "getChannels",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChannelResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/binaryContents": {
+      "get": {
+        "tags": [
+          "binary-content-controller"
+        ],
+        "operationId": "findBinaryContents",
+        "parameters": [
+          {
+            "name": "binaryContentIds",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Base64BinaryContentResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/binaryContents/{binaryContentId}": {
+      "get": {
+        "tags": [
+          "binary-content-controller"
+        ],
+        "operationId": "findBinaryContent",
+        "parameters": [
+          {
+            "name": "binaryContentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Base64BinaryContentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/binaryContents/find": {
+      "get": {
+        "tags": [
+          "binary-content-controller"
+        ],
+        "operationId": "findBinaryContentForList",
+        "parameters": [
+          {
+            "name": "binaryContentId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Base64BinaryContentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/binaryContents/findContents": {
+      "get": {
+        "tags": [
+          "binary-content-controller"
+        ],
+        "operationId": "findBinaryContentsForList",
+        "parameters": [
+          {
+            "name": "binaryContentIds",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Base64BinaryContentResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserCreateRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "defaultNickname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "profileImage": {
+            "$ref": "#/components/schemas/UserProfileImageRequest"
+          }
+        }
+      },
+      "UserProfileImageRequest": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contentType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "bytes": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "required": [
+          "bytes",
+          "contentType",
+          "fileName",
+          "size"
+        ]
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "profileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "online": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ReadStatusCreateRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "lastReadAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "channelId",
+          "userId"
+        ]
+      },
+      "ReadStatusResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MessageCreateRequest": {
+        "type": "object",
+        "properties": {
+          "authorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserProfileImageRequest"
+            }
+          }
+        },
+        "required": [
+          "authorId",
+          "channelId",
+          "content"
+        ]
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "authorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "content": {
+            "type": "string"
+          },
+          "attachmentIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ChannelLeaveRequest": {
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "channelId",
+          "userId"
+        ]
+      },
+      "ChannelLeaveResponse": {
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userNickname": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicChannelCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "ChannelCreateResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "memberIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "PrivateChannelCreateRequest": {
+        "type": "object",
+        "properties": {
+          "participantIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 2147483647,
+            "minItems": 2
+          }
+        },
+        "required": [
+          "participantIds"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "email": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "defaultNickname": {
+            "type": "string"
+          },
+          "profileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "newUsername": {
+            "type": "string"
+          },
+          "newEmail": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        }
+      },
+      "UserStatusUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "newLastActiveAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserStatusResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastActiveAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserUpdatePasswordRequest": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "minLength": 1
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "UserUpdateDefaultNicknameRequest": {
+        "type": "object",
+        "properties": {
+          "newNickname": {
+            "type": "string"
+          }
+        }
+      },
+      "ReadStatusUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "newLastReadAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MessageUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "authorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1
+          },
+          "attachmentsToAdd": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserProfileImageRequest"
+            }
+          },
+          "attachmentIdsToRemove": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "authorId",
+          "content"
+        ]
+      },
+      "ChannelUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "newName": {
+            "type": "string"
+          },
+          "newDescription": {
+            "type": "string"
+          }
+        }
+      },
+      "ChannelResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "lastMessageAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "participantIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "UserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "profileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "online": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Base64BinaryContentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "bytes": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserDeleteResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MessageDeleteResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "authorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ChannelDeleteResponse": {
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

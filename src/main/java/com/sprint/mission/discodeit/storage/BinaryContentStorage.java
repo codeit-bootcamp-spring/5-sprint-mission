@@ -9,6 +9,8 @@ import java.util.UUID;
 
 public interface BinaryContentStorage {
     UUID put(UUID id, byte[] bytes);
+
     InputStream get(UUID id);
+
     ResponseEntity<Resource> download(BinaryContentDTO binaryContentDTO);
 }
