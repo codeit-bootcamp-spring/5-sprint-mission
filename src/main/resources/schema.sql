@@ -124,3 +124,11 @@ ALTER TABLE read_statuses
         FOREIGN KEY (channel_id)
             REFERENCES channels (id)
             ON DELETE CASCADE;
+
+
+SELECT datname,
+       pg_roles.rolname AS owner
+FROM pg_database
+         JOIN pg_roles ON pg_roles.oid = pg_database.datdba;
+
+ALTER DATABASE discodeit OWNER TO discodeit_user;
