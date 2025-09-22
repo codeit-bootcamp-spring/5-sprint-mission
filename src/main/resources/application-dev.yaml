@@ -10,6 +10,9 @@ spring:
       ddl-auto: update       # 개발에선 편하게
     show-sql: true
     defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
 
   sql:
     init:
@@ -18,5 +21,15 @@ spring:
 
 logging:
   level:
+    root: info
+    # 웹 요청 로그
     org.springframework.web: debug
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
+    # 직접 작성한 코드
     com.sprint.mission.discodeit: debug
+
+    #SQL 로그
+    org.hibernate.sql: debug # 실행된 SQL
+    org.hibernate.orm.jdbc.bind: trace # 바인딩 파라미터
+

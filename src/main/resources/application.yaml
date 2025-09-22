@@ -49,6 +49,8 @@ logging:
     org.hibernate.SQL: off
     org.hibernate.orm.jdbc.bind: trace
     org.hibernate.type.descriptor.sql: trace
+    root: info
+    com.sprint.mission.discodeit: info
 
 # Actuator 노출 범위
 management:
