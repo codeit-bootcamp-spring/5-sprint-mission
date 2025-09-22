@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.sprint.mission.discodeit.dto.request.auth.LoginRequest;
@@ -13,6 +14,7 @@ import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BasicAuthService implements AuthService {
@@ -21,13 +23,17 @@ public class BasicAuthService implements AuthService {
 	@Override
     @Transactional(readOnly = true)
 	public LoginResponse login(LoginRequest request) {
+        log.info("로그인 시도");
+        log.debug("로그인 요청 데이터: {}", request);
 		User user = userRepository.findByUsername(request.getUsername())
 			.orElseThrow(UserNotFoundException::new);
 
 		if (user.getPassword() == null || !user.getPassword().equals(request.getPassword())) {
+            log.warn("잘못된 비밀번호 입력: userId={}, username={}", user.getId(), user.getUsername());
 			throw new InvalidPasswordException();
 		}
 
+        log.info("로그인 성공: userId={}, username={}", user.getId(), user.getUsername());
 		return LoginResponse.success(user);
 	}
 }

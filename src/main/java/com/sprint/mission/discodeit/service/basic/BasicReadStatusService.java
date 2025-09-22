@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.sprint.mission.discodeit.dto.request.readStatus.ReadStatusCreateRequest;
@@ -22,6 +23,7 @@ import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BasicReadStatusService implements ReadStatusService {
@@ -33,21 +35,27 @@ public class BasicReadStatusService implements ReadStatusService {
     @Override
     @Transactional
     public ReadStatusResponse create(ReadStatusCreateRequest request) {
+        log.info("유저 읽음 상태 생성 시도");
+        log.debug("유저 읽음 상태 생성 요청 데이터: {}", request);
         if (!userRepository.existsById(request.getUserId())
                 || channelRepository.findById(request.getChannelId()).isEmpty()) {
+            log.warn("유저 또는 채널이 존재하지 않음. UserId : {}, ChannelId : {}", request.getUserId(), request.getChannelId());
             throw new ReadStatusNotFoundException();
         }
 
 
-        if (readStatusRepository.findByUserIdAndChannelId(request.getChannelId(), request.getUserId()).isPresent()) {
+        if (readStatusRepository.findByUserIdAndChannelId(request.getUserId(), request.getChannelId()).isPresent()) {
+            log.info("이미 존재하는 유저 읽음 상태 업데이트 시도");
 
             ReadStatus existingReadStatus = readStatusRepository.findByChannelIdAndUserId(request.getChannelId(), request.getUserId());
 
             existingReadStatus.update(request.getLastReadAt());
             readStatusRepository.save(existingReadStatus);
 
+            log.info("유저 읽음 상태 업데이트 성공: {}", existingReadStatus);
             return ReadStatusResponse.success(existingReadStatus);
         } else {
+            log.info("새로운 유저 읽음 상태 생성 시도");
             User user = userRepository.findById(request.getUserId())
                     .orElseThrow(() -> new NoSuchElementException("User not found: " + request.getUserId()));
 
@@ -57,6 +65,7 @@ public class BasicReadStatusService implements ReadStatusService {
             ReadStatus readStatus = new ReadStatus(user, channel);
             readStatusRepository.save(readStatus);
 
+            log.info("유저 읽음 상태 생성 성공: {}", readStatus);
             return ReadStatusResponse.success(readStatus);
         }
     }
@@ -92,12 +101,14 @@ public class BasicReadStatusService implements ReadStatusService {
     @Override
     @Transactional
     public ReadStatusResponse updateById(UUID id, ReadStatusUpdateRequest request) {
+        log.info("유저 읽음 상태 업데이트 시도");
         ReadStatus readStatus = readStatusRepository.findById(id)
                 .orElseThrow(ReadStatusNotFoundException::new);
 
         readStatus.update(request.getNewLastReadAt());
         readStatusRepository.save(readStatus);
 
+        log.info("유저 읽음 상태 업데이트 성공: {}", readStatus);
         return ReadStatusResponse.success(readStatus);
     }
 
@@ -119,11 +130,13 @@ public class BasicReadStatusService implements ReadStatusService {
     @Override
     @Transactional
     public ReadStatusResponse delete(UUID id) {
+        log.info("유저 읽음 상태 삭제 시도");
         ReadStatus readStatus = readStatusRepository.findById(id)
                 .orElseThrow(ReadStatusNotFoundException::new);
 
         readStatusRepository.deleteById(id);
 
+        log.info("유저 읽음 상태 삭제 성공: {}", readStatus);
         return ReadStatusResponse.success(readStatus);
     }
 }

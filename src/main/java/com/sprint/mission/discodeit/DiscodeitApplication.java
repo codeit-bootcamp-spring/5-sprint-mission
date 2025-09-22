@@ -9,9 +9,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @EnableJpaAuditing
+@PropertySource("classpath:.env.properties")
 @SpringBootApplication
 public class DiscodeitApplication {
 	public static void main(String[] args) throws InterruptedException, IOException {

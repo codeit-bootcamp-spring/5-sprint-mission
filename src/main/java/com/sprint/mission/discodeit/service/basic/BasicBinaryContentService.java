@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.BinaryContentDTO;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BasicBinaryContentService implements BinaryContentService {
@@ -32,11 +34,15 @@ public class BasicBinaryContentService implements BinaryContentService {
 	@Override
     @Transactional
 	public BinaryContentResponse create(UserProfileImageRequest request) {
+        log.info("바이너리 컨텐츠 생성 시도");
+        log.debug("바이너리 컨텐츠 생성 요청 데이터: {}", request);
 		BinaryContent binaryContent = request.toBinaryContent();
 
 		binaryContentRepository.save(binaryContent);
         binaryContentStorage.put(binaryContent.getId(), request.getBytes());
 
+        log.info("바이너리 컨텐츠 생성 성공");
+        log.debug("생성된 바이너리 컨텐츠: {}", binaryContent);
 		return BinaryContentResponse.success(binaryContent);
 	}
 
@@ -89,11 +95,13 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Override
     @Transactional
 	public BinaryContentResponse delete(UUID id) {
+        log.info("바이너리 컨텐츠 삭제 시도");
 		BinaryContent binaryContent = binaryContentRepository.findById(id)
 			.orElseThrow(BinaryContentNotFoundException::new);
 
 		binaryContentRepository.deleteById(id);
 
+        log.info("바이너리 컨텐츠 삭제 성공");
 		return BinaryContentResponse.success(binaryContent);
 	}
 }

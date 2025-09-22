@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sprint.mission.discodeit.entity.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.sprint.mission.discodeit.dto.request.userStatus.UserStatusCreateRequest;
@@ -21,6 +22,7 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BasicUserStatusService implements UserStatusService {
@@ -30,6 +32,8 @@ public class BasicUserStatusService implements UserStatusService {
 	@Override
     @Transactional
 	public UserStatusResponse create(UserStatusCreateRequest request) {
+        log.info("유저 상태 생성 시도");
+        log.debug("유저 상태 생성 요청 데이터: {}", request);
 		if (!userRepository.existsById(request.getUserId())) {
             throw new UserNotFoundException();
         }
@@ -44,6 +48,7 @@ public class BasicUserStatusService implements UserStatusService {
 		UserStatus userStatus = new UserStatus(user);
 		userStatusRepository.save(userStatus);
 
+        log.info("유저 상태 생성 완료: {}", userStatus);
 		return UserStatusResponse.success(userStatus);
 	}
 
@@ -70,35 +75,43 @@ public class BasicUserStatusService implements UserStatusService {
 	@Override
     @Transactional
 	public UserStatusResponse update(UUID userStatusId, UserStatusUpdateRequest request) {
+        log.info("유저 상태 업데이트 시도");
+        log.debug("유저 상태 업데이트 요청 데이터: {}", request);
 		UserStatus userStatus = userStatusRepository.findById(userStatusId)
 			.orElseThrow(UserStatusNotFoundException::new);
 
 		userStatus.updateLastActiveAt(request.getNewLastActiveAt());
 		userStatusRepository.save(userStatus);
 
+        log.info("유저 상태 업데이트 완료: {}", userStatus);
 		return UserStatusResponse.success(userStatus);
 	}
 
 	@Override
     @Transactional
 	public UserStatusResponse updateByUserId(UUID userId, UserStatusUpdateRequest request) {
+        log.info("유저 ID로 유저 상태 업데이트 시도");
+        log.debug("유저 ID로 유저 상태 업데이트 요청 데이터: {}", request);
 		UserStatus userStatus = userStatusRepository.findByUserId(userId)
 			.orElseThrow(UserStatusNotFoundException::new);
 
 		userStatus.updateLastActiveAt(request.getNewLastActiveAt());
 		userStatusRepository.save(userStatus);
 
+        log.info("유저 ID로 유저 상태 업데이트 완료: {}", userStatus);
 		return UserStatusResponse.success(userStatus);
 	}
 
 	@Override
     @Transactional
 	public UserStatusResponse delete(UUID id) {
+        log.info("유저 상태 삭제 시도: ID={}", id);
 		UserStatus userStatus = userStatusRepository.findById(id)
 			.orElseThrow(UserStatusNotFoundException::new);
 
 		userStatusRepository.deleteById(id);
 
+        log.info("유저 상태 삭제 완료: {}", userStatus);
 		return UserStatusResponse.success(userStatus);
 	}
 

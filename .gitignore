@@ -292,4 +292,12 @@ src/main/java/excluded/*
 postman-swagger-api-old
 postman-swagger-api-old/*
 
+.env*
+
+.logs/
+logs/
+
+*.db
+*.mv.db
+*.trace.db
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,macos,windows
