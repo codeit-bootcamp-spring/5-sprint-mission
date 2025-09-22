@@ -1,10 +1,12 @@
 package com.sprint.mission.discodeit.dto.request;
 
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.UUID;
 
 public record PrivateChannelCreateRequest(
-    /*@NotNull @NotEmpty*/ List<UUID> participantIds
+    @NotEmpty(message = "개인 채널은 1명 이상의 사용자가 필요합니다")
+    List<UUID> participantIds
 ) {
 
 }

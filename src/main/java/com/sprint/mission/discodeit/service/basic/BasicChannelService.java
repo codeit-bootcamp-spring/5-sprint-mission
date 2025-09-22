@@ -18,7 +18,6 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
-import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -40,7 +39,7 @@ public class BasicChannelService implements ChannelService {
 
   @Override
   @Transactional
-  public ChannelDto create(@Valid PublicChannelCreateRequest request) {
+  public ChannelDto create(PublicChannelCreateRequest request) {
     Channel channel = channelRepository.save(new Channel(
         ChannelType.PUBLIC,
         request.name(),
@@ -54,7 +53,7 @@ public class BasicChannelService implements ChannelService {
 
   @Override
   @Transactional
-  public ChannelDto create(@Valid PrivateChannelCreateRequest request) {
+  public ChannelDto create(PrivateChannelCreateRequest request) {
 
     List<User> participants = request.participantIds()
         .stream()
@@ -104,7 +103,7 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   public ChannelDto update(UUID channelId,
-      @Valid PublicChannelUpdateRequest publicChannelUpdateRequest) {
+      PublicChannelUpdateRequest publicChannelUpdateRequest) {
     Channel channel = validateId(channelId);
 
     if (channel.getType() == ChannelType.PRIVATE) {

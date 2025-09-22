@@ -8,7 +8,6 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,7 @@ public class BasicAuthService implements AuthService {
 
   @Override
   @Transactional
-  public UserDto login(@Valid LoginRequest loginRequest) {
+  public UserDto login(LoginRequest loginRequest) {
     User user = userRepository.findByUsername(loginRequest.username())
         .orElseThrow(() -> UserNotFoundException.withDetail("username", loginRequest.username()));
 

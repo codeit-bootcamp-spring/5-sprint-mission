@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
@@ -41,7 +42,7 @@ public class MessageController implements MessageApi {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto> create(
-      @RequestPart MessageCreateRequest messageCreateRequest,
+      @RequestPart @Valid MessageCreateRequest messageCreateRequest,
       @RequestPart(required = false) List<MultipartFile> attachments
   ) throws IOException {
 
@@ -59,7 +60,7 @@ public class MessageController implements MessageApi {
   @PatchMapping("/{messageId}")
   public ResponseEntity<MessageDto> update(
       @PathVariable UUID messageId,
-      @RequestBody MessageUpdateRequest messageUpdateRequest) {
+      @RequestBody @Valid MessageUpdateRequest messageUpdateRequest) {
     MessageDto messageDto = messageService.update(messageId, messageUpdateRequest);
     return ResponseEntity.status(HttpStatus.OK).body(messageDto);
   }
@@ -76,7 +77,6 @@ public class MessageController implements MessageApi {
       @RequestParam(required = false) Instant cursor,
       @PageableDefault(size = 50,
           sort = "createdAt",
-          page = 0,
           direction = Direction.DESC) Pageable pageable) {
     return ResponseEntity.status(HttpStatus.OK)
         .body(messageService.findAllByChannelId(channelId, cursor, pageable));

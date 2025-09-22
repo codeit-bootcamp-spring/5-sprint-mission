@@ -65,7 +65,7 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
-  public UserDto update(UUID userId, @Valid UserCommand userCommand) {
+  public UserDto update(UUID userId, UserCommand userCommand) {
     String newUserName = validateUsername(userCommand.username());
     String newPassword = userCommand.password();
     String newEmail = validateEmail(userCommand.email());

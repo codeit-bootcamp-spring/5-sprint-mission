@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Auth", description = "인증 API")
@@ -23,6 +24,6 @@ public interface AuthApi {
           content = @Content(examples = @ExampleObject(value = "User with username {username} not found")))
   })
   ResponseEntity<UserDto> login(
-      @Parameter(description = "로그인 정보") LoginRequest loginRequest
+      @Valid @Parameter(description = "로그인 정보") LoginRequest loginRequest
   );
 }

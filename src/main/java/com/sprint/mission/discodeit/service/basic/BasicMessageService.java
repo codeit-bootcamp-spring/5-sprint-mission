@@ -19,7 +19,6 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -45,7 +44,7 @@ public class BasicMessageService implements MessageService {
 
   @Override
   @Transactional
-  public MessageDto create(@Valid MessageCreateCommand command) {
+  public MessageDto create(MessageCreateCommand command) {
     String content = command.content();
     User author = userRepository.findById(command.authorId())
         .orElseThrow(() -> UserNotFoundException.withDetail("author", command.authorId()));
@@ -101,7 +100,7 @@ public class BasicMessageService implements MessageService {
 
   @Override
   @Transactional
-  public MessageDto update(UUID messageId, @Valid MessageUpdateRequest messageUpdateRequest) {
+  public MessageDto update(UUID messageId, MessageUpdateRequest messageUpdateRequest) {
     Message message = validateId(messageId);
     message.update(messageUpdateRequest.newContent());
 
