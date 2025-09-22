@@ -20,9 +20,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @ControllerAdvice
@@ -90,19 +95,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
-        log.warn("[Exception] 유효성 검사 실패: {}", e.getMessage());
-
-        ErrorResponse errorResponse = new ErrorResponse(e, HttpStatus.BAD_REQUEST.value());
-
-        e.getBindingResult().getFieldErrors().forEach(fieldError ->
-                errorResponse.getDetails().put(fieldError.getField(), fieldError.getDefaultMessage())
-        );
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-    }
-
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponse> handleDatabaseError(DataAccessException e) {
         log.error("[Exception] 데이터베이스 오류: {}", e.getMessage(), e);
@@ -115,5 +107,30 @@ public class GlobalExceptionHandler {
         log.error("[Exception] 예상치 못한 오류: {}", e.getMessage(), e);
         ErrorResponse errorResponse = new ErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR.value());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        log.error("요청 유효성 검사 실패: {}", ex.getMessage());
+
+        Map<String, Object> validationErrors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            validationErrors.put(fieldName, errorMessage);
+        });
+
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                "VALIDATION_ERROR",
+                "요청 데이터 유효성 검사에 실패했습니다",
+                validationErrors,
+                ex.getClass().getSimpleName(),
+                HttpStatus.BAD_REQUEST.value()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
     }
 }
