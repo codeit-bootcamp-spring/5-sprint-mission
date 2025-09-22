@@ -2,28 +2,51 @@ spring:
   config:
     activate:
       on-profile: dev
-
+  application:
+    name: discodeit
+  servlet:
+    multipart:
+      maxFileSize: 10MB # 파일 하나의 최대 크기
+      maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
   datasource:
     # 인메모리 (권장)
     url: jdbc:h2:mem:blogdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
     # 임베디드 (data가 넣어지지 않음)
-#    url: jdbc:h2:file:./data/blogdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;AUTO_SERVER=TRUE
+    # url: jdbc:h2:file:./data/blogdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;AUTO_SERVER=TRUE
     # 서버모드 -> h2 DB 실행 필요
-#    url: jdbc:h2:tcp://localhost:9092/~/blogdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    # url: jdbc:h2:tcp://localhost:9092/~/blogdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
     driver-class-name: org.h2.Driver
     username: sa
     password:
-
   jpa:
     hibernate:
       ddl-auto: create
-
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
   h2:
     console:
       enabled: true # 웹 콘솔 활성화
       path: /h2-console # 접속 URL: http://localhost:8080/h2-console
       # jdbc:h2:mem:blogdb
       # jdbc:h2:file:./data/blogdb
+  sql:
+    init:
+      schema-locations: classpath:schema-h2.sql
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: .discodeit/storage
+  logging:
+    level:
+      root: info  # 전체 기본 로그 레벨
+    pattern:
+      console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file:
+      name: logs/app.log  # logs 디렉토리에 app.log 파일 생성
 
 logging:
   level:
@@ -42,3 +65,12 @@ logging:
 server:
   port: 8080   # 개발용 포트
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, loggers # 활성화할 엔드포인트 목록
+
+# actuator info
+info:
+  app:
