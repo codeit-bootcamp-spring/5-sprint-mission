@@ -30,9 +30,7 @@ public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
   private final UserStatusRepository userStatusRepository;
-
   private final BinaryContentService binaryContentService;
-
   private final UserMapper userMapper;
 
   @Override
@@ -62,6 +60,8 @@ public class BasicUserService implements UserService {
                                   .user(user)
                                   .lastActiveAt(Instant.now())
                                   .build();
+
+    user.setStatus(status);
     userStatusRepository.save(status);
 
     log.info("User {} created", user.getUsername());
@@ -105,7 +105,6 @@ public class BasicUserService implements UserService {
     }
 
     user.update(update, newProfile);
-    userRepository.save(user);
 
     if (oldProfile != null) {
       binaryContentService.delete(oldProfile.getId());
@@ -123,7 +122,6 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
                               .orElseThrow(() -> new UserNotFoundException(userId));
 
-    userStatusRepository.delete(user.getStatus());
     if (user.getProfile() != null) {
       binaryContentService.delete(user.getProfile()
                                       .getId());

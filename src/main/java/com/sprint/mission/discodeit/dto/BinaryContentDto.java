@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto;
 
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentCreateException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -26,8 +27,7 @@ public class BinaryContentDto {
                             .size(this.file.getSize())
                             .build();
       } catch (Exception e) {
-        // TODO 예외처리
-        return null;
+        throw new BinaryContentCreateException(e.getMessage());
       }
     }
   }
@@ -49,7 +49,7 @@ public class BinaryContentDto {
         this.size = file.getSize();
         this.bytes = file.getBytes();
       } catch (Exception e) {
-        // TODO 예외처리
+        throw new BinaryContentCreateException(e.getMessage());
       }
     }
   }

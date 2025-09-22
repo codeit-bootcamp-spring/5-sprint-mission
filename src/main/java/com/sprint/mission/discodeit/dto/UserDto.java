@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserDto {
 
   @Getter
+  @Builder
   @Schema(name = "UserCreateRequest")
   public static class CreateRequest {
 
@@ -44,6 +45,7 @@ public class UserDto {
   }
 
   @Getter
+  @Builder
   @Schema(name = "UserUpdateRequest")
   public static class UpdateRequest {
 

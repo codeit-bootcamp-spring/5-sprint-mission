@@ -12,6 +12,7 @@ import lombok.Setter;
 public class ChannelDto {
 
   @Getter
+  @Builder
   @Schema(name = "ChannelCreateRequest")
   public static class CreateRequest {
 

@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Entity
@@ -32,11 +33,12 @@ public class User extends BaseUpdatableEntity {
   @Column(nullable = false)
   private String password;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "profile_id")
   private BinaryContent profile;
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Setter
   private UserStatus status;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -45,26 +47,21 @@ public class User extends BaseUpdatableEntity {
 
 
   public void update(UpdateCommand update, BinaryContent profile) {
-    boolean anyValueUpdated = false;
 
     if (update.getUsername() != null && !update.getUsername()
                                                .equals(this.username)) {
       this.username = update.getUsername();
-      anyValueUpdated = true;
     }
     if (update.getEmail() != null && !update.getEmail()
                                             .equals(this.email)) {
       this.email = update.getEmail();
-      anyValueUpdated = true;
     }
     if (update.getPassword() != null && !update.getPassword()
                                                .equals(this.password)) {
       this.password = update.getPassword();
-      anyValueUpdated = true;
     }
     if (profile != null && !profile.equals(this.profile)) {
       this.profile = profile;
-      anyValueUpdated = true;
     }
   }
 }

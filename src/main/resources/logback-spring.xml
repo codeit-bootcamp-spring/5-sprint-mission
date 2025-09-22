@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true">
 
-  <!-- 콘솔 로그 패턴 -->
+  <!-- 콘솔 로그 패턴 (MDC 포함) -->
   <property name="CONSOLE_LOG_PATTERN"
-    value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+    value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [MDC:%X{requestId} | %X{method} | %X{url}] - %msg%n"/>
 
-  <!-- 파일 로그 패턴 -->
+  <!-- 파일 로그 패턴 (MDC 포함) -->
   <property name="FILE_LOG_PATTERN"
-    value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+    value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [MDC:%X{requestId} | %X{method} | %X{url}] - %msg%n"/>
 
   <!-- 로그 저장 경로 -->
   <property name="LOG_PATH" value="./.logs"/>
@@ -36,4 +36,5 @@
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </root>
+
 </configuration>

@@ -79,6 +79,8 @@ public class BasicMessageService implements MessageService {
 
     message.update(update.getContent());
 
+//    messageRepository.save(message);
+
     log.info("Message {} updated", message.getId());
 
     return messageMapper.toDetail(message);
@@ -129,13 +131,6 @@ public class BasicMessageService implements MessageService {
     messageRepository.delete(message);
 
     log.info("Message {} deleted", message.getId());
-
-    if (!message.getAttachments()
-                .isEmpty()) {
-
-      message.getAttachments()
-             .forEach(a -> binaryContentService.delete(a.getId()));
-    }
   }
 
   @Override

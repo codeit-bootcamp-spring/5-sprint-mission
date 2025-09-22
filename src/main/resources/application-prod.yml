@@ -2,6 +2,10 @@ spring:
   config:
     activate:
       on-profile: prod
+  boot:
+    admin:
+      client:
+        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
 
   datasource:
     url: jdbc:postgresql://localhost:5432/discodeit

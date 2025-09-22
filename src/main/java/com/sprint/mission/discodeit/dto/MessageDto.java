@@ -1,9 +1,5 @@
 package com.sprint.mission.discodeit.dto;
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
@@ -16,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MessageDto {
 
   @Getter
+  @Builder
   @Schema(name = "MessageCreateRequest")
   public static class CreateRequest {
 
@@ -44,6 +41,7 @@ public class MessageDto {
   }
 
   @Getter
+  @Builder
   @Schema(name = "MessageUpdateRequest")
   public static class UpdateRequest {
 

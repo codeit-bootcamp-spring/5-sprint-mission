@@ -13,8 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Getter
 @Entity
@@ -26,8 +24,7 @@ public class Channel extends BaseUpdatableEntity {
 
 
   @Enumerated(EnumType.STRING)
-  @Column(columnDefinition = "channel_type", nullable = false)
-  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Column(nullable = false)
   private ChannelType type;
   @Column(nullable = false)
   private String name;
@@ -43,15 +40,12 @@ public class Channel extends BaseUpdatableEntity {
   private List<ReadStatus> readStatuses = new ArrayList<>();
 
   public void update(String newName, String newDescription) {
-    boolean anyValueUpdated = false;
 
     if (newName != null && !newName.equals(this.name)) {
       this.name = newName;
-      anyValueUpdated = true;
     }
     if (newDescription != null && !newDescription.equals(this.description)) {
       this.description = newDescription;
-      anyValueUpdated = true;
     }
   }
 }

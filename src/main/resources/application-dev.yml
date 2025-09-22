@@ -2,6 +2,10 @@ spring:
   config:
     activate:
       on-profile: dev
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
 
   datasource:
     url: jdbc:postgresql://localhost:5432/discodeit
@@ -18,7 +22,9 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
     properties:
       hibernate:
-        format_sql: true # 실행 쿼리 포맷 형식으로 보기
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 

@@ -7,7 +7,6 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -26,9 +25,13 @@ public abstract class MessageMapper {
 
   protected List<BinaryContentDto.Detail> toAttachmentDetails(List<BinaryContent> attachments) {
 
+    if (attachments == null) {
+      return List.of();
+    }
+
     return attachments.stream()
                       .map(binaryContentMapper::toDetail)
-                      .collect(Collectors.toList());
+                      .toList();
   }
 
   public Message toEntity(MessageDto.CreateCommand create, Channel channel, User author,

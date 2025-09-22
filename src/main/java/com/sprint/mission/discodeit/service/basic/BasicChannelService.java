@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateNotAllowedException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -123,6 +124,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     if (update.getParticipantIds() != null) {
+      // TODO 적용 될 케이스가 없음...
       update.getParticipantIds()
             .forEach(userId -> {
               if (channel.getReadStatuses()
@@ -133,11 +135,15 @@ public class BasicChannelService implements ChannelService {
                 return;
               }
 
-              // TODO ReadStatus 만들어주기
+              User user = userRepository.findById(userId)
+                                        .orElseThrow(() -> new UserNotFoundException(userId));
+
+              readStatusRepository.save(ReadStatus.builder()
+                                                  .user(user)
+                                                  .lastReadAt(null)
+                                                  .build());
             });
     }
-
-    channelRepository.save(channel);
 
     log.info("Channel updated: {}", channel);
 
@@ -153,11 +159,7 @@ public class BasicChannelService implements ChannelService {
 
     if (channel != null) {
       channelRepository.delete(channel);
-
-      // TODO 제약조건 걸었으니 안지워도 되나? 나중에 확인
-      messageRepository.deleteAll(channel.getMessages());
-      readStatusRepository.deleteAll(channel.getReadStatuses());
-
+      
       log.info("Channel deleted: {}", channel);
     }
   }
