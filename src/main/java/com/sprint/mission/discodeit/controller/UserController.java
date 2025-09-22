@@ -17,6 +17,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -64,7 +65,7 @@ public class UserController {
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> createUser(
-            @RequestPart("userCreateRequest") UserCreateRequest request,
+            @Valid @RequestPart("userCreateRequest") UserCreateRequest request,
             @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
         try {
@@ -87,7 +88,7 @@ public class UserController {
     @RequestMapping(path = "/{userId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable UUID userId,
-            @RequestPart("userUpdateRequest") UserUpdateRequest request,
+            @Valid @RequestPart("userUpdateRequest") UserUpdateRequest request,
             @RequestPart(value = "profile", required = false) MultipartFile profile) {
         try {
             UserProfileImageRequest imageRequest = convertFile(profile);
@@ -101,7 +102,7 @@ public class UserController {
     @RequestMapping(path = "/{userId}/nickname", method = RequestMethod.PATCH)
     public ResponseEntity<UserResponse> updateUserNickname(
             @PathVariable UUID userId,
-            @RequestBody UserUpdateDefaultNicknameRequest request) {
+            @Valid @RequestBody UserUpdateDefaultNicknameRequest request) {
         UserResponse userResponse = userService.updateUserDefalutNickname(userId, request);
         return ResponseEntity.ok(userResponse);
     }
@@ -109,7 +110,7 @@ public class UserController {
     @RequestMapping(path = "/{userId}/password", method = RequestMethod.PATCH)
     public ResponseEntity<UserResponse> updateUserPassword(
             @PathVariable UUID userId,
-            @RequestBody UserUpdatePasswordRequest request) {
+            @Valid @RequestBody UserUpdatePasswordRequest request) {
         UserResponse userResponse = userService.updateUserPassword(userId, request);
         return ResponseEntity.ok(userResponse);
     }
@@ -117,7 +118,7 @@ public class UserController {
     @RequestMapping(path = "/{userId}/profile", method = RequestMethod.PATCH)
     public ResponseEntity<UserResponse> updateUserProfile(
             @PathVariable UUID userId,
-            @RequestBody UserProfileImageRequest request) {
+            @Valid @RequestBody UserProfileImageRequest request) {
         UserResponse userResponse = userService.updateUserProfile(userId, request);
         return ResponseEntity.ok(userResponse);
     }
@@ -131,7 +132,7 @@ public class UserController {
     @RequestMapping(path = "/{userId}/userStatus", method = RequestMethod.PATCH)
     public ResponseEntity<UserStatusResponse> getUserStatusById(
             @PathVariable UUID userId,
-            @RequestBody UserStatusUpdateRequest request) {
+            @Valid @RequestBody UserStatusUpdateRequest request) {
         userStatusService.isOnline(userId);
         UserStatusResponse updatedUserStatus = userStatusService.updateByUserId(userId, request);
         return ResponseEntity.ok(updatedUserStatus);

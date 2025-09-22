@@ -21,56 +21,56 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BinaryContentController {
 
-  private final BinaryContentService binaryContentService;
-  private final BinaryContentStorage binaryContentStorage;
+    private final BinaryContentService binaryContentService;
+    private final BinaryContentStorage binaryContentStorage;
 
-  @RequestMapping(path = "/find", method = RequestMethod.GET)
-  public ResponseEntity<Base64BinaryContentResponse> findBinaryContentForList(
-      @RequestParam UUID binaryContentId) throws IOException {
-    log.info("[controller] 파일 조회 요청 받음: {}", binaryContentId);
-    BinaryContentResponse response = binaryContentService.getById(binaryContentId);
-    Base64BinaryContentResponse base64Response = Base64BinaryContentResponse.fromResponse(response);
-    log.info("[controller] 파일 조회 응답: {}", base64Response);
-    return ResponseEntity.ok(base64Response);
-  }
+    @RequestMapping(path = "/find", method = RequestMethod.GET)
+    public ResponseEntity<Base64BinaryContentResponse> findBinaryContentForList(
+            @RequestParam UUID binaryContentId) throws IOException {
+        log.info("[controller] 파일 조회 요청 받음: {}", binaryContentId);
+        BinaryContentResponse response = binaryContentService.getById(binaryContentId);
+        Base64BinaryContentResponse base64Response = Base64BinaryContentResponse.fromResponse(response);
+        log.info("[controller] 파일 조회 응답: {}", base64Response);
+        return ResponseEntity.ok(base64Response);
+    }
 
-  @RequestMapping(path = "/findContents", method = RequestMethod.GET)
-  public ResponseEntity<List<Base64BinaryContentResponse>> findBinaryContentsForList(
-      @RequestParam List<UUID> binaryContentIds) throws IOException {
-    log.info("[controller] 파일 리스트 조회 요청 받음: {}", binaryContentIds);
-    List<BinaryContentResponse> responses = binaryContentService.getAllByIdIn(binaryContentIds);
+    @RequestMapping(path = "/findContents", method = RequestMethod.GET)
+    public ResponseEntity<List<Base64BinaryContentResponse>> findBinaryContentsForList(
+            @RequestParam List<UUID> binaryContentIds) throws IOException {
+        log.info("[controller] 파일 리스트 조회 요청 받음: {}", binaryContentIds);
+        List<BinaryContentResponse> responses = binaryContentService.getAllByIdIn(binaryContentIds);
 
-    List<Base64BinaryContentResponse> base64Responses = responses.stream()
-        .map(Base64BinaryContentResponse::fromResponse)
-        .toList();
+        List<Base64BinaryContentResponse> base64Responses = responses.stream()
+                .map(Base64BinaryContentResponse::fromResponse)
+                .toList();
 
-    log.info("[controller] 파일 리스트 조회 응답: {}", base64Responses);
-    return ResponseEntity.ok(base64Responses);
-  }
+        log.info("[controller] 파일 리스트 조회 응답: {}", base64Responses);
+        return ResponseEntity.ok(base64Responses);
+    }
 
-  @RequestMapping(path = "/{binaryContentId}", method = RequestMethod.GET)
-  public ResponseEntity<Base64BinaryContentResponse> findBinaryContent(
-      @PathVariable UUID binaryContentId) throws IOException {
-    log.info("[binaryContentId] 파일 조회 요청 받음: {}", binaryContentId);
-    BinaryContentResponse response = binaryContentService.getById(binaryContentId);
-    Base64BinaryContentResponse base64Response = Base64BinaryContentResponse.fromResponse(response);
-    log.info("[binaryContentId] 파일 조회 응답: {}", base64Response);
-    return ResponseEntity.ok(base64Response);
-  }
+    @RequestMapping(path = "/{binaryContentId}", method = RequestMethod.GET)
+    public ResponseEntity<Base64BinaryContentResponse> findBinaryContent(
+            @PathVariable UUID binaryContentId) throws IOException {
+        log.info("[binaryContentId] 파일 조회 요청 받음: {}", binaryContentId);
+        BinaryContentResponse response = binaryContentService.getById(binaryContentId);
+        Base64BinaryContentResponse base64Response = Base64BinaryContentResponse.fromResponse(response);
+        log.info("[binaryContentId] 파일 조회 응답: {}", base64Response);
+        return ResponseEntity.ok(base64Response);
+    }
 
-  @RequestMapping(method = RequestMethod.GET)
-  public ResponseEntity<List<Base64BinaryContentResponse>> findBinaryContents(
-      @RequestParam List<UUID> binaryContentIds) throws IOException {
-    log.info("[binaryContentIds] 파일 리스트 조회 요청) 받음: {}", binaryContentIds);
-    List<BinaryContentResponse> responses = binaryContentService.getAllByIdIn(binaryContentIds);
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<Base64BinaryContentResponse>> findBinaryContents(
+            @RequestParam List<UUID> binaryContentIds) throws IOException {
+        log.info("[binaryContentIds] 파일 리스트 조회 요청) 받음: {}", binaryContentIds);
+        List<BinaryContentResponse> responses = binaryContentService.getAllByIdIn(binaryContentIds);
 
-    List<Base64BinaryContentResponse> base64Responses = responses.stream()
-        .map(Base64BinaryContentResponse::fromResponse)
-        .toList();
+        List<Base64BinaryContentResponse> base64Responses = responses.stream()
+                .map(Base64BinaryContentResponse::fromResponse)
+                .toList();
 
-    log.info("[binaryContentIds] 파일 리스트 조회 응답: {}", base64Responses);
-    return ResponseEntity.ok(base64Responses);
-  }
+        log.info("[binaryContentIds] 파일 리스트 조회 응답: {}", base64Responses);
+        return ResponseEntity.ok(base64Responses);
+    }
 
     @RequestMapping(path = "/{binaryContentId}/download", method = RequestMethod.GET)
     public ResponseEntity<Resource> download(@PathVariable UUID binaryContentId) throws IOException {

@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +30,7 @@ public class ReadStatusController {
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<ReadStatusResponse> createReadStatus(
-            @RequestBody ReadStatusCreateRequest request) {
+            @Valid @RequestBody ReadStatusCreateRequest request) {
         ReadStatusResponse response = readStatusService.create(request);
         URI location = URI.create("/api/readStatuses/" + response.getId());
 
@@ -57,7 +58,7 @@ public class ReadStatusController {
     @RequestMapping(path = "/{readStatusId}", method = RequestMethod.PATCH)
     public ResponseEntity<ReadStatusResponse> updateReadStatus(
             @PathVariable UUID readStatusId,
-            @RequestBody ReadStatusUpdateRequest request) {
+            @Valid @RequestBody ReadStatusUpdateRequest request) {
         ReadStatusResponse response = readStatusService.updateById(readStatusId, request);
         return ResponseEntity.ok(response);
     }

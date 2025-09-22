@@ -9,9 +9,12 @@ import com.sprint.mission.discodeit.dto.response.channel.ChannelDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelLeaveResponse;
 import com.sprint.mission.discodeit.dto.response.channel.ChannelResponse;
 import com.sprint.mission.discodeit.service.ChannelService;
+
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,69 +30,71 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ChannelController {
 
-  private final ChannelService channelService;
+    private final ChannelService channelService;
 
-  @RequestMapping(path = "/public", method = RequestMethod.POST)
-  public ResponseEntity<ChannelResponse> createPublicChannel(
-      @RequestBody PublicChannelCreateRequest request) {
-    ChannelResponse response = channelService.create(request);
+    @RequestMapping(path = "/public", method = RequestMethod.POST)
+    public ResponseEntity<ChannelResponse> createPublicChannel(
+        @Valid @RequestBody PublicChannelCreateRequest request) {
+        ChannelResponse response = channelService.create(request);
 
-    URI location = URI.create("/api/channels/" + response.getName());
+        URI location = URI.create("/api/channels/" + response.getName());
 
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .location(location)
-        .body(response);
-  }
-
-  @RequestMapping(path = "/private", method = RequestMethod.POST)
-  public ResponseEntity<ChannelResponse> createPrivateChannel(
-      @RequestBody PrivateChannelCreateRequest request) {
-    ChannelResponse response = channelService.create(request);
-
-    URI location = URI.create("/api/channels/" + response.getName());
-
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .location(location)
-        .body(response);
-  }
-
-  @RequestMapping(path = "/{channelId}", method = RequestMethod.PATCH)
-  public ResponseEntity<ChannelResponse> updateChannel(
-      @PathVariable UUID channelId,
-      @RequestBody ChannelUpdateRequest request) {
-    ChannelResponse response = channelService.updateChannel(channelId, request);
-    return ResponseEntity.ok(response);
-  }
-
-  @RequestMapping(method = RequestMethod.GET)
-  public ResponseEntity<List<ChannelResponse>> getChannels(@RequestParam UUID userId) {
-    List<ChannelResponse> channels = channelService.findChannelsByUserId(userId);
-    return ResponseEntity.ok(channels);
-  }
-
-  @RequestMapping(method = RequestMethod.GET, path = "/{channelId}")
-  public ResponseEntity<ChannelResponse> getChannel(@PathVariable UUID channelId) {
-    ChannelResponse channelResponse = channelService.find(channelId);
-    if (channelResponse == null) {
-      return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(location)
+                .body(response);
     }
-    return ResponseEntity.ok(channelResponse);
-  }
 
-  @RequestMapping(path = "/{channelId}/leave", method = RequestMethod.POST)
-  public ResponseEntity<ChannelLeaveResponse> leaveChannel(@PathVariable UUID channelId,
-      @RequestBody ChannelLeaveRequest request) {
-    if (!channelId.equals(request.getChannelId())) {
-      return ResponseEntity.badRequest().build();
+    @RequestMapping(path = "/private", method = RequestMethod.POST)
+    public ResponseEntity<ChannelResponse> createPrivateChannel(
+        @Valid @RequestBody PrivateChannelCreateRequest request) {
+        ChannelResponse response = channelService.create(request);
+
+        URI location = URI.create("/api/channels/" + response.getName());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(location)
+                .body(response);
     }
-    ChannelLeaveResponse response = channelService.leaveChannel(request);
-    return ResponseEntity.ok(response);
-  }
+
+    @RequestMapping(path = "/{channelId}", method = RequestMethod.PATCH)
+    public ResponseEntity<ChannelResponse> updateChannel(
+            @PathVariable UUID channelId,
+            @Valid @RequestBody ChannelUpdateRequest request) {
+        ChannelResponse response = channelService.updateChannel(channelId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<ChannelResponse>> getChannels(@RequestParam UUID userId) {
+        List<ChannelResponse> channels = channelService.findChannelsByUserId(userId);
+        return ResponseEntity.ok(channels);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "/{channelId}")
+    public ResponseEntity<ChannelResponse> getChannel(@PathVariable UUID channelId) {
+        ChannelResponse channelResponse = channelService.find(channelId);
+        if (channelResponse == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(channelResponse);
+    }
+
+    @RequestMapping(path = "/{channelId}/leave", method = RequestMethod.POST)
+    public ResponseEntity<ChannelLeaveResponse> leaveChannel(
+            @PathVariable UUID channelId,
+            @Valid @RequestBody ChannelLeaveRequest request
+    ) {
+        if (!channelId.equals(request.getChannelId())) {
+            return ResponseEntity.badRequest().build();
+        }
+        ChannelLeaveResponse response = channelService.leaveChannel(request);
+        return ResponseEntity.ok(response);
+    }
 
 
-  @RequestMapping(path = "/{channelId}", method = RequestMethod.DELETE)
-  public ResponseEntity<ChannelDeleteResponse> deleteChannel(@PathVariable UUID channelId) {
-    ChannelDeleteResponse response = channelService.deleteChannel(channelId);
-    return ResponseEntity.ok(response);
-  }
+    @RequestMapping(path = "/{channelId}", method = RequestMethod.DELETE)
+    public ResponseEntity<ChannelDeleteResponse> deleteChannel(@PathVariable UUID channelId) {
+        ChannelDeleteResponse response = channelService.deleteChannel(channelId);
+        return ResponseEntity.ok(response);
+    }
 }

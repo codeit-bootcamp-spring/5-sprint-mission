@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.response.page.PageResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,7 +31,7 @@ public class MessageController {
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponse> createMessage(
-            @RequestPart("messageCreateRequest") MessageCreateRequest request,
+            @Valid @RequestPart("messageCreateRequest") MessageCreateRequest request,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> files
     ) {
         try {
@@ -80,7 +81,7 @@ public class MessageController {
     @RequestMapping(path = "/{messageId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponse> updateMessage(
             @PathVariable UUID messageId,
-            @RequestPart("messageCreateRequest") MessageUpdateRequest request,
+            @Valid @RequestPart("messageCreateRequest") MessageUpdateRequest request,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> files
     ) {
         try {
