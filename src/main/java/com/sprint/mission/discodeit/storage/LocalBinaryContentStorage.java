@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.storage;
 
-import com.sprint.mission.discodeit.config.condition.LocalStorageCondition;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,14 +8,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
-@Conditional(LocalStorageCondition.class)
+@ConditionalOnProperty(
+    name = "discodeit.storage.type",
+    havingValue = "local",
+    matchIfMissing = true
+)
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   private final Path root;

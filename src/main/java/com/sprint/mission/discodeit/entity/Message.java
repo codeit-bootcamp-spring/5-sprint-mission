@@ -49,9 +49,5 @@ public class Message extends BaseUpdatableEntity {
       this.content = newContent;
       anyValueUpdated = true;
     }
-
-    if (anyValueUpdated) {
-      updateTimestamp();
-    }
   }
 }

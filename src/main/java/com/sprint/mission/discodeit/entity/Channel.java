@@ -53,9 +53,5 @@ public class Channel extends BaseUpdatableEntity {
       this.description = newDescription;
       anyValueUpdated = true;
     }
-
-    if (anyValueUpdated) {
-      updateTimestamp();
-    }
   }
 }

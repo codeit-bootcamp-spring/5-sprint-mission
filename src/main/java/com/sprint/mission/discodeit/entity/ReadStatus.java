@@ -32,6 +32,5 @@ public class ReadStatus extends BaseUpdatableEntity {
 
   public void update() {
     this.lastReadAt = Instant.now();
-    updateTimestamp();
   }
 }

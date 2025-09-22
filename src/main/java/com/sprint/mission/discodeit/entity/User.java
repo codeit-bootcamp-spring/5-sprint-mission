@@ -66,9 +66,5 @@ public class User extends BaseUpdatableEntity {
       this.profile = profile;
       anyValueUpdated = true;
     }
-
-    if (anyValueUpdated) {
-      updateTimestamp();
-    }
   }
 }

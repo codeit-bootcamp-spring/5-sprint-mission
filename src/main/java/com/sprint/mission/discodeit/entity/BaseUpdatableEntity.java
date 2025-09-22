@@ -13,8 +13,4 @@ public abstract class BaseUpdatableEntity extends BaseEntity {
   @LastModifiedDate
   @Column
   protected Instant updatedAt;
-
-  public void updateTimestamp() {
-    this.updatedAt = Instant.now();
-  }
 }
