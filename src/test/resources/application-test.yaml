@@ -15,8 +15,7 @@ spring:
 
   sql:
     init:
-      mode: always
-      platform: h2           # ⬅️ data-h2.sql만 실행
+      mode: never
 
 logging:
   level:

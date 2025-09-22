@@ -66,11 +66,17 @@ public class BasicUserService implements UserService {
   @Override
   @Transactional
   public UserDto update(UUID userId, UserCommand userCommand) {
-    String newUserName = validateUsername(userCommand.username());
-    String newPassword = userCommand.password();
-    String newEmail = validateEmail(userCommand.email());
-
     User user = validateId(userId);
+    String newUserName = userCommand.username();
+    String newEmail = userCommand.email();
+    String newPassword = userCommand.password();
+
+    if (userCommand.username() != null && !user.getUsername().equals(userCommand.username())) {
+      validateUsername(newUserName);
+    }
+    if (userCommand.email() != null && !user.getEmail().equals(userCommand.email())) {
+      validateEmail(newEmail);
+    }
 
     BinaryContent newProfile = profileMapper(userCommand.profile());
 
@@ -98,7 +104,7 @@ public class BasicUserService implements UserService {
     userRepository.deleteById(user.getId());
   }
 
-  private BinaryContent profileMapper(@Valid Optional<NewBinaryContent> profile) {
+  private BinaryContent profileMapper(Optional<NewBinaryContent> profile) {
     return profile.stream()
         .map(dto -> {
           BinaryContent binaryContent = new BinaryContent(
