@@ -26,44 +26,44 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MessageController {
 
-  private final MessageService messageService;
+    private final MessageService messageService;
 
-  @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<MessageResponse> createMessage(
-      @RequestPart("messageCreateRequest") MessageCreateRequest request,
-      @RequestPart(value = "attachments", required = false) List<MultipartFile> files
-  ) {
-    try {
-      if (files != null && !files.isEmpty()) {
-        List<BinaryContentCreateRequest> attachments = convertFiles(files);
-        request.setAttachments(attachments);
-      }
-      MessageResponse response = messageService.create(request);
-      URI location = URI.create("/api/messages/" + response.getId());
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MessageResponse> createMessage(
+            @RequestPart("messageCreateRequest") MessageCreateRequest request,
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> files
+    ) {
+        try {
+            if (files != null && !files.isEmpty()) {
+                List<BinaryContentCreateRequest> attachments = convertFiles(files);
+                request.setAttachments(attachments);
+            }
+            MessageResponse response = messageService.create(request);
+            URI location = URI.create("/api/messages/" + response.getId());
 
-      return ResponseEntity.status(HttpStatus.CREATED)
-          .location(location)
-          .body(response);
-    } catch (IOException e) {
-      return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .location(location)
+                    .body(response);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
-  }
 
-  @RequestMapping(path ="/old", method = RequestMethod.GET)
-  public ResponseEntity<List<MessageResponse>> getMessagesByChannelOld(@RequestParam UUID channelId) {
-    List<MessageResponse> messages = messageService.findMessagesByChannelId(channelId);
-    return ResponseEntity.ok(messages);
-  }
-
-  @RequestMapping(path = "/{messageId}", method = RequestMethod.GET)
-  public ResponseEntity<MessageResponse> getMessageById(@PathVariable UUID messageId) {
-    MessageResponse messageResponse = messageService.findMessage(messageId);
-    if (messageResponse == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    } else {
-      return ResponseEntity.ok(messageResponse);
+    @RequestMapping(path = "/old", method = RequestMethod.GET)
+    public ResponseEntity<List<MessageResponse>> getMessagesByChannelOld(@RequestParam UUID channelId) {
+        List<MessageResponse> messages = messageService.findMessagesByChannelId(channelId);
+        return ResponseEntity.ok(messages);
     }
-  }
+
+    @RequestMapping(path = "/{messageId}", method = RequestMethod.GET)
+    public ResponseEntity<MessageResponse> getMessageById(@PathVariable UUID messageId) {
+        MessageResponse messageResponse = messageService.findMessage(messageId);
+        if (messageResponse == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } else {
+            return ResponseEntity.ok(messageResponse);
+        }
+    }
 
     @GetMapping()
     public ResponseEntity<PageResponse<MessageResponse>> getMessagesByChannel(
@@ -77,51 +77,51 @@ public class MessageController {
         return ResponseEntity.ok(response);
     }
 
-  @RequestMapping(path = "/{messageId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<MessageResponse> updateMessage(
-      @PathVariable UUID messageId,
-      @RequestPart("messageCreateRequest") MessageUpdateRequest request,
-      @RequestPart(value = "attachments", required = false) List<MultipartFile> files
-  ) {
-    try {
-      if (files != null && !files.isEmpty()) {
-        List<BinaryContentCreateRequest> attachments = convertFiles(files);
-        request.setAttachmentsToAdd(attachments);
-      }
-      MessageResponse response = messageService.updateMessage(messageId, request);
-      URI location = URI.create("/api/messages/" + response.getId());
+    @RequestMapping(path = "/{messageId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MessageResponse> updateMessage(
+            @PathVariable UUID messageId,
+            @RequestPart("messageCreateRequest") MessageUpdateRequest request,
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> files
+    ) {
+        try {
+            if (files != null && !files.isEmpty()) {
+                List<BinaryContentCreateRequest> attachments = convertFiles(files);
+                request.setAttachmentsToAdd(attachments);
+            }
+            MessageResponse response = messageService.updateMessage(messageId, request);
+            URI location = URI.create("/api/messages/" + response.getId());
 
-      return ResponseEntity.status(HttpStatus.OK)
-          .location(location)
-          .body(response);
-    } catch (IOException e) {
-      return ResponseEntity.badRequest().build();
-    }
-  }
-
-  @RequestMapping(path = "/{messageId}", method = RequestMethod.DELETE)
-  public ResponseEntity<MessageDeleteResponse> deleteMessage(
-      @PathVariable UUID messageId,
-      @RequestParam UUID authorId) {
-    MessageDeleteResponse response = messageService.deleteMessage(messageId, authorId);
-    return ResponseEntity.ok(response);
-  }
-
-  private List<BinaryContentCreateRequest> convertFiles(List<MultipartFile> files) throws IOException {
-    List<BinaryContentCreateRequest> attachments = new ArrayList<>();
-
-    for (MultipartFile file : files) {
-      if (!file.isEmpty()) {
-        BinaryContentCreateRequest attachment = BinaryContentCreateRequest.builder()
-            .fileName(file.getOriginalFilename())
-            .contentType(file.getContentType())
-            .size(file.getSize())
-            .bytes(file.getBytes())
-            .build();
-        attachments.add(attachment);
-      }
+            return ResponseEntity.status(HttpStatus.OK)
+                    .location(location)
+                    .body(response);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    return attachments;
-  }
+    @RequestMapping(path = "/{messageId}", method = RequestMethod.DELETE)
+    public ResponseEntity<MessageDeleteResponse> deleteMessage(
+            @PathVariable UUID messageId,
+            @RequestParam UUID authorId) {
+        MessageDeleteResponse response = messageService.deleteMessage(messageId, authorId);
+        return ResponseEntity.ok(response);
+    }
+
+    private List<BinaryContentCreateRequest> convertFiles(List<MultipartFile> files) throws IOException {
+        List<BinaryContentCreateRequest> attachments = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                BinaryContentCreateRequest attachment = BinaryContentCreateRequest.builder()
+                        .fileName(file.getOriginalFilename())
+                        .contentType(file.getContentType())
+                        .size(file.getSize())
+                        .bytes(file.getBytes())
+                        .build();
+                attachments.add(attachment);
+            }
+        }
+
+        return attachments;
+    }
 }

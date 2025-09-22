@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.message.UnauthorizedMessageAccessException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -51,10 +52,10 @@ public class BasicMessageService implements MessageService {
         log.info("[Service] 메시지 생성 시도");
         log.debug("[Service] 메시지 생성 요청 데이터 : {}", request);
         User author = userRepository.findById(request.getAuthorId())
-                .orElseThrow(() -> new RuntimeException("User not found: " + request.getAuthorId()));
+                .orElseThrow(() -> UserNotFoundException.withId(request.getAuthorId()));
 
 		Channel channel = channelRepository.findById(request.getChannelId())
-				.orElseThrow(ChannelNotFoundException::new);
+				.orElseThrow(() -> ChannelNotFoundException.withId(request.getChannelId()));
 
 		Message message = new Message(author, channel, request.getContent());
 
@@ -70,7 +71,7 @@ public class BasicMessageService implements MessageService {
     @Transactional(readOnly = true)
 	public MessageResponse findMessage(UUID messageId) {
 		Message message = messageRepository.findById(messageId)
-			.orElseThrow(MessageNotFoundException::new);
+			.orElseThrow(() -> MessageNotFoundException.withMessageId(messageId));
 		return MessageResponse.success(message);
 	}
 
@@ -86,7 +87,7 @@ public class BasicMessageService implements MessageService {
     @Transactional(readOnly = true)
 	public List<MessageResponse> findMessageByAuthor(MessagesGetByAuthorRequest request) {
 		Channel channel = channelRepository.findById(request.getChannelId())
-				.orElseThrow(ChannelNotFoundException::new);
+				.orElseThrow(() -> ChannelNotFoundException.withId(request.getChannelId()));
 
         User author = userRepository.findByUsername(request.getAuthor())
                 .orElse(null);
@@ -160,11 +161,11 @@ public class BasicMessageService implements MessageService {
         log.info("[Service] 메시지 수정 시도");
         log.debug("[Service] 메시지 수정 요청 데이터 : {}", request);
 		Message message = messageRepository.findById(messageId)
-				.orElseThrow(MessageNotFoundException::new);
+				.orElseThrow(() -> MessageNotFoundException.withMessageId(messageId));
 
 		if (!message.getAuthor().getId().equals(request.getAuthorId())) {
             log.warn("[Service] 메시지 수정 권한 없음 - messageId: {}, authorId: {}", messageId, request.getAuthorId());
-			throw new UnauthorizedMessageAccessException();
+			throw UnauthorizedMessageAccessException.withDetails(messageId, request.getAuthorId(), message.getAuthor().getId(), "update");
 		}
 
 		message.setContent(request.getContent());
@@ -190,11 +191,11 @@ public class BasicMessageService implements MessageService {
         log.info("[Service] 메시지 삭제 시도");
         log.debug("[Service] 메시지 삭제 요청 데이터 - messageId: {}, authorId: {}", messageId, authorId);
 		Message message = messageRepository.findById(messageId)
-			.orElseThrow(MessageNotFoundException::new);
+			.orElseThrow(() -> MessageNotFoundException.withMessageId(messageId));
 
 		if (!message.getAuthor().getId().equals(authorId)) {
             log.warn("[Service] 메시지 삭제 권한 없음 - messageId: {}, authorId: {}", messageId, authorId);
-			throw new UnauthorizedMessageAccessException();
+			throw UnauthorizedMessageAccessException.withDetails(messageId, authorId, message.getAuthor().getId(), "delete");
 		}
 
         for (BinaryContent attachment : message.getAttachments()) {

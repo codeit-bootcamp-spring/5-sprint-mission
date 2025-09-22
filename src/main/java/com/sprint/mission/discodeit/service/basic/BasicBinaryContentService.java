@@ -50,7 +50,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Transactional(readOnly = true)
 	public BinaryContentResponse getById(UUID id) throws IOException {
 		BinaryContent binaryContent = binaryContentRepository.findById(id)
-			.orElseThrow(BinaryContentNotFoundException::new);
+			.orElseThrow(() -> BinaryContentNotFoundException.withBinaryContentId(id));
 
         BinaryContentResponse response = BinaryContentResponse.success(binaryContent);
         try (InputStream inputStream = binaryContentStorage.get(id)) {
@@ -96,13 +96,13 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Override
     @Transactional
 	public BinaryContentResponse delete(UUID id) {
-        log.info("[Service] 바이너리 컨텐츠 삭제 시도");
+        log.info("[Service] 바이너리 메타데이터  컨텐츠 삭제 시도");
 		BinaryContent binaryContent = binaryContentRepository.findById(id)
-			.orElseThrow(BinaryContentNotFoundException::new);
+			.orElseThrow(() -> BinaryContentNotFoundException.withBinaryContentId(id));
 
 		binaryContentRepository.deleteById(id);
 
-        log.info("[Service] 바이너리 컨텐츠 삭제 성공");
+        log.info("[Service] 바이너리 컨텐츠 메타데이터 삭제 성공");
 		return BinaryContentResponse.success(binaryContent);
 	}
 }

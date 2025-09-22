@@ -1,7 +1,17 @@
 package com.sprint.mission.discodeit.exception.userstatus;
 
-public class AlreadyExistsUserStatusException extends RuntimeException {
-	public AlreadyExistsUserStatusException() {
-		super("이미 존재하는 사용자 상태입니다.");
-	}
+import com.sprint.mission.discodeit.exception.ErrorCode;
+
+import java.util.UUID;
+
+public class AlreadyExistsUserStatusException extends UserStatusException {
+    public AlreadyExistsUserStatusException() {
+        super(ErrorCode.ALREADY_EXISTS_USER_STATUS);
+    }
+
+    public static AlreadyExistsUserStatusException withUserId(UUID userId) {
+        AlreadyExistsUserStatusException exception = new AlreadyExistsUserStatusException();
+        exception.addDetail("userId", userId);
+        return exception;
+    }
 }

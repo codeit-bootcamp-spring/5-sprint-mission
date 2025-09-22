@@ -1,7 +1,18 @@
 package com.sprint.mission.discodeit.exception.channel;
 
-public class NotChannelMemberException extends RuntimeException {
+import com.sprint.mission.discodeit.exception.ErrorCode;
+
+import java.util.UUID;
+
+public class NotChannelMemberException extends ChannelException {
 	public NotChannelMemberException() {
-		super("채널의 멤버가 아닙니다.");
+		super(ErrorCode.NOT_CHANNEL_MEMBER);
 	}
+
+    public static NotChannelMemberException withUserIdAndChannelId(UUID userId, UUID channelId) {
+        NotChannelMemberException exception = new NotChannelMemberException();
+        exception.addDetail("userId", userId);
+        exception.addDetail("channelId", channelId);
+        return exception;
+    }
 }

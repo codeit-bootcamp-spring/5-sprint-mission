@@ -8,9 +8,8 @@ import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.*;
-import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
-import com.sprint.mission.discodeit.exception.user.DuplicateLoginIdException;
-import com.sprint.mission.discodeit.exception.user.InvalidPasswordException;
+import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
+import com.sprint.mission.discodeit.exception.user.InvalidCredentialsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.*;
 import com.sprint.mission.discodeit.service.UserService;
@@ -46,12 +45,12 @@ public class BasicUserService implements UserService {
         log.debug("[Service] 유저 생성 요청 데이터: {}", request);
 		if (userRepository.existsByUsername(request.getUsername())) {
             log.warn("[Service] 중복된 아이디로 인한 유저 생성 실패: {}", request.getUsername());
-			throw new DuplicateLoginIdException();
+			throw DuplicateUserException.withUsername(request.getUsername());
 		}
 
 		if (userRepository.existsByEmail(request.getEmail())) {
             log.warn("[Service] 중복된 이메일로 인한 유저 생성 실패: {}", request.getEmail());
-			throw new DuplicateEmailException();
+			throw DuplicateUserException.withEmail(request.getEmail());
 		}
 
 		User user;
@@ -90,7 +89,7 @@ public class BasicUserService implements UserService {
     @Transactional(readOnly = true)
 	public UserResponse findById(UUID userId) {
 		User user = userRepository.findById(userId)
-			.orElseThrow(UserNotFoundException::new);
+			.orElseThrow(() -> UserNotFoundException.withId(userId));
 
 		UserResponse userResponse = UserResponse.success(user);
 		updateOnlineStatus(List.of(userResponse));
@@ -137,11 +136,11 @@ public class BasicUserService implements UserService {
 
 		if (request.getNewUsername() != null && userRepository.existsByUsername(newUsername)) {
             log.info("[Service] 중복된 아이디로 인한 유저 정보 수정 실패: {}",newUsername);
-			throw new DuplicateLoginIdException();
+			throw DuplicateUserException.withUsername(newUsername);
 		}
 		if (request.getNewEmail() != null && userRepository.existsByEmail(newEmail)) {
             log.info("[Service] 중복된 이메일로 인한 유저 정보 수정 실패: {}", newEmail);
-			throw new DuplicateEmailException();
+			throw DuplicateUserException.withEmail(newEmail);
 		}
 
 		if (request.getNewUsername() != null) {
@@ -180,10 +179,10 @@ public class BasicUserService implements UserService {
     @Transactional
 	public UserResponse updateUserPassword(UUID userId, UserUpdatePasswordRequest request) {
 		User user = userRepository.findById(userId)
-			.orElseThrow(UserNotFoundException::new);
+			.orElseThrow(() -> UserNotFoundException.withId(userId));
 
 		if (!user.getPassword().equals(request.getCurrentPassword())) {
-			throw new InvalidPasswordException();
+			throw InvalidCredentialsException.wrongPassword();
 		}
 
 		user.updatePassword(request.getNewPassword());
@@ -198,7 +197,7 @@ public class BasicUserService implements UserService {
 	public UserResponse updateUserDefalutNickname(UUID userId,
 			UserUpdateDefaultNicknameRequest request) {
 		User user = userRepository.findById(userId)
-			.orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> UserNotFoundException.withId(userId));
 
 		user.updateDefaultNickname(request.getNewNickname());
 		userRepository.save(user);
@@ -211,7 +210,7 @@ public class BasicUserService implements UserService {
     @Transactional
 	public UserResponse updateUserProfile(UUID userId, UserProfileImageRequest request) {
 		User user = userRepository.findById(userId)
-			.orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> UserNotFoundException.withId(userId));
 
 		UUID oldProfileId = user.getProfile() != null ? user.getProfile().getId() : null;
 
@@ -245,7 +244,7 @@ public class BasicUserService implements UserService {
         log.info("[Service] id로 유저 삭제 시도: {}", id);
 
         User user = userRepository.findById(id)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> UserNotFoundException.withId(id));
 
         UUID profileId = null;
         if (user.getProfile() != null) {
@@ -258,7 +257,7 @@ public class BasicUserService implements UserService {
             binaryContentRepository.deleteById(profileId);
         }
 
-        log.info("[Service] 유저 삭제 성공: {}", id);
+        log.info("[Service] id로 유저 삭제 성공: {}", id);
         return UserDeleteResponse.success(user);
     }
 
@@ -267,7 +266,7 @@ public class BasicUserService implements UserService {
     public UserDeleteResponse delete(String username) {
         log.info("[Service] username으로 유저 삭제 시도: {}", username);
         User user = userRepository.findByUsername(username)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> UserNotFoundException.withUsername(username));
 
         UUID profileId = null;
         if (user.getProfile() != null) {
@@ -280,7 +279,7 @@ public class BasicUserService implements UserService {
             binaryContentRepository.deleteById(profileId);
         }
 
-        log.info("[Service] 유저 삭제 성공: {}", username);
+        log.info("[Service] username으로 유저 삭제 성공: {}", username);
         return UserDeleteResponse.success(user);
     }
 

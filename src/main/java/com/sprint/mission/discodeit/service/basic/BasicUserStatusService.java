@@ -35,15 +35,15 @@ public class BasicUserStatusService implements UserStatusService {
         log.info("[Service] 유저 상태 생성 시도");
         log.debug("[Service] 유저 상태 생성 요청 데이터: {}", request);
 		if (!userRepository.existsById(request.getUserId())) {
-            throw new UserNotFoundException();
+            throw UserNotFoundException.withId(request.getUserId());
         }
 
 		if (userStatusRepository.findByUserId(request.getUserId()).isPresent()) {
-			throw new AlreadyExistsUserStatusException();
+			throw AlreadyExistsUserStatusException.withUserId(request.getUserId());
 		}
 
         User user = userRepository.findById(request.getUserId())
-            .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> UserNotFoundException.withId(request.getUserId()));
 
 		UserStatus userStatus = new UserStatus(user);
 		userStatusRepository.save(userStatus);
@@ -56,7 +56,7 @@ public class BasicUserStatusService implements UserStatusService {
     @Transactional(readOnly = true)
 	public UserStatusResponse getById(UUID id) {
 		UserStatus userStatus = userStatusRepository.findById(id)
-			.orElseThrow(UserStatusNotFoundException::new);
+                .orElseThrow(() -> UserNotFoundException.withId(id));
 
 		return UserStatusResponse.success(userStatus);
 	}
@@ -78,7 +78,7 @@ public class BasicUserStatusService implements UserStatusService {
         log.info("[Service] 유저 상태 업데이트 시도");
         log.debug("[Service] 유저 상태 업데이트 요청 데이터: {}", request);
 		UserStatus userStatus = userStatusRepository.findById(userStatusId)
-			.orElseThrow(UserStatusNotFoundException::new);
+			.orElseThrow(() -> UserStatusNotFoundException.withUserStatusId(userStatusId));
 
 		userStatus.updateLastActiveAt(request.getNewLastActiveAt());
 		userStatusRepository.save(userStatus);
@@ -93,7 +93,7 @@ public class BasicUserStatusService implements UserStatusService {
         log.info("[Service] 유저 ID로 유저 상태 업데이트 시도");
         log.debug("[Service] 유저 ID로 유저 상태 업데이트 요청 데이터: {}", request);
 		UserStatus userStatus = userStatusRepository.findByUserId(userId)
-			.orElseThrow(UserStatusNotFoundException::new);
+			.orElseThrow(() -> UserStatusNotFoundException.withUserId(userId));
 
 		userStatus.updateLastActiveAt(request.getNewLastActiveAt());
 		userStatusRepository.save(userStatus);
@@ -107,7 +107,7 @@ public class BasicUserStatusService implements UserStatusService {
 	public UserStatusResponse delete(UUID id) {
         log.info("[Service] 유저 상태 삭제 시도: ID={}", id);
 		UserStatus userStatus = userStatusRepository.findById(id)
-			.orElseThrow(UserStatusNotFoundException::new);
+			.orElseThrow(() -> UserStatusNotFoundException.withUserStatusId(id));
 
 		userStatusRepository.deleteById(id);
 
@@ -119,7 +119,7 @@ public class BasicUserStatusService implements UserStatusService {
     @Transactional
 	public boolean isOnline(UUID userId) {
 		UserStatus userStatus = userStatusRepository.findByUserId(userId)
-			.orElseThrow(UserStatusNotFoundException::new);
+			.orElseThrow(() -> UserStatusNotFoundException.withUserId(userId));
 
 		Instant lastActiveAt = userStatus.getLastActiveAt();
 
