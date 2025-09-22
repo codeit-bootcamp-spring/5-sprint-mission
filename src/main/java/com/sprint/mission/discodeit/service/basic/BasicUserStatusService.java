@@ -9,13 +9,15 @@ import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;                 // 🔹 추가
+import com.sprint.mission.discodeit.exception.userstatus.UserStatusAlreadyExistsException; // 🔹 추가
+import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundException;     // 🔹 추가
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;   // 🔹 추가
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,13 +39,13 @@ public class BasicUserStatusService implements UserStatusService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> {
           log.warn("[USER_STATUS][CREATE] user not found userId={}", userId);
-          return new NoSuchElementException("User with id " + userId + " not found");
+          return new UserNotFoundException(userId); // 🔹 교체
         });
 
     Optional.ofNullable(user.getStatus())
         .ifPresent(status -> {
           log.warn("[USER_STATUS][CREATE] already exists userId={}", userId);
-          throw new IllegalArgumentException("UserStatus with id " + userId + " already exists");
+          throw new UserStatusAlreadyExistsException(userId); // 🔹 교체
         });
 
     Instant lastActiveAt = request.lastActiveAt();
@@ -64,7 +66,7 @@ public class BasicUserStatusService implements UserStatusService {
         })
         .orElseThrow(() -> {
           log.warn("[USER_STATUS][FIND] not-found id={}", userStatusId);
-          return new NoSuchElementException("UserStatus with id " + userStatusId + " not found");
+          return new UserStatusNotFoundException(userStatusId); // 🔹 교체
         });
   }
 
@@ -87,7 +89,7 @@ public class BasicUserStatusService implements UserStatusService {
     UserStatus userStatus = userStatusRepository.findById(userStatusId)
         .orElseThrow(() -> {
           log.warn("[USER_STATUS][UPDATE] not-found id={}", userStatusId);
-          return new NoSuchElementException("UserStatus with id " + userStatusId + " not found");
+          return new UserStatusNotFoundException(userStatusId); // 🔹 교체
         });
 
     userStatus.update(newLastActiveAt);
@@ -104,7 +106,7 @@ public class BasicUserStatusService implements UserStatusService {
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
         .orElseThrow(() -> {
           log.warn("[USER_STATUS][UPDATE_BY_USER] not-found userId={}", userId);
-          return new NoSuchElementException("UserStatus with userId " + userId + " not found");
+          return new UserStatusNotFoundException(userId); // 🔹 교체
         });
 
     userStatus.update(newLastActiveAt);
@@ -118,7 +120,7 @@ public class BasicUserStatusService implements UserStatusService {
     log.info("[USER_STATUS][DELETE] id={}", userStatusId);
     if (!userStatusRepository.existsById(userStatusId)) {
       log.warn("[USER_STATUS][DELETE] not-found id={}", userStatusId);
-      throw new NoSuchElementException("UserStatus with id " + userStatusId + " not found");
+      throw new UserStatusNotFoundException(userStatusId); // 🔹 교체
     }
     userStatusRepository.deleteById(userStatusId);
     log.info("[USER_STATUS][DELETE][DONE] id={}", userStatusId);

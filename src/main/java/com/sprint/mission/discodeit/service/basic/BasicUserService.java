@@ -13,13 +13,14 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException; // 🔹 추가
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;     // 🔹 추가
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;  // 🔹 추가
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,11 +45,11 @@ public class BasicUserService implements UserService {
 
     if (userRepository.existsByEmail(email)) {
       log.warn("[USER][CREATE] duplicate email={}", email);
-      throw new IllegalArgumentException("User with email " + email + " already exists");
+      throw new UserAlreadyExistsException("email", email);        // 🔹 교체
     }
     if (userRepository.existsByUsername(username)) {
       log.warn("[USER][CREATE] duplicate username={}", username);
-      throw new IllegalArgumentException("User with username " + username + " already exists");
+      throw new UserAlreadyExistsException("username", username);  // 🔹 교체
     }
 
     BinaryContent nullableProfile = optionalProfileCreateRequest
@@ -56,8 +57,7 @@ public class BasicUserService implements UserService {
           String fileName = profileRequest.fileName();
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
+          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
           binaryContentRepository.save(binaryContent);
           binaryContentStorage.put(binaryContent.getId(), bytes);
           log.debug("[USER][CREATE] profile uploaded fileName={} size={}", fileName, bytes.length);
@@ -85,7 +85,7 @@ public class BasicUserService implements UserService {
         })
         .orElseThrow(() -> {
           log.warn("[USER][FIND] not-found userId={}", userId);
-          return new NoSuchElementException("User with id " + userId + " not found");
+          return new UserNotFoundException(userId);              // 🔹 교체
         });
   }
 
@@ -109,18 +109,18 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> {
           log.warn("[USER][UPDATE] not-found userId={}", userId);
-          return new NoSuchElementException("User with id " + userId + " not found");
+          return new UserNotFoundException(userId);              // 🔹 교체
         });
 
     String newUsername = userUpdateRequest.newUsername();
     String newEmail = userUpdateRequest.newEmail();
     if (userRepository.existsByEmail(newEmail)) {
       log.warn("[USER][UPDATE] duplicate email={}", newEmail);
-      throw new IllegalArgumentException("User with email " + newEmail + " already exists");
+      throw new UserAlreadyExistsException("email", newEmail);   // 🔹 교체
     }
     if (userRepository.existsByUsername(newUsername)) {
       log.warn("[USER][UPDATE] duplicate username={}", newUsername);
-      throw new IllegalArgumentException("User with username " + newUsername + " already exists");
+      throw new UserAlreadyExistsException("username", newUsername); // 🔹 교체
     }
 
     BinaryContent nullableProfile = optionalProfileCreateRequest
@@ -128,8 +128,7 @@ public class BasicUserService implements UserService {
           String fileName = profileRequest.fileName();
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
+          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
           binaryContentRepository.save(binaryContent);
           binaryContentStorage.put(binaryContent.getId(), bytes);
           log.debug("[USER][UPDATE] profile uploaded fileName={} size={}", fileName, bytes.length);
@@ -150,7 +149,7 @@ public class BasicUserService implements UserService {
     log.info("[USER][DELETE] userId={}", userId);
     if (!userRepository.existsById(userId)) {
       log.warn("[USER][DELETE] not-found userId={}", userId);
-      throw new NoSuchElementException("User with id " + userId + " not found");
+      throw new UserNotFoundException(userId);                  // 🔹 교체
     }
     userRepository.deleteById(userId);
     log.info("[USER][DELETE][DONE] userId={}", userId);

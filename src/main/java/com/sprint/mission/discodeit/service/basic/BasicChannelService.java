@@ -13,11 +13,12 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;      // 🔹 추가
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException; // 🔹 추가
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;          // 🔹 추가
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,16 +43,14 @@ public class BasicChannelService implements ChannelService {
     Channel channel = new Channel(ChannelType.PUBLIC, name, description);
     channelRepository.save(channel);
 
-    log.info("[CH][CREATE_PUBLIC][DONE] id={} name={}",
-        channel.getId(), name);
+    log.info("[CH][CREATE_PUBLIC][DONE] id={} name={}", channel.getId(), name);
     return channelMapper.toDto(channel);
   }
 
   @Transactional
   @Override
   public ChannelDto create(PrivateChannelCreateRequest request) {
-    log.info("[CH][CREATE_PRIVATE] participants={}",
-        request.participantIds());
+    log.info("[CH][CREATE_PRIVATE] participants={}", request.participantIds());
 
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
     channelRepository.save(channel);
@@ -61,8 +60,7 @@ public class BasicChannelService implements ChannelService {
         .toList();
     readStatusRepository.saveAll(readStatuses);
 
-    log.info("[CH][CREATE_PRIVATE][DONE] id={} participants={}",
-        channel.getId(), request.participantIds());
+    log.info("[CH][CREATE_PRIVATE][DONE] id={} participants={}", channel.getId(), request.participantIds());
     return channelMapper.toDto(channel);
   }
 
@@ -74,7 +72,7 @@ public class BasicChannelService implements ChannelService {
         .map(channelMapper::toDto)
         .orElseThrow(() -> {
           log.warn("[CH][FIND] not-found id={}", channelId);
-          return new NoSuchElementException("Channel with id " + channelId + " not found");
+          return new ChannelNotFoundException(channelId);     // 🔹 교체
         });
   }
 
@@ -94,8 +92,7 @@ public class BasicChannelService implements ChannelService {
         .map(channelMapper::toDto)
         .toList();
 
-    log.info("[CH][FIND_ALL_BY_USER][DONE] userId={} total={}",
-        userId, result.size());
+    log.info("[CH][FIND_ALL_BY_USER][DONE] userId={} total={}", userId, result.size());
     return result;
   }
 
@@ -109,12 +106,12 @@ public class BasicChannelService implements ChannelService {
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> {
           log.warn("[CH][UPDATE] not-found id={}", channelId);
-          return new NoSuchElementException("Channel with id " + channelId + " not found");
+          return new ChannelNotFoundException(channelId);     // 🔹 교체
         });
 
     if (channel.getType().equals(ChannelType.PRIVATE)) {
       log.warn("[CH][UPDATE] private-update-blocked id={}", channelId);
-      throw new IllegalArgumentException("Private channel cannot be updated");
+      throw new PrivateChannelUpdateException(channelId);     // 🔹 교체
     }
 
     channel.update(newName, newDescription);
@@ -129,7 +126,7 @@ public class BasicChannelService implements ChannelService {
 
     if (!channelRepository.existsById(channelId)) {
       log.warn("[CH][DELETE] not-found id={}", channelId);
-      throw new NoSuchElementException("Channel with id " + channelId + " not found");
+      throw new ChannelNotFoundException(channelId);         // 🔹 교체
     }
 
     messageRepository.deleteAllByChannelId(channelId);

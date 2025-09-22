@@ -6,7 +6,8 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
-import java.util.NoSuchElementException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.auth.InvalidCredentialsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,12 +32,12 @@ public class BasicAuthService implements AuthService {
     User user = userRepository.findByUsername(username)
         .orElseThrow(() -> {
           log.warn("[AUTH][LOGIN] user not found username={}", username);
-          return new NoSuchElementException("User with username " + username + " not found");
+          return new UserNotFoundException(username);
         });
 
     if (!user.getPassword().equals(password)) {
       log.warn("[AUTH][LOGIN] invalid password username={}", username);
-      throw new IllegalArgumentException("Wrong password");
+      throw new InvalidCredentialsException(username);
     }
 
     log.info("[AUTH][LOGIN][SUCCESS] userId={}", user.getId());
