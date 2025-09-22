@@ -22,8 +22,8 @@ spring:
       enabled: true
       path: /h2-console
       # 접속 URL: http://localhost:8080/h2-console
-      # jdbc:h2:mem:blogdb
-      # jdbc:h2:file:./data/blogdb
+      # jdbc:h2:mem:codeitdb
+      # jdbc:h2:file:./data/codeitdb
 
 # log
 logging:
@@ -35,4 +35,4 @@ logging:
 
     # Spring Web
     org.springframework.web: trace
-    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: debug

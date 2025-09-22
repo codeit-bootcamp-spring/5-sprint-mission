@@ -23,6 +23,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class BasicMessageService implements MessageService {
 
     private final MessageRepository messageRepository;
@@ -45,6 +47,9 @@ public class BasicMessageService implements MessageService {
     @Override
     public MessageDto create(MessageCreateRequest messageCreateRequest,
         List<BinaryContentCreateRequest> binaryContentCreateRequests) {
+
+        log.debug("메시지 생성 시작: request={}", messageCreateRequest);
+
         UUID channelId = messageCreateRequest.channelId();
         UUID authorId = messageCreateRequest.authorId();
 
@@ -80,6 +85,9 @@ public class BasicMessageService implements MessageService {
         );
 
         messageRepository.save(message);
+
+        log.debug("메시지 생성 완료: request={}", message);
+
         return messageMapper.toDto(message);
     }
 
@@ -113,21 +121,30 @@ public class BasicMessageService implements MessageService {
     @Transactional
     @Override
     public MessageDto update(UUID messageId, MessageUpdateRequest request) {
+        log.debug("메시지 수정 시작: request={}", request);
+
         String newContent = request.newContent();
         Message message = messageRepository.findById(messageId)
             .orElseThrow(
                 () -> new NoSuchElementException("Message with id " + messageId + " not found"));
         message.update(newContent);
+
+        log.debug("메시지 수정 완료: request={}", message);
+
         return messageMapper.toDto(message);
     }
 
     @Transactional
     @Override
     public void delete(UUID messageId) {
+        log.debug("메시지 삭제 시작: id={}", messageId);
+
         if (!messageRepository.existsById(messageId)) {
             throw new NoSuchElementException("Message with id " + messageId + " not found");
         }
 
         messageRepository.deleteById(messageId);
+
+        log.debug("메시지 삭제 완료: id={}", messageId);
     }
 }

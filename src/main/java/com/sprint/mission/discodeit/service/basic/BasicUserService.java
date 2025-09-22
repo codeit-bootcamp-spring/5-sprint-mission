@@ -19,11 +19,13 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class BasicUserService implements UserService {
 
     private final UserRepository userRepository;
@@ -36,6 +38,9 @@ public class BasicUserService implements UserService {
     @Override
     public UserDto create(UserCreateRequest userCreateRequest,
         Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+
+        log.debug("사용자 생성 시작: request={}", userCreateRequest);
+
         String username = userCreateRequest.username();
         String email = userCreateRequest.email();
 
@@ -66,6 +71,9 @@ public class BasicUserService implements UserService {
         UserStatus userStatus = new UserStatus(user, now);
 
         userRepository.save(user);
+
+        log.debug("사용자 생성 완료: request={}", user);
+
         return userMapper.toDto(user);
     }
 
@@ -88,6 +96,9 @@ public class BasicUserService implements UserService {
     @Override
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
         Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+
+        log.debug("사용자 수정 시작: request={}", userUpdateRequest);
+
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
@@ -118,15 +129,21 @@ public class BasicUserService implements UserService {
         String newPassword = userUpdateRequest.newPassword();
         user.update(newUsername, newEmail, newPassword, nullableProfile);
 
+        log.debug("사용자 수정 완료: request={}", user);
+
         return userMapper.toDto(user);
     }
 
     @Transactional
     @Override
     public void delete(UUID userId) {
+        log.debug("사용자 삭제 시작: id={}", userId);
+
         if (userRepository.existsById(userId)) {
             throw new NoSuchElementException("User with id " + userId + " not found");
         }
+
+        log.debug("사용자 삭제 완료: id={}", userId);
 
         userRepository.deleteById(userId);
     }
