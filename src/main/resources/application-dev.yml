@@ -24,3 +24,15 @@ spring:
       # 접속 URL: http://localhost:8080/h2-console
       # jdbc:h2:mem:blogdb
       # jdbc:h2:file:./data/blogdb
+
+# log
+logging:
+  level:
+    # Hibernate SQL
+    org.hibernate.SQL: off
+    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.type.descriptor.sql: trace
+
+    # Spring Web
+    org.springframework.web: trace
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
