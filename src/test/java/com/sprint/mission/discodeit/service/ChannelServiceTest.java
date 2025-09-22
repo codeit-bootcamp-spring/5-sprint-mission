@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.times;
@@ -257,8 +258,8 @@ public class ChannelServiceTest {
   }
 
   @Test
-  @DisplayName("userId로 채널 조회 테스트")
-  void findChannelByUserId() {
+  @DisplayName("userId로 채널 조회 테스트(userId가 null 일 때)")
+  void findPublicChannel() {
     ChannelDto publicDto = new ChannelDto(
         publicChannel.getId(),
         publicChannel.getType(),
@@ -282,6 +283,56 @@ public class ChannelServiceTest {
     List<ChannelDto> result = channelService.findAllByUserId(null);
 
     assertThat(result).isEqualTo(channelDtos);
+
+    verify(readStatusRepository, times(1)).findAllByUserId(any());
+    verify(channelRepository, times(1)).findAllByIdInOrType(any(), any());
+    verify(channelMapper, times(1)).toDto(any(), any(), any());
+    verify(readStatusRepository, times(1)).findAllByChannelId(any());
+    verify(userRepository, times(1)).findAllByIdIn(any());
+    verify(messageRepository, times(1)).findTopByChannelIdOrderByCreatedAtDescIdDesc(any());
+  }
+
+  @Test
+  @DisplayName("userId로 채널 조회 테스트(userId가 있을 때)")
+  void findChannelByUserId() {
+    ChannelDto publicDto = new ChannelDto(
+        publicChannel.getId(),
+        publicChannel.getType(),
+        publicChannel.getName(),
+        publicChannel.getDescription(),
+        null,
+        null
+    );
+    ChannelDto privateDto = new ChannelDto(
+        privateChannel.getId(),
+        privateChannel.getType(),
+        privateChannel.getName(),
+        privateChannel.getDescription(),
+        List.of(userDto),
+        null
+    );
+    List<ChannelDto> channelDtos = List.of(publicDto, privateDto);
+
+    given(readStatusRepository.findAllByUserId(any())).willReturn(List.of(readStatus));
+    given(channelRepository.findAllByIdInOrType(any(), any())).willReturn(
+        List.of(publicChannel, privateChannel));
+    given(channelMapper.toDto(eq(publicChannel), any(), any())).willReturn(publicDto);
+    given(channelMapper.toDto(eq(privateChannel), any(), any())).willReturn(privateDto);
+    given(readStatusRepository.findAllByChannelId(any())).willReturn(List.of(readStatus));
+    given(userRepository.findAllByIdIn(any())).willReturn(List.of(user));
+    given(messageRepository.findTopByChannelIdOrderByCreatedAtDescIdDesc(any())).willReturn(
+        Optional.empty());
+
+    List<ChannelDto> result = channelService.findAllByUserId(user.getId());
+
+    assertThat(result).isEqualTo(channelDtos);
+
+    verify(readStatusRepository, times(1)).findAllByUserId(any());
+    verify(channelRepository, times(1)).findAllByIdInOrType(any(), any());
+    verify(channelMapper, times(2)).toDto(any(), any(), any());
+    verify(readStatusRepository, times(2)).findAllByChannelId(any());
+    verify(userRepository, times(2)).findAllByIdIn(any());
+    verify(messageRepository, times(2)).findTopByChannelIdOrderByCreatedAtDescIdDesc(any());
   }
 
 
