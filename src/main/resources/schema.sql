@@ -118,7 +118,7 @@ ALTER TABLE read_statuses
             REFERENCES users (id)
             ON DELETE CASCADE;
 
--- ReadStatus (N) -> User (1)
+-- ReadStatus (N) -> Channel (1)
 ALTER TABLE read_statuses
     ADD CONSTRAINT fk_read_status_channel
         FOREIGN KEY (channel_id)
