@@ -18,34 +18,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     List<Message> findByAuthorIdAndChannelId(UUID authorId, UUID channelId);
 
     @Query("""
-            select m
-            from Message m
-            where m.channel.id = :channelId
-            order by m.createdAt desc
-            """)
-    Slice<Message> findByChannelId(UUID channelId, Pageable pageable);
-
-    @Query("""
-            select m
-            from Message m
-            where m.channel.id = :channelId
-            order by m.createdAt desc
-            """)
-    Page<Message> findPageByChannelId(UUID channelId, Pageable pageable);
-
-    @Query("""
-            SELECT m FROM Message m
-            JOIN FETCH m.author a
-            LEFT JOIN FETCH a.profile
-            LEFT JOIN FETCH a.userStatus
-            LEFT JOIN FETCH m.attachments
-            WHERE m.channel.id = :channelId
-            ORDER BY m.createdAt DESC
-            """)
-    Slice<Message> findSliceByChannelId(UUID channelId, Pageable pageable);
-
-    @Query("""
-            SELECT m FROM Message m
+            SELECT DISTINCT m FROM Message m
             JOIN FETCH m.author a
             LEFT JOIN FETCH a.profile
             LEFT JOIN FETCH a.userStatus

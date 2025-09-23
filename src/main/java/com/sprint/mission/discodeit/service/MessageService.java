@@ -24,10 +24,6 @@ public interface MessageService {
 
     List<MessageResponse> findMessageByAuthor(MessagesGetByAuthorRequest request);
 
-    PageOffsetResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size, String[] sort);
-
-    PageOffsetResponse<MessageResponse> findSliceMessagesByChannel(UUID channelId, int page, int size, String[] sort);
-
     PageResponse<MessageResponse> findMessagesByChannelWithCursor(UUID channelId, Instant cursor, int size, String sort);
 
     List<Message> findAll();

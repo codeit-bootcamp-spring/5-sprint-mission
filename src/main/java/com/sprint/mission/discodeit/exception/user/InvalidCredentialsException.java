@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.exception.user;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 
-public class InvalidCredentialsException extends DiscodeitException {
+public class InvalidCredentialsException extends UserException {
     public InvalidCredentialsException() {
         super(ErrorCode.INVALID_PASSWORD);
     }

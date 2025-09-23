@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.exception.ErrorCode;
 
 import java.util.UUID;
 
-public class UnauthorizedMessageAccessException extends DiscodeitException {
+public class UnauthorizedMessageAccessException extends MessageException {
     public UnauthorizedMessageAccessException() {
         super(ErrorCode.UNAUTHORIZED_MESSAGE_ACCESS);
     }

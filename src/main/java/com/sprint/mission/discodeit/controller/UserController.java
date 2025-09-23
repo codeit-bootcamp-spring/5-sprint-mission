@@ -93,30 +93,6 @@ public class UserController {
         }
     }
 
-    @RequestMapping(path = "/{userId}/nickname", method = RequestMethod.PATCH)
-    public ResponseEntity<UserResponse> updateUserNickname(
-            @PathVariable UUID userId,
-            @Valid @RequestBody UserUpdateDefaultNicknameRequest request) {
-        UserResponse userResponse = userService.updateUserDefalutNickname(userId, request);
-        return ResponseEntity.ok(userResponse);
-    }
-
-    @RequestMapping(path = "/{userId}/password", method = RequestMethod.PATCH)
-    public ResponseEntity<UserResponse> updateUserPassword(
-            @PathVariable UUID userId,
-            @Valid @RequestBody UserUpdatePasswordRequest request) {
-        UserResponse userResponse = userService.updateUserPassword(userId, request);
-        return ResponseEntity.ok(userResponse);
-    }
-
-    @RequestMapping(path = "/{userId}/profile", method = RequestMethod.PATCH)
-    public ResponseEntity<UserResponse> updateUserProfile(
-            @PathVariable UUID userId,
-            @Valid @RequestBody UserProfileImageRequest request) {
-        UserResponse userResponse = userService.updateUserProfile(userId, request);
-        return ResponseEntity.ok(userResponse);
-    }
-
     @RequestMapping(path = "/{userId}", method = RequestMethod.DELETE)
     public ResponseEntity<UserDeleteResponse> deleteUserById(@PathVariable UUID userId) {
         UserDeleteResponse userDeleteResponse = userService.delete(userId);

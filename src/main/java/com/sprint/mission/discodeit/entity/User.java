@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.BatchSize;
 
 import java.io.Serializable;
 import java.util.List;
@@ -41,9 +42,11 @@ public class User extends BaseUpdatableEntity implements Serializable {
     private UserStatus userStatus;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @BatchSize(size = 20)
     private List<ReadStatus> readStatus;
 
     @OneToMany(mappedBy = "author")
+    @BatchSize(size = 100)
     private List<Message> messages;
 
     @OneToOne(fetch = FetchType.LAZY)

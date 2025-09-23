@@ -2,14 +2,11 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
-import com.sprint.mission.discodeit.exception.user.InvalidCredentialsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.*;
 import com.sprint.mission.discodeit.service.UserService;
@@ -72,9 +69,7 @@ public class BasicUserService implements UserService {
         UserStatus userStatus = new UserStatus(user);
         userStatusRepository.save(userStatus);
 
-        List<Channel> publicChannels = channelRepository.findAll().stream()
-                .filter(channel -> ChannelType.PUBLIC.equals(channel.getType()))
-                .toList();
+        List<Channel> publicChannels = channelRepository.findByType(ChannelType.PUBLIC);
 
         for (Channel channel : publicChannels) {
             ReadStatus readStatus = new ReadStatus(user, channel);
@@ -172,69 +167,6 @@ public class BasicUserService implements UserService {
 
         userRepository.save(user);
         log.info("[Service] 유저 정보 수정 성공: {}", user.getId());
-        return UserResponse.success(user);
-    }
-
-    @Override
-    @Transactional
-    public UserResponse updateUserPassword(UUID userId, UserUpdatePasswordRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> UserNotFoundException.withId(userId));
-
-        if (!user.getPassword().equals(request.getCurrentPassword())) {
-            throw InvalidCredentialsException.wrongPassword();
-        }
-
-        user.updatePassword(request.getNewPassword());
-        userRepository.save(user);
-
-        // 만약 비밀번호 설정 제약이 있다면 받은 비밀번호 검사 후 Response 반환
-        return UserResponse.success(user);
-    }
-
-    @Override
-    @Transactional
-    public UserResponse updateUserDefalutNickname(UUID userId,
-                                                  UserUpdateDefaultNicknameRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> UserNotFoundException.withId(userId));
-
-        user.updateDefaultNickname(request.getNewNickname());
-        userRepository.save(user);
-
-        return UserResponse.success(user);
-    }
-
-
-    @Override
-    @Transactional
-    public UserResponse updateUserProfile(UUID userId, UserProfileImageRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> UserNotFoundException.withId(userId));
-
-        UUID oldProfileId = user.getProfile() != null ? user.getProfile().getId() : null;
-
-        if (request != null) {
-            // 새로운 프로필 이미지 제공 - 업데이트 (기존과 같아도 새로 저장)
-            BinaryContent newProfileImage = request.toBinaryContent();
-            binaryContentRepository.saveAndFlush(newProfileImage);
-            binaryContentStorage.put(newProfileImage.getId(), request.getBytes());
-
-            // 기존 프로필 이미지가 있으면 삭제
-            if (oldProfileId != null) {
-                binaryContentRepository.deleteById(oldProfileId);
-            }
-
-            user.updateProfile(newProfileImage);
-        } else {
-            // null 제공 - 기존 프로필 제거
-            if (oldProfileId != null) {
-                binaryContentRepository.deleteById(oldProfileId);
-                user.removeProfile();
-            }
-        }
-        userRepository.save(user);
-
         return UserResponse.success(user);
     }
 

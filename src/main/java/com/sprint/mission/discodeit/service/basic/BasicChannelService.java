@@ -69,6 +69,12 @@ public class BasicChannelService implements ChannelService {
         log.debug("[Service] 비공개 채널 생성 요청 데이터: {}", request);
         List<UUID> participantIds = request.getParticipantIds().stream().distinct().toList();
 
+        if (participantIds.size() < 2) {
+            throw InvalidParticipantException.insufficientCount(
+                    participantIds.size(), 2, participantIds
+            );
+        }
+
         for (int i = 0; i < participantIds.size(); i++) {
             UUID userId = participantIds.get(i);
             if (userId == null) {

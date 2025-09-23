@@ -80,7 +80,6 @@ public class BasicMessageService implements MessageService {
         return messageRepository.findAll();
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public List<MessageResponse> findMessageByAuthor(MessagesGetByAuthorRequest request) {
@@ -109,28 +108,6 @@ public class BasicMessageService implements MessageService {
         return messages.stream()
                 .map(MessageResponse::success)
                 .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public PageOffsetResponse<MessageResponse> findPageMessagesByChannel(UUID channelId, int page, int size, String[] sort) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        Page<Message> messagePage = messageRepository.findPageByChannelId(channelId, pageable);
-        Page<MessageResponse> responsePage = messagePage.map(MessageResponse::success);
-        return pageResponseMapper.fromPageToOffset(responsePage);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public PageOffsetResponse<MessageResponse> findSliceMessagesByChannel(UUID channelId, int page, int size, String[] sort) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        Slice<Message> messageSlice = messageRepository.findSliceByChannelId(channelId, pageable);
-
-        Slice<MessageResponse> responseSlice = messageSlice.map(MessageResponse::success);
-
-        return pageResponseMapper.fromSliceToOffset(responseSlice);
     }
 
     @Override
@@ -196,8 +173,10 @@ public class BasicMessageService implements MessageService {
             throw UnauthorizedMessageAccessException.withDetails(messageId, authorId, message.getAuthor().getId(), "delete");
         }
 
-        for (BinaryContent attachment : message.getAttachments()) {
-            binaryContentRepository.deleteById(attachment.getId());
+        if( message.getAttachments() != null && !message.getAttachments().isEmpty() ) {
+            for (BinaryContent attachment : message.getAttachments()) {
+                binaryContentRepository.deleteById(attachment.getId());
+            }
         }
 
         messageRepository.deleteById(messageId);

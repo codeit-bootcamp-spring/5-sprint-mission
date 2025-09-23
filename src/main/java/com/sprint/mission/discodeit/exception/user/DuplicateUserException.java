@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.exception.user;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 
-public class DuplicateUserException extends DiscodeitException {
+public class DuplicateUserException extends UserException {
     public DuplicateUserException() {
         super(ErrorCode.DUPLICATE_LOGIN_ID);
     }
