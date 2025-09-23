@@ -4,34 +4,34 @@ DROP TABLE IF EXISTS "read_status" CASCADE;
 
 CREATE TABLE "read_status"
 (
-    "id"           uuid        NOT NULL PRIMARY KEY,
-    "created_at"   timestamptz NOT NULL,
-    "updated_at"   timestamptz NULL,
-    "last_read_at" timestamptz NOT NULL,
-    "channel_id"   uuid        NOT NULL,
-    "user_id"      uuid        NOT NULL
+    "id"           uuid                     NOT NULL PRIMARY KEY,
+    "created_at"   timestamp with time zone NOT NULL,
+    "updated_at"   timestamp with time zone NULL,
+    "last_read_at" timestamp with time zone NOT NULL,
+    "channel_id"   uuid                     NOT NULL,
+    "user_id"      uuid                     NOT NULL
 );
 
 DROP TABLE IF EXISTS "user_status" CASCADE;
 
 CREATE TABLE "user_status"
 (
-    "id"             uuid        NOT NULL PRIMARY KEY,
-    "created_at"     timestamptz NOT NULL,
-    "updated_at"     timestamptz NULL,
-    "last_active_at" timestamptz NOT NULL,
-    "user_id"        uuid        NOT NULL
+    "id"             uuid                     NOT NULL PRIMARY KEY,
+    "created_at"     timestamp with time zone NOT NULL,
+    "updated_at"     timestamp with time zone NULL,
+    "last_active_at" timestamp with time zone NOT NULL,
+    "user_id"        uuid                     NOT NULL
 );
 
 DROP TABLE IF EXISTS "binary_content" CASCADE;
 
 CREATE TABLE "binary_content"
 (
-    "id"           uuid         NOT NULL PRIMARY KEY,
-    "created_at"   timestamptz  NOT NULL,
-    "file_name"    varchar(255) NOT NULL,
-    "size"         bigint       NOT NULL,
-    "content_type" varchar(100) NOT NULL
+    "id"           uuid                     NOT NULL PRIMARY KEY,
+    "created_at"   timestamp with time zone NOT NULL,
+    "file_name"    varchar(255)             NOT NULL,
+    "size"         bigint                   NOT NULL,
+    "content_type" varchar(100)             NOT NULL
 --     "bytes"        bytea        NOT NULL
 );
 
@@ -39,24 +39,24 @@ DROP TABLE IF EXISTS "channel" CASCADE;
 
 CREATE TABLE "channel"
 (
-    "id"          uuid         NOT NULL PRIMARY KEY,
-    "created_at"  timestamptz  NOT NULL,
-    "updated_at"  timestamptz  NULL,
-    "name"        varchar(100) NULL,
-    "description" varchar(500) NULL,
-    "type"        varchar(10)  NOT NULL
+    "id"          uuid                     NOT NULL PRIMARY KEY,
+    "created_at"  timestamp with time zone NOT NULL,
+    "updated_at"  timestamp with time zone NULL,
+    "name"        varchar(100)             NULL,
+    "description" varchar(500)             NULL,
+    "type"        varchar(10)              NOT NULL
 );
 
 DROP TABLE IF EXISTS "user" CASCADE;
 
 CREATE TABLE "user"
 (
-    "id"         uuid        NOT NULL PRIMARY KEY,
-    "created_at" timestamptz NOT NULL,
-    "updated_at" timestamptz,
-    "username"   varchar(50) NOT NULL UNIQUE,
-    "email"      varchar(50) NOT NULL UNIQUE,
-    "password"   varchar(60) NOT NULL,
+    "id"         uuid                     NOT NULL PRIMARY KEY,
+    "created_at" timestamp with time zone NOT NULL,
+    "updated_at" timestamp with time zone,
+    "username"   varchar(50)              NOT NULL UNIQUE,
+    "email"      varchar(50)              NOT NULL UNIQUE,
+    "password"   varchar(60)              NOT NULL,
     "profile_id" uuid
 );
 
@@ -68,12 +68,12 @@ DROP TABLE IF EXISTS "message" CASCADE;
 
 CREATE TABLE "message"
 (
-    "id"         uuid        NOT NULL PRIMARY KEY,
-    "created_at" timestamptz NOT NULL,
-    "updated_at" timestamptz NULL,
-    "content"    text        NULL,
-    "author_id"  uuid        NULL,
-    "channel_id" uuid        NOT NULL
+    "id"         uuid                     NOT NULL PRIMARY KEY,
+    "created_at" timestamp with time zone NOT NULL,
+    "updated_at" timestamp with time zone NULL,
+    "content"    text                     NULL,
+    "author_id"  uuid                     NULL,
+    "channel_id" uuid                     NOT NULL
 );
 
 DROP TABLE IF EXISTS "message_attachment" CASCADE;
