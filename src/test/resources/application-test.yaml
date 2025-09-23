@@ -8,9 +8,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop  # 테스트마다 새 스키마
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
+        type:
+          preferred_instant_jdbc_type: TIMESTAMP
+        jdbc:
+          time_zone: UTC
         format_sql: true
 
   sql:
@@ -23,3 +27,6 @@ logging:
     com.sprint.mission.discodeit: debug
     org.hibernate.sql: debug
     org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.orm.boot: warn
+    org.hibernate.tool.schema: warn
+    org.hibernate.tool.hbm2ddl: warn

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
@@ -23,7 +24,12 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
           )
         order by m.createdAt desc, m.id desc
       """)
-  Slice<Message> findNextPage(UUID channelId, Instant createdAt, UUID id, Pageable pageable);
+  Slice<Message> findNextPage(
+      @Param("channelId") UUID channelId,
+      @Param("createdAt") Instant createdAt,
+      @Param("id") UUID id,
+      Pageable pageable
+  );
 
   @EntityGraph(attributePaths = {"channel"})
   Optional<Message> findTopByChannelIdOrderByCreatedAtDescIdDesc(UUID channelId);
