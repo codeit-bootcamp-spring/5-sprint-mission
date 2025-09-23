@@ -9,8 +9,10 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChannelServiceImpl implements ChannelService {
@@ -23,6 +25,7 @@ public class ChannelServiceImpl implements ChannelService {
   @Transactional
   public void create(Channel channel) {
     channelRepository.save(channel);
+    log.info("채널 생성 완료: name={}", channel.getName());
   }
 
   //채널 단건 조회
@@ -31,6 +34,7 @@ public class ChannelServiceImpl implements ChannelService {
   public ChannelDto findById(UUID id) {
     Channel channel = channelRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
+    log.info("채널 단건조회 성공: id={}", id);
     return channelMapper.toDto(channel);
   }
 
@@ -38,6 +42,7 @@ public class ChannelServiceImpl implements ChannelService {
   @Override
   @Transactional
   public List<ChannelDto> findAll() {
+    log.info("채널 전체 조회");
     List<Channel> channels = channelRepository.findAll();
     return channelMapper.toDtoList(channels);
   }
@@ -53,6 +58,7 @@ public class ChannelServiceImpl implements ChannelService {
         .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
 
     channelMapper.updateEntityFromDto(channel, dto);
+    log.info("채널 정보 수정 완료: id={}", id);
   }
 
 
@@ -63,6 +69,7 @@ public class ChannelServiceImpl implements ChannelService {
     Channel channel = channelRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
     channelRepository.delete(channel);
+    log.info("채널 삭제 완료: id={}", id);
   }
 
 
@@ -76,6 +83,7 @@ public class ChannelServiceImpl implements ChannelService {
   public void createPrivateChannel(ChannelDto dto) {
     Channel channel = channelMapper.toEntity(dto);
     channelRepository.save(channel);
+    log.info("비공개채널 생성 완료: name={}", dto.getName());
   }
 
   //공개채널 생성
@@ -84,5 +92,6 @@ public class ChannelServiceImpl implements ChannelService {
   public void createPublicChannel(ChannelDto dto) {
     Channel channel = channelMapper.toEntity(dto);
     channelRepository.save(channel);
+    log.info("공개채널 생성 완료: name={}", dto.getName());
   }
 }

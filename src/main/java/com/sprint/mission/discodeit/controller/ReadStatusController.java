@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @Tag(name = "ReadStatus", description = "메세지 읽음표시 API")
 @RestController
 @RequestMapping("/api/readStatuses")
@@ -33,7 +35,8 @@ public class ReadStatusController {
   @Operation(summary = "읽음상태 생성")
   @PostMapping
   public ResponseEntity<ReadStatusDto> create(@RequestBody ReadStatusDto dto) {
-    ReadStatusDto created = readStatusService.create(dto); //서비스가 DTO를 반환
+    ReadStatusDto created = readStatusService.create(dto);
+    log.info("읽음상태 생성 완료: id={}", created.getId());
     return ResponseEntity.status(201).body(created);
   }
 
@@ -45,6 +48,7 @@ public class ReadStatusController {
       @RequestBody ReadStatusDto dto
   ) {
     ReadStatusDto updated = readStatusService.update(readStatusId, dto);
+    log.info("읽음상태 업데이트 완료: readStatusId={}", readStatusId);
     return ResponseEntity.ok(updated);
   }
 
@@ -52,6 +56,7 @@ public class ReadStatusController {
   //안읽은 메세지 3개, 마지막으로 읽은 위치 등과 같은
   @Operation(summary = "내 모든 채팅방 읽음상태 조회")
   public ResponseEntity<List<ReadStatusDto>> findAllByUserId(@RequestParam UUID userId) {
+    log.info("내 모든 채팅방 읽음상태 조회 요청: userId={}", userId);
     return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
   }
 
@@ -60,6 +65,7 @@ public class ReadStatusController {
   @RequestMapping(value = "/channel/{channelId}", method = RequestMethod.DELETE)
   public ResponseEntity<Void> deleteByChannelId(@PathVariable UUID channelId) {
     readStatusService.deleteByChannelId(channelId);
+    log.info("채널의 모든 읽음상태 삭제 완료: channelId={}", channelId);
     return ResponseEntity.noContent().build();
   }
 }

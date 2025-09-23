@@ -9,9 +9,11 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserStatusServiceImpl implements UserStatusService {
@@ -32,6 +34,7 @@ public class UserStatusServiceImpl implements UserStatusService {
     if (status == null) {
     } else {
       userStatusMapper.updateEntityFromDto(status, dto);
+      log.info("유저 상태 업데이트 완료: userId={}, newLastActiveAt={}", userId, dto.getNewLastActiveAt());
 
     }
   }

@@ -8,19 +8,19 @@ password: discodeit1234
 CREATE TABLE binary_contents
 (
     id           UUID PRIMARY KEY,
-    created_at   TIMESTAMPTZ  NOT NULL,
+    created_at   TIMESTAMP    NOT NULL,
     file_name    VARCHAR(255) NOT NULL,
     size         BIGINT       NOT NULL,
     content_type VARCHAR(100) NOT NULL,
-    bytes        BYTEA        NOT NULL
+    bytes        BLOB         NOT NULL
 );
 
 -- ✅ 2. users: binary_contents.profile_id 참조
 CREATE TABLE users
 (
     id         UUID PRIMARY KEY,
-    created_at TIMESTAMPTZ         NOT NULL,
-    updated_at TIMESTAMPTZ,
+    created_at TIMESTAMP           NOT NULL,
+    updated_at TIMESTAMP,
     username   VARCHAR(50) UNIQUE  NOT NULL,
     email      VARCHAR(100) UNIQUE NOT NULL,
     password   VARCHAR(60)         NOT NULL,
@@ -34,8 +34,8 @@ CREATE TABLE users
 CREATE TABLE channels
 (
     id          UUID PRIMARY KEY,
-    created_at  TIMESTAMPTZ NOT NULL,
-    updated_at  TIMESTAMPTZ,
+    created_at  TIMESTAMP   NOT NULL,
+    updated_at  TIMESTAMP,
     name        VARCHAR(100),
     description VARCHAR(500),
     type        VARCHAR(10) NOT NULL
@@ -46,10 +46,10 @@ CREATE TABLE channels
 CREATE TABLE messages
 (
     id         UUID PRIMARY KEY,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
     content    TEXT,
-    channel_id UUID        NOT NULL,
+    channel_id UUID      NOT NULL,
     author_id  UUID,
     CONSTRAINT fk_messages_channel
         FOREIGN KEY (channel_id) REFERENCES channels (id)
@@ -63,10 +63,10 @@ CREATE TABLE messages
 CREATE TABLE user_statuses
 (
     id             UUID PRIMARY KEY,
-    created_at     TIMESTAMPTZ NOT NULL,
-    updated_at     TIMESTAMPTZ,
-    user_id        UUID        NOT NULL UNIQUE,
-    last_active_at TIMESTAMPTZ NOT NULL,
+    created_at     TIMESTAMP NOT NULL,
+    updated_at     TIMESTAMP,
+    user_id        UUID      NOT NULL UNIQUE,
+    last_active_at TIMESTAMP NOT NULL,
     CONSTRAINT fk_user_status_user
         FOREIGN KEY (user_id) REFERENCES users (id)
             ON DELETE CASCADE
@@ -76,11 +76,11 @@ CREATE TABLE user_statuses
 CREATE TABLE read_statuses
 (
     id           UUID PRIMARY KEY,
-    created_at   TIMESTAMPTZ NOT NULL,
-    updated_at   TIMESTAMPTZ,
-    user_id      UUID        NOT NULL,
-    channel_id   UUID        NOT NULL,
-    last_read_at TIMESTAMPTZ NOT NULL,
+    created_at   TIMESTAMP NOT NULL,
+    updated_at   TIMESTAMP,
+    user_id      UUID      NOT NULL,
+    channel_id   UUID      NOT NULL,
+    last_read_at TIMESTAMP NOT NULL,
     CONSTRAINT uq_read_status UNIQUE (user_id, channel_id),
     CONSTRAINT fk_read_status_user
         FOREIGN KEY (user_id) REFERENCES users (id)
