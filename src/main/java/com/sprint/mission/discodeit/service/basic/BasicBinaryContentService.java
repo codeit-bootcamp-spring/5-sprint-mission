@@ -30,7 +30,6 @@ public class BasicBinaryContentService implements BinaryContentService {
 
       BinaryContent binaryContent = binaryContentRepository.save(
           binaryContentMapper.toEntity(create));
-      binaryContentRepository.save(binaryContent);
 
       localBinaryContentStorage.put(binaryContent.getId(), create.getBytes());
 
@@ -52,7 +51,7 @@ public class BasicBinaryContentService implements BinaryContentService {
       return binaryContentMapper.toDetail(binaryContent, localBinaryContentStorage.get(id)
                                                                                   .readAllBytes());
     } catch (Exception e) {
-      return null;
+      throw new BinaryContentCreateException(e.getMessage());
     }
   }
 
