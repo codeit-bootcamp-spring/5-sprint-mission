@@ -112,8 +112,10 @@ public class BasicMessageService implements MessageService {
   public void delete(UUID messageId) {
     Message message = validateId(messageId);
 
-    for (BinaryContent binaryContent : message.getAttachments()) {
-      binaryContentRepository.deleteById(binaryContent.getId());
+    if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
+      for (BinaryContent binaryContent : message.getAttachments()) {
+        binaryContentRepository.deleteById(binaryContent.getId());
+      }
     }
     messageRepository.deleteById(message.getId());
   }
