@@ -32,9 +32,11 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BasicUserService implements UserService {
 
 	private final BinaryContentService binaryContentService;
@@ -49,21 +51,26 @@ public class BasicUserService implements UserService {
 	@Override
 	@Transactional
 	public UserDto create(CreateUserDTO dto) {
+		log.debug("user create 트랜잭션 시작");
 		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("CreateUserDTO cannot be null"));
 		String username = dto.getUsername();
 		String email = dto.getEmail();
 		String password = dto.getPassword();
 		CreateBiContentDTO profileImage = dto.getBinaryContent();
+		log.debug("user info username={}, email={}, password={},", username, email, password);
 
 		// 1. Check username 과 email 중복 여부
 		if (userRepository.findByUsername(username).isPresent() || userRepository.findByEmail(email).isPresent()) {
+			log.error("Username or email 중복");
 			throw new IllegalArgumentException("Username or email already exists");
 		}
 
+		log.debug("start create user profile image username={}", username);
 		// 2. Profile Image 저장
 		BinaryContent userProfile = Optional.ofNullable(profileImage)
 		  .map(binaryContentService::create)
 		  .orElse(null);
+		log.debug("success create user profile image username={}, profileID={}", username, userProfile);
 
 		// 3. 인스턴스 생성
 		User newUser = new User(
@@ -73,11 +80,14 @@ public class BasicUserService implements UserService {
 		  userProfile
 		);
 		userRepository.save(newUser);
+		log.debug("success save userEntity  username={}", username);
 
 		// 4. User Status 생성
 		UserStatus userStatus = new UserStatus(newUser);
 		userStatusRepository.save(userStatus);
+		log.debug("success save userStatusEntity  userStatusID={}", userStatus.getId());
 
+		log.debug("user create 트랜잭션 정상 종료");
 		// 5. 데이터 저장
 		return userMapper.toDto(newUser, userStatus.isOnline(), binaryContentMapper.toDto(newUser.getProfileImage()));
 	}
@@ -85,28 +95,39 @@ public class BasicUserService implements UserService {
 	@Override
 	@Transactional
 	public void delete(UUID userId) {
+		log.debug("user delete 트랜잭션 시작");
+
 		User targetUser = userRepository.findById(userId)
 		  .orElseThrow(() -> new NoSuchElementException("User with ID " + userId + " does not exist"));
 
 		// 1. User Status 삭제
 		userStatusRepository.deleteByUserId(userId);
+		log.debug("success delete userStatusEntity  userID={}", userId);
+
 		// 2. Profile Image 삭제
 		if (binaryContentRepository.findById(targetUser.getProfileImage().getId()).isPresent()) {
 			binaryContentRepository.deleteById(targetUser.getProfileImage().getId());
 			binaryContentStorage.put(targetUser.getProfileImage().getId(), null); // 스토리지에서 삭제
+			log.debug("success delete userProfile  userID={}", userId);
 		}
 		// 3. User 삭제
 		userRepository.deleteById(userId);
+		log.debug("success delete userEntity userID={}", userId);
+
+		log.debug("user delete 트랜잭션 정상 종료");
 	}
 
 	@Override
 	@Transactional
 	public UserDto update(UpdateUserDTO dto) {
+		log.debug("user update 트랜잭션 시작");
 		UUID userId = dto.getUserId();
 		String newUsername = dto.getNewUsername();
 		String newEmail = dto.getNewEmail();
 		String newPassword = dto.getNewPassword();
 		CreateBiContentDTO newProfileImage = dto.getNewProfilePicture();
+		log.debug("new user info newUsername={}, newEmail={}, newPassword={} "
+		  , newUsername, newEmail, newPassword);
 
 		User targetUser = userRepository.findById(userId)
 		  .orElseThrow(() -> new NoSuchElementException("User with ID " + userId + " does not exist"));
@@ -114,12 +135,14 @@ public class BasicUserService implements UserService {
 		// 1. Validate And Change
 		if (newUsername != null && !newUsername.isBlank() && !newUsername.equals(targetUser.getUsername())) {
 			if (userRepository.existsByUsername(newUsername)) {
+				log.error("new username 중복");
 				throw new IllegalArgumentException("username with" + newUsername + "exist");
 			}
 			targetUser.setUsername(newUsername);
 		}
 		if (newEmail != null && !newEmail.isBlank() && !newEmail.equals(targetUser.getUsername())) {
 			if (userRepository.existsByEmail(newEmail)) {
+				log.error("new email 중복");
 				throw new IllegalArgumentException("email with" + newEmail + "exist");
 			}
 			targetUser.setEmail(newEmail);
@@ -137,14 +160,17 @@ public class BasicUserService implements UserService {
 
 			  BinaryContent savedProfile = binaryContentRepository.save(newProfileImage.toBinaryContent());
 			  binaryContentStorage.put(savedProfile.getId(), profileContent.getContent()); // 스토리지 저장
+			  log.debug("success store new user profile image username={}", newUsername);
 
 			  targetUser.setProfileImage(savedProfile);
 			  return savedProfile.getId();
 		  });
 		userRepository.save(targetUser);
+		log.debug("success update userEntity  username={}", targetUser.getUsername());
 
 		boolean isOnline = userStatusRepository.findByUserId(userId).map(UserStatus::isOnline).orElse(false);
 
+		log.debug("user update 트랜잭션 정상 종료");
 		return userMapper.toDto(targetUser, isOnline, binaryContentMapper.toDto(targetUser.getProfileImage()));
 	}
 

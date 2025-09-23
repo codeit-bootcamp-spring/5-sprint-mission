@@ -38,11 +38,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/channels")
 @Tag(name = "Channel", description = "Channel API")
+@Slf4j
 public class ChannelController {
 
 	private final ChannelService channelService;
@@ -51,6 +53,7 @@ public class ChannelController {
 	@PostMapping("/public")
 	public ResponseEntity<ChannelResponse> createPublicChannel(
 	  @RequestBody @Valid CreatePublicChannelRequest request) {
+		log.debug("Request to create PUBLIC channel started channelName={}", request.getName());
 
 		ChannelDto result = channelService.createPublic(CreatePublicChannelDTO.builder()
 		  .name(request.getName())
@@ -58,6 +61,9 @@ public class ChannelController {
 		  .build());
 
 		URI location = URI.create("api/channels");
+		log.debug("URI location={} in channelName={}", location, request.getName());
+
+		log.debug("PUBLIC channel created Request successfully done channelName={}", request.getName());
 		return ResponseEntity.created(location).body(channelMapper.toResponse(result));
 
 	}
@@ -65,12 +71,18 @@ public class ChannelController {
 	@PostMapping("/private")
 	public ResponseEntity<ChannelResponse> createPrivateChannel(
 	  @RequestBody @Valid CreatePrivateChannelRequest request) {
+		log.debug("Request to create PRIVATE channel started participantsIDs={}",
+		  request.getParticipantIds().toString());
 
 		ChannelDto result = channelService.createPrivate(CreatePrivateChannelDTO.builder()
 		  .UserIds(request.getParticipantIds())
 		  .build());
 
 		URI location = URI.create("api/channels");
+		log.debug("URI location={} in participantsIDs={}", location, request.getParticipantIds().toString());
+
+		log.debug("PRIVATE channel created Request successfully done channelName={}",
+		  request.getParticipantIds().toString());
 		return ResponseEntity.created(location).body(channelMapper.toResponse(result));
 	}
 
@@ -99,7 +111,11 @@ public class ChannelController {
 		required = true
 	  )
 	  @PathVariable UUID channelId) {
+		log.debug("Request to update channel started channelID={}", channelId);
+
 		channelService.delete(channelId);
+
+		log.debug("channel update Request successfully done channelID={}", channelId);
 		return ResponseEntity.noContent().build();
 	}
 
@@ -110,11 +126,14 @@ public class ChannelController {
 	  )
 	  @PathVariable UUID channelId,
 	  @RequestBody @Valid UpdatePublicChannelRequest request) {
+		log.debug("Request to update channel started newChannelName={}", request.getNewName());
 		ChannelDto result = channelService.update(UpdateChannelDTO.builder()
 		  .id(channelId)
 		  .name(request.getNewName())
 		  .description(request.getNewDescription())
 		  .build());
+
+		log.debug("channel update Request successfully done newChannelName={}", request.getNewName());
 		return ResponseEntity.status(OK).body(channelMapper.toResponse(result));
 	}
 

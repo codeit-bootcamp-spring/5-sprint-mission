@@ -21,12 +21,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/binaryContents")
 @Tag(name = "BinaryContent", description = "첨부파일 API")
-
+@Slf4j
 public class BinaryContentController {
 
 	private final BinaryContentService binaryContentService;
@@ -52,7 +53,10 @@ public class BinaryContentController {
 
 	@GetMapping("/{binaryContentId}/download")
 	public ResponseEntity<?> downloadContent(@PathVariable UUID binaryContentId) {
+		log.debug("Request to download BinaryContent id={}", binaryContentId);
+
 		BinaryContentDto dto = binaryContentService.find(binaryContentId);
+		log.debug("download BinaryContent Request successfully done id={}", binaryContentId);
 		return binaryContentStorage.download(dto);
 	}
 }

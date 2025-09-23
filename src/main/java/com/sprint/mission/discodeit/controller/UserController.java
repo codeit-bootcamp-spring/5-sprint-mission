@@ -39,10 +39,12 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
+@Slf4j
 @Tag(name = "User", description = "User API")
 public class UserController {
 
@@ -57,8 +59,11 @@ public class UserController {
 	  @RequestPart(required = false) MultipartFile profile
 
 	) throws IOException {
+		log.debug("Request to create user started. username={}", userCreateRequest.getUsername());
 		Optional<CreateBiContentDTO> biContentDTO = Optional.empty();
 		if (profile != null && !profile.isEmpty()) {
+			log.debug("Profile file uploaded. name={}, size={}, type={}",
+			  profile.getOriginalFilename(), profile.getSize(), profile.getContentType());
 
 			biContentDTO = Optional.of(new CreateBiContentDTO(
 			  profile.getBytes(),
@@ -76,6 +81,9 @@ public class UserController {
 		  .build());
 
 		URI location = URI.create("api/users");
+		log.debug("URI location={} in username={}", location, userCreateRequest.getUsername());
+
+		log.debug("user created Request successfully done. username={}", userCreateRequest.getUsername());
 		return ResponseEntity.created(location).body(userMapper.toResponse(createdUser));
 	}
 
@@ -95,9 +103,12 @@ public class UserController {
 	  @RequestPart(required = false) MultipartFile profile,
 	  @PathVariable UUID id
 	) throws IOException {
+		log.debug("Request to update user started. newUsername={}", userUpdateRequest.getNewUsername());
 
 		Optional<CreateBiContentDTO> biContentDTO = Optional.empty();
 		if (profile != null && !profile.isEmpty()) {
+			log.debug("New Profile file uploaded. name={}, size={}, type={}",
+			  profile.getOriginalFilename(), profile.getSize(), profile.getContentType());
 
 			biContentDTO = Optional.of(new CreateBiContentDTO(
 			  profile.getBytes(),
@@ -114,13 +125,17 @@ public class UserController {
 		  .newPassword(userUpdateRequest.getNewPassword())
 		  .newProfilePicture(biContentDTO.orElse(null))
 		  .build());
+		log.debug("user updated Request successfully done. newUsername={}", userUpdateRequest.getNewUsername());
 
 		return ResponseEntity.ok(userMapper.toResponse(result));
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+		log.debug("Request to delete user started userID={}", id);
+
 		userService.delete(id);
+		log.debug("user delete Request successfully done userID={}", id);
 		return ResponseEntity.noContent().build();
 	}
 
@@ -129,10 +144,11 @@ public class UserController {
 	  @PathVariable UUID userId,
 	  @RequestBody UpdateUserStatusRequest updateUserStatusRequest) {
 
-		UserStatusDto newUserStatus = userStatusService.updateStatusByUserId(UpdateStatusByUserIdDTO.builder()
-		  .userId(userId)
-		  .newLastActiveAt(updateUserStatusRequest.getNewLastActiveAt())
-		  .build());
+		UserStatusDto newUserStatus = userStatusService.updateStatusByUserId(
+		  UpdateStatusByUserIdDTO.builder()
+			.userId(userId)
+			.newLastActiveAt(updateUserStatusRequest.getNewLastActiveAt())
+			.build());
 
 		return ResponseEntity.ok(userStatusMapper.toResponse(newUserStatus));
 	}

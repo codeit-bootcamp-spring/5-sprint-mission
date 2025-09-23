@@ -22,10 +22,12 @@ import com.sprint.mission.discodeit.domain.dto.binaryContent.BinaryContentDto;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
+@Slf4j
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
 	@Value("${discodeit.storage.local.root-path}")
@@ -78,19 +80,25 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
 	@Override
 	public ResponseEntity<Resource> download(BinaryContentDto dto) {
+		log.debug("download BinaryContent with ID={} In Storage start", dto.getId());
 		try {
 			Path path = resolvePath(dto.getId());
 			if (!Files.exists(path)) {
+				log.error("badRequest : BinaryContent with ID={} not found", dto.getId());
 				throw new NoSuchElementException("BinaryContent with ID" + dto.getId() + "not found");
 			}
 			Resource resource = new UrlResource(path.toUri());
 			String contentDisposition = "attachment; filename=\"" + dto.getFileName() + "\"";
 
+			log.debug("download success BinaryContent with ID={}", dto.getId());
 			return ResponseEntity.ok()
 			  .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
 			  .contentType(MediaType.parseMediaType(dto.getContentType()))
 			  .body(resource);
 		} catch (MalformedURLException e) {
+			log.error("Failed to create UrlResource for BinaryContent with ID={}, fileName={}",
+			  dto.getId(), dto.getFileName(), e);
+
 			throw new RuntimeException(e);
 		}
 	}

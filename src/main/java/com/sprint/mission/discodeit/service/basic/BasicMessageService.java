@@ -34,9 +34,11 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BasicMessageService implements MessageService {
 
 	private final MessageRepository messageRepository;
@@ -52,6 +54,8 @@ public class BasicMessageService implements MessageService {
 	@Override
 	@Transactional
 	public MessageDto create(CreateMessageDTO dto) {
+		log.debug("PUBLIC channel create 트랜잭션 시작");
+
 		String content = dto.getContent();
 		UUID channelId = dto.getChannelId();
 		UUID userId = dto.getUserId();
@@ -72,9 +76,13 @@ public class BasicMessageService implements MessageService {
 		List<BinaryContent> attachments = Optional.ofNullable(attachmentsInMessage)
 		  .map(a -> a.stream().map(binaryContentService::create).toList())
 		  .orElse(List.of());
+		log.debug("success save attachments with Ids={} in message"
+		  , attachments.stream().map(BinaryContent::getId).toString());
 
 		Message savedMessage = messageRepository.save(new Message(content, user, channel, attachments));
+		log.debug("success save messageEntity  ID={}", savedMessage.getId());
 
+		log.debug("Message create 트랜잭션 정상 종료");
 		return messageMapper.toDto(
 		  savedMessage,
 		  userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage())));
@@ -83,25 +91,36 @@ public class BasicMessageService implements MessageService {
 	@Override
 	@Transactional
 	public void delete(UUID id) {
+		log.debug("message  delete 트랜잭션 시작");
+
 		Message messageToDelete = messageRepository.findById(id)
 		  .orElseThrow(() -> new NoSuchElementException("Message with ID " + id + " not found"));
 
 		// 메시지 관련 Attachment 도 삭제
 		binaryContentRepository.deleteByIdIn(
 		  messageToDelete.getAttachments().stream().map(BinaryContent::getId).toList());
+		log.debug("success delete attachments with Ids={} in message",
+		  messageToDelete.getAttachments().stream().map(BinaryContent::getId).toString());
 
 		// 메시지 삭제
 		messageRepository.deleteById(id);
+		log.debug("success delete messageEntity id={}", id);
+
+		log.debug("message  delete 트랜잭션 정상 종료");
 	}
 
 	@Override
 	@Transactional
 	public MessageDto update(UpdateMessageDTO dto) {
+		log.debug("message update 트랜잭션 시작");
+
 		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("UpdateMessageDTO cannot be null"));
 		UUID id = dto.getId();
 		String newContent = dto.getNewContent();
+		log.debug("new message info id={} newContent={}", id, newContent);
 
 		if (newContent == null || newContent.isEmpty()) {
+			log.error("bad request: New content cannot be null or empty");
 			throw new IllegalArgumentException("New content cannot be null or empty");
 		}
 
@@ -117,6 +136,9 @@ public class BasicMessageService implements MessageService {
 		  .orElse(false);
 
 		messageRepository.save(targetMessage);
+		log.debug("success update messageEntity  channelId={}", id);
+
+		log.debug("message update 트랜잭션 정상 종료");
 		return messageMapper.toDto(
 		  targetMessage,
 		  userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage())));
