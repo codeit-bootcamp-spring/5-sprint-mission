@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -15,7 +17,6 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -45,11 +46,10 @@ public class BasicUserService implements UserService {
         String email = userCreateRequest.email();
 
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("User with email " + email + " already exists");
+            throw DuplicateUserException.withEmail(email);
         }
         if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException(
-                "User with username " + username + " already exists");
+            throw DuplicateUserException.withUsername(username);
         }
 
         BinaryContent nullableProfile = optionalProfileCreateRequest
@@ -72,8 +72,7 @@ public class BasicUserService implements UserService {
 
         userRepository.save(user);
 
-        log.debug("사용자 생성 완료: request={}", user);
-
+        log.info("사용자 생성 완료: request={}", user);
         return userMapper.toDto(user);
     }
 
@@ -81,7 +80,7 @@ public class BasicUserService implements UserService {
     public UserDto find(UUID userId) {
         return userRepository.findById(userId)
             .map(userMapper::toDto)
-            .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+            .orElseThrow(() -> UserNotFoundException.withId(userId));
     }
 
     @Override
@@ -100,16 +99,16 @@ public class BasicUserService implements UserService {
         log.debug("사용자 수정 시작: request={}", userUpdateRequest);
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+            .orElseThrow(() -> UserNotFoundException.withId(userId));
 
         String newUsername = userUpdateRequest.newUsername();
         String newEmail = userUpdateRequest.newEmail();
+
         if (userRepository.existsByEmail(newEmail)) {
-            throw new IllegalArgumentException("User with email " + newEmail + " already exists");
+            throw DuplicateUserException.withEmail(newEmail);
         }
         if (userRepository.existsByUsername(newUsername)) {
-            throw new IllegalArgumentException(
-                "User with username " + newUsername + " already exists");
+            throw DuplicateUserException.withUsername(newUsername);
         }
 
         BinaryContent nullableProfile = optionalProfileCreateRequest
@@ -129,8 +128,7 @@ public class BasicUserService implements UserService {
         String newPassword = userUpdateRequest.newPassword();
         user.update(newUsername, newEmail, newPassword, nullableProfile);
 
-        log.debug("사용자 수정 완료: request={}", user);
-
+        log.info("사용자 수정 완료: request={}", user);
         return userMapper.toDto(user);
     }
 
@@ -140,11 +138,10 @@ public class BasicUserService implements UserService {
         log.debug("사용자 삭제 시작: id={}", userId);
 
         if (userRepository.existsById(userId)) {
-            throw new NoSuchElementException("User with id " + userId + " not found");
+            throw UserNotFoundException.withId(userId);
         }
 
-        log.debug("사용자 삭제 완료: id={}", userId);
-
         userRepository.deleteById(userId);
+        log.info("사용자 삭제 완료: id={}", userId);
     }
 }

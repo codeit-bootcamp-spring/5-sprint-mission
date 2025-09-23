@@ -54,8 +54,9 @@ public class BinaryContentController implements BinaryContentApi {
 
         BinaryContentDto binaryContentDto = binaryContentService.find(binaryContentId);
 
-        log.debug("파일 다운로드 완료: UUID={}", binaryContentId); // 이 시점은 완료 후가 아닌 거 같은데...
+        ResponseEntity<?> response = binaryContentStorage.download(binaryContentDto);
 
-        return binaryContentStorage.download(binaryContentDto);
+        log.debug("파일 다운로드 완료: UUID={}", binaryContentId);
+        return response;
     }
 }
