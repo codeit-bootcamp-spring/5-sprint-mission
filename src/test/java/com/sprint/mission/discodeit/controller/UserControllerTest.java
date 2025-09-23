@@ -152,7 +152,7 @@ public class UserControllerTest {
   }
 
   @Test
-  @DisplayName("create - DTO @Valid 실패 시 ErrorResponse(details/exceptionType) 포맷 검증")
+  @DisplayName("create - DTO @Valid   실패 시 ErrorResponse(details/exceptionType) 포맷 검증")
   void create_validationError_returnsStructuredError() throws Exception {
     // 가정: username @NotBlank, email @Email, password @Size(min=8)
     UserCreateRequest invalid = new UserCreateRequest(" ", "bad-email", "123");
