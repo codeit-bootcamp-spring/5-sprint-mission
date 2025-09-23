@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://prod-db-url:5432/discodeit
+    driver-class-name: org.postgresql.Driver
+    username: produser
+    password: prodpw
+  jpa:
+    hibernate:
+      ddl-auto: none #테이블 수동 생성
+    show-sql: false #콘솔에 SQL 출력 원하면 true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        show_sql: false
+
+logging:
+  level:
+    root: info #운영 로그는 info로
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+
+
+server:
+  port: 80

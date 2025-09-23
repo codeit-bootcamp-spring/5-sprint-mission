@@ -1,5 +1,3 @@
-// src/main/java/com/sprint/mission/discodeit/service/impl/ReadStatusServiceImpl.java
-
 package com.sprint.mission.discodeit.service.impl;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
@@ -14,9 +12,11 @@ import com.sprint.mission.discodeit.service.ReadStatusService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReadStatusServiceImpl implements ReadStatusService {
@@ -28,7 +28,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 
   @Override
   @Transactional
-  public ReadStatusDto create(ReadStatusDto dto) { // DTO를 받아서 DTO를 반환
+  public ReadStatusDto create(ReadStatusDto dto) {
     User user = userRepository.findById(dto.getUserId())
         .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없음"));
     Channel channel = channelRepository.findById(dto.getChannelId())
@@ -39,6 +39,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 
     // 저장 후 DTO로 변환하여 반환
     ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
+    log.info("읽음상태 생성 완료: readStatusId={}", savedReadStatus.getId());
     return readStatusMapper.toDto(savedReadStatus);
   }
 
@@ -52,13 +53,15 @@ public class ReadStatusServiceImpl implements ReadStatusService {
     readStatusMapper.updateEntityFromDto(readStatus, dto);
 
     // DTO로 변환하여 반환
+    log.info("읽음상태 업데이트 완료: readStatusId={}", readStatusId);
     return readStatusMapper.toDto(readStatus);
   }
 
   @Override
   @Transactional
-  public List<ReadStatusDto> findAllByUserId(UUID userId) { //  DTO 리스트 반환
+  public List<ReadStatusDto> findAllByUserId(UUID userId) {
     List<ReadStatus> readStatuses = readStatusRepository.findByUser_Id(userId);
+    log.info("내 모든 채팅방 읽음상태 조회 완료: userId={}, 개수={}", userId, readStatuses.size());
 
     // 매퍼를 사용해 DTO 리스트로 변환
     return readStatusMapper.toDtoList(readStatuses);
@@ -68,6 +71,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
   @Transactional
   public void deleteByChannelId(UUID channelId) {
     readStatusRepository.deleteByChannel_Id(channelId);
+    log.info("채널의 모든 읽음상태 삭제 완료: channelId={}", channelId);
   }
 
   @Override
@@ -75,6 +79,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
   public ReadStatusDto findById(UUID id) { // DTO 반환
     ReadStatus readStatus = readStatusRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("해당 읽음 상태 없음"));
+    log.info("읽음상태 단건조회 성공: id={}", id);
 
     // DTO로 변환하여 반환
     return readStatusMapper.toDto(readStatus);

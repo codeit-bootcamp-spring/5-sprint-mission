@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @Tag(name = "Channel", description = "채널 관리 API")
 @RestController
 @RequiredArgsConstructor
@@ -24,20 +26,22 @@ public class ChannelController {
 
   private final ChannelService channelService;
 
-  //공개 채널 생성: dto만 넘김
+  //공개 채널 생성
   @Operation(summary = "공개 채널 생성")
   @PostMapping("/api/channels/public")
   public ResponseEntity<Void> createPublic(@RequestBody ChannelDto dto) {
     channelService.createPublicChannel(dto);
+    log.info("공개 채널 생성 완료: {}", dto.getName());
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
 
-  //비공개 채널 생성: dto만 넘김
+  //비공개 채널 생성
   @Operation(summary = "비공개 채널 생성")
   @PostMapping("/api/channels/private")
   public ResponseEntity<Void> createPrivate(@RequestBody ChannelDto dto) {
     channelService.createPrivateChannel(dto);
+    log.info("비공개 채널 생성 완료: {}", dto.getName());
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -46,6 +50,7 @@ public class ChannelController {
   @Operation(summary = "채널 단건 조회")
   @GetMapping("/api/channels/{channelId}")
   public ResponseEntity<ChannelDto> findById(@PathVariable("channelId") UUID id) {
+    log.info("채널 단건 조회 요청: id={}", id);
     ChannelDto channelDto = channelService.findById(id);
     return ResponseEntity.ok(channelDto);
   }
@@ -54,6 +59,7 @@ public class ChannelController {
   @Operation(summary = "전체 채널 조회")
   @GetMapping("/api/channels")
   public ResponseEntity<List<ChannelDto>> findAll() {
+    log.info("전체 채널 목록 조회 요청");
     List<ChannelDto> channelDtos = channelService.findAll();
     return ResponseEntity.ok(channelDtos);
   }
@@ -64,7 +70,9 @@ public class ChannelController {
   @PatchMapping("/api/channels/{channelId}")
   public ResponseEntity<Void> update(@PathVariable("channelId") UUID id,
       @RequestBody ChannelDto dto) {
-    channelService.update(id, dto); //Dto를 직접 서비스로 전달
+    log.info("채널 수정 요청:id={}, name={}", id, dto.getName());
+    channelService.update(id, dto);
+    log.info("채널 수정 완료: id={}", id);
     return ResponseEntity.ok().build();
   }
 
@@ -74,6 +82,7 @@ public class ChannelController {
   @DeleteMapping("/api/channels/{channelId}")
   public ResponseEntity<Void> delete(@PathVariable("channelId") UUID id) {
     channelService.delete(id);
+    log.info("채널 삭제 완료: id={}", id);
     return ResponseEntity.noContent().build();
   }
 }
