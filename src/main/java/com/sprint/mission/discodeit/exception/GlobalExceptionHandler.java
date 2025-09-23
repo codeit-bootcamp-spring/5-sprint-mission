@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.exception;
 
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.exception.binarycontent.FileSizeException;
-import com.sprint.mission.discodeit.exception.binarycontent.FileUploadErrorException;
+import com.sprint.mission.discodeit.exception.binarycontent.FileIOErrorException;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.DuplicateChannelNameException;
 import com.sprint.mission.discodeit.exception.channel.NotChannelMemberException;
@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    @ExceptionHandler(FileUploadErrorException.class)
+    @ExceptionHandler(FileIOErrorException.class)
     public ResponseEntity<ErrorResponse> handleFileUploadError(DiscodeitException e) {
         log.error("[Exception] 파일 업로드 오류: {}", e.getMessage(), e);
         ErrorResponse errorResponse = new ErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR.value());

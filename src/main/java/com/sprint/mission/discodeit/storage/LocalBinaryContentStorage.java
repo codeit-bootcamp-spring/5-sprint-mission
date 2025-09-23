@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage;
 
 import com.sprint.mission.discodeit.dto.BinaryContentDTO;
+import com.sprint.mission.discodeit.exception.binarycontent.FileIOErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -33,7 +34,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         try {
             Files.createDirectories(root);
         } catch (IOException e) {
-            throw new RuntimeException("디렉터리 생성 실패: " + root, e);
+            throw FileIOErrorException.withStorage(root.toString(), e);
         }
     }
 
@@ -46,7 +47,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
             Files.write(filePath, bytes);
         } catch (IOException e) {
             log.warn("파일 저장 실패: {}", filePath, e);
-            throw new RuntimeException("파일 저장 실패: " + filePath, e);
+            throw FileIOErrorException.withStorage(filePath.toString(), e);
         }
         log.info("로컬 파일 저장 성공");
         return id;
@@ -58,7 +59,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         try {
             return Files.newInputStream(filePath);
         } catch (IOException e) {
-            throw new RuntimeException("파일을 찾을 수 없음: " + filePath, e);
+            throw FileIOErrorException.withStorage(filePath.toString(), e);
         }
     }
 
@@ -89,7 +90,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
         } catch (IOException e) {
             log.warn("파일 다운로드 실패: {}", filePath, e);
-            throw new RuntimeException("파일 다운로드 실패: " + filePath, e);
+            throw FileIOErrorException.withStorage(binaryContentDTO.getFileName(), e);
         }
     }
 
