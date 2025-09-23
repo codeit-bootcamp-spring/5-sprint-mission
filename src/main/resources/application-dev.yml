@@ -36,3 +36,6 @@ logging:
     # Spring Web
     org.springframework.web: trace
     org.springframework.web.filter.CommonsRequestLoggingFilter: debug
+
+    # 사용자 package
+    com.sprint.mission.discodeit: debug
