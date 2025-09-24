@@ -5,6 +5,13 @@ spring:
   application:
     name: discodeit
 
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
+        instance:
+          service-host-type: ip
+
   servlet:
     multipart:
       maxFileSize: 10MB # 파일 하나의 최대 크기
@@ -21,6 +28,10 @@ management:
     web:
       exposure:
         include: "*"
+  endpoint:
+    health:
+      show-details: always
+
   info:
     env:
       enabled: true

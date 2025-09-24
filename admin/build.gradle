@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+}
+
+group = 'com.spring.mission'
+version = '0.0.1-SNAPSHOT'
+description = 'admin'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "de.codecentric:spring-boot-admin-starter-server:3.3.3"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
