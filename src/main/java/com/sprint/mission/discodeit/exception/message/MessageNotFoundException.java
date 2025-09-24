@@ -7,6 +7,7 @@ import java.util.UUID;
 public class MessageNotFoundException extends MessageException {
 
   public MessageNotFoundException(UUID messageId) {
-    super(ErrorCode.MESSAGE_NOT_FOUND, Collections.singletonMap("Message Id", messageId));
+    super(ErrorCode.MESSAGE_NOT_FOUND,
+        Collections.singletonMap("Message Id", messageId != null ? messageId : "null"));
   }
 }

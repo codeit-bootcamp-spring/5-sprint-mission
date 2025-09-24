@@ -7,6 +7,7 @@ import java.util.UUID;
 public class UserStatusNotFoundException extends UserStatusException {
 
   public UserStatusNotFoundException(UUID id) {
-    super(ErrorCode.USER_STATUS_NOT_FOUND, Collections.singletonMap("id", id));
+    super(ErrorCode.USER_STATUS_NOT_FOUND,
+        Collections.singletonMap("id", id != null ? id : "null"));
   }
 }

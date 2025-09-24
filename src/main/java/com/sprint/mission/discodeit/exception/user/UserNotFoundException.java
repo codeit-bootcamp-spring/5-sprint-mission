@@ -8,6 +8,7 @@ import java.util.UUID;
 public class UserNotFoundException extends DiscodeitException {
 
   public UserNotFoundException(UUID userId) {
-    super(ErrorCode.USER_NOT_FOUND, Collections.singletonMap("User Id", userId));
+    super(ErrorCode.USER_NOT_FOUND,
+        Collections.singletonMap("User Id", userId != null ? userId : "null"));
   }
 }

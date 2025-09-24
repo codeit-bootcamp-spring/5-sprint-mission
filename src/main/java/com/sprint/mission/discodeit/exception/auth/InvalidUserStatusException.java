@@ -7,6 +7,7 @@ import java.util.UUID;
 public class InvalidUserStatusException extends AuthException {
 
   public InvalidUserStatusException(UUID userId) {
-    super(ErrorCode.INVALID_USER_STATUS, Collections.singletonMap("userId", userId));
+    super(ErrorCode.INVALID_USER_STATUS,
+        Collections.singletonMap("userId", userId != null ? userId : "null"));
   }
 }

@@ -7,6 +7,7 @@ import java.util.UUID;
 public class PrivateChannelUpdateNotAllowedException extends ChannelException {
 
   public PrivateChannelUpdateNotAllowedException(UUID channelId) {
-    super(ErrorCode.PRIVATE_CHANNEL_UPDATE, Collections.singletonMap("Channel Id", channelId));
+    super(ErrorCode.PRIVATE_CHANNEL_UPDATE,
+        Collections.singletonMap("Channel Id", channelId != null ? channelId : "null"));
   }
 }

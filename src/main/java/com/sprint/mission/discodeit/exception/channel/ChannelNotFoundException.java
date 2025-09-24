@@ -7,6 +7,7 @@ import java.util.UUID;
 public class ChannelNotFoundException extends ChannelException {
 
   public ChannelNotFoundException(UUID channelId) {
-    super(ErrorCode.CHANNEL_NOT_FOUND, Collections.singletonMap("Channel Id", channelId));
+    super(ErrorCode.CHANNEL_NOT_FOUND,
+        Collections.singletonMap("Channel Id", channelId != null ? channelId : "null"));
   }
 }
