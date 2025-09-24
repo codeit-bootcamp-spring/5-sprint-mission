@@ -9,4 +9,8 @@ public record NewBinaryContent(
     @NotNull byte[] bytes
 ) {
 
+  public String forLog() {
+    return "NewBinaryContent{" + fileName + ", " + contentType + "}";
+  }
+
 }
