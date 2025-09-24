@@ -12,11 +12,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class MessageCreateRequest {
-	@NotNull
-	@NotBlank
+	@NotBlank(message = "content 값은 비어있을 수 없습니다.")
 	private final String content;
-	@NotNull
+	@NotNull(message = "authorId는 null이 될 수 없습니다.")
 	private final UUID authorId;
-	@NotNull
+	@NotNull(message = "channelId는 null이 될 수 없습니다.")
 	private final UUID channelId;
 }

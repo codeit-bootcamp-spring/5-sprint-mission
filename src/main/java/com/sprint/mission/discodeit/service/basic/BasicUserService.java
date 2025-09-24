@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.service.basic;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -14,14 +13,15 @@ import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
 import com.sprint.mission.discodeit.domain.dto.CreateUserDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateUserDTO;
 import com.sprint.mission.discodeit.domain.dto.UserReadResult;
-import com.sprint.mission.discodeit.domain.dto.UserUpdateResult;
 import com.sprint.mission.discodeit.domain.dto.user.UserDto;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
-import com.sprint.mission.discodeit.domain.request.CreateUserResponse;
-import com.sprint.mission.discodeit.domain.response.UserReadResponse;
-import com.sprint.mission.discodeit.domain.response.UserUpdateResponse;
+import com.sprint.mission.discodeit.exception.user.DuplicateUserEmailException;
+import com.sprint.mission.discodeit.exception.user.DuplicateUserNameException;
+import com.sprint.mission.discodeit.exception.user.DuplicateUserNameOrEmailException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.userStatus.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -52,7 +52,6 @@ public class BasicUserService implements UserService {
 	@Transactional
 	public UserDto create(CreateUserDTO dto) {
 		log.debug("user create 트랜잭션 시작");
-		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("CreateUserDTO cannot be null"));
 		String username = dto.getUsername();
 		String email = dto.getEmail();
 		String password = dto.getPassword();
@@ -62,7 +61,7 @@ public class BasicUserService implements UserService {
 		// 1. Check username 과 email 중복 여부
 		if (userRepository.findByUsername(username).isPresent() || userRepository.findByEmail(email).isPresent()) {
 			log.error("Username or email 중복");
-			throw new IllegalArgumentException("Username or email already exists");
+			throw new DuplicateUserNameOrEmailException(Map.of("username", username, "email", email));
 		}
 
 		log.debug("start create user profile image username={}", username);
@@ -98,7 +97,7 @@ public class BasicUserService implements UserService {
 		log.debug("user delete 트랜잭션 시작");
 
 		User targetUser = userRepository.findById(userId)
-		  .orElseThrow(() -> new NoSuchElementException("User with ID " + userId + " does not exist"));
+		  .orElseThrow(() -> new UserNotFoundException(Map.of("id", userId)));
 
 		// 1. User Status 삭제
 		userStatusRepository.deleteByUserId(userId);
@@ -130,20 +129,20 @@ public class BasicUserService implements UserService {
 		  , newUsername, newEmail, newPassword);
 
 		User targetUser = userRepository.findById(userId)
-		  .orElseThrow(() -> new NoSuchElementException("User with ID " + userId + " does not exist"));
+		  .orElseThrow(() -> new UserNotFoundException(Map.of("id", userId)));
 
 		// 1. Validate And Change
 		if (newUsername != null && !newUsername.isBlank() && !newUsername.equals(targetUser.getUsername())) {
 			if (userRepository.existsByUsername(newUsername)) {
 				log.error("new username 중복");
-				throw new IllegalArgumentException("username with" + newUsername + "exist");
+				throw new DuplicateUserNameException();
 			}
 			targetUser.setUsername(newUsername);
 		}
 		if (newEmail != null && !newEmail.isBlank() && !newEmail.equals(targetUser.getUsername())) {
 			if (userRepository.existsByEmail(newEmail)) {
 				log.error("new email 중복");
-				throw new IllegalArgumentException("email with" + newEmail + "exist");
+				throw new DuplicateUserEmailException();
 			}
 			targetUser.setEmail(newEmail);
 		}
@@ -178,7 +177,7 @@ public class BasicUserService implements UserService {
 	@Transactional(readOnly = true)
 	public UserDto read(UUID userId) {
 		User user = userRepository.findById(userId)
-		  .orElseThrow(() -> new NoSuchElementException("User with ID " + userId + " not found"));
+		  .orElseThrow(() -> new UserNotFoundException(Map.of("id", userId)));
 
 		Optional<UserStatus> status = userStatusRepository.findByUserId(userId);
 
@@ -229,42 +228,8 @@ public class BasicUserService implements UserService {
 	@Transactional(readOnly = true)
 	public boolean isOnline(UUID id) {
 		UserStatus userStatus = userStatusRepository.findByUserId(id)
-		  .orElseThrow(() -> new NoSuchElementException("userStatus with ID" + id + "not found"));
+		  .orElseThrow(() -> new UserStatusNotFoundException(Map.of("userId", id)));
 		return userStatus.isOnline();
-	}
-
-	public static CreateUserResponse toCreateUserResponse(User user) {
-		return CreateUserResponse.builder()
-		  .id(user.getId())
-		  .username(user.getUsername())
-		  .email(user.getEmail())
-		  .profileId(user.getProfileImage() != null ? user.getProfileImage().getId() : null)
-		  .createdAt(user.getCreatedAt())
-		  .updatedAt(user.getUpdatedAt())
-		  .build();
-	}
-
-	public static UserReadResponse toUserReadResponse(UserReadResult user) {
-		return UserReadResponse.builder()
-		  .id(user.getId())
-		  .createdAt(user.getCreatedAt())
-		  .updatedAt(user.getUpdatedAt())
-		  .username(user.getUsername())
-		  .email(user.getEmail())
-		  .profileId(user.getProfileId())
-		  .online(user.isOnline())
-		  .build();
-	}
-
-	public static UserUpdateResponse toUserUpdateResponse(UserUpdateResult user) {
-		return UserUpdateResponse.builder()
-		  .id(user.getId())
-		  .createdAt(user.getCreatedAt())
-		  .updatedAt(user.getUpdatedAt())
-		  .username(user.getUsername())
-		  .email(user.getEmail())
-		  .profileId(user.getProfileId())
-		  .build();
 	}
 
 }

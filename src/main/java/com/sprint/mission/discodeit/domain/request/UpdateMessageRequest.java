@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.domain.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +10,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UpdateMessageRequest {
 
-	@NotNull
-	@NotBlank
+	@NotBlank(message = "newContent 는 비어있을 수 없습니다.")
 	private final String newContent;
 }

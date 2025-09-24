@@ -57,7 +57,7 @@ public class MessageController {
 
 	@PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<MessageResponse> createMessage(
-	  @RequestPart MessageCreateRequest messageCreateRequest,
+	  @RequestPart @Valid MessageCreateRequest messageCreateRequest,
 	  @RequestPart(required = false) List<MultipartFile> attachments) {
 		log.debug("Request to create message started channelID={}, authorID={}, content={}",
 		  messageCreateRequest.getChannelId(), messageCreateRequest.getAuthorId(), messageCreateRequest.getContent());

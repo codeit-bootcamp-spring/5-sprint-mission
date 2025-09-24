@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.service.basic;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,6 +22,10 @@ import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.AuthorNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.server.InternalServerErrorException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -62,13 +65,9 @@ public class BasicMessageService implements MessageService {
 		List<CreateBiContentDTO> attachmentsInMessage = dto.getAttachments();
 
 		// Validate
-		Channel channel = channelRepository.findById(channelId).orElseThrow(() ->
-		  new NoSuchElementException("channel with id " + channelId + "not found")
-		);
+		Channel channel = channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
 
-		User user = userRepository.findUserWithProfileImageByID(userId).orElseThrow(() ->
-		  new NoSuchElementException("Author with id " + userId + "not found")
-		);
+		User user = userRepository.findUserWithProfileImageByID(userId).orElseThrow(AuthorNotFoundException::new);
 
 		boolean isOnline = userStatusRepository.findByUserId(user.getId())
 		  .map(UserStatus::isOnline).orElse(false);
@@ -93,8 +92,7 @@ public class BasicMessageService implements MessageService {
 	public void delete(UUID id) {
 		log.debug("message  delete 트랜잭션 시작");
 
-		Message messageToDelete = messageRepository.findById(id)
-		  .orElseThrow(() -> new NoSuchElementException("Message with ID " + id + " not found"));
+		Message messageToDelete = messageRepository.findById(id).orElseThrow(MessageNotFoundException::new);
 
 		// 메시지 관련 Attachment 도 삭제
 		binaryContentRepository.deleteByIdIn(
@@ -114,18 +112,16 @@ public class BasicMessageService implements MessageService {
 	public MessageDto update(UpdateMessageDTO dto) {
 		log.debug("message update 트랜잭션 시작");
 
-		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("UpdateMessageDTO cannot be null"));
 		UUID id = dto.getId();
 		String newContent = dto.getNewContent();
 		log.debug("new message info id={} newContent={}", id, newContent);
 
 		if (newContent == null || newContent.isEmpty()) {
 			log.error("bad request: New content cannot be null or empty");
-			throw new IllegalArgumentException("New content cannot be null or empty");
+			throw new InternalServerErrorException(Map.of("detail", "New content cannot be null or empty"));
 		}
 
-		Message targetMessage = messageRepository.findMessageDetailsById(id).orElseThrow(
-		  () -> new NoSuchElementException("Message with ID " + id + " not found"));
+		Message targetMessage = messageRepository.findMessageDetailsById(id).orElseThrow(MessageNotFoundException::new);
 		// 1. 내용 수정
 		targetMessage.setContent(newContent);
 

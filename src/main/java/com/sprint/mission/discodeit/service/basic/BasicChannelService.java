@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,6 +24,9 @@ import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.ParticipantsEmptyException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateNotAllowedException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -78,7 +80,7 @@ public class BasicChannelService implements ChannelService {
 		List<User> participants = userRepository.findUsersWithProfileByIdIn(dto.getUserIds());
 		if (participants.size() != dto.getUserIds().size()) {
 			log.error("participant Ids blank");
-			throw new IllegalArgumentException("missing participants ID Contain");
+			throw new ParticipantsEmptyException();
 		}
 
 		List<ReadStatus> newReadStatuses = participants.stream().map(u ->
@@ -180,7 +182,7 @@ public class BasicChannelService implements ChannelService {
 
 		if (!channelRepository.existsById(id)) {
 			log.error("channel id does not found");
-			throw new NoSuchElementException("Channel with id " + id + " not found");
+			throw new ChannelNotFoundException();
 		}
 		// 연관된 메시지도 삭제
 		messageRepository.deleteByChannelId(id);
@@ -209,11 +211,11 @@ public class BasicChannelService implements ChannelService {
 		  , id, newChannelName, newDescription);
 		// 채널이 존재하는지 확인
 		Channel targetChannel = channelRepository.findById(id)
-		  .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
+		  .orElseThrow(ChannelNotFoundException::new);
 
 		if (targetChannel.getType() == PRIVATE) {
 			log.error("bad request : Private channel cannot be updated");
-			throw new IllegalArgumentException("Private channel cannot be updated");
+			throw new PrivateChannelUpdateNotAllowedException();
 		}
 
 		if (newChannelName != null) {

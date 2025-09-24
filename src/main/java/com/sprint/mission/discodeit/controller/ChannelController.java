@@ -25,7 +25,7 @@ import com.sprint.mission.discodeit.domain.dto.channel.ChannelResponse;
 import com.sprint.mission.discodeit.domain.request.CreatePrivateChannelRequest;
 import com.sprint.mission.discodeit.domain.request.CreatePublicChannelRequest;
 import com.sprint.mission.discodeit.domain.request.UpdatePublicChannelRequest;
-import com.sprint.mission.discodeit.domain.response.ErrorResponse;
+import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.service.ChannelService;
 

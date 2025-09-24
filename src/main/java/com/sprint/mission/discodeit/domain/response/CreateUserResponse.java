@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.request;
+package com.sprint.mission.discodeit.domain.response;
 
 import java.time.Instant;
 import java.util.UUID;
