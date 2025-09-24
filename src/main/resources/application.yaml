@@ -30,3 +30,48 @@ logging:
 #    org.hibernate.SQL: off
 #    org.hibernate.orm.jdbc.bind: trace
 #    org.hibernate.type.descriptor.sql: trace
+
+# actuator/info 에 노출할 정보
+info:
+  app:
+    name: ${spring.application.name}
+    description: Discodeit service
+    version: 1.7.0
+    spring-boot-version: 3.4.0
+    java: ${java.runtime.version}
+  runtime:
+    profile: ${spring.profiles.active}
+  datasource: # 각 프로필마다 다르게 되기 때문에 url driver name을 가져올 방법이 없나?
+    url: ${spring.datasource.url}
+    driver-class-name: ${spring.datasource.driver-class-name}
+  jpa:
+    ddl-auto: ${spring.jpa.hibernate.ddl-auto}
+  storage:
+    type: ${discodeit.storage.type}
+    path: ${discodeit.storage.local.root-path}
+  multipart:
+    max-file-size: ${spring.servlet.multipart.max-file-size}
+    max-request-size: ${spring.servlet.multipart.max-request-size}
+
+
+# Actuator 노출 범위
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,metrics,health, loggers
+        #        include: info,metrics,health, loggers,env,threaddump,heapdump,users
+  #  endpoint:
+  #    health:
+  #      show-details: always
+  #      probes:
+  #        enabled: true   # liveness/readiness
+  info:
+    env:
+      enabled: true     # info.* 노출
+    java:
+      enabled: true
+    os:
+      enabled: true
+    build:
+      enabled: true
