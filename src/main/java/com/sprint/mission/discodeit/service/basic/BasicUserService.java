@@ -64,9 +64,9 @@ public class BasicUserService implements UserService {
             user = request.toUser();
         }
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        UserStatus userStatus = new UserStatus(user);
+        UserStatus userStatus = new UserStatus(savedUser);
         userStatusRepository.save(userStatus);
 
         List<Channel> publicChannels = channelRepository.findByType(ChannelType.PUBLIC);
@@ -183,6 +183,8 @@ public class BasicUserService implements UserService {
             profileId = user.getProfile().getId();
         }
 
+        UserDeleteResponse response = UserDeleteResponse.success(user);
+
         userRepository.deleteById(user.getId());
 
         if (profileId != null) {
@@ -190,7 +192,7 @@ public class BasicUserService implements UserService {
         }
 
         log.info("[Service] id로 유저 삭제 성공: {}", id);
-        return UserDeleteResponse.success(user);
+        return response;
     }
 
     @Override
@@ -205,6 +207,8 @@ public class BasicUserService implements UserService {
             profileId = user.getProfile().getId();
         }
 
+        UserDeleteResponse response = UserDeleteResponse.success(user);
+
         userRepository.deleteById(user.getId());
 
         if (profileId != null) {
@@ -212,7 +216,7 @@ public class BasicUserService implements UserService {
         }
 
         log.info("[Service] username으로 유저 삭제 성공: {}", username);
-        return UserDeleteResponse.success(user);
+        return response;
     }
 
     private void updateOnlineStatus(List<UserResponse> userResponses) {

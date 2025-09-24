@@ -54,6 +54,7 @@ public class BasicChannelService implements ChannelService {
         List<User> allUsers = userRepository.findAll();
         for (User user : allUsers) {
             ReadStatus readStatus = new ReadStatus(user, channel);
+
             readStatusRepository.save(readStatus);
         }
 
@@ -95,6 +96,7 @@ public class BasicChannelService implements ChannelService {
                     .orElseThrow(() -> InvalidParticipantException.invalidUser(userId, participantIds));
 
             ReadStatus readStatus = new ReadStatus(user, channel);
+
             readStatusRepository.save(readStatus);
         }
 
