@@ -2,19 +2,26 @@ package com.sprint.mission.discodeit.handler;
 
 import com.sprint.mission.discodeit.dto.response.ErrorResponse;
 import com.sprint.mission.discodeit.dto.response.ErrorResponse.FieldError;
+import com.sprint.mission.discodeit.exception.binarycontent.FileNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.DuplicateChannelException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 /*Controller or Service : 문제 발생시 예외 던짐
  * GlobalExceptionHandler : 던져진 예외를 받아 클라이언트에게 적절한 응답 반환
  */
 
-@ControllerAdvice // 모든 컨트롤러에서 발생하는 예외 가로채는 역할
+@RestControllerAdvice // 모든 컨트롤러에서 발생하는 예외 가로채는 역할
 public class GlobalExceptionHandler {
 
   //@Valid, @RequestBody 검증 실패시
@@ -49,7 +56,7 @@ public class GlobalExceptionHandler {
     return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, path); // 400 반환
   }
 
-  //Exception.class (위에 안걸린 모든 Exception들 처리)
+  //Exception.class (나머지 Exception들 처리)
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
     ex.printStackTrace();
@@ -69,6 +76,70 @@ public class GlobalExceptionHandler {
         path
     );
 
+    return new ResponseEntity<>(errorResponse, status);
+  }
+
+
+  /* 커스텀 예외 처리 부분들
+   */
+
+  // USER 예외
+  @ExceptionHandler(UserNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex,
+      WebRequest request) {
+    return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND, request);
+  }
+
+  @ExceptionHandler(DuplicateUserException.class)
+  public ResponseEntity<ErrorResponse> handleDuplicateUser(DuplicateUserException ex,
+      WebRequest request) {
+    return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT, request);
+  }
+
+  // CHANNEL 예외
+  @ExceptionHandler(ChannelNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleChannelNotFound(ChannelNotFoundException ex,
+      WebRequest request) {
+    return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND, request);
+  }
+
+  @ExceptionHandler(DuplicateChannelException.class)
+  public ResponseEntity<ErrorResponse> handleDuplicateChannel(DuplicateChannelException ex,
+      WebRequest request) {
+    return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT, request);
+  }
+
+  // MESSAGE 예외
+  @ExceptionHandler(MessageNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleMessageNotFound(MessageNotFoundException ex,
+      WebRequest request) {
+    return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND, request);
+  }
+
+  // BINARY CONTENT 예외
+  @ExceptionHandler(FileNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleFileNotFound(FileNotFoundException ex,
+      WebRequest request) {
+    return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND, request);
+  }
+
+  // READSTATUS 예외
+  @ExceptionHandler(ReadStatusNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleReadStatusNotFound(ReadStatusNotFoundException ex,
+      WebRequest request) {
+    return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND, request);
+  }
+
+  // ErrorResponse 생성 (request 그대로 사용)
+  private ResponseEntity<ErrorResponse> buildErrorResponse(String message, HttpStatus status,
+      WebRequest request) {
+    String path = request.getDescription(false);
+    ErrorResponse errorResponse = ErrorResponse.of(
+        status.value(),
+        status.getReasonPhrase(),
+        message,
+        path
+    );
     return new ResponseEntity<>(errorResponse, status);
   }
 }
