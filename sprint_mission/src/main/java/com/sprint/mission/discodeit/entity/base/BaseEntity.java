@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -21,11 +22,19 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public abstract class BaseEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
+//  @GeneratedValue(strategy = GenerationType.UUID)
   @Column(columnDefinition = "uuid", updatable = false, nullable = false)
   private UUID id;
 
   @CreatedDate
   @Column(columnDefinition = "timestamp with time zone", updatable = false, nullable = false)
   private Instant createdAt;
+
+    //h2에서 Long은 자동생성되는데 UUID가 자동생성이 잘 안됨
+    @PrePersist
+    public void prePersist() {
+        if (id == null) {
+            id = UUID.randomUUID(); // H2에서도 자동 생성
+        }
+    }
 }
