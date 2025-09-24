@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- 콘솔 출력 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- 파일 롤링 출력 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!-- 현재 활성 로그 파일 -->
         <file>.logs/app.log</file>
-
         <encoder>
             <pattern>%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
-
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- 로그 파일 이름: 일자별로 새 파일 생성 -->
             <fileNamePattern>.logs/app-%d{yyyy-MM-dd}.log</fileNamePattern>
-
-            <!-- 최대 보관일수 (30일) -->
             <maxHistory>30</maxHistory>
-
-            <!-- (선택) 디스크 용량 제한 예시: 최근 1GB까지만 보관 -->
-            <!-- <totalSizeCap>1GB</totalSizeCap> -->
         </rollingPolicy>
     </appender>
 
-    <!-- 루트 로거: 콘솔 + 파일 동시에 출력 -->
-    <root level="info">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="FILE"/>
-    </root>
+    <springProfile name="!test">
+        <root level="info">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="test">
+        <logger name="org.hibernate.SQL" level="DEBUG"/>
+        <logger name="org.hibernate.type.descriptor.sql" level="TRACE"/>
+
+        <root level="info">
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </springProfile>
+
 </configuration>

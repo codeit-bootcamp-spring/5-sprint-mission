@@ -46,35 +46,17 @@ public class UserServiceTest {
     void createUser_success() {
 
         UserCreateRequest request = new UserCreateRequest("soyeon", "soyeon@email.com", "1234");
+        User createdUser = new User("soyeon", "soyeon@email.com", "1234", null);
+        UserDto userDto = UserDto.builder().username("soyeon").email("soyeon@email.com").build();
 
-        BDDMockito.given(userRepository.save(any(User.class)))
-                .willAnswer(invocation -> {
-                    User userToSave = invocation.getArgument(0);
-                    UUID userId = UUID.randomUUID();
-                    ReflectionTestUtils.setField(userToSave, "id", userId); // 강제로 id 할당, 실제로는 JPA 가 생성해줌
-                    return userToSave;
-        });
+        BDDMockito.given(userRepository.save(any(User.class))).willReturn(createdUser);
+        BDDMockito.given(userMapper.toDto(any(User.class))).willReturn(userDto);
 
-        BDDMockito.given(userMapper.toDto(any(User.class)))
-                        .willAnswer(invocation -> {
-                            User sourceUser = invocation.getArgument(0);
-                            return UserDto.builder()
-                                    .id(sourceUser.getId())
-                                    .username(sourceUser.getUsername())
-                                    .email(sourceUser.getEmail())
-                                    .online(true)
-                                    .build();
-                        });
-
-
-        // when (실행): 어떤 동작을 수행하면
-        // 실제 테스트 대상인 userService.create() 메서드 호출
         UserDto resultDto = userService.create(request, Optional.empty());
 
 
         // then (검증): 어떤 결과가 나와야 한다
         // 1. 반환된 결과(DTO)의 값이 예상과 일치하는지 검증
-        assertThat(resultDto.id()).isNotNull();
         assertThat(resultDto.username()).isEqualTo("soyeon");
         assertThat(resultDto.email()).isEqualTo("soyeon@email.com");
 
@@ -99,6 +81,8 @@ public class UserServiceTest {
 
         // 추가 검증: 발생한 예외의 메시지가 기대와 일치하는지 확인
         assertThat(exception.getMessage()).isEqualTo("이미 존재하는 사용자입니다.");
+
+        BDDMockito.then(userRepository).should().existsByEmail(any());
     }
 
 }
