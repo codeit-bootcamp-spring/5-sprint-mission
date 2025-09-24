@@ -7,7 +7,6 @@ import com.codeit.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.codeit.mission.discodeit.entity.Channel;
 import com.codeit.mission.discodeit.entity.ChannelType;
 import com.codeit.mission.discodeit.entity.ReadStatus;
-import com.codeit.mission.discodeit.entity.User;
 import com.codeit.mission.discodeit.mapper.ChannelMapper;
 import com.codeit.mission.discodeit.repository.ChannelRepository;
 import com.codeit.mission.discodeit.repository.MessageRepository;
@@ -23,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class BasicChannelService implements ChannelService {
 
     private final ChannelRepository channelRepository;
@@ -32,79 +30,81 @@ public class BasicChannelService implements ChannelService {
     private final UserRepository userRepository;
     private final ChannelMapper channelMapper;
 
+    @Transactional
     @Override
-    public Channel create(PublicChannelCreateRequest request) {
+    public ChannelDto create(PublicChannelCreateRequest request) {
         String name = request.name();
         String description = request.description();
         Channel channel = new Channel(ChannelType.PUBLIC, name, description);
 
-        return channelRepository.save(channel);
+        channelRepository.save(channel);
+        return channelMapper.toDto(channel);
     }
 
+    @Transactional
     @Override
-    public Channel create(PrivateChannelCreateRequest request) {
+    public ChannelDto create(PrivateChannelCreateRequest request) {
         Channel channel = new Channel(ChannelType.PRIVATE, null, null);
-        Channel createdChannel = channelRepository.save(channel);
+        channelRepository.save(channel);
 
-        request.participantIds().forEach(userId -> {
-            User user = userRepository.findById(userId)
-                .orElseThrow(
-                    () -> new NoSuchElementException("User with id " + userId + " not found"));
-            ReadStatus readStatus = new ReadStatus(user, createdChannel,
-                createdChannel.getCreatedAt());
-            readStatusRepository.save(readStatus);
-        });
+        List<ReadStatus> readStatuses = userRepository.findAllById(request.participantIds())
+                .stream()
+                .map(user -> new ReadStatus(user, channel, channel.getCreatedAt()))
+                .toList();
+        readStatusRepository.saveAll(readStatuses);
 
-        return createdChannel;
+        return channelMapper.toDto(channel);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ChannelDto find(UUID channelId) {
         return channelRepository.findById(channelId)
-            .map(channelMapper::toDto)
-            .orElseThrow(
-                () -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+                .map(channelMapper::toDto)
+                .orElseThrow(
+                        () -> new NoSuchElementException(
+                                "Channel with id " + channelId + " not found"));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ChannelDto> findAllByUserId(UUID userId) {
         List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
-            .map(readStatus -> readStatus.getChannel().getId())
-            .toList();
+                .map(ReadStatus::getChannel)
+                .map(Channel::getId)
+                .toList();
 
-        return channelRepository.findAll().stream()
-            .filter(channel ->
-                channel.getType().equals(ChannelType.PUBLIC)
-                    || mySubscribedChannelIds.contains(channel.getId())
-            )
-            .map(channelMapper::toDto)
-            .toList();
+        return channelRepository.findAllByTypeOrIdIn(ChannelType.PUBLIC, mySubscribedChannelIds)
+                .stream()
+                .map(channelMapper::toDto)
+                .toList();
     }
 
+    @Transactional
     @Override
-    public Channel update(UUID channelId, PublicChannelUpdateRequest request) {
+    public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
         String newName = request.newName();
         String newDescription = request.newDescription();
         Channel channel = channelRepository.findById(channelId)
-            .orElseThrow(
-                () -> new NoSuchElementException("Channel with id " + channelId + " not found"));
-
+                .orElseThrow(
+                        () -> new NoSuchElementException(
+                                "Channel with id " + channelId + " not found"));
         if (channel.getType().equals(ChannelType.PRIVATE)) {
-            throw new IllegalArgumentException("Private channels cannot be updated");
+            throw new IllegalArgumentException("Private channel cannot be updated");
         }
-
         channel.update(newName, newDescription);
-        return channel;
+        return channelMapper.toDto(channel);
     }
 
+    @Transactional
     @Override
     public void delete(UUID channelId) {
-        Channel channel = channelRepository.findById(channelId)
-            .orElseThrow(
-                () -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+        if (!channelRepository.existsById(channelId)) {
+            throw new NoSuchElementException("Channel with id " + channelId + " not found");
+        }
 
-        messageRepository.deleteAllByChannelId(channel.getId());
-        readStatusRepository.deleteAllByChannelId(channel.getId());
+        messageRepository.deleteAllByChannelId(channelId);
+        readStatusRepository.deleteAllByChannelId(channelId);
 
         channelRepository.deleteById(channelId);
     }

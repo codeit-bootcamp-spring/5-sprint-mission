@@ -1,13 +1,11 @@
 package com.codeit.mission.discodeit.controller;
 
+import com.codeit.mission.discodeit.controller.api.ChannelApi;
 import com.codeit.mission.discodeit.dto.data.ChannelDto;
 import com.codeit.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.codeit.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.codeit.mission.discodeit.dto.request.PublicChannelUpdateRequest;
-import com.codeit.mission.discodeit.entity.Channel;
 import com.codeit.mission.discodeit.service.ChannelService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,51 +21,51 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 @RequiredArgsConstructor
+@RestController
 @RequestMapping("/api/channels")
-@Tag(name = "Channel", description = "Channel API")
-public class ChannelController {
+public class ChannelController implements ChannelApi {
 
     private final ChannelService channelService;
 
-    @PostMapping("/public")
-    @Operation(summary = "공개 채널 생성", description = "공개 채널을 생성합니다.")
-    public ResponseEntity<Channel> create(@RequestBody PublicChannelCreateRequest request) {
-        Channel channel = channelService.create(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(channel);
+    @PostMapping(path = "public")
+    public ResponseEntity<ChannelDto> create(@RequestBody PublicChannelCreateRequest request) {
+        ChannelDto createdChannel = channelService.create(request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdChannel);
     }
 
-    @PostMapping("/private")
-    @Operation(summary = "비공개 채널 생성", description = "비공개 채널을 생성합니다.")
-    public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
-        Channel channel = channelService.create(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(channel);
+    @PostMapping(path = "private")
+    public ResponseEntity<ChannelDto> create(@RequestBody PrivateChannelCreateRequest request) {
+        ChannelDto createdChannel = channelService.create(request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdChannel);
     }
 
-    @PatchMapping("/{channelId}")
-    @Operation(summary = "채널 수정", description = "해당 Id의 채널을 수정합니다.")
-    public ResponseEntity<Channel> update(@PathVariable UUID channelId,
-        @RequestBody PublicChannelUpdateRequest request) {
-        Channel channel = channelService.update(channelId, request);
-
-        return ResponseEntity.status(HttpStatus.OK).body(channel);
+    @PatchMapping(path = "{channelId}")
+    public ResponseEntity<ChannelDto> update(@PathVariable("channelId") UUID channelId,
+            @RequestBody PublicChannelUpdateRequest request) {
+        ChannelDto updatedChannel = channelService.update(channelId, request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(updatedChannel);
     }
 
-    @DeleteMapping("/{channelId}")
-    @Operation(summary = "채널 삭제", description = "해당 Id의 채널을 삭제합니다.")
-    public ResponseEntity<Void> delete(@PathVariable UUID channelId) {
+    @DeleteMapping(path = "{channelId}")
+    public ResponseEntity<Void> delete(@PathVariable("channelId") UUID channelId) {
         channelService.delete(channelId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
     @GetMapping
-    @Operation(summary = "전체 채널 조회", description = "전체 채널을 조회합니다.")
     public ResponseEntity<List<ChannelDto>> findAll(@RequestParam("userId") UUID userId) {
-        List<ChannelDto> allByUserId = channelService.findAllByUserId(userId);
-
-        return ResponseEntity.status(HttpStatus.OK).body(allByUserId);
+        List<ChannelDto> channels = channelService.findAllByUserId(userId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(channels);
     }
 }

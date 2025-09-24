@@ -1,20 +1,20 @@
 package com.codeit.mission.discodeit.service;
 
+import com.codeit.mission.discodeit.dto.data.ReadStatusDto;
 import com.codeit.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.codeit.mission.discodeit.dto.request.ReadStatusUpdateRequest;
-import com.codeit.mission.discodeit.entity.ReadStatus;
-
 import java.util.List;
 import java.util.UUID;
 
 public interface ReadStatusService {
-    ReadStatus create(ReadStatusCreateRequest request);
 
-    ReadStatus find(UUID readStatusId);
+    ReadStatusDto create(ReadStatusCreateRequest request);
 
-    List<ReadStatus> findAllByUserId(UUID userId);
+    ReadStatusDto find(UUID readStatusId);
 
-    ReadStatus update(UUID readStatusId, ReadStatusUpdateRequest request);
+    List<ReadStatusDto> findAllByUserId(UUID userId);
+
+    ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request);
 
     void delete(UUID readStatusId);
 }
