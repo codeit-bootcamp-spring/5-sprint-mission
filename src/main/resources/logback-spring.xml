@@ -1,0 +1,78 @@
+<configuration>
+  <!-- 변수 정의 -->
+  <property name="LOG_DIR" value=".logs"/>
+  <property name="LOG_FILE_NAME" value="discodeit"/>
+
+  <!-- 로그 패턴 정의 -->
+  <property name="LOG_PATTERN"
+    value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+
+  <!-- 콘솔 출력 설정 -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${LOG_PATTERN}</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+  </appender>
+
+  <!-- 파일 출력 설정 (일자별 롤링) -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_DIR}/${LOG_FILE_NAME}.log</file>
+    <encoder>
+      <pattern>${LOG_PATTERN}</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+
+    <!-- 롤링 정책 설정 -->
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- 일자별 로그 파일 패턴 -->
+      <fileNamePattern>${LOG_DIR}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <!-- 30일간 보관 -->
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+  </appender>
+
+  <!-- 에러 전용 파일 출력 설정 -->
+  <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_DIR}/${LOG_FILE_NAME}-error.log</file>
+    <encoder>
+      <pattern>${LOG_PATTERN}</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+
+    <!-- ERROR 레벨 이상만 기록 -->
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/${LOG_FILE_NAME}-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>30</maxHistory>
+      <totalSizeCap>500MB</totalSizeCap>
+    </rollingPolicy>
+  </appender>
+
+  <!-- 개발 환경 프로파일 설정 -->
+  <springProfile name="dev">
+    <logger name="com.codeit.misson.discodeit" level="DEBUG"/>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
+  </springProfile>
+
+  <!-- 운영 환경 프로파일 설정 -->
+  <springProfile name="prod">
+    <logger name="com.codeit.misson.discodeit" level="INFO"/>
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.hibernate.orm.jdbc.bind" level="WARN"/>
+  </springProfile>
+
+  <!-- 루트 로거 설정 -->
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="ERROR_FILE"/>
+  </root>
+
+</configuration>

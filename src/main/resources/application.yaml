@@ -16,6 +16,10 @@ spring:
     #        default_batch_fetch_size: 100
     open-in-view: false
 
+logging:
+  level:
+    root: info
+
 discodeit:
   storage:
     type: local
