@@ -8,6 +8,10 @@ spring:
     url: jdbc:postgresql://prod-db-server:5432/discodeit
     username: ${DB_USERNAME:discodeit_user}  # 환경변수 활용
     password: ${DB_PASSWORD:discodeit1234}
+  boot:
+    admin:
+      client:
+        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
 
 # 운영 환경 로깅 설정
 logging:

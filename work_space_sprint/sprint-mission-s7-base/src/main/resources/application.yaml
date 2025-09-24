@@ -1,6 +1,11 @@
 spring:
   application:
     name: discodeit
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
   servlet:
     multipart:
       maxFileSize: 10MB

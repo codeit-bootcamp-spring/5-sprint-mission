@@ -8,6 +8,10 @@ spring:
     url: jdbc:postgresql://localhost:5432/discodeit
     username: discodeit_user
     password: discodeit1234
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
 
 # 개발 환경 로깅 설정
 logging:
