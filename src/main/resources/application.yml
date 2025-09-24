@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: discodeit
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      maxFileSize: 10MB
+      maxRequestSize: 30MB
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: .discodeit/storage
+
