@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.service;
 //인터페이스
 //기능의 약속을 정의하며, 다중 구현이 가능
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import java.util.List;
 import java.util.UUID;

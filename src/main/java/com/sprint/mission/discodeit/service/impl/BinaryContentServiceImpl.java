@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.exception.binarycontent.FileNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
@@ -39,7 +40,7 @@ public class BinaryContentServiceImpl implements BinaryContentService {
     BinaryContent file = binaryContentRepository.findById(id)
         .orElseThrow(() -> {
           log.warn("파일 단건조회 실패(없음): id={}", id);
-          return new IllegalArgumentException("파일을 찾을 수 없음");
+          return new FileNotFoundException();
         });
     log.info("파일 단건조회 성공: id={}", id);
     return binaryContentMapper.toDto(file);
@@ -63,9 +64,11 @@ public class BinaryContentServiceImpl implements BinaryContentService {
     BinaryContent file = binaryContentRepository.findById(id)
         .orElseThrow(() -> {
           log.warn("파일 삭제 실패(없음): id={}", id);
-          return new IllegalArgumentException("파일을 찾을 수 없음");
+          return new FileNotFoundException();
         });
     binaryContentRepository.delete(file);
     log.info("파일 삭제 완료: id={}", id);
   }
+
+  //파일 다운
 }

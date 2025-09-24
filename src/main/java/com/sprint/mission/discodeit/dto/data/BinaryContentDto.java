@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto;
+package com.sprint.mission.discodeit.dto.data;
 
 import java.util.UUID;
 import lombok.Data;

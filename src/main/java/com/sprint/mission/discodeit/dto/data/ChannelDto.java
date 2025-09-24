@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto;
+package com.sprint.mission.discodeit.dto.data;
 
 import com.sprint.mission.discodeit.entity.ChannelType;
 import java.util.UUID;

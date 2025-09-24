@@ -9,7 +9,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none #내가 작성한 스키마.sql로 DB에 테이블 만들기
+      ddl-auto: create #내가 작성한 스키마.sql로 DB에 테이블 만들기
     show-sql: false    #콘솔에 SQL 출력 원하면 true
     properties:
       hibernate:

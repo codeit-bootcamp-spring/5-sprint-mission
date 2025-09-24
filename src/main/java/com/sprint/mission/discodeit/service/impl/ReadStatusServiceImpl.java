@@ -1,9 +1,12 @@
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -30,9 +33,9 @@ public class ReadStatusServiceImpl implements ReadStatusService {
   @Transactional
   public ReadStatusDto create(ReadStatusDto dto) {
     User user = userRepository.findById(dto.getUserId())
-        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없음"));
+        .orElseThrow(() -> new UserNotFoundException());
     Channel channel = channelRepository.findById(dto.getChannelId())
-        .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
+        .orElseThrow(() -> new ChannelNotFoundException());
 
     // 매퍼를 사용해 엔티티로 변환
     ReadStatus readStatus = readStatusMapper.toEntity(dto, user, channel);
@@ -47,7 +50,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
   @Transactional
   public ReadStatusDto update(UUID readStatusId, ReadStatusDto dto) { // DTO를 받아서 DTO를 반환
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-        .orElseThrow(() -> new IllegalArgumentException("해당 읽음상태 없음"));
+        .orElseThrow(() -> new ReadStatusNotFoundException());
 
     // 매퍼를 사용해 엔티티 값 업데이트
     readStatusMapper.updateEntityFromDto(readStatus, dto);
@@ -78,7 +81,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
   @Transactional
   public ReadStatusDto findById(UUID id) { // DTO 반환
     ReadStatus readStatus = readStatusRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("해당 읽음 상태 없음"));
+        .orElseThrow(() -> new ReadStatusNotFoundException());
     log.info("읽음상태 단건조회 성공: id={}", id);
 
     // DTO로 변환하여 반환
