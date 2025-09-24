@@ -7,7 +7,7 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         # default_batch_fetch_size: 100
