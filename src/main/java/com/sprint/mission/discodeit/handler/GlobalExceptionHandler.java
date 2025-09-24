@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
       WebRequest request) {
 
     //예외 발생 경로(요청 URL 추출)
-    String path = request.getDescription(false).replace("uri=", "");
+    String path = request.getDescription(false);
     //검증 실패한 필드별 에러 리스트 추출
     List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
         //각 필드와 검증 실패 메세지 묶어 객체 만들기
@@ -52,35 +52,18 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
       IllegalArgumentException ex, WebRequest request) {
-    String path = request.getDescription(false).replace("uri=", "");
-    return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, path); // 400 반환
+    return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
   }
 
   //Exception.class (나머지 Exception들 처리)
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
     ex.printStackTrace();
-    String path = request.getDescription(false).replace("uri=", "");
-    return buildErrorResponse("서버 내부 오류가 발생했습니다.",
-        HttpStatus.INTERNAL_SERVER_ERROR, path); // 500 반환
+    return buildErrorResponse("서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR, request);
   }
-
-  //ErrorResponse DTO를 사용
-  private ResponseEntity<ErrorResponse> buildErrorResponse(
-      String message, HttpStatus status, String path) {
-
-    ErrorResponse errorResponse = ErrorResponse.of(
-        status.value(),
-        status.getReasonPhrase(),
-        message,
-        path
-    );
-
-    return new ResponseEntity<>(errorResponse, status);
-  }
-
 
   /* 커스텀 예외 처리 부분들
+   * User,Channel,Message,ReadStatus, BinaryContent
    */
 
   // USER 예외
