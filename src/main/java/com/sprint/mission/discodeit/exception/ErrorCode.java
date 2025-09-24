@@ -15,7 +15,9 @@ public enum ErrorCode {
 	INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다."),
 	INVALID_REQUEST("잘못된 요청입니다."),
 
-	FILE_PROCESSING_FAIL("파일 처리에 실패했습니다.");
+	FILE_PROCESSING_FAIL("파일 처리에 실패했습니다."),
+
+	BINARY_CONTENT_NOT_FOUND("해당 데이터를 찾을 수 없습니다.");
 
 	private final String message;
 
