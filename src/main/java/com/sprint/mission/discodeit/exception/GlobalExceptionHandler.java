@@ -1,8 +1,13 @@
 package com.sprint.mission.discodeit.exception;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -17,13 +22,39 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
     }
 
-    // 커스텀 에러 처리
     @ExceptionHandler(DiscodeitException.class)
     public ResponseEntity<ErrorResponse> handlerCustomException(DiscodeitException e) {
         log.error("커스텀 예외 발생 : code={}, message={}", e.getErrorCode(), e.getMessage());
         HttpStatus httpStatus = determineHttpStatus(e);
         ErrorResponse errorResponse = new ErrorResponse(e, httpStatus.value());
         return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(
+        MethodArgumentNotValidException ex) {
+        
+        log.error("요청 유효성 검사 실패: {}", ex.getMessage());
+
+        Map<String, Object> validationErrors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            validationErrors.put(fieldName, errorMessage);
+        });
+
+        ErrorResponse response = new ErrorResponse(
+            Instant.now(),
+            "VALIDATION_ERROR",
+            "요청 데이터 유효성 검사에 실패했습니다",
+            validationErrors,
+            ex.getClass().getSimpleName(),
+            HttpStatus.BAD_REQUEST.value()
+        );
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(response);
     }
 
     private HttpStatus determineHttpStatus(DiscodeitException exception) {
