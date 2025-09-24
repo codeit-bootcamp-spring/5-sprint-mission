@@ -48,16 +48,16 @@ import org.springframework.test.web.servlet.MockMvc;
 class MessageControllerTest {
 
   @Autowired
-  MockMvc mockMvc;
+  private MockMvc mockMvc;
   @Autowired
-  ObjectMapper objectMapper;
+  private ObjectMapper objectMapper;
 
   @MockitoBean
   private JpaMetamodelMappingContext mappingContext;
   @MockitoBean
-  MessageService messageService;
+  private MessageService messageService;
   @MockitoBean
-  MultipartFileMapper multipartFileMapper;
+  private MultipartFileMapper multipartFileMapper;
 
   // ====== POST /api/messages (multipart) ======
 
