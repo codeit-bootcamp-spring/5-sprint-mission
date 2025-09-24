@@ -6,17 +6,61 @@ import com.codeit.mission.discodeit.exception.message.MessageException;
 import com.codeit.mission.discodeit.exception.user.UserException;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException e) {
+
+        Map<String, Object> validationErrors = new LinkedHashMap<>();
+
+        for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
+            String field = fieldError.getField();
+            String message = fieldError.getDefaultMessage();
+            Object rejectedValue = fieldError.getRejectedValue();
+
+            Map<String, Object> fieldErrorDetail = new HashMap<>();
+            fieldErrorDetail.put("message", message);
+            fieldErrorDetail.put("rejectedValue", rejectedValue);
+            fieldErrorDetail.put("code", fieldError.getCode());
+
+            validationErrors.put(field, fieldErrorDetail);
+        }
+
+        for (ObjectError globalError : e.getBindingResult().getGlobalErrors()) {
+            String objectName = globalError.getObjectName();
+            String message = globalError.getDefaultMessage();
+
+            Map<String, Object> globalErrorDetail = new HashMap<>();
+            globalErrorDetail.put("message", message);
+            globalErrorDetail.put("code", globalError.getCode());
+
+            validationErrors.put(objectName + "_error", globalErrorDetail);
+        }
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(Instant.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code("VALIDATION_ERROR")
+                .message("입력 값 검증에 실패했습니다. 요청 데이터를 확인해주세요.")
+                .details(validationErrors)
+                .exceptionType("MethodArgumentNotValidException")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
 
     @ExceptionHandler(DiscodeitException.class)
     public ResponseEntity<ErrorResponse> handleDiscodeitException(DiscodeitException e) {

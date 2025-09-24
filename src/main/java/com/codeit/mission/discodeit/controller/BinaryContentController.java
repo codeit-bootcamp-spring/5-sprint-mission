@@ -4,6 +4,7 @@ import com.codeit.mission.discodeit.controller.api.BinaryContentApi;
 import com.codeit.mission.discodeit.dto.data.BinaryContentDto;
 import com.codeit.mission.discodeit.service.BinaryContentService;
 import com.codeit.mission.discodeit.storage.BinaryContentStorage;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

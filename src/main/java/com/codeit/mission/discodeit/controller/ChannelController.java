@@ -6,6 +6,7 @@ import com.codeit.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.codeit.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.codeit.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.codeit.mission.discodeit.service.ChannelService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,8 @@ public class ChannelController implements ChannelApi {
     private final ChannelService channelService;
 
     @PostMapping(path = "public")
-    public ResponseEntity<ChannelDto> create(@RequestBody PublicChannelCreateRequest request) {
+    public ResponseEntity<ChannelDto> create(
+            @Valid @RequestBody PublicChannelCreateRequest request) {
         log.info("공개 채널 생성 API 호출 - name: {}, description: {}",
                 request.name(), request.description());
 
@@ -44,7 +46,8 @@ public class ChannelController implements ChannelApi {
     }
 
     @PostMapping(path = "private")
-    public ResponseEntity<ChannelDto> create(@RequestBody PrivateChannelCreateRequest request) {
+    public ResponseEntity<ChannelDto> create(
+            @Valid @RequestBody PrivateChannelCreateRequest request) {
         log.info("프라이빗 채널 생성 API 호출 - 참가자 수: {}", request.participantIds().size());
         log.debug("프라이빗 채널 참가자 목록 - participantIds: {}", request.participantIds());
 
@@ -58,7 +61,7 @@ public class ChannelController implements ChannelApi {
 
     @PatchMapping(path = "{channelId}")
     public ResponseEntity<ChannelDto> update(@PathVariable("channelId") UUID channelId,
-            @RequestBody PublicChannelUpdateRequest request) {
+            @Valid @RequestBody PublicChannelUpdateRequest request) {
         log.info("채널 수정 API 호출 - channelId: {}, newName: {}, newDescription: {}",
                 channelId, request.newName(), request.newDescription());
 

@@ -5,6 +5,7 @@ import com.codeit.mission.discodeit.dto.data.ReadStatusDto;
 import com.codeit.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.codeit.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.codeit.mission.discodeit.service.ReadStatusService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,8 @@ public class ReadStatusController implements ReadStatusApi {
     private final ReadStatusService readStatusService;
 
     @PostMapping
-    public ResponseEntity<ReadStatusDto> create(@RequestBody ReadStatusCreateRequest request) {
+    public ResponseEntity<ReadStatusDto> create(
+            @Valid @RequestBody ReadStatusCreateRequest request) {
         ReadStatusDto createdReadStatus = readStatusService.create(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
