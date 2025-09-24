@@ -9,16 +9,14 @@ import com.sprint.mission.discodeit.domain.dto.UpdateChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.channel.ChannelDto;
 
 public interface ChannelService {
-	public ChannelDto createPublic(CreatePublicChannelDTO dto);
+	ChannelDto createPublic(CreatePublicChannelDTO dto);
 
-	public ChannelDto createPrivate(CreatePrivateChannelDTO dto);
+	ChannelDto createPrivate(CreatePrivateChannelDTO dto);
 
-	public List<ChannelDto> readAllByUserId(UUID userId);
+	List<ChannelDto> readAllByUserId(UUID userId);
 
-	public boolean delete(UUID id);
+	boolean delete(UUID id);
 
-	public ChannelDto update(UpdateChannelDTO dto);
-
-	boolean isEmpty(UUID id);
+	ChannelDto update(UpdateChannelDTO dto);
 
 }

@@ -12,10 +12,12 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor
 @Entity
+@ToString
 public class UserStatus extends BaseUpdatableEntity {
 
 	@Column(nullable = false)

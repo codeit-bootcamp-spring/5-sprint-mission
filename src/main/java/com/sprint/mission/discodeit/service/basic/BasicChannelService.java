@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,7 +79,7 @@ public class BasicChannelService implements ChannelService {
 		log.debug("success save channelEntity  channelUserIDs={}", dto.getUserIds().toString());
 
 		List<User> participants = userRepository.findUsersWithProfileByIdIn(dto.getUserIds());
-		if (participants.size() != dto.getUserIds().size()) {
+		if (participants.isEmpty() || participants.size() != dto.getUserIds().size()) {
 			log.error("participant Ids blank");
 			throw new ParticipantsEmptyException();
 		}
@@ -168,11 +169,12 @@ public class BasicChannelService implements ChannelService {
 			c,
 			ChannelID2Participants.get(c.getId())
 			  .stream()
-			  .map(u -> userMapper.toDto(u, UserId2IsOnlineMap.get(u.getId()),
+			  .map(u -> userMapper.toDto(u, Optional.ofNullable(UserId2IsOnlineMap.get(u.getId())).orElse(false),
 				binaryContentMapper.toDto(u.getProfileImage())))
 			  .toList(),
 			ChannelId2lastMessagedAtMap.get(c.getId())))
 		  .toList();
+
 	}
 
 	@Override
@@ -230,12 +232,6 @@ public class BasicChannelService implements ChannelService {
 
 		log.debug("channel update 트랜잭션 정상 종료");
 		return buildChannelDto(targetChannel);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public boolean isEmpty(UUID id) {
-		return !channelRepository.existsById(id);
 	}
 
 	private ChannelDto buildChannelDto(Channel channel) {

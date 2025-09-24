@@ -75,7 +75,7 @@ public class ChannelController {
 		  request.getParticipantIds().toString());
 
 		ChannelDto result = channelService.createPrivate(CreatePrivateChannelDTO.builder()
-		  .UserIds(request.getParticipantIds())
+		  .userIds(request.getParticipantIds())
 		  .build());
 
 		URI location = URI.create("api/channels");
