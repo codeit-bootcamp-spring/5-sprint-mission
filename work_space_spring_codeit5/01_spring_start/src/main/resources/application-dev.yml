@@ -1,9 +1,0 @@
-# dev 개발환경
-
-server:
-  port: 8081
-
-logging:
-  level:
-    root: INFO
-    org.springframework: TRACE
