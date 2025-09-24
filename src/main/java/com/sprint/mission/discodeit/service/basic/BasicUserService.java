@@ -19,11 +19,13 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
@@ -36,6 +38,8 @@ public class BasicUserService implements UserService {
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+    log.debug("@@ 사용자 생성 시작 - userCreateRequest :{}",userCreateRequest);
+    log.debug("@@ 파일 업로드 시작 - optionalProfileCreateRequest :{}",optionalProfileCreateRequest);
     String username = userCreateRequest.username();
     String email = userCreateRequest.email();
 
@@ -55,6 +59,7 @@ public class BasicUserService implements UserService {
               contentType);
           binaryContentRepository.save(binaryContent);
           binaryContentStorage.put(binaryContent.getId(), bytes);
+          log.debug("@@ 파일 업로드 완료 - nullableProfile :{}",binaryContent.getFileName());
           return binaryContent;
         })
         .orElse(null);
@@ -65,6 +70,7 @@ public class BasicUserService implements UserService {
     UserStatus userStatus = new UserStatus(user, now);
 
     userRepository.save(user);
+    log.debug("@@ 사용자 생성 완료 - user :{}",user);
     return userMapper.toDto(user);
   }
 
@@ -87,6 +93,8 @@ public class BasicUserService implements UserService {
   @Override
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+    log.debug("@@ 사용자 수정 시작 - userUpdateRequest : {}",userUpdateRequest);
+    log.debug("@@ 파일 업로드 시작 - optionalProfileCreateRequest : {}",optionalProfileCreateRequest);
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
@@ -109,12 +117,14 @@ public class BasicUserService implements UserService {
               contentType);
           binaryContentRepository.save(binaryContent);
           binaryContentStorage.put(binaryContent.getId(), bytes);
+          log.debug("@@ 파일 업로드 완료 - binaryContent : {}",binaryContent);
           return binaryContent;
         })
         .orElse(null);
 
     String newPassword = userUpdateRequest.newPassword();
     user.update(newUsername, newEmail, newPassword, nullableProfile);
+    log.debug("@@ 사용자 수정 완료 - user : {}",user);
 
     return userMapper.toDto(user);
   }
@@ -122,10 +132,11 @@ public class BasicUserService implements UserService {
   @Transactional
   @Override
   public void delete(UUID userId) {
+    log.debug("@@ 사용자 삭제 시작 - userId : {}",userId);
     if (userRepository.existsById(userId)) {
       throw new NoSuchElementException("User with id " + userId + " not found");
     }
-
+    log.debug("@@ 사용자 삭제 완료 - userId : {}",userId);
     userRepository.deleteById(userId);
   }
 }

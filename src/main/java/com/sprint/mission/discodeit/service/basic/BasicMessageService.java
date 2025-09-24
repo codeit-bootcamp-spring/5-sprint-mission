@@ -23,6 +23,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class BasicMessageService implements MessageService {
 
   private final MessageRepository messageRepository;
@@ -45,6 +47,8 @@ public class BasicMessageService implements MessageService {
   @Override
   public MessageDto create(MessageCreateRequest messageCreateRequest,
       List<BinaryContentCreateRequest> binaryContentCreateRequests) {
+    log.debug("@@ 메세지 생성 시작  - messageCreateRequest : {}",messageCreateRequest);
+    log.debug("@@ 파일 업로드 시작  - binaryContentCreateRequests : {}",binaryContentCreateRequests.fil);
     UUID channelId = messageCreateRequest.channelId();
     UUID authorId = messageCreateRequest.authorId();
 
@@ -66,6 +70,7 @@ public class BasicMessageService implements MessageService {
               contentType);
           binaryContentRepository.save(binaryContent);
           binaryContentStorage.put(binaryContent.getId(), bytes);
+          log.debug("@@ 파일 업로드 완료  - binaryContentId : {}, {}",binaryContent.getId(),binaryContent.getContentType());
           return binaryContent;
         })
         .toList();
@@ -78,6 +83,7 @@ public class BasicMessageService implements MessageService {
         attachments
     );
 
+    log.debug("@@ 메세지 생성 완료  - message : {}",message);
     messageRepository.save(message);
     return messageMapper.toDto(message);
   }
@@ -112,21 +118,24 @@ public class BasicMessageService implements MessageService {
   @Transactional
   @Override
   public MessageDto update(UUID messageId, MessageUpdateRequest request) {
+    log.debug("@@메세지 수정 시작 - request : {}",request);
     String newContent = request.newContent();
     Message message = messageRepository.findById(messageId)
         .orElseThrow(
             () -> new NoSuchElementException("Message with id " + messageId + " not found"));
     message.update(newContent);
+    log.debug("@@메세지 수정 완료 - message : {}",newContent);
     return messageMapper.toDto(message);
   }
 
   @Transactional
   @Override
   public void delete(UUID messageId) {
+    log.debug("@@메세지 삭제 시작 - messageId : {}",messageId);
     if (!messageRepository.existsById(messageId)) {
       throw new NoSuchElementException("Message with id " + messageId + " not found");
     }
-
     messageRepository.deleteById(messageId);
+    log.debug("@@메세지 삭제 완료 - messageId : {}",messageId);
   }
 }

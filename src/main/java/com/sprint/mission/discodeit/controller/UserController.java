@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
+@Slf4j
 public class UserController implements UserApi {
 
   private final UserService userService;
@@ -42,6 +44,7 @@ public class UserController implements UserApi {
       @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
+    log.debug("@@ 사용자 생성 요청 - userCreateRequest : {}",userCreateRequest);
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
     UserDto createdUser = userService.create(userCreateRequest, profileRequest);
@@ -60,6 +63,7 @@ public class UserController implements UserApi {
       @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
+    log.debug("@@ 사용자 수정 요청 - userUpdateRequest : {}",userUpdateRequest);
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
     UserDto updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
@@ -71,6 +75,7 @@ public class UserController implements UserApi {
   @DeleteMapping(path = "{userId}")
   @Override
   public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
+    log.debug("@@ 사용자 삭제 요청 - userId : {}",userId);
     userService.delete(userId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)
@@ -106,6 +111,8 @@ public class UserController implements UserApi {
             profileFile.getContentType(),
             profileFile.getBytes()
         );
+        log.debug("@@ 파일 업로드 요청 : FileName={}, Size={} bytes, ContentType={}",
+            profileFile.getOriginalFilename(),profileFile.getSize(), profileFile.getContentType());
         return Optional.of(binaryContentCreateRequest);
       } catch (IOException e) {
         throw new RuntimeException(e);
