@@ -26,7 +26,7 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
 
     response.setHeader(REQUEST_ID_HEADER, requestId);
 
-    log.debug("Request started");
+    log.info("Request started");
 
     return true;
   }
@@ -34,7 +34,7 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
   @Override
   public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
       Object handler, Exception ex) throws Exception {
-    log.debug("Request finished");
+    log.info("Request finished");
     MDC.clear();
   }
 

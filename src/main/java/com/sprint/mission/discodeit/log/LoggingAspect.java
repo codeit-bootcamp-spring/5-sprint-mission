@@ -44,7 +44,7 @@ public class LoggingAspect {
     String className = joinPoint.getTarget().getClass().getSimpleName();
     String methodName = joinPoint.getSignature().getName();
     Object[] args = joinPoint.getArgs();
-    log.debug("===> {}.{}({})", className, methodName, Arrays.toString(args));
+    log.info("===> {}.{}({})", className, methodName, Arrays.toString(args));
   }
 
   @AfterReturning(pointcut = "userServicePointcut() || channelServicePointcut()"
@@ -53,6 +53,6 @@ public class LoggingAspect {
     String className = joinPoint.getTarget().getClass().getSimpleName();
     String methodName = joinPoint.getSignature().getName();
     Object[] args = joinPoint.getArgs();
-    log.debug("<=== {}.{}({}), return : {}", className, methodName, Arrays.toString(args), result);
+    log.info("<=== {}.{}({}), return : {}", className, methodName, Arrays.toString(args), result);
   }
 }
