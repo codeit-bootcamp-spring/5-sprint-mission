@@ -4,7 +4,7 @@ plugins {
     id 'io.spring.dependency-management'
 }
 
-group = 'com.spring.mission'
+group = 'com.codeit'
 version = '0.0.1-SNAPSHOT'
 description = 'admin'
 

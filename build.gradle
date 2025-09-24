@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.0'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco'
 }
 
 springBoot {
@@ -57,4 +58,18 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy("jacocoTestReport")
 }
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+tasks.named("jacocoTestReport", JacocoReport) {
+    dependsOn(tasks.test)
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
