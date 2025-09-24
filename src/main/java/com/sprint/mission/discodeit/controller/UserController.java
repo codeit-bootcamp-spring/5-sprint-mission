@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.neutral.UserCommand;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.log.LogUtils;
 import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
 @Validated
+@Slf4j
 public class UserController implements UserApi {
 
   private final UserService userService;
@@ -42,35 +45,48 @@ public class UserController implements UserApi {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserDto> create(
-      @RequestPart @Valid UserCreateRequest userCreateRequest,
+      @RequestPart("userCreateRequest") @Valid UserCreateRequest request,
       @RequestPart(required = false) MultipartFile profile
   ) throws IOException {
+    log.debug("POST /api/users - user(username={}, email={}), profile(name={}, size={})",
+        request.username(), LogUtils.maskEmail(request.email()),
+        profile.getOriginalFilename(), profile.getSize());
 
     UserCommand userCommand = new UserCommand(
-        userCreateRequest.username(),
-        userCreateRequest.email(),
-        userCreateRequest.password(),
+        request.username(),
+        request.email(),
+        request.password(),
         multipartFileMapper.toNewBinaryContent(profile));
 
     UserDto userDto = userService.create(userCommand);
+    log.info("User created: id={}, username={}, email={}",
+        userDto.id(), userDto.username(), LogUtils.maskEmail(userDto.email()));
+
     return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
   }
 
   @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserDto> update(
       @PathVariable UUID userId,
-      @RequestPart @Valid UserUpdateRequest userUpdateRequest,
+      @RequestPart("userUpdateRequest") @Valid UserUpdateRequest request,
       @RequestPart(required = false) MultipartFile profile
   ) throws IOException {
+    log.debug(
+        "PATCH /api/users - id={} user(newUsername={}, newEmail={}), profile(name={}, size={})",
+        userId,
+        request.newUsername(), LogUtils.maskEmail(request.newEmail()),
+        profile.getOriginalFilename(), profile.getSize());
 
     UserCommand userCommand = new UserCommand(
-        userUpdateRequest.newUsername(),
-        userUpdateRequest.newEmail(),
-        userUpdateRequest.newPassword(),
+        request.newUsername(),
+        request.newEmail(),
+        request.newPassword(),
         multipartFileMapper.toNewBinaryContent(profile)
     );
 
     UserDto userDto = userService.update(userId, userCommand);
+    log.info("User updated: id={}, username={}, email={}",
+        userDto.id(), userDto.username(), LogUtils.maskEmail(userDto.email()));
 
     return ResponseEntity.status(HttpStatus.OK).body(userDto);
   }
@@ -78,12 +94,15 @@ public class UserController implements UserApi {
   @DeleteMapping("/{userId}")
   public ResponseEntity<Void> delete(@PathVariable UUID userId) {
     userService.delete(userId);
+    log.info("User deleted: id={}", userId);
+
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   @GetMapping
   public ResponseEntity<List<UserDto>> findAll() {
     List<UserDto> userDtos = userService.findAll();
+
     return ResponseEntity.status(HttpStatus.OK).body(userDtos);
   }
 
@@ -91,7 +110,9 @@ public class UserController implements UserApi {
   public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
       @PathVariable UUID userId,
       @RequestBody @Valid UserStatusUpdateRequest userStatusUpdateRequest) {
+
     UserStatusDto userStatusDto = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
+
     return ResponseEntity.status(HttpStatus.OK).body(userStatusDto);
   }
 }

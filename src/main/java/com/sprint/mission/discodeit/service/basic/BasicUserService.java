@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.log.LogUtils;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -19,11 +20,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service("userService")
 @RequiredArgsConstructor
+@Slf4j
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
@@ -34,18 +37,26 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
-  public UserDto create(UserCommand userCommand) {
-    String username = validateUsername(userCommand.username());
-    String password = userCommand.password();
-    String email = validateEmail(userCommand.email());
-    BinaryContent profile = profileMapper(userCommand.profile());
+  public UserDto create(UserCommand command) {
+    log.debug("[UserService#create] try username={}, email={}]",
+        command.username(), LogUtils.maskEmail(command.email()));
+
+    String username = validateUsername(command.username());
+    String password = command.password();
+    String email = validateEmail(command.email());
+    BinaryContent profile = profileMapper(command.profile());
 
     User user = new User(username, email, password, profile);
     UserStatus userStatus = new UserStatus();
     userStatus.setLastActiveAt(Instant.now());
     user.attachStatus(userStatus);
 
-    return userMapper.toDto(userRepository.save(user));
+    UserDto dto = userMapper.toDto(userRepository.save(user));
+
+    log.info("[UserService#create] User created: id={}, username={}, email={}, hasProfile={}",
+        dto.id(), dto.username(), LogUtils.maskEmail(dto.email()), profile != null);
+
+    return dto;
   }
 
   @Override
@@ -64,43 +75,59 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
-  public UserDto update(UUID userId, UserCommand userCommand) {
-    User user = validateId(userId);
-    String newUserName = userCommand.username();
-    String newEmail = userCommand.email();
-    String newPassword = userCommand.password();
+  public UserDto update(UUID userId, UserCommand command) {
+    log.debug("[UserService#update] try id={}, newUsername={}, newEmail={}, hasNewProfile={}",
+        userId, command.username(), LogUtils.maskEmail(command.email()),
+        command.profile().isPresent());
 
-    if (userCommand.username() != null && !user.getUsername().equals(userCommand.username())) {
+    User user = validateId(userId);
+    String newUserName = command.username();
+    String newEmail = command.email();
+    String newPassword = command.password();
+
+    if (command.username() != null && !user.getUsername().equals(command.username())) {
       validateUsername(newUserName);
     }
-    if (userCommand.email() != null && !user.getEmail().equals(userCommand.email())) {
+    if (command.email() != null && !user.getEmail().equals(command.email())) {
       validateEmail(newEmail);
     }
 
-    BinaryContent newProfile = profileMapper(userCommand.profile());
+    BinaryContent newProfile = profileMapper(command.profile());
 
     if (newProfile != null && user.getProfile() != null) {
       binaryContentRepository.deleteById(user.getProfile().getId());
+      log.debug("[UserService#update] old profile deleted: {}", user.getProfile().getId());
     }
 
     user.update(newUserName, newEmail, newPassword, newProfile);
+    UserDto dto = userMapper.toDto(userRepository.save(user));
 
-    return userMapper.toDto(userRepository.save(user));
+    log.info("[UserService#update] User updated: id={}, username={}, email={}, profileChaged={}",
+        dto.id(), dto.username(), LogUtils.maskEmail(dto.email()), newProfile != null);
+
+    return dto;
   }
 
   @Override
   @Transactional
   public void delete(UUID userId) {
+    log.debug("[UserService#delete] try id={}", userId);
     User user = validateId(userId);
 
     if (user.getProfile() != null) {
       binaryContentRepository.deleteById(user.getProfile().getId());
+      log.debug("[UserService#delete] profile deleted: {}", user.getProfile().getId());
     }
 
     userStatusRepository.findByUserId(user.getId())
-        .ifPresent(userStatus -> userStatusRepository.deleteById(userStatus.getId()));
+        .ifPresent(userStatus -> {
+          userStatusRepository.deleteById(userStatus.getId());
+          log.debug("[UserService#delete] UserStatus deleted: {}", userStatus.getId());
+        });
 
     userRepository.deleteById(user.getId());
+    log.info("[UserService#delete] User deleted: id={}, username={}, email={}",
+        user.getId(), user.getUsername(), LogUtils.maskEmail(user.getEmail()));
   }
 
   private BinaryContent profileMapper(Optional<NewBinaryContent> profile) {
