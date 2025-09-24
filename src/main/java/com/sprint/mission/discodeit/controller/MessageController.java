@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.neutral.MessageCreateCommand;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.log.LogUtils;
 import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
@@ -35,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/messages")
+@Slf4j
 public class MessageController implements MessageApi {
 
   private final MessageService messageService;
@@ -42,32 +45,43 @@ public class MessageController implements MessageApi {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto> create(
-      @RequestPart @Valid MessageCreateRequest messageCreateRequest,
-      @RequestPart(required = false) List<MultipartFile> attachments
+      @RequestPart(name = "messageCreateRequest") @Valid MessageCreateRequest request,
+      @RequestPart(name = "attachments", required = false) List<MultipartFile> attachments
   ) throws IOException {
+    log.debug("POST /api/messages - message={}, attachments={}",
+        request.forLog(), LogUtils.summarizeMultipartFiles(attachments, 3));
 
     MessageCreateCommand messageCreateCommand = new MessageCreateCommand(
-        messageCreateRequest.channelId(),
-        messageCreateRequest.authorId(),
-        messageCreateRequest.content(),
+        request.channelId(),
+        request.authorId(),
+        request.content(),
         multipartFileMapper.toNewBinaryContentList(attachments)
     );
 
     MessageDto messageDto = messageService.create(messageCreateCommand);
+    log.info("Message Created: {}", messageDto.forLog());
+
     return ResponseEntity.status(HttpStatus.CREATED).body(messageDto);
   }
 
   @PatchMapping("/{messageId}")
   public ResponseEntity<MessageDto> update(
       @PathVariable UUID messageId,
-      @RequestBody @Valid MessageUpdateRequest messageUpdateRequest) {
-    MessageDto messageDto = messageService.update(messageId, messageUpdateRequest);
+      @RequestBody @Valid MessageUpdateRequest request) {
+    log.debug("PATCH /api/messages/{messageId} - messageId={}, request={}",
+        messageId, LogUtils.summarize(request.newContent(), 30));
+
+    MessageDto messageDto = messageService.update(messageId, request);
+    log.info("Message Updated: {}", messageDto.forLog());
+
     return ResponseEntity.status(HttpStatus.OK).body(messageDto);
   }
 
   @DeleteMapping("/{messageId}")
   public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
     messageService.delete(messageId);
+    log.info("Message deleted: messageId={}", messageId);
+
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 

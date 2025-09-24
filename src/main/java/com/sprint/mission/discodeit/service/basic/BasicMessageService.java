@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.log.LogUtils;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -23,6 +24,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ import org.springframework.validation.annotation.Validated;
 @Service("messageService")
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class BasicMessageService implements MessageService {
 
   private final MessageRepository messageRepository;
@@ -45,6 +48,8 @@ public class BasicMessageService implements MessageService {
   @Override
   @Transactional
   public MessageDto create(MessageCreateCommand command) {
+    log.debug("[BasicMessageService#create] try command={}", command.forLog());
+
     String content = command.content();
     User author = userRepository.findById(command.authorId())
         .orElseThrow(() -> UserNotFoundException.withDetail("author", command.authorId()));
@@ -60,13 +65,21 @@ public class BasicMessageService implements MessageService {
           );
           binaryContentRepository.save(binaryContent);
           binaryContentStorage.put(binaryContent.getId(), request.bytes());
+          log.debug(
+              "[BasicMessageService#create] BinaryContent created: filename={}, contentType={}, size={}",
+              binaryContent.getFileName(),
+              binaryContent.getContentType(),
+              LogUtils.humanReadableSize(binaryContent.getSize()));
           return binaryContent;
         })
         .toList();
 
     Message message = new Message(content, channel, author, attachments);
 
-    return messageMapper.toDto(messageRepository.save(message));
+    MessageDto dto = messageMapper.toDto(messageRepository.save(message));
+    log.info("[MessageService#create] Message Created:{}", dto);
+
+    return dto;
   }
 
   @Override
@@ -100,24 +113,32 @@ public class BasicMessageService implements MessageService {
 
   @Override
   @Transactional
-  public MessageDto update(UUID messageId, MessageUpdateRequest messageUpdateRequest) {
+  public MessageDto update(UUID messageId, MessageUpdateRequest request) {
+    log.debug("[BasicMessageService#update] try messageId={} request={}", messageId, request);
     Message message = validateId(messageId);
-    message.update(messageUpdateRequest.newContent());
+    message.update(request.newContent());
 
-    return messageMapper.toDto(messageRepository.save(message));
+    MessageDto dto = messageMapper.toDto(messageRepository.save(message));
+    log.info("[MessageService#update] Message Updated:{}", dto);
+
+    return dto;
   }
 
   @Override
   @Transactional
   public void delete(UUID messageId) {
+    log.debug("[BasicMessageService#delete] try messageId={}", messageId);
     Message message = validateId(messageId);
 
     if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
       for (BinaryContent binaryContent : message.getAttachments()) {
         binaryContentRepository.deleteById(binaryContent.getId());
+        log.debug("[MessageService#delete] BinaryContent Deleted:{}", binaryContent.getId());
       }
     }
+
     messageRepository.deleteById(message.getId());
+    log.info("[MessageService#delete] Message Deleted:{}", message.getId());
   }
 
   private Message validateId(UUID messageId) {
