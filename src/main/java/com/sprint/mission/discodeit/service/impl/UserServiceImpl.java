@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
+import com.sprint.mission.discodeit.exception.user.UserEmailAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -33,11 +36,11 @@ public class UserServiceImpl implements UserService {
   public UserDto create(UserDto dto, MultipartFile profile) throws IOException {
     if (existsByUsername(dto.getUsername())) {
       log.warn("회원가입 실패(중복 username): {}", dto.getUsername());
-      throw new IllegalArgumentException("사용자 이름이 이미 존재합니다.");
+      throw new DuplicateUserException();
     }
     if (existsByEmail(dto.getEmail())) {
       log.warn("회원가입 실패(중복 email): {}", dto.getEmail());
-      throw new IllegalArgumentException("이메일이 이미 존재합니다.");
+      throw new UserEmailAlreadyExistsException();
     }
 
     // DTO -> Entity 변환
@@ -70,7 +73,7 @@ public class UserServiceImpl implements UserService {
     User user = userRepository.findById(id)
         .orElseThrow(() -> {
           log.warn("유저 단건조회 실패(없음): userId={}", id);
-          return new IllegalArgumentException("해당 유저 없음");
+          return new UserNotFoundException();
         });
     log.info("유저 단건조회 성공: userId={}", id);
     return userMapper.toDto(user);
@@ -96,7 +99,7 @@ public class UserServiceImpl implements UserService {
     User user = userRepository.findById(id)
         .orElseThrow(() -> {
           log.warn("회원정보 수정 실패(없는 유저): userId={}", id);
-          return new IllegalArgumentException("해당 유저 없음");
+          return new UserNotFoundException();
         });
 
     // Mapper를 통해 엔티티 값 업데이트
@@ -127,7 +130,7 @@ public class UserServiceImpl implements UserService {
   @Transactional
   public void delete(UUID id) {
     User user = userRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음"));
+        .orElseThrow(() -> new UserNotFoundException());
     userRepository.delete(user);
     log.info("회원 탈퇴 완료: userId={}", id);
   }

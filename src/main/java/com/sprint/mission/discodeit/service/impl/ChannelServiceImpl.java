@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class ChannelServiceImpl implements ChannelService {
 
   private final ChannelMapper channelMapper;
-  private ChannelRepository channelRepository;
+  private final ChannelRepository channelRepository;
 
   //채널 생성
   @Override
@@ -33,7 +34,7 @@ public class ChannelServiceImpl implements ChannelService {
   @Transactional
   public ChannelDto findById(UUID id) {
     Channel channel = channelRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
+        .orElseThrow(() -> new ChannelNotFoundException());
     log.info("채널 단건조회 성공: id={}", id);
     return channelMapper.toDto(channel);
   }
@@ -55,7 +56,7 @@ public class ChannelServiceImpl implements ChannelService {
   @Transactional
   public void update(UUID id, ChannelDto dto) {
     Channel channel = channelRepository.findById(id) // 영속성 컨텍스트에 의해 관리
-        .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
+        .orElseThrow(() -> new ChannelNotFoundException());
 
     channelMapper.updateEntityFromDto(channel, dto);
     log.info("채널 정보 수정 완료: id={}", id);
@@ -67,7 +68,7 @@ public class ChannelServiceImpl implements ChannelService {
   @Transactional
   public void delete(UUID id) {
     Channel channel = channelRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
+        .orElseThrow(() -> new ChannelNotFoundException());
     channelRepository.delete(channel);
     log.info("채널 삭제 완료: id={}", id);
   }

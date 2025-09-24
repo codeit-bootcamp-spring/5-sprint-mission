@@ -12,7 +12,11 @@ CREATE TABLE binary_contents
     file_name    VARCHAR(255) NOT NULL,
     size         BIGINT       NOT NULL,
     content_type VARCHAR(100) NOT NULL,
-    bytes        BLOB         NOT NULL
+    bytes        BLOB         NOT NULL,
+    message_id   UUID,
+    CONSTRAINT fk_binary_contents_message
+        FOREIGN KEY (message_id) REFERENCES messages (id)
+            ON DELETE SET NULL
 );
 
 -- ✅ 2. users: binary_contents.profile_id 참조

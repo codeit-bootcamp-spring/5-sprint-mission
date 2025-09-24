@@ -1,6 +1,6 @@
 // src/main/java/com/sprint/mission/discodeit/dto/ReadStatusDto.java
 
-package com.sprint.mission.discodeit.dto;
+package com.sprint.mission.discodeit.dto.data;
 
 import java.time.Instant;
 import java.util.UUID;

@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.UserStatusDto;
+import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -27,7 +28,7 @@ public class UserStatusServiceImpl implements UserStatusService {
   @Transactional
   public void updateUserStatusByUserId(UUID userId, UserStatusDto dto) {
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+        .orElseThrow(() -> new UserNotFoundException());
 
     UserStatus status = userStatusRepository.findByUser_Id(userId).orElse(null);
 
