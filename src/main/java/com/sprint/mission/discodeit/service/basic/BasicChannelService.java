@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +30,7 @@ import org.springframework.validation.annotation.Validated;
 @Service("channelService")
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class BasicChannelService implements ChannelService {
 
   private final ChannelRepository channelRepository;
@@ -40,20 +42,27 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   public ChannelDto create(PublicChannelCreateRequest request) {
+    log.debug("[ChannelService#create(public)] try request={}", request);
+
     Channel channel = channelRepository.save(new Channel(
         ChannelType.PUBLIC,
         request.name(),
         request.description()));
 
-    return channelMapper.toDto(
+    ChannelDto dto = channelMapper.toDto(
         channel,
         findParticipants(channel.getId()),
         findLastMessageAt(channel.getId()));
+
+    log.info("[ChannelService#create(public)] Channel created={}", dto);
+
+    return dto;
   }
 
   @Override
   @Transactional
   public ChannelDto create(PrivateChannelCreateRequest request) {
+    log.debug("[ChannelService#create(private)] try request={}", request);
 
     List<User> participants = request.participantIds()
         .stream()
@@ -65,14 +74,26 @@ public class BasicChannelService implements ChannelService {
     channelRepository.save(channel);
 
     for (User user : participants) {
-      readStatusRepository.save(
+      ReadStatus readStatus = readStatusRepository.save(
           new ReadStatus(channel.getCreatedAt(), user, channel));
+      log.debug("[ChannelService#create(private)] ReadStatus created: readStatusId={}",
+          readStatus.getId());
     }
 
-    return channelMapper.toDto(
+    ChannelDto dto = channelMapper.toDto(
         channel,
         findParticipants(channel.getId()),
         findLastMessageAt(channel.getId()));
+    log.info(
+        "[ChannelService#create(private)] Channel created:id={}, type={}, name={} description={}, participants={}, lastMessageAt={}",
+        dto.id(),
+        dto.type(),
+        dto.name(),
+        dto.description(),
+        dto.participants().size(),
+        dto.lastMessageAt());
+
+    return dto;
   }
 
   @Override
@@ -103,33 +124,55 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   public ChannelDto update(UUID channelId,
-      PublicChannelUpdateRequest publicChannelUpdateRequest) {
+      PublicChannelUpdateRequest request) {
+    log.debug("[ChannelService#update] try: channelId={}, request={}", channelId, request);
     Channel channel = validateId(channelId);
 
     if (channel.getType() == ChannelType.PRIVATE) {
       throw PrivateChannelUpdateException.withDetail("channelId", channelId);
     }
-    channel.update(publicChannelUpdateRequest.newName(),
-        publicChannelUpdateRequest.newDescription());
+    channel.update(request.newName(), request.newDescription());
     channelRepository.save(channel);
 
-    return channelMapper.toDto(
+    ChannelDto dto = channelMapper.toDto(
         channel,
         findParticipants(channelId),
         findLastMessageAt(channelId));
+
+    log.info(
+        "[ChannelService#update] Channel updated: id={}, type={}, name={} description={}, participants={}, lastMessageAt={}",
+        dto.id(),
+        dto.type(),
+        dto.name(),
+        dto.description(),
+        dto.participants().size(),
+        dto.lastMessageAt());
+
+    return dto;
   }
 
   @Override
   @Transactional
   public void delete(UUID channelId) {
+    log.debug("[ChannelService#delete] try channelId={}", channelId);
     validateId(channelId);
 
     readStatusRepository.findAllByChannelId(channelId)
-        .forEach(readStatus -> readStatusRepository.deleteById(readStatus.getId()));
+        .forEach(readStatus -> {
+          readStatusRepository.deleteById(readStatus.getId());
+          log.debug("[ChannelService#delete] ReadStatus deleted: readStatusId={}",
+              readStatus.getId());
+        });
+
     messageRepository.findAll().stream()
         .filter(message -> message.getChannel().getId().equals(channelId))
-        .forEach(message -> messageRepository.deleteById(message.getId()));
+        .forEach(message -> {
+          messageRepository.deleteById(message.getId());
+          log.debug("[ChannelService#delete] Message deleted: messageId={}", message.getId());
+        });
+
     channelRepository.deleteById(channelId);
+    log.info("[ChannelService#delete] Channel deleted: channelId={}", channelId);
   }
 
   private List<User> findParticipants(UUID channelId) {
