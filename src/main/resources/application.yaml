@@ -8,6 +8,11 @@ spring:
       max-request-size: 30MB
   profiles:
     active: dev # dev | prod | test
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
 
   # JPA
   jpa:
