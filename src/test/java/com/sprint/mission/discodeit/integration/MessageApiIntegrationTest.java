@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.integration;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -205,7 +204,7 @@ public class MessageApiIntegrationTest {
           .andExpect(jsonPath("$.content[0].channelId").value(channelId.toString()))
           .andExpect(jsonPath("$.hasNext").value(false));
     }
-    
+
     @Test
     @DisplayName("GET /api/messages - 채널이 존재하지 않을 시 404")
     void not_found() throws Exception {

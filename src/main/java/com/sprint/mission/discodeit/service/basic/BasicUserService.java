@@ -14,7 +14,6 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
