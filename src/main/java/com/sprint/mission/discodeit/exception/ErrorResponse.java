@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @Getter
 @RequiredArgsConstructor
@@ -25,5 +27,11 @@ public class ErrorResponse {
   public ErrorResponse(Exception exception, int status) {
     this(Instant.now(), exception.getClass().getSimpleName(), exception.getMessage(),
         new HashMap<>(), exception.getClass().getSimpleName(), status);
+  }
+
+  public ErrorResponse(MethodArgumentNotValidException exception, Map<String, Object> details,
+      int status) {
+    this(Instant.now(), exception.getClass().getSimpleName(), exception.getMessage(),
+        details, exception.getClass().getSimpleName(), status);
   }
 }

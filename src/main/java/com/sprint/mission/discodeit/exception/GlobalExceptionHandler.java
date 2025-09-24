@@ -1,9 +1,13 @@
 package com.sprint.mission.discodeit.exception;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -28,6 +32,21 @@ public class GlobalExceptionHandler {
     return ResponseEntity
         .status(errorResponse.getStatus())
         .body(errorResponse);
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleValidationException(
+      MethodArgumentNotValidException e) {
+    log.error("유효성 검증 실패 오류 발생 : {}", e.getMessage(), e);
+
+    Map<String, Object> details = new HashMap<>();
+    e.getBindingResult().getFieldErrors().forEach(
+        err -> details.put(err.getField(), err.getDefaultMessage())
+    );
+
+    ErrorResponse errorResponse = new ErrorResponse(e, details, HttpStatus.BAD_REQUEST.value());
+
+    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
   private HttpStatus determineHttpStatus(DiscodeitException exception) {
