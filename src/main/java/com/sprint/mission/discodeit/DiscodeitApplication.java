@@ -10,4 +10,3 @@ public class DiscodeitApplication {
     SpringApplication.run(DiscodeitApplication.class, args);
   }
 }
-
