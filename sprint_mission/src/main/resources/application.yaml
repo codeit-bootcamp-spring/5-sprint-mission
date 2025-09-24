@@ -1,67 +1,14 @@
 spring:
-  application:
-    name: discodeit
-  servlet:
-    multipart:
-      maxFileSize: 10MB # 파일 하나의 최대 크기
-      maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/discodeit
-    username: postgres
-    password: 1234
-  jpa:
-    hibernate:
-#      ddl-auto: validate
-      ddl-auto: create
-    properties:
-      hibernate:
-        format_sql: true
-    #        default_batch_fetch_size: 100
-    open-in-view: false
-
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
-
-discodeit:
-  storage:
-    type: local
-    local:
-      root-path: .discodeit/storage
+  profiles:
+    active: dev
 
 
-  logging:
-    level:
-      root: info  # 전체 기본 로그 레벨
-    pattern:
-      console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-    file:
-      name: logs/app.log  # logs 디렉토리에 app.log 파일 생성
+
+#  datasource:
+#    driver-class-name: org.postgresql.Driver
+#    url: jdbc:postgresql://localhost:5432/discodeit
+#    username: postgres
+#    password: 1234
 
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info, metrics, loggers #활성화할 엔드포인트 목록
 
-#acturator
-info:
-  app:
-    name: Discodeit
-    version: 1.7.0
-    java-version: 17
-    spring-boot-version: 3.4.0
-  datasource:
-    url: ${spring.datasource.url}
-    driver-class-name: ${spring.datasource.driver-class-name}
-  jpa:
-    ddl-auto: ${spring.jpa.hibernate.ddl-auto}
-  storage:
-    type: ${app.storage.type}
-    path: ${app.storage.path}
-  multipart:
-    max-file-size: ${spring.servlet.multipart.max-file-size}
-    max-request-size: ${spring.servlet.multipart.max-request-size}

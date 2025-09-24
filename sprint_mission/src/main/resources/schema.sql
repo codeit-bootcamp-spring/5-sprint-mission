@@ -1,4 +1,4 @@
-DROP TABLE users
+DROP TABLE users;
 
 -- 테이블
 -- User
