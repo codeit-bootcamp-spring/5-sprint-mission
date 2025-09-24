@@ -134,11 +134,12 @@ public class UserService {
   @Transactional
   public void delete(UUID userId) {
       log.warn("Deleting user. userId={}", userId);
-    if (userRepository.existsById(userId)) {
-      throw new NoSuchElementException("User with id " + userId + " not found");
-    }
 
-    userRepository.deleteById(userId);
-    log.info("User deleted successfully. userId={}", userId);
+      if (!userRepository.existsById(userId)) {
+          throw new NoSuchElementException("User with id " + userId + " not found");
+      }
+
+      userRepository.deleteById(userId);
+      log.info("User deleted successfully. userId={}", userId);
   }
 }
