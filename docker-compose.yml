@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: discodeit-postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: discodeit
+      POSTGRES_USER: discodeit_user
+      POSTGRES_PASSWORD: discodeit1234
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      # prometheus.yml 파일을 컨테이너 내부 경로에 연결
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  # Grafana
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      # Grafana 데이터를 저장해서 컨테이너가 재시작돼도 대시보드가 유지되도록 설정
+      - grafana-data:/var/lib/grafana
+
+# Docker Compose가 관리할 볼륨들 정의
+volumes:
+  postgres-data:
+  grafana-data:

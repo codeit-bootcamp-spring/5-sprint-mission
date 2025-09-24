@@ -20,10 +20,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers
+        include: "*"
   info:
     env:
       enabled: true
+  prometheus:
+    metrics:
+      export:
+        # 메트릭 내보내기 활성화
+        enabled: true
 
 info:
   app:
