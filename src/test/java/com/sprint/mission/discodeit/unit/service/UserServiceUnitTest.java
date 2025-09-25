@@ -18,6 +18,7 @@ import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
@@ -146,8 +147,67 @@ public class UserServiceUnitTest {
 	}
 
 
+	@Test
+	@DisplayName("사용자 업데이트 테스트 - 성공")
+	void updateUser_success() {
+		UUID existingUserId = UUID.randomUUID();
+		UserUpdateRequest userUpdateRequest = new UserUpdateRequest("newUsername", "newEmail", "newPassword!123");
+		BinaryContentCreateRequest binaryContentCreateRequest = new BinaryContentCreateRequest("newProfile.jpg",
+			"image/jpeg", "newProfileContent".getBytes());
+		Optional<BinaryContentCreateRequest> binaryContentCreateRequestOptional = Optional.of(binaryContentCreateRequest);
+		User existingUser = new User("existingUsername", "existingEmail", "existingPassword", null);
 
+		given(userRepository.findById(existingUserId)).willReturn(Optional.of(existingUser));
+		given(userRepository.existsByEmail(userUpdateRequest.newEmail())).willReturn(false);
+		given(userRepository.existsByUsername(userUpdateRequest.newUsername())).willReturn(false);
 
+		UUID fakeBinaryId = UUID.randomUUID();
+
+		UserDto userDto = new UserDto(existingUserId, "newUsername", "newEmail",
+			new BinaryContentDto(fakeBinaryId, binaryContentCreateRequest.fileName(),
+				(long)binaryContentCreateRequest.bytes().length, binaryContentCreateRequest.contentType()), true);
+
+		given(userMapper.toDto(any(User.class))).willReturn(userDto);
+
+		// when
+		UserDto updatedUser = userService.update(existingUserId, userUpdateRequest, binaryContentCreateRequestOptional);
+
+		// then
+		assertThat(updatedUser.username()).isEqualTo(userUpdateRequest.newUsername());
+		assertThat(updatedUser.id()).isEqualTo(existingUserId);
+		assertThat(updatedUser.email()).isEqualTo(userUpdateRequest.newEmail());
+		assertThat(updatedUser.profile().fileName()).isEqualTo(binaryContentCreateRequest.fileName());
+
+		then(userRepository).should(times(1)).findById(existingUserId);
+		then(userRepository).should(times(1)).existsByEmail(userUpdateRequest.newEmail());
+		then(userRepository).should(times(1)).existsByUsername(userUpdateRequest.newUsername());
+		then(userMapper).should(times(1)).toDto(any(User.class));
+	}
+
+	@Test
+	@DisplayName("사용자 업데이트 테스트 - 실패(username 중복)")
+	void updateUser_fail() {
+		UUID existingUserId = UUID.randomUUID();
+		UserUpdateRequest userUpdateRequest = new UserUpdateRequest("newUsername", "newEmail", "newPassword!123");
+		BinaryContentCreateRequest binaryContentCreateRequest = new BinaryContentCreateRequest("newProfile.jpg",
+			"image/jpeg", "newProfileContent".getBytes());
+		Optional<BinaryContentCreateRequest> binaryContentCreateRequestOptional = Optional.of(binaryContentCreateRequest);
+		User existingUser = new User("existingUsername", "existingEmail", "existingPassword", null);
+
+		given(userRepository.findById(existingUserId)).willReturn(Optional.of(existingUser));
+		given(userRepository.existsByEmail(userUpdateRequest.newEmail())).willReturn(false);
+		given(userRepository.existsByUsername(userUpdateRequest.newUsername())).willReturn(true);
+
+		//
+		assertThatThrownBy(() -> userService.update(existingUserId, userUpdateRequest, binaryContentCreateRequestOptional))
+			.isInstanceOf(UserNotFoundException.class)
+			.isInstanceOf(DiscodeitException.class);
+		//
+		then(userRepository).should(times(1)).existsByEmail(userUpdateRequest.newEmail());
+		then(userRepository).should(times(1)).existsByUsername(userUpdateRequest.newUsername());
+		then(userRepository).shouldHaveNoMoreInteractions();
+
+	}
 
 
 }
