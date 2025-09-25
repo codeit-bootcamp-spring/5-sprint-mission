@@ -21,7 +21,7 @@ import org.springframework.web.context.request.WebRequest;
  * GlobalExceptionHandler : 던져진 예외를 받아 클라이언트에게 적절한 응답 반환
  */
 
-@RestControllerAdvice // 모든 컨트롤러에서 발생하는 예외 가로채는 역할
+@RestControllerAdvice // 전체 애플리케이션에서 발생하는 예외를 자동으로 가로챔
 public class GlobalExceptionHandler {
 
   //@Valid, @RequestBody 검증 실패시

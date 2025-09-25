@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class BinaryContentController {
   //파일 등록
   @Operation(summary = "파일 등록")
   @PostMapping("/api/binaryContents")
-  public ResponseEntity<UUID> create(@RequestBody BinaryContentDto dto) {
+  public ResponseEntity<UUID> create(@RequestBody @Valid BinaryContentDto dto) {
     UUID id = binaryContentService.create(dto);
     log.info("파일 등록 완료: id = {}", id); // 완료 로그
     return ResponseEntity.status(HttpStatus.CREATED).body(id);
