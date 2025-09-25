@@ -15,6 +15,9 @@ public enum ErrorCode {
 	INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다."),
 	INVALID_REQUEST("잘못된 요청입니다."),
 
+	READ_STATUS_NOT_FOUND("읽가 상태 정보를 찾을 수 없습니다."),
+	DUPLICATE_READ_STATUS("이미 존재하는 읽음 상태 정보입니다."),
+
 	FILE_PROCESSING_FAIL("파일 처리에 실패했습니다."),
 
 	BINARY_CONTENT_NOT_FOUND("해당 데이터를 찾을 수 없습니다."),
