@@ -2,10 +2,10 @@ package com.sprint.mission.discodeit.storage;
 
 import com.sprint.mission.discodeit.configuration.StorageProps;
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
-import com.sprint.mission.discodeit.exception.binarycontent.StorageInitException;
-import com.sprint.mission.discodeit.exception.binarycontent.StorageNotFoundException;
-import com.sprint.mission.discodeit.exception.binarycontent.StorageReadException;
-import com.sprint.mission.discodeit.exception.binarycontent.StorageWriteException;
+import com.sprint.mission.discodeit.exception.storage.StorageInitException;
+import com.sprint.mission.discodeit.exception.storage.StorageFileMissingException;
+import com.sprint.mission.discodeit.exception.storage.StorageReadException;
+import com.sprint.mission.discodeit.exception.storage.StorageWriteException;
 import com.sprint.mission.discodeit.log.LogUtils;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     Path path = resolvePath(dto.id());
 
     if (Files.notExists(path)) {
-      throw StorageNotFoundException.withDetail("path", path);
+      throw StorageFileMissingException.withDetail("path", path);
     }
 
     Resource resource = new InputStreamResource(get(dto.id()));

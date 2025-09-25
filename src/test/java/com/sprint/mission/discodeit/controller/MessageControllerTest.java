@@ -262,7 +262,7 @@ class MessageControllerTest {
     mockMvc.perform(get("/api/messages")
             .param("channelId", "not-a-uuid")
             .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isInternalServerError())
+        .andExpect(status().isBadRequest())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
     then(messageService).shouldHaveNoInteractions();

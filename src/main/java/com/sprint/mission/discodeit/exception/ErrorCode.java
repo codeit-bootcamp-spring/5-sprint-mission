@@ -30,10 +30,12 @@ public enum ErrorCode {
 
   // BinaryContent 관련 에러 코드
   BINARY_CONTENT_NOT_FOUND("파일 메타 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+  // Storage 관련 에러 코드
   STORAGE_INIT_FAILED("저장소 디렉토리 생성에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
   STORAGE_WRITE_FAILED("파일 쓰기에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
   STORAGE_READ_FAILED("파일 읽기에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-  STORAGE_NOT_FOUND("파일을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+  STORAGE_FILE_MISSING("파일을 찾을 수 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
   // MultiPartFile 관련 에러 코드
   MULTIPART_EMPTY,

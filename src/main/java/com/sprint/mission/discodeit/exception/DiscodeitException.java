@@ -26,7 +26,8 @@ public class DiscodeitException extends RuntimeException {
     this.details = new HashMap<>();
   }
 
-  public void addDetail(String key, Object value) {
+  public DiscodeitException addDetail(String key, Object value) {
     this.details.put(key, value);
+    return this;
   }
 }
