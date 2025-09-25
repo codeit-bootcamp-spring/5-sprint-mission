@@ -38,8 +38,7 @@ public class BasicUserService implements UserService {
   @Override
   @Transactional
   public UserDto create(UserCommand command) {
-    log.debug("[UserService#create] try username={}, email={}]",
-        command.username(), LogUtils.maskEmail(command.email()));
+    log.debug("[UserService#create] try: {}", command.forLog());
 
     String username = validateUsername(command.username());
     String password = command.password();
@@ -53,8 +52,7 @@ public class BasicUserService implements UserService {
 
     UserDto dto = userMapper.toDto(userRepository.save(user));
 
-    log.info("[UserService#create] User created: id={}, username={}, email={}, hasProfile={}",
-        dto.id(), dto.username(), LogUtils.maskEmail(dto.email()), profile != null);
+    log.info("[UserService#create] User created: {}", dto.forLog());
 
     return dto;
   }
@@ -76,9 +74,7 @@ public class BasicUserService implements UserService {
   @Override
   @Transactional
   public UserDto update(UUID userId, UserCommand command) {
-    log.debug("[UserService#update] try id={}, newUsername={}, newEmail={}, hasNewProfile={}",
-        userId, command.username(), LogUtils.maskEmail(command.email()),
-        command.profile().isPresent());
+    log.debug("[UserService#update] try id={}, command={}", userId, command.forLog());
 
     User user = validateId(userId);
     String newUserName = command.username();
@@ -102,8 +98,7 @@ public class BasicUserService implements UserService {
     user.update(newUserName, newEmail, newPassword, newProfile);
     UserDto dto = userMapper.toDto(userRepository.save(user));
 
-    log.info("[UserService#update] User updated: id={}, username={}, email={}, profileChaged={}",
-        dto.id(), dto.username(), LogUtils.maskEmail(dto.email()), newProfile != null);
+    log.info("[UserService#update] User updated: {}", dto.forLog());
 
     return dto;
   }

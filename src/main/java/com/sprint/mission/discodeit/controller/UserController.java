@@ -48,9 +48,8 @@ public class UserController implements UserApi {
       @RequestPart("userCreateRequest") @Valid UserCreateRequest request,
       @RequestPart(required = false) MultipartFile profile
   ) throws IOException {
-    log.debug("POST /api/users - user(username={}, email={}), profile(name={}, size={})",
-        request.username(), LogUtils.maskEmail(request.email()),
-        profile.getOriginalFilename(), profile.getSize());
+    log.debug("POST /api/users - request={}, profile={}",
+        request.forLog(), LogUtils.summarizeMultipartFile(profile));
 
     UserCommand userCommand = new UserCommand(
         request.username(),
@@ -59,8 +58,7 @@ public class UserController implements UserApi {
         multipartFileMapper.toNewBinaryContent(profile));
 
     UserDto userDto = userService.create(userCommand);
-    log.info("User created: id={}, username={}, email={}",
-        userDto.id(), userDto.username(), LogUtils.maskEmail(userDto.email()));
+    log.info("User created: {}", userDto.forLog());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
   }
@@ -72,10 +70,8 @@ public class UserController implements UserApi {
       @RequestPart(required = false) MultipartFile profile
   ) throws IOException {
     log.debug(
-        "PATCH /api/users - id={} user(newUsername={}, newEmail={}), profile(name={}, size={})",
-        userId,
-        request.newUsername(), LogUtils.maskEmail(request.newEmail()),
-        profile.getOriginalFilename(), profile.getSize());
+        "PATCH /api/users - id={} request={}, profile={}",
+        userId, request.forLog(), LogUtils.summarizeMultipartFile(profile));
 
     UserCommand userCommand = new UserCommand(
         request.newUsername(),
@@ -85,8 +81,7 @@ public class UserController implements UserApi {
     );
 
     UserDto userDto = userService.update(userId, userCommand);
-    log.info("User updated: id={}, username={}, email={}",
-        userDto.id(), userDto.username(), LogUtils.maskEmail(userDto.email()));
+    log.info("User updated: {}", userDto.forLog());
 
     return ResponseEntity.status(HttpStatus.OK).body(userDto);
   }

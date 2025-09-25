@@ -54,7 +54,7 @@ public class BasicChannelService implements ChannelService {
         findParticipants(channel.getId()),
         findLastMessageAt(channel.getId()));
 
-    log.info("[ChannelService#create(public)] Channel created={}", dto);
+    log.info("[ChannelService#create(public)] Channel created: {}", dto.forLog());
 
     return dto;
   }
@@ -84,14 +84,7 @@ public class BasicChannelService implements ChannelService {
         channel,
         findParticipants(channel.getId()),
         findLastMessageAt(channel.getId()));
-    log.info(
-        "[ChannelService#create(private)] Channel created:id={}, type={}, name={} description={}, participants={}, lastMessageAt={}",
-        dto.id(),
-        dto.type(),
-        dto.name(),
-        dto.description(),
-        dto.participants().size(),
-        dto.lastMessageAt());
+    log.info("[ChannelService#create(private)] Channel created: {}", dto.forLog());
 
     return dto;
   }
@@ -139,14 +132,7 @@ public class BasicChannelService implements ChannelService {
         findParticipants(channelId),
         findLastMessageAt(channelId));
 
-    log.info(
-        "[ChannelService#update] Channel updated: id={}, type={}, name={} description={}, participants={}, lastMessageAt={}",
-        dto.id(),
-        dto.type(),
-        dto.name(),
-        dto.description(),
-        dto.participants().size(),
-        dto.lastMessageAt());
+    log.info("[ChannelService#update] Channel updated: {}", dto.forLog());
 
     return dto;
   }

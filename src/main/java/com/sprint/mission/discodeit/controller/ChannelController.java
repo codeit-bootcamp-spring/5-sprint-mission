@@ -37,7 +37,7 @@ public class ChannelController implements ChannelApi {
     log.debug("POST /api/channels/public - request={}", request.toString());
 
     ChannelDto dto = channelService.create(request);
-    log.info("Public channel created: {}", dto.toString());
+    log.info("Public channel created: {}", dto.forLog());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(dto);
   }
@@ -48,14 +48,7 @@ public class ChannelController implements ChannelApi {
     log.debug("POST /api/channels/private - request={}", request.toString());
 
     ChannelDto dto = channelService.create(request);
-    log.info(
-        "Private channel created: id={}, type={}, name={} description={}, participants={}, lastMessageAt={}",
-        dto.id(),
-        dto.type(),
-        dto.name(),
-        dto.description(),
-        dto.participants().size(),
-        dto.lastMessageAt());
+    log.info("Private channel created: {}", dto.forLog());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(dto);
   }
@@ -68,14 +61,7 @@ public class ChannelController implements ChannelApi {
         channelId, request.toString());
 
     ChannelDto dto = channelService.update(channelId, request);
-    log.info(
-        "Public channel updated: id={}, type={}, name={} description={}, participants={}, lastMessageAt={}",
-        dto.id(),
-        dto.type(),
-        dto.name(),
-        dto.description(),
-        dto.participants().size(),
-        dto.lastMessageAt());
+    log.info("Public channel updated: {}", dto.forLog());
 
     return ResponseEntity.status(HttpStatus.OK).body(dto);
   }

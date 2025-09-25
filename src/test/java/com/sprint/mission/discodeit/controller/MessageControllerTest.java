@@ -140,7 +140,13 @@ class MessageControllerTest {
         .updatedAt(Instant.parse("2025-01-02T00:00:00Z"))
         .content("updated")
         .channelId(UUID.randomUUID())
-        .author(null)
+        .author(new UserDto(
+            UUID.randomUUID(),
+            "test",
+            "test@test.com",
+            null,
+            false
+        ))
         .attachments(List.of())
         .build();
 

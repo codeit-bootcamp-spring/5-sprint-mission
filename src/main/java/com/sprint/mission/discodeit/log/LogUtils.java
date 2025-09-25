@@ -58,6 +58,12 @@ public final class LogUtils {
     return summary;
   }
 
+  public static String summarizeAttachment(BinaryContentDto attachment) {
+    return attachment == null
+        ? "[]"
+        : summarizeAttachments(List.of(attachment), 1);
+  }
+
   public static String summarizeMultipartFiles(List<MultipartFile> files, int limit) {
     if (files == null || files.isEmpty()) {
       return "[]";
@@ -77,5 +83,11 @@ public final class LogUtils {
     }
 
     return summary;
+  }
+
+  public static String summarizeMultipartFile(MultipartFile file) {
+    return file == null
+        ? "[]"
+        : summarizeMultipartFiles(List.of(file), 1);
   }
 }
