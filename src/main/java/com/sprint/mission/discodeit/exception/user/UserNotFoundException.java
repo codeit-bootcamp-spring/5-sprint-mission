@@ -20,6 +20,12 @@ public class UserNotFoundException extends UserException {
 		return exception;
 	}
 
+	public static UserNotFoundException withEmail(String email) {
+		UserNotFoundException exception = new UserNotFoundException();
+		exception.addDetails("email", email);
+		return exception;
+	}
+
 	public static UserNotFoundException withMessage(String message) {
 		UserNotFoundException exception = new UserNotFoundException();
 		exception.addDetails("message", message);
