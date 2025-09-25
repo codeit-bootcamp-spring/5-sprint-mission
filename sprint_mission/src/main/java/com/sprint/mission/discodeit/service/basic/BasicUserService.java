@@ -131,7 +131,7 @@ public class BasicUserService implements UserService {
   @Override
   public void delete(UUID userId) {
       log.warn("Deleting user {}", userId);
-    if (userRepository.existsById(userId)) {
+    if (!userRepository.existsById(userId)) {
         throw new UserAlreadyExistsException().withId(userId);
     }
 
