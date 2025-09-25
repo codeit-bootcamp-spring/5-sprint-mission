@@ -22,7 +22,9 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.service.ChannelService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
 @RequiredArgsConstructor
 @RestController
@@ -32,7 +34,7 @@ public class ChannelController implements ChannelApi {
 	private final ChannelService channelService;
 
 	@PostMapping(path = "public")
-	public ResponseEntity<ChannelDto> create(@RequestBody PublicChannelCreateRequest request) {
+	public ResponseEntity<ChannelDto> create(@RequestBody @Valid PublicChannelCreateRequest request) {
 		ChannelDto createdChannel = channelService.create(request);
 		return ResponseEntity
 			.status(HttpStatus.CREATED)
@@ -49,7 +51,7 @@ public class ChannelController implements ChannelApi {
 
 	@PatchMapping(path = "{channelId}")
 	public ResponseEntity<ChannelDto> update(@PathVariable("channelId") UUID channelId,
-		@RequestBody PublicChannelUpdateRequest request) {
+		@RequestBody @Valid PublicChannelUpdateRequest request) {
 		ChannelDto updatedChannel = channelService.update(channelId, request);
 		return ResponseEntity
 			.status(HttpStatus.OK)

@@ -34,6 +34,7 @@ import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.exception.file.FileProcessingException;
 import com.sprint.mission.discodeit.service.MessageService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -45,7 +46,7 @@ public class MessageController implements MessageApi {
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<MessageDto> create(
-		@RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+		@RequestPart("messageCreateRequest") @Valid MessageCreateRequest messageCreateRequest,
 		@RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
 	) {
 		List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
@@ -72,7 +73,7 @@ public class MessageController implements MessageApi {
 
 	@PatchMapping(path = "{messageId}")
 	public ResponseEntity<MessageDto> update(@PathVariable("messageId") UUID messageId,
-		@RequestBody MessageUpdateRequest request) {
+		@RequestBody @Valid MessageUpdateRequest request) {
 		MessageDto updatedMessage = messageService.update(messageId, request);
 		return ResponseEntity
 			.status(HttpStatus.OK)

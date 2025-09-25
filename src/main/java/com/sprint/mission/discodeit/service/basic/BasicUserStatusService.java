@@ -20,6 +20,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class BasicUserStatusService implements UserStatusService {
 
 	@Transactional
 	@Override
-	public UserStatusDto create(UserStatusCreateRequest request) {
+	public UserStatusDto create(@Valid UserStatusCreateRequest request) {
 		UUID userId = request.userId();
 
 		User user = userRepository.findById(userId)

@@ -12,7 +12,9 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.service.AuthService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,7 +24,7 @@ public class AuthController implements AuthApi {
 	private final AuthService authService;
 
 	@PostMapping(path = "login")
-	public ResponseEntity<UserDto> login(@RequestBody LoginRequest loginRequest) {
+	public ResponseEntity<UserDto> login(@RequestBody @Valid LoginRequest loginRequest) {
 		UserDto user = authService.login(loginRequest);
 		return ResponseEntity
 			.status(HttpStatus.OK)
