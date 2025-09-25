@@ -48,7 +48,7 @@ public class UserController implements UserApi {
       @RequestPart("userCreateRequest") @Valid UserCreateRequest request,
       @RequestPart(required = false) MultipartFile profile
   ) throws IOException {
-    log.debug("POST /api/users - request={}, profile={}",
+    log.debug("payload: request={}, profile={}",
         request.forLog(), LogUtils.summarizeMultipartFile(profile));
 
     UserCommand userCommand = new UserCommand(
@@ -70,7 +70,7 @@ public class UserController implements UserApi {
       @RequestPart(required = false) MultipartFile profile
   ) throws IOException {
     log.debug(
-        "PATCH /api/users - id={} request={}, profile={}",
+        "payload: id={} request={}, profile={}",
         userId, request.forLog(), LogUtils.summarizeMultipartFile(profile));
 
     UserCommand userCommand = new UserCommand(

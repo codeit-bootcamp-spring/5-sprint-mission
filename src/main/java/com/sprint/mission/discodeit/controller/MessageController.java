@@ -48,7 +48,7 @@ public class MessageController implements MessageApi {
       @RequestPart(name = "messageCreateRequest") @Valid MessageCreateRequest request,
       @RequestPart(name = "attachments", required = false) List<MultipartFile> attachments
   ) throws IOException {
-    log.debug("POST /api/messages - message={}, attachments={}",
+    log.debug("payload: message={}, attachments={}",
         request.forLog(), LogUtils.summarizeMultipartFiles(attachments, 3));
 
     MessageCreateCommand messageCreateCommand = new MessageCreateCommand(
@@ -68,7 +68,7 @@ public class MessageController implements MessageApi {
   public ResponseEntity<MessageDto> update(
       @PathVariable UUID messageId,
       @RequestBody @Valid MessageUpdateRequest request) {
-    log.debug("PATCH /api/messages/{messageId} - messageId={}, request={}",
+    log.debug("payload: - messageId={}, request={}",
         messageId, LogUtils.summarize(request.newContent(), 30));
 
     MessageDto messageDto = messageService.update(messageId, request);

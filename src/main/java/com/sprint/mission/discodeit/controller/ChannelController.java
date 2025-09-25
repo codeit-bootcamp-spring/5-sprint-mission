@@ -34,7 +34,7 @@ public class ChannelController implements ChannelApi {
   @PostMapping("/public")
   public ResponseEntity<ChannelDto> create(
       @RequestBody @Valid PublicChannelCreateRequest request) {
-    log.debug("POST /api/channels/public - request={}", request.toString());
+    log.debug("payload: request={}", request.toString());
 
     ChannelDto dto = channelService.create(request);
     log.info("Public channel created: {}", dto.forLog());
@@ -45,7 +45,7 @@ public class ChannelController implements ChannelApi {
   @PostMapping("/private")
   public ResponseEntity<ChannelDto> create(
       @RequestBody @Valid PrivateChannelCreateRequest request) {
-    log.debug("POST /api/channels/private - request={}", request.toString());
+    log.debug("payload: request={}", request.toString());
 
     ChannelDto dto = channelService.create(request);
     log.info("Private channel created: {}", dto.forLog());
@@ -57,7 +57,7 @@ public class ChannelController implements ChannelApi {
   public ResponseEntity<ChannelDto> update(
       @PathVariable UUID channelId,
       @RequestBody @Valid PublicChannelUpdateRequest request) {
-    log.debug("PATCH /api/channels/{channelId} - channelId={}, request={}",
+    log.debug("payload: channelId={}, request={}",
         channelId, request.toString());
 
     ChannelDto dto = channelService.update(channelId, request);
