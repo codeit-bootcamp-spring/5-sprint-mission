@@ -1,8 +1,17 @@
 spring:
   application:
     name: discodeit
+
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
+
+
   profiles:
     active: dev
+
   jpa:
     open-in-view: false
     hibernate:
@@ -48,6 +57,9 @@ management:
     web:
       exposure:
         include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: always
   info:
     env:
       enabled: true
