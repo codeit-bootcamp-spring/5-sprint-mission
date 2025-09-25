@@ -1,11 +1,10 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.controller.fail;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.domain.binarycontent.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.domain.user.UserController;
 import com.sprint.mission.discodeit.domain.user.UserService;
 import com.sprint.mission.discodeit.domain.user.dto.UserCreateRequest;
-import com.sprint.mission.discodeit.domain.user.dto.UserDto;
+import com.sprint.mission.discodeit.domain.user.exception.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.domain.userstatus.UserStatusService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,62 +17,66 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
-public class UserControllerTest {
+public class UserControllerFailTest {
 
     @Autowired
-    private MockMvc mockMvc; // HTTP 요청을 보낼 MockMvc 객체
+    private MockMvc mockMvc;
 
     @MockitoBean
-    private UserService userService; // 가짜 서비스 객체(Mock)
+    private UserService userService;
 
     @MockitoBean
     private UserStatusService userStatusService;
 
-
-    // ObjectMapper는 JSON 직렬화/역직렬화를 위해 필요할 수 있습니다.
     @Autowired
     private ObjectMapper objectMapper;
 
-
     @Test
-    @DisplayName("회원가입 성공 테스트")
-    void create_success() throws Exception {
+    @DisplayName("회원가입 시 중복된 이메일 사용")
+    void create_duplicate_email() throws Exception {
         // Given
         UserCreateRequest requestDto = new UserCreateRequest("user", "user@gmail.com", "1234");
         String jsonRequestDto = objectMapper.writeValueAsString(requestDto);
 
-        UserDto userDto = UserDto.builder().id(UUID.randomUUID()).email("user@gmail.com").username("user").build();
-
-        Optional<BinaryContentCreateRequest> profileRequest = Optional.empty();
-
-        BDDMockito.given(userService.create(any(UserCreateRequest.class), eq(Optional.empty()))).willReturn(userDto);
+        BDDMockito.given(userService.create(any(UserCreateRequest.class), any(Optional.class)))
+                .willThrow(UserAlreadyExistsException.byEmail(requestDto.email()));
 
         MockMultipartFile jsonPart = new MockMultipartFile(
-                "userCreateRequest", // Controller에서 @RequestPart 로 받을 이름
+                "userCreateRequest",
                 "",
                 MediaType.APPLICATION_JSON_VALUE,
                 jsonRequestDto.getBytes(StandardCharsets.UTF_8)
         );
 
-        // When
-        mockMvc.perform(
-                        multipart("/api/users")
-                                .file(jsonPart))
-                // Then
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.username").value("user"))
-                .andExpect(jsonPath("$.email").value("user@gmail.com"));
+        // When & Then
+        mockMvc.perform(multipart("/api/users")
+                        .file(jsonPart))
+                .andExpect(status().isConflict()); // 409 Conflict 응답을 기대
+    }
 
+    @Test
+    @DisplayName("사용자 삭제 실패")
+    void delete_fail() throws Exception {
+        // Given
+        UUID nonExistentUserId = UUID.randomUUID();
+
+        // UserService.delete가 NoSuchElementException을 던지도록 설정 (void 메소드)
+        BDDMockito.willThrow(new NoSuchElementException("User with id " + nonExistentUserId + " not found"))
+                .given(userService).delete(eq(nonExistentUserId));
+
+        // When & Then
+        mockMvc.perform(delete("/api/users/{userId}", nonExistentUserId))
+                .andExpect(status().isNotFound()); // 404 Not Found 응답을 기대
     }
 }
