@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.storage.local;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.exception.file.FileNotFoundException;
+import com.sprint.mission.discodeit.exception.file.FileProcessingException;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
@@ -37,8 +39,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
       try {
         Files.createDirectories(root);
       } catch (IOException e) {
-        e.printStackTrace();
-        throw new RuntimeException(e);
+		throw FileProcessingException.handleAttachmentFailure(e);
       }
     }
   }
@@ -51,7 +52,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     try (OutputStream outputStream = Files.newOutputStream(filePath)) {
       outputStream.write(bytes);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+		throw FileProcessingException.handleAttachmentFailure(e);
     }
     return binaryContentId;
   }
@@ -59,13 +60,12 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   public InputStream get(UUID binaryContentId) {
     Path filePath = resolvePath(binaryContentId);
     if (Files.notExists(filePath)) {
-      throw new NoSuchElementException("File with key " + binaryContentId + " does not exist");
+		throw FileNotFoundException.withBinaryId(binaryContentId.toString());
     }
     try {
       return Files.newInputStream(filePath);
     } catch (IOException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
+		throw FileProcessingException.handleAttachmentFailure(e);
     }
   }
 
