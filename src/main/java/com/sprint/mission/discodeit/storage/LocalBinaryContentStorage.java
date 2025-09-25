@@ -6,25 +6,23 @@ import com.sprint.mission.discodeit.exception.binarycontent.StorageInitException
 import com.sprint.mission.discodeit.exception.binarycontent.StorageNotFoundException;
 import com.sprint.mission.discodeit.exception.binarycontent.StorageReadException;
 import com.sprint.mission.discodeit.exception.binarycontent.StorageWriteException;
+import com.sprint.mission.discodeit.log.LogUtils;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
+@Slf4j
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   private final Path root;
@@ -51,6 +49,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   @Override
   public UUID put(UUID id, byte[] bytes) {
+    log.debug("[LocalBinaryContentStorage#put] try with id: {}", id);
     Path path = resolvePath(id);
     try {
       if (Files.notExists(path)) {
@@ -59,6 +58,9 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     } catch (IOException e) {
       throw StorageWriteException.withDetail("path", path, e);
     }
+    log.info("[LocalBinaryContentStorage#put] file uploaded: id={}, filename={}", id,
+        path.getFileName());
+
     return id;
   }
 
@@ -73,7 +75,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   }
 
   @Override
-  public ResponseEntity<Resource> download(BinaryContentDto dto) {
+  public Resource download(BinaryContentDto dto) {
+    log.debug("[LocalBinaryContentStorage#download] try: {}", LogUtils.summarizeAttachment(dto));
     Path path = resolvePath(dto.id());
 
     if (Files.notExists(path)) {
@@ -81,15 +84,9 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     }
 
     Resource resource = new InputStreamResource(get(dto.id()));
+    log.info("[LocalBinaryContentStorage#download] downloaded: {}",
+        LogUtils.summarizeAttachment(dto));
 
-    return ResponseEntity.ok()
-        .contentType(MediaType.parseMediaType(dto.contentType()))
-        .contentLength(dto.size())
-        .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition
-            .attachment()
-            .filename(dto.fileName(), StandardCharsets.UTF_8)
-            .build()
-            .toString())
-        .body(resource);
+    return resource;
   }
 }
