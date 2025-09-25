@@ -35,6 +35,11 @@ spring:
     init:
       schema-locations: classpath:schema-h2.sql
 
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
+
 discodeit:
   storage:
     type: local

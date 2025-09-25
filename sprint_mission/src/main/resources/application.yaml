@@ -2,7 +2,11 @@ spring:
   profiles:
     active: dev
 
-
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
 
 #  datasource:
 #    driver-class-name: org.postgresql.Driver
