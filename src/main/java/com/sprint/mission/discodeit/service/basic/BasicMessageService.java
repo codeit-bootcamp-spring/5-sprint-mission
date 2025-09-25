@@ -25,7 +25,6 @@ import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.AuthorNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
-import com.sprint.mission.discodeit.exception.server.InternalServerErrorException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -116,11 +115,6 @@ public class BasicMessageService implements MessageService {
 		String newContent = dto.getNewContent();
 		log.debug("new message info id={} newContent={}", id, newContent);
 
-		if (newContent == null || newContent.isEmpty()) {
-			log.error("bad request: New content cannot be null or empty");
-			throw new InternalServerErrorException(Map.of("detail", "New content cannot be null or empty"));
-		}
-
 		Message targetMessage = messageRepository.findMessageDetailsById(id).orElseThrow(MessageNotFoundException::new);
 		// 1. 내용 수정
 		targetMessage.setContent(newContent);
@@ -150,6 +144,8 @@ public class BasicMessageService implements MessageService {
 		Map<UUID, Boolean> userId2Status = userStatusRepository.findByUserIdIn(userIds)
 		  .stream()
 		  .collect(Collectors.toMap(us -> us.getUser().getId(), UserStatus::isOnline));
+
+		messages.getContent().forEach(System.out::println);
 		return messages.map(message ->
 		  {
 			  User user = message.getUser();
@@ -182,12 +178,6 @@ public class BasicMessageService implements MessageService {
 			  );
 		  }
 		);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public boolean isEmpty(UUID id) {
-		return messageRepository.existsById(id);
 	}
 
 }

@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.domain.entity;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
 
@@ -13,13 +12,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @NoArgsConstructor
+@SuperBuilder
 @Entity
+@EqualsAndHashCode(callSuper = true)
 public class Message extends BaseUpdatableEntity {
 
 	private String content;
@@ -49,28 +52,9 @@ public class Message extends BaseUpdatableEntity {
 		}
 	}
 
-	public Instant getLastEditedAt() {
-		return updatedAt != null ? updatedAt : createdAt;
-	}
-
 	public void setContent(String content) {
 		this.content = content;
 		this.updatedAt = Instant.now();
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-		Message message = (Message)o;
-		return Objects.equals(id, message.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(id);
 	}
 
 }

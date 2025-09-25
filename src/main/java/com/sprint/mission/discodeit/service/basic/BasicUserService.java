@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
 import com.sprint.mission.discodeit.domain.dto.CreateUserDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateUserDTO;
-import com.sprint.mission.discodeit.domain.dto.UserReadResult;
 import com.sprint.mission.discodeit.domain.dto.user.UserDto;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.User;
@@ -21,7 +20,6 @@ import com.sprint.mission.discodeit.exception.user.DuplicateUserEmailException;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserNameException;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserNameOrEmailException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.exception.userStatus.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -175,19 +173,6 @@ public class BasicUserService implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public UserDto read(UUID userId) {
-		User user = userRepository.findById(userId)
-		  .orElseThrow(() -> new UserNotFoundException(Map.of("id", userId)));
-
-		Optional<UserStatus> status = userStatusRepository.findByUserId(userId);
-
-		boolean isOnline = status.map(UserStatus::isOnline).orElse(false);
-
-		return userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage()));
-	}
-
-	@Override
-	@Transactional(readOnly = true)
 	public List<UserDto> readAll() {
 		List<User> users = userRepository.findUserDetailsAll();
 		List<UUID> UserIds = users.stream().map(User::getId).toList();
@@ -203,33 +188,6 @@ public class BasicUserService implements UserService {
 		  .map(
 			u -> userMapper.toDto(u, userID2IsOnlineMap.get(u.getId()), binaryContentMapper.toDto(u.getProfileImage())))
 		  .toList();
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public boolean isEmpty(UUID userId) {
-		return userRepository.existsById(userId);
-	}
-
-	private UserReadResult toUserReadResult(User user, boolean isOnline) {
-		return UserReadResult.builder()
-		  .id(user.getId())
-		  .createdAt(user.getCreatedAt())
-		  .updatedAt(user.getUpdatedAt())
-		  .username(user.getUsername())
-		  .email(user.getEmail())
-		  .profileId(user.getProfileImage() != null ? user.getProfileImage().getId() : null)
-		  .online(isOnline)
-		  .build();
-
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public boolean isOnline(UUID id) {
-		UserStatus userStatus = userStatusRepository.findByUserId(id)
-		  .orElseThrow(() -> new UserStatusNotFoundException(Map.of("userId", id)));
-		return userStatus.isOnline();
 	}
 
 }

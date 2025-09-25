@@ -28,8 +28,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
 	boolean existsByEmail(String email);
 
-	List<User> findByIdIn(List<UUID> ids);
-
 	@Query("SELECT u FROM User u LEFT JOIN FETCH u.profileImage WHERE u.id IN :ids")
 	List<User> findUsersWithProfileByIdIn(List<UUID> ids);
 

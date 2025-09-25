@@ -231,7 +231,7 @@ public class ChannelServiceTest {
 	}
 
 	@Test
-	@DisplayName("채널 조회 테스트 빈 올바른 입력이 주어졌을 때 ")
+	@DisplayName("채널 조회 테스트 올바른 입력이 주어졌을 때 ")
 	public void ReadChannelByUserTestWithRightInput() {
 
 		UUID id1 = UUID.randomUUID();
