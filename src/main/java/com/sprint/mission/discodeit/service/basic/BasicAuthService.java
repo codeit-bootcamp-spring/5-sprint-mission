@@ -25,7 +25,8 @@ public class BasicAuthService implements AuthService {
   @Transactional
   public UserDto login(LoginRequest loginRequest) {
     User user = userRepository.findByUsername(loginRequest.username())
-        .orElseThrow(() -> UserNotFoundException.withDetail("username", loginRequest.username()));
+        .orElseThrow(
+            () -> new UserNotFoundException().addDetail("username", loginRequest.username()));
 
     if (!user.getPassword().equals(loginRequest.password())) {
       throw new InvalidCredentialsException();

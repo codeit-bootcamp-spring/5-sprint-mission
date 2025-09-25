@@ -7,11 +7,4 @@ public class ReadStatusAlreadyExistsException extends ReadStatusException {
   public ReadStatusAlreadyExistsException() {
     super(ErrorCode.DUPLICATE_READ_STATUS);
   }
-
-  public static ReadStatusAlreadyExistsException withDetail(String key, Object value) {
-    ReadStatusAlreadyExistsException exception = new ReadStatusAlreadyExistsException();
-    exception.addDetail(key, value);
-    return exception;
-  }
-
 }

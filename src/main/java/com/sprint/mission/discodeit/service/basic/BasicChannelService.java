@@ -67,7 +67,7 @@ public class BasicChannelService implements ChannelService {
     List<User> participants = request.participantIds()
         .stream()
         .map(userId -> userRepository.findById(userId)
-            .orElseThrow(() -> UserNotFoundException.withDetail("userId", userId)))
+            .orElseThrow(() -> new UserNotFoundException().addDetail("userId", userId)))
         .toList();
 
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
@@ -122,7 +122,7 @@ public class BasicChannelService implements ChannelService {
     Channel channel = validateId(channelId);
 
     if (channel.getType() == ChannelType.PRIVATE) {
-      throw PrivateChannelUpdateException.withDetail("channelId", channelId);
+      throw new PrivateChannelUpdateException().addDetail("channelId", channelId);
     }
     channel.update(request.newName(), request.newDescription());
     channelRepository.save(channel);
@@ -177,6 +177,6 @@ public class BasicChannelService implements ChannelService {
 
   private Channel validateId(UUID channelId) {
     return channelRepository.findById(channelId)
-        .orElseThrow(() -> ChannelNotFoundException.withDetail("channelId", channelId));
+        .orElseThrow(() -> new ChannelNotFoundException().addDetail("channelId", channelId));
   }
 }

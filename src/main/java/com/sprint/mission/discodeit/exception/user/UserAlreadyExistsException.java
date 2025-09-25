@@ -7,11 +7,4 @@ public class UserAlreadyExistsException extends UserException {
   public UserAlreadyExistsException() {
     super(ErrorCode.DUPLICATE_USER);
   }
-
-  public static UserAlreadyExistsException withDetail(String key, Object value) {
-    UserAlreadyExistsException exception = new UserAlreadyExistsException();
-    exception.addDetail(key, value);
-    return exception;
-  }
-
 }

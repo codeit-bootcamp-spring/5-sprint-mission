@@ -52,9 +52,10 @@ public class BasicMessageService implements MessageService {
 
     String content = command.content();
     User author = userRepository.findById(command.authorId())
-        .orElseThrow(() -> UserNotFoundException.withDetail("author", command.authorId()));
+        .orElseThrow(() -> new UserNotFoundException().addDetail("author", command.authorId()));
     Channel channel = channelRepository.findById(command.channelId())
-        .orElseThrow(() -> ChannelNotFoundException.withDetail("channel", command.channelId()));
+        .orElseThrow(
+            () -> new ChannelNotFoundException().addDetail("channel", command.channelId()));
 
     List<BinaryContent> attachments = command.attachments().stream()
         .map(request -> {
@@ -94,7 +95,7 @@ public class BasicMessageService implements MessageService {
       Pageable pageable) {
 
     if (!channelRepository.existsById(channelId)) {
-      throw ChannelNotFoundException.withDetail("channel", channelId);
+      throw new ChannelNotFoundException().addDetail("channel", channelId);
     }
 
     Slice<MessageDto> slice = (cursor == null)
@@ -143,6 +144,6 @@ public class BasicMessageService implements MessageService {
 
   private Message validateId(UUID messageId) {
     return messageRepository.findById(messageId)
-        .orElseThrow(() -> MessageNotFoundException.withDetail("id", messageId));
+        .orElseThrow(() -> new MessageNotFoundException().addDetail("id", messageId));
   }
 }

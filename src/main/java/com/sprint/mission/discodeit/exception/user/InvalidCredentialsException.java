@@ -7,11 +7,4 @@ public class InvalidCredentialsException extends UserException {
   public InvalidCredentialsException() {
     super(ErrorCode.INVALID_USER_CREDENTIALS);
   }
-
-  public static InvalidCredentialsException withDetail(String key, Object value) {
-    InvalidCredentialsException exception = new InvalidCredentialsException();
-    exception.addDetail(key, value);
-    return exception;
-  }
-
 }

@@ -64,6 +64,6 @@ public class BasicBinaryContentService implements BinaryContentService {
 
   private BinaryContent validateId(UUID id) {
     return binaryContentRepository.findById(id)
-        .orElseThrow(() -> BinaryContentNotFoundException.withDetail("id", id));
+        .orElseThrow(() -> new BinaryContentNotFoundException().addDetail("id", id));
   }
 }

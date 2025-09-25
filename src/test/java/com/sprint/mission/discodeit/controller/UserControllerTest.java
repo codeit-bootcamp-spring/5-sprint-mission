@@ -198,7 +198,7 @@ public class UserControllerTest {
     MockMultipartFile profilePart = new MockMultipartFile(
         "profile", "p.jpg", MediaType.IMAGE_JPEG_VALUE, "img".getBytes());
 
-    DiscodeitException ex = UserAlreadyExistsException.withDetail("email", req.email());
+    DiscodeitException ex = new UserAlreadyExistsException().addDetail("email", req.email());
     given(userService.create(any())).willThrow(ex);
 
     // when / then
@@ -279,7 +279,7 @@ public class UserControllerTest {
     MockMultipartFile profilePart = new MockMultipartFile(
         "profile", "p.jpg", MediaType.IMAGE_JPEG_VALUE, "img".getBytes());
 
-    DiscodeitException ex = UserNotFoundException.withDetail("userId", userId);
+    DiscodeitException ex = new UserNotFoundException().addDetail("userId", userId);
     given(userService.update(any(), any())).willThrow(ex);
 
     mockMvc.perform(
@@ -320,7 +320,7 @@ public class UserControllerTest {
   void delete_notFound() throws Exception {
     UUID userId = UUID.randomUUID();
 
-    DiscodeitException ex = UserNotFoundException.withDetail("userId", userId);
+    DiscodeitException ex = new UserNotFoundException().addDetail("userId", userId);
     willThrow(ex).given(userService).delete(userId);
 
     mockMvc.perform(
@@ -407,7 +407,7 @@ public class UserControllerTest {
     UserStatusUpdateRequest req = new UserStatusUpdateRequest(lastActiveAt);
     String requestBody = objectMapper.writeValueAsString(req);
 
-    DiscodeitException ex = UserStatusNotFoundException.withDetail("userId", userId);
+    DiscodeitException ex = new UserStatusNotFoundException().addDetail("userId", userId);
     given(userStatusService.updateByUserId(any(), any())).willThrow(ex);
 
     mockMvc.perform(

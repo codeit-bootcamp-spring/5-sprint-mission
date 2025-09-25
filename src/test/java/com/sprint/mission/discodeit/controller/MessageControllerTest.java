@@ -170,7 +170,7 @@ class MessageControllerTest {
     UUID messageId = UUID.randomUUID();
     MessageUpdateRequest req = new MessageUpdateRequest("updated");
 
-    DiscodeitException ex = MessageNotFoundException.withDetail("id", messageId);
+    DiscodeitException ex = new MessageNotFoundException().addDetail("id", messageId);
     given(messageService.update(any(), any())).willThrow(ex);
 
     mockMvc.perform(
@@ -203,7 +203,7 @@ class MessageControllerTest {
   @DisplayName("delete - 메시지가 없으면 404(NOT_FOUND)")
   void delete_messageNotFound_returns404() throws Exception {
     UUID messageId = UUID.randomUUID();
-    DiscodeitException ex = MessageNotFoundException.withDetail("id", messageId);
+    DiscodeitException ex = new MessageNotFoundException().addDetail("id", messageId);
     willThrow(ex).given(messageService).delete(messageId);
 
     mockMvc.perform(

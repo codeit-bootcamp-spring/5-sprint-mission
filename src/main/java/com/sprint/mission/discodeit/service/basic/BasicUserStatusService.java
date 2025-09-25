@@ -34,12 +34,12 @@ public class BasicUserStatusService implements UserStatusService {
   @Transactional
   public UserStatusDto create(@Valid UserStatusCreateRequest request) {
     User user = userRepository.findById(request.userId())
-        .orElseThrow(() -> UserNotFoundException.withDetail("id", request.userId()));
+        .orElseThrow(() -> new UserNotFoundException().addDetail("id", request.userId()));
 
     UserStatus userStatus = userStatusRepository.findByUserId(request.userId()).orElse(null);
 
     if (userStatus != null) {
-      throw UserStatusAlreadyExistsException.withDetail("id", userStatus.getId());
+      throw new UserStatusAlreadyExistsException().addDetail("id", userStatus.getId());
     }
 
     userStatus = new UserStatus(user, Instant.now());
@@ -96,11 +96,11 @@ public class BasicUserStatusService implements UserStatusService {
 
   private UserStatus validateId(UUID id) {
     return userStatusRepository.findById(id)
-        .orElseThrow(() -> UserStatusNotFoundException.withDetail("id", id));
+        .orElseThrow(() -> new UserStatusNotFoundException().addDetail("id", id));
   }
 
   private UserStatus validateUserId(UUID userId) {
     return userStatusRepository.findByUserId(userId)
-        .orElseThrow(() -> UserStatusNotFoundException.withDetail("userId", userId));
+        .orElseThrow(() -> new UserStatusNotFoundException().addDetail("userId", userId));
   }
 }

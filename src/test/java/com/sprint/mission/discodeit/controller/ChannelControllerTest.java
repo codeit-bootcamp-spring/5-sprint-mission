@@ -152,7 +152,7 @@ public class ChannelControllerTest {
         new PrivateChannelCreateRequest(List.of(userId));
     String requestBody = objectMapper.writeValueAsString(request);
 
-    DiscodeitException ex = UserNotFoundException.withDetail("userId", userId);
+    DiscodeitException ex = new UserNotFoundException().addDetail("userId", userId);
     given(channelService.create(any(PrivateChannelCreateRequest.class))).willThrow(ex);
 
     mockMvc.perform(
@@ -208,7 +208,7 @@ public class ChannelControllerTest {
         new PublicChannelUpdateRequest("updated", "updated");
 
     String requestBody = objectMapper.writeValueAsString(request);
-    DiscodeitException ex = ChannelNotFoundException.withDetail("channelId", channelId);
+    DiscodeitException ex = new ChannelNotFoundException().addDetail("channelId", channelId);
 
     given(channelService.update(any(), any())).willThrow(ex);
 
@@ -247,7 +247,7 @@ public class ChannelControllerTest {
   void delete_channelNotFound_returns404() throws Exception {
     UUID channelId = UUID.randomUUID();
 
-    DiscodeitException ex = ChannelNotFoundException.withDetail("channelId", channelId);
+    DiscodeitException ex = new ChannelNotFoundException().addDetail("channelId", channelId);
     willThrow(ex).given(channelService).delete(channelId);
 
     mockMvc.perform(

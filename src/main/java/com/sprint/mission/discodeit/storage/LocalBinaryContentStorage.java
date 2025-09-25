@@ -37,7 +37,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
       try {
         Files.createDirectories(root);
       } catch (IOException e) {
-        throw StorageInitException.withDetail("root", root, e);
+        throw new StorageInitException(e).addDetail("root", root);
       }
     }
   }
@@ -56,7 +56,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         Files.write(path, bytes);
       }
     } catch (IOException e) {
-      throw StorageWriteException.withDetail("path", path, e);
+      throw new StorageWriteException(e).addDetail("path", path);
     }
     log.info("[LocalBinaryContentStorage#put] file uploaded: id={}, filename={}", id,
         path.getFileName());
@@ -70,7 +70,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     try {
       return Files.newInputStream(path);
     } catch (IOException e) {
-      throw StorageReadException.withDetail("path", path, e);
+      throw new StorageReadException(e).addDetail("path", path);
     }
   }
 
@@ -80,7 +80,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     Path path = resolvePath(dto.id());
 
     if (Files.notExists(path)) {
-      throw StorageFileMissingException.withDetail("path", path);
+      throw new StorageFileMissingException().addDetail("path", path);
     }
 
     Resource resource = new InputStreamResource(get(dto.id()));

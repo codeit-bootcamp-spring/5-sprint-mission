@@ -37,11 +37,11 @@ public class BasicReadStatusService implements ReadStatusService {
   @Transactional
   public ReadStatusDto create(@Valid ReadStatusCreateRequest request) {
     User user = userRepository.findById(request.userId())
-        .orElseThrow(() -> UserNotFoundException.withDetail("user", request.userId()));
+        .orElseThrow(() -> new UserNotFoundException().addDetail("user", request.userId()));
 
     Channel channel = channelRepository.findById(request.channelId())
         .orElseThrow(
-            () -> ChannelNotFoundException.withDetail("channel", request.channelId()));
+            () -> new ChannelNotFoundException().addDetail("channel", request.channelId()));
 
     if (readStatusRepository.findAllByUserId(request.userId()).stream()
         .anyMatch(status -> status.getChannel().getId().equals(request.channelId()))) {
@@ -62,7 +62,7 @@ public class BasicReadStatusService implements ReadStatusService {
   @Transactional(readOnly = true)
   public List<ReadStatusDto> findAllByUserId(UUID userId) {
     if (!userRepository.existsById(userId)) {
-      throw UserNotFoundException.withDetail("userId", userId);
+      throw new UserNotFoundException().addDetail("userId", userId);
     }
     return readStatusRepository.findAllByUserId(userId).stream()
         .map(readStatusMapper::toDto)
@@ -88,6 +88,6 @@ public class BasicReadStatusService implements ReadStatusService {
 
   public ReadStatus validateReadStatus(UUID readStatusId) {
     return readStatusRepository.findById(readStatusId)
-        .orElseThrow(() -> ReadStatusNotFoundException.withDetail("id", readStatusId));
+        .orElseThrow(() -> new ReadStatusNotFoundException().addDetail("id", readStatusId));
   }
 }
