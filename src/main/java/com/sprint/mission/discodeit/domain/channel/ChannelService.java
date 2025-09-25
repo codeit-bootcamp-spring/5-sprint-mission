@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.domain.channel.dto.ChannelDto;
 import com.sprint.mission.discodeit.domain.channel.dto.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.domain.channel.dto.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.domain.channel.dto.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.domain.channel.exception.ChannelAlreadyExistsException;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -37,6 +38,11 @@ public class ChannelService {
     log.info("Creating new Public Channel. name={}", request.name());
     String name = request.name();
     String description = request.description();
+
+    if(channelRepository.existsByName(name)){
+      throw new ChannelAlreadyExistsException(name);
+    }
+
     Channel channel = new Channel(ChannelType.PUBLIC, name, description);
 
     channelRepository.save(channel);
