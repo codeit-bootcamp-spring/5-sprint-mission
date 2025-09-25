@@ -15,14 +15,14 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleException(Exception e) {
 		log.error("Exception occurred: {}", e.getMessage());
 		ErrorResponse errorResponse = new ErrorResponse(e, 500);
-		return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+		return ResponseEntity.status(errorResponse.status()).body(errorResponse);
 	}
 
 	@ExceptionHandler(DiscodeitException.class)
 	public ResponseEntity<ErrorResponse> handleCustomException(DiscodeitException e) {
 		log.error("DiscodeitException occurred: code={}, message={}", e.getErrorCode(), e.getMessage());
 		ErrorResponse errorResponse = new ErrorResponse(e, determineHttpStatus(e).value());
-		return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+		return ResponseEntity.status(errorResponse.status()).body(errorResponse);
 	}
 
 	private HttpStatus determineHttpStatus(DiscodeitException exception) {

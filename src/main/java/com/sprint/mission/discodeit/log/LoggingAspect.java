@@ -20,13 +20,15 @@ import lombok.extern.slf4j.Slf4j;
 public class LoggingAspect {
 
 	@Pointcut("execution( * com.sprint.mission.discodeit.service.*.*(..)) ")
-	public void serviceLayerPointcut(){}
+	public void serviceLayerPointcut() {
+	}
 
 	@Pointcut("execution( * com.sprint.mission.discodeit.controller.*.*(..)) ")
-	public void controllerLayerPointcut(){}
+	public void controllerLayerPointcut() {
+	}
 
 	@Before("serviceLayerPointcut() || controllerLayerPointcut()")
-	public void logBefore(JoinPoint joinPoint){
+	public void logBefore(JoinPoint joinPoint) {
 		String className = joinPoint.getTarget().getClass().getSimpleName();
 		String methodName = joinPoint.getSignature().getName();
 		Object[] args = joinPoint.getArgs();
@@ -34,7 +36,7 @@ public class LoggingAspect {
 	}
 
 	@AfterReturning(pointcut = "serviceLayerPointcut() || controllerLayerPointcut()", returning = "result")
-	public void logAfter(JoinPoint joinPoint, Object result){
+	public void logAfter(JoinPoint joinPoint, Object result) {
 		String className = joinPoint.getTarget().getClass().getSimpleName();
 		String methodName = joinPoint.getSignature().getName();
 		Object[] args = joinPoint.getArgs();

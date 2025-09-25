@@ -7,7 +7,6 @@ public class MessageNotFoundException extends MessageException {
 		super(ErrorCode.MESSAGE_NOT_FOUND);
 	}
 
-
 	public static MessageNotFoundException withId(String messageId) {
 		MessageNotFoundException exception = new MessageNotFoundException();
 		exception.addDetails("message id", messageId);

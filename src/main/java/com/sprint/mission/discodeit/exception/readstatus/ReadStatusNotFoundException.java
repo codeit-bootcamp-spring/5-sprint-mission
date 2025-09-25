@@ -7,7 +7,7 @@ public class ReadStatusNotFoundException extends ReadStatusException {
 		super(ErrorCode.READ_STATUS_NOT_FOUND);
 	}
 
-	public static ReadStatusNotFoundException withIds(String readStatusId){
+	public static ReadStatusNotFoundException withIds(String readStatusId) {
 		ReadStatusNotFoundException exception = new ReadStatusNotFoundException();
 		exception.addDetails("readStatusId", readStatusId);
 		return exception;

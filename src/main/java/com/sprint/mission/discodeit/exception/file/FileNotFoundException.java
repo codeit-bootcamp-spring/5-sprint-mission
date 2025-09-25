@@ -7,7 +7,7 @@ public class FileNotFoundException extends FileException {
 		super(ErrorCode.FILE_NOT_FOUND);
 	}
 
-	public static FileNotFoundException withBinaryId(String BinaryId){
+	public static FileNotFoundException withBinaryId(String BinaryId) {
 		FileNotFoundException exception = new FileNotFoundException();
 		exception.addDetails("BinaryContentId", BinaryId);
 		return exception;
