@@ -62,7 +62,7 @@ public class MessageApiIntegrationTest {
   class CreateMessage {
 
     @Test
-    @DisplayName("POST /api/messages - 성공 시 201")
+    @DisplayName("POST /api/messages - 성공(201)")
     @Sql("/seed.sql")
     void success() throws Exception {
       UUID channelId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001");
@@ -85,7 +85,7 @@ public class MessageApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /api/messages - 요청 값 검증 실패 시 400")
+    @DisplayName("POST /api/messages - 요청 값 검증 실패(400)")
     void bad_request() throws Exception {
       MessageCreateRequest req = new MessageCreateRequest("hello", null, null);
 
@@ -97,7 +97,7 @@ public class MessageApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /api/messages - 유저 또는 채널 존재하지 않을 시 404")
+    @DisplayName("POST /api/messages - 유저 또는 채널 존재하지 않음(404)")
     void not_found() throws Exception {
       UUID channelId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001");
       UUID authorId = UUID.fromString("11111111-1111-1111-1111-111111111111");
@@ -116,7 +116,7 @@ public class MessageApiIntegrationTest {
   class UpdateMessage {
 
     @Test
-    @DisplayName("PATCH /api/messages/{messageId} - 성공 시 200")
+    @DisplayName("PATCH /api/messages/{messageId} - 성공(200)")
     @Sql("/seed.sql")
     void success() throws Exception {
       UUID messageId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbb0001");
@@ -137,7 +137,7 @@ public class MessageApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("PATCH /api/messages/{messageId} - 존재하지 않을 시 404")
+    @DisplayName("PATCH /api/messages/{messageId} - 존재하지 않음(404)")
     void not_found() throws Exception {
       UUID messageId = UUID.randomUUID();
       MessageUpdateRequest req = new MessageUpdateRequest("updated");
@@ -162,7 +162,7 @@ public class MessageApiIntegrationTest {
   class DeleteMessage {
 
     @Test
-    @DisplayName("DELETE /api/messages/{messageId} - 성공 시 204")
+    @DisplayName("DELETE /api/messages/{messageId} - 성공(204)")
     @Sql("/seed.sql")
     void success() throws Exception {
       UUID messageId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbb0001");
@@ -173,7 +173,7 @@ public class MessageApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/messages/{messageId} - 존재하지 않을 시 404")
+    @DisplayName("DELETE /api/messages/{messageId} - 존재하지 않음(404)")
     void not_found() throws Exception {
       UUID messageId = UUID.randomUUID();
       mockMvc.perform(
@@ -189,7 +189,7 @@ public class MessageApiIntegrationTest {
   class FindAllMessages {
 
     @Test
-    @DisplayName("GET /api/messages - 성공 시 200")
+    @DisplayName("GET /api/messages - 성공(200)")
     @Sql("/seed.sql")
     void success() throws Exception {
       UUID channelId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001");
@@ -206,7 +206,7 @@ public class MessageApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("GET /api/messages - 채널이 존재하지 않을 시 404")
+    @DisplayName("GET /api/messages - 채널이 존재하지 않음(404)")
     void not_found() throws Exception {
       UUID channelId = UUID.randomUUID();
 

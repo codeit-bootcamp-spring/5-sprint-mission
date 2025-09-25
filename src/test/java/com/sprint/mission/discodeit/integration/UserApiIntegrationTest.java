@@ -76,7 +76,7 @@ public class UserApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /api/users - 이메일/유저명 중복 시 409")
+    @DisplayName("POST /api/users - 이메일/유저명 중복(409)")
     @Sql("/seed.sql")
       // 기존 사용자 미리 존재
     void create_conflict_409() throws Exception {
@@ -96,7 +96,7 @@ public class UserApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /api/users - 요청 유효성 검증 실패 시 400")
+    @DisplayName("POST /api/users - 요청 유효성 검증 실패(400)")
     void create_bad_request_400() throws Exception {
       var req = new UserCreateRequest("u1", "no_email", "short");
 
@@ -144,7 +144,7 @@ public class UserApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("PATCH /api/users/{userId} - 존재하지 않으면 404")
+    @DisplayName("PATCH /api/users/{userId} - 존재하지 않음(404)")
     void update_notFound_404() throws Exception {
       UUID userId = UUID.randomUUID();
       var req = new UserUpdateRequest("not_found", "not_found@email.com", "12345678");
@@ -182,7 +182,7 @@ public class UserApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/users/{userId} - 존재하지 않으면 404")
+    @DisplayName("DELETE /api/users/{userId} - 존재하지 않음(404)")
     void delete_notFound_404() throws Exception {
       UUID userId = UUID.randomUUID();
 

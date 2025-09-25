@@ -47,7 +47,7 @@ public class ChannelApiIntegrationTest {
   class CreatePublicChannel {
 
     @Test
-    @DisplayName("POST /api/channels/public - 성공 시 201")
+    @DisplayName("POST /api/channels/public - 성공(201)")
     void success_201() throws Exception {
       var req = new PublicChannelCreateRequest("public", "publicDesc");
 
@@ -63,7 +63,7 @@ public class ChannelApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /api/channels/public - 요청 유효성 검증 실패 시 400")
+    @DisplayName("POST /api/channels/public - 요청 유효성 검증 실패(400)")
     void bad_request_400() throws Exception {
       var req = new PublicChannelCreateRequest("", "p".repeat(501));
 
@@ -79,7 +79,7 @@ public class ChannelApiIntegrationTest {
   class CreatePrivateChannel {
 
     @Test
-    @DisplayName("POST /api/channels/private - 성공 시 201")
+    @DisplayName("POST /api/channels/private - 성공(201)")
     @Sql("/seed.sql")
     void success_201() throws Exception {
       UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
@@ -98,7 +98,7 @@ public class ChannelApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /api/channels/private - 유저가 존재하지 않을 시 404")
+    @DisplayName("POST /api/channels/private - 유저가 존재하지 않음(404)")
     void not_found_404() throws Exception {
       PrivateChannelCreateRequest req = new PrivateChannelCreateRequest(List.of(UUID.randomUUID()));
 
@@ -111,7 +111,7 @@ public class ChannelApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /api/channels/private - 요청 유효성 검증 실패 시 400")
+    @DisplayName("POST /api/channels/private - 요청 유효성 검증 실패(400)")
     void bad_request_400() throws Exception {
       PrivateChannelCreateRequest req = new PrivateChannelCreateRequest(List.of());
 
@@ -129,7 +129,7 @@ public class ChannelApiIntegrationTest {
   class updateChannel {
 
     @Test
-    @DisplayName("PATCH /api/channels/{channelId} - 성공 시 200")
+    @DisplayName("PATCH /api/channels/{channelId} - 성공(200)")
     @Sql("/seed.sql")
     void success_200() throws Exception {
       UUID channelId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001");
@@ -149,7 +149,7 @@ public class ChannelApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("PATCH /api/channels/{channelId} - 존재하지 않을 시 404")
+    @DisplayName("PATCH /api/channels/{channelId} - 존재하지 않음(404)")
     void not_found_404() throws Exception {
       UUID channelId = UUID.randomUUID();
       PublicChannelUpdateRequest req =
@@ -164,7 +164,7 @@ public class ChannelApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("PATCH /api/channels/{channelId} - private 채널 업데이트 시도 시 400")
+    @DisplayName("PATCH /api/channels/{channelId} - private 채널 업데이트 시도(400)")
     @Sql("/seed.sql")
     void bad_request_400() throws Exception {
       UUID channelId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0002");
@@ -185,7 +185,7 @@ public class ChannelApiIntegrationTest {
   class deleteChannel {
 
     @Test
-    @DisplayName("DELETE /api/channels/{channelId} - 성공 시 204")
+    @DisplayName("DELETE /api/channels/{channelId} - 성공(204)")
     @Sql("/seed.sql")
     void success_204() throws Exception {
       UUID channelId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001");
@@ -196,7 +196,7 @@ public class ChannelApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/channels/{channelId} - 존재하지 않을 시 404")
+    @DisplayName("DELETE /api/channels/{channelId} - 존재하지 않음(404)")
     void not_found_404() throws Exception {
       UUID channelId = UUID.randomUUID();
 
