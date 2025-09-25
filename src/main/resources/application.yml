@@ -1,6 +1,7 @@
 spring:
   application:
-    name: discodeit
+    name: Discodeit
+    version: 1.7.0
   profiles:
     active: dev
   servlet:
@@ -13,4 +14,58 @@ discodeit:
     type: local
     local:
       root-path: .discodeit/storage
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    display-request-duration: true
+    persist-authorization: true
+
+# actuator/info 에 노출할 정보
+info:
+  app:
+    name: ${spring.application.name}
+    description: Blog service (Actuator info)
+    version: ${spring.application.version:1.0.0}
+  runtime:
+    profile: ${spring.profiles.active}
+    java: ${java.runtime.version}
+    jvmVendor: ${java.vendor}
+  config:
+    datasource:
+      url: ${spring.datasource.url}
+      driver-class-name: ${spring.datasource.driver-class-name}
+      jpa:
+        ddl-auto: ${spring.jpa.hibernate.ddl-auto}
+      storage:
+        type: ${discodeit.storage.type}
+        path: ${discodeit.storage.local.root-path}
+      multipart:
+        max-file-size: ${spring.servlet.multipart.max-file-size}
+        max-request-size: ${spring.servlet.multipart.max-request-size}
+
+# Actuator 노출 범위
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true   # liveness/readiness
+  info:
+    env:
+      enabled: true     # info.* 노출
+    java:
+      enabled: true
+    os:
+      enabled: true
+    build:
+      enabled: true
 

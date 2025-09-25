@@ -1,7 +1,13 @@
 package com.sprint.mission.discodeit.exception;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -23,6 +29,31 @@ public class GlobalExceptionHandler {
 		log.error("DiscodeitException occurred: code={}, message={}", e.getErrorCode(), e.getMessage());
 		ErrorResponse errorResponse = new ErrorResponse(e, determineHttpStatus(e).value());
 		return ResponseEntity.status(errorResponse.status()).body(errorResponse);
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException e) {
+		log.error("유효성 검사 실패: {}", e.getMessage());
+
+		Map<String, Object> validationErrors = new HashMap<>();
+		e.getBindingResult().getAllErrors().forEach(error -> {
+			String fieldName = ((FieldError) error).getField();
+			String errorMessage = error.getDefaultMessage();
+			validationErrors.put(fieldName, errorMessage);
+		});
+
+		ErrorResponse response = new ErrorResponse(
+			Instant.now(),
+			"VALIDATION_ERROR",
+			"요청 데이터 유효성 검사에 실패했습니다",
+			validationErrors,
+			e.getClass().getSimpleName(),
+			HttpStatus.BAD_REQUEST.value()
+		);
+
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(response);
 	}
 
 	private HttpStatus determineHttpStatus(DiscodeitException exception) {
