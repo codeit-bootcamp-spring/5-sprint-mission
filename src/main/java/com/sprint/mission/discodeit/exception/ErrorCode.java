@@ -17,7 +17,9 @@ public enum ErrorCode {
 
 	FILE_PROCESSING_FAIL("파일 처리에 실패했습니다."),
 
-	BINARY_CONTENT_NOT_FOUND("해당 데이터를 찾을 수 없습니다.");
+	BINARY_CONTENT_NOT_FOUND("해당 데이터를 찾을 수 없습니다."),
+	CHANNEL_NOT_FOUND("채널을 찾을 수 없습니다."),
+	CHANNEL_UPDATE_FORBIDDEN("비공개 채널은 수정할 수 없습니다.");
 
 	private final String message;
 
