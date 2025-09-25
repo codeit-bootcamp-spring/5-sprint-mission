@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.BDDMockito.*;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
@@ -26,7 +25,6 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 
@@ -206,8 +204,37 @@ public class UserServiceUnitTest {
 		then(userRepository).should(times(1)).existsByEmail(userUpdateRequest.newEmail());
 		then(userRepository).should(times(1)).existsByUsername(userUpdateRequest.newUsername());
 		then(userRepository).shouldHaveNoMoreInteractions();
-
 	}
 
+	@Test
+	@DisplayName("사용자 삭제 테스트 - 성공")
+	void deleteUser_success() {
+		// given
+		UUID userId = UUID.randomUUID();
+
+		given(userRepository.existsById(userId)).willReturn(true);
+
+		//
+		userService.delete(userId);
+
+		//
+		then(userRepository).should(times(1)).existsById(userId);
+		then(userRepository).should(times(1)).deleteById(userId);
+	}
+
+	@Test
+	@DisplayName("사용자 삭제 테스트 - 실패")
+	void deleteUser_fail() {
+		// given
+		UUID userId = UUID.randomUUID();
+		given(userRepository.existsById(userId)).willReturn(false);
+
+		//
+		assertThatThrownBy(() -> userService.delete(userId))
+			.isInstanceOf(UserNotFoundException.class);
+
+		then(userRepository).should(times(1)).existsById(userId);
+		then(userRepository).should(never()).deleteById(userId);
+	}
 
 }
