@@ -81,7 +81,7 @@ public class MessageController {
     @RequestMapping(path = "/{messageId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponse> updateMessage(
             @PathVariable UUID messageId,
-            @Valid @RequestPart("messageCreateRequest") MessageUpdateRequest request,
+            @Valid @RequestPart("messageUpdateRequest") MessageUpdateRequest request,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> files
     ) {
         try {
@@ -93,7 +93,6 @@ public class MessageController {
             URI location = URI.create("/api/messages/" + response.getId());
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .location(location)
                     .body(response);
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();

@@ -1,13 +1,15 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.config.QuerydslConfig;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
@@ -18,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(showSql = false)
 @ActiveProfiles("test")
+@Import(QuerydslConfig.class)
 class MessageRepositoryTest {
 
     @Autowired
@@ -94,30 +97,44 @@ class MessageRepositoryTest {
     void findByChannelIdWithCursor_success() throws InterruptedException {
         Message oldMessage = messageRepository.save(new Message(testUser, testChannel, "이전 메시지"));
 
-        Thread.sleep(10);
+        Thread.sleep(2000);
 
         Message newMessage = messageRepository.save(new Message(testUser, testChannel, "최신 메시지"));
 
-        Slice<Message> result = messageRepository.findByChannelIdWithCursor(
-                testChannel.getId(), newMessage.getCreatedAt(), PageRequest.of(0, 10)
+        List<Message> result = messageRepository.findByChannelIdWithCursor(
+                testChannel.getId(), newMessage.getCreatedAt(), 10
+        );
+
+        result.forEach(m ->
+                System.out.println("@@조회된 메시지: " + m.getId() + " | " + m.getContent() + " | " + m.getCreatedAt())
         );
 
         assertThat(result).hasSize(1);
-        assertThat(result.getContent().get(0).getContent()).isEqualTo("이전 메시지");
-        assertThat(result.getContent().get(0).getId()).isEqualTo(oldMessage.getId());
+        assertThat(result.get(0).getContent()).isEqualTo("이전 메시지");
+        assertThat(result.get(0).getId()).isEqualTo(oldMessage.getId());
     }
+
 
     @Test
     @DisplayName("커서보다 이전 메시지가 없으면 빈 결과")
     void findByChannelIdWithCursor_empty() {
-        Message message = messageRepository.save(new Message(testUser, testChannel, "유일한 메시지"));
+        User user = userRepository.save(new User(
+                "user1", "password123", "user1", "user1@example.com", null
+        ));
 
-        Slice<Message> result = messageRepository.findByChannelIdWithCursor(
-                testChannel.getId(), message.getCreatedAt(), PageRequest.of(0, 10)
+        Channel channel = channelRepository.save(new Channel("channel1", "Channel 1 Description"));
+
+        Message message = messageRepository.save(new Message(user, channel, "메시지 내용"));
+
+        // when
+        List<Message> result = messageRepository.findByChannelIdWithCursor(
+                channel.getId(), message.getCreatedAt(), 10
         );
 
+        // then
         assertThat(result).isEmpty();
     }
+
 
     @Test
     @DisplayName("채널의 최신 메시지 시간 조회")

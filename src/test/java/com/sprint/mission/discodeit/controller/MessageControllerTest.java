@@ -158,7 +158,7 @@ public class MessageControllerTest {
         given(messageService.updateMessage(eq(messageId), any(MessageUpdateRequest.class))).willReturn(response);
 
         MockMultipartFile requestPart = new MockMultipartFile(
-                "messageCreateRequest",
+                "messageUpdateRequest",
                 "",
                 MediaType.APPLICATION_JSON_VALUE,
                 objectMapper.writeValueAsBytes(request)
@@ -186,7 +186,7 @@ public class MessageControllerTest {
                 .build();
 
         MockMultipartFile requestPart = new MockMultipartFile(
-                "messageCreateRequest",
+                "messageUpdateRequest",
                 "",
                 MediaType.APPLICATION_JSON_VALUE,
                 objectMapper.writeValueAsBytes(invalidRequest)
@@ -214,7 +214,7 @@ public class MessageControllerTest {
                 .build();
 
         MockMultipartFile requestPart = new MockMultipartFile(
-                "messageCreateRequest",
+                "messageUpdateRequest",
                 "",
                 MediaType.APPLICATION_JSON_VALUE,
                 objectMapper.writeValueAsBytes(request)

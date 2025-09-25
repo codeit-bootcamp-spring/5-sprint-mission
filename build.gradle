@@ -58,6 +58,12 @@ dependencies {
     // actuator
 //    implementation 'de.codecentric:spring-boot-admin-starter-client:3.4.5'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+    annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 }
 
 //test {

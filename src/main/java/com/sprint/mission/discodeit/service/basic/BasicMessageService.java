@@ -112,23 +112,33 @@ public class BasicMessageService implements MessageService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<MessageResponse> findMessagesByChannelWithCursor(UUID channelId, Instant cursor, int size, String sort) {
-        Sort sortObj = createSort(sort);
-        Pageable pageable = PageRequest.of(0, size, sortObj);
+    public PageResponse<MessageResponse> findMessagesByChannelWithCursor(
+            UUID channelId, Instant cursor, int size, String sort) {
 
         if (cursor == null) {
             cursor = Instant.parse("9999-12-31T23:59:59Z");
         }
-        Slice<Message> messageSlice = messageRepository.findByChannelIdWithCursor(channelId, cursor, pageable);
 
-        Object nextCursor = null;
-        if (messageSlice.hasNext() && !messageSlice.getContent().isEmpty()) {
-            Message lastMessage = messageSlice.getContent().get(messageSlice.getContent().size() - 1);
-            nextCursor = lastMessage.getCreatedAt();
+        List<Message> messages = messageRepository.findByChannelIdWithCursor(channelId, cursor, size + 1);
+
+        boolean hasNext = messages.size() > size;
+        if (hasNext) {
+            messages = messages.subList(0, size);
         }
 
-        return pageResponseMapper.fromSliceToCursor(messageSlice.map(MessageResponse::success), nextCursor);
+        Instant nextCursor = null;
+        if (!messages.isEmpty()) {
+            nextCursor = messages.get(messages.size() - 1).getCreatedAt();
+        }
+
+        return pageResponseMapper.fromListToCursor(
+                messages.stream().map(MessageResponse::success).toList(),
+                nextCursor,
+                size,
+                hasNext
+        );
     }
+
 
     @Override
     @Transactional

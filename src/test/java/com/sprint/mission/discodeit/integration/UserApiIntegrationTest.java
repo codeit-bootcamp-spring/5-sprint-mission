@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 @AutoConfigureMockMvc
@@ -69,7 +69,7 @@ class UserApiIntegrationTest {
 
     @Test
     @DisplayName("1.1 사용자 생성 후 조회 성공")
-    void createAndGet_success() throws Exception {
+    void createUserAndGet_success() throws Exception {
         // when
         UserResponse created = createUser("testuser", "test@example.com", "Test User");
 
@@ -123,7 +123,7 @@ class UserApiIntegrationTest {
     @DisplayName("1.3 존재하지 않는 사용자 조회 실패")
     void getUser_failure() throws Exception {
         // given
-        UserResponse created = createUser("validuser", "valid@example.com", "Valid User");
+        UserResponse userResponse = createUser("validuser", "valid@example.com", "Valid User");
 
         // when
         // then
@@ -132,7 +132,7 @@ class UserApiIntegrationTest {
                 .andExpect(jsonPath("$.code").value(ErrorCode.USER_NOT_FOUND.name()))
                 .andExpect(jsonPath("$.message").value(ErrorCode.USER_NOT_FOUND.getMessage()));
 
-        assertThat(userRepository.findById(created.getId())).isPresent();
+        assertThat(userRepository.findById(userResponse.getId())).isPresent();
     }
 
     @Test
@@ -177,12 +177,12 @@ class UserApiIntegrationTest {
         userRepository.save(new User("user2", "pass", "User2", "user2@example.com", null));
 
         UserUpdateRequest request = UserUpdateRequest.builder().newUsername("user2").build();
-        MockMultipartFile part = new MockMultipartFile("userUpdateRequest", "", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
+        MockMultipartFile file = new MockMultipartFile("userUpdateRequest", "", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
 
         // when
         // then
         mockMvc.perform(multipart("/api/users/{userId}", u1.getId())
-                        .file(part)
+                        .file(file)
                         .with(req -> { req.setMethod("PATCH"); return req; })
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isConflict())
