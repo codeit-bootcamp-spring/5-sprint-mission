@@ -46,6 +46,9 @@ dependencies {
 
     //@Valid 의존성 설정
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //Actuator 의존성 설정
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 tasks.named('test') {

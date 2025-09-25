@@ -14,3 +14,31 @@ logging:
     root: info
     org.hibernate.SQL: debug
     org.hibernate.type: trace
+
+management: # actuator 외부 접근 허용
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, loggers
+
+info: # 확인 가능한 앱정보/환경정보 넣기
+  app:
+    name: Discodeit
+    version: 1.7.0
+  java:
+    version: 17
+  spring-boot:
+    version: 3.4.0
+  datasource:
+    url: ${spring.datasource.url} # DB 연결 설정값 info에 그대로 노출
+    driver-class-name: ${spring.datasource.driver-class-name}
+  jpa:
+    ddl-auto: ${spring.jpa.hibernate.ddl-auto} #DB 생성 스키마 or JPA 자동
+  storage:
+    type: local
+    path: /data/storage
+  multipart:
+    max-file-size: 10MB
+    max-request-size: 20MB
+
+

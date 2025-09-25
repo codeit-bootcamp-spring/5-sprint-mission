@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -35,7 +36,7 @@ public class UserController {
   @Operation(summary = "회원가입")
   @PostMapping(consumes = "multipart/form-data")
   public ResponseEntity<UserDto> create(
-      @RequestPart("userDto") UserDto dto,
+      @RequestPart("userDto") @Valid UserDto dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) throws IOException {
     UserDto responseDto = userService.create(dto, profile);
@@ -66,7 +67,7 @@ public class UserController {
   @PatchMapping(value = "/{userId}", consumes = "multipart/form-data")
   public ResponseEntity<UserDto> update(
       @PathVariable("userId") UUID id,
-      @RequestPart("userDto") UserDto dto,
+      @RequestPart("userDto") @Valid UserDto dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) throws IOException {
     UserDto updatedUser = userService.update(id, dto, profile);

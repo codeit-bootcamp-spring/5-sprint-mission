@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,7 @@ public class MessageController {
   @Operation(summary = "메세지 생성")
   @PostMapping(value = "/api/messages", consumes = "multipart/form-data")
   public ResponseEntity<MessageDto> create(
-      @RequestPart("messageDto") MessageDto dto,
+      @RequestPart("messageDto") @Valid MessageDto dto,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
     MessageDto created = messageService.create(dto, attachments);
@@ -68,7 +69,7 @@ public class MessageController {
   @PatchMapping("/api/messages/{messageId}")
   public ResponseEntity<MessageDto> update(
       @PathVariable("messageId") UUID messageId,
-      @RequestBody MessageDto dto
+      @RequestBody @Valid MessageDto dto
   ) {
     MessageDto updated = messageService.update(messageId, dto);
     log.info("메시지 수정 완료: messageId={}", messageId);

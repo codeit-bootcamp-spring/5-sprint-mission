@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.service.ChannelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +70,7 @@ public class ChannelController {
   @Operation(summary = "채널 수정")
   @PatchMapping("/api/channels/{channelId}")
   public ResponseEntity<Void> update(@PathVariable("channelId") UUID id,
-      @RequestBody ChannelDto dto) {
+      @RequestBody @Valid ChannelDto dto) {
     log.info("채널 수정 요청:id={}, name={}", id, dto.getName());
     channelService.update(id, dto);
     log.info("채널 수정 완료: id={}", id);
