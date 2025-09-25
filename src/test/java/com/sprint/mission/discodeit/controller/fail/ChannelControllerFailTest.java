@@ -66,7 +66,7 @@ public class ChannelControllerFailTest {
 
         // Mocking the service to throw an exception for a non-existent channel
         BDDMockito.given(channelService.update(eq(nonExistentChannelId), any(PublicChannelUpdateRequest.class)))
-                .willThrow(new ChannelNotFoundException(nonExistentChannelId.getMostSignificantBits()));
+                .willThrow(new ChannelNotFoundException(nonExistentChannelId));
 
         // When & Then
         mockMvc.perform(patch("/api/channels/{channelId}", nonExistentChannelId)
@@ -82,7 +82,7 @@ public class ChannelControllerFailTest {
         UUID nonExistentChannelId = UUID.randomUUID();
 
         // Mocking the service (a void method) to throw an exception
-        BDDMockito.willThrow(new ChannelNotFoundException(nonExistentChannelId.getMostSignificantBits()))
+        BDDMockito.willThrow(new ChannelNotFoundException(nonExistentChannelId))
                 .given(channelService).delete(eq(nonExistentChannelId));
 
         // When & Then

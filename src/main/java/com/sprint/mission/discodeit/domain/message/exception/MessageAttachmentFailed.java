@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.exception.ErrorCode;
 import java.util.Map;
 
 public class MessageAttachmentFailed extends MessageException {
-    public MessageAttachmentFailed(Long messageId) {
-        super(ErrorCode.MESSAGE_ATTACHMENT_UPLOAD_FAILED, Map.of("messageId", messageId));
+    public MessageAttachmentFailed(String filename) {
+        super(ErrorCode.MESSAGE_ATTACHMENT_UPLOAD_FAILED, Map.of("filename", filename));
     }
 }

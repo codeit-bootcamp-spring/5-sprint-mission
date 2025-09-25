@@ -5,11 +5,14 @@ import com.sprint.mission.discodeit.common.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.domain.binarycontent.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.domain.channel.ChannelRepository;
+import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.domain.message.dto.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.MessageDto;
 import com.sprint.mission.discodeit.domain.message.dto.MessageUpdateRequest;
+import com.sprint.mission.discodeit.domain.message.exception.MessageNotFoundException;
 import com.sprint.mission.discodeit.domain.message.mapper.MessageMapper;
 import com.sprint.mission.discodeit.domain.user.UserRepository;
+import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -24,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,7 +36,6 @@ import java.util.UUID;
 public class MessageService {
 
   private final MessageRepository messageRepository;
-  //
   private final ChannelRepository channelRepository;
   private final UserRepository userRepository;
   private final MessageMapper messageMapper;
@@ -49,12 +50,10 @@ public class MessageService {
     UUID authorId = messageCreateRequest.authorId();
     log.info("Creating new Message. 채널 아이디={}, 작성자 아이디={}", channelId, authorId );
     Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(
-            () -> new NoSuchElementException("Channel with id " + channelId + " does not exist"));
+        .orElseThrow(() -> new ChannelNotFoundException(channelId));
     User author = userRepository.findById(authorId)
-        .orElseThrow(
-            () -> new NoSuchElementException("Author with id " + authorId + " does not exist")
-        );
+        .orElseThrow(() -> new UserNotFoundException(authorId));
+
 
     List<BinaryContent> attachments = binaryContentCreateRequests.stream()
         .map(attachmentRequest -> {
@@ -88,7 +87,7 @@ public class MessageService {
     return messageRepository.findById(messageId)
         .map(messageMapper::toDto)
         .orElseThrow(
-            () -> new NoSuchElementException("Message with id " + messageId + " not found"));
+            () -> new MessageNotFoundException(messageId));
   }
 
   @Transactional(readOnly = true)
@@ -114,7 +113,7 @@ public class MessageService {
     log.info("Updating message. 메시지내용={}", newContent);
     Message message = messageRepository.findById(messageId)
         .orElseThrow(
-            () -> new NoSuchElementException("Message with id " + messageId + " not found"));
+            () -> new MessageNotFoundException(messageId));
     message.update(newContent);
     log.info("Updated message. 메시지내용={}", message.getContent());
     return messageMapper.toDto(message);
@@ -124,7 +123,7 @@ public class MessageService {
   public void delete(UUID messageId) {
     log.warn("Deleting Message. 아이디={}", messageId);
     if (!messageRepository.existsById(messageId)) {
-      throw new NoSuchElementException("Message with id " + messageId + " not found");
+      throw new MessageNotFoundException(messageId);
     }
 
     log.warn("Message deleted successfully. id={}", messageId);
