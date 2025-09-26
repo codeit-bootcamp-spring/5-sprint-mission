@@ -11,14 +11,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
-@Data
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User extends BaseUpdatableEntity {
@@ -75,11 +73,6 @@ public class User extends BaseUpdatableEntity {
   private List<Channel> channels;
 
 
-  //기본 생성자
-  public User() {
-    super(); // 생략가능, 기본 생성자 호출됨
-  }
-
   //일반 생성자
   public User(String username, String password, String email) {
     this.username = username;
@@ -97,6 +90,22 @@ public class User extends BaseUpdatableEntity {
     this.messages = other.messages;
     this.readStatuses = other.readStatuses;
     this.channels = other.channels;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public void setProfile(BinaryContent profile) {
+    this.profile = profile;
   }
 
   //toString
