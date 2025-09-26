@@ -30,7 +30,7 @@ public class ChannelController {
   //공개 채널 생성
   @Operation(summary = "공개 채널 생성")
   @PostMapping("/api/channels/public")
-  public ResponseEntity<Void> createPublic(@RequestBody ChannelDto dto) {
+  public ResponseEntity<Void> createPublic(@RequestBody @Valid ChannelDto dto) {
     channelService.createPublicChannel(dto);
     log.info("공개 채널 생성 완료: {}", dto.getName());
     return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -40,7 +40,7 @@ public class ChannelController {
   //비공개 채널 생성
   @Operation(summary = "비공개 채널 생성")
   @PostMapping("/api/channels/private")
-  public ResponseEntity<Void> createPrivate(@RequestBody ChannelDto dto) {
+  public ResponseEntity<Void> createPrivate(@RequestBody @Valid ChannelDto dto) {
     channelService.createPrivateChannel(dto);
     log.info("비공개 채널 생성 완료: {}", dto.getName());
     return ResponseEntity.status(HttpStatus.CREATED).build();

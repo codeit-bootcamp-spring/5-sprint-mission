@@ -7626,3 +7626,65 @@ java.lang.IllegalStateException: ApplicationContext failure threshold (1) exceed
 25-09-27 01:56:10.936 [Test worker] INFO  c.s.m.d.c.UserControllerTest - Started UserControllerTest in 3.881 seconds (process running for 5.505)
 25-09-27 01:56:11.077 [Test worker] INFO  c.s.m.d.controller.UserController - 유저 전체 조회 요청
 25-09-27 01:56:11.272 [Test worker] INFO  c.s.m.d.controller.UserController - 유저 전체 조회 요청
+25-09-27 02:22:09.525 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+25-09-27 02:22:09.622 [Test worker] INFO  c.s.m.d.c.ChannelControllerTest - Starting ChannelControllerTest using Java 17.0.15 with PID 11852 (started by SW in C:\dev_source\5-sprint-mission)
+25-09-27 02:22:09.622 [Test worker] INFO  c.s.m.d.c.ChannelControllerTest - The following 1 profile is active: "dev"
+25-09-27 02:22:12.618 [Test worker] INFO  o.s.b.t.m.w.SpringBootMockServletCon - Initializing Spring TestDispatcherServlet ''
+25-09-27 02:22:12.626 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+25-09-27 02:22:12.629 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 2 ms
+25-09-27 02:22:12.680 [Test worker] INFO  c.s.m.d.c.ChannelControllerTest - Started ChannelControllerTest in 3.737 seconds (process running for 5.31)
+25-09-27 02:22:12.968 [Test worker] INFO  c.s.m.d.controller.ChannelController - 공개 채널 생성 완료: null
+25-09-27 02:22:13.044 [Test worker] INFO  c.s.m.d.controller.ChannelController - 공개 채널 생성 완료: 새채널
+25-09-27 02:22:13.075 [Test worker] INFO  c.s.m.d.controller.ChannelController - 채널 단건 조회 요청: id=3395b4df-8d93-4bf5-9242-268a64bd9b93
+25-09-27 02:22:13.219 [Test worker] INFO  c.s.m.d.controller.ChannelController - 전체 채널 목록 조회 요청
+25-09-27 02:22:13.263 [Test worker] INFO  c.s.m.d.controller.ChannelController - 채널 단건 조회 요청: id=aad02484-54ff-4231-9262-932f06083772
+25-09-27 02:22:13.363 [Test worker] INFO  c.s.m.d.controller.ChannelController - 전체 채널 목록 조회 요청
+25-09-27 02:25:20.958 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+25-09-27 02:25:21.047 [Test worker] INFO  c.s.m.d.c.ChannelControllerTest - Starting ChannelControllerTest using Java 17.0.15 with PID 21096 (started by SW in C:\dev_source\5-sprint-mission)
+25-09-27 02:25:21.047 [Test worker] INFO  c.s.m.d.c.ChannelControllerTest - The following 1 profile is active: "dev"
+25-09-27 02:25:24.752 [Test worker] INFO  o.s.b.t.m.w.SpringBootMockServletCon - Initializing Spring TestDispatcherServlet ''
+25-09-27 02:25:24.755 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+25-09-27 02:25:24.759 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 0 ms
+25-09-27 02:25:24.829 [Test worker] INFO  c.s.m.d.c.ChannelControllerTest - Started ChannelControllerTest in 4.439 seconds (process running for 5.951)
+25-09-27 02:25:25.464 [Test worker] INFO  c.s.m.d.controller.ChannelController - 공개 채널 생성 완료: 새채널
+25-09-27 02:25:25.500 [Test worker] INFO  c.s.m.d.controller.ChannelController - 채널 단건 조회 요청: id=f856ef39-ea52-4149-8f18-fff9aaa35380
+25-09-27 02:25:25.528 [Test worker] INFO  c.s.m.d.controller.ChannelController - 전체 채널 목록 조회 요청
+25-09-27 02:25:25.557 [Test worker] INFO  c.s.m.d.controller.ChannelController - 채널 단건 조회 요청: id=15eb7efb-d368-4a9c-ae3b-39d1423dea38
+25-09-27 02:25:25.580 [Test worker] INFO  c.s.m.d.controller.ChannelController - 전체 채널 목록 조회 요청
+25-09-27 02:26:34.768 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+25-09-27 02:26:34.849 [Test worker] INFO  c.s.m.d.c.ChannelControllerTest - Starting ChannelControllerTest using Java 17.0.15 with PID 16308 (started by SW in C:\dev_source\5-sprint-mission)
+25-09-27 02:26:34.849 [Test worker] INFO  c.s.m.d.c.ChannelControllerTest - The following 1 profile is active: "dev"
+25-09-27 02:26:37.889 [Test worker] INFO  o.s.b.t.m.w.SpringBootMockServletCon - Initializing Spring TestDispatcherServlet ''
+25-09-27 02:26:37.889 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+25-09-27 02:26:37.894 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 0 ms
+25-09-27 02:26:37.943 [Test worker] INFO  c.s.m.d.c.ChannelControllerTest - Started ChannelControllerTest in 3.99 seconds (process running for 5.689)
+25-09-27 02:26:38.527 [Test worker] INFO  c.s.m.d.controller.ChannelController - 공개 채널 생성 완료: 새채널
+25-09-27 02:26:38.549 [Test worker] INFO  c.s.m.d.controller.ChannelController - 채널 단건 조회 요청: id=937e8ced-c82f-4c87-a6cc-df4a7269a2fe
+25-09-27 02:26:38.592 [Test worker] INFO  c.s.m.d.controller.ChannelController - 전체 채널 목록 조회 요청
+25-09-27 02:26:38.633 [Test worker] INFO  c.s.m.d.controller.ChannelController - 채널 단건 조회 요청: id=becc62fb-f1b1-4cba-a68e-a3c12d312d86
+25-09-27 02:26:38.654 [Test worker] INFO  c.s.m.d.controller.ChannelController - 전체 채널 목록 조회 요청
+25-09-27 02:30:41.801 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+25-09-27 02:30:41.888 [Test worker] INFO  c.s.m.d.c.MessageControllerTest - Starting MessageControllerTest using Java 17.0.15 with PID 16720 (started by SW in C:\dev_source\5-sprint-mission)
+25-09-27 02:30:41.890 [Test worker] INFO  c.s.m.d.c.MessageControllerTest - The following 1 profile is active: "dev"
+25-09-27 02:30:44.638 [Test worker] INFO  o.s.b.t.m.w.SpringBootMockServletCon - Initializing Spring TestDispatcherServlet ''
+25-09-27 02:30:44.639 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+25-09-27 02:30:44.642 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 2 ms
+25-09-27 02:30:44.703 [Test worker] INFO  c.s.m.d.c.MessageControllerTest - Started MessageControllerTest in 3.431 seconds (process running for 4.822)
+25-09-27 02:30:44.860 [Test worker] INFO  c.s.m.d.controller.MessageController - 메시지 삭제 완료: messageId=c0364022-f01a-439a-8d96-2d7134b2a57f
+25-09-27 02:30:45.224 [Test worker] INFO  c.s.m.d.controller.MessageController - 메시지 단건 조회 요청: messageId=6cc6dcd0-97ff-419c-b521-82313703631d
+25-09-27 02:30:45.247 [Test worker] INFO  c.s.m.d.controller.MessageController - 메시지 단건 조회 요청: messageId=295b3180-e578-456f-83f1-b295ab0cf22b
+25-09-27 02:30:45.292 [Test worker] INFO  c.s.m.d.controller.MessageController - 채널 내 메시지 전체 조회 요청: channelId=f5f76425-62dc-4606-a965-cc4319981fea
+25-09-27 02:30:45.366 [Test worker] INFO  c.s.m.d.controller.MessageController - 메시지 생성 완료: messageId=3c9e8509-3a6c-4c4c-8d3f-925ca8f68645
+25-09-27 02:33:04.898 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+25-09-27 02:33:05.010 [Test worker] INFO  c.s.m.d.c.MessageControllerTest - Starting MessageControllerTest using Java 17.0.15 with PID 20964 (started by SW in C:\dev_source\5-sprint-mission)
+25-09-27 02:33:05.011 [Test worker] INFO  c.s.m.d.c.MessageControllerTest - The following 1 profile is active: "dev"
+25-09-27 02:33:07.864 [Test worker] INFO  o.s.b.t.m.w.SpringBootMockServletCon - Initializing Spring TestDispatcherServlet ''
+25-09-27 02:33:07.865 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+25-09-27 02:33:07.869 [Test worker] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 1 ms
+25-09-27 02:33:07.916 [Test worker] INFO  c.s.m.d.c.MessageControllerTest - Started MessageControllerTest in 3.555 seconds (process running for 5.044)
+25-09-27 02:33:08.080 [Test worker] INFO  c.s.m.d.controller.MessageController - 메시지 삭제 완료: messageId=c992ef8c-9d38-416a-ab5b-1fcb2655323e
+25-09-27 02:33:08.452 [Test worker] INFO  c.s.m.d.controller.MessageController - 메시지 단건 조회 요청: messageId=de6f9556-791c-475b-960e-16d56d0a778b
+25-09-27 02:33:08.474 [Test worker] INFO  c.s.m.d.controller.MessageController - 메시지 단건 조회 요청: messageId=a58289a9-c819-4628-971d-7e67d76e4ceb
+25-09-27 02:33:08.487 [Test worker] INFO  c.s.m.d.controller.MessageController - 채널 내 메시지 전체 조회 요청: channelId=20f54d8d-1f8c-421e-8969-8881d3f09a5a
+25-09-27 02:33:08.512 [Test worker] INFO  c.s.m.d.controller.MessageController - 메시지 수정 완료: messageId=28f3fb29-b4fc-4e89-8c83-477de438bec5
+25-09-27 02:33:08.526 [Test worker] INFO  c.s.m.d.controller.MessageController - 메시지 생성 완료: messageId=2543953a-70ca-4aa3-936b-f7757d6eac64
