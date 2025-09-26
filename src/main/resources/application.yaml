@@ -9,12 +9,6 @@ springdoc:
   swagger-ui:
     enabled: true
 
-logging:
-  level:
-    root: info
-    org.hibernate.SQL: debug
-    org.hibernate.type: trace
-
 management: # actuator 외부 접근 허용
   endpoints:
     web:

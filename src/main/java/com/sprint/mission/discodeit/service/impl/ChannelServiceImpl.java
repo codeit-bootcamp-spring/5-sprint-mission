@@ -92,6 +92,9 @@ public class ChannelServiceImpl implements ChannelService {
   @Transactional
   public void createPublicChannel(ChannelDto dto) {
     Channel channel = channelMapper.toEntity(dto);
+    if (channel == null) {
+      throw new IllegalArgumentException("채널 변환 실패(null)");
+    }
     channelRepository.save(channel);
     log.info("공개채널 생성 완료: name={}", dto.getName());
   }
