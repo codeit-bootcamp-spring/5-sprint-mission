@@ -1,9 +1,16 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/discodeit
-    username: postgres
-    password: 1234
+    url: ${DEV.DB_URL}
+    username: ${DEV.DB_USERNAME}
+    password: ${DEV.DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update   # 개발 환경이라 update 권장
+      ddl-auto: update  # 개발 환경이라 update 권장
+
+logging:
+  level:
+    root: info  # 개발은 debug
+    com.discodeit: debug # 우리 코드만 debug
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace

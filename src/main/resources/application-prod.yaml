@@ -1,9 +1,14 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://prod-server:5432/discodeit
-    username: prod_user
-    password: prod_password
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: postgres
+    password: 1234
   jpa:
     hibernate:
       ddl-auto: validate
+
+logging:
+  level:
+    root: info   # 운영은 info
+    com.discodeit: info

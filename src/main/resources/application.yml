@@ -13,6 +13,7 @@ spring:
 
 logging:
   level:
+    root: info   # 기본은 info
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
 
@@ -20,4 +21,4 @@ discodeit:
   storage:
     type: local
     local:
-      root-path: .discodeit/storage
+      root-path: ${STORAGE_ROOT_PATH}
