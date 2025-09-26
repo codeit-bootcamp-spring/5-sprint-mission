@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
 
 /* [ ] DataJpaTest 활용
@@ -19,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest // 슬라이스 테스트
 @ActiveProfiles("test") // application-test.yaml 적용
+@EnableJpaAuditing
 public class UserRepositoryTest {
 
   @Autowired
