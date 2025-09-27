@@ -21,6 +21,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -141,7 +142,7 @@ public class UserServiceUnitTest {
 		given(userRepository.existsByEmail(userCreateRequest.email())).willReturn(true);
 		//
 		assertThatThrownBy(() -> userService.create(userCreateRequest, Optional.empty()))
-			.isInstanceOf(UserNotFoundException.class)
+			.isInstanceOf(DuplicateUserException.class)
 			.isInstanceOf(DiscodeitException.class);
 		//
 		then(userRepository).should(times(1)).existsByEmail(userCreateRequest.email());
