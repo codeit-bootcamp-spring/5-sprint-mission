@@ -93,20 +93,16 @@ class MessageRepositoryTest {
     }
 
     @Test
-    @DisplayName("커서 기반 메시지 조회 (createdAt 이전만)")
+    @DisplayName("커서 기반 메시지 조회")
     void findByChannelIdWithCursor_success() throws InterruptedException {
         Message oldMessage = messageRepository.save(new Message(testUser, testChannel, "이전 메시지"));
-
-        Thread.sleep(2000);
-
+        Thread.sleep(1);
         Message newMessage = messageRepository.save(new Message(testUser, testChannel, "최신 메시지"));
 
-        List<Message> result = messageRepository.findByChannelIdWithCursor(
-                testChannel.getId(), newMessage.getCreatedAt(), 10
-        );
+        Instant cursor = Instant.ofEpochMilli(newMessage.getCreatedAt().toEpochMilli());
 
-        result.forEach(m ->
-                System.out.println("@@조회된 메시지: " + m.getId() + " | " + m.getContent() + " | " + m.getCreatedAt())
+        List<Message> result = messageRepository.findByChannelIdWithCursor(
+                testChannel.getId(), cursor, 10
         );
 
         assertThat(result).hasSize(1);
@@ -126,10 +122,16 @@ class MessageRepositoryTest {
 
         Message message = messageRepository.save(new Message(user, channel, "메시지 내용"));
 
+        Instant cursor = Instant.ofEpochMilli(message.getCreatedAt().toEpochMilli());
+
         // when
         List<Message> result = messageRepository.findByChannelIdWithCursor(
-                channel.getId(), message.getCreatedAt(), 10
+                channel.getId(),
+                cursor,
+                10
         );
+
+
 
         // then
         assertThat(result).isEmpty();

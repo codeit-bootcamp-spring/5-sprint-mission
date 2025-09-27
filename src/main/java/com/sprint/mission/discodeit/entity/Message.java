@@ -40,7 +40,6 @@ public class Message extends BaseUpdatableEntity implements Serializable {
             joinColumns = @JoinColumn(name = "message_id"),
             inverseJoinColumns = @JoinColumn(name = "attachment_id")
     )
-    @Builder.Default
     private List<BinaryContent> attachments = new ArrayList<>();
 
     public Message(User author, Channel channel, String content) {

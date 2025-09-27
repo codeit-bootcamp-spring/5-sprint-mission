@@ -301,3 +301,4 @@ logs/
 *.mv.db
 *.trace.db
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,macos,windows
+/src/test/excluded/ConfigurationTest.java
