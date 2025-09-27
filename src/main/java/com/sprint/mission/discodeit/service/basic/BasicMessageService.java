@@ -48,7 +48,7 @@ public class BasicMessageService implements MessageService {
   public MessageDto create(MessageCreateRequest messageCreateRequest,
       List<BinaryContentCreateRequest> binaryContentCreateRequests) {
     log.debug("@@ 메세지 생성 시작  - messageCreateRequest : {}",messageCreateRequest);
-    log.debug("@@ 파일 업로드 시작  - binaryContentCreateRequests : {}",binaryContentCreateRequests.fil);
+    log.debug("@@ 파일 업로드 시작  - binaryContentCreateRequests : {}",binaryContentCreateRequests);
     UUID channelId = messageCreateRequest.channelId();
     UUID authorId = messageCreateRequest.authorId();
 
@@ -57,7 +57,7 @@ public class BasicMessageService implements MessageService {
             () -> new NoSuchElementException("Channel with id " + channelId + " does not exist"));
     User author = userRepository.findById(authorId)
         .orElseThrow(
-            () -> new NoSuchElementException("Author with id " + authorId + " does not exist")
+            () -> new NoSuchElementException("User with id " + authorId + " does not exist")
         );
 
     List<BinaryContent> attachments = binaryContentCreateRequests.stream()

@@ -61,7 +61,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   public InputStream get(UUID binaryContentId) {
     Path filePath = resolvePath(binaryContentId);
     if (Files.notExists(filePath)) {
-      throw new NoSuchElementException("File with key " + binaryContentId + " does not exist");
+      throw new NoSuchElementException("File with key " + binaryContentId + " not found");
     }
     try {
       return Files.newInputStream(filePath);

@@ -36,10 +36,10 @@ public class BasicReadStatusService implements ReadStatusService {
 
     User user = userRepository.findById(userId)
         .orElseThrow(
-            () -> new NoSuchElementException("User with id " + userId + " does not exist"));
+            () -> new NoSuchElementException("User with id " + userId + " not found"));
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(
-            () -> new NoSuchElementException("Channel with id " + channelId + " does not exist")
+            () -> new NoSuchElementException("Channel with id " + channelId + " not found")
         );
 
     if (readStatusRepository.existsByUserIdAndChannelId(user.getId(), channel.getId())) {
