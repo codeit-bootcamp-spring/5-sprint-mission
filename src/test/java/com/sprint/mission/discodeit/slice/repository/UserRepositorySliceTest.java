@@ -32,13 +32,12 @@ public class UserRepositorySliceTest {
 		return new User(username, email, password, null);
 	}
 
-	private User createUserWithBinaryContentAndStatus(String username, String email, String password){
+	private User createUserWithBinaryContentAndStatus(String username, String email, String password) {
 		BinaryContent binaryContent = new BinaryContent("testFileName1", (long)20, "testContent1");
 		User user = new User(username, email, password, binaryContent);
 		UserStatus userStatus = new UserStatus(user, Instant.now());
 		return user;
 	}
-
 
 	@Test
 	@DisplayName("UserRepository Slice Test - findByUsername - 성공")
@@ -55,7 +54,6 @@ public class UserRepositorySliceTest {
 		assertThat(foundUser.get().getEmail()).isEqualTo("email");
 
 	}
-
 
 	@Test
 	@DisplayName("UserRepository Slice Test - findByUsername - 실패")
@@ -75,7 +73,7 @@ public class UserRepositorySliceTest {
 		List<User> allWithProfileAndStatus = userRepository.findAllWithProfileAndStatus();
 		//
 		assertThat(allWithProfileAndStatus.size()).isEqualTo(2);
-		for(User u : allWithProfileAndStatus) {
+		for (User u : allWithProfileAndStatus) {
 			assertThat(u.getUsername()).isIn("username1", "username2");
 			assertThat(u.getStatus().getUser().getUsername()).isIn("username1", "username2");
 			assertThat(u.getProfile().getFileName()).isEqualTo("testFileName1");
@@ -109,6 +107,5 @@ public class UserRepositorySliceTest {
 			.anyMatch(user -> "usernameNoStatus".equals(user.getUsername()));
 		assertThat(containsUserWithoutStatus).isFalse();
 	}
-
 
 }

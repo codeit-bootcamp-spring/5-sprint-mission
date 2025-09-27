@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
 
 		Map<String, Object> validationErrors = new HashMap<>();
 		e.getBindingResult().getAllErrors().forEach(error -> {
-			String fieldName = ((FieldError) error).getField();
+			String fieldName = ((FieldError)error).getField();
 			String errorMessage = error.getDefaultMessage();
 			validationErrors.put(fieldName, errorMessage);
 		});

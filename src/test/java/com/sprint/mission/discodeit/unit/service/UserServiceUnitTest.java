@@ -50,7 +50,8 @@ public class UserServiceUnitTest {
 	@DisplayName("사용자 생성 테스트 - binaryContext 없음")
 	void createUser_noBinaryContext() {
 		// given
-		UserCreateRequest userCreateRequest = new UserCreateRequest("testName1", "testMail@google.com", "testPassword!123");
+		UserCreateRequest userCreateRequest = new UserCreateRequest("testName1", "testMail@google.com",
+			"testPassword!123");
 		Optional<BinaryContentCreateRequest> binaryContentCreateRequestOptional = Optional.empty();
 
 		given(userRepository.existsByEmail("testMail@google.com")).willReturn(false);
@@ -60,7 +61,7 @@ public class UserServiceUnitTest {
 		given(userRepository.save(any(User.class))).willReturn(savedUser);
 
 		// binaryContext는 없기에 profile은 null
-		UserDto mockDto = new UserDto(UUID.randomUUID(),"testName1", "testMail@google.com", null ,true);
+		UserDto mockDto = new UserDto(UUID.randomUUID(), "testName1", "testMail@google.com", null, true);
 		given(userMapper.toDto(any(User.class))).willReturn(mockDto);
 
 		// when
@@ -82,23 +83,26 @@ public class UserServiceUnitTest {
 	@DisplayName("사용자 생성 테스트 - binaryContent 있음")
 	void createUser_withBinaryContext() {
 		// given
-		UserCreateRequest userCreateRequest = new UserCreateRequest("testName1", "testMail@google.com", "testPassword!123");
+		UserCreateRequest userCreateRequest = new UserCreateRequest("testName1", "testMail@google.com",
+			"testPassword!123");
 		BinaryContentCreateRequest binaryContentCreateRequest = new BinaryContentCreateRequest(
 			"testName1.jpg", "image/jpeg", "testContent".getBytes()
 		);
-		Optional<BinaryContentCreateRequest> binaryContentCreateRequestOptional = Optional.of(binaryContentCreateRequest);
+		Optional<BinaryContentCreateRequest> binaryContentCreateRequestOptional = Optional.of(
+			binaryContentCreateRequest);
 
 		given(userRepository.existsByEmail(userCreateRequest.email())).willReturn(false);
 		given(userRepository.existsByUsername(userCreateRequest.username())).willReturn(false);
 
 		BinaryContent fakeBinary = new BinaryContent(
 			binaryContentCreateRequest.fileName(),
-			(long) binaryContentCreateRequest.bytes().length,
+			(long)binaryContentCreateRequest.bytes().length,
 			binaryContentCreateRequest.contentType()
 		);
 
 		given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(fakeBinary);
-		given(binaryContentStorage.put(fakeBinary.getId(), binaryContentCreateRequest.bytes())).willReturn(fakeBinary.getId());
+		given(binaryContentStorage.put(fakeBinary.getId(), binaryContentCreateRequest.bytes())).willReturn(
+			fakeBinary.getId());
 
 		UserDto mockDto = new UserDto(
 			UUID.randomUUID(),
@@ -106,7 +110,7 @@ public class UserServiceUnitTest {
 			userCreateRequest.email(),
 			new BinaryContentDto(UUID.randomUUID(),
 				binaryContentCreateRequest.fileName(),
-				(long) binaryContentCreateRequest.bytes().length,
+				(long)binaryContentCreateRequest.bytes().length,
 				binaryContentCreateRequest.contentType()
 			),
 			true
@@ -138,12 +142,11 @@ public class UserServiceUnitTest {
 		//
 		assertThatThrownBy(() -> userService.create(userCreateRequest, Optional.empty()))
 			.isInstanceOf(UserNotFoundException.class)
-				.isInstanceOf(DiscodeitException.class);
+			.isInstanceOf(DiscodeitException.class);
 		//
 		then(userRepository).should(times(1)).existsByEmail(userCreateRequest.email());
 		then(userRepository).shouldHaveNoMoreInteractions();
 	}
-
 
 	@Test
 	@DisplayName("사용자 업데이트 테스트 - 성공")
@@ -152,7 +155,8 @@ public class UserServiceUnitTest {
 		UserUpdateRequest userUpdateRequest = new UserUpdateRequest("newUsername", "newEmail", "newPassword!123");
 		BinaryContentCreateRequest binaryContentCreateRequest = new BinaryContentCreateRequest("newProfile.jpg",
 			"image/jpeg", "newProfileContent".getBytes());
-		Optional<BinaryContentCreateRequest> binaryContentCreateRequestOptional = Optional.of(binaryContentCreateRequest);
+		Optional<BinaryContentCreateRequest> binaryContentCreateRequestOptional = Optional.of(
+			binaryContentCreateRequest);
 		User existingUser = new User("existingUsername", "existingEmail", "existingPassword", null);
 
 		given(userRepository.findById(existingUserId)).willReturn(Optional.of(existingUser));
@@ -189,7 +193,8 @@ public class UserServiceUnitTest {
 		UserUpdateRequest userUpdateRequest = new UserUpdateRequest("newUsername", "newEmail", "newPassword!123");
 		BinaryContentCreateRequest binaryContentCreateRequest = new BinaryContentCreateRequest("newProfile.jpg",
 			"image/jpeg", "newProfileContent".getBytes());
-		Optional<BinaryContentCreateRequest> binaryContentCreateRequestOptional = Optional.of(binaryContentCreateRequest);
+		Optional<BinaryContentCreateRequest> binaryContentCreateRequestOptional = Optional.of(
+			binaryContentCreateRequest);
 		User existingUser = new User("existingUsername", "existingEmail", "existingPassword", null);
 
 		given(userRepository.findById(existingUserId)).willReturn(Optional.of(existingUser));
@@ -197,7 +202,8 @@ public class UserServiceUnitTest {
 		given(userRepository.existsByUsername(userUpdateRequest.newUsername())).willReturn(true);
 
 		//
-		assertThatThrownBy(() -> userService.update(existingUserId, userUpdateRequest, binaryContentCreateRequestOptional))
+		assertThatThrownBy(
+			() -> userService.update(existingUserId, userUpdateRequest, binaryContentCreateRequestOptional))
 			.isInstanceOf(UserNotFoundException.class)
 			.isInstanceOf(DiscodeitException.class);
 		//

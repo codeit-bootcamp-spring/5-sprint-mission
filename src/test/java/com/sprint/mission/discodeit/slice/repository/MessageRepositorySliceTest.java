@@ -54,7 +54,6 @@ public class MessageRepositorySliceTest {
 	@Autowired
 	private TestEntityManager testEntityManager;
 
-
 	private Channel createChannel(ChannelType channelType, String channelName, String channelDesc) {
 		Channel channel = new Channel(channelType, channelName, channelDesc);
 		return channel;
@@ -68,24 +67,25 @@ public class MessageRepositorySliceTest {
 		return new ReadStatus(user, channel, lastReadAt);
 	}
 
-	private BinaryContent createBinaryContent(String filename, Long size, String contentType){
+	private BinaryContent createBinaryContent(String filename, Long size, String contentType) {
 		return new BinaryContent(filename, size, contentType);
 	}
 
-
-	private Message createMessage(String content, Channel channel, User author){
+	private Message createMessage(String content, Channel channel, User author) {
 		return new Message(content, channel, author, null);
 	}
 
 	@Test
 	@DisplayName("MessageRepository - findAllByChannelIdWithAuthor - 성공")
-	public void findAllByChannelIdWithAuthorSuccess(){
+	public void findAllByChannelIdWithAuthorSuccess() {
 		BinaryContent profile1 = binaryContentRepository.save(createBinaryContent("fileName1", 20L, "contentType1"));
 		BinaryContent profile2 = binaryContentRepository.save(createBinaryContent("fileName2", 20L, "contentType2"));
 		User user1 = userRepository.save(creataUser("username1", "password1", "email1", profile1));
 		User user2 = userRepository.save(creataUser("username2", "password2", "email2", profile2));
-		Channel testChannel1 = channelRepository.save(createChannel(ChannelType.PUBLIC, "testChannel1", "testChannel1 입니다."));
-		Channel testChannel2 = channelRepository.save(createChannel(ChannelType.PUBLIC, "testChannel2", "testChannel2 입니다."));
+		Channel testChannel1 = channelRepository.save(
+			createChannel(ChannelType.PUBLIC, "testChannel1", "testChannel1 입니다."));
+		Channel testChannel2 = channelRepository.save(
+			createChannel(ChannelType.PUBLIC, "testChannel2", "testChannel2 입니다."));
 
 		userStatusRepository.save(new UserStatus(user1, Instant.now()));
 		userStatusRepository.save(new UserStatus(user2, Instant.now()));
@@ -100,7 +100,7 @@ public class MessageRepositorySliceTest {
 		testEntityManager.flush();
 		testEntityManager.clear();
 
-		Pageable pageable = PageRequest.of(0, 2, Sort.Direction.DESC,"createdAt");
+		Pageable pageable = PageRequest.of(0, 2, Sort.Direction.DESC, "createdAt");
 		//
 		Slice<Message> allByChannelIdWithAuthor = messageRepository.findAllByChannelIdWithAuthor(testChannel1.getId(),
 			Instant.now().plus(1, ChronoUnit.HOURS), pageable);
@@ -109,7 +109,7 @@ public class MessageRepositorySliceTest {
 		assertThat(allByChannelIdWithAuthor.hasNext()).isTrue();
 		assertThat(allByChannelIdWithAuthor.getContent())
 			.extracting(Message::getContent)
-			.containsExactly("message4","message3");
+			.containsExactly("message4", "message3");
 	}
 
 	@Test
@@ -144,13 +144,15 @@ public class MessageRepositorySliceTest {
 
 	@Test
 	@DisplayName("MessageRepository - findLastMessageAtByChannelId - 성공")
-	public void findLastMessageAtByChannelIdSuccess(){
+	public void findLastMessageAtByChannelIdSuccess() {
 		BinaryContent profile1 = binaryContentRepository.save(createBinaryContent("fileName1", 20L, "contentType1"));
 		BinaryContent profile2 = binaryContentRepository.save(createBinaryContent("fileName2", 20L, "contentType2"));
 		User user1 = userRepository.save(creataUser("username1", "password1", "email1", profile1));
 		User user2 = userRepository.save(creataUser("username2", "password2", "email2", profile2));
-		Channel testChannel1 = channelRepository.save(createChannel(ChannelType.PUBLIC, "testChannel1", "testChannel1 입니다."));
-		Channel testChannel2 = channelRepository.save(createChannel(ChannelType.PUBLIC, "testChannel2", "testChannel2 입니다."));
+		Channel testChannel1 = channelRepository.save(
+			createChannel(ChannelType.PUBLIC, "testChannel1", "testChannel1 입니다."));
+		Channel testChannel2 = channelRepository.save(
+			createChannel(ChannelType.PUBLIC, "testChannel2", "testChannel2 입니다."));
 
 		userStatusRepository.save(new UserStatus(user1, Instant.now()));
 		userStatusRepository.save(new UserStatus(user2, Instant.now()));
@@ -173,6 +175,5 @@ public class MessageRepositorySliceTest {
 		Instant last = lastOpt.get().truncatedTo(ChronoUnit.SECONDS);
 		assertThat(last).isEqualTo(message4.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
 	}
-
 
 }

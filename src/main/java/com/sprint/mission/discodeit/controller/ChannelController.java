@@ -24,7 +24,6 @@ import com.sprint.mission.discodeit.service.ChannelService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 
 @RequiredArgsConstructor
 @RestController

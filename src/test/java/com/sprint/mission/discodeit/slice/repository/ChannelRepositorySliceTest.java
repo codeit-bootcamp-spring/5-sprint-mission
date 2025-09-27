@@ -14,7 +14,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
-import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
 public class ChannelRepositorySliceTest {
@@ -47,7 +46,7 @@ public class ChannelRepositorySliceTest {
 		assertThat(result.size()).isEqualTo(4);
 		int countPrivate = 0;
 		for (Channel channel : result) {
-			if(channel.getType().equals(ChannelType.PRIVATE)) {
+			if (channel.getType().equals(ChannelType.PRIVATE)) {
 				countPrivate++;
 			}
 		}

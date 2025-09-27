@@ -89,9 +89,12 @@ public class MessageServiceUnitTest {
 		ReflectionTestUtils.setField(publicChannel, "id", channelId);
 		ReflectionTestUtils.setField(authorUser, "id", authorId);
 
-		BinaryContentCreateRequest binaryContentCreateRequest1 = new BinaryContentCreateRequest("testFileName1", "testContentType1", "testContent1".getBytes());
-		BinaryContentCreateRequest binaryContentCreateRequest2 = new BinaryContentCreateRequest("testFileName2", "testContentType2", "testContent2".getBytes());
-		List<BinaryContentCreateRequest> binaryRequests = List.of(binaryContentCreateRequest1, binaryContentCreateRequest2);
+		BinaryContentCreateRequest binaryContentCreateRequest1 = new BinaryContentCreateRequest("testFileName1",
+			"testContentType1", "testContent1".getBytes());
+		BinaryContentCreateRequest binaryContentCreateRequest2 = new BinaryContentCreateRequest("testFileName2",
+			"testContentType2", "testContent2".getBytes());
+		List<BinaryContentCreateRequest> binaryRequests = List.of(binaryContentCreateRequest1,
+			binaryContentCreateRequest2);
 		MessageCreateRequest messageCreateRequest = new MessageCreateRequest(requestContent, channelId, authorId);
 
 		Deque<UUID> ids = new ArrayDeque<>(List.of(binaryId1, binaryId2));
@@ -142,7 +145,8 @@ public class MessageServiceUnitTest {
 		assertThat(result.channelId()).isEqualTo(channelId);
 		assertThat(result.author().id()).isEqualTo(authorId);
 		assertThat(result.attachments()).hasSize(2);
-		assertThat(result.attachments().stream().map(BinaryContentDto::id)).containsExactlyInAnyOrder(binaryId1, binaryId2);
+		assertThat(result.attachments().stream().map(BinaryContentDto::id)).containsExactlyInAnyOrder(binaryId1,
+			binaryId2);
 
 		verify(channelRepository).findById(channelId);
 		verify(userRepository).findById(authorId);

@@ -14,7 +14,6 @@ import com.sprint.mission.discodeit.service.AuthService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 
 @RequiredArgsConstructor
 @RestController
