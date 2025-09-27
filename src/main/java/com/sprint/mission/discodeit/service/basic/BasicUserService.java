@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -41,10 +42,10 @@ public class BasicUserService implements UserService {
 		String email = userCreateRequest.email();
 
 		if (userRepository.existsByEmail(email)) {
-			throw UserNotFoundException.withEmail(email);
+			throw DuplicateUserException.withEmail(email);
 		}
 		if (userRepository.existsByUsername(username)) {
-			throw UserNotFoundException.withUsername(username);
+			throw DuplicateUserException.withUsername(username);
 		}
 
 		BinaryContent nullableProfile = optionalProfileCreateRequest
