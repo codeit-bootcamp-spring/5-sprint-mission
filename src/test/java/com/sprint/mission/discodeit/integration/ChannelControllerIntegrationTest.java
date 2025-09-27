@@ -57,30 +57,32 @@ public class ChannelControllerIntegrationTest {
 			"testDescription");
 
 		mockMvc.perform(
-			post("/api/channels/public")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(publicChannelCreateRequest))
-		)
+				post("/api/channels/public")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(publicChannelCreateRequest))
+			)
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("$.name", is("testName")))
 			.andExpect(jsonPath("$.description", is("testDescription")));
 
 	}
+
 	@Test
 	@DisplayName("ChannelControllerIntegrationTest - create(PRIVATE) - 성공")
 	public void createPrivate_success() throws Exception {
 
 		UserCreateRequest userCreateRequest = new UserCreateRequest("username", "email@email", "1234");
-		UserDto userDto = userService.create(userCreateRequest, Optional.of(new BinaryContentCreateRequest("filename", "jpg", "da".getBytes())));
+		UserDto userDto = userService.create(userCreateRequest,
+			Optional.of(new BinaryContentCreateRequest("filename", "jpg", "da".getBytes())));
 
 		PrivateChannelCreateRequest privateChannelCreateRequest = new PrivateChannelCreateRequest(
 			List.of(userDto.id()));
 
 		mockMvc.perform(
-			post("/api/channels/private")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(privateChannelCreateRequest))
-		)
+				post("/api/channels/private")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(privateChannelCreateRequest))
+			)
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("$.id").isNotEmpty())
 			.andExpect(jsonPath("$.participants[0].id").value(userDto.id().toString()));
@@ -120,9 +122,9 @@ public class ChannelControllerIntegrationTest {
 					.characterEncoding("UTF-8")
 					.contentType(MediaType.MULTIPART_FORM_DATA)
 					.accept(MediaType.APPLICATION_JSON)
-					.with(request->{
+					.with(request -> {
 						request.setMethod("PATCH");
-						return  request;
+						return request;
 					})
 			)
 			.andExpect(status().isOk())
@@ -144,10 +146,9 @@ public class ChannelControllerIntegrationTest {
 
 		//
 		mockMvc.perform(delete("/api/users/{id}", userId)
-					.accept(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
 			)
 			.andExpect(status().isNoContent());
-
 
 		boolean exists = userRepository.existsById(userId);
 		assertThat(exists).isFalse();

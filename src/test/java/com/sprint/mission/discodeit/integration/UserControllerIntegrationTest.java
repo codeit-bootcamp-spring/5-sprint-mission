@@ -112,7 +112,10 @@ public class UserControllerIntegrationTest {
 					.characterEncoding("UTF-8")
 					.contentType(MediaType.MULTIPART_FORM_DATA)
 					.accept(MediaType.APPLICATION_JSON)
-					.with(request -> {request.setMethod("PATCH"); return request;})
+					.with(request -> {
+						request.setMethod("PATCH");
+						return request;
+					})
 			)
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -150,8 +153,8 @@ public class UserControllerIntegrationTest {
 		);
 
 		mockMvc.perform(
-			get("/api/users")
-		)
+				get("/api/users")
+			)
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(2))));
