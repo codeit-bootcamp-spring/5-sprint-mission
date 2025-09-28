@@ -114,7 +114,7 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.error("유저 수정 실패 - 존재하지 않음: userId={}", userId);
-                    return new NoSuchElementException("User with id " + userId + " not found");
+                    throw new UserNotFoundException();
                 });
 
         String newUsername = userUpdateRequest.newUsername();
