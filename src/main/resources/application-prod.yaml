@@ -12,3 +12,11 @@ logging:
   level:
     root: info   # 운영은 info
     com.discodeit: info
+
+info:
+  datasource:
+    url: ${DEV.DB_URL}
+    ddl-auto: validate
+  storage:
+    type: local
+    path: ${STORAGE_ROOT_PATH}

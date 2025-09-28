@@ -22,3 +22,24 @@ discodeit:
     type: local
     local:
       root-path: ${STORAGE_ROOT_PATH}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: discodeit
+    version: 1.7.0
+  java:
+    version: 17
+  spring-boot:
+    version: 3.5.4
+  multipart:
+    maxFileSize: 10MB
+    maxRequestSize: 30MB
