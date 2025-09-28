@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
 
     ErrorResponse errorResponse = new ErrorResponse(
             e.getTimestamp(),
-            e.getErrorCode().getClass().getSimpleName(),
+            e.getErrorCode().name(),
             e.getErrorCode().getMessage(),
             e.getDetails(),
             e.getClass().getSimpleName(),
