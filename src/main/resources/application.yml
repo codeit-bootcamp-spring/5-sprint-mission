@@ -8,6 +8,10 @@ spring:
     multipart:
       maxFileSize: 10MB
       maxRequestSize: 30MB
+  boot:
+    admin:
+      instance:
+        name: discodeit
 
 discodeit:
   storage:

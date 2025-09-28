@@ -11,6 +11,10 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
+    boot:
+      admin:
+        client:
+          url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
 
 server:
   port: 8080
