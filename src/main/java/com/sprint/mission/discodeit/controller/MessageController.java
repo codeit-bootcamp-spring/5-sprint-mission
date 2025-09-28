@@ -15,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,7 +36,7 @@ public class MessageController implements MessageApi {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto> create(
-          @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+          @Validated @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
           @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
     log.info("메시지 생성 요청 수신: channelId={}, authorId={}, content={}",
@@ -68,7 +69,7 @@ public class MessageController implements MessageApi {
 
   @PatchMapping(path = "{messageId}")
   public ResponseEntity<MessageDto> update(@PathVariable("messageId") UUID messageId,
-                                           @RequestBody MessageUpdateRequest request) {
+                                           @Validated @RequestBody MessageUpdateRequest request) {
     log.info("메시지 수정 요청 수신: messageId={}, newContent={}", messageId, request.newContent());
 
     MessageDto updatedMessage = messageService.update(messageId, request);

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class ReadStatusController implements ReadStatusApi {
   private final ReadStatusService readStatusService;
 
   @PostMapping
-  public ResponseEntity<ReadStatusDto> create(@RequestBody ReadStatusCreateRequest request) {
+  public ResponseEntity<ReadStatusDto> create(@Validated @RequestBody ReadStatusCreateRequest request) {
     log.info("읽음 상태 생성 요청 수신: userId={}, channelId={}",
             request.userId(), request.channelId());
 
@@ -36,7 +37,7 @@ public class ReadStatusController implements ReadStatusApi {
   @PatchMapping(path = "{readStatusId}")
   public ResponseEntity<ReadStatusDto> update(
           @PathVariable("readStatusId") UUID readStatusId,
-          @RequestBody ReadStatusUpdateRequest request
+          @Validated @RequestBody ReadStatusUpdateRequest request
   ) {
     log.info("읽음 상태 수정 요청 수신: readStatusId={}, newLastReadAt={}",
             readStatusId, request.newLastReadAt());

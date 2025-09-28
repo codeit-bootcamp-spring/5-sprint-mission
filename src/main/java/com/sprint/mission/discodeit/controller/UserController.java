@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +35,7 @@ public class UserController implements UserApi {
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @Override
   public ResponseEntity<UserDto> create(
-          @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
+          @Validated @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
           @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
     log.info("사용자 생성 요청 수신: username={}, email={}",
@@ -56,7 +57,7 @@ public class UserController implements UserApi {
   @Override
   public ResponseEntity<UserDto> update(
           @PathVariable("userId") UUID userId,
-          @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
+          @Validated @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
           @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
     log.info("사용자 수정 요청 수신: userId={}", userId);
@@ -96,7 +97,7 @@ public class UserController implements UserApi {
   @Override
   public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
           @PathVariable("userId") UUID userId,
-          @RequestBody UserStatusUpdateRequest request
+          @Validated @RequestBody UserStatusUpdateRequest request
   ) {
     log.info("사용자 상태 업데이트 요청 수신: userId={}, newLastActiveAt={}",
             userId, request.newLastActiveAt());

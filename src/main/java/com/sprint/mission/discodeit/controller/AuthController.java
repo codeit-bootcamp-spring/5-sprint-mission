@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -19,7 +20,7 @@ public class AuthController implements AuthApi {
   private final AuthService authService;
 
   @PostMapping(path = "login")
-  public ResponseEntity<UserDto> login(@RequestBody LoginRequest loginRequest) {
+  public ResponseEntity<UserDto> login(@Validated @RequestBody LoginRequest loginRequest) {
     log.info("로그인 요청 수신: username={}", loginRequest.username());
 
     try {

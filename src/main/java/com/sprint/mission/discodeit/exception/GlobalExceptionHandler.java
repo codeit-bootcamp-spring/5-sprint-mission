@@ -4,9 +4,13 @@ import com.sprint.mission.discodeit.exception.base.DiscodeitException;
 import com.sprint.mission.discodeit.exception.base.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice
@@ -30,20 +34,26 @@ public class GlobalExceptionHandler {
             .body(errorResponse);
   }
 
-  @ExceptionHandler(IllegalArgumentException.class)
-  public ResponseEntity<String> handleException(IllegalArgumentException e) {
-    e.printStackTrace();
-    return ResponseEntity
-        .status(HttpStatus.BAD_REQUEST)
-        .body(e.getMessage());
-  }
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException e) {
+    Map<String, Object> details = new HashMap<>();
 
-  @ExceptionHandler(NoSuchElementException.class)
-  public ResponseEntity<String> handleException(NoSuchElementException e) {
-    e.printStackTrace();
+    e.getBindingResult().getFieldErrors().forEach(fieldError -> {
+      details.put(fieldError.getField(), fieldError.getDefaultMessage());
+    });
+
+    ErrorResponse errorResponse = new ErrorResponse(
+            Instant.now(),
+            "VALIDATION_ERROR",
+            "유효성 검증 실패",
+            details,
+            e.getClass().getSimpleName(),
+            HttpStatus.BAD_REQUEST.value()
+    );
+
     return ResponseEntity
-        .status(HttpStatus.NOT_FOUND)
-        .body(e.getMessage());
+            .status(HttpStatus.BAD_REQUEST)
+            .body(errorResponse);
   }
 
   @ExceptionHandler(Exception.class)
