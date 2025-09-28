@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.then;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.data.MessageDto;
@@ -96,6 +96,8 @@ class BasicMessageServiceTest {
 
     }
 
+    /*CREATE*/
+
     @Test
     @DisplayName("메시지 생성 성공")
     void create_success() {
@@ -115,9 +117,8 @@ class BasicMessageServiceTest {
         MessageDto result = messageService.create(request, attachmentRequests);
 
         // then
+        then(messageRepository).should().save(any(Message.class));
         assertThat(result).isEqualTo(messageDto);
-        verify(messageRepository).save(any(Message.class));
-//        verify(binaryContentStorage).put();
     }
 
     @Test
@@ -136,12 +137,16 @@ class BasicMessageServiceTest {
             .isInstanceOf(ChannelNotFoundException.class);
     }
 
+    /*FIND*/
+
     @Test
     @DisplayName("채널 아이디로 메시지 목록 검색 성공")
     void findAllByChannelId_success() {
         // given
 //        given(messageRepository.findAllByChannelIdWithAuthor(channelId, Instant.now(), ))
     }
+
+    /*UPDATE*/
 
     @Test
     @DisplayName("메시지 수정 성공")
@@ -172,6 +177,8 @@ class BasicMessageServiceTest {
             .isInstanceOf(MessageNotFoundException.class);
     }
 
+    /*DELETE*/
+
     @Test
     @DisplayName("메시지 삭제 성공")
     void delete_success() {
@@ -182,7 +189,7 @@ class BasicMessageServiceTest {
         messageService.delete(messageId);
 
         // then
-        verify(messageRepository).deleteById(messageId);
+        then(messageRepository).should().deleteById(messageId);
     }
 
     @Test

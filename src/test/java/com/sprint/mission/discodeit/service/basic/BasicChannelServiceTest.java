@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.then;
 
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
@@ -68,15 +68,13 @@ class BasicChannelServiceTest {
         name = "test";
         description = "testDescription";
 
-        channel = new Channel(
-            ChannelType.PUBLIC,
-            name,
-            description
-        );
+        channel = new Channel(ChannelType.PUBLIC, name, description);
         ReflectionTestUtils.setField(channel, "id", channelId);
         channelDto = new ChannelDto(channelId, ChannelType.PUBLIC, name, description, List.of(),
             Instant.now());
+
         user = new User("test", "test@email.com", "password1234", null);
+        ReflectionTestUtils.setField(user, "id", userId);
     }
 
     /*CREATE*/
@@ -92,8 +90,8 @@ class BasicChannelServiceTest {
         ChannelDto result = channelService.create(request);
 
         // then
+        then(channelRepository).should().save(any(Channel.class));
         assertThat(result).isEqualTo(channelDto);
-        verify(channelRepository).save(any(Channel.class));
     }
 
     @Test
@@ -110,9 +108,9 @@ class BasicChannelServiceTest {
         ChannelDto result = channelService.create(request);
 
         // then
+        then(channelRepository).should().save(any(Channel.class));
+        then(readStatusRepository).should().saveAll(anyList());
         assertThat(result).isEqualTo(channelDto);
-        verify(channelRepository).save(any(Channel.class));
-        verify(readStatusRepository).saveAll(anyList());
     }
 
     /*FINDALL*/
@@ -132,7 +130,6 @@ class BasicChannelServiceTest {
         List<ChannelDto> resultList = channelService.findAllByUserId(userId);
 
         // then
-//        assertThat(resultList).isEqualTo(List.of(channelDto));
         assertThat(resultList).contains(channelDto);
     }
 
@@ -188,9 +185,9 @@ class BasicChannelServiceTest {
         channelService.delete(channelId);
 
         // then
-        verify(messageRepository).deleteAllByChannelId(channelId);
-        verify(readStatusRepository).deleteAllByChannelId(channelId);
-        verify(channelRepository).deleteById(eq(channelId));
+        then(messageRepository).should().deleteAllByChannelId(channelId);
+        then(readStatusRepository).should().deleteAllByChannelId(channelId);
+        then(channelRepository).should().deleteById(eq(channelId));
     }
 
     @Test

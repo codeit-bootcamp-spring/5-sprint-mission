@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.then;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
@@ -14,7 +14,9 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +31,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 class BasicUserServiceTest {
 
+    @Mock
+    private BinaryContentRepository binaryContentRepository;
+    @Mock
+    private BinaryContentStorage binaryContentStorage;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -72,8 +78,8 @@ class BasicUserServiceTest {
         UserDto result = userService.create(request, Optional.empty());
 
         // then
+        then(userRepository).should().save(any(User.class));
         assertThat(result).isEqualTo(userDto);
-        verify(userRepository).save(any(User.class));
     }
 
     @Test
@@ -142,7 +148,7 @@ class BasicUserServiceTest {
         userService.delete(userId);
 
         // then
-        verify(userRepository).deleteById(eq(userId));
+        then(userRepository).should().deleteById(eq(userId));
     }
 
     @Test
