@@ -8,14 +8,19 @@ spring:
     hibernate:
       ddl-auto: validate
 
+  boot:
+    admin:
+      client:
+        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
+
 logging:
   level:
-    root: info   # 운영은 info
+    root: info
     com.discodeit: info
 
 info:
   datasource:
-    url: ${DEV.DB_URL}
+    url: jdbc:postgresql://localhost:5432/discodeit
     ddl-auto: validate
   storage:
     type: local
