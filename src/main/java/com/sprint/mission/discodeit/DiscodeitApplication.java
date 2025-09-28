@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit;
 
+<<<<<<< HEAD
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
@@ -20,10 +21,15 @@ import java.util.Optional;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+=======
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+>>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
 
 @SpringBootApplication
 public class DiscodeitApplication {
 
+<<<<<<< HEAD
   static List<UserResponseDto> setupUser(UserService userService,
       BinaryContentRepository binaryContentRepository,
       UserStatusRepository userStatusRepository) {
@@ -106,3 +112,9 @@ public class DiscodeitApplication {
   }
 }
 
+=======
+  public static void main(String[] args) {
+    SpringApplication.run(DiscodeitApplication.class, args);
+  }
+}
+>>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)

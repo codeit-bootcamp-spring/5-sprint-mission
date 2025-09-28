@@ -1,0 +1,12 @@
+spring:
+  config.activate.on-profile: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit_dev
+    username: discodeit_dev
+    password: 1234
+  jpa.hibernate.ddl-auto: update
+server.port: 8080
+logging.level:
+  com.sprint.mission.discodeit: debug
+  org.hibernate.SQL: debug
+  org.hibernate.orm.jdbc.bind: trace
