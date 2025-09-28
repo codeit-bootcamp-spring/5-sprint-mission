@@ -1,4 +1,3 @@
-// src/test/java/com/sprint/mission/discodeit/repository/UserStatusRepositoryTest.java
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.User;

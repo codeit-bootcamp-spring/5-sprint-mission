@@ -1,32 +1,10 @@
 package com.sprint.mission.discodeit.controller;
-
-<<<<<<< HEAD
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.service.BinaryContentService;
-import java.util.List;
-import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-@RequiredArgsConstructor
-@RestController
-@RequestMapping("/api/binaryContents")
-public class BinaryContentController {
-
-  private final BinaryContentService binaryContentService;
-
-  @GetMapping("/{binaryContentId}")
-  public ResponseEntity<BinaryContent> find(@PathVariable("binaryContentId") UUID binaryContentId) {
-    BinaryContent binaryContent = binaryContentService.find(binaryContentId);
-=======
 import com.sprint.mission.discodeit.controller.api.BinaryContentApi;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
-import java.util.UUID;
+import java.util.UUID; // UUID import가 누락되어 추가함
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -52,32 +30,23 @@ public class BinaryContentController implements BinaryContentApi {
     log.debug("[FILE][GET] id={}", binaryContentId);
     BinaryContentDto binaryContent = binaryContentService.find(binaryContentId);
     log.debug("[FILE][GET][DONE] id={}", binaryContentId);
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(binaryContent);
   }
 
   @GetMapping
-<<<<<<< HEAD
-  public ResponseEntity<List<BinaryContent>> findAllByIdIn(
-      @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
-    List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
-=======
   public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
       @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
     log.debug("[FILE][LIST] count={}", binaryContentIds.size());
     List<BinaryContentDto> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
     log.debug("[FILE][LIST][DONE] returned={}", binaryContents.size());
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(binaryContents);
   }
-<<<<<<< HEAD
-}
-=======
 
+  // 💡 수정된 부분: download 메서드가 클래스 내부로 이동
   @GetMapping(path = "{binaryContentId}/download")
   public ResponseEntity<?> download(
       @PathVariable("binaryContentId") UUID binaryContentId) {
@@ -86,5 +55,4 @@ public class BinaryContentController implements BinaryContentApi {
     log.debug("[FILE][DOWNLOAD][DONE] id={}", binaryContentId);
     return binaryContentStorage.download(binaryContentDto);
   }
-}
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
+} // 💡 닫는 중괄호가 가장 마지막에 위치

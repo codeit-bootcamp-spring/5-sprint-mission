@@ -1,38 +1,20 @@
 package com.sprint.mission.discodeit.controller;
 
-<<<<<<< HEAD
-=======
 import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.data.UserStatusDto;
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-<<<<<<< HEAD
-import com.sprint.mission.discodeit.dto.response.UserResponseDto;
-import com.sprint.mission.discodeit.dto.response.UserStatusResponseDto;
-=======
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest; // UserUpdateRequest 누락되어 추가
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import jakarta.validation.Valid; // @Valid 누락되어 추가
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-<<<<<<< HEAD
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/api/users")
-public class UserController {
-=======
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,84 +29,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.validation.annotation.Validated; // @Validated 누락되어 추가
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
+@Validated // 유효성 검사를 위해 추가
 public class UserController implements UserApi {
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
 
   private final UserService userService;
   private final UserStatusService userStatusService;
 
-<<<<<<< HEAD
-  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<UserResponseDto> create(
-      @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
-      @RequestPart(value = "profile", required = false) MultipartFile profile
-  ) throws IOException {
-
-    Optional<BinaryContentCreateRequest> optionalProfile = Optional.empty();
-
-    if (profile != null && !profile.isEmpty()) {
-      optionalProfile = Optional.of(new BinaryContentCreateRequest(
-          profile.getOriginalFilename(),
-          profile.getContentType(),
-          profile.getBytes()
-      ));
-    }
-
-    UserResponseDto response = userService.create(userCreateRequest, optionalProfile);
-    return ResponseEntity.ok(response);
-  }
-
-  @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<UserResponseDto> update(
-      @PathVariable("userId") UUID userId,
-      @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
-      @RequestPart(value = "profile", required = false) MultipartFile profile
-  ) throws IOException {
-
-    Optional<BinaryContentCreateRequest> optionalProfile = Optional.empty();
-
-    if (profile != null && !profile.isEmpty()) {
-      optionalProfile = Optional.of(new BinaryContentCreateRequest(
-          profile.getOriginalFilename(),
-          profile.getContentType(),
-          profile.getBytes()
-      ));
-    }
-    UserResponseDto response = userService.update(userId, userUpdateRequest, optionalProfile);
-    return ResponseEntity.ok(response);
-  }
-
-
-  @DeleteMapping("/{userId}")
-  public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
-    userService.delete(userId);
-    return ResponseEntity.noContent().build();
-  }
-
-  @GetMapping
-  public ResponseEntity<List<UserResponseDto>> findAll() {
-    return ResponseEntity.ok(userService.findAll());
-  }
-
-  @PatchMapping("/{userId}/userStatus")
-  public ResponseEntity<UserStatusResponseDto> updateStatus(
-      @PathVariable UUID userId,
-      @RequestBody UserStatusUpdateRequest request
-  ) {
-    return ResponseEntity.ok(userStatusService.updateByUserId(userId, request));
-  }
-}
-
-=======
+  // DTO 통일을 위해 UserResponseDto 대신 UserDto 사용
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @Override
   public ResponseEntity<UserDto> create(
-      @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
+      @RequestPart("userCreateRequest") @Valid UserCreateRequest userCreateRequest, // @Valid 추가
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
     log.info("[USER][CREATE] username={}, email={}", userCreateRequest.username(), userCreateRequest.email());
@@ -137,6 +58,7 @@ public class UserController implements UserApi {
         .body(createdUser);
   }
 
+  // DTO 통일을 위해 UserResponseDto 대신 UserDto 사용
   @PatchMapping(
       path = "{userId}",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
@@ -144,7 +66,7 @@ public class UserController implements UserApi {
   @Override
   public ResponseEntity<UserDto> update(
       @PathVariable("userId") UUID userId,
-      @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
+      @RequestPart("userUpdateRequest") @Valid UserUpdateRequest userUpdateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
@@ -180,7 +102,7 @@ public class UserController implements UserApi {
   @PatchMapping(path = "{userId}/userStatus")
   @Override
   public ResponseEntity<UserStatusDto> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
-      @RequestBody UserStatusUpdateRequest request) {
+      @RequestBody @Valid UserStatusUpdateRequest request) {
     log.info("[USER][UPDATE][USER_STATUS] id = {}", userId);
     UserStatusDto updatedUserStatus = userStatusService.updateByUserId(userId, request);
     log.debug("[USER][UPDATE][USER_STATUS][DONE] id = {}", updatedUserStatus.id());
@@ -204,9 +126,8 @@ public class UserController implements UserApi {
         return Optional.of(binaryContentCreateRequest);
       } catch (IOException e) {
         log.error("[USER][PROFILE][ERROR] name={}", profileFile.getOriginalFilename(), e);
-        throw new RuntimeException(e);
+        throw new RuntimeException("Failed to read profile file content.", e);
       }
     }
   }
 }
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)

@@ -2,36 +2,7 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import java.util.List;
-<<<<<<< HEAD
-import java.util.Optional;
-import java.util.UUID;
 
-public interface ReadStatusRepository {
-
-  ReadStatus save(ReadStatus readStatus);
-
-  void deleteByChannelId(UUID channelId);
-
-  List<ReadStatus> findByChannelId(UUID channelId);
-
-  //List<UUID> findChannelIdsByUserId(UUID userId);
-  List<ReadStatus> findByUserId(UUID userId);
-
-  List<ReadStatus> findAllByUserId(UUID userId);
-
-  List<ReadStatus> findAllByChannelId(UUID channelId);
-
-  //List<UUID> findUserIdsByChannelId(UUID channelId);
-  boolean existsById(UUID id);
-
-  void deleteById(UUID id);
-
-  Optional<ReadStatus> findById(UUID id);
-
-  void deleteAllByChannelId(UUID id);
-
-  Optional<ReadStatus> findByUserIdAndChannelId(UUID uuid, UUID uuid1);
-=======
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -52,5 +23,4 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
   Boolean existsByUserIdAndChannelId(UUID userId, UUID channelId);
 
   void deleteAllByChannelId(UUID channelId);
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
 }

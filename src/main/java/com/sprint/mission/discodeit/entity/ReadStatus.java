@@ -1,34 +1,5 @@
 package com.sprint.mission.discodeit.entity;
 
-<<<<<<< HEAD
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-@Getter
-@ToString
-public class ReadStatus implements Serializable {
-
-  private static final long serialVersionUID = 1L;
-
-  private final UUID id;
-  private final Instant createdAt;
-  private Instant updatedAt;
-
-  private final UUID userId;
-  private final UUID channelId;
-  @Setter
-  private Instant lastReadAt;
-
-  public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
-    this.id = UUID.randomUUID();
-    this.userId = userId;
-    this.channelId = channelId;
-    this.createdAt = Instant.now();
-=======
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -65,28 +36,12 @@ public class ReadStatus extends BaseUpdatableEntity {
   public ReadStatus(User user, Channel channel, Instant lastReadAt) {
     this.user = user;
     this.channel = channel;
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
     this.lastReadAt = lastReadAt;
   }
 
   public void update(Instant newLastReadAt) {
-<<<<<<< HEAD
-    boolean anyValueUpdated = false;
-
-    if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
-      this.lastReadAt = newLastReadAt;
-      anyValueUpdated = true;
-    }
-
-    if (anyValueUpdated) {
-      this.updatedAt = Instant.now();
-    }
-  }
-}
-=======
     if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
       this.lastReadAt = newLastReadAt;
     }
   }
 }
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)

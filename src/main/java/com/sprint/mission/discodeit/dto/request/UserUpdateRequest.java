@@ -1,12 +1,5 @@
 package com.sprint.mission.discodeit.dto.request;
 
-<<<<<<< HEAD
-public record UserUpdateRequest(
-        String username,
-        String email,
-        String password
-) {}
-=======
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,4 +11,3 @@ public record UserUpdateRequest(
     @NotBlank(message = "Password is mandatory") @Size(min = 6, max = 20, message = "Password must be between 6 and 20 characters") String newPassword) {
 
 }
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)

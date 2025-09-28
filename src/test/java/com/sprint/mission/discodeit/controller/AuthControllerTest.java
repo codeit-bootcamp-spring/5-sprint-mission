@@ -1,4 +1,3 @@
-// src/test/java/com/sprint/mission/discodeit/controller/AuthControllerTest.java
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,54 +1,5 @@
 package com.sprint.mission.discodeit.entity;
 
-<<<<<<< HEAD
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.UUID;
-import lombok.Getter;
-import lombok.ToString;
-
-@Getter
-@ToString
-public class UserStatus implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
-
-    private UUID userId;
-    private Instant lastActiveAt;
-
-    public UserStatus(UUID userId, Instant lastActiveAt) {
-        this.id = UUID.randomUUID();
-        this.userId = userId;
-        this.createdAt = Instant.now();
-        this.lastActiveAt = lastActiveAt;
-    }
-
-    public void update(Instant lastActiveAt) {
-        boolean anyValueUpdated = false;
-
-        if(lastActiveAt!=null && !lastActiveAt.equals(this.lastActiveAt)){
-            this.lastActiveAt = lastActiveAt;
-            anyValueUpdated = true;
-        }
-
-        if(anyValueUpdated){
-            this.updatedAt = Instant.now();
-        }
-    }
-
-    public boolean isOnline() {
-        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
-
-        return lastActiveAt.isAfter(instantFiveMinutesAgo);
-    }
-}
-=======
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
@@ -59,6 +10,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -75,7 +27,8 @@ public class UserStatus extends BaseUpdatableEntity {
   private User user;
   @Column(columnDefinition = "timestamp with time zone", nullable = false)
   private Instant lastActiveAt;
-
+  @Column(columnDefinition = "uuid", nullable = false)
+  private UUID userId;
   public UserStatus(User user, Instant lastActiveAt) {
     setUser(user);
     this.lastActiveAt = lastActiveAt;
@@ -97,4 +50,3 @@ public class UserStatus extends BaseUpdatableEntity {
     user.setStatus(this);
   }
 }
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)

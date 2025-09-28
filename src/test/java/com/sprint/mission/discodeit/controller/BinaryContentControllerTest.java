@@ -1,4 +1,3 @@
-// src/test/java/com/sprint/mission/discodeit/controller/BinaryContentControllerTest.java
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
