@@ -2,19 +2,13 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
+// MapStruct 라이브러리를 사용하여 엔티티 ↔ DTO 변환을 자동으로 처리하는 매퍼 인터페이스 정의
+@Mapper(componentModel = "spring") // 스프링 빈으로 등록되도록 설정
+public interface BinaryContentMapper {
 
-@Component
-public class BinaryContentMapper {
-    public BinaryContentDto toDto(BinaryContent e) { // 엔티티→DTO
-        if (e == null) return null;                  // 널 가드
-        return new BinaryContentDto(                 // record 생성
-                e.getId(),                               // id 매핑
-                e.getFileName(),                         // 파일명 매핑
-                e.getSize(),                             // 크기 매핑
-                e.getContentType(),                      // MIME 매핑
-                null                             // 바이트 매핑(정책에 맞게 조정 가능)
-        );                                           // 생성 결과 반환
-    }
+    // BinaryContent 엔티티를 BinaryContentDto로 변환하는 매핑 메서드
+    BinaryContentDto toDto(BinaryContent binaryContent);
 }
+

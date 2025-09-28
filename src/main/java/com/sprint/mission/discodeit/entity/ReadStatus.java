@@ -2,37 +2,34 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
-/**
- * 사용자-채널 단위의 마지막 읽음 시각.
- * - (user_id, channel_id) 유니크 제약
- * - 다대일 관계 양쪽 모두에 매핑(연관관계 주인은 ReadStatus)
- */
-
 @Entity
-@Table(name = "read_statuses", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_readstatus_user_channel", columnNames = {"user_id", "channel_id"})
-})
+@Table(
+    name = "read_statuses",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "channel_id"})
+    }
+)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReadStatus extends BaseUpdatableEntity {
 
-    @Getter
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", columnDefinition = "uuid")
     private User user;
 
-    @Getter
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "channel_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "channel_id", columnDefinition = "uuid")
     private Channel channel;
 
-    @Getter
-    @Column(nullable = false)
+    @Column(columnDefinition = "timestamp with time zone", nullable = false)
     private Instant lastReadAt;
-
-    protected ReadStatus() {}
 
     public ReadStatus(User user, Channel channel, Instant lastReadAt) {
         this.user = user;
@@ -40,22 +37,12 @@ public class ReadStatus extends BaseUpdatableEntity {
         this.lastReadAt = lastReadAt;
     }
 
-    public void mark(Instant now) { this.lastReadAt = now; }
-
+    public void update(Instant newLastReadAt) {
+        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+            this.lastReadAt = newLastReadAt;
+        }
+    }
 }
-
-//    public void update(Instant newLastReadAt) {
-//        boolean anyValueUpdated = false;
-//
-//        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
-//            this.lastReadAt = newLastReadAt;
-//            anyValueUpdated = true;
-//        }
-//
-//        if (anyValueUpdated) {
-//            this.updatedAt=Instant.now();
-//        }
-//    }
 
 
 

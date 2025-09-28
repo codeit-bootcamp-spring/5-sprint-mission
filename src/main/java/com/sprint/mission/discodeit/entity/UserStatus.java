@@ -1,41 +1,51 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.time.Duration;
 import java.time.Instant;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Getter // ✅ 조회용 Getter만 공개
 @Entity
 @Table(name = "user_statuses")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserStatus extends BaseUpdatableEntity {
 
-    @Setter
-    @OneToOne                                  // 1:1 단방향(여기서 FK 가짐)
+    @JsonBackReference
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;                         // 소유 사용자
+    private User user;
 
-    @Column(nullable = false)
-    private Instant lastActiveAt;              // 마지막 활동 시각
+    @Column(columnDefinition = "timestamp with time zone", nullable = false)
+    private Instant lastActiveAt;
 
-    protected UserStatus() { }                 // JPA 기본 생성자
-
-    public UserStatus(Instant lastActiveAt) {
-        this.lastActiveAt = lastActiveAt;      // 마지막 활동 시각 설정
+    public UserStatus(User user, Instant lastActiveAt) {
+        setUser(user);
+        this.lastActiveAt = lastActiveAt;
     }
 
-
-    /** 최근 5분 내 활동 여부 */
-    public boolean isOnline() {
-        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5)); // 5분 전
-        return lastActiveAt.isAfter(instantFiveMinutesAgo);                          // 이후면 온라인
+    public void update(Instant lastActiveAt) {
+        if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+            this.lastActiveAt = lastActiveAt;
+        }
     }
 
-    /** 활동 시간 갱신(옵션) */
-    public void touch(Instant now) {
-        this.lastActiveAt = now;               // 활동 시각 업데이트
+    public Boolean isOnline() {
+        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
+        return lastActiveAt.isAfter(instantFiveMinutesAgo);
+    }
+
+    protected void setUser(User user) {
+        this.user = user;
+        user.setStatus(this);
     }
 }
