@@ -9536,3 +9536,287 @@
 25-09-27 15:47:12.263 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 25-09-27 15:47:12.277 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown initiated...
 25-09-27 15:47:12.280 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown completed.
+25-09-27 15:47:49.419 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  - HV000001: Hibernate Validator 8.0.1.Final
+25-09-27 15:47:49.553 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Starting DiscodeitApplication using Java 17.0.12 with PID 14448 (C:\dev_source\work_space_sprint\5-sprint-mission\build\classes\java\main started by 82103 in C:\dev_source\work_space_sprint\5-sprint-mission)
+25-09-27 15:47:49.554 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-09-27 15:47:49.555 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - The following 1 profile is active: "dev"
+25-09-27 15:47:51.584 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-09-27 15:47:51.797 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 196 ms. Found 6 JPA repository interfaces.
+25-09-27 15:47:53.067 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat initialized with port 8080 (http)
+25-09-27 15:47:53.106 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Initializing ProtocolHandler ["http-nio-8080"]
+25-09-27 15:47:53.110 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    - Starting service [Tomcat]
+25-09-27 15:47:53.111 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     - Starting Servlet engine: [Apache Tomcat/10.1.33]
+25-09-27 15:47:53.268 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring embedded WebApplicationContext
+25-09-27 15:47:53.268 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3607 ms
+25-09-27 15:47:53.327 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Starting...
+25-09-27 15:47:53.789 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:discodeit user=SA
+25-09-27 15:47:53.793 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Start completed.
+25-09-27 15:47:53.813 [main] [32mINFO [0;39m o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:discodeit'
+25-09-27 15:47:54.227 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-09-27 15:47:54.381 [main] [32mINFO [0;39m org.hibernate.Version                - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-09-27 15:47:54.471 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       - HHH000026: Second-level cache disabled
+25-09-27 15:47:55.249 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-09-27 15:47:55.361 [main] [33mWARN [0;39m org.hibernate.dialect.Dialect        - HHH000511: The 2.3.232 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 12.0.0. Check the community dialects project for available legacy versions.
+25-09-27 15:47:55.373 [main] [33mWARN [0;39m org.hibernate.orm.deprecation        - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-09-27 15:47:55.414 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-09-27 15:47:55.429 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(2003, org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@3eadad14) replaced previous registration(org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@4acc27fd)
+25-09-27 15:47:55.430 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(6, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@1feb76b9) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@61bf405d)
+25-09-27 15:47:57.951 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-09-27 15:47:58.080 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34mdrop[0m [34mconstraint[0m [34mif[0m [34mexists[0m UKqttel343c4eq691kcxipoixr7
+25-09-27 15:47:58.082 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m UKqttel343c4eq691kcxipoixr7 [34munique[0m (user_id, channel_id)
+25-09-27 15:47:58.083 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKsd1m8rb8jcpbcnb7rpdue7ctc 
+       [34mforeign[0m [34mkey[0m (attachment_id) 
+       [34mreferences[0m binary_contents
+25-09-27 15:47:58.087 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKj7twd218e2gqw9cmlhwvo1rth 
+       [34mforeign[0m [34mkey[0m (message_id) 
+       [34mreferences[0m messages
+25-09-27 15:47:58.090 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FKowtlim26svclkatusptbgi7u1 
+       [34mforeign[0m [34mkey[0m (author_id) 
+       [34mreferences[0m users
+25-09-27 15:47:58.095 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FK3u3ckbhwq9se1cmopk2pq05b2 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-27 15:47:58.098 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKa38ri44ml4gfdpklx4ahqr8gd 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-27 15:47:58.101 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKml3k4wr9sj5yxrmj6d0aoib2e 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-27 15:47:58.104 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m user_statuses 
+       [34madd[0m [34mconstraint[0m FK4lfl3ei2ubchgcxrrpo3pw4mm 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-27 15:47:58.106 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m users 
+       [34madd[0m [34mconstraint[0m FKtbudycgrip49xdptogmhfqnso 
+       [34mforeign[0m [34mkey[0m (profile_id) 
+       [34mreferences[0m binary_contents
+25-09-27 15:47:58.112 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-09-27 15:47:58.738 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-09-27 15:48:00.330 [main] [33mWARN [0;39m o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+25-09-27 15:48:00.375 [main] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+25-09-27 15:48:01.270 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Starting ProtocolHandler ["http-nio-8080"]
+25-09-27 15:48:01.321 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat started on port 8080 (http) with context path '/'
+25-09-27 15:48:01.338 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Started DiscodeitApplication in 13.294 seconds (process running for 14.73)
+25-09-27 17:18:12.303 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Commencing graceful shutdown. Waiting for active requests to complete
+25-09-27 17:18:13.706 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Graceful shutdown complete
+25-09-27 17:18:13.743 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-09-27 17:18:13.769 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown initiated...
+25-09-27 17:18:13.781 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown completed.
+25-09-27 17:18:32.029 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  - HV000001: Hibernate Validator 8.0.1.Final
+25-09-27 17:18:32.185 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Starting DiscodeitApplication using Java 17.0.12 with PID 3380 (C:\dev_source\work_space_sprint\5-sprint-mission\build\classes\java\main started by 82103 in C:\dev_source\work_space_sprint\5-sprint-mission)
+25-09-27 17:18:32.187 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-09-27 17:18:32.188 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - The following 1 profile is active: "dev"
+25-09-27 17:18:35.212 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-09-27 17:18:35.459 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 227 ms. Found 6 JPA repository interfaces.
+25-09-27 17:18:37.398 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat initialized with port 8080 (http)
+25-09-27 17:18:37.448 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Initializing ProtocolHandler ["http-nio-8080"]
+25-09-27 17:18:37.456 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    - Starting service [Tomcat]
+25-09-27 17:18:37.457 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     - Starting Servlet engine: [Apache Tomcat/10.1.33]
+25-09-27 17:18:37.751 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring embedded WebApplicationContext
+25-09-27 17:18:37.759 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 5452 ms
+25-09-27 17:18:38.103 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Starting...
+25-09-27 17:18:38.788 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:discodeit user=SA
+25-09-27 17:18:38.794 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Start completed.
+25-09-27 17:18:38.819 [main] [32mINFO [0;39m o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:discodeit'
+25-09-27 17:18:39.455 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-09-27 17:18:39.690 [main] [32mINFO [0;39m org.hibernate.Version                - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-09-27 17:18:39.804 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       - HHH000026: Second-level cache disabled
+25-09-27 17:18:40.928 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-09-27 17:18:41.131 [main] [33mWARN [0;39m org.hibernate.dialect.Dialect        - HHH000511: The 2.3.232 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 12.0.0. Check the community dialects project for available legacy versions.
+25-09-27 17:18:41.155 [main] [33mWARN [0;39m org.hibernate.orm.deprecation        - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-09-27 17:18:41.227 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-09-27 17:18:41.248 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(2003, org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@cc7909f) replaced previous registration(org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@8ce4320)
+25-09-27 17:18:41.249 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(6, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@42012093) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@3c538e62)
+25-09-27 17:18:44.329 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-09-27 17:18:44.448 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34mdrop[0m [34mconstraint[0m [34mif[0m [34mexists[0m UKqttel343c4eq691kcxipoixr7
+25-09-27 17:18:44.450 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m UKqttel343c4eq691kcxipoixr7 [34munique[0m (user_id, channel_id)
+25-09-27 17:18:44.451 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKsd1m8rb8jcpbcnb7rpdue7ctc 
+       [34mforeign[0m [34mkey[0m (attachment_id) 
+       [34mreferences[0m binary_contents
+25-09-27 17:18:44.455 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKj7twd218e2gqw9cmlhwvo1rth 
+       [34mforeign[0m [34mkey[0m (message_id) 
+       [34mreferences[0m messages
+25-09-27 17:18:44.457 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FKowtlim26svclkatusptbgi7u1 
+       [34mforeign[0m [34mkey[0m (author_id) 
+       [34mreferences[0m users
+25-09-27 17:18:44.460 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FK3u3ckbhwq9se1cmopk2pq05b2 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-27 17:18:44.463 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKa38ri44ml4gfdpklx4ahqr8gd 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-27 17:18:44.465 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKml3k4wr9sj5yxrmj6d0aoib2e 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-27 17:18:44.468 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m user_statuses 
+       [34madd[0m [34mconstraint[0m FK4lfl3ei2ubchgcxrrpo3pw4mm 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-27 17:18:44.471 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m users 
+       [34madd[0m [34mconstraint[0m FKtbudycgrip49xdptogmhfqnso 
+       [34mforeign[0m [34mkey[0m (profile_id) 
+       [34mreferences[0m binary_contents
+25-09-27 17:18:44.476 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-09-27 17:18:45.207 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-09-27 17:18:47.066 [main] [33mWARN [0;39m o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+25-09-27 17:18:47.136 [main] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+25-09-27 17:18:49.068 [main] [32mINFO [0;39m o.s.b.a.e.web.EndpointLinksResolver  - Exposing 4 endpoints beneath base path '/actuator'
+25-09-27 17:18:49.224 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Starting ProtocolHandler ["http-nio-8080"]
+25-09-27 17:18:49.278 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat started on port 8080 (http) with context path '/'
+25-09-27 17:18:49.308 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Started DiscodeitApplication in 18.76 seconds (process running for 20.518)
+25-09-27 17:18:50.091 [RMI TCP Connection(3)-172.30.1.68] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring DispatcherServlet 'dispatcherServlet'
+25-09-27 17:18:50.092 [RMI TCP Connection(3)-172.30.1.68] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    - Initializing Servlet 'dispatcherServlet'
+25-09-27 17:18:50.097 [RMI TCP Connection(3)-172.30.1.68] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    - Completed initialization in 4 ms
+25-09-27 17:55:00.850 [HikariPool-1 housekeeper] [33mWARN [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=26m21s771ms257µs500ns).
+25-09-27 17:59:10.589 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Commencing graceful shutdown. Waiting for active requests to complete
+25-09-27 17:59:11.967 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Graceful shutdown complete
+25-09-27 17:59:11.991 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-09-27 17:59:11.996 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown initiated...
+25-09-27 17:59:12.004 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown completed.
+25-09-27 17:59:19.834 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  - HV000001: Hibernate Validator 8.0.1.Final
+25-09-27 17:59:19.949 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Starting DiscodeitApplication using Java 17.0.12 with PID 26432 (C:\dev_source\work_space_sprint\5-sprint-mission\build\classes\java\main started by 82103 in C:\dev_source\work_space_sprint\5-sprint-mission)
+25-09-27 17:59:19.950 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-09-27 17:59:19.952 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - The following 1 profile is active: "dev"
+25-09-27 17:59:23.016 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-09-27 17:59:23.240 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 204 ms. Found 6 JPA repository interfaces.
+25-09-27 17:59:24.860 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat initialized with port 8080 (http)
+25-09-27 17:59:24.891 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Initializing ProtocolHandler ["http-nio-8080"]
+25-09-27 17:59:24.897 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    - Starting service [Tomcat]
+25-09-27 17:59:24.898 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     - Starting Servlet engine: [Apache Tomcat/10.1.33]
+25-09-27 17:59:25.102 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring embedded WebApplicationContext
+25-09-27 17:59:25.102 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 4932 ms
+25-09-27 17:59:25.374 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Starting...
+25-09-27 17:59:25.989 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:discodeit user=SA
+25-09-27 17:59:25.997 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Start completed.
+25-09-27 17:59:26.022 [main] [32mINFO [0;39m o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:discodeit'
+25-09-27 17:59:26.608 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-09-27 17:59:26.850 [main] [32mINFO [0;39m org.hibernate.Version                - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-09-27 17:59:26.976 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       - HHH000026: Second-level cache disabled
+25-09-27 17:59:27.918 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-09-27 17:59:28.095 [main] [33mWARN [0;39m org.hibernate.dialect.Dialect        - HHH000511: The 2.3.232 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 12.0.0. Check the community dialects project for available legacy versions.
+25-09-27 17:59:28.116 [main] [33mWARN [0;39m org.hibernate.orm.deprecation        - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-09-27 17:59:28.174 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-09-27 17:59:28.196 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(2003, org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@5c4516ec) replaced previous registration(org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@17ea3bc0)
+25-09-27 17:59:28.196 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(6, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@4d93e5bf) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@1c36ab22)
+25-09-27 17:59:30.991 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-09-27 17:59:31.126 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34mdrop[0m [34mconstraint[0m [34mif[0m [34mexists[0m UKqttel343c4eq691kcxipoixr7
+25-09-27 17:59:31.128 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m UKqttel343c4eq691kcxipoixr7 [34munique[0m (user_id, channel_id)
+25-09-27 17:59:31.130 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKsd1m8rb8jcpbcnb7rpdue7ctc 
+       [34mforeign[0m [34mkey[0m (attachment_id) 
+       [34mreferences[0m binary_contents
+25-09-27 17:59:31.133 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKj7twd218e2gqw9cmlhwvo1rth 
+       [34mforeign[0m [34mkey[0m (message_id) 
+       [34mreferences[0m messages
+25-09-27 17:59:31.135 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FKowtlim26svclkatusptbgi7u1 
+       [34mforeign[0m [34mkey[0m (author_id) 
+       [34mreferences[0m users
+25-09-27 17:59:31.139 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FK3u3ckbhwq9se1cmopk2pq05b2 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-27 17:59:31.142 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKa38ri44ml4gfdpklx4ahqr8gd 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-27 17:59:31.145 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKml3k4wr9sj5yxrmj6d0aoib2e 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-27 17:59:31.148 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m user_statuses 
+       [34madd[0m [34mconstraint[0m FK4lfl3ei2ubchgcxrrpo3pw4mm 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-27 17:59:31.151 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m users 
+       [34madd[0m [34mconstraint[0m FKtbudycgrip49xdptogmhfqnso 
+       [34mforeign[0m [34mkey[0m (profile_id) 
+       [34mreferences[0m binary_contents
+25-09-27 17:59:31.158 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-09-27 17:59:31.911 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-09-27 17:59:33.722 [main] [33mWARN [0;39m o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+25-09-27 17:59:33.797 [main] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+25-09-27 17:59:35.720 [main] [32mINFO [0;39m o.s.b.a.e.web.EndpointLinksResolver  - Exposing 4 endpoints beneath base path '/actuator'
+25-09-27 17:59:35.909 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Starting ProtocolHandler ["http-nio-8080"]
+25-09-27 17:59:35.969 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat started on port 8080 (http) with context path '/'
+25-09-27 17:59:36.005 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Started DiscodeitApplication in 17.447 seconds (process running for 19.102)
+25-09-27 17:59:36.748 [RMI TCP Connection(3)-172.30.1.68] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring DispatcherServlet 'dispatcherServlet'
+25-09-27 17:59:36.749 [RMI TCP Connection(3)-172.30.1.68] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    - Initializing Servlet 'dispatcherServlet'
+25-09-27 17:59:36.753 [RMI TCP Connection(3)-172.30.1.68] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    - Completed initialization in 4 ms
+25-09-27 19:51:37.179 [HikariPool-1 housekeeper] [33mWARN [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=55m34s735ms406µs800ns).
+25-09-27 20:04:35.104 [HikariPool-1 housekeeper] [33mWARN [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=7m57s832ms557µs700ns).
+25-09-27 20:04:38.778 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Commencing graceful shutdown. Waiting for active requests to complete
+25-09-27 20:04:40.566 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Graceful shutdown complete
+25-09-27 20:04:40.600 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-09-27 20:04:40.619 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown initiated...
+25-09-27 20:04:40.629 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown completed.
