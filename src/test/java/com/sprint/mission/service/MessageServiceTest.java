@@ -1,4 +1,4 @@
-package service;
+package com.sprint.mission.service;
 
 import static com.sprint.mission.discodeit.domain.enums.ChannelType.*;
 import static org.assertj.core.api.Assertions.*;
@@ -23,6 +23,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
 import com.sprint.mission.discodeit.domain.dto.CreateMessageDTO;
@@ -51,6 +53,8 @@ import com.sprint.mission.discodeit.service.basic.BasicBinaryContentService;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 
 @ExtendWith(MockitoExtension.class)
+@EnableJpaAuditing
+@ActiveProfiles("test")
 public class MessageServiceTest {
 	@InjectMocks
 	private BasicMessageService messageService;

@@ -1,4 +1,4 @@
-package service;
+package com.sprint.mission.service;
 
 import static com.sprint.mission.discodeit.domain.enums.ChannelType.*;
 import static org.assertj.core.api.Assertions.*;
@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.sprint.mission.discodeit.domain.dto.CreatePrivateChannelDTO;
 import com.sprint.mission.discodeit.domain.dto.CreatePublicChannelDTO;
@@ -39,6 +41,8 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 
 @ExtendWith(MockitoExtension.class)
+@EnableJpaAuditing
+@ActiveProfiles("test")
 public class ChannelServiceTest {
 
 	@InjectMocks

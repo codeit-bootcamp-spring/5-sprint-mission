@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +14,6 @@ import lombok.Getter;
 @Builder
 public class CreatePrivateChannelRequest {
 	@NotNull
-	// @Size(min = 1)
+	@Size(min = 1)
 	private final List<UUID> participantIds;
 }

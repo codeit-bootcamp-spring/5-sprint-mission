@@ -10,12 +10,10 @@ import com.sprint.mission.discodeit.domain.dto.user.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
 
 @AllArgsConstructor
 @Getter
 @Builder
-@ToString // todo 지워야함
 public class MessageDto {
 	private UUID id;
 	private Instant createdAt;

@@ -1,4 +1,4 @@
-// package com.sprint.mission.discodeit.service.file;
+// package com.sprint.mission.discodeit.com.sprint.mission.service.file;
 //
 // import static com.sprint.mission.discodeit.domain.enums.ChannelType.*;
 //
@@ -17,9 +17,9 @@
 // import com.sprint.mission.discodeit.domain.dto.UpdateChannelResult;
 // import com.sprint.mission.discodeit.domain.entity.Channel;
 // import com.sprint.mission.discodeit.domain.entity.Message;
-// import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
-// import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
-// import com.sprint.mission.discodeit.service.ChannelService;
+// import com.sprint.mission.discodeit.com.sprint.mission.repository.file.FileChannelRepository;
+// import com.sprint.mission.discodeit.com.sprint.mission.repository.file.FileMessageRepository;
+// import com.sprint.mission.discodeit.com.sprint.mission.service.ChannelService;
 //
 // public class FileChannelService implements ChannelService {
 //

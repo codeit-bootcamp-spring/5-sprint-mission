@@ -78,7 +78,7 @@ public class BasicReadStatusService implements ReadStatusService {
 			throw new UserNotFoundException(Map.of("id", userId));
 		}
 
-		return readStatusRepository.findReadStatusDetailAllByUserId(userId)
+		return readStatusRepository.findAllByUserId(userId)
 		  .stream()
 		  .map(readStatusMapper::toDto)
 		  .toList();

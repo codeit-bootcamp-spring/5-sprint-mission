@@ -1,4 +1,4 @@
-// package com.sprint.mission.discodeit.service.jsf;
+// package com.sprint.mission.discodeit.com.sprint.mission.service.jsf;
 //
 // import static com.sprint.mission.discodeit.domain.enums.ChannelType.*;
 //
@@ -17,10 +17,10 @@
 // import com.sprint.mission.discodeit.domain.dto.UpdateChannelResult;
 // import com.sprint.mission.discodeit.domain.entity.Channel;
 // import com.sprint.mission.discodeit.domain.entity.Message;
-// import com.sprint.mission.discodeit.repository.MessageRepository;
-// import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
-// import com.sprint.mission.discodeit.service.ChannelService;
-// import com.sprint.mission.discodeit.service.MessageService;
+// import com.sprint.mission.discodeit.com.sprint.mission.repository.MessageRepository;
+// import com.sprint.mission.discodeit.com.sprint.mission.repository.jcf.JCFChannelRepository;
+// import com.sprint.mission.discodeit.com.sprint.mission.service.ChannelService;
+// import com.sprint.mission.discodeit.com.sprint.mission.service.MessageService;
 //
 // public class JCFChannelService implements ChannelService {
 //

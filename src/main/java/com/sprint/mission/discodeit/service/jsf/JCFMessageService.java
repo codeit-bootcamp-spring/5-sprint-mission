@@ -1,4 +1,4 @@
-// package com.sprint.mission.discodeit.service.jsf;
+// package com.sprint.mission.discodeit.com.sprint.mission.service.jsf;
 //
 // import java.util.List;
 // import java.util.NoSuchElementException;
@@ -8,10 +8,10 @@
 // import com.sprint.mission.discodeit.domain.dto.CreateMessageDTO;
 // import com.sprint.mission.discodeit.domain.dto.UpdateMessageDTO;
 // import com.sprint.mission.discodeit.domain.entity.Message;
-// import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
-// import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
-// import com.sprint.mission.discodeit.service.MessageService;
-// import com.sprint.mission.discodeit.service.UserService;
+// import com.sprint.mission.discodeit.com.sprint.mission.repository.jcf.JCFChannelRepository;
+// import com.sprint.mission.discodeit.com.sprint.mission.repository.jcf.JCFMessageRepository;
+// import com.sprint.mission.discodeit.com.sprint.mission.service.MessageService;
+// import com.sprint.mission.discodeit.com.sprint.mission.service.UserService;
 //
 // public class JCFMessageService implements MessageService {
 //

@@ -130,7 +130,6 @@ public class MessageController {
 		if (cursor != null) {
 			Slice<MessageResponse> readMessages = messageService.findAllCursorByChannelId(channelId, cursor, pageable)
 			  .map(messageMapper::toResponse);
-			readMessages.forEach(m -> System.out.println(m.getAuthor()));
 			return ResponseEntity.ok((pageResponseMapper.fromSlice(readMessages)));
 		} else {
 			Page<MessageResponse> readMessages = messageService.findAllByChannelId(channelId, pageable).map(
