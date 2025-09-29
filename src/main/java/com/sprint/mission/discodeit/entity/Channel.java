@@ -1,51 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.NoArgsConstructor;
 
-@SuperBuilder
+@Entity
+@Table(name = "channels")
 @Getter
-@Setter
-public class Channel extends BaseEntity {
-    private final List<Message> messages = new ArrayList<>();
-    private final List<User> users = new ArrayList<>();
-    private String channelName;
-    private String description;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Channel extends BaseUpdatableEntity {
 
-    
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ChannelType type;
+  @Column(length = 100)
+  private String name;
+  @Column(length = 500)
+  private String description;
 
-    @Override
-    public String toString() {
-        return "Channel{" +
-                "id=" + id +
-                ", channelName='" + channelName + '\'' +
-                ", description='" + description + '\'' +
-                ", usersCount=" + users.size() +
-                ", messagesCount=" + messages.size() +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+  public Channel(ChannelType type, String name, String description) {
+    this.type = type;
+    this.name = name;
+    this.description = description;
+  }
+
+  public void update(String newName, String newDescription) {
+    if (newName != null && !newName.equals(this.name)) {
+      this.name = newName;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        BaseEntity that = (BaseEntity) o;
-
-        return id != null && id.equals(that.getId());
+    if (newDescription != null && !newDescription.equals(this.description)) {
+      this.description = newDescription;
     }
-
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
-    }
-
+  }
 }
