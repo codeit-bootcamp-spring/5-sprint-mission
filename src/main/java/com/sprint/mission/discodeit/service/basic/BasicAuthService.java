@@ -1,39 +1,45 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.LoginRequest;
-import com.sprint.mission.discodeit.dto.UserResponse;
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.user.InvalidCredentialsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.NoSuchElementException;
-
-@Service
+@Slf4j
 @RequiredArgsConstructor
+@Service
 public class BasicAuthService implements AuthService {
 
-    private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository;
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
+  private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public UserResponse login(LoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new NoSuchElementException("User not found with username: " + request.getUsername()));
+  @Transactional(readOnly = true)
+  @Override
+  public UserDto login(LoginRequest loginRequest) {
+    log.debug("로그인 시도: username={}", loginRequest.username());
+    
+    String username = loginRequest.username();
+    String password = loginRequest.password();
 
-        if (!user.getPassword().equals(request.getPassword())) {
-            throw new IllegalArgumentException("Invalid password");
-        }
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> UserNotFoundException.withUsername(username));
 
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getProfileImageId(),
-                userStatusRepository.findByUserId(user.getId()).map(userStatus -> userStatus.isOnline()).orElse(false)
-        );
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+      throw InvalidCredentialsException.wrongPassword();
     }
+
+    log.info("로그인 성공: userId={}, username={}", user.getId(), username);
+    return userMapper.toDto(user);
+  }
 }
+

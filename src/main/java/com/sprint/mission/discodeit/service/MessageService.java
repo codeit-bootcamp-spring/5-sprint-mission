@@ -1,28 +1,25 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.MessageResponse;
-import com.sprint.mission.discodeit.dto.MessageUpdateRequest;
-
+import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
 
 public interface MessageService {
-    MessageResponse create(MessageCreateRequest request);
 
-    MessageResponse find(UUID messageId);
+  MessageDto create(MessageCreateRequest messageCreateRequest,
+      List<BinaryContentCreateRequest> binaryContentCreateRequests);
 
-    List<MessageResponse> findAll();
+  MessageDto find(UUID messageId);
 
-    List<MessageResponse> findAllByChannelId(UUID channelId);
+  PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant createdAt, Pageable pageable);
 
-    MessageResponse update(MessageUpdateRequest request);
+  MessageDto update(UUID messageId, MessageUpdateRequest request);
 
-    void delete(UUID messageId);
-
-    /**
-     * 모든 메시지 데이터를 초기화합니다.
-     * 테스트 환경에서 사용됩니다.
-     */
-    void clear();
+  void delete(UUID messageId);
 }

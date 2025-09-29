@@ -1,19 +1,17 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.dto.BinaryContentResponse;
-
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import java.util.List;
 import java.util.UUID;
 
 public interface BinaryContentService {
-    BinaryContentResponse create(BinaryContentCreateRequest request);
 
-    BinaryContentResponse find(UUID id);
+  BinaryContentDto create(BinaryContentCreateRequest request);
 
-    List<BinaryContentResponse> findAllByIdIn(List<UUID> ids);
+  BinaryContentDto find(UUID binaryContentId);
 
-    void delete(UUID id);
+  List<BinaryContentDto> findAllByIdIn(List<UUID> binaryContentIds);
 
-    void clear();
+  void delete(UUID binaryContentId);
 }

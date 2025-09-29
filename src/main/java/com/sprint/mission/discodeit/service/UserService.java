@@ -1,31 +1,24 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.UserResponse;
-import com.sprint.mission.discodeit.dto.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.User;
-
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-
 public interface UserService {
-    UserResponse create(UserCreateRequest request);
 
-    UserResponse find(UUID userId);
+  UserDto create(UserCreateRequest userCreateRequest,
+      Optional<BinaryContentCreateRequest> profileCreateRequest);
 
-    List<UserResponse> findAll();
+  UserDto find(UUID userId);
 
-    UserResponse update(UserUpdateRequest request);
+  List<UserDto> findAll();
 
-    void delete(UUID id);
+  UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
+      Optional<BinaryContentCreateRequest> profileCreateRequest);
 
-    Optional<UserResponse> findByUsername(String username);
-
-    /**
-     * 모든 사용자 데이터를 초기화합니다.
-     * 테스트 환경에서 사용됩니다.
-     */
-    void clear();
+  void delete(UUID userId);
 }
