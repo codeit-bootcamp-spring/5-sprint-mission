@@ -1,0 +1,34 @@
+spring:
+  sql:
+    init:
+      schema-locations: classpath:schema.sql
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    # 인메모리
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# log
+logging:
+  level:
+    # 사용자 package
+    com.sprint.mission.discodeit: debug
+
+    # Hibernate SQL
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: debug
+    org.hibernate.type.descriptor.sql: debug
