@@ -1,0 +1,886 @@
+25-09-23 14:16:37.543 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.12 with PID 21576 (C:\dev_source\work_space_sprint\5-sprint-mission\build\classes\java\main started by 82103 in C:\dev_source\work_space_sprint\5-sprint-mission)
+25-09-23 14:16:37.547 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-09-23 14:16:37.548 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+25-09-23 14:16:39.480 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-09-23 14:16:39.671 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 171 ms. Found 6 JPA repository interfaces.
+25-09-23 14:16:40.913 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat initialized with port 8080 (http)
+25-09-23 14:16:40.939 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+25-09-23 14:16:40.942 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Starting service [Tomcat]
+25-09-23 14:16:40.942 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+25-09-23 14:16:41.116 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring embedded WebApplicationContext
+25-09-23 14:16:41.117 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 3471 ms
+25-09-23 14:16:41.175 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+25-09-23 14:16:41.675 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:discodeit user=SA
+25-09-23 14:16:41.680 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+25-09-23 14:16:41.699 [main] [32mINFO [0;39m o.s.b.a.h.H2ConsoleAutoConfiguration [ |  | ] - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:discodeit'
+25-09-23 14:16:42.081 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-09-23 14:16:42.228 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-09-23 14:16:42.321 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+25-09-23 14:16:43.026 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-09-23 14:16:43.128 [main] [33mWARN [0;39m org.hibernate.dialect.Dialect        [ |  | ] - HHH000511: The 2.3.232 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 12.0.0. Check the community dialects project for available legacy versions.
+25-09-23 14:16:43.141 [main] [33mWARN [0;39m org.hibernate.orm.deprecation        [ |  | ] - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-09-23 14:16:43.180 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-09-23 14:16:43.194 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      [ |  | ] - addDescriptor(2003, org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@de0c402) replaced previous registration(org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@24955144)
+25-09-23 14:16:43.195 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      [ |  | ] - addDescriptor(6, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@9d2af36) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@740ad32e)
+25-09-23 14:16:45.302 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-09-23 14:16:45.398 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34mdrop[0m [34mconstraint[0m [34mif[0m [34mexists[0m UKqttel343c4eq691kcxipoixr7
+25-09-23 14:16:45.399 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m UKqttel343c4eq691kcxipoixr7 [34munique[0m (user_id, channel_id)
+25-09-23 14:16:45.400 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKsd1m8rb8jcpbcnb7rpdue7ctc 
+       [34mforeign[0m [34mkey[0m (attachment_id) 
+       [34mreferences[0m binary_contents
+25-09-23 14:16:45.402 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKj7twd218e2gqw9cmlhwvo1rth 
+       [34mforeign[0m [34mkey[0m (message_id) 
+       [34mreferences[0m messages
+25-09-23 14:16:45.404 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FKowtlim26svclkatusptbgi7u1 
+       [34mforeign[0m [34mkey[0m (author_id) 
+       [34mreferences[0m users
+25-09-23 14:16:45.407 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FK3u3ckbhwq9se1cmopk2pq05b2 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-23 14:16:45.410 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKa38ri44ml4gfdpklx4ahqr8gd 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-23 14:16:45.412 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKml3k4wr9sj5yxrmj6d0aoib2e 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-23 14:16:45.414 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m user_statuses 
+       [34madd[0m [34mconstraint[0m FK4lfl3ei2ubchgcxrrpo3pw4mm 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-23 14:16:45.416 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m users 
+       [34madd[0m [34mconstraint[0m FKtbudycgrip49xdptogmhfqnso 
+       [34mforeign[0m [34mkey[0m (profile_id) 
+       [34mreferences[0m binary_contents
+25-09-23 14:16:45.420 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-09-23 14:16:45.884 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory [ |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-09-23 14:16:47.237 [main] [33mWARN [0;39m o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration [ |  | ] - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+25-09-23 14:16:47.276 [main] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping [ |  | ] - Adding welcome page: class path resource [static/index.html]
+25-09-23 14:16:48.118 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Starting ProtocolHandler ["http-nio-8080"]
+25-09-23 14:16:48.161 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat started on port 8080 (http) with context path '/'
+25-09-23 14:16:48.176 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Started DiscodeitApplication in 11.884 seconds (process running for 13.718)
+25-09-23 16:04:22.083 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  | ] - Commencing graceful shutdown. Waiting for active requests to complete
+25-09-23 16:04:23.145 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  | ] - Graceful shutdown complete
+25-09-23 16:04:23.166 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-09-23 16:04:23.180 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown initiated...
+25-09-23 16:04:23.191 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown completed.
+25-09-23 16:04:30.161 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.12 with PID 472 (C:\dev_source\work_space_sprint\5-sprint-mission\build\classes\java\main started by 82103 in C:\dev_source\work_space_sprint\5-sprint-mission)
+25-09-23 16:04:30.165 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-09-23 16:04:30.167 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+25-09-23 16:04:32.002 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-09-23 16:04:32.213 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 185 ms. Found 6 JPA repository interfaces.
+25-09-23 16:04:33.547 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat initialized with port 8080 (http)
+25-09-23 16:04:33.571 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+25-09-23 16:04:33.575 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Starting service [Tomcat]
+25-09-23 16:04:33.576 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+25-09-23 16:04:33.733 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring embedded WebApplicationContext
+25-09-23 16:04:33.733 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 3465 ms
+25-09-23 16:04:33.790 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+25-09-23 16:04:34.235 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:discodeit user=SA
+25-09-23 16:04:34.240 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+25-09-23 16:04:34.258 [main] [32mINFO [0;39m o.s.b.a.h.H2ConsoleAutoConfiguration [ |  | ] - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:discodeit'
+25-09-23 16:04:34.625 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-09-23 16:04:34.767 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-09-23 16:04:34.851 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+25-09-23 16:04:35.534 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-09-23 16:04:35.643 [main] [33mWARN [0;39m org.hibernate.dialect.Dialect        [ |  | ] - HHH000511: The 2.3.232 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 12.0.0. Check the community dialects project for available legacy versions.
+25-09-23 16:04:35.655 [main] [33mWARN [0;39m org.hibernate.orm.deprecation        [ |  | ] - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-09-23 16:04:35.697 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-09-23 16:04:35.712 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      [ |  | ] - addDescriptor(2003, org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@24955144) replaced previous registration(org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@9d2af36)
+25-09-23 16:04:35.712 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      [ |  | ] - addDescriptor(6, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@740ad32e) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@7f41d979)
+25-09-23 16:04:38.115 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-09-23 16:04:38.222 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34mdrop[0m [34mconstraint[0m [34mif[0m [34mexists[0m UKqttel343c4eq691kcxipoixr7
+25-09-23 16:04:38.224 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m UKqttel343c4eq691kcxipoixr7 [34munique[0m (user_id, channel_id)
+25-09-23 16:04:38.225 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKsd1m8rb8jcpbcnb7rpdue7ctc 
+       [34mforeign[0m [34mkey[0m (attachment_id) 
+       [34mreferences[0m binary_contents
+25-09-23 16:04:38.228 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKj7twd218e2gqw9cmlhwvo1rth 
+       [34mforeign[0m [34mkey[0m (message_id) 
+       [34mreferences[0m messages
+25-09-23 16:04:38.230 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FKowtlim26svclkatusptbgi7u1 
+       [34mforeign[0m [34mkey[0m (author_id) 
+       [34mreferences[0m users
+25-09-23 16:04:38.233 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FK3u3ckbhwq9se1cmopk2pq05b2 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-23 16:04:38.236 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKa38ri44ml4gfdpklx4ahqr8gd 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-23 16:04:38.239 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKml3k4wr9sj5yxrmj6d0aoib2e 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-23 16:04:38.241 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m user_statuses 
+       [34madd[0m [34mconstraint[0m FK4lfl3ei2ubchgcxrrpo3pw4mm 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-23 16:04:38.244 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m users 
+       [34madd[0m [34mconstraint[0m FKtbudycgrip49xdptogmhfqnso 
+       [34mforeign[0m [34mkey[0m (profile_id) 
+       [34mreferences[0m binary_contents
+25-09-23 16:04:38.249 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-09-23 16:04:38.740 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory [ |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-09-23 16:04:40.104 [main] [33mWARN [0;39m o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration [ |  | ] - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+25-09-23 16:04:40.147 [main] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping [ |  | ] - Adding welcome page: class path resource [static/index.html]
+25-09-23 16:04:40.992 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Starting ProtocolHandler ["http-nio-8080"]
+25-09-23 16:04:41.031 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat started on port 8080 (http) with context path '/'
+25-09-23 16:04:41.049 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Started DiscodeitApplication in 12.155 seconds (process running for 13.612)
+25-09-23 16:05:13.612 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  | ] - Commencing graceful shutdown. Waiting for active requests to complete
+25-09-23 16:05:14.582 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  | ] - Graceful shutdown complete
+25-09-23 16:05:14.590 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-09-23 16:05:14.594 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown initiated...
+25-09-23 16:05:14.598 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown completed.
+25-09-23 16:05:21.222 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Starting DiscodeitApplication using Java 17.0.12 with PID 19276 (C:\dev_source\work_space_sprint\5-sprint-mission\build\classes\java\main started by 82103 in C:\dev_source\work_space_sprint\5-sprint-mission)
+25-09-23 16:05:21.226 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-09-23 16:05:21.227 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - The following 1 profile is active: "dev"
+25-09-23 16:05:23.028 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-09-23 16:05:23.234 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 188 ms. Found 6 JPA repository interfaces.
+25-09-23 16:05:24.510 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat initialized with port 8080 (http)
+25-09-23 16:05:24.536 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Initializing ProtocolHandler ["http-nio-8080"]
+25-09-23 16:05:24.540 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    - Starting service [Tomcat]
+25-09-23 16:05:24.540 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     - Starting Servlet engine: [Apache Tomcat/10.1.33]
+25-09-23 16:05:24.699 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring embedded WebApplicationContext
+25-09-23 16:05:24.700 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3389 ms
+25-09-23 16:05:24.767 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Starting...
+25-09-23 16:05:25.263 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:discodeit user=SA
+25-09-23 16:05:25.269 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Start completed.
+25-09-23 16:05:25.291 [main] [32mINFO [0;39m o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:discodeit'
+25-09-23 16:05:25.691 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-09-23 16:05:25.833 [main] [32mINFO [0;39m org.hibernate.Version                - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-09-23 16:05:25.909 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       - HHH000026: Second-level cache disabled
+25-09-23 16:05:26.561 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-09-23 16:05:26.661 [main] [33mWARN [0;39m org.hibernate.dialect.Dialect        - HHH000511: The 2.3.232 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 12.0.0. Check the community dialects project for available legacy versions.
+25-09-23 16:05:26.672 [main] [33mWARN [0;39m org.hibernate.orm.deprecation        - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-09-23 16:05:26.708 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-09-23 16:05:26.721 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(2003, org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@13c18bba) replaced previous registration(org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@33373f70)
+25-09-23 16:05:26.722 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(6, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@56f61d74) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@44d84313)
+25-09-23 16:05:28.813 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-09-23 16:05:28.908 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34mdrop[0m [34mconstraint[0m [34mif[0m [34mexists[0m UKqttel343c4eq691kcxipoixr7
+25-09-23 16:05:28.909 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m UKqttel343c4eq691kcxipoixr7 [34munique[0m (user_id, channel_id)
+25-09-23 16:05:28.911 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKsd1m8rb8jcpbcnb7rpdue7ctc 
+       [34mforeign[0m [34mkey[0m (attachment_id) 
+       [34mreferences[0m binary_contents
+25-09-23 16:05:28.913 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKj7twd218e2gqw9cmlhwvo1rth 
+       [34mforeign[0m [34mkey[0m (message_id) 
+       [34mreferences[0m messages
+25-09-23 16:05:28.915 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FKowtlim26svclkatusptbgi7u1 
+       [34mforeign[0m [34mkey[0m (author_id) 
+       [34mreferences[0m users
+25-09-23 16:05:28.917 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FK3u3ckbhwq9se1cmopk2pq05b2 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-23 16:05:28.920 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKa38ri44ml4gfdpklx4ahqr8gd 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-23 16:05:28.922 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKml3k4wr9sj5yxrmj6d0aoib2e 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-23 16:05:28.924 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m user_statuses 
+       [34madd[0m [34mconstraint[0m FK4lfl3ei2ubchgcxrrpo3pw4mm 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-23 16:05:28.926 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m users 
+       [34madd[0m [34mconstraint[0m FKtbudycgrip49xdptogmhfqnso 
+       [34mforeign[0m [34mkey[0m (profile_id) 
+       [34mreferences[0m binary_contents
+25-09-23 16:05:28.931 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-09-23 16:05:29.427 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-09-23 16:05:30.874 [main] [33mWARN [0;39m o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+25-09-23 16:05:30.912 [main] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+25-09-23 16:05:31.755 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Starting ProtocolHandler ["http-nio-8080"]
+25-09-23 16:05:31.792 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat started on port 8080 (http) with context path '/'
+25-09-23 16:05:31.810 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Started DiscodeitApplication in 11.882 seconds (process running for 13.334)
+25-09-23 16:10:44.822 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Commencing graceful shutdown. Waiting for active requests to complete
+25-09-23 16:10:45.871 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Graceful shutdown complete
+25-09-23 16:10:45.878 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-09-23 16:10:45.882 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown initiated...
+25-09-23 16:10:45.887 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown completed.
+25-09-23 16:29:31.280 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Starting DiscodeitApplication using Java 17.0.12 with PID 35356 (C:\dev_source\work_space_sprint\5-sprint-mission\build\classes\java\main started by 82103 in C:\dev_source\work_space_sprint\5-sprint-mission)
+25-09-23 16:29:31.285 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-09-23 16:29:31.286 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - The following 1 profile is active: "dev"
+25-09-23 16:29:33.275 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-09-23 16:29:33.491 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 196 ms. Found 6 JPA repository interfaces.
+25-09-23 16:29:34.846 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat initialized with port 8080 (http)
+25-09-23 16:29:34.870 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Initializing ProtocolHandler ["http-nio-8080"]
+25-09-23 16:29:34.874 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    - Starting service [Tomcat]
+25-09-23 16:29:34.874 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     - Starting Servlet engine: [Apache Tomcat/10.1.33]
+25-09-23 16:29:35.024 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring embedded WebApplicationContext
+25-09-23 16:29:35.025 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3641 ms
+25-09-23 16:29:35.085 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Starting...
+25-09-23 16:29:35.536 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:discodeit user=SA
+25-09-23 16:29:35.540 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Start completed.
+25-09-23 16:29:35.559 [main] [32mINFO [0;39m o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:discodeit'
+25-09-23 16:29:35.939 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-09-23 16:29:36.088 [main] [32mINFO [0;39m org.hibernate.Version                - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-09-23 16:29:36.168 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       - HHH000026: Second-level cache disabled
+25-09-23 16:29:36.894 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-09-23 16:29:37.003 [main] [33mWARN [0;39m org.hibernate.dialect.Dialect        - HHH000511: The 2.3.232 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 12.0.0. Check the community dialects project for available legacy versions.
+25-09-23 16:29:37.015 [main] [33mWARN [0;39m org.hibernate.orm.deprecation        - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-09-23 16:29:37.058 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-09-23 16:29:37.072 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(2003, org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@37e64e37) replaced previous registration(org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@31204303)
+25-09-23 16:29:37.073 [main] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(6, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@369fb99a) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@81a8898)
+25-09-23 16:29:39.632 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-09-23 16:29:39.765 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34mdrop[0m [34mconstraint[0m [34mif[0m [34mexists[0m UKqttel343c4eq691kcxipoixr7
+25-09-23 16:29:39.767 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m UKqttel343c4eq691kcxipoixr7 [34munique[0m (user_id, channel_id)
+25-09-23 16:29:39.769 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKsd1m8rb8jcpbcnb7rpdue7ctc 
+       [34mforeign[0m [34mkey[0m (attachment_id) 
+       [34mreferences[0m binary_contents
+25-09-23 16:29:39.771 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m message_attachments 
+       [34madd[0m [34mconstraint[0m FKj7twd218e2gqw9cmlhwvo1rth 
+       [34mforeign[0m [34mkey[0m (message_id) 
+       [34mreferences[0m messages
+25-09-23 16:29:39.773 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FKowtlim26svclkatusptbgi7u1 
+       [34mforeign[0m [34mkey[0m (author_id) 
+       [34mreferences[0m users
+25-09-23 16:29:39.776 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m messages 
+       [34madd[0m [34mconstraint[0m FK3u3ckbhwq9se1cmopk2pq05b2 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-23 16:29:39.779 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKa38ri44ml4gfdpklx4ahqr8gd 
+       [34mforeign[0m [34mkey[0m (channel_id) 
+       [34mreferences[0m channels
+25-09-23 16:29:39.783 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m read_statuses 
+       [34madd[0m [34mconstraint[0m FKml3k4wr9sj5yxrmj6d0aoib2e 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-23 16:29:39.786 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m user_statuses 
+       [34madd[0m [34mconstraint[0m FK4lfl3ei2ubchgcxrrpo3pw4mm 
+       [34mforeign[0m [34mkey[0m (user_id) 
+       [34mreferences[0m users
+25-09-23 16:29:39.789 [main] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    [34malter[0m [34mtable[0m [34mif[0m [34mexists[0m users 
+       [34madd[0m [34mconstraint[0m FKtbudycgrip49xdptogmhfqnso 
+       [34mforeign[0m [34mkey[0m (profile_id) 
+       [34mreferences[0m binary_contents
+25-09-23 16:29:39.794 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-09-23 16:29:40.363 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-09-23 16:29:41.855 [main] [33mWARN [0;39m o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+25-09-23 16:29:41.899 [main] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+25-09-23 16:29:42.938 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Starting ProtocolHandler ["http-nio-8080"]
+25-09-23 16:29:42.994 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat started on port 8080 (http) with context path '/'
+25-09-23 16:29:43.014 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Started DiscodeitApplication in 13.003 seconds (process running for 14.326)
+25-09-23 16:29:43.304 [http-nio-8080-exec-1] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring DispatcherServlet 'dispatcherServlet'
+25-09-23 16:29:43.305 [http-nio-8080-exec-1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    - Initializing Servlet 'dispatcherServlet'
+25-09-23 16:29:43.309 [http-nio-8080-exec-1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    - Completed initialization in 2 ms
+25-09-23 16:30:01.322 [http-nio-8080-exec-5] [32mDEBUG[0;39m c.s.m.d.controller.UserController    - @@ debug - userCreateRequest : UserCreateRequest[username=test01, email=ayanemoona@naver.com, password=1234]
+25-09-23 16:30:01.502 [http-nio-8080-exec-5] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        u1_0.id 
+    [34mfrom[0m
+        users u1_0 
+    [34mwhere[0m
+        u1_0.email=? 
+    [34mfetch[0m
+        first ? [34mrows[0m [34monly[0m
+25-09-23 16:30:01.506 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:VARCHAR) <- [ayanemoona@naver.com]
+25-09-23 16:30:01.507 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:INTEGER) <- [1]
+25-09-23 16:30:01.559 [http-nio-8080-exec-5] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        u1_0.id 
+    [34mfrom[0m
+        users u1_0 
+    [34mwhere[0m
+        u1_0.username=? 
+    [34mfetch[0m
+        first ? [34mrows[0m [34monly[0m
+25-09-23 16:30:01.560 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:VARCHAR) <- [test01]
+25-09-23 16:30:01.561 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:INTEGER) <- [1]
+25-09-23 16:30:01.734 [http-nio-8080-exec-5] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* [34minsert[0m [34mfor[0m
+        com.sprint.mission.discodeit.entity.[34mUser[0m */[34minsert[0m 
+    [34minto[0m
+        users (created_at, email, password, profile_id, updated_at, username, id) 
+    [34mvalues[0m
+        (?, ?, ?, ?, ?, ?, ?)
+25-09-23 16:30:01.739 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:TIMESTAMP_UTC) <- [2025-09-23T07:30:01.629744500Z]
+25-09-23 16:30:01.742 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:VARCHAR) <- [ayanemoona@naver.com]
+25-09-23 16:30:01.742 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (3:VARCHAR) <- [1234]
+25-09-23 16:30:01.742 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (4:UUID) <- [null]
+25-09-23 16:30:01.743 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (5:TIMESTAMP_UTC) <- [2025-09-23T07:30:01.629744500Z]
+25-09-23 16:30:01.743 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (6:VARCHAR) <- [test01]
+25-09-23 16:30:01.743 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (7:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:01.766 [http-nio-8080-exec-5] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* [34minsert[0m [34mfor[0m
+        com.sprint.mission.discodeit.entity.UserStatus */[34minsert[0m 
+    [34minto[0m
+        user_statuses (created_at, last_active_at, updated_at, user_id, id) 
+    [34mvalues[0m
+        (?, ?, ?, ?, ?)
+25-09-23 16:30:01.767 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:TIMESTAMP_UTC) <- [2025-09-23T07:30:01.693371100Z]
+25-09-23 16:30:01.768 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:TIMESTAMP_UTC) <- [2025-09-23T07:30:01.563434700Z]
+25-09-23 16:30:01.768 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (3:TIMESTAMP_UTC) <- [2025-09-23T07:30:01.693371100Z]
+25-09-23 16:30:01.769 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (4:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:01.769 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (5:UUID) <- [935e1020-b54f-4eba-b499-e0b1c336d603]
+25-09-23 16:30:01.895 [http-nio-8080-exec-7] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    [34mfrom[0m
+        user_statuses us1_0 
+    [34mwhere[0m
+        us1_0.user_id=?
+25-09-23 16:30:01.895 [http-nio-8080-exec-6] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    [34mfrom[0m
+        user_statuses us1_0 
+    [34mwhere[0m
+        us1_0.user_id=?
+25-09-23 16:30:01.896 [http-nio-8080-exec-7] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:01.896 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:01.953 [http-nio-8080-exec-7] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* [34mupdate[0m
+        [34mfor[0m com.sprint.mission.discodeit.entity.UserStatus */[34mupdate[0m user_statuses 
+    [34mset[0m
+        last_active_at=?,
+        updated_at=?,
+        user_id=? 
+    [34mwhere[0m
+        id=?
+25-09-23 16:30:01.953 [http-nio-8080-exec-6] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* [34mupdate[0m
+        [34mfor[0m com.sprint.mission.discodeit.entity.UserStatus */[34mupdate[0m user_statuses 
+    [34mset[0m
+        last_active_at=?,
+        updated_at=?,
+        user_id=? 
+    [34mwhere[0m
+        id=?
+25-09-23 16:30:01.960 [http-nio-8080-exec-7] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:TIMESTAMP_UTC) <- [2025-09-23T07:30:01.864Z]
+25-09-23 16:30:01.960 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:TIMESTAMP_UTC) <- [2025-09-23T07:30:01.862Z]
+25-09-23 16:30:01.961 [http-nio-8080-exec-7] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:TIMESTAMP_UTC) <- [2025-09-23T07:30:01.942742900Z]
+25-09-23 16:30:01.961 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:TIMESTAMP_UTC) <- [2025-09-23T07:30:01.942742900Z]
+25-09-23 16:30:01.961 [http-nio-8080-exec-7] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (3:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:01.961 [http-nio-8080-exec-7] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (4:UUID) <- [935e1020-b54f-4eba-b499-e0b1c336d603]
+25-09-23 16:30:01.961 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (3:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:01.962 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (4:UUID) <- [935e1020-b54f-4eba-b499-e0b1c336d603]
+25-09-23 16:30:01.992 [http-nio-8080-exec-8] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* [34mSELECT[0m
+        u 
+    [34mFROM[0m
+        [34mUser[0m u 
+    [34mLEFT[0m [34mJOIN[0m
+        
+    [34mFETCH[0m
+        u.profile 
+    [34mJOIN[0m
+        
+    [34mFETCH[0m
+        u.status */ [34mselect[0m
+            u1_0.id,
+            u1_0.created_at,
+            u1_0.email,
+            u1_0.password,
+            p1_0.id,
+            p1_0.content_type,
+            p1_0.created_at,
+            p1_0.file_name,
+            p1_0.size,
+            s1_0.id,
+            s1_0.created_at,
+            s1_0.last_active_at,
+            s1_0.updated_at,
+            s1_0.user_id,
+            u1_0.updated_at,
+            u1_0.username 
+        [34mfrom[0m
+            users u1_0 
+        [34mleft[0m [34mjoin[0m
+            binary_contents p1_0 
+                [34mon[0m p1_0.id=u1_0.profile_id 
+        [34mjoin[0m
+            user_statuses s1_0 
+                [34mon[0m u1_0.id=s1_0.user_id
+25-09-23 16:30:02.039 [http-nio-8080-exec-9] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:02.039 [http-nio-8080-exec-1] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* [34mSELECT[0m
+        u 
+    [34mFROM[0m
+        [34mUser[0m u 
+    [34mLEFT[0m [34mJOIN[0m
+        
+    [34mFETCH[0m
+        u.profile 
+    [34mJOIN[0m
+        
+    [34mFETCH[0m
+        u.status */ [34mselect[0m
+            u1_0.id,
+            u1_0.created_at,
+            u1_0.email,
+            u1_0.password,
+            p1_0.id,
+            p1_0.content_type,
+            p1_0.created_at,
+            p1_0.file_name,
+            p1_0.size,
+            s1_0.id,
+            s1_0.created_at,
+            s1_0.last_active_at,
+            s1_0.updated_at,
+            s1_0.user_id,
+            u1_0.updated_at,
+            u1_0.username 
+        [34mfrom[0m
+            users u1_0 
+        [34mleft[0m [34mjoin[0m
+            binary_contents p1_0 
+                [34mon[0m p1_0.id=u1_0.profile_id 
+        [34mjoin[0m
+            user_statuses s1_0 
+                [34mon[0m u1_0.id=s1_0.user_id
+25-09-23 16:30:02.039 [http-nio-8080-exec-10] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:02.040 [http-nio-8080-exec-9] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:02.040 [http-nio-8080-exec-10] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:02.057 [http-nio-8080-exec-9] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    [34mfrom[0m
+        channels c1_0 
+    [34mwhere[0m
+        c1_0.type=? 
+        [34mor[0m c1_0.id [34min[0m (?)
+25-09-23 16:30:02.059 [http-nio-8080-exec-9] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:VARCHAR) <- [PUBLIC]
+25-09-23 16:30:02.059 [http-nio-8080-exec-9] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:UUID) <- [null]
+25-09-23 16:30:02.094 [http-nio-8080-exec-3] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:02.095 [http-nio-8080-exec-3] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:02.107 [http-nio-8080-exec-4] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:02.107 [http-nio-8080-exec-2] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:02.108 [http-nio-8080-exec-2] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:02.108 [http-nio-8080-exec-4] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:02.113 [http-nio-8080-exec-2] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    [34mfrom[0m
+        channels c1_0 
+    [34mwhere[0m
+        c1_0.type=? 
+        [34mor[0m c1_0.id [34min[0m (?)
+25-09-23 16:30:02.115 [http-nio-8080-exec-2] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:VARCHAR) <- [PUBLIC]
+25-09-23 16:30:02.116 [http-nio-8080-exec-2] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:UUID) <- [null]
+25-09-23 16:30:02.128 [http-nio-8080-exec-5] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:02.131 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:05.112 [http-nio-8080-exec-6] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:05.113 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:05.116 [http-nio-8080-exec-6] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    [34mfrom[0m
+        channels c1_0 
+    [34mwhere[0m
+        c1_0.type=? 
+        [34mor[0m c1_0.id [34min[0m (?)
+25-09-23 16:30:05.117 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:VARCHAR) <- [PUBLIC]
+25-09-23 16:30:05.117 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:UUID) <- [null]
+25-09-23 16:30:05.130 [http-nio-8080-exec-7] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:05.130 [http-nio-8080-exec-7] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:08.118 [http-nio-8080-exec-8] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:08.119 [http-nio-8080-exec-8] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:08.122 [http-nio-8080-exec-8] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    [34mfrom[0m
+        channels c1_0 
+    [34mwhere[0m
+        c1_0.type=? 
+        [34mor[0m c1_0.id [34min[0m (?)
+25-09-23 16:30:08.122 [http-nio-8080-exec-8] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:VARCHAR) <- [PUBLIC]
+25-09-23 16:30:08.123 [http-nio-8080-exec-8] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:UUID) <- [null]
+25-09-23 16:30:08.135 [http-nio-8080-exec-1] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:08.136 [http-nio-8080-exec-1] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:11.118 [http-nio-8080-exec-10] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:11.119 [http-nio-8080-exec-10] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:11.122 [http-nio-8080-exec-10] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    [34mfrom[0m
+        channels c1_0 
+    [34mwhere[0m
+        c1_0.type=? 
+        [34mor[0m c1_0.id [34min[0m (?)
+25-09-23 16:30:11.123 [http-nio-8080-exec-10] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:VARCHAR) <- [PUBLIC]
+25-09-23 16:30:11.123 [http-nio-8080-exec-10] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:UUID) <- [null]
+25-09-23 16:30:11.134 [http-nio-8080-exec-9] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:11.135 [http-nio-8080-exec-9] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:14.113 [http-nio-8080-exec-3] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:14.114 [http-nio-8080-exec-3] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:14.117 [http-nio-8080-exec-3] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    [34mfrom[0m
+        channels c1_0 
+    [34mwhere[0m
+        c1_0.type=? 
+        [34mor[0m c1_0.id [34min[0m (?)
+25-09-23 16:30:14.117 [http-nio-8080-exec-3] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:VARCHAR) <- [PUBLIC]
+25-09-23 16:30:14.117 [http-nio-8080-exec-3] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:UUID) <- [null]
+25-09-23 16:30:14.129 [http-nio-8080-exec-4] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:14.130 [http-nio-8080-exec-4] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:17.119 [http-nio-8080-exec-2] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:17.120 [http-nio-8080-exec-2] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:17.123 [http-nio-8080-exec-2] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    [34mfrom[0m
+        channels c1_0 
+    [34mwhere[0m
+        c1_0.type=? 
+        [34mor[0m c1_0.id [34min[0m (?)
+25-09-23 16:30:17.124 [http-nio-8080-exec-2] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:VARCHAR) <- [PUBLIC]
+25-09-23 16:30:17.124 [http-nio-8080-exec-2] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:UUID) <- [null]
+25-09-23 16:30:17.136 [http-nio-8080-exec-5] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    [34mfrom[0m
+        read_statuses rs1_0 
+    [34mwhere[0m
+        rs1_0.user_id=?
+25-09-23 16:30:17.137 [http-nio-8080-exec-5] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:20.054 [http-nio-8080-exec-6] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    [34mfrom[0m
+        user_statuses us1_0 
+    [34mwhere[0m
+        us1_0.user_id=?
+25-09-23 16:30:20.055 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:20.058 [http-nio-8080-exec-6] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* [34mupdate[0m
+        [34mfor[0m com.sprint.mission.discodeit.entity.UserStatus */[34mupdate[0m user_statuses 
+    [34mset[0m
+        last_active_at=?,
+        updated_at=?,
+        user_id=? 
+    [34mwhere[0m
+        id=?
+25-09-23 16:30:20.059 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:TIMESTAMP_UTC) <- [2025-09-23T07:30:20.045Z]
+25-09-23 16:30:20.059 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (2:TIMESTAMP_UTC) <- [2025-09-23T07:30:20.057158Z]
+25-09-23 16:30:20.060 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (3:UUID) <- [16a1fff7-b85a-4157-8756-4bd6fefedfd0]
+25-09-23 16:30:20.060 [http-nio-8080-exec-6] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (4:UUID) <- [935e1020-b54f-4eba-b499-e0b1c336d603]
+25-09-23 16:30:21.516 [http-nio-8080-exec-7] [32mDEBUG[0;39m org.hibernate.SQL                    - 
+    /* <criteria> */ [34mselect[0m
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        u1_0.profile_id,
+        u1_0.updated_at,
+        u1_0.username 
+    [34mfrom[0m
+        users u1_0 
+    [34mwhere[0m
+        u1_0.username=?
+25-09-23 16:30:21.517 [http-nio-8080-exec-7] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          - binding parameter (1:VARCHAR) <- [ayanemoona@naver.com]
+25-09-23 19:15:10.202 [HikariPool-1 housekeeper] [33mWARN [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=10m1s783ms143µs400ns).
+25-09-23 19:32:38.795 [HikariPool-1 housekeeper] [33mWARN [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=11m58s498ms233µs900ns).
+25-09-23 20:05:48.721 [HikariPool-1 housekeeper] [33mWARN [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m25s297ms722µs).
