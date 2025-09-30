@@ -31,7 +31,7 @@ class UserRepositoryTest {
         BinaryContent profile = new BinaryContent("profile.png", 100L, "image/png");
         User user = new User(username, email, "password1234", profile);
         UserStatus userStatus = new UserStatus(user, Instant.now());
-        return user;
+        return userRepository.save(user);
     }
 
     @Test
@@ -39,7 +39,7 @@ class UserRepositoryTest {
         // givenExistingUsername_whenFindByUsername_thenReturnOptionalUser
     void findByUsername_withExistingUsername_returnsOptionalUser() {
         // given
-        userRepository.save(createUser("test01", "test01@email.com"));
+        User user = createUser("test01", "test01@email.com");
         em.flush();
         em.clear();
 
@@ -55,7 +55,7 @@ class UserRepositoryTest {
     @DisplayName("username으로 존재하지 않는 사용자 조회하면 Optional<User> 반환")
     void findByUsername_withNonExistingUsername_returnsEmptyOptional() {
         // given
-        userRepository.save(createUser("test01", "test01@email.com"));
+        User user = createUser("test01", "test01@email.com");
         em.flush();
         em.clear();
 
@@ -85,7 +85,7 @@ class UserRepositoryTest {
     @DisplayName("email로 사용자 조회했을 때 일치하는 사용자가 없다면 false 반환")
     void existsByEmail_withNonExistingEmail_returnsFalse() {
         // given
-        userRepository.save(createUser("test01", "test01@email.com"));
+        User user = createUser("test01", "test01@email.com");
         em.flush();
         em.clear();
 
@@ -100,7 +100,7 @@ class UserRepositoryTest {
     @DisplayName("username으로 사용자 조회했을 때 일치하는 사용자가 있다면 true 반환")
     void existsByUsername_withExistingUsernamel_returnsTrue() {
         // given
-        userRepository.save(createUser("test01", "test01@email.com"));
+        User user = createUser("test01", "test01@email.com");
         em.flush();
         em.clear();
 
@@ -115,7 +115,7 @@ class UserRepositoryTest {
     @DisplayName("username으로 사용자 조회했을 때 일치하는 사용자가 없다면 false 반환")
     void existsByUsername_withNonExistingUsername_returnsFalse() {
         // given
-        userRepository.save(createUser("test01", "test01@email.com"));
+        User user = createUser("test01", "test01@email.com");
         em.flush();
         em.clear();
 
@@ -130,8 +130,8 @@ class UserRepositoryTest {
     @DisplayName("모든 사용자 정보 List로 반환")
     void findAllWithProfileAndStatus() {
         // given
-        userRepository.save(createUser("test01", "test01@email.com"));
-        userRepository.save(createUser("test02", "test02@email.com"));
+        User user1 = createUser("test01", "test01@email.com");
+        User user2 = createUser("test02", "test02@email.com");
         em.flush();
         em.clear();
 

@@ -26,7 +26,7 @@ class ChannelRepositoryTest {
 
     private Channel createChannel(ChannelType channelType, String name) {
         Channel channel = new Channel(channelType, name, "test");
-        return channel;
+        return channelRepository.save(channel);
     }
 
     @Test
@@ -36,7 +36,7 @@ class ChannelRepositoryTest {
         Channel publicChannel = createChannel(ChannelType.PUBLIC, "공개 채널");
         Channel privateChannel1 = createChannel(ChannelType.PRIVATE, "비공개 채널1");
         Channel privateChannel2 = createChannel(ChannelType.PRIVATE, "비공개 채널2");
-        channelRepository.saveAllAndFlush(List.of(publicChannel, privateChannel1, privateChannel2));
+        em.flush();
         em.clear();
 
         // when
@@ -53,7 +53,7 @@ class ChannelRepositoryTest {
         Channel publicChannel = createChannel(ChannelType.PUBLIC, "공개 채널");
         Channel privateChannel1 = createChannel(ChannelType.PRIVATE, "비공개 채널1");
         Channel privateChannel2 = createChannel(ChannelType.PRIVATE, "비공개 채널2");
-        channelRepository.saveAllAndFlush(List.of(publicChannel, privateChannel1, privateChannel2));
+        em.flush();
         em.clear();
 
         // when
