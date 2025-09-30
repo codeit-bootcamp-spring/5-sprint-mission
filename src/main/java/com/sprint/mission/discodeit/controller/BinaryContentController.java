@@ -1,12 +1,14 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @Tag(name = "BinaryContent", description = "첨부파일 API")
 @RestController
 @RequiredArgsConstructor
@@ -37,8 +40,9 @@ public class BinaryContentController {
   //파일 등록
   @Operation(summary = "파일 등록")
   @PostMapping("/api/binaryContents")
-  public ResponseEntity<UUID> create(@RequestBody BinaryContentDto dto) {
+  public ResponseEntity<UUID> create(@RequestBody @Valid BinaryContentDto dto) {
     UUID id = binaryContentService.create(dto);
+    log.info("파일 등록 완료: id = {}", id); // 완료 로그
     return ResponseEntity.status(HttpStatus.CREATED).body(id);
   }
 
@@ -46,8 +50,9 @@ public class BinaryContentController {
   //파일 1개 조회
   @Operation(summary = "파일 1개 조회")
   @GetMapping("/api/binaryContents/{binaryContentId}")
-  public ResponseEntity<BinaryContentDto> findById(@PathVariable UUID id) {
+  public ResponseEntity<BinaryContentDto> findById(@PathVariable("binaryContentId") UUID id) {
     BinaryContentDto fileDto = binaryContentService.findById(id);
+    log.info("파일 조회 요청: id={}", id); //완료 로그
     return ResponseEntity.ok(fileDto);
   }
 
@@ -55,6 +60,7 @@ public class BinaryContentController {
   @Operation(summary = "파일 다운로드")
   @RequestMapping(value = "/download", method = RequestMethod.GET)
   public ResponseEntity<byte[]> downloadFile(@RequestParam UUID id) {
+    log.info("파일 다운로드 요청: id={}", id); //다운 요청 로그
     BinaryContentDto fileDto = binaryContentService.findById(id);
 
     return ResponseEntity.ok()
@@ -69,6 +75,7 @@ public class BinaryContentController {
   @GetMapping("/api/binaryContents")
   public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
       @RequestParam List<UUID> Ids) {
+    log.info("여러 파일 조회 요청: {}개", Ids.size()); //여러개 조회 로그
     List<BinaryContentDto> files = binaryContentService.findAllByIdIn(Ids);
     return ResponseEntity.ok(files);
   }
@@ -79,6 +86,7 @@ public class BinaryContentController {
   @DeleteMapping("/api/binaryContents/{binaryContentId}")
   public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
     binaryContentService.deleteById(id);
+    log.info("파일 삭제 완료: id={}", id); // 완료 로그
     return ResponseEntity.noContent().build();
   }
 }

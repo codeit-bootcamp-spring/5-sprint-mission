@@ -1,0 +1,33 @@
+spring:
+  jmx:
+    enabled: true
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create #엔티티 작성한대로 자동 테이블 만들기 <-> none: 스키마.sql로 테이블 만들기
+    show-sql: false    #콘솔에 SQL 출력 원하면 true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        show_sql: true
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+
+logging:
+  level:
+    root: info # 개발 전체 로그
+    org.hibernate.type: trace
+    org.hibernate.SQL: debug
+
+server:
+  port: 8080

@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
+import com.sprint.mission.discodeit.exception.user.UserEmailAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -12,9 +15,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -30,10 +35,12 @@ public class UserServiceImpl implements UserService {
   @Transactional
   public UserDto create(UserDto dto, MultipartFile profile) throws IOException {
     if (existsByUsername(dto.getUsername())) {
-      throw new IllegalArgumentException("사용자 이름이 이미 존재합니다.");
+      log.warn("회원가입 실패(중복 username): {}", dto.getUsername());
+      throw new DuplicateUserException();
     }
     if (existsByEmail(dto.getEmail())) {
-      throw new IllegalArgumentException("이메일이 이미 존재합니다.");
+      log.warn("회원가입 실패(중복 email): {}", dto.getEmail());
+      throw new UserEmailAlreadyExistsException();
     }
 
     // DTO -> Entity 변환
@@ -52,6 +59,7 @@ public class UserServiceImpl implements UserService {
 
     // DB 저장 후 Entity -> DTO 변환하여 반환
     User createdUser = userRepository.save(user);
+    log.info("회원가입 완료: userId={}", createdUser.getId());
     return userMapper.toDto(createdUser);
   }
 
@@ -61,8 +69,13 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional
   public UserDto findById(UUID id) {
+    log.info("유저 단건조회 시도: userId={}", id);
     User user = userRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음"));
+        .orElseThrow(() -> {
+          log.warn("유저 단건조회 실패(없음): userId={}", id);
+          return new UserNotFoundException();
+        });
+    log.info("유저 단건조회 성공: userId={}", id);
     return userMapper.toDto(user);
   }
 
@@ -72,6 +85,7 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional
   public List<UserDto> findAll() {
+    log.info("전체 유저 목록 조회");
     List<User> users = userRepository.findAll();
     return userMapper.toDtoList(users);
   }
@@ -83,7 +97,10 @@ public class UserServiceImpl implements UserService {
   @Transactional
   public UserDto update(UUID id, UserDto dto, MultipartFile profileImage) throws IOException {
     User user = userRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음"));
+        .orElseThrow(() -> {
+          log.warn("회원정보 수정 실패(없는 유저): userId={}", id);
+          return new UserNotFoundException();
+        });
 
     // Mapper를 통해 엔티티 값 업데이트
     userMapper.updateEntityFromDto(user, dto);
@@ -105,6 +122,7 @@ public class UserServiceImpl implements UserService {
     }
 
     // 변경된 엔티티를 DTO로 변환하여 반환 (Dirty Checking으로 자동 업데이트)
+    log.info("회원정보 수정 완료: userId={}", id);
     return userMapper.toDto(user);
   }
 
@@ -112,8 +130,9 @@ public class UserServiceImpl implements UserService {
   @Transactional
   public void delete(UUID id) {
     User user = userRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음"));
+        .orElseThrow(() -> new UserNotFoundException());
     userRepository.delete(user);
+    log.info("회원 탈퇴 완료: userId={}", id);
   }
 
   @Override

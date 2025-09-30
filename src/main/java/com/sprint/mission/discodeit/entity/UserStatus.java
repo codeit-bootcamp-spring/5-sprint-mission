@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "userstatuses")
+@Table(name = "USER_STATUSES")
 @Getter
 @NoArgsConstructor
 public class UserStatus extends BaseUpdatableEntity {

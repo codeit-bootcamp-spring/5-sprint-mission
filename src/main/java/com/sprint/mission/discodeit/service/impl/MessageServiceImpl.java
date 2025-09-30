@@ -1,10 +1,13 @@
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.MessageDto;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -15,9 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
@@ -42,11 +47,11 @@ public class MessageServiceImpl implements MessageService {
   public MessageDto create(MessageDto dto, List<MultipartFile> attachments) { // ✅ 반환 타입 변경
     // 1. 작성자 찾기
     User author = userRepository.findById(dto.getAuthorId())
-        .orElseThrow(() -> new IllegalArgumentException("작성자 없음"));
+        .orElseThrow(() -> new UserNotFoundException());
 
     //2. 채널 찾기
     Channel channel = channelRepository.findById(dto.getChannelId())
-        .orElseThrow(() -> new IllegalArgumentException("채널 정보 없음"));
+        .orElseThrow(() -> new ChannelNotFoundException());
 
     //3. 메세지 객체 생성
     Message message = messageMapper.toEntityForCreate(dto, author, channel);
@@ -66,7 +71,9 @@ public class MessageServiceImpl implements MessageService {
           );
           content.setMessage(message); // 이 파일은 이 메세지에 속해있다
           attachmentEntities.add(content); // 저장 목록 추가
+          log.info("첨부파일 처리 완료: filename={}", file.getOriginalFilename());
         } catch (Exception e) {
+          log.error("첨부파일 처리 실패: filename={}", file.getOriginalFilename(), e);
           throw new RuntimeException("첨부파일 처리 실패: " + file.getOriginalFilename(), e);
         }
       }
@@ -80,9 +87,10 @@ public class MessageServiceImpl implements MessageService {
   //메세지 단건 조회
   @Override
   @Transactional
-  public MessageDto findById(UUID id) { //
+  public MessageDto findById(UUID id) {
     Message message = messageRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("해당 메세지를 찾을 수 없습니다."));
+        .orElseThrow(() -> new MessageNotFoundException());
+    log.info("메시지 단건조회 성공: id={}", id);
     return messageMapper.toDto(message);
   }
 
@@ -90,11 +98,13 @@ public class MessageServiceImpl implements MessageService {
   @Override
   @Transactional
   public List<MessageDto> findAllByChannelId(UUID channelId) {
-    // 메시지 테이블에 channel_id FK로 조회
-    return messageRepository.findAll().stream()
+    log.info("채널 내 모든 메시지 조회 시도: channelId={}", channelId);
+    List<MessageDto> dtos = messageRepository.findAll().stream()
         .filter(msg -> msg.getChannel() != null && channelId.equals(msg.getChannel().getId()))
         .map(messageMapper::toDto)
         .toList();
+    log.info("채널 내 모든 메시지 조회 완료: 반환 개수={}", dtos.size());
+    return dtos;
   }
 
   /* 메세지 수정
@@ -105,8 +115,9 @@ public class MessageServiceImpl implements MessageService {
   @Transactional
   public MessageDto update(UUID id, MessageDto dto) {
     Message message = messageRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("해당 메세지 없음"));
+        .orElseThrow(() -> new MessageNotFoundException());
     messageMapper.updateEntityFromDto(message, dto);
+    log.info("메시지 수정 완료: id={}", id);
     return messageMapper.toDto(message);
   }
 
@@ -114,7 +125,8 @@ public class MessageServiceImpl implements MessageService {
   @Transactional
   public void delete(UUID id) {
     Message message = messageRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("해당 메세지 없음"));
+        .orElseThrow(() -> new MessageNotFoundException());
     messageRepository.delete(message);
+    log.info("메시지 삭제 완료: id={}", id);
   }
 }

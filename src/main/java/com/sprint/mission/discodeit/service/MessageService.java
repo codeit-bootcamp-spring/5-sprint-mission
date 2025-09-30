@@ -4,7 +4,7 @@ package com.sprint.mission.discodeit.service;
 //기능의 약속을 정의하며 다중 구현이 가능
 //CRUD(생성,읽기,모두읽기,수정,삭제)의 기능 구현하기
 
-import com.sprint.mission.discodeit.dto.MessageDto;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;

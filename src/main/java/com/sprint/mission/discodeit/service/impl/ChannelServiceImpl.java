@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.service.impl;
 
-import com.sprint.mission.discodeit.dto.ChannelDto;
+import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -9,20 +10,23 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChannelServiceImpl implements ChannelService {
 
   private final ChannelMapper channelMapper;
-  private ChannelRepository channelRepository;
+  private final ChannelRepository channelRepository;
 
   //채널 생성
   @Override
   @Transactional
   public void create(Channel channel) {
     channelRepository.save(channel);
+    log.info("채널 생성 완료: name={}", channel.getName());
   }
 
   //채널 단건 조회
@@ -30,7 +34,8 @@ public class ChannelServiceImpl implements ChannelService {
   @Transactional
   public ChannelDto findById(UUID id) {
     Channel channel = channelRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
+        .orElseThrow(() -> new ChannelNotFoundException());
+    log.info("채널 단건조회 성공: id={}", id);
     return channelMapper.toDto(channel);
   }
 
@@ -38,6 +43,7 @@ public class ChannelServiceImpl implements ChannelService {
   @Override
   @Transactional
   public List<ChannelDto> findAll() {
+    log.info("채널 전체 조회");
     List<Channel> channels = channelRepository.findAll();
     return channelMapper.toDtoList(channels);
   }
@@ -50,9 +56,10 @@ public class ChannelServiceImpl implements ChannelService {
   @Transactional
   public void update(UUID id, ChannelDto dto) {
     Channel channel = channelRepository.findById(id) // 영속성 컨텍스트에 의해 관리
-        .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
+        .orElseThrow(() -> new ChannelNotFoundException());
 
     channelMapper.updateEntityFromDto(channel, dto);
+    log.info("채널 정보 수정 완료: id={}", id);
   }
 
 
@@ -61,8 +68,9 @@ public class ChannelServiceImpl implements ChannelService {
   @Transactional
   public void delete(UUID id) {
     Channel channel = channelRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없음"));
+        .orElseThrow(() -> new ChannelNotFoundException());
     channelRepository.delete(channel);
+    log.info("채널 삭제 완료: id={}", id);
   }
 
 
@@ -76,6 +84,7 @@ public class ChannelServiceImpl implements ChannelService {
   public void createPrivateChannel(ChannelDto dto) {
     Channel channel = channelMapper.toEntity(dto);
     channelRepository.save(channel);
+    log.info("비공개채널 생성 완료: name={}", dto.getName());
   }
 
   //공개채널 생성
@@ -83,6 +92,10 @@ public class ChannelServiceImpl implements ChannelService {
   @Transactional
   public void createPublicChannel(ChannelDto dto) {
     Channel channel = channelMapper.toEntity(dto);
+    if (channel == null) {
+      throw new IllegalArgumentException("채널 변환 실패(null)");
+    }
     channelRepository.save(channel);
+    log.info("공개채널 생성 완료: name={}", dto.getName());
   }
 }
