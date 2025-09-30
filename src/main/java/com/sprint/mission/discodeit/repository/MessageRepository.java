@@ -46,7 +46,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 	@Query("""
 	  SELECT m
 	  FROM Message m
-	  JOIN fetch m.attachments
+	  LEFT JOIN fetch m.attachments
 	  JOIN fetch m.user u
 	  JOIN fetch m.channel
 	  Left JOIN fetch u.profileImage

@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
 
 		HttpStatus status = determineHttpStatus(e);
 		// 에러 메시지 추출 및 응답 생성
-		return ResponseEntity.status(NOT_FOUND).body(ErrorResponse.builder()
+		return ResponseEntity.status(status).body(ErrorResponse.builder()
 		  .timestamp(e.getTimestamp())
 		  .code(e.getErrorCode().name())
 		  .message(e.getMessage())

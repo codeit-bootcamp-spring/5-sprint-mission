@@ -16,12 +16,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Getter
 @NoArgsConstructor
 @SuperBuilder
 @Entity
+@ToString(callSuper = true) // todo 지워야함
 @EqualsAndHashCode(callSuper = true)
 public class Message extends BaseUpdatableEntity {
 

@@ -102,7 +102,8 @@ public class BasicUserService implements UserService {
 		log.debug("success delete userStatusEntity  userID={}", userId);
 
 		// 2. Profile Image 삭제
-		if (binaryContentRepository.findById(targetUser.getProfileImage().getId()).isPresent()) {
+		Optional<BinaryContent> profileImage = Optional.ofNullable(targetUser.getProfileImage());
+		if (profileImage.isPresent() && binaryContentRepository.findById(profileImage.get().getId()).isPresent()) {
 			binaryContentRepository.deleteById(targetUser.getProfileImage().getId());
 			binaryContentStorage.put(targetUser.getProfileImage().getId(), null); // 스토리지에서 삭제
 			log.debug("success delete userProfile  userID={}", userId);
