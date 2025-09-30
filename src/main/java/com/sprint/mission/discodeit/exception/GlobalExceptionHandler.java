@@ -1,66 +1,97 @@
 package com.sprint.mission.discodeit.exception;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.NoSuchElementException;
+import java.time.Instant;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
-  // 401/404/409 등 원래 의도한 상태코드를 그대로 유지
-  @ExceptionHandler(ResponseStatusException.class)
-  public ResponseEntity<String> handle(ResponseStatusException e) {
-    log.warn("ResponseStatusException: {} {}", e.getStatusCode(), e.getReason(), e);
-    String body = e.getReason() != null ? e.getReason() : e.getMessage();
-    return ResponseEntity.status(e.getStatusCode()).body(body);
+  @ExceptionHandler(DiscodeitException.class)
+  public ResponseEntity<ErrorResponse> handleDiscodeit(DiscodeitException e) {
+    ErrorResponse body = ErrorResponse.of(e);
+    log.warn("[EX] code={} status={} type={} msg={} details={}",
+        body.getCode(), body.getStatus(), body.getExceptionType(),
+        body.getMessage(), body.getDetails());
+    return ResponseEntity.status(body.getStatus()).body(body);
   }
 
-  // 유효성 검증 실패 → 400
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<String> handle(MethodArgumentNotValidException e) {
-    log.warn("Validation failed", e);
-    var msg = e.getBindingResult().getFieldErrors().stream()
-        .findFirst()
-        .map(fe -> fe.getField() + " " + fe.getDefaultMessage())
-        .orElse("Bad request");
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg);
+  public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e) {
+    BindingResult br = e.getBindingResult();
+    Map<String, Object> details = br.getFieldErrors().stream()
+        .collect(Collectors.toMap(
+            fe -> fe.getField(),
+            fe -> fe.getDefaultMessage(),
+            (a, b) -> a
+        ));
+    ErrorResponse body = ErrorResponse.builder()
+        .timestamp(Instant.now())
+        .code(ErrorCode.INVALID_REQUEST.name())
+        .message("요청 데이터가 올바르지 않습니다.")
+        .details(details)
+        .exceptionType(e.getClass().getSimpleName())
+        .status(ErrorCode.INVALID_REQUEST.getStatus().value())
+        .build();
+    log.warn("[EX][VALID] {}", details);
+    return ResponseEntity.status(body.getStatus()).body(body);
   }
 
-  // 중복/제약 위반 → 409
-  @ExceptionHandler(DataIntegrityViolationException.class)
-  public ResponseEntity<String> handle(DataIntegrityViolationException e) {
-    log.warn("Constraint violation", e);
-    return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict");
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<ErrorResponse> handleConstraint(ConstraintViolationException e) {
+    Map<String, Object> details = e.getConstraintViolations().stream()
+        .collect(Collectors.toMap(
+            v -> v.getPropertyPath().toString(),
+            v -> v.getMessage(),
+            (a, b) -> a
+        ));
+    ErrorResponse body = ErrorResponse.builder()
+        .timestamp(Instant.now())
+        .code(ErrorCode.INVALID_REQUEST.name())
+        .message("요청 데이터가 올바르지 않습니다.")
+        .details(details)
+        .exceptionType(e.getClass().getSimpleName())
+        .status(ErrorCode.INVALID_REQUEST.getStatus().value())
+        .build();
+    log.warn("[EX][CONSTRAINT] {}", details);
+    return ResponseEntity.status(body.getStatus()).body(body);
   }
 
-  // 잘못된 요청 → 400
-  @ExceptionHandler(IllegalArgumentException.class)
-  public ResponseEntity<String> handle(IllegalArgumentException e) {
-    log.warn("Illegal argument", e);
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ErrorResponse> handleNotReadable(HttpMessageNotReadableException e) {
+    ErrorResponse body = ErrorResponse.builder()
+        .timestamp(Instant.now())
+        .code(ErrorCode.INVALID_REQUEST.name())
+        .message("요청 본문을 읽을 수 없습니다.")
+        .details(Map.of("reason", e.getMostSpecificCause().getMessage()))
+        .exceptionType(e.getClass().getSimpleName())
+        .status(ErrorCode.INVALID_REQUEST.getStatus().value())
+        .build();
+    log.warn("[EX][NOT_READABLE] {}", body.getDetails());
+    return ResponseEntity.status(body.getStatus()).body(body);
   }
 
-  // 리소스 없음 → 404
-  @ExceptionHandler(NoSuchElementException.class)
-  public ResponseEntity<String> handle(NoSuchElementException e) {
-    log.warn("Not found", e);
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-  }
-
-  // 마지막 보루만 500
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<String> handle(Exception e) {
-    log.error("Unexpected error", e);
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+  public ResponseEntity<ErrorResponse> handleAny(Exception e) {
+    log.error("Unhandled exception", e);
+    ErrorResponse body = ErrorResponse.builder()
+        .timestamp(Instant.now())
+        .code(ErrorCode.INTERNAL_ERROR.name())
+        .message(e.getMessage())
+        .details(Map.of())
+        .exceptionType(e.getClass().getSimpleName())
+        .status(ErrorCode.INTERNAL_ERROR.getStatus().value())
+        .build();
+    return ResponseEntity.status(body.getStatus()).body(body);
   }
 }

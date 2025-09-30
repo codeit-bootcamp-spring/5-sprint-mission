@@ -1,35 +1,46 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.auth.InvalidCredentialsException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
-
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
+  private final UserMapper userMapper;
 
+  @Transactional(readOnly = true)
   @Override
-  public User login(LoginRequest loginRequest) {
+  public UserDto login(LoginRequest loginRequest) {
     String username = loginRequest.username();
     String password = loginRequest.password();
 
-    User user = userRepository.findByUsername(username)
-        .orElseThrow(() ->
-            new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password"));
+    log.info("[AUTH][LOGIN] username={}", username);
 
-    if (!Objects.equals(user.getPassword(), password)) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> {
+          log.warn("[AUTH][LOGIN] user not found username={}", username);
+          return new UserNotFoundException(username);
+        });
+
+    if (!user.getPassword().equals(password)) {
+      log.warn("[AUTH][LOGIN] invalid password username={}", username);
+      throw new InvalidCredentialsException(username);
     }
 
-    return user;
+    log.info("[AUTH][LOGIN][SUCCESS] userId={}", user.getId());
+    return userMapper.toDto(user);
   }
 }

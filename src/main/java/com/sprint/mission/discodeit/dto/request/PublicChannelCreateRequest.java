@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.dto.request;
 
-public record PublicChannelCreateRequest(
-    String name,
-    String description
-) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-}
+public record PublicChannelCreateRequest(
+    @NotBlank @Size(max = 30) String name,
+    @Size(max = 200) String description
+) {}

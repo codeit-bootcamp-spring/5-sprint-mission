@@ -1,37 +1,38 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import jakarta.persistence.*;   // 중요: jakarta 패키지
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(
-    name = "users",
-    indexes = {
-        @Index(name = "idx_users_username", columnList = "username"),
-        @Index(name = "idx_users_email", columnList = "email")
-    }
-)
+@Table(name = "users")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA를 위한 기본 생성자
 public class User extends BaseUpdatableEntity {
 
-  @Column(name = "username", length = 50, nullable = false, unique = true)
+  @Column(length = 50, nullable = false, unique = true)
   private String username;
-
-  @Column(name = "email", length = 100, nullable = false, unique = true)
+  @Column(length = 100, nullable = false, unique = true)
   private String email;
-
-  @Column(name = "password", length = 60, nullable = false)
+  @Column(length = 60, nullable = false)
   private String password;
-
-  @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "profile_id")
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JoinColumn(name = "profile_id", columnDefinition = "uuid")
   private BinaryContent profile;
-
+  @JsonManagedReference
+  @Setter(AccessLevel.PROTECTED)
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private UserStatus status;
-
-  protected User() {}
 
   public User(String username, String email, String password, BinaryContent profile) {
     this.username = username;
@@ -40,11 +41,19 @@ public class User extends BaseUpdatableEntity {
     this.profile = profile;
   }
 
-  public void update(String username, String email) {
-    if (username != null) this.username = username;
-    if (email != null) this.email = email;
+  public void update(String newUsername, String newEmail, String newPassword,
+      BinaryContent newProfile) {
+    if (newUsername != null && !newUsername.equals(this.username)) {
+      this.username = newUsername;
+    }
+    if (newEmail != null && !newEmail.equals(this.email)) {
+      this.email = newEmail;
+    }
+    if (newPassword != null && !newPassword.equals(this.password)) {
+      this.password = newPassword;
+    }
+    if (newProfile != null) {
+      this.profile = newProfile;
+    }
   }
-  public void changePassword(String newPassword) { this.password = newPassword; }
-  public void changeProfile(BinaryContent newProfile) { this.profile = newProfile; }
 }
-
