@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.entity.base;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -11,10 +11,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 public abstract class BaseUpdatableEntity extends BaseEntity {
 
   @LastModifiedDate
-  @Column
+  @Column(columnDefinition = "timestamp with time zone")
   protected Instant updatedAt;
-
-  public void updateTimestamp() {
-    this.updatedAt = Instant.now();
-  }
 }

@@ -4,11 +4,14 @@ import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.MessageDto.CreateCommand;
 import com.sprint.mission.discodeit.dto.MessageDto.UpdateCommand;
-import com.sprint.mission.discodeit.dto.PageResponse;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -19,10 +22,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -40,10 +45,10 @@ public class BasicMessageService implements MessageService {
   public MessageDto.Detail create(CreateCommand create) {
 
     User author = userRepository.findById(create.getAuthorId())
-                                .orElseThrow(() -> new RuntimeException("User not found"));
+                                .orElseThrow(() -> new UserNotFoundException(create.getAuthorId()));
     Channel channel = channelRepository.findById(create.getChannelId())
-                                       .orElseThrow(
-                                           () -> new RuntimeException("Channel not found"));
+                                       .orElseThrow(() -> new ChannelNotFoundException(
+                                           create.getChannelId()));
 
     List<BinaryContent> contents = null;
     if (create.getAttachments() != null && !create.getAttachments()
@@ -59,6 +64,8 @@ public class BasicMessageService implements MessageService {
     Message message = messageRepository.save(
         messageMapper.toEntity(create, channel, author, contents));
 
+    log.info("Message {} created", message.getId());
+
     return messageMapper.toDetail(message);
   }
 
@@ -68,9 +75,13 @@ public class BasicMessageService implements MessageService {
 
     Message message = messageRepository.findById(update.getId())
                                        .orElseThrow(
-                                           () -> new RuntimeException("Message not found"));
+                                           () -> new MessageNotFoundException(update.getId()));
 
     message.update(update.getContent());
+
+//    messageRepository.save(message);
+
+    log.info("Message {} updated", message.getId());
 
     return messageMapper.toDetail(message);
   }
@@ -79,8 +90,7 @@ public class BasicMessageService implements MessageService {
   public MessageDto.Detail findById(UUID id) {
 
     Message message = messageRepository.findById(id)
-                                       .orElseThrow(
-                                           () -> new RuntimeException("Message not found"));
+                                       .orElseThrow(() -> new MessageNotFoundException(id));
 
     return messageMapper.toDetail(message);
   }
@@ -116,17 +126,11 @@ public class BasicMessageService implements MessageService {
   public void delete(UUID id) {
 
     Message message = messageRepository.findById(id)
-                                       .orElseThrow(
-                                           () -> new RuntimeException("Message not found"));
+                                       .orElseThrow(() -> new MessageNotFoundException(id));
 
     messageRepository.delete(message);
 
-    if (!message.getAttachments()
-                .isEmpty()) {
-
-      message.getAttachments()
-             .forEach(a -> binaryContentService.delete(a.getId()));
-    }
+    log.info("Message {} deleted", message.getId());
   }
 
   @Override

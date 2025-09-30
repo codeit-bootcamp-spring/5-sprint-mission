@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -39,12 +40,12 @@ public class UserController {
   @Operation(summary = "User 생성")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserDto.DetailResponse> createUser(
-      @RequestPart("userCreateRequest") CreateRequest request,
+      @Valid @RequestPart("userCreateRequest") CreateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
                          .body(userMapper.toDetailResponse(
-                             userService.create(request.toCommand(profile))));
+                             userService.create(userMapper.toCommand(request, profile))));
   }
 
   @Operation(summary = "User 수정")
@@ -53,8 +54,8 @@ public class UserController {
       @RequestPart("userUpdateRequest") UpdateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    return ResponseEntity.ok(
-        userMapper.toDetailResponse(userService.update(request.toCommand(id, profile))));
+    return ResponseEntity.ok(userMapper.toDetailResponse(
+        userService.update(userMapper.toCommand(id, request, profile))));
   }
 
   @Operation(summary = "User 삭제")

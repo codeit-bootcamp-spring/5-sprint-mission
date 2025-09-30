@@ -12,21 +12,13 @@ import lombok.Setter;
 public class ChannelDto {
 
   @Getter
+  @Builder
   @Schema(name = "ChannelCreateRequest")
   public static class CreateRequest {
 
     String name;
     String description;
     List<UUID> participantIds;
-
-    public CreateCommand toCommand(ChannelType type) {
-      return CreateCommand.builder()
-                          .type(type)
-                          .name(this.name)
-                          .description(this.description)
-                          .participantIds(this.participantIds)
-                          .build();
-    }
   }
 
   @Getter
@@ -48,15 +40,6 @@ public class ChannelDto {
     String name;
     String description;
     List<UUID> participantIds;
-
-    public UpdateCommand toCommand(UUID id) {
-      return UpdateCommand.builder()
-                          .id(id)
-                          .name(this.name)
-                          .description(this.description)
-                          .participantIds(this.participantIds)
-                          .build();
-    }
   }
 
   @Getter

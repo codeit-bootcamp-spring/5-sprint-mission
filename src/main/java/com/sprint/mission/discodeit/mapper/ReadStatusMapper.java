@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateCommand;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
@@ -25,5 +26,13 @@ public abstract class ReadStatusMapper {
                      .lastReadAt(create.getLastReadAt() != null ? create.getLastReadAt()
                          : channel.getCreatedAt())
                      .build();
+  }
+
+  public CreateCommand toCommand(CreateRequest request) {
+    return CreateCommand.builder()
+                        .userId(request.getUserId())
+                        .channelId(request.getChannelId())
+                        .lastReadAt(request.getLastReadAt())
+                        .build();
   }
 }

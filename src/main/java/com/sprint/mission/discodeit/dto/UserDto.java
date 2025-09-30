@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.dto;
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,21 +12,17 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserDto {
 
   @Getter
+  @Builder
   @Schema(name = "UserCreateRequest")
   public static class CreateRequest {
 
+    @NotBlank(message = "사용자명은 필수 입력값입니다.")
     private String username;
+    @NotBlank(message = "이메일은 필수 입력값입니다.")
+    @Email(message = "올바른 이메일 형식이어야 합니다.")
     private String email;
+    @NotBlank(message = "비밀번호는 필수 입력값입니다.")
     private String password;
-
-    public CreateCommand toCommand(MultipartFile profileImage) {
-      return CreateCommand.builder()
-                          .username(this.username)
-                          .email(this.email)
-                          .password(this.password)
-                          .profileImage(profileImage)
-                          .build();
-    }
   }
 
   @Getter
@@ -40,22 +36,13 @@ public class UserDto {
   }
 
   @Getter
+  @Builder
   @Schema(name = "UserUpdateRequest")
   public static class UpdateRequest {
 
     private String newUsername;
     private String newEmail;
     private String newPassword;
-
-    public UpdateCommand toCommand(UUID id, MultipartFile profileImage) {
-      return UpdateCommand.builder()
-                          .id(id)
-                          .username(this.newUsername)
-                          .email(this.newEmail)
-                          .password(this.newPassword)
-                          .profileImage(profileImage)
-                          .build();
-    }
   }
 
   @Getter

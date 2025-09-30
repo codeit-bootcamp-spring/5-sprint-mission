@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto;
 
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentCreateException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -16,20 +17,6 @@ public class BinaryContentDto {
 
     // TODO 추후 요구 조건에 맞춰서 변경 필요할듯?
     MultipartFile file;
-
-    public CreateCommand toCommand() {
-      try {
-        return CreateCommand.builder()
-                            .fileName(this.file.getOriginalFilename())
-                            .bytes(this.file.getBytes())
-                            .contentType(this.file.getContentType())
-                            .size(this.file.getSize())
-                            .build();
-      } catch (Exception e) {
-        // TODO 예외처리
-        return null;
-      }
-    }
   }
 
   @Getter
@@ -49,7 +36,7 @@ public class BinaryContentDto {
         this.size = file.getSize();
         this.bytes = file.getBytes();
       } catch (Exception e) {
-        // TODO 예외처리
+        throw new BinaryContentCreateException(e.getMessage());
       }
     }
   }

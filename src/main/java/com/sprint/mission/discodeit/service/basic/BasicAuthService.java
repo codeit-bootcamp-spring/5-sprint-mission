@@ -4,6 +4,8 @@ import com.sprint.mission.discodeit.dto.AuthDto.Login;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.auth.InvalidUserStatusException;
+import com.sprint.mission.discodeit.exception.auth.LoginFailedException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -30,13 +32,13 @@ public class BasicAuthService implements AuthService {
 
     if (user == null || user.getPassword() == null || !user.getPassword()
                                                            .equals(password)) {
-      throw new IllegalArgumentException("로그인 실패");
+      throw new LoginFailedException();
     }
 
     UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
                                                 .orElse(null);
     if (userStatus == null) {
-      throw new IllegalArgumentException("비정상 유저");
+      throw new InvalidUserStatusException(user.getId());
     }
 
     userStatus.update();

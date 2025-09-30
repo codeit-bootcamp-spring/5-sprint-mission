@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,7 +11,9 @@ public class AuthDto {
   @Schema(name = "LoginRequest")
   public static class LoginRequest {
 
+    @NotBlank(message = "사용자명은 필수 입력값입니다.")
     private String username;
+    @NotBlank(message = "비밀번호는 필수 입력값입니다.")
     private String password;
 
     public Login toLogin() {

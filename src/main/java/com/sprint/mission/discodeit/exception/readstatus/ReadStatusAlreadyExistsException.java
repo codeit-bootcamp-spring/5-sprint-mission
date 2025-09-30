@@ -1,0 +1,14 @@
+package com.sprint.mission.discodeit.exception.readstatus;
+
+import com.sprint.mission.discodeit.exception.ErrorCode;
+import java.util.Map;
+import java.util.UUID;
+
+public class ReadStatusAlreadyExistsException extends ReadStatusException {
+
+  public ReadStatusAlreadyExistsException(UUID userId, UUID channelId) {
+    super(ErrorCode.READ_STATUS_EXISTS,
+        Map.of("userId", userId != null ? userId : "null", "channelId",
+            channelId != null ? channelId : "null"));
+  }
+}

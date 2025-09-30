@@ -15,14 +15,6 @@ public class ReadStatusDto {
     UUID userId;
     UUID channelId;
     Instant lastReadAt;
-
-    public CreateCommand toCommand() {
-      return CreateCommand.builder()
-                          .userId(this.userId)
-                          .channelId(this.channelId)
-                          .lastReadAt(this.lastReadAt)
-                          .build();
-    }
   }
 
   @Getter

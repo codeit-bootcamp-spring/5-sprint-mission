@@ -1,23 +1,15 @@
 spring:
+  profiles:
+    active: dev   # 기본 실행 프로파일 (운영 배포 시 prod로 바꿔줌)
+
   application:
     name: discodeit
-  datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
-    username: discodeit_user
-    password: discodeit1234
-    driver-class-name: org.postgresql.Driver
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
 
-  jpa:
-    show-sql: true  # 실행 쿼리 보기
-    open-in-view: false # OSIV 비활성화
-    hibernate:
-      ddl-auto: validate  # (validate, update, create, create-drop 중 선택)
-      naming: # 컬럼 명 매칭 방법
-        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
-    properties:
-      hibernate:
-        format_sql: true # 실행 쿼리 포맷 형식으로 보기
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 discodeit:
   storage:
     type: local
@@ -28,7 +20,3 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
-logging:
-  level:
-    org.hibernate.SQL: debug         # 실행되는 SQL
-    org.hibernate.type.descriptor.sql.BasicBinder: trace  # 바인딩된 파라미터 값

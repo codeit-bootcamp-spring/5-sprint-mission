@@ -34,9 +34,8 @@ public class ChannelController {
       @RequestBody ChannelDto.CreateRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-                         .body(channelMapper.toDetailResponse(
-                             channelService.create(request.toCommand(ChannelType.PUBLIC))
-                         ));
+                         .body(channelMapper.toDetailResponse(channelService.create(
+                             channelMapper.toCommand(request, ChannelType.PUBLIC))));
   }
 
   @Operation(summary = "Channel 생성(PRIVATE)")
@@ -45,9 +44,8 @@ public class ChannelController {
       @RequestBody ChannelDto.CreateRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-                         .body(channelMapper.toDetailResponse(
-                             channelService.create(request.toCommand(ChannelType.PRIVATE))
-                         ));
+                         .body(channelMapper.toDetailResponse(channelService.create(
+                             channelMapper.toCommand(request, ChannelType.PRIVATE))));
   }
 
   @Operation(summary = "Channel 정보 수정")
@@ -56,8 +54,7 @@ public class ChannelController {
       @RequestBody ChannelDto.UpdateRequest request) {
 
     return ResponseEntity.ok(channelMapper.toDetailResponse(
-        channelService.update(request.toCommand(id))
-    ));
+        channelService.update(channelMapper.toCommand(request, id))));
   }
 
   @Operation(summary = "Channel 삭제")
@@ -73,11 +70,9 @@ public class ChannelController {
   public ResponseEntity<List<ChannelDto.DetailResponse>> findUserChannels(
       @RequestParam UUID userId) {
 
-    return ResponseEntity.ok(
-        channelService.findAllByUserId(userId)
-                      .stream()
-                      .map(channelMapper::toDetailResponse)
-                      .toList()
-    );
+    return ResponseEntity.ok(channelService.findAllByUserId(userId)
+                                           .stream()
+                                           .map(channelMapper::toDetailResponse)
+                                           .toList());
   }
 }
