@@ -3,6 +3,7 @@ spring:
     activate:
       on-profile: dev
 
+
   datasource:
     # 인메모리 (권장)
     url: jdbc:h2:mem:discodeit;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
@@ -24,6 +25,10 @@ spring:
       path: /h2-console # 접속 URL: http://localhost:8080/h2-console
       # jdbc:h2:mem:blogdb
       # jdbc:h2:file:./data/blogdb
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
 #
 logging:
   level:
