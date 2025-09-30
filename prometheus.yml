@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s # 15초마다 데이터를 가져오도록 설정
+
+scrape_configs:
+  - job_name: 'spring-boot-app'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8080']
