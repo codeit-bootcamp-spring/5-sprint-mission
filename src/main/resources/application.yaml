@@ -20,6 +20,11 @@ spring:
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         jdbc.time_zone: UTC
         open-in-view: false
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
 
 management:
   endpoints:

@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: discodeit
   sql:
     init:
       schema-locations: classpath:schema.sql
@@ -24,6 +26,11 @@ spring:
       # 접속 URL: http://localhost:8080/h2-console
       # jdbc:h2:mem:codeitdb
       # jdbc:h2:file:./data/codeitdb
+
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
 
 # log
 logging:

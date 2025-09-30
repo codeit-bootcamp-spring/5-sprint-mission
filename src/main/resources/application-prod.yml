@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: discodeit
   config:
     activate:
       on-profile: prod
@@ -16,6 +18,11 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  boot:
+    admin:
+      client:
+        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
 
 # log
 logging:
