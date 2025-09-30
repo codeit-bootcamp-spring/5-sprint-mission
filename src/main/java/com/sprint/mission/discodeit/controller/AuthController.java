@@ -1,27 +1,31 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.LoginRequest;
-import com.sprint.mission.discodeit.dto.UserResponse;
+import com.sprint.mission.discodeit.controller.api.AuthApi;
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.service.AuthService;
-import org.springframework.beans.factory.annotation.Qualifier;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
+@RequiredArgsConstructor
 @RestController
-public class AuthController {
+@RequestMapping("/api/auth")
+public class AuthController implements AuthApi {
 
-    private final AuthService authService;
+  private final AuthService authService;
 
-    public AuthController(@Qualifier("basicAuthService") AuthService authService) {
-        this.authService = authService;
-    }
-
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {
-        UserResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
-    }
+  @PostMapping(path = "login")
+  public ResponseEntity<UserDto> login(@RequestBody @Valid LoginRequest loginRequest) {
+    log.info("로그인 요청: username={}", loginRequest.username());
+    UserDto user = authService.login(loginRequest);
+    log.debug("로그인 응답: {}", user);
+    return ResponseEntity.ok(user);
+  }
 }

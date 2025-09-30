@@ -1,32 +1,23 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.ChannelPrivateCreateRequest;
-import com.sprint.mission.discodeit.dto.ChannelPublicCreateRequest;
-import com.sprint.mission.discodeit.dto.ChannelResponse;
-import com.sprint.mission.discodeit.dto.ChannelUpdateRequest;
-
+import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import java.util.List;
 import java.util.UUID;
 
-
 public interface ChannelService {
-    ChannelResponse createPrivateChannel(ChannelPrivateCreateRequest request);
 
-    ChannelResponse createPublicChannel(ChannelPublicCreateRequest request);
+  ChannelDto create(PublicChannelCreateRequest request);
 
-    ChannelResponse find(UUID channelId);
+  ChannelDto create(PrivateChannelCreateRequest request);
 
-    List<ChannelResponse> findAll();
+  ChannelDto find(UUID channelId);
 
-    List<ChannelResponse> findAllByUserId(UUID userId);
+  List<ChannelDto> findAllByUserId(UUID userId);
 
-    ChannelResponse update(ChannelUpdateRequest request);
+  ChannelDto update(UUID channelId, PublicChannelUpdateRequest request);
 
-    void delete(UUID channelId);
-
-    /**
-     * 모든 채널 데이터를 초기화합니다.
-     * 테스트 환경에서 사용됩니다.
-     */
-    void clear();
+  void delete(UUID channelId);
 }
