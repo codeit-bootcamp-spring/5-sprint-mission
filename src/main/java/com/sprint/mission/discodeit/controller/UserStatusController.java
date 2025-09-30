@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.UserStatusDto;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,9 +28,9 @@ public class UserStatusController {
   public ResponseEntity<Void> updateOnlineStatus(
       @Parameter(description = "유저의 UUID")
       @PathVariable UUID userId,
-      @RequestBody UserStatusUpdateRequest request
+      @RequestBody UserStatusDto dto
   ) {
-    userStatusService.updateUserStatusByUserId(userId, request);
+    userStatusService.updateUserStatusByUserId(userId, dto);
     return ResponseEntity.ok().build();
   }
 }

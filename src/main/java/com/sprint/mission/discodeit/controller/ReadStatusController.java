@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,27 +32,26 @@ public class ReadStatusController {
   //A채널 읽었을때 읽었음!이라는 새로운 읽음상태 생성
   @Operation(summary = "읽음상태 생성")
   @PostMapping
-  public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
-    ReadStatus created = readStatusService.create(request);
+  public ResponseEntity<ReadStatusDto> create(@RequestBody ReadStatusDto dto) {
+    ReadStatusDto created = readStatusService.create(dto); //서비스가 DTO를 반환
     return ResponseEntity.status(201).body(created);
   }
 
   //읽음상태 업데이트
   @Operation(summary = "읽음상태 업데이트")
   @PatchMapping("/{readStatusId}")
-  public ResponseEntity<ReadStatus> update(
+  public ResponseEntity<ReadStatusDto> update(
       @PathVariable UUID readStatusId,
-      @RequestBody ReadStatusUpdateRequest request
+      @RequestBody ReadStatusDto dto
   ) {
-    ReadStatus updated = readStatusService.update(readStatusId, request);
+    ReadStatusDto updated = readStatusService.update(readStatusId, dto);
     return ResponseEntity.ok(updated);
   }
 
   //내가 속한 모든 채팅방에서, 내가 어디까지 읽었는지
   //안읽은 메세지 3개, 마지막으로 읽은 위치 등과 같은
-  @Operation(summary = "내 모든 채팅방 읽음상태 조회", description = "userId로 내가 어디까지 읽었는지 전체 조회")
-  @GetMapping
-  public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam("userId") UUID userId) {
+  @Operation(summary = "내 모든 채팅방 읽음상태 조회")
+  public ResponseEntity<List<ReadStatusDto>> findAllByUserId(@RequestParam UUID userId) {
     return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
   }
 

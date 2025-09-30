@@ -1,20 +1,13 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
-
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BinaryContentRepository {
-    void save(BinaryContent image);
+public interface BinaryContentRepository extends JpaRepository<BinaryContent, UUID> {
 
-    void deleteByOwnerId(UUID ownerId);
+  //여러 UUID 받아서 여러 파일 조회
+  List<BinaryContent> findAllByIdIn(List<UUID> ids);
 
-
-    // ✅ 전체 조회 (추가 기능)
-    List<BinaryContent> findAll();
-
-    BinaryContent findById(UUID id);
-
-    void deleteById(UUID id);
 }

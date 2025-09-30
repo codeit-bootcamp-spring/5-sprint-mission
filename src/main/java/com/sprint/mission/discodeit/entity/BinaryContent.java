@@ -1,45 +1,57 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Data;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
-
-@Data
+@Entity
+@Table(name = "binary_contents")
 @Getter
-public class BinaryContent implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private final UUID id;
-    private final Instant createdAt;
+@NoArgsConstructor
+public class BinaryContent extends BaseUpdatableEntity {
 
-    private final String fileName; // 파일 이름
-    private final long size; // 파일 사이즈
-    private final String contentType; // 파일 타입
-    private final UUID ownerId;
-    private byte[] bytes; // 실제 파일 데이터
+  /* 파일의 이름, 사이즈, 타입, 파일 데이터를 가짐
+   * 메시지에 첨부되는 파일로 연결될 수 있음
+   */
 
-    //기본 생성자
-    public BinaryContent(UUID id, Instant createdAt, UUID ownerId, String fileName, String contentType, long size, byte[] bytes) {
-        this.id = id;
-        this.createdAt = createdAt;
-        this.ownerId = ownerId;
-        this.fileName = fileName;
-        this.contentType = contentType;
-        this.size = size;
-        this.bytes = bytes;
-    }
+  // 파일 이름
+  @Column(name = "file_name", length = 255, nullable = false)
+  private String fileName;
 
-    // BinaryContent.java 파일에 추가
-    public BinaryContent(UUID id, Instant createdAt, UUID ownerId, String fileName, String contentType, long size) {
-        this.id = id;
-        this.createdAt = createdAt;
-        this.ownerId = ownerId;
-        this.fileName = fileName;
-        this.contentType = contentType;
-        this.size = size;
-    }
+  // 파일 사이즈
+  @Column(name = "size", nullable = false)
+  private long size;
+
+  // 파일 타입
+  @Column(name = "content_type", length = 100, nullable = false)
+  private String contentType;
+
+
+  // 실제 파일 데이터
+  @Column(name = "bytes", nullable = false)
+  private byte[] bytes;
+
+  // 여러개의 파일은 하나의 메세지에 첨부될 수 있음 N:1
+  @ManyToOne
+  @JoinColumn(name = "message_id")
+  private Message message;
+
+
+  //일반생성자 - 파일 등록할때 필요한 값만 받음
+  public BinaryContent(String fileName,
+      String contentType, long size, byte[] bytes) {
+    this.fileName = fileName;
+    this.contentType = contentType;
+    this.size = size;
+    this.bytes = bytes;
+  }
+
+  public void setMessage(Message message) {
+    this.message = message;
+  }
 }

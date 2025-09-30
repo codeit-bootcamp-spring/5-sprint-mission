@@ -1,91 +1,96 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
-import java.io.Serializable;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-//엔티티
+@Entity
+@Table(name = "channels")
 @Getter
-@Setter
-@AllArgsConstructor
-public class Channel implements Serializable {
+@NoArgsConstructor
+public class Channel extends BaseUpdatableEntity {
 
-  //직렬화된 객체의 버전을 명시적으로 지정
-  @Serial
-  private static final long serialVersionUID = 1L;
-  //필드
-  private final UUID id; // = channelId, (내부 식별자)
-  private final Instant createdAt; // 생성시간
-  private Instant updatedAt; // 수정시간
-  private String title; // 채널 이름
-  private String description; // 채널 설명
-  private ChannelType channelType; // 음성채널 or 일반채널
-  private String ownerId;
-  private List<String> membersId;
+  /* 채널 이름, 설명, 타입(공개/비공개)와,
+   * 마지막 메시지 시간, 채널 참여자(유저)를 가짐
+   */
 
+  //채널 이름
+  @Column(name = "name", length = 100)
+  private String name;
 
-  //기본 생성자
-  //매개변수X
-  public Channel(UUID id, String name, String ownerId, ChannelType privateChannel,
-      List<String> membersId) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
-    this.updatedAt = createdAt;
-  }
+  // 채널 설명
+  @Column(name = "description", length = 500)
+  private String description;
+
+  // 음성채널 or 일반채널
+  @Enumerated(EnumType.STRING)
+  @Column(name = "type", length = 10, nullable = false)
+  private ChannelType channelType;
+
+  // 마지막 읽은 시간
+  @Column(name = "last_message_at")
+  private Instant lastMessageAt;
+
+  /* 채널 : 참여자(유저) N:N
+   * 중간 테이블 만들어서 양쪽 PK를 FK로 저장
+   * 연관관계의 주인
+   * */
+  @ManyToMany
+  @JoinTable(
+      name = "channel_participants",
+      joinColumns = @JoinColumn(name = "channel_id"), // 채널 PK값이 FK로 들어감
+      inverseJoinColumns = @JoinColumn(name = "user_id") // 반대쪽 PK값이 FK로 들어감
+  )
+  private List<User> participants;
+
 
   //일반 생성자
-  public Channel(String title, String description, ChannelType channelType) {
-    this.id = UUID.randomUUID(); //생성자 내부 초기화
-    this.createdAt = Instant.now(); //생성자 내부 초기화
-    this.updatedAt = createdAt; //생성자 내부 초기화
-    this.title = title;
+  public Channel(String name, String description, ChannelType channelType) {
+    this.name = name;
     this.description = description;
     this.channelType = channelType;
   }
-
-  public Channel(UUID id, String name, String ownerId, String description, ChannelType channelType,
-      List<String> membersId) {
-    this.id = id;
-    this.title = name;
-    this.ownerId = ownerId;
-    this.description = description;
-    this.channelType = channelType;
-    this.createdAt = Instant.now();
-    this.updatedAt = createdAt;
-    this.membersId = membersId;
-  }
-
 
   //복사본 생성자
   public Channel(Channel other) {
-    this.id = other.id;
-    this.createdAt = other.createdAt;
-    this.updatedAt = other.updatedAt;
-    this.title = other.title;
+    this.name = other.name;
     this.channelType = other.channelType;
   }
 
-
-  //메서드
-  public void updateTime() {
-    this.updatedAt = Instant.now();
+  // 이름 변경
+  public void updateName(String newName) {
+    this.name = newName;
   }
+
+  // 설명 변경
+  public void updateDescription(String newDescription) {
+    this.description = newDescription;
+  }
+
+  public void updateTime() {
+    this.lastMessageAt = Instant.now();
+  }
+
 
   //toString
   @Override
   public String toString() {
     return "Channel{" +
-        "id=" + id +
-        ", createdAt=" + createdAt +
-        ", updatedAt=" + updatedAt +
-        ", title='" + title + '\'' +
+        "name='" + name + '\'' +
         ", description='" + description + '\'' +
-        ", channeltype='" + channelType + '\'' +
-        '}';
+        ", channelType=" + channelType +
+        ", lastMessageAt=" + lastMessageAt +
+        ", participants=" + participants +
+        "} " + super.toString();
   }
 }

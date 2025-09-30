@@ -1,11 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
@@ -31,52 +27,52 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
   private final UserService userService;
-  private final UserStatusService userStatusService;
+
 
   //회원가입
   @Operation(summary = "회원가입")
   @PostMapping(consumes = "multipart/form-data")
-  public ResponseEntity<User> create(
-      @RequestPart("userCreateRequest") UserCreateRequest request,
+  public ResponseEntity<UserDto> create(
+      @RequestPart("userDto") UserDto dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile
-  ) {
-    User createdUser = userService.create(request, profile);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+  ) throws IOException {
+    UserDto responseDto = userService.create(dto, profile);
+    return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
   }
 
-  //유저 전체조회
+  //유저 조회
   @Operation(summary = "유저 전체조회")
   @GetMapping
   public ResponseEntity<List<UserDto>> findAll() {
-    return ResponseEntity.ok(userService.findAll());
+    List<UserDto> users = userService.findAll();
+    return ResponseEntity.ok(users);
   }
 
-
-  //유저 단건조회
+  //단건조회
   @Operation(summary = "유저 단건조회")
   @GetMapping("/{userId}")
-  public ResponseEntity<UserDto> findById(@PathVariable UUID userId) {
-    return ResponseEntity.ok(userService.findById(userId));
+  public ResponseEntity<UserDto> findById(@PathVariable("userId") UUID id) {
+    UserDto user = userService.findById(id);
+    return ResponseEntity.ok(user);
   }
 
-  // 사용자 수정 : username,email,password
+  //정보 수정
   @Operation(summary = "회원 정보 수정")
   @PatchMapping(value = "/{userId}", consumes = "multipart/form-data")
-  public ResponseEntity<User> update(
-      @PathVariable UUID userId,
-      @RequestPart("userUpdateRequest") UserUpdateRequest request,
+  public ResponseEntity<UserDto> update(
+      @PathVariable("userId") UUID id,
+      @RequestPart("userDto") UserDto dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) throws IOException {
-    User updatedUser = userService.update(userId, request, profile);
+    UserDto updatedUser = userService.update(id, dto, profile);
     return ResponseEntity.ok(updatedUser);
   }
 
-
-  // 사용자 삭제
+  //회원 탈퇴
   @Operation(summary = "회원 탈퇴")
   @DeleteMapping("/{userId}")
-  public ResponseEntity<Void> delete(@PathVariable UUID userId) {
-    userService.delete(userId);
+  public ResponseEntity<Void> delete(@PathVariable("userId") UUID id) {
+    userService.delete(id);
     return ResponseEntity.noContent().build();
   }
 }

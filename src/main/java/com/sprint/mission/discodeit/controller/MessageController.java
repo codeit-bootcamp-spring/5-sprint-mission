@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,11 +30,11 @@ public class MessageController {
   //메시지 생성
   @Operation(summary = "메세지 생성")
   @PostMapping(value = "/api/messages", consumes = "multipart/form-data")
-  public ResponseEntity<Message> create(
-      @RequestPart("messageCreateRequest") MessageCreateRequest request,
+  public ResponseEntity<MessageDto> create(
+      @RequestPart("messageDto") MessageDto dto,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
-  ) { //여러 파일 첨부 가능
-    Message created = messageService.create(request, attachments);
+  ) {
+    MessageDto created = messageService.create(dto, attachments);
     return ResponseEntity.status(HttpStatus.CREATED).body(created);
   }
 
@@ -44,27 +42,30 @@ public class MessageController {
   //메시지 단건 조회
   @Operation(summary = "메시지 단건 조회")
   @GetMapping("/api/messages/{messageId}")
-  public ResponseEntity<Message> findById(@PathVariable UUID messageId) {
-    Message found = messageService.findById(messageId);
+  public ResponseEntity<MessageDto> findById(@PathVariable("messageId") UUID messageId) {
+    MessageDto found = messageService.findById(messageId);
     return ResponseEntity.ok(found);
   }
 
-  //채널 내 모든 메시지 조회
+
+  //채널 내 모든 메시지 조회 -> 비효율적 수정해야함!
   @Operation(summary = "채널 내 모든 메시지 조회")
   @GetMapping("/api/messages")
-  public ResponseEntity<List<Message>> findAllByChannelId(@RequestParam UUID channelId) {
-    List<Message> messages = messageService.findAllByChannelId(channelId);
-    return ResponseEntity.ok(messages);
+  public ResponseEntity<List<MessageDto>> findAllByChannelId(@RequestParam UUID channelId) {
+    List<MessageDto> dtoList = messageService.findAllByChannelId(
+        channelId);
+    return ResponseEntity.ok(dtoList);
   }
+
 
   //메시지 수정
   @Operation(summary = "메시지 수정")
   @PatchMapping("/api/messages/{messageId}")
-  public ResponseEntity<Message> update(
-      @PathVariable UUID messageId,
-      @RequestBody MessageUpdateRequest request
+  public ResponseEntity<MessageDto> update(
+      @PathVariable("messageId") UUID messageId,
+      @RequestBody MessageDto dto
   ) {
-    Message updated = messageService.update(messageId, request);
+    MessageDto updated = messageService.update(messageId, dto);
     return ResponseEntity.ok(updated);
   }
 
@@ -72,9 +73,8 @@ public class MessageController {
   //메시지 삭제
   @Operation(summary = "메시지 삭제")
   @DeleteMapping("/api/messages/{messageId}")
-  public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
+  public ResponseEntity<Void> delete(@PathVariable("messageId") UUID messageId) {
     messageService.delete(messageId);
     return ResponseEntity.noContent().build();
   }
-
 }

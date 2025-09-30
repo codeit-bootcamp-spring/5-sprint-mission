@@ -1,9 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.service.ChannelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,47 +24,47 @@ public class ChannelController {
 
   private final ChannelService channelService;
 
-  //공개 채널 생성: dto 객체로 넘기는 것으로 수정해야 함 (계층분리)
+  //공개 채널 생성: dto만 넘김
   @Operation(summary = "공개 채널 생성")
   @PostMapping("/api/channels/public")
-  public ResponseEntity<UUID> createPublic(@RequestBody PublicChannelCreateRequest request) {
-    Channel channel = request.toEntity(); // Entity 변환 메서드
-    channelService.create(channel); // 저장
-    return ResponseEntity.status(HttpStatus.CREATED).body(channel.getId());
-  }
-
-
-  //비공개 채널 생성: dto 객체로 넘기는 것으로 수정해야 함 (계층분리)
-  @Operation(summary = "비공개 채널 생성")
-  @PostMapping("/api/channels/private")
-  public ResponseEntity<Void> createPrivate(@RequestBody PrivateChannelCreateRequest request) {
-    channelService.create(request.toEntity()); // Entity 변환 메서드
+  public ResponseEntity<Void> createPublic(@RequestBody ChannelDto dto) {
+    channelService.createPublicChannel(dto);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
 
-  //채널 단건 조회
+  //비공개 채널 생성: dto만 넘김
+  @Operation(summary = "비공개 채널 생성")
+  @PostMapping("/api/channels/private")
+  public ResponseEntity<Void> createPrivate(@RequestBody ChannelDto dto) {
+    channelService.createPrivateChannel(dto);
+    return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
+
+
+  //채널 단건 조회: 서비스에서 DTO로 응답
   @Operation(summary = "채널 단건 조회")
   @GetMapping("/api/channels/{channelId}")
-  public ResponseEntity<Channel> findById(@PathVariable UUID channelId) {
-    Channel channel = channelService.findById(channelId);
-    return ResponseEntity.ok(channel);
+  public ResponseEntity<ChannelDto> findById(@PathVariable("channelId") UUID id) {
+    ChannelDto channelDto = channelService.findById(id);
+    return ResponseEntity.ok(channelDto);
   }
 
-  //전체 채널 조회
+  //전체 채널 조회: 서비스에서 DTO 리스트로 응답
   @Operation(summary = "전체 채널 조회")
   @GetMapping("/api/channels")
-  public ResponseEntity<List<Channel>> findAll() {
-    return ResponseEntity.ok(channelService.findAll());
+  public ResponseEntity<List<ChannelDto>> findAll() {
+    List<ChannelDto> channelDtos = channelService.findAll();
+    return ResponseEntity.ok(channelDtos);
   }
 
 
-  //채널 수정
+  //채널 수정: DTO만 넘김
   @Operation(summary = "채널 수정")
   @PatchMapping("/api/channels/{channelId}")
-  public ResponseEntity<Void> update(@PathVariable UUID channelId,
-      @RequestBody PublicChannelUpdateRequest request) {
-    channelService.update(channelId, request);
+  public ResponseEntity<Void> update(@PathVariable("channelId") UUID id,
+      @RequestBody ChannelDto dto) {
+    channelService.update(id, dto); //Dto를 직접 서비스로 전달
     return ResponseEntity.ok().build();
   }
 
@@ -75,8 +72,8 @@ public class ChannelController {
   //채널 삭제
   @Operation(summary = "채널 삭제")
   @DeleteMapping("/api/channels/{channelId}")
-  public ResponseEntity<Void> delete(@PathVariable UUID channelId) {
-    channelService.delete(channelId);
+  public ResponseEntity<Void> delete(@PathVariable("channelId") UUID id) {
+    channelService.delete(id);
     return ResponseEntity.noContent().build();
   }
 }

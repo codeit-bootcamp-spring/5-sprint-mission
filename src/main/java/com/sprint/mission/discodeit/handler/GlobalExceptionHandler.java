@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.handler;
 
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import com.sprint.mission.discodeit.dto.common.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,34 +14,34 @@ import org.springframework.web.context.request.WebRequest;
 @ControllerAdvice // 모든 컨트롤러에서 발생하는 예외 가로채는 역할
 public class GlobalExceptionHandler {
 
-  // ✅ IllegalArgumentException 예외를 처리
+  //IllegalArgumentException 예외 처리
   @ExceptionHandler(IllegalArgumentException.class)
-  public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex,
-      WebRequest request) {
+  public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
+      IllegalArgumentException ex, WebRequest request) {
     String path = request.getDescription(false).replace("uri=", "");
     return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, path); // 400 반환
   }
 
-  // ✅ Exception.class (위에 안걸린 모든 Exception들 처리해줌)
+  //Exception.class (위에 안걸린 모든 Exception들 처리)
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<Object> handleGenericException(Exception ex, WebRequest request) {
+  public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
     ex.printStackTrace();
     String path = request.getDescription(false).replace("uri=", "");
-    return buildErrorResponse("서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR,
-        path); // 500 반환
+    return buildErrorResponse("서버 내부 오류가 발생했습니다.",
+        HttpStatus.INTERNAL_SERVER_ERROR, path); // 500 반환
   }
 
-  // ✅ 에러 정보를 구조화된 JSON 형태로 리턴
-  private ResponseEntity<Object> buildErrorResponse(String message, HttpStatus status,
-      String path) {
-    Map<String, Object> body = new HashMap<>();
-    body.put("timestamp", Instant.now()); // 현재 시간
-    body.put("status", status.value());   // HTTP 상태 코드
-    body.put("error",
-        status.getReasonPhrase()); // 상태 텍스트 (Bad Request, Internal Server Error와 같은 것들)
-    body.put("message", message); // 실제 예외 메시지
-    body.put("path", path); // 요청 경로 추가 (Swagger 명세와 일치)
+  //ErrorResponse DTO를 사용
+  private ResponseEntity<ErrorResponse> buildErrorResponse(
+      String message, HttpStatus status, String path) {
 
-    return new ResponseEntity<>(body, status);
+    ErrorResponse errorResponse = ErrorResponse.of(
+        status.value(),
+        status.getReasonPhrase(),
+        message,
+        path
+    );
+
+    return new ResponseEntity<>(errorResponse, status);
   }
 }
