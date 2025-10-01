@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: postgres
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  boot:
+    admin:
+      client:
+        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
+
+logging:
+  level:
+    root: info
+    com.discodeit: info
+
+info:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    ddl-auto: validate
+  storage:
+    type: local
+    path: ${STORAGE_ROOT_PATH}

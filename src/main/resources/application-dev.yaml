@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DEV.DB_URL}
+    username: ${DEV.DB_USERNAME}
+    password: ${DEV.DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
+
+logging:
+  level:
+    root: info
+    com.discodeit: debug
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
+
+info:
+  datasource:
+    url: ${DEV.DB_URL}
+    ddl-auto: update
+  storage:
+    type: local
+    path: ${STORAGE_ROOT_PATH}
