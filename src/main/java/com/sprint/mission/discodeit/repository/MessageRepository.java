@@ -1,17 +1,33 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.entity.Message;
-
-import java.util.List;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface MessageRepository {
-    Optional<Message> save(Message message);
-    Optional<Message> findById(UUID messageId);
-    List<Message> findAll();
-    List<Message> findAllByChannelId(UUID channelId);
-    void delete(UUID messageId);
-    void deleteAll();
-    void deleteByChannelId(UUID channelId);
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.sprint.mission.discodeit.entity.Message;
+
+public interface MessageRepository extends JpaRepository<Message, UUID> {
+
+	@Query("SELECT m FROM Message m "
+		+ "LEFT JOIN FETCH m.author a "
+		+ "JOIN FETCH a.status "
+		+ "LEFT JOIN FETCH a.profile "
+		+ "WHERE m.channel.id=:channelId AND m.createdAt < :createdAt")
+	Slice<Message> findAllByChannelIdWithAuthor(@Param("channelId") UUID channelId,
+		@Param("createdAt") Instant createdAt,
+		Pageable pageable);
+
+	@Query("SELECT m.createdAt "
+		+ "FROM Message m "
+		+ "WHERE m.channel.id = :channelId "
+		+ "ORDER BY m.createdAt DESC LIMIT 1")
+	Optional<Instant> findLastMessageAtByChannelId(@Param("channelId") UUID channelId);
+
+	void deleteAllByChannelId(UUID channelId);
 }

@@ -1,87 +1,64 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.io.Serializable;
-import java.util.Objects;
-import java.util.UUID;
-
+@Entity
+@Table(name = "users")
 @Getter
-public class User extends BaseEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA를 위한 기본 생성자
+public class User extends BaseUpdatableEntity {
 
-    private String userName;
-    private String email;
-    private String password;
-    private String phoneNumber;
-    private UUID profileId;
+	@Column(length = 50, nullable = false, unique = true)
+	private String username;
 
-    public User(
-            String userName, String email, String password, String phoneNumber, UUID profileId
-    ) {
-        super();
-        this.userName = userName;
-        this.email = email;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-        this.profileId = profileId;
-    }
+	@Column(length = 100, nullable = false, unique = true)
+	private String email;
 
-    public void updateUserName(String userName) {
-        if(!this.userName.equals(userName)){
-            this.userName = userName;
-            super.updateUpdatedAt();
-        }
-    }
+	@Column(length = 60, nullable = false)
+	private String password;
 
-    public void updateEmail(String email) {
-        if(!this.email.equals(email)){
-            this.email = email;
-            super.updateUpdatedAt();
-        }
-    }
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@JoinColumn(name = "profile_id", columnDefinition = "uuid")
+	private BinaryContent profile;
 
-    public void updatePassword(String password) {
-        if(!this.password.equals(password)){
-            this.password = password;
-            super.updateUpdatedAt();
-        }
-    }
+	@JsonManagedReference
+	@Setter(AccessLevel.PROTECTED)
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private UserStatus status;
 
-    public void updatePhoneNumber(String phoneNumber) {
-        if(!this.phoneNumber.equals(phoneNumber)){
-            this.phoneNumber = phoneNumber;
-            super.updateUpdatedAt();
-        }
-    }
+	public User(String username, String email, String password, BinaryContent profile) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.profile = profile;
+	}
 
-    public void updateProfileId(UUID profileId) {
-        if(this.profileId == null || !this.profileId.equals(profileId)){
-            this.profileId = profileId;
-        }
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("User{");
-        sb.append("userName='").append(userName).append('\'');
-        sb.append(", email='").append(email).append('\'');
-        sb.append(", password='").append(password).append('\'');
-        sb.append(", phoneNumber='").append(phoneNumber).append('\'');
-        sb.append(", profileId=").append(profileId);
-        sb.append('}');
-        return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(userName, user.userName) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(profileId, user.profileId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(userName, email, password, phoneNumber, profileId);
-    }
+	public void update(String newUsername, String newEmail, String newPassword,
+		BinaryContent newProfile) {
+		if (newUsername != null && !newUsername.equals(this.username)) {
+			this.username = newUsername;
+		}
+		if (newEmail != null && !newEmail.equals(this.email)) {
+			this.email = newEmail;
+		}
+		if (newPassword != null && !newPassword.equals(this.password)) {
+			this.password = newPassword;
+		}
+		if (newProfile != null) {
+			this.profile = newProfile;
+		}
+	}
 }

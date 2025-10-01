@@ -1,76 +1,103 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.sprint.mission.discodeit.dto.data.UserStatusDto;
+import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.userstatus.UserStatusAlreadyExistsException;
+import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
-
-@Service
 @RequiredArgsConstructor
+@Service
 public class BasicUserStatusService implements UserStatusService {
 
-    private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository;
+	private final UserStatusRepository userStatusRepository;
+	private final UserRepository userRepository;
+	private final UserStatusMapper userStatusMapper;
 
-    @Override
-    public UserStatus addUserStatus(UUID userId) {
-        userRepository.findById(userId).orElseThrow(()-> new IllegalArgumentException("BasicUserStatusService: User not found"));
-        userStatusRepository.findByUserId(userId)
-                .ifPresent(userStatus -> {throw new IllegalArgumentException("BasicUserStatusService: UserStatus already exists");});
+	@Transactional
+	@Override
+	public UserStatusDto create(@Valid UserStatusCreateRequest request) {
+		UUID userId = request.userId();
 
-        UserStatus userStatus = new UserStatus(userId);
-        return userStatusRepository.save(userStatus)
-                .orElseThrow(() -> new RuntimeException("Failed to save UserStatus"));
-    }
+		User user = userRepository.findById(userId)
+			.orElseThrow(() ->
+				UserNotFoundException.withId(userId.toString())
+			);
+		Optional.ofNullable(user.getStatus())
+			.ifPresent(status -> {
+				throw UserStatusAlreadyExistsException.withUserIds(userId.toString());
+			});
 
-    @Override
-    public UserStatus getUserStatusById(UUID id){
-        return userStatusRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("BasicUserStatusService: UserStatus not found"));
-    }
+		Instant lastActiveAt = request.lastActiveAt();
+		UserStatus userStatus = new UserStatus(user, lastActiveAt);
+		userStatusRepository.save(userStatus);
+		return userStatusMapper.toDto(userStatus);
+	}
 
-    @Override
-    public List<UserStatus> getAllUserStatus() {
-        return userStatusRepository.findAll();
-    }
+	@Override
+	public UserStatusDto find(UUID userStatusId) {
+		return userStatusRepository.findById(userStatusId)
+			.map(userStatusMapper::toDto)
+			.orElseThrow(
+				() -> UserStatusAlreadyExistsException.withIds(userStatusId.toString()));
+	}
 
-    @Override
-    public void deleteAllUserStatus() {
-        userStatusRepository.deleteAll();
-    }
+	@Override
+	public List<UserStatusDto> findAll() {
+		return userStatusRepository.findAll().stream()
+			.map(userStatusMapper::toDto)
+			.toList();
+	}
 
-    @Override
-    public UserStatus updateUserStatus(UUID id) {
-        UserStatus userStatus = userStatusRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("BasicUserStatusService: UserStatus not found"));
+	@Transactional
+	@Override
+	public UserStatusDto update(UUID userStatusId, UserStatusUpdateRequest request) {
+		Instant newLastActiveAt = request.newLastActiveAt();
 
-        userStatus.updateLastOnlineTime();
+		UserStatus userStatus = userStatusRepository.findById(userStatusId)
+			.orElseThrow(
+				() -> UserStatusAlreadyExistsException.withIds(userStatusId.toString()));
+		userStatus.update(newLastActiveAt);
 
-        return userStatusRepository.save(userStatus)
-                .orElseThrow(() -> new RuntimeException("Failed to update UserStatus"));
-    }
+		return userStatusMapper.toDto(userStatus);
+	}
 
-    @Override
-    public UserStatus updateUserStatusByUserId(UUID userId){
-        userRepository.findById(userId).orElseThrow(()-> new IllegalArgumentException("BasicUserStatusService: User not found"));
+	@Transactional
+	@Override
+	public UserStatusDto updateByUserId(UUID userId, UserStatusUpdateRequest request) {
+		Instant newLastActiveAt = request.newLastActiveAt();
 
-        UserStatus userStatus = userStatusRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("BasicUserStatusService: UserStatus not found"));
+		UserStatus userStatus = userStatusRepository.findByUserId(userId)
+			.orElseThrow(
+				() -> UserStatusAlreadyExistsException.withUserIds(userId.toString()));
+		userStatus.update(newLastActiveAt);
 
-        userStatus.updateLastOnlineTime();
+		return userStatusMapper.toDto(userStatus);
+	}
 
-        return userStatusRepository.save(userStatus)
-                .orElseThrow(() -> new RuntimeException("Failed to update UserStatus"));
-    }
-
-    @Override
-    public void deleteUserStatus(UUID userStatusId){
-        userStatusRepository.deleteById(userStatusId);
-    }
+	@Transactional
+	@Override
+	public void delete(UUID userStatusId) {
+		if (!userStatusRepository.existsById(userStatusId)) {
+			throw UserStatusAlreadyExistsException.withIds(userStatusId.toString());
+		}
+		userStatusRepository.deleteById(userStatusId);
+	}
 }

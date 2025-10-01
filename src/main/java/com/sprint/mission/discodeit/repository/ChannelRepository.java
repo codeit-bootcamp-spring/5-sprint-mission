@@ -1,17 +1,14 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.entity.Channel;
-
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-public interface ChannelRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
 
-    List<Channel> findPublicChannel();
-    Optional<Channel> save(Channel channel);
-    Optional<Channel> findById(UUID channelId);
-    List<Channel> findAll();
-    void delete(UUID channelId);
-    void deleteAll();
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
+
+public interface ChannelRepository extends JpaRepository<Channel, UUID> {
+
+	List<Channel> findAllByTypeOrIdIn(ChannelType type, List<UUID> ids);
 }
