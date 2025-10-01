@@ -1,52 +1,49 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.channel.ChannelDto;
-import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.entity.main.BaseEntity;
-import com.sprint.mission.discodeit.entity.main.Channel;
-import com.sprint.mission.discodeit.entity.sub.ReadStatus;
-import com.sprint.mission.discodeit.enums.ChannelType;
-import org.mapstruct.*;
+import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Instant;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class}, builder = @Builder(disableBuilder = false))
-public interface ChannelMapper {
+@Mapper(componentModel = "spring", uses = {UserMapper.class})
+public abstract class ChannelMapper {
 
-    @Mapping(target = "participants", ignore = true)
-    @Mapping(target = "lastMessageAt", ignore = true)
-    ChannelDto toDto(Channel channel, @Context UserMapper userMapper);
+  @Autowired
+  private MessageRepository messageRepository;
+  @Autowired
+  private ReadStatusRepository readStatusRepository;
+  @Autowired
+  private UserMapper userMapper;
 
-    @AfterMapping
-    default void enrich(Channel channel,
-                        @MappingTarget ChannelDto.ChannelDtoBuilder dto,
-                        @Context UserMapper userMapper) {
-        // 참여자 매핑
-        List<UserDto> participants = channel.getReadStatuses().stream()
-                .map(ReadStatus::getUser)
-                .map(userMapper::toDto) // UserMapper 재사용
-                .toList();
+  @Mapping(target = "participants", expression = "java(resolveParticipants(channel))")
+  @Mapping(target = "lastMessageAt", expression = "java(resolveLastMessageAt(channel))")
+  abstract public ChannelDto toDto(Channel channel);
 
-        // 마지막 메시지 시간
-        Instant lastMessageAt = channel.getMessages().stream()
-                .map(BaseEntity::getCreatedAt)
-                .max(Comparator.naturalOrder())
-                .orElse(null);
+  protected Instant resolveLastMessageAt(Channel channel) {
+    return messageRepository.findLastMessageAtByChannelId(
+            channel.getId())
+        .orElse(Instant.MIN);
+  }
 
-        // 이름이 없는 PRIVATE 채널은 상대방 username으로 대체
-        String channelName = channel.getName();
-        if (channelName == null && channel.getType() == ChannelType.PRIVATE) {
-            channelName = participants.stream()
-                    .findFirst()
-                    .map(UserDto::username)
-                    .orElse("개인채팅");
-        }
-
-        // 빌더에 값 세팅
-        dto.participants(participants);
-        dto.lastMessageAt(lastMessageAt);
-        dto.name(channelName);
+  protected List<UserDto> resolveParticipants(Channel channel) {
+    List<UserDto> participants = new ArrayList<>();
+    if (channel.getType().equals(ChannelType.PRIVATE)) {
+      readStatusRepository.findAllByChannelIdWithUser(channel.getId())
+          .stream()
+          .map(ReadStatus::getUser)
+          .map(userMapper::toDto)
+          .forEach(participants::add);
     }
+    return participants;
+  }
 }
