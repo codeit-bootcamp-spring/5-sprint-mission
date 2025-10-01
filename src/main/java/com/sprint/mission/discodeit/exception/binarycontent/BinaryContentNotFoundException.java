@@ -1,7 +1,23 @@
 package com.sprint.mission.discodeit.exception.binarycontent;
 
-public class BinaryContentNotFoundException extends RuntimeException {
-	public BinaryContentNotFoundException() {
-		super("파일을 찾을 수 없습니다.");
-	}
+import com.sprint.mission.discodeit.exception.ErrorCode;
+
+import java.util.UUID;
+
+public class BinaryContentNotFoundException extends BinaryContentException {
+    public BinaryContentNotFoundException() {
+        super(ErrorCode.BINARY_CONTENT_NOT_FOUND);
+    }
+
+    public static BinaryContentNotFoundException withBinaryContentId(UUID binaryContentId) {
+        BinaryContentNotFoundException exception = new BinaryContentNotFoundException();
+        exception.addDetail("binaryContentId", binaryContentId);
+        return exception;
+    }
+
+    public static BinaryContentNotFoundException withFileName(String fileName) {
+        BinaryContentNotFoundException exception = new BinaryContentNotFoundException();
+        exception.addDetail("fileName", fileName);
+        return exception;
+    }
 }

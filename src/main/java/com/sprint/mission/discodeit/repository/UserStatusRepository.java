@@ -11,10 +11,12 @@ import java.util.UUID;
 
 public interface UserStatusRepository extends JpaRepository<UserStatus, UUID> {
     Optional<UserStatus> findByUserId(UUID userId);
+
     boolean existsByUserId(UUID userId);
+
     @Query("""
-    SELECT us FROM UserStatus us
-    WHERE us.user.id IN :userIds
-    """)
+            SELECT us FROM UserStatus us
+            WHERE us.user.id IN :userIds
+            """)
     List<UserStatus> findByUserIdIn(Collection<UUID> userIds);
 }

@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class UserUpdatePasswordRequest {
-	@NotBlank(message = "현재 비밀번호 필수")
-	private String currentPassword;
-	@NotBlank(message = "바뀔 비밀번호 필수")
-	private String newPassword;
+    @NotBlank(message = "현재 비밀번호 필수")
+    private String currentPassword;
+    @NotBlank(message = "바뀔 비밀번호 필수")
+    private String newPassword;
 }

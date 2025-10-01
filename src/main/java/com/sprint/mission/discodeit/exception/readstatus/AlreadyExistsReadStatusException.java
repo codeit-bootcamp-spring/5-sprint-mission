@@ -1,7 +1,18 @@
 package com.sprint.mission.discodeit.exception.readstatus;
 
-public class AlreadyExistsReadStatusException extends RuntimeException {
-	public AlreadyExistsReadStatusException() {
-		super("이미 존재하는 읽음 상태입니다.");
-	}
+import com.sprint.mission.discodeit.exception.ErrorCode;
+
+import java.util.UUID;
+
+public class AlreadyExistsReadStatusException extends ReadStatusException {
+    public AlreadyExistsReadStatusException() {
+        super(ErrorCode.ALREADY_EXISTS_READ_STATUS);
+    }
+
+    public static AlreadyExistsReadStatusException withUserAndChannel(UUID userId, UUID channelId) {
+        AlreadyExistsReadStatusException exception = new AlreadyExistsReadStatusException();
+        exception.addDetail("userId", userId);
+        exception.addDetail("channelId", channelId);
+        return exception;
+    }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @Builder
-public class PageOffsetResponse<T>{
+public class PageOffsetResponse<T> {
     public List<T> content;
     public int number;
     public int size;

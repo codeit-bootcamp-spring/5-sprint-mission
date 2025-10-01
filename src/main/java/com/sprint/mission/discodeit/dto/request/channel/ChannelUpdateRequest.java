@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class ChannelUpdateRequest {
-	private String newName;
-	private String newDescription;
+    @NotBlank
+    private String newName;
+    private String newDescription;
 }

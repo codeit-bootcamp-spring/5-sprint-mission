@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class UserUpdateDefaultNicknameRequest {
-	@NotBlank(message = "바뀔 닉네임 필수")
-	private String NewNickname;
+    @NotBlank(message = "바뀔 닉네임 필수")
+    private String NewNickname;
 }

@@ -11,145 +11,118 @@ import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.dto.response.userStatus.UserStatusResponse;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
-import java.io.IOException;
-import java.net.URI;
-import java.util.List;
-import java.util.UUID;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
-	private final UserService userService;
-	private final UserStatusService userStatusService;
+    private final UserService userService;
+    private final UserStatusService userStatusService;
 
-	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<List<UserResponse>> getUserAll() {
-		List<UserResponse> userResponses = userService.findAll();
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<UserResponse>> getUserAll() {
+        List<UserResponse> userResponses = userService.findAll();
 
-		return ResponseEntity.ok(userResponses);
-	}
+        return ResponseEntity.ok(userResponses);
+    }
 
-	// username(=loginId)로 조회
-	@RequestMapping(path = "/username/{username}", method = RequestMethod.GET)
-	public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
-		UserResponse userResponse = userService.findByUsername(username);
-		boolean online = userStatusService.isOnline(userResponse.getId());
-		userResponse.setOnline(online);
-		return ResponseEntity.ok(userResponse);
-	}
+    // username(=loginId)로 조회
+    @RequestMapping(path = "/username/{username}", method = RequestMethod.GET)
+    public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
+        UserResponse userResponse = userService.findByUsername(username);
+        boolean online = userStatusService.isOnline(userResponse.getId());
+        userResponse.setOnline(online);
+        return ResponseEntity.ok(userResponse);
+    }
 
-	@RequestMapping(path = "/{userId}", method = RequestMethod.GET)
-	public ResponseEntity<UserResponse> getUserById(@PathVariable UUID userId) {
-		UserResponse userResponse = userService.findById(userId);
-		boolean online = userStatusService.isOnline(userId);
-		userResponse.setOnline(online);
+    @RequestMapping(path = "/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID userId) {
+        UserResponse userResponse = userService.findById(userId);
+        boolean online = userStatusService.isOnline(userId);
+        userResponse.setOnline(online);
 
-		return ResponseEntity.ok(userResponse);
-	}
+        return ResponseEntity.ok(userResponse);
+    }
 
-	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<UserResponse> createUser(
-			@RequestPart("userCreateRequest") UserCreateRequest request,
-			@RequestPart(value = "profile", required = false) MultipartFile profile
-	) {
-		try {
-			UserProfileImageRequest imageRequest = convertFile(profile);
-			if (imageRequest != null) {
-				request.setProfileImage(imageRequest);
-			}
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponse> createUser(
+            @Valid @RequestPart("userCreateRequest") UserCreateRequest request,
+            @RequestPart(value = "profile", required = false) MultipartFile profile
+    ) {
+        try {
+            UserProfileImageRequest imageRequest = convertFile(profile);
+            if (imageRequest != null) {
+                request.setProfileImage(imageRequest);
+            }
 
-			UserResponse response = userService.create(request);
+            UserResponse response = userService.create(request);
 
-			URI location = URI.create("/api/users/" + response.getId());
-			return ResponseEntity.status(HttpStatus.CREATED)
-					.location(location)
-					.body(response);
-		} catch (IOException e) {
-			return ResponseEntity.badRequest().build();
-		}
-	}
+            URI location = URI.create("/api/users/" + response.getId());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .location(location)
+                    .body(response);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
-	@RequestMapping(path = "/{userId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<UserResponse> updateUser(
-			@PathVariable UUID userId,
-			@RequestPart("userUpdateRequest") UserUpdateRequest request,
-			@RequestPart(value = "profile", required = false) MultipartFile profile) {
-		try {
-			UserProfileImageRequest imageRequest = convertFile(profile);
-			UserResponse userResponse = userService.update(userId, request, imageRequest);
-			return ResponseEntity.ok(userResponse);
-		} catch (IOException e) {
-			return ResponseEntity.badRequest().build();
-		}
-	}
+    @RequestMapping(path = "/{userId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable UUID userId,
+            @Valid @RequestPart("userUpdateRequest") UserUpdateRequest request,
+            @RequestPart(value = "profile", required = false) MultipartFile profile) {
+        try {
+            UserProfileImageRequest imageRequest = convertFile(profile);
+            UserResponse userResponse = userService.update(userId, request, imageRequest);
+            return ResponseEntity.ok(userResponse);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
-	@RequestMapping(path = "/{userId}/nickname", method = RequestMethod.PATCH)
-	public ResponseEntity<UserResponse> updateUserNickname(
-			@PathVariable UUID userId,
-			@RequestBody UserUpdateDefaultNicknameRequest request) {
-		UserResponse userResponse = userService.updateUserDefalutNickname(userId, request);
-		return ResponseEntity.ok(userResponse);
-	}
+    @RequestMapping(path = "/{userId}", method = RequestMethod.DELETE)
+    public ResponseEntity<UserDeleteResponse> deleteUserById(@PathVariable UUID userId) {
+        UserDeleteResponse userDeleteResponse = userService.delete(userId);
+        return ResponseEntity.ok(userDeleteResponse);
+    }
 
-	@RequestMapping(path = "/{userId}/password", method = RequestMethod.PATCH)
-	public ResponseEntity<UserResponse> updateUserPassword(
-			@PathVariable UUID userId,
-			@RequestBody UserUpdatePasswordRequest request) {
-		UserResponse userResponse = userService.updateUserPassword(userId, request);
-		return ResponseEntity.ok(userResponse);
-	}
+    @RequestMapping(path = "/{userId}/userStatus", method = RequestMethod.PATCH)
+    public ResponseEntity<UserStatusResponse> getUserStatusById(
+            @PathVariable UUID userId,
+            @Valid @RequestBody UserStatusUpdateRequest request) {
+        userStatusService.isOnline(userId);
+        UserStatusResponse updatedUserStatus = userStatusService.updateByUserId(userId, request);
+        return ResponseEntity.ok(updatedUserStatus);
+    }
 
-	@RequestMapping(path = "/{userId}/profile", method = RequestMethod.PATCH)
-	public ResponseEntity<UserResponse> updateUserProfile(
-			@PathVariable UUID userId,
-			@RequestBody UserProfileImageRequest request) {
-		UserResponse userResponse = userService.updateUserProfile(userId, request);
-		return ResponseEntity.ok(userResponse);
-	}
+    @RequestMapping(path = "/list", method = RequestMethod.GET)
+    public ModelAndView userListPage() {
+        return new ModelAndView("redirect:/user-list.html");
+    }
 
-	@RequestMapping(path = "/{userId}", method = RequestMethod.DELETE)
-	public ResponseEntity<UserDeleteResponse> deleteUserById(@PathVariable UUID userId) {
-		UserDeleteResponse userDeleteResponse = userService.delete(userId);
-		return ResponseEntity.ok(userDeleteResponse);
-	}
+    private UserProfileImageRequest convertFile(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            return null;
+        }
 
-	@RequestMapping(path = "/{userId}/userStatus", method = RequestMethod.PATCH)
-	public ResponseEntity<UserStatusResponse> getUserStatusById(
-			@PathVariable UUID userId,
-			@RequestBody UserStatusUpdateRequest request) {
-		userStatusService.isOnline(userId);
-		UserStatusResponse updatedUserStatus = userStatusService.updateByUserId(userId, request);
-		return ResponseEntity.ok(updatedUserStatus);
-	}
-
-	@RequestMapping(path = "/list", method = RequestMethod.GET)
-	public ModelAndView userListPage() {
-		return new ModelAndView("redirect:/user-list.html");
-	}
-
-	private UserProfileImageRequest convertFile(MultipartFile file) throws IOException {
-		if (file == null || file.isEmpty()) {
-			return null;
-		}
-
-		return UserProfileImageRequest.builder()
-				.fileName(file.getOriginalFilename())
-				.contentType(file.getContentType())
-				.size(file.getSize())
-				.bytes(file.getBytes())
-				.build();
-	}
+        return UserProfileImageRequest.builder()
+                .fileName(file.getOriginalFilename())
+                .contentType(file.getContentType())
+                .size(file.getSize())
+                .bytes(file.getBytes())
+                .build();
+    }
 }
