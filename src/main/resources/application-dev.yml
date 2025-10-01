@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: discodeit
+  sql:
+    init:
+      schema-locations: classpath:schema.sql
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    # 인메모리
+    url: jdbc:h2:mem:codeitdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      # 접속 URL: http://localhost:8080/h2-console
+      # jdbc:h2:mem:codeitdb
+      # jdbc:h2:file:./data/codeitdb
+
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
+
+# log
+logging:
+  level:
+    # Hibernate SQL
+    org.hibernate.SQL: off
+    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.type.descriptor.sql: trace
+
+    # Spring Web
+    org.springframework.web: trace
+    org.springframework.web.filter.CommonsRequestLoggingFilter: debug
+
+    # 사용자 package
+    com.sprint.mission.discodeit: debug
