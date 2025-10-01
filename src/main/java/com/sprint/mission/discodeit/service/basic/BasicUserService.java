@@ -61,7 +61,7 @@ public class BasicUserService implements UserService {
                                   .lastActiveAt(Instant.now())
                                   .build();
 
-    user.setStatus(status);
+    user.updateStatus(status);
     userStatusRepository.save(status);
 
     log.info("User {} created", user.getUsername());
