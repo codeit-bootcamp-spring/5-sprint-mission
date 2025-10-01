@@ -2,6 +2,9 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
+  config:
+    import: optional:file:.env[.properties]   # .env 파일 불러오기
+
   application:
     name: discodeit
 
@@ -17,11 +20,13 @@ spring:
       maxFileSize: 10MB # 파일 하나의 최대 크기
       maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
 
-discodeit:
-  storage:
-    type: local
-    local:
-      root-path: .discodeit/storage
+  discodeit:
+    storage:
+      type: s3
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+      bucket: ${AWS_BUCKET_NAME}
+      region: ${AWS_REGION}
 
 management:
   endpoints:

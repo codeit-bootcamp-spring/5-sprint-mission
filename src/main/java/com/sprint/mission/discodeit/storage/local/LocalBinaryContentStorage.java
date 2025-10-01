@@ -43,7 +43,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     }
   }
 
-  public UUID put(UUID binaryContentId, byte[] bytes) {
+  public UUID upload(UUID binaryContentId, byte[] bytes) {
     Path filePath = resolvePath(binaryContentId);
     if (Files.exists(filePath)) {
       throw new IllegalArgumentException("File with key " + binaryContentId + " already exists");
