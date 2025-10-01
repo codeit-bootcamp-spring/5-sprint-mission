@@ -2,18 +2,18 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
+// MapStruct 매퍼: ReadStatus 엔티티를 ReadStatusDto로 변환하는 역할 담당
+@Mapper(componentModel = "spring") // 스프링 빈으로 등록
+public interface ReadStatusMapper {
 
-@Component
-public class ReadStatusMapper {
-    public ReadStatusDto toDto(ReadStatus e) {           // 엔티티→DTO
-        if (e == null) return null;                      // 널 가드
-        return new ReadStatusDto(                        // record 생성
-                e.getId(),                                   // id
-                e.getUser() != null ? e.getUser().getId() : null,       // userId
-                e.getChannel() != null ? e.getChannel().getId() : null, // channelId
-                e.getLastReadAt()                            // 마지막 읽음
-        );                                               // 반환
-    }
+    // ReadStatus → ReadStatusDto 변환
+    // ReadStatus.user.id → userId 매핑
+    // ReadStatus.channel.id → channelId 매핑
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "channelId", source = "channel.id")
+    ReadStatusDto toDto(ReadStatus readStatus);
 }
+

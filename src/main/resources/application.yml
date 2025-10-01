@@ -21,9 +21,8 @@ spring:
       hibernate:
         format_sql: true
         # dialect: org.hibernate.dialect.PostgreSQLDialect  # (보통 자동 설정)
-  sql:
-    init:
-      mode: always
+#    open-in-view: false
+
 
 logging:
   level:
@@ -31,10 +30,7 @@ logging:
     org.hibernate.type.descriptor.sql: trace
 
 discodeit:
-  repository:
-    type: file              # jcf | file
-    file-directory: .discodeit
-  storage:                  # storage를 활용하기 위한 추가 설정 (위에 지워야될듯?)
+  storage:
     type: local
     local:
-      root-path: ./storage
+      root-path: .discodeit/storage

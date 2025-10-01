@@ -5,8 +5,6 @@ import java.util.UUID;
 
 public record UserDto (
     UUID id,
-    Instant createdAt,
-    Instant updatedAt,
     String username,
     String email,
     BinaryContentDto profile,
