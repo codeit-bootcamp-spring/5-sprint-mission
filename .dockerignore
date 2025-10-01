@@ -1,0 +1,17 @@
+# Gradle
+.gradle
+build
+out
+
+# IDE
+.idea
+*.iml
+*.ipr
+*.iws
+
+# Git
+.git
+.gitignore
+
+# OS
+.DS_Store
