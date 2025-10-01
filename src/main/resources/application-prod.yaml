@@ -8,7 +8,7 @@ spring:
         url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
+    url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -16,6 +16,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+      format_sql: false
     show-sql: false
     properties:
       hibernate:
@@ -28,4 +29,4 @@ logging:
     org.springframework.web: info
 
 server:
-  port: ${PORT:8080}
+  port: ${PORT:80}

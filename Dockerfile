@@ -1,7 +1,3 @@
-# 빌드 시 주입할 프로젝트 메타(이미지 내부 파일명에도 사용)
-ARG PROJECT_NAME=discodeit
-ARG PROJECT_VERSION=1.2-M8
-
 # Builder Stage
 FROM amazoncorretto:17 AS builder
 WORKDIR /app
@@ -11,22 +7,23 @@ COPY gradlew ./
 COPY gradle ./gradle
 COPY settings.gradle ./settings.gradle
 COPY build.gradle ./build.gradle
+RUN ./gradlew dependencies
 
 RUN chmod +x gradlew
 
 # 나머지 소스 복사
-COPY . .
+COPY src ./src
 
 RUN ./gradlew clean bootJar -x test --no-daemon
 
 # Runtime Stage
-FROM amazoncorretto:17
+FROM amazoncorretto:17-alpine3.21
 WORKDIR /app
 
 # 런타임 환경변수
 ENV SPRING_PROFILES_ACTIVE=prod \
-    PROJECT_NAME=${PROJECT_NAME} \
-    PROJECT_VERSION=${PROJECT_VERSION} \
+    PROJECT_NAME=discodeit \
+    PROJECT_VERSION=1.2-M8 \
     JVM_OPTS="" \
     SERVER_PORT=80
 
