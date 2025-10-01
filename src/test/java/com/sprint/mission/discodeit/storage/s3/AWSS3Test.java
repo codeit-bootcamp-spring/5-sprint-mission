@@ -1,6 +1,16 @@
-package com.sprint.mission.discodeit.storage.S3;
+package com.sprint.mission.discodeit.storage.s3;
 
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import com.sprint.mission.discodeit.storage.S3.AWSProperties;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -12,19 +22,26 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 public class AWSS3Test {
 
-    private static final AWSProperties props = new AWSProperties();
-    private static final S3Client s3 = S3ClientFactory.create(props);
+    private static AWSProperties props;
+    private static S3Client s3;
 
-    public static void main(String[] args) throws Exception {
-        uploadTest();
-        downloadTest();
-        presignedUrlTest();
+    @BeforeAll
+    static void setup() {
+        props = new AWSProperties(); // 네가 만든 클래스
+        s3 = S3Client.builder()
+                .region(Region.of(props.getRegion()))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(props.getAccessKey(), props.getSecretKey())
+                ))
+                .build();
     }
 
-    // 업로드
-    public static void uploadTest() {
+    @Test
+    void uploadTest() {
         PutObjectRequest putRequest = PutObjectRequest.builder()
                 .bucket(props.getBucket())
                 .key("test/hello.txt")
@@ -32,26 +49,26 @@ public class AWSS3Test {
                 .build();
 
         s3.putObject(putRequest, new File("hello.txt").toPath());
-        System.out.println("업로드 성공!");
+        assertThat(new File("hello.txt").exists()).isTrue();
     }
 
-    // 다운로드
-    public static void downloadTest() throws IOException {
+    @Test
+    void downloadTest() throws IOException {
         GetObjectRequest getRequest = GetObjectRequest.builder()
                 .bucket(props.getBucket())
                 .key("test/hello.txt")
                 .build();
 
         s3.getObject(getRequest, ResponseTransformer.toFile(Paths.get("download_hello.txt")));
-        System.out.println("다운로드 성공!");
+        assertThat(new File("download_hello.txt").exists()).isTrue();
     }
 
-    // Presigned URL 생성
-    public static void presignedUrlTest() {
+    @Test
+    void presignedUrlTest() {
         try (S3Presigner presigner = S3Presigner.builder()
-                .region(software.amazon.awssdk.regions.Region.of(props.getRegion()))
-                .credentialsProvider(() -> software.amazon.awssdk.auth.credentials.AwsBasicCredentials.create(
-                        props.getAccessKey(), props.getSecretKey()
+                .region(Region.of(props.getRegion()))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(props.getAccessKey(), props.getSecretKey())
                 ))
                 .build()) {
 
@@ -67,6 +84,9 @@ public class AWSS3Test {
 
             String url = presigner.presignGetObject(presignRequest).url().toString();
             System.out.println("Presigned URL: " + url);
+
+            assertThat(url).contains("https://");
         }
     }
+
 }
