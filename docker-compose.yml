@@ -1,4 +1,17 @@
 services:
+  # springboot
+  app:
+    build: .
+    container_name: discodeit-app
+    ports:
+      - "8081:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./binary-storage:/app/binary-storage
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:15
     container_name: discodeit-postgres
@@ -6,9 +19,12 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: discodeit
-      POSTGRES_USER: discodeit_user
-      POSTGRES_PASSWORD: discodeit1234
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+    - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    - postgres-data:/var/lib/postgresql/data
 
   # Prometheus
   prometheus:
