@@ -1,0 +1,35 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  application:
+    name: discodeit
+
+  boot:
+    admin:
+      client:
+        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    driver-class-name: org.postgresql.Driver
+    username: discodeit_user
+    password: discodeit_1234
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    root: info
+    org.hibernate.SQL: off
+    org.hibernate.orm.jdbc.bind: off
+    org.springframework.web: info
+
+server:
+  port: 9090
