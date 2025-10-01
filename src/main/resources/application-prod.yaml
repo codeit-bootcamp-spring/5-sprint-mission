@@ -1,0 +1,12 @@
+spring:
+  config.activate.on-profile: prod
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/discodeit_prod}
+    username: ${DB_USERNAME:discodeit_prod}
+    password: ${DB_PASSWORD:1234}
+  jpa.hibernate.ddl-auto: validate
+server.port: 8080
+logging.level:
+  com.sprint.mission.discodeit: info
+  org.hibernate.SQL: warn
+  org.hibernate.orm.jdbc.bind: warn

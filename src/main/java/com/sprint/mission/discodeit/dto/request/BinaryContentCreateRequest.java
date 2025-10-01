@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.dto.request;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record BinaryContentCreateRequest(
-        String fileName,
-        String contentType,
-        byte[] bytes
-){
+    @NotBlank(message = "File name is mandatory") @Size(max = 200, message = "File name must be at most 200 characters") String fileName,
+    @NotBlank(message = "Content type is mandatory") @Size(max = 200, message = "Content type must be at most 200 characters") String contentType,
+
+    @NotNull(message = "Content is mandatory") @Size(min = 1, message = "Content must be at least 1 byte") byte[] bytes) {
 }

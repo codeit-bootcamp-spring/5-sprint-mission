@@ -1,6 +1,7 @@
 spring:
   application:
     name: discodeit
+<<<<<<< HEAD
 
 discodeit:
   repository:
@@ -22,3 +23,48 @@ springdoc:
     title: Discodeit API 문서
     description: 스프린트 미션 #4에서 설계한 RESTful API 문서입니다.
     version: v1.0.0
+=======
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    root: info     # 기본 info (요구사항)
+    # 패키지 기본값은 프로파일에서 조절
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: when_authorized
+
+info:
+  app:
+    name: Discodeit
+    version: 1.7.0
+  java:
+    version: 17
+  spring-boot:
+    version: 3.4.0
+  datasource:
+    url: ${spring.datasource.url}
+    driver: ${spring.datasource.driver-class-name:org.postgresql.Driver}
+  jpa:
+    ddl-auto: ${spring.jpa.hibernate.ddl-auto}
+  storage:
+    type: ${discodeit.storage.type}
+    path: ${discodeit.storage.local.root-path}
+  multipart:
+    max-file-size: ${spring.servlet.multipart.maxFileSize}
+    max-request-size: ${spring.servlet.multipart.maxRequestSize}
+>>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
