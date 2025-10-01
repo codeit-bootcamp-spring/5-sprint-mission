@@ -1,4 +1,4 @@
-// package com.sprint.mission.discodeit.service.jsf;
+// package com.sprint.mission.discodeit.com.sprint.mission.service.jsf;
 //
 // import java.util.List;
 // import java.util.NoSuchElementException;
@@ -14,11 +14,11 @@
 // import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 // import com.sprint.mission.discodeit.domain.entity.User;
 // import com.sprint.mission.discodeit.domain.entity.UserStatus;
-// import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-// import com.sprint.mission.discodeit.repository.UserStatusRepository;
-// import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
-// import com.sprint.mission.discodeit.service.BinaryContentService;
-// import com.sprint.mission.discodeit.service.UserService;
+// import com.sprint.mission.discodeit.com.sprint.mission.repository.BinaryContentRepository;
+// import com.sprint.mission.discodeit.com.sprint.mission.repository.UserStatusRepository;
+// import com.sprint.mission.discodeit.com.sprint.mission.repository.jcf.JCFUserRepository;
+// import com.sprint.mission.discodeit.com.sprint.mission.service.BinaryContentService;
+// import com.sprint.mission.discodeit.com.sprint.mission.service.UserService;
 //
 // import lombok.RequiredArgsConstructor;
 //

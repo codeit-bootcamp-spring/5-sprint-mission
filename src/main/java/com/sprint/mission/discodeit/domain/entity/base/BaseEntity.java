@@ -14,12 +14,15 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 @Getter
+@SuperBuilder
+
 public abstract class BaseEntity {
 
 	@Id

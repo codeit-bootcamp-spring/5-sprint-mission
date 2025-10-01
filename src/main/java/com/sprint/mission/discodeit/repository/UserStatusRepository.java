@@ -5,8 +5,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
 
@@ -18,11 +16,4 @@ public interface UserStatusRepository extends JpaRepository<UserStatus, UUID> {
 
 	List<UserStatus> findByUserIdIn(List<UUID> userIds);
 
-	@Query("""
-	  SELECT us
-	  FROM UserStatus  us
-	  JOIN FETCH us.user
-	  WHERE us.id in :userIds
-	  """)
-	List<UserStatus> findUserStatusWithUserByUserIdIn(@Param("userIds") List<UUID> userIds);
 }

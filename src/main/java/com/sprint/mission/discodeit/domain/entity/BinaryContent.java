@@ -6,10 +6,12 @@ import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @NoArgsConstructor
 @Entity
+@SuperBuilder
 public class BinaryContent extends BaseEntity {
 
 	@NotNull

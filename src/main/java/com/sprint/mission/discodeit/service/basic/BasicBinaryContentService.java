@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -11,6 +10,7 @@ import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
 import com.sprint.mission.discodeit.domain.dto.FindBiContentsIdInDTO;
 import com.sprint.mission.discodeit.domain.dto.binaryContent.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
+import com.sprint.mission.discodeit.exception.binaryContent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
@@ -40,7 +40,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 	public BinaryContentDto find(UUID id) {
 
 		BinaryContent binaryContent = binaryContentRepository.findById(id)
-		  .orElseThrow(() -> new NoSuchElementException("Binary content not found for ID: " + id));
+		  .orElseThrow(BinaryContentNotFoundException::new);
 
 		return binaryContentMapper.toDto(binaryContent);
 	}
@@ -56,14 +56,13 @@ public class BasicBinaryContentService implements BinaryContentService {
 	@Transactional
 	public void delete(UUID id) {
 		if (!binaryContentRepository.existsById(id)) {
-			throw new IllegalArgumentException("Binary content not found for ID: " + id);
+			throw new BinaryContentNotFoundException();
 		}
 		binaryContentStorage.put(id, null);
 		binaryContentRepository.deleteById(id);
 	}
 
 	private BinaryContent DTOtoBinaryContent(CreateBiContentDTO dto) {
-		byte[] content = dto.getContent();
 		long size = dto.getSize();
 		String contentType = dto.getContentType();
 		String filename = dto.getFileName();

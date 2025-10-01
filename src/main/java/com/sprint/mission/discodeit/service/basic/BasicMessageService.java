@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.service.basic;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,6 +22,9 @@ import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.AuthorNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -34,9 +36,11 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BasicMessageService implements MessageService {
 
 	private final MessageRepository messageRepository;
@@ -52,19 +56,17 @@ public class BasicMessageService implements MessageService {
 	@Override
 	@Transactional
 	public MessageDto create(CreateMessageDTO dto) {
+		log.debug("PUBLIC channel create 트랜잭션 시작");
+
 		String content = dto.getContent();
 		UUID channelId = dto.getChannelId();
 		UUID userId = dto.getUserId();
 		List<CreateBiContentDTO> attachmentsInMessage = dto.getAttachments();
 
 		// Validate
-		Channel channel = channelRepository.findById(channelId).orElseThrow(() ->
-		  new NoSuchElementException("channel with id " + channelId + "not found")
-		);
+		Channel channel = channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
 
-		User user = userRepository.findUserWithProfileImageByID(userId).orElseThrow(() ->
-		  new NoSuchElementException("Author with id " + userId + "not found")
-		);
+		User user = userRepository.findUserWithProfileImageByID(userId).orElseThrow(AuthorNotFoundException::new);
 
 		boolean isOnline = userStatusRepository.findByUserId(user.getId())
 		  .map(UserStatus::isOnline).orElse(false);
@@ -72,9 +74,13 @@ public class BasicMessageService implements MessageService {
 		List<BinaryContent> attachments = Optional.ofNullable(attachmentsInMessage)
 		  .map(a -> a.stream().map(binaryContentService::create).toList())
 		  .orElse(List.of());
+		log.debug("success save attachments with Ids={} in message"
+		  , attachments.stream().map(BinaryContent::getId).toString());
 
 		Message savedMessage = messageRepository.save(new Message(content, user, channel, attachments));
+		log.debug("success save messageEntity  ID={}", savedMessage.getId());
 
+		log.debug("Message create 트랜잭션 정상 종료");
 		return messageMapper.toDto(
 		  savedMessage,
 		  userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage())));
@@ -83,30 +89,33 @@ public class BasicMessageService implements MessageService {
 	@Override
 	@Transactional
 	public void delete(UUID id) {
-		Message messageToDelete = messageRepository.findById(id)
-		  .orElseThrow(() -> new NoSuchElementException("Message with ID " + id + " not found"));
+		log.debug("message  delete 트랜잭션 시작");
+
+		Message messageToDelete = messageRepository.findById(id).orElseThrow(MessageNotFoundException::new);
 
 		// 메시지 관련 Attachment 도 삭제
 		binaryContentRepository.deleteByIdIn(
 		  messageToDelete.getAttachments().stream().map(BinaryContent::getId).toList());
+		log.debug("success delete attachments with Ids={} in message",
+		  messageToDelete.getAttachments().stream().map(BinaryContent::getId).toString());
 
 		// 메시지 삭제
 		messageRepository.deleteById(id);
+		log.debug("success delete messageEntity id={}", id);
+
+		log.debug("message  delete 트랜잭션 정상 종료");
 	}
 
 	@Override
 	@Transactional
 	public MessageDto update(UpdateMessageDTO dto) {
-		Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("UpdateMessageDTO cannot be null"));
+		log.debug("message update 트랜잭션 시작");
+
 		UUID id = dto.getId();
 		String newContent = dto.getNewContent();
+		log.debug("new message info id={} newContent={}", id, newContent);
 
-		if (newContent == null || newContent.isEmpty()) {
-			throw new IllegalArgumentException("New content cannot be null or empty");
-		}
-
-		Message targetMessage = messageRepository.findMessageDetailsById(id).orElseThrow(
-		  () -> new NoSuchElementException("Message with ID " + id + " not found"));
+		Message targetMessage = messageRepository.findMessageDetailsById(id).orElseThrow(MessageNotFoundException::new);
 		// 1. 내용 수정
 		targetMessage.setContent(newContent);
 
@@ -117,6 +126,9 @@ public class BasicMessageService implements MessageService {
 		  .orElse(false);
 
 		messageRepository.save(targetMessage);
+		log.debug("success update messageEntity  channelId={}", id);
+
+		log.debug("message update 트랜잭션 정상 종료");
 		return messageMapper.toDto(
 		  targetMessage,
 		  userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage())));
@@ -132,6 +144,8 @@ public class BasicMessageService implements MessageService {
 		Map<UUID, Boolean> userId2Status = userStatusRepository.findByUserIdIn(userIds)
 		  .stream()
 		  .collect(Collectors.toMap(us -> us.getUser().getId(), UserStatus::isOnline));
+
+		messages.getContent().forEach(System.out::println);
 		return messages.map(message ->
 		  {
 			  User user = message.getUser();
@@ -164,12 +178,6 @@ public class BasicMessageService implements MessageService {
 			  );
 		  }
 		);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public boolean isEmpty(UUID id) {
-		return messageRepository.existsById(id);
 	}
 
 }

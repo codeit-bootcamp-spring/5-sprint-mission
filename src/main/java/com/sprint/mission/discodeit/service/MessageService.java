@@ -22,6 +22,4 @@ public interface MessageService {
 
 	Slice<MessageDto> findAllCursorByChannelId(UUID channelId, Instant cursor, Pageable pageable);
 
-	boolean isEmpty(UUID channelId);
-
 }

@@ -1,4 +1,4 @@
-// package com.sprint.mission.discodeit.service.file;
+// package com.sprint.mission.discodeit.com.sprint.mission.service.file;
 //
 // import java.util.List;
 // import java.util.NoSuchElementException;
@@ -8,10 +8,10 @@
 // import com.sprint.mission.discodeit.domain.dto.CreateMessageDTO;
 // import com.sprint.mission.discodeit.domain.dto.UpdateMessageDTO;
 // import com.sprint.mission.discodeit.domain.entity.Message;
-// import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
-// import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
-// import com.sprint.mission.discodeit.service.MessageService;
-// import com.sprint.mission.discodeit.service.UserService;
+// import com.sprint.mission.discodeit.com.sprint.mission.repository.file.FileChannelRepository;
+// import com.sprint.mission.discodeit.com.sprint.mission.repository.file.FileMessageRepository;
+// import com.sprint.mission.discodeit.com.sprint.mission.service.MessageService;
+// import com.sprint.mission.discodeit.com.sprint.mission.service.UserService;
 //
 // public class FileMessageService implements MessageService {
 //

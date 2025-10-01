@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:h2:mem:discodeit;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;INIT=SET TIME ZONE 'Asia/Seoul'
+    # 인메모리 (권장)
+    # 임베디드 (data가 넣어지지 않음)
+    #    url: jdbc:h2:file:./data/blogdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;AUTO_SERVER=TRUE
+    # 서버모드 -> h2 DB 실행 필요
+    #    url: jdbc:h2:tcp://localhost:9092/~/blogdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+server:
+  port: 8083

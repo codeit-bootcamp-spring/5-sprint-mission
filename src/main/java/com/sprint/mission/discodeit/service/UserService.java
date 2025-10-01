@@ -16,9 +16,4 @@ public interface UserService {
 
 	UserDto update(UpdateUserDTO dto);
 
-	UserDto read(UUID userId);
-
-	boolean isEmpty(UUID userId);
-
-	boolean isOnline(UUID id);
 }
