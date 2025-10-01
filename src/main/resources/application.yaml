@@ -1,13 +1,13 @@
 spring:
   application:
     name: Discodeit
-    version: 1.7.0
+    version: 1.2-M8
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 30MB
   profiles:
-    active: dev # dev | prod | test
+    active: prod # dev | prod | test
   boot:
     admin:
       client:

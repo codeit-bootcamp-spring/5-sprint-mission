@@ -24,7 +24,7 @@ spring:
 logging:
   level:
     root: info
-    com.sprint.mission.discodeit: ingo
+    com.sprint.mission.discodeit: info
     org.springframework.web: info
 
 server:

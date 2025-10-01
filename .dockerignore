@@ -1,0 +1,22 @@
+# Gradle/빌드 산출물
+.gradle
+build
+out
+
+# IDE/OS 잡파일
+.idea
+*.iml
+*.iws
+*.ipr
+.DS_Store
+
+# VCS
+.git
+.gitignore
+
+# 로그/임시
+*.log
+tmp
+
+.env
+.discodeit
