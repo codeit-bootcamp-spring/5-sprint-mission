@@ -2,14 +2,15 @@ package com.sprint.mission.discodeit.storage;
 
 import com.sprint.mission.discodeit.configuration.LocalStorageProps;
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
-import com.sprint.mission.discodeit.exception.storage.StorageInitException;
 import com.sprint.mission.discodeit.exception.storage.StorageFileMissingException;
+import com.sprint.mission.discodeit.exception.storage.StorageInitException;
 import com.sprint.mission.discodeit.exception.storage.StorageReadException;
 import com.sprint.mission.discodeit.exception.storage.StorageWriteException;
 import com.sprint.mission.discodeit.log.LogUtils;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,6 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -75,7 +80,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   }
 
   @Override
-  public Resource download(BinaryContentDto dto) {
+  public ResponseEntity<Resource> download(BinaryContentDto dto) {
     log.debug("[LocalBinaryContentStorage#download] try: {}", LogUtils.summarizeAttachment(dto));
     Path path = resolvePath(dto.id());
 
@@ -87,6 +92,15 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     log.info("[LocalBinaryContentStorage#download] downloaded: {}",
         LogUtils.summarizeAttachment(dto));
 
-    return resource;
+    return ResponseEntity.ok()
+        .contentType(MediaType.parseMediaType(dto.contentType()))
+        .contentLength(dto.size())
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+            ContentDisposition
+                .attachment()
+                .filename(dto.fileName(), StandardCharsets.UTF_8)
+                .build()
+                .toString())
+        .body(resource);
   }
 }

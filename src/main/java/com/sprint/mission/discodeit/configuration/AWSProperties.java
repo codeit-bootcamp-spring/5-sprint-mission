@@ -32,4 +32,8 @@ public class AWSProperties {
     return props.getProperty("AWS_S3_BUCKET");
   }
 
+  public long getExpiration() {
+    return Long.parseLong(props.getProperty("AWS_S3_PRESIGNED_URL_EXPIRATION"));
+  }
+
 }
