@@ -24,21 +24,14 @@ import java.time.Duration;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+@SpringBootTest
 public class AWSS3Test {
 
-    private static AWSProperties props;
-    private static S3Client s3;
+    @Autowired
+    private AWSProperties props;
 
-    @BeforeAll
-    static void setup() {
-        props = new AWSProperties(); // 네가 만든 클래스
-        s3 = S3Client.builder()
-                .region(Region.of(props.getRegion()))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(props.getAccessKey(), props.getSecretKey())
-                ))
-                .build();
-    }
+    @Autowired
+    private S3Client s3;
 
     @Test
     void uploadTest() {

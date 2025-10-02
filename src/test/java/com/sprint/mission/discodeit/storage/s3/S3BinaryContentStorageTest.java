@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.storage.s3;
 
-import com.sprint.mission.discodeit.config.S3Config;
+import com.sprint.mission.discodeit.storage.S3.S3Config;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import com.sprint.mission.discodeit.storage.S3.AWSProperties;
@@ -17,11 +17,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(classes = {
-        S3BinaryContentStorage.class,
-        AWSProperties.class,
-        S3Config.class
-})
+@SpringBootTest
 @ActiveProfiles("test")
 public class S3BinaryContentStorageTest {
 

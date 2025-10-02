@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.storage.S3;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -21,11 +22,12 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "s3")
 public class S3BinaryContentStorage implements BinaryContentStorage {
 
-    private final AWSProperties props = new AWSProperties();
-    private final S3Presigner s3Presigner = S3PresignerFactory.create(props);
-    private final S3Client s3Client = S3ClientFactory.create(props);
+    private final AWSProperties props;
+    private final S3Presigner s3Presigner;
+    private final S3Client s3Client;
 
 
     @Override

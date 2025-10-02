@@ -1,16 +1,13 @@
 spring:
+  boot:
+    admin:
+      client:
+        enabled: false
+
   h2:
     console:
       enabled: true
       path: /h2-console
-
-  discodeit:
-    storage:
-      type: s3
-      access-key: ${AWS_ACCESS_KEY_ID}
-      secret-key: ${AWS_SECRET_ACCESS_KEY}
-      bucket: ${AWS_BUCKET_NAME}
-      region: ${AWS_REGION}
 
   # 데이터 소스 설정
   datasource:
