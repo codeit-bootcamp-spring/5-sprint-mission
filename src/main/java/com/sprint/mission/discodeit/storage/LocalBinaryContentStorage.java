@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.storage;
 
-import com.sprint.mission.discodeit.configuration.StorageProps;
+import com.sprint.mission.discodeit.configuration.LocalStorageProps;
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.exception.storage.StorageInitException;
 import com.sprint.mission.discodeit.exception.storage.StorageFileMissingException;
@@ -21,13 +21,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
+@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local", matchIfMissing = true)
 @Slf4j
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   private final Path root;
 
-  LocalBinaryContentStorage(StorageProps props) {
+  LocalBinaryContentStorage(LocalStorageProps props) {
     root = Paths.get(System.getProperty("user.dir"), props.getRootPath());
   }
 

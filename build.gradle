@@ -44,6 +44,9 @@ dependencies {
     // mapstruct
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+    // aws
+    implementation 'software.amazon.awssdk:s3:2.31.7'
 }
 
 test {
