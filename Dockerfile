@@ -4,12 +4,12 @@ WORKDIR /app
 
 # 그래들 캐시 최적화를 위해 먼저 래퍼/세팅만 복사
 COPY gradlew ./
+RUN chmod +x gradlew
 COPY gradle ./gradle
 COPY settings.gradle ./settings.gradle
 COPY build.gradle ./build.gradle
 RUN ./gradlew dependencies
 
-RUN chmod +x gradlew
 
 # 나머지 소스 복사
 COPY src ./src
@@ -19,6 +19,8 @@ RUN ./gradlew clean bootJar -x test --no-daemon
 # Runtime Stage
 FROM amazoncorretto:17-alpine3.21
 WORKDIR /app
+
+RUN apk add --no-cache curl
 
 # 런타임 환경변수
 ENV SPRING_PROFILES_ACTIVE=prod \

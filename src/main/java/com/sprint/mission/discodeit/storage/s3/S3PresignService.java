@@ -20,7 +20,6 @@ public class S3PresignService {
 
   private final S3Presigner presigner;
   private final AWSProperties awsProperties;
-  private final long expiration = awsProperties.getExpiration();
 
   public URL createGetPresignedUrl(String key, String bucket, @Nullable String filename) {
     GetObjectRequest.Builder get = GetObjectRequest.builder()
@@ -34,7 +33,8 @@ public class S3PresignService {
     }
 
     GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-        .signatureDuration(Duration.ofSeconds(expiration)) // ex) Duration.ofMinutes(10)
+        .signatureDuration(
+            Duration.ofSeconds(awsProperties.getExpiration())) // ex) Duration.ofMinutes(10)
         .getObjectRequest(get.build())
         .build();
 
@@ -43,7 +43,7 @@ public class S3PresignService {
     return presigned.url();
   }
 
-  public URL createPutPresignedUrl(String bucket, String key, String contentType, Duration ttl) {
+  public URL createPutPresignedUrl(String bucket, String key, String contentType) {
     PutObjectRequest put = PutObjectRequest.builder()
         .bucket(bucket)
         .key(key)
@@ -51,7 +51,7 @@ public class S3PresignService {
         .build();
 
     PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-        .signatureDuration(Duration.ofSeconds(expiration))
+        .signatureDuration(Duration.ofSeconds(awsProperties.getExpiration()))
         .putObjectRequest(put)
         .build();
 
