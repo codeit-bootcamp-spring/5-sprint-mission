@@ -21,6 +21,7 @@ FROM amazoncorretto:17-alpine3.21
 WORKDIR /app
 
 RUN apk add --no-cache curl
+RUN apk add --no-cache wget
 
 # 런타임 환경변수
 ENV SPRING_PROFILES_ACTIVE=prod \
