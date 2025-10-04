@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,7 +33,7 @@ public class UserController {
   private final UserService userService;
 
 
-  //회원가입
+  //1. 회원가입 (multipart/form-data)
   @Operation(summary = "회원가입")
   @PostMapping(consumes = "multipart/form-data")
   public ResponseEntity<UserDto> create(
@@ -40,6 +41,14 @@ public class UserController {
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) throws IOException {
     UserDto responseDto = userService.create(dto, profile);
+    log.info("회원가입 완료: userId={}", responseDto.getId());
+    return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+  }
+
+  // 2. 회원가입(통합 테스트용, JSON만 받는 요청)
+  @PostMapping(consumes = "application/json")
+  public ResponseEntity<UserDto> createJson(@RequestBody @Valid UserDto dto) throws IOException {
+    UserDto responseDto = userService.create(dto, null);
     log.info("회원가입 완료: userId={}", responseDto.getId());
     return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
   }
