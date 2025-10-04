@@ -45,7 +45,7 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
   }
 
-  // 2. 회원가입(통합 테스트용, JSON만 받는 요청)
+  // 2. 회원가입(통합 테스트용. JSON만 받는 요청)
   @PostMapping(consumes = "application/json")
   public ResponseEntity<UserDto> createJson(@RequestBody @Valid UserDto dto) throws IOException {
     UserDto responseDto = userService.create(dto, null);
