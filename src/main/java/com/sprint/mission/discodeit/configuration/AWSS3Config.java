@@ -19,11 +19,6 @@ public class AWSS3Config {
   private S3Presigner s3Presigner;
 
   @Bean
-  public AWSProperties awsProperties() {
-    return new AWSProperties();
-  }
-
-  @Bean
   public AwsCredentialsProvider awsCredentialsProvider(AWSProperties props) {
     String accessKey = req(props.getAccessKey(), "AWS_S3_ACCESS_KEY");
     String secretKey = req(props.getSecretKey(), "AWS_S3_SECRET_KEY");
