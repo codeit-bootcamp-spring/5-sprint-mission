@@ -33,6 +33,13 @@ public class ChannelMapper {
 
   // DTO → Entity 값 update
   public void updateEntityFromDto(Channel channel, ChannelDto dto) {
+    // 👇 여기에 로그 추가!
+    System.out.println("[매퍼] updateEntityFromDto 호출됨: "
+        + "name=" + dto.getName()
+        + ", newName=" + dto.getNewName()
+        + ", description=" + dto.getDescription()
+        + ", newDescription=" + dto.getNewDescription());
+
     if (dto.getNewName() != null && !dto.getNewName().isEmpty()) {
       channel.updateName(dto.getNewName());
     }

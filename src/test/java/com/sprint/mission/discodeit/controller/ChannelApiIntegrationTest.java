@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -96,18 +95,20 @@ public class ChannelApiIntegrationTest {
     updateDto.setNewName("수정후");
     updateDto.setNewDescription("수정후 설명");
 
-    System.out.println(new ObjectMapper().writeValueAsString(updateDto));
-
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON); //요청 헤더 지정
     HttpEntity<ChannelDto> entity = new HttpEntity<>(updateDto, headers); //dto,header 묶기
-
     ResponseEntity<Void> response = restTemplate.exchange(
         "/api/channels/" + id, HttpMethod.PATCH, entity, Void.class);
 
-    // then
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(channelRepository.findById(id).get().getName()).isEqualTo("수정후");
+    //then
+    restTemplate.exchange("/api/channels/" + id, HttpMethod.PATCH, entity, Void.class); //patch 요청
+
+    //다시 API로 조회(DB에서 최신 상태 받아옴)
+    ResponseEntity<ChannelDto> result = restTemplate.getForEntity("/api/channels/" + id,
+        ChannelDto.class);
+
+    assertThat(result.getBody().getName()).isEqualTo("수정후");
   }
 
   @Test

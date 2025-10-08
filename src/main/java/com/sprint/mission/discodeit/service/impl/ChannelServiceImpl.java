@@ -57,12 +57,11 @@ public class ChannelServiceImpl implements ChannelService {
   public ChannelDto update(UUID id, ChannelDto dto) {
     Channel channel = channelRepository.findById(id) // 영속성 컨텍스트에 의해 관리
         .orElseThrow(() -> new ChannelNotFoundException());
-
     channelMapper.updateEntityFromDto(channel, dto);
     log.info("[수정 전] name={}, description={}", channel.getName(), channel.getDescription());
     channelMapper.updateEntityFromDto(channel, dto);
     log.info("[수정 후] name={}, description={}", channel.getName(), channel.getDescription());
-    return channelMapper.toDto(channel); // ✅ 수정된 엔티티 DTO 변환 후 반환
+    return channelMapper.toDto(channel); //수정된 엔티티 DTO 변환 후 반환
   }
 
 
