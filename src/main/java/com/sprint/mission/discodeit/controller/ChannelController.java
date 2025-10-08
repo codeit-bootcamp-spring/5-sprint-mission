@@ -69,12 +69,15 @@ public class ChannelController {
   //채널 수정: DTO만 넘김
   @Operation(summary = "채널 수정")
   @PatchMapping("/api/channels/{channelId}")
-  public ResponseEntity<Void> update(@PathVariable("channelId") UUID id,
+  public ResponseEntity<ChannelDto> update(@PathVariable("channelId") UUID id,
       @RequestBody @Valid ChannelDto dto) {
-    log.info("채널 수정 요청:id={}, name={}", id, dto.getName());
+    /*log.info("채널 수정 요청:id={}, name={}", id, dto.getName());
     channelService.update(id, dto);
     log.info("채널 수정 완료: id={}", id);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok().build();*/
+    ChannelDto updated = channelService.update(id, dto);
+    log.info("채널 수정 완료: id={}", id);
+    return ResponseEntity.ok(updated); // ✅ 수정 후 최신 DTO 응답
   }
 
 

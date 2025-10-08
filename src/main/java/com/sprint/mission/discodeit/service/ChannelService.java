@@ -20,7 +20,7 @@ public interface ChannelService {
   List<ChannelDto> findAll();
 
   //채널 정보 수정
-  void update(UUID id, ChannelDto dto); // 채널 수정
+  ChannelDto update(UUID id, ChannelDto dto); // 채널 수정
 
   //채널 삭제
   void delete(UUID id);
