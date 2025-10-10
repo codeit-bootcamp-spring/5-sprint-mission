@@ -1,1 +1,1 @@
-[![codecov](https://codecov.io/gh/KarubiOhayo/5-sprint-mission/graph/badge.svg?token=G272KGMNSU)](https://codecov.io/gh/KarubiOhayo/5-sprint-mission)
+[![codecov](https://codecov.io/gh/KarubiOhayo/5-sprint-mission/branch/%EA%B9%80%EA%B7%9C%EC%84%AD-sprint8/graph/badge.svg?token=G272KGMNSU)](https://codecov.io/gh/KarubiOhayo/5-sprint-mission)
