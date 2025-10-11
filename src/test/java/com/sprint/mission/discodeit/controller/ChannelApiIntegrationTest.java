@@ -36,7 +36,7 @@ public class ChannelApiIntegrationTest {
 
   /* 사용자가 API를 두드리듯이 컨트롤러 엔드 포인트에
    * 직접 HTTP 요청을 보내는 것이 목적이기 때문에, Service 주입X
-   *
+   * <-> Repository는 DB 검증용으로 주입
    */
 
   @Autowired

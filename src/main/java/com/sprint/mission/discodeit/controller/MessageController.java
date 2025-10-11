@@ -30,7 +30,7 @@ public class MessageController {
 
   private final MessageService messageService;
 
-  //메시지 생성
+  //1. 메시지 생성
   @Operation(summary = "메세지 생성")
   @PostMapping(value = "/api/messages", consumes = "multipart/form-data")
   public ResponseEntity<MessageDto> create(
@@ -40,6 +40,13 @@ public class MessageController {
     MessageDto created = messageService.create(dto, attachments);
     log.info("메시지 생성 완료: messageId={}", created.getId());
     return ResponseEntity.status(HttpStatus.CREATED).body(created);
+  }
+
+  //2. 메세지 생성 (통합 테스트용. JSON만 받는 요청) -
+  @PostMapping("/api/messages/simple")
+  public ResponseEntity<MessageDto> createSimple(@RequestBody @Valid MessageDto dto) {
+    MessageDto saved = messageService.create(dto, null);
+    return ResponseEntity.status(HttpStatus.CREATED).body(saved);
   }
 
 
