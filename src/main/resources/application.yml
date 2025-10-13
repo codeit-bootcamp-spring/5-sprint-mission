@@ -7,9 +7,9 @@ spring:
 
 discodeit:
   storage:
-    type: local
+    type: ${STORAGE_TYPE:local}
     local:
-      root-path: ./data.dir
+      root-path: ${STORAGE_LOCAL_ROOT_PATH:./data.dir}
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -61,3 +61,10 @@ management:
       enabled: true
     build:
       enabled: true
+
+aws:
+  accessKeyId: ${AWS_S3_ACCESS_KEY}
+  secretKey: ${AWS_S3_SECRET_KEY}
+  region: ${AWS_S3_REGION}
+  bucket: ${AWS_S3_BUCKET}
+  presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
