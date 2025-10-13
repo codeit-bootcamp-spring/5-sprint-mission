@@ -10,18 +10,16 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Slf4j
+@Primary
 @Component
-@ConditionalOnProperty(
-    name = "discodeit.storage.type",
-    havingValue = "local",
-    matchIfMissing = true
-)
+@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local", matchIfMissing = true)
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   private final Path root;
@@ -67,10 +65,9 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     Resource resource = new FileSystemResource(filePath.toFile());
 
     log.info("Downloading file : {}", id);
-    return ResponseEntity
-        .ok()
-        .header("Content-Disposition", "attachment; filename=\"" + id + "\"")
-        .body(resource);
+    return ResponseEntity.ok()
+                         .header("Content-Disposition", "attachment; filename=\"" + id + "\"")
+                         .body(resource);
   }
 
   private Path resolvePath(UUID id) {
