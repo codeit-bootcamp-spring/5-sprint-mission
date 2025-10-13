@@ -28,6 +28,11 @@ jobs:
       - name: ECR 로그인
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: 'public'
+          mask-password: 'true'
+        env:
+          AWS_REGION: us-east-1
 
       - name: Docker 이미지 빌드 및 푸시
         run: |
