@@ -1,6 +1,7 @@
 # 5-sprint-mission
 
 - 작성자 : 박주환
+- [![codecov](https://codecov.io/gh/parkjoohwan/5-sprint-mission/graph/badge.svg?token=WKR9M19I5A)](https://codecov.io/gh/parkjoohwan/5-sprint-mission)
 
 # mission-1
 
@@ -795,56 +796,56 @@ spring:
 
 ### Dockerfile 작성
 
-- [ ] Amazon Corretto 17 이미지를 베이스 이미지로 사용하세요.
-- [ ] 작업 디렉토리를 설정하세요. (/app)
-- [ ] 프로젝트 파일을 컨테이너로 복사하세요. 단, 불필요한 파일은 .dockerignore를 활용해 제외하세요.
-- [ ] Gradle Wrapper를 사용하여 애플리케이션을 빌드하세요.
-- [ ] 80 포트를 노출하도록 설정하세요.
-- [ ] 프로젝트 정보를 환경 변수로 설정하세요.
+- [x] Amazon Corretto 17 이미지를 베이스 이미지로 사용하세요.
+- [x] 작업 디렉토리를 설정하세요. (/app)
+- [x] 프로젝트 파일을 컨테이너로 복사하세요. 단, 불필요한 파일은 .dockerignore를 활용해 제외하세요.
+- [x] Gradle Wrapper를 사용하여 애플리케이션을 빌드하세요.
+- [x] 80 포트를 노출하도록 설정하세요.
+- [x] 프로젝트 정보를 환경 변수로 설정하세요.
     - 실행할 jar 파일의 이름을 추론하는데 활용됩니다.
     - PROJECT_NAME: discodeit
     - PROJECT_VERSION: 1.2-M8
-- [ ] JVM 옵션을 환경 변수로 설정하세요.
+- [x] JVM 옵션을 환경 변수로 설정하세요.
     - JVM_OPTS: 기본값은 빈 문자열로 정의
-- [ ] 애플리케이션 실행 명령어를 설정하세요. 이때 환경변수로 정의한 프로젝트 정보를 활용하세요.
+- [x] 애플리케이션 실행 명령어를 설정하세요. 이때 환경변수로 정의한 프로젝트 정보를 활용하세요.
     - 이미지 빌드 및 실행 테스트
-- [ ] Docker 이미지를 빌드하고 태그(local)를 지정하세요.
-- [ ] 빌드된 이미지를 활용해서 컨테이너를 실행하고 애플리케이션을 테스트하세요.
-- [ ] prod 프로필로 실행하세요.
-- [ ] 데이터베이스는 로컬 환경에서 구동 중인 PostgreSQL 서버를 활용하세요.
-- [ ] http://localhost:8081로 접속 가능하도록 포트를 매핑하세요.
+- [x] Docker 이미지를 빌드하고 태그(local)를 지정하세요.
+- [x] 빌드된 이미지를 활용해서 컨테이너를 실행하고 애플리케이션을 테스트하세요.
+- [x] prod 프로필로 실행하세요.
+- [x] 데이터베이스는 로컬 환경에서 구동 중인 PostgreSQL 서버를 활용하세요.
+- [x] http://localhost:8081로 접속 가능하도록 포트를 매핑하세요.
 
 ### Docker Compose 구성
 
-- [ ] 개발 환경용 docker-compose.yml 파일을 작성합니다.
-- [ ] 애플리케이션과 PostgreSQL 서비스를 포함하세요.
-- [ ] 각 서비스에 필요한 모든 환경 변수를 설정하세요.
+- [x] 개발 환경용 docker-compose.yml 파일을 작성합니다.
+- [x] 애플리케이션과 PostgreSQL 서비스를 포함하세요.
+- [x] 각 서비스에 필요한 모든 환경 변수를 설정하세요.
     - .env 파일을 활용하되, .env는 형상관리에서 제외하여 보안을 유지하세요.
-- [ ] 애플리케이션 서비스를 로컬 Dockerfile에서 빌드하도록 구성하세요.
-- [ ] 애플리케이션 볼륨을 구성하여 컨테이너가 재시작되어도 BinaryContentStorage 데이터가 유지되도록 하세요.
-- [ ] PostgreSQL 볼륨을 구성하여 컨테이너가 재시작되어도 데이터가 유지되도록 하세요.
-- [ ] PostgreSQL 서비스 실행 후 schema.sql이 자동으로 실행되도록 구성하세요.
-- [ ] 서비스 간 의존성을 설정하세요(depends_on).
-- [ ] 필요한 포트 매핑을 구성하세요.
-- [ ] Docker Compose를 사용하여 서비스를 시작하고 테스트하세요.
+- [x] 애플리케이션 서비스를 로컬 Dockerfile에서 빌드하도록 구성하세요.
+- [x] 애플리케이션 볼륨을 구성하여 컨테이너가 재시작되어도 BinaryContentStorage 데이터가 유지되도록 하세요.
+- [x] PostgreSQL 볼륨을 구성하여 컨테이너가 재시작되어도 데이터가 유지되도록 하세요.
+- [x] PostgreSQL 서비스 실행 후 schema.sql이 자동으로 실행되도록 구성하세요.
+- [x] 서비스 간 의존성을 설정하세요(depends_on).
+- [x] 필요한 포트 매핑을 구성하세요.
+- [x] Docker Compose를 사용하여 서비스를 시작하고 테스트하세요.
     - --build 플래그를 사용하여 서비스 시작 전에 이미지를 빌드하도록 합니다.
 
 ### BinaryContentStorage 고도화 (AWS S3)
 
 #### AWS S3 버킷 구성
 
-- [ ] AWS S3 버킷을 생성하세요.
-- [ ] 버킷 이름을 discodeit-binary-content-storage-(사용자 이니셜) 형식으로 지정하세요.
-- [ ] 퍼블릭 액세스 차단 설정을 활성화하세요(모든 퍼블릭 액세스 차단).
-- [ ] 버전 관리는 비활성화 상태로 두세요.
+- [x] AWS S3 버킷을 생성하세요.
+- [x] 버킷 이름을 discodeit-binary-content-storage-(사용자 이니셜) 형식으로 지정하세요.
+- [x] 퍼블릭 액세스 차단 설정을 활성화하세요(모든 퍼블릭 액세스 차단).
+- [x] 버전 관리는 비활성화 상태로 두세요.
     - AWS S3 접근을 위한 IAM 구성
-- [ ]  S3 버킷에 접근하기 위한 IAM 사용자(discodeit)를 생성하세요.
+- [x]  S3 버킷에 접근하기 위한 IAM 사용자(discodeit)를 생성하세요.
 
-- [ ]  AmazonS3FullAccess 권한을 할당하고, 사용자 생성을 완료하세요.
+- [x]  AmazonS3FullAccess 권한을 할당하고, 사용자 생성을 완료하세요.
 
-- [ ]  생성된 사용자에 엑세스 키를 생성하세요.
+- [x]  생성된 사용자에 엑세스 키를 생성하세요.
 
-- [ ]  발급받은 키를 포함해서 AWS 관련 정보는 .env 파일에 추가합니다.
+- [x]  발급받은 키를 포함해서 AWS 관련 정보는 .env 파일에 추가합니다.
 
 ```
 # AWS
@@ -858,30 +859,27 @@ AWS_S3_BUCKET=**버킷_이름**
 
 #### AWS S3 테스트
 
-- [ ]  AWS S3 SDK 의존성을 추가하세요.
+- [x]  AWS S3 SDK 의존성을 추가하세요.
 
 implementation 'software.amazon.awssdk:s3:2.31.7'
 
-- [ ]  S3 API를 간단하게 테스트하세요.
+- [x]  S3 API를 간단하게 테스트하세요.
 
 패키지명: com.sprint.mission.discodeit.stoarge.s3
 클래스명: AWSS3Test
 
-- [ ] Properties 클래스를 활용해서 .env에 정의한 AWS 정보를 로드하세요.
-- [ ] 작업 별 테스트 메소드를 작성하세요.
+- [x] Properties 클래스를 활용해서 .env에 정의한 AWS 정보를 로드하세요.
+- [x] 작업 별 테스트 메소드를 작성하세요.
     - 업로드
     - 다운로드
 - PresignedUrl 생성
 - AWS S3를 활용한 BinaryContentStroage 고도화
-- [ ]  앞서 작성한 테스트 메소드를 참고해 S3BinaryContentStorage를 구현하세요.
+- [x]  앞서 작성한 테스트 메소드를 참고해 S3BinaryContentStorage를 구현하세요.
+- [x]  discodeit.storage.type 값이 s3인 경우에만 Bean으로 등록되어야 합니다.
 
-클래스 다이어그램
+- [x]  S3BinaryContentStorageTest를 함께 작성하면서 구현하세요.
 
-- [ ]  discodeit.storage.type 값이 s3인 경우에만 Bean으로 등록되어야 합니다.
-
-- [ ]  S3BinaryContentStorageTest를 함께 작성하면서 구현하세요.
-
-- [ ]  BinaryContentStorage 설정을 유연하게 제어할 수 있도록 application.yaml을 수정하세요.
+- [x]  BinaryContentStorage 설정을 유연하게 제어할 수 있도록 application.yaml을 수정하세요.
 
 ```
 discodeit:
@@ -900,34 +898,34 @@ discodeit:
 
 ```
 
-- [ ] AWS 관련 정보는 형상관리하면 안되므로 .env 파일에 작성된 값을 임포트하는 방식으로 설정하세요.
-- [ ] Docker Compose에서도 위 설정을 주입할 수 있도록 수정하세요.
-- [ ]  download 메소드는 PresignedUrl을 활용해 리다이렉트하는 방식으로 구현하세요.
+- [x] AWS 관련 정보는 형상관리하면 안되므로 .env 파일에 작성된 값을 임포트하는 방식으로 설정하세요.
+- [x] Docker Compose에서도 위 설정을 주입할 수 있도록 수정하세요.
+- [x]  download 메소드는 PresignedUrl을 활용해 리다이렉트하는 방식으로 구현하세요.
 
 ### AWS RDS 구성
 
-- [ ]  AWS RDS PostgreSQL 인스턴스를 생성하세요.
+- [x]  AWS RDS PostgreSQL 인스턴스를 생성하세요.
 - 이외 설정은 기본값을 유지하세요.
-- [ ]  과금이 발생할 수 있으니 다음 항목은 한번 더 확인해주세요.
+- [x]  과금이 발생할 수 있으니 다음 항목은 한번 더 확인해주세요.
 
-- [ ] 템플릿: 프리티어
-- [ ] 퍼블릭 액세스: 아니오
-- [ ] 모니터링 > 보존기간: 7일
-- [ ] 모니터링 > 추가 모니터링 설정: 모두 체크 해제
-- [ ] 추가 구성 > 백업: 비활성화
-- [ ]  SSH 터널링을 통해 개발 환경에서 접근할 수 있도록 EC2를 구성하세요.
+- [x] 템플릿: 프리티어
+- [x] 퍼블릭 액세스: 아니오
+- [x] 모니터링 > 보존기간: 7일
+- [x] 모니터링 > 추가 모니터링 설정: 모두 체크 해제
+- [x] 추가 구성 > 백업: 비활성화
+- [x]  SSH 터널링을 통해 개발 환경에서 접근할 수 있도록 EC2를 구성하세요.
 
-- [ ]  EC2 인스턴스를 생성하세요.
+- [x]  EC2 인스턴스를 생성하세요.
 - 이외 설정은 기본값을 유지하세요.
-- [ ]  보안 그룹에서 인바운드 규칙을 편집하세요.
+- [x]  보안 그룹에서 인바운드 규칙을 편집하세요.
 - 유형: SSH
 - 소스: 내 IP
 - 작업 환경의 네트워크(와이파이 등)가 달라지면 계속 수정해주어야 할 수 있습니다.
-- [ ]  DataGrip을 통해 연결 후 데이터베이스와 사용자, 테이블을 초기화하세요.
+- [x]  DataGrip을 통해 연결 후 데이터베이스와 사용자, 테이블을 초기화하세요.
 
-- [ ]  데이터 소스 추가 시 SSH/SSL > Use SSH tunnel 설정을 활성화하세요. 이때 이전에 다운로드한 .pem 파일을 활용하세요.
+- [x]  데이터 소스 추가 시 SSH/SSL > Use SSH tunnel 설정을 활성화하세요. 이때 이전에 다운로드한 .pem 파일을 활용하세요.
 
-- [ ]  연결이 성공하면 데이터베이스와 사용자, 테이블을 초기화하세요.
+- [x]  연결이 성공하면 데이터베이스와 사용자, 테이블을 초기화하세요.
 
 ```
 -- 1. 새 유저 'discodeit_user' 생성 (비밀번호는 원하는 값으로 설정)
@@ -944,18 +942,18 @@ CREATE DATABASE discodeit OWNER discodeit_user;
 
 ### AWS ECR 구성
 
-- [ ]  이미지를 배포할 퍼블릭 레포지토리(discodeit)를 생성하세요.
+- [x]  이미지를 배포할 퍼블릭 레포지토리(discodeit)를 생성하세요.
 - 프라이빗 레포지토리는 용량 제한이 있으므로 퍼블릭 레포지토리로 생성합니다.
-- [ ]  AWS CLI를 설치하세요.
+- [x]  AWS CLI를 설치하세요.
 
-- [ ]  aws configure 실행 후 앞서 생성한 discodeit IAM 사용자 정보를 입력하세요.
+- [x]  aws configure 실행 후 앞서 생성한 discodeit IAM 사용자 정보를 입력하세요.
 - 엑세스 키
 - 시크릿 키
 - region: ap-northeast-2
 - output format: json
-- [ ]  discodeit IAM 사용자가 ECR에 접근할 수 있도록 다음 권한을 부여하세요.
+- [x]  discodeit IAM 사용자가 ECR에 접근할 수 있도록 다음 권한을 부여하세요.
 - AmazonElasticContainerRegistryPublicFullAccess
-- [ ]  Docker 클라이언트를 배포할 레지스트리에 대해 인증합니다.
+- [x]  Docker 클라이언트를 배포할 레지스트리에 대해 인증합니다.
 - AWS 콘솔을 통해 생성한 레포지토리 페이지로 이동 후 우측 상단 푸시 명령 보기를 클릭하면 관련 명령어를 확인할 수 있습니다.
 
 ```
@@ -964,16 +962,16 @@ aws ecr-public get-login-password --region us-east-1 | docker login --username A
 
 ```
 
-- [ ]  멀티플랫폼을 지원하도록 애플리케이션 이미지를 빌드하고, discodeit 레포지토리에 push 하세요.
+- [x]  멀티플랫폼을 지원하도록 애플리케이션 이미지를 빌드하고, discodeit 레포지토리에 push 하세요.
 - 태그명: latest, 1.2-M8
 - 멀티플랫폼: linux/amd64,linux/arm64
-- [ ]  AWS 콘솔에서 푸시된 이미지를 확인하세요.
+- [x]  AWS 콘솔에서 푸시된 이미지를 확인하세요.
 
 ### AWS ECS 구성
 
-- [ ]  배포 환경에서 컨테이너 실행 간 사용할 환경 변수를 정의하고, S3에 업로드하세요.
+- [x]  배포 환경에서 컨테이너 실행 간 사용할 환경 변수를 정의하고, S3에 업로드하세요.
 
-- [ ]  discodeit.env 파일을 만들어 다음의 내용을 작성하세요.
+- [x]  discodeit.env 파일을 만들어 다음의 내용을 작성하세요.
 
 ```
 # Spring Configuration
@@ -998,30 +996,30 @@ JVM_OPTS="-Xmx384m -Xms256m -XX:MaxMetaspaceSize=64m -XX:+UseSerialGC"
 
 ```
 
-- [ ]  이 파일을 S3에 업로드하세요.
-- [ ]  이 파일은 형상관리되지 않도록 주의하세요.
-- [ ]  AWS ECS 콘솔에서 클러스터를 생성하세요.
-- [ ] 태스크를 정의하세요.
+- [x]  이 파일을 S3에 업로드하세요.
+- [x]  이 파일은 형상관리되지 않도록 주의하세요.
+- [x]  AWS ECS 콘솔에서 클러스터를 생성하세요.
+- [x] 태스크를 정의하세요.
     - 이외 설정은 기본값을 유지하세요.
-- [ ] 태스크 생성 후 태스크 실행 역할에 S3 관련 권한을 추가하세요.
+- [x] 태스크 생성 후 태스크 실행 역할에 S3 관련 권한을 추가하세요.
     - 환경 변수 파일을 읽기위해 필요합니다.
-- [ ]  discodeit 클러스터 상세 화면에서 서비스를 생성하세요.
+- [x]  discodeit 클러스터 상세 화면에서 서비스를 생성하세요.
 - 이외 설정은 기본값을 유지하세요.
 - [ ]  태스크의 EC2 보안 그룹의 인바운드 규칙을 설정하여 어디서든 접근할 수 있도록 하세요.
 
-- [ ] EC2 보안 그룹에서 인바운드 규칙을 편집하세요.
-- [ ] 규칙 유형으로 HTTP를 선택하세요.
-- [ ] 소스로 Anywhere-IPv4를 선택하여 모든 IP를 허용하세요.
-- [ ]  태스크 실행이 완료되면 해당 EC2의 퍼블릭 IP에 접속해보세요.
+- [x] EC2 보안 그룹에서 인바운드 규칙을 편집하세요.
+- [x] 규칙 유형으로 HTTP를 선택하세요.
+- [x] 소스로 Anywhere-IPv4를 선택하여 모든 IP를 허용하세요.
+- [x]  태스크 실행이 완료되면 해당 EC2의 퍼블릭 IP에 접속해보세요.
 
 ## 심화 요구사항
 
 ### 이미지 최적화하기
 
-- [ ] 멀티 스테이지(빌드, 런타임) 빌드를 활용해 이미지의 크기를 줄여보세요.
+- [x] 멀티 스테이지(빌드, 런타임) 빌드를 활용해 이미지의 크기를 줄여보세요.
     - 태그명: local-slim
     - 이전에 빌드한 이미지(1.2-M8 또는 local)와 크기를 비교해보세요.
-- [ ] 이미지 레이어 캐시를 고려해 Dockerfile을 수정해보세요.
+- [x] 이미지 레이어 캐시를 고려해 Dockerfile을 수정해보세요.
     - GitHub Actions를 활용한 CI/CD 파이프라인 구축
 - [ ]  CI(지속적 통합)를 위한 워크플로우를 설정하세요.
 
