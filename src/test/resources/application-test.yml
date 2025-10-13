@@ -2,6 +2,7 @@ spring:
   config:
     activate:
       on-profile: test
+    import: optional:file:.env[.properties]
 
   datasource:
     url: jdbc:h2:mem:discodeit;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;INIT=SET TIME ZONE 'Asia/Seoul'

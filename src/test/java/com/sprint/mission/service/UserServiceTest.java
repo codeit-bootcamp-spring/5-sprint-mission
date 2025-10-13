@@ -201,7 +201,7 @@ public class UserServiceTest {
 		doNothing().when(userStatusRepository).deleteByUserId(any());
 		given(binaryContentRepository.findById(any())).willReturn(Optional.of(mockBinaryContent));
 		doNothing().when(binaryContentRepository).deleteById(any());
-		given(binaryContentStorage.put(any(), any())).willReturn(UUID.randomUUID());
+		given(binaryContentStorage.put(any(), any(), null)).willReturn(UUID.randomUUID());
 		doNothing().when(userRepository).deleteById(any());
 
 		// When
@@ -268,9 +268,9 @@ public class UserServiceTest {
 		given(userRepository.existsByEmail(any())).willReturn(false);
 		given(userRepository.existsByEmail(any())).willReturn(false);
 		doNothing().when(binaryContentRepository).deleteById(any());
-		given(binaryContentStorage.put(any(), any())).willReturn(UUID.randomUUID());
+		given(binaryContentStorage.put(any(), any(), any())).willReturn(UUID.randomUUID());
 		given(binaryContentRepository.save(any())).willReturn(newBinaryContent);
-		given(binaryContentStorage.put(any(), any())).willReturn(UUID.randomUUID());
+		given(binaryContentStorage.put(any(), any(), any())).willReturn(UUID.randomUUID());
 		given(userRepository.save(any())).willReturn(null);
 		given(userStatusRepository.findByUserId(any())).willReturn(Optional.of(mockUserStatus));
 		given(binaryContentMapper.toDto(any())).willReturn(newBinaryContentDto);
