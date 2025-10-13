@@ -31,7 +31,7 @@ jobs:
 
       - name: Docker 이미지 빌드 및 푸시
         run: |
-          ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}
+          ECR_URI=${{ vars.ECR_REPOSITORY_URI }}
           
           docker buildx build \
             -t $ECR_URI:${{ github.sha }} \
@@ -52,7 +52,7 @@ jobs:
 
       - name: ECS 태스크 정의 업데이트
         run: |
-          ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}
+          ECR_URI=${{ vars.ECR_REPOSITORY_URI }}
 
           TASK_DEFINITION=$(
           aws ecs describe-task-definition \
