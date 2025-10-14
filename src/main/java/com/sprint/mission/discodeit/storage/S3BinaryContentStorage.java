@@ -20,11 +20,12 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 
 @Slf4j
 @Component
-@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "s3", matchIfMissing = true)
+@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "s3")
 public class S3BinaryContentStorage implements BinaryContentStorage {
 
   private final S3Client s3;
   private final AWSConfig config;
+  private static final String PATH = "binary/";
 
   public S3BinaryContentStorage(AWSConfig config) {
     this.config = config;
@@ -33,7 +34,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
   @Override
   public UUID put(UUID id, byte[] data) {
-    String key = "binary/" + id;
+    String key = PATH + id;
 
     s3.putObject(b -> b.bucket(config.getBucket())
                        .key(key), software.amazon.awssdk.core.sync.RequestBody.fromBytes(data));
@@ -43,7 +44,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
   @Override
   public InputStream get(UUID id) {
-    String key = "binary/" + id;
+    String key = PATH + id;
 
     return s3.getObject(b -> b.bucket(config.getBucket())
                               .key(key));
@@ -51,7 +52,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
   @Override
   public ResponseEntity<?> download(UUID id) {
-    String key = "binary/" + id;
+    String key = PATH + id;
 
     S3Presigner presigner = S3Presigner.builder()
                                        .region(Region.of(config.getRegion()))

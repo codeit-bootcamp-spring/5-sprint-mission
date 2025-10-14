@@ -1,27 +1,20 @@
 spring:
-  profiles:
-    active: dev   # 기본 실행 프로파일 (운영 배포 시 prod로 바꿔줌)
-
   application:
     name: discodeit
 
-discodeit:
-  storage:
-    type: ${STORAGE_TYPE:local}
-    local:
-      root-path: ${STORAGE_LOCAL_ROOT_PATH:./data.dir}
+  config:
+    import: optional:file:.env[.properties]  # .env 파일 자동 로드
+    activate:
+      on-profile: default
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev} # 없으면 기본 dev
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
-
-aws:
-  accessKeyId: ${AWS_S3_ACCESS_KEY}
-  secretKey: ${AWS_S3_SECRET_KEY}
-  region: ${AWS_S3_REGION}
-  bucket: ${AWS_S3_BUCKET}
-  presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
 
 # actuator/info 에 노출할 정보
 info:
@@ -68,3 +61,7 @@ management:
       enabled: true
     build:
       enabled: true
+
+discodeit:
+  storage:
+    type: ${STORAGE_TYPE:local}
