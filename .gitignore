@@ -210,3 +210,4 @@ gradle-app.setting
 # End of https://www.toptal.com/developers/gitignore/api/intellij,gradle,macos,windows
 
 .env
+*.env

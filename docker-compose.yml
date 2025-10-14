@@ -1,6 +1,7 @@
 services:
   discodeit:
-    build: .
+    #    build: .
+    image: 257394472645.dkr.ecr.ap-northeast-2.amazonaws.com/discodeit-repo
     ports: [ "8080:8080" ]
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
@@ -10,14 +11,14 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       STORAGE_TYPE: ${STORAGE_TYPE}
-      AWS_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
-      AWS_SECRET_KEY: ${AWS_S3_SECRET_KEY}
-      AWS_REGION: ${AWS_S3_REGION}
+      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
+      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
+      AWS_S3_REGION: ${AWS_S3_REGION}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
-      AWS_S3_PREFIX: ${AWS_S3_PREFIX:defaultPrefix}
-      AWS_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
+      AWS_S3_PREFIX: ${AWS_S3_PREFIX:-defaultPrefix}
+      AWS_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION:-600}
       # 로그 레벨 설정
-      LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT:-DEBUG}
+    #      LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT}
     depends_on:
       - db
     volumes:

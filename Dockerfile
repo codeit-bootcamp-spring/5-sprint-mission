@@ -28,10 +28,10 @@ WORKDIR /app
 # 빌드 스테이지에서 jar 파일만 복사
 COPY --from=builder /app/build/libs/*.jar /app/app.jar
 
-ENV JVM_OPTS=""
+#ENV JVM_OPTS="-Xmx384m -Xms256m -XX:MaxMetaspaceSize=64m -XX:+UseSerialGC -Dserver.port=80"
 
 # jar 파일 실행
-ENTRYPOINT ["sh","-c","java $JVM_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar /app/app.jar"]
 
 #docker build \
 # docker build --tag dockerfile:local .
@@ -41,3 +41,21 @@ ENTRYPOINT ["sh","-c","java $JVM_OPTS -jar /app/app.jar"]
 #  -p 8080:80 \
 #  -e JVM_OPTS="-Dspring.profiles.active=prod" \
 #  discodeit:local
+
+#docker build -t discodeit/ecr-repo .
+#docker build -t discodeit/ecr-repo:1.2-M8 .
+#docker tag discodeit/ecr-repo:latest public.ecr.aws/y6l4y7s3/discodeit/ecr-repo:latest
+#docker tag discodeit/ecr-repo:1.2-M8 public.ecr.aws/y6l4y7s3/discodeit/ecr-repo:1.2-M8
+#docker push public.ecr.aws/y6l4y7s3/discodeit/ecr-repo:latest
+#docker push public.ecr.aws/y6l4y7s3/discodeit/ecr-repo:1.2-M8
+
+#docker build -t discodeit-repo:1.2-M8 .
+#docker tag discodeit-repo:1.2-M8 257394472645.dkr.ecr.ap-northeast-2.amazonaws.com/discodeit-repo:1.2-M8
+#docker push 257394472645.dkr.ecr.ap-northeast-2.amazonaws.com/discodeit-repo:1.2-M8
+
+#docker buildx build \
+#  --platform linux/amd64,linux/arm64 \
+#  -t 257394472645.dkr.ecr.ap-northeast-2.amazonaws.com/discodeit-repo:latest \
+#  -t 257394472645.dkr.ecr.ap-northeast-2.amazonaws.com/discodeit-repo:1.2-M8 \
+#  --push \
+#  .
