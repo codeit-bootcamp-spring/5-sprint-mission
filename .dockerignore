@@ -1,0 +1,48 @@
+# 빌드 결과물
+build/
+.gradle/
+bin/
+out/
+
+# IDE 설정
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# 환경 변수 및 설정
+.env
+*.env
+application-local.yml
+application-dev.yml
+
+# 로컬 스토리지
+.discodeit/
+
+# 문서 및 기타
+README.md
+*.md
+.github/
+docs/
+
+# 로그
+*.log
+logs/
+
+# 운영체제
+.DS_Store
+Thumbs.db
+
+# Docker 관련
+Dockerfile
+docker-compose*.yml
+.dockerignore
