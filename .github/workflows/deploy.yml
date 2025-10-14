@@ -1,0 +1,119 @@
+name: CD to ECS
+
+on:
+  push:
+    branches: [ 박주환-release ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Login to ECR Public (us-east-1)
+        run: |
+          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/f4c4g2k4
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Build Docker image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t ${{ vars.ECR_PUBLIC_URI }}:latest -t ${{ vars.ECR_PUBLIC_URI }}:1.2-M8 -t ${{ vars.ECR_PUBLIC_URI }}:$IMAGE_TAG .
+
+      - name: Push image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker push ${{ vars.ECR_PUBLIC_URI }}:latest
+          docker push ${{ vars.ECR_PUBLIC_URI }}:1.2-M8
+          docker push ${{ vars.ECR_PUBLIC_URI }}:$IMAGE_TAG
+
+  deploy-to-ecs:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Deploy ECS service
+        env:
+          CLUSTER_NAME: ${{ vars.ECS_CLUSTER }}
+          SERVICE_NAME: ${{ vars.ECS_SERVICE }}
+          TASK_DEF: ${{ vars.ECS_TASK_DEFINITION }}
+          NEW_IMAGE_SHA: ${{ vars.ECR_PUBLIC_URI }}:${{ github.sha }}
+          NEW_IMAGE_LATEST: ${{ vars.ECR_PUBLIC_URI }}:latest
+        run: |
+          # 1) Check if service exists
+          if aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --query 'services[0].status' --output text | grep -q "ACTIVE"; then
+            echo "✅ Service exists, updating..."
+            SERVICE_EXISTS=true
+          else
+            echo "ℹ️ Service does not exist, will create."
+            SERVICE_EXISTS=false
+          fi
+          
+          # 2) Get current task definition JSON
+          aws ecs describe-task-definition --task-definition $TASK_DEF > taskdef.json
+          
+          # 3) Update image in task definition and add environmentFiles for .env
+          cat taskdef.json \
+            | jq --arg IMG "$NEW_IMAGE_SHA" '
+            .taskDefinition.containerDefinitions[0].image=$IMG
+            | .taskDefinition.containerDefinitions[0].environmentFiles = [
+                { "value": "arn:aws:s3:::discodeit-binary-content-storage-joohwan/config/.env", "type": "s3" }
+              ]
+            | {
+                family: .taskDefinition.family,
+                networkMode: .taskDefinition.networkMode,
+                requiresCompatibilities: .taskDefinition.requiresCompatibilities,
+                cpu: (.taskDefinition.cpu // "1024"),
+                memory: (.taskDefinition.memory // "2048"),
+                taskRoleArn: (.taskDefinition.taskRoleArn // "" ),
+                executionRoleArn: (.taskDefinition.executionRoleArn // "" ),
+                containerDefinitions: .taskDefinition.containerDefinitions,
+                volumes: .taskDefinition.volumes
+              }' \
+            > new-task.json
+          
+          echo "✅ Generated new task definition JSON with environmentFiles:"
+          cat new-task.json | jq
+          
+          # 4) Register new task definition
+          aws ecs register-task-definition --cli-input-json file://new-task.json > registered.json
+          NEW_REV=$(jq -r '.taskDefinition.taskDefinitionArn' registered.json)
+          echo "✅ New task def ARN: $NEW_REV"
+          
+          # 5) Create or update service
+          if [ "$SERVICE_EXISTS" = true ]; then
+            aws ecs update-service \
+              --cluster $CLUSTER_NAME \
+              --service $SERVICE_NAME \
+              --task-definition $NEW_REV \
+              --desired-count 1
+            echo "✅ Service updated with commit SHA image."
+          else
+            aws ecs create-service \
+              --cluster $CLUSTER_NAME \
+              --service-name $SERVICE_NAME \
+              --task-definition $NEW_REV \
+              --launch-type FARGATE \
+              --desired-count 1 \
+              --network-configuration "awsvpcConfiguration={subnets=[subnet-03ba3bc532420b337,subnet-04925553c08064a75,subnet-07535c8ea77ca8611,subnet-0bd499ff43751b9f1],securityGroups=[sg-0ad38239f963b84d3],assignPublicIp=ENABLED}"
+            echo "✅ Service created with commit SHA image."
+          fi
+          
+          # Optional: Tag ECS task with latest (for reference)
+          echo "ℹ️ Latest tag reference: $NEW_IMAGE_LATEST"

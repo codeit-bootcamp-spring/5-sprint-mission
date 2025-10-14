@@ -12,27 +12,15 @@ RUN ./gradlew dependencies --no-daemon || true
 
 COPY src src
 RUN ./gradlew clean bootJar -x test
-#
-## 2. 실행 단계
-#FROM amazoncorretto:17
-#
-#WORKDIR /app
-#
-## 빌드된 JAR 복사
-#COPY --from=builder /app/build/libs/*.jar app.jar
-#
-#EXPOSE 8080
-#
-#ENTRYPOINT ["java", "-jar", "app.jar"]
 
+# 2. 실행 단계
+FROM amazoncorretto:17
 
-FROM eclipse-temurin:17-jre-jammy AS runtime
 WORKDIR /app
 
-ARG JAR_NAME=app.jar
-COPY --from=builder /app/build/libs/*.jar ${JAR_NAME}
-WORKDIR /app
+# 빌드된 JAR 복사
+COPY --from=builder /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
