@@ -6,15 +6,14 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record ReadStatusCreateRequest(
-
-    @NotNull(message = "사용자가 존재해야 합니다.")
+    @NotNull(message = "사용자 ID는 필수입니다")
     UUID userId,
-
-    @NotNull(message = "채널이 존재해야 합니다.")
+    
+    @NotNull(message = "채널 ID는 필수입니다")
     UUID channelId,
-
-    @NotNull(message = "가장 최근 읽은 날짜는 존재해야 합니다.")
-    @PastOrPresent(message = "가장 최신 읽은 날짜는 과거 혹은 현재 시각으로만 가능합니다.")
+    
+    @NotNull(message = "마지막 읽은 시간은 필수입니다")
+    @PastOrPresent(message = "마지막 읽은 시간은 현재 또는 과거 시간이어야 합니다")
     Instant lastReadAt
 ) {
 
