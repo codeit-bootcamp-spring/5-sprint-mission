@@ -20,7 +20,7 @@ jobs:
           cache: gradle
 
       - name: 테스트 실행
-        run: ./gradlew test
+        run: ./gradlew test --stacktrace
 
       - name: Codecov 테스트 커버리지 업로드
         uses: codecov/codecov-action@v3
