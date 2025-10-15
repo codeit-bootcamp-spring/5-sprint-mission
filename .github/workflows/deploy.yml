@@ -1,0 +1,40 @@
+name: 배포
+
+on:
+  push:
+    branches:
+      - release
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    environment: prod
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      image_tag: ${{ github.sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: AWS CLI 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_S3_REGION }}
+
+      - name: ECR 로그인
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Docker 이미지 빌드 및 푸시
+        run: |
+          ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}
+
+          docker buildx build \
+            -t $ECR_URI:${{ github.sha }} \
+            -t $ECR_URI:latest \
+            --push \
+            .
+
