@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
@@ -82,7 +83,7 @@ public class UserServiceTest {
 		password = "password";
 
 		fileName = "fileName";
-		contentType = "contentType";
+		contentType = MediaType.IMAGE_PNG_VALUE;
 		size = 123L;
 		content = "contents".getBytes();
 
@@ -201,7 +202,7 @@ public class UserServiceTest {
 		doNothing().when(userStatusRepository).deleteByUserId(any());
 		given(binaryContentRepository.findById(any())).willReturn(Optional.of(mockBinaryContent));
 		doNothing().when(binaryContentRepository).deleteById(any());
-		given(binaryContentStorage.put(any(), any(), null)).willReturn(UUID.randomUUID());
+		given(binaryContentStorage.put(any(), any(), any())).willReturn(UUID.randomUUID());
 		doNothing().when(userRepository).deleteById(any());
 
 		// When
@@ -225,13 +226,11 @@ public class UserServiceTest {
 	@DisplayName("사용자 갱신 테스트 모든 필드가 수정되었을 때 입력값")
 	public void updateUserTestWithRightValue() {
 
-		long size = 123L;
-
 		String newUsername = "newUsername";
 		String newEmail = "newEmail";
 		String newPassword = "newPassword";
 		String newFilename = "newFilename";
-		String newContentType = "newContentType";
+		String newContentType = MediaType.IMAGE_PNG_VALUE;
 		long newSize = 123123L;
 		byte[] newContent = "newContent".getBytes();
 		CreateBiContentDTO newProfile = CreateBiContentDTO.builder()

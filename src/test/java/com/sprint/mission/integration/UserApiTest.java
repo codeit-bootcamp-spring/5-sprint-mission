@@ -74,7 +74,7 @@ class UserApiTest {
 	void setUp() {
 		bytes = "bytes".getBytes();
 		size = "size".getBytes().length;
-		contentType = "contentType";
+		contentType = MediaType.IMAGE_PNG_VALUE;
 		filename = "filename";
 
 		username = "username";
@@ -196,7 +196,7 @@ class UserApiTest {
 
 		byte[] newBytes = "newBytes".getBytes();
 		long newSize = newBytes.length;
-		String newContentType = "newContentType";
+		String newContentType = MediaType.IMAGE_PNG_VALUE;
 		String newFilename = "newFilename";
 
 		UserUpdateRequest updateRequest = UserUpdateRequest.builder()
