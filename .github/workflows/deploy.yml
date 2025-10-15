@@ -33,6 +33,7 @@ jobs:
           ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}
 
           docker buildx build \
+            --platform linux/amd64 \
             -t $ECR_URI:${{ github.sha }} \
             -t $ECR_URI:latest \
             --push \
