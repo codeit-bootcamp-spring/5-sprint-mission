@@ -148,6 +148,7 @@ public class MessageRepositoryTest {
 		binaryContentRepository.save(attachment);
 
 		messageRepository.save(message1);
+		Thread.sleep(50); // 밀리초 단위로 타임스탬프 차이 강제
 		messageRepository.save(message2);
 
 		em.flush();  // 실제 SQL 실행
