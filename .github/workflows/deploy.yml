@@ -81,6 +81,12 @@ jobs:
             --service ${{ secrets.ECS_SERVICE }} \
             --desired-count 0
 
+      - name: ECS 서비스 안정 될때 까지 기다리기
+        run: |
+          aws ecs wait services-stable \
+          --cluster ${{ secrets.ECS_CLUSTER }} \
+          --service ${{ secrets.ECS_SERVICE }} \
+
       - name: ECS 서비스 업데이트 (새 태스크 강제 배포)
         run: |
           aws ecs update-service \
