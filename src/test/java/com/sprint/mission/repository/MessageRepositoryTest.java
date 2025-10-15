@@ -140,13 +140,14 @@ public class MessageRepositoryTest {
 	}
 
 	@Test
-	public void findAllDetailsByChannelIdAndCursorTest() {
+	public void findAllDetailsByChannelIdAndCursorTest() throws InterruptedException {
 		// Given
 		Message message1 = new Message("content1", user, channel, List.of(attachment));
 		Message message2 = new Message("content2", user, channel, List.of(attachment));
 		binaryContentRepository.save(attachment);
 
 		messageRepository.save(message1);
+		Thread.sleep(5); // 밀리초 단위로 타임스탬프 차이 강제
 		messageRepository.save(message2);
 
 		em.flush();  // 실제 SQL 실행
