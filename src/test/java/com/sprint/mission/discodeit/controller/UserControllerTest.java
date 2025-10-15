@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.config.StorageConfig;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.userStatus.UserStatusUpdateRequest;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -34,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = UserController.class)
+@Import(StorageConfig.class)
 class UserControllerTest {
 
     @Autowired
@@ -77,7 +80,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("전체 사용자 조회 성공")
+    @DisplayName("?�체 ?�용??조회 ?�공")
     void getUserAll_success() throws Exception {
         // given
         UserResponse user1 = UserResponse.builder()
@@ -109,7 +112,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("사용자명으로 사용자 조회 성공")
+    @DisplayName("?�용?�명?�로 ?�용??조회 ?�공")
     void getUserByUsername_success() throws Exception {
         // given
         given(userService.findByUsername("testuser")).willReturn(userResponse);
@@ -126,7 +129,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 사용자명으로 조회 시 404 반환")
+    @DisplayName("존재?��? ?�는 ?�용?�명?�로 조회 ??404 반환")
     void getUserByUsername_notFound() throws Exception {
         // given
         given(userService.findByUsername("nonexistent"))
@@ -139,7 +142,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("ID로 사용자 조회 성공")
+    @DisplayName("ID�??�용??조회 ?�공")
     void getUserById_success() throws Exception {
         // given
         given(userService.findById(userId)).willReturn(userResponse);
@@ -155,7 +158,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 ID로 조회 시 404 반환")
+    @DisplayName("존재?��? ?�는 ID�?조회 ??404 반환")
     void getUserById_notFound() throws Exception {
         // given
         given(userService.findById(userId))
@@ -168,7 +171,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 생성 성공 - 프로필 이미지 없음")
+    @DisplayName("?�용???�성 ?�공 - ?�로???��?지 ?�음")
     void createUser_success_withoutProfile() throws Exception {
         // given
         UserCreateRequest request = UserCreateRequest.builder()
@@ -207,7 +210,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 생성 성공 - 프로필 이미지 포함")
+    @DisplayName("?�용???�성 ?�공 - ?�로???��?지 ?�함")
     void createUser_success_withProfile() throws Exception {
         // given
         UserCreateRequest request = UserCreateRequest.builder()
@@ -253,7 +256,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("중복 사용자명으로 생성 시 409 반환")
+    @DisplayName("중복 ?�용?�명?�로 ?�성 ??409 반환")
     void createUser_duplicateUsername() throws Exception {
         // given
         UserCreateRequest request = UserCreateRequest.builder()
@@ -282,7 +285,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("유효하지 않은 요청 데이터로 생성 시 400 반환")
+    @DisplayName("?�효?��? ?��? ?�청 ?�이?�로 ?�성 ??400 반환")
     void createUser_invalidData() throws Exception {
         // given
         UserCreateRequest invalidRequest = UserCreateRequest.builder()
@@ -307,7 +310,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 정보 수정 성공")
+    @DisplayName("?�용???�보 ?�정 ?�공")
     void updateUser_success() throws Exception {
         // given
         UserUpdateRequest request = UserUpdateRequest.builder()
@@ -347,7 +350,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 사용자 수정 시 404 반환")
+    @DisplayName("존재?��? ?�는 ?�용???�정 ??404 반환")
     void updateUser_notFound() throws Exception {
         // given
         UserUpdateRequest request = UserUpdateRequest.builder()
@@ -377,7 +380,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 사용자 삭제 시 404 반환")
+    @DisplayName("존재?��? ?�는 ?�용????�� ??404 반환")
     void deleteUser_notFound() throws Exception {
         // given
         given(userService.delete(userId))
@@ -390,7 +393,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 삭제 성공")
+    @DisplayName("?�용????�� ?�공")
     void deleteUser_success() throws Exception {
         // given
         given(userService.delete(userId)).willReturn(UserDeleteResponse.success(user));
@@ -406,7 +409,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 상태 업데이트 성공")
+    @DisplayName("?�용???�태 ?�데?�트 ?�공")
     void updateUserStatus_success() throws Exception {
         // given
         UserStatusUpdateRequest request = UserStatusUpdateRequest.builder()
@@ -434,7 +437,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("리다이렉트 페이지 요청 성공")
+    @DisplayName("리다?�렉???�이지 ?�청 ?�공")
     void userListPage_success() throws Exception {
         // when
         // then
@@ -443,3 +446,4 @@ class UserControllerTest {
                 .andExpect(view().name("redirect:/user-list.html"));
     }
 }
+

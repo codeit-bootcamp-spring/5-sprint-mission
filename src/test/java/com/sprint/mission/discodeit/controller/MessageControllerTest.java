@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.config.StorageConfig;
 import com.sprint.mission.discodeit.dto.request.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.message.MessageDeleteResponse;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -29,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = MessageController.class)
+@Import(StorageConfig.class)
 public class MessageControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -41,7 +44,7 @@ public class MessageControllerTest {
 
 
     @Test
-    @DisplayName("메시지 생성 성공")
+    @DisplayName("메시지 ?�성 ?�공")
     void createMessage_success() throws Exception {
         // given
         UUID authorId = UUID.randomUUID();
@@ -80,7 +83,7 @@ public class MessageControllerTest {
     }
 
     @Test
-    @DisplayName("부적절한 요청으로 메시지 생성 실패")
+    @DisplayName("부?�절???�청?�로 메시지 ?�성 ?�패")
     void createMessage_fail_invalidContent() throws Exception {
         // given
         MessageCreateRequest invalidRequest = MessageCreateRequest.builder()
@@ -105,7 +108,7 @@ public class MessageControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 유저로 메시지 생성 실패")
+    @DisplayName("존재?��? ?�는 ?��?�?메시지 ?�성 ?�패")
     void createMessage_fail_invalidUser() throws Exception {
         // given
         UUID invalidUserId = UUID.randomUUID();
@@ -136,7 +139,7 @@ public class MessageControllerTest {
     }
 
     @Test
-    @DisplayName("메시지 수정 성공")
+    @DisplayName("메시지 ?�정 ?�공")
     void updateMessage_success() throws Exception {
         // given
         UUID messageId = UUID.randomUUID();
@@ -175,7 +178,7 @@ public class MessageControllerTest {
     }
 
     @Test
-    @DisplayName("빈 내용으로 메시지 수정 실패")
+    @DisplayName("�??�용?�로 메시지 ?�정 ?�패")
     void updateMessage_fail_invalidContent() throws Exception {
         // given
         UUID messageId = UUID.randomUUID();
@@ -202,7 +205,7 @@ public class MessageControllerTest {
     }
 
     @Test
-    @DisplayName("작성자가 아닌 유저가 메시지 수정 실패")
+    @DisplayName("?�성?��? ?�닌 ?��?가 메시지 ?�정 ?�패")
     void updateMessage_fail_unauthorizedUser() throws Exception {
         // given
         UUID messageId = UUID.randomUUID();
@@ -233,7 +236,7 @@ public class MessageControllerTest {
     }
 
     @Test
-    @DisplayName("메시지 삭제 성공")
+    @DisplayName("메시지 ??�� ?�공")
     void deleteMessage_success() throws Exception {
         // given
         UUID messageId = UUID.randomUUID();
@@ -256,7 +259,7 @@ public class MessageControllerTest {
     }
 
     @Test
-    @DisplayName("권한 없는 유저가 메시지 삭제 실패")
+    @DisplayName("권한 ?�는 ?��?가 메시지 ??�� ?�패")
     void deleteMessage_fail_wrongAuthor() throws Exception {
         // given
         UUID messageId = UUID.randomUUID();
@@ -273,3 +276,4 @@ public class MessageControllerTest {
     }
 
 }
+

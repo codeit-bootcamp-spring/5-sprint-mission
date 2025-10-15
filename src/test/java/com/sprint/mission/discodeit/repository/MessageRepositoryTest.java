@@ -19,7 +19,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(showSql = false)
-@ActiveProfiles("test")
 @Import(QuerydslConfig.class)
 class MessageRepositoryTest {
 

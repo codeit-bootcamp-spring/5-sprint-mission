@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.config.StorageConfig;
 import com.sprint.mission.discodeit.dto.request.channel.ChannelLeaveRequest;
 import com.sprint.mission.discodeit.dto.request.channel.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -31,6 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = ChannelController.class)
+@Import(StorageConfig.class)
 class ChannelControllerTest {
 
     @Autowired
@@ -61,7 +64,7 @@ class ChannelControllerTest {
     }
 
     @Test
-    @DisplayName("공개 채널 생성 성공")
+    @DisplayName("공개 채널 ?�성 ?�공")
     void create_publicChannel_success() throws Exception {
         // given
         PublicChannelCreateRequest request = PublicChannelCreateRequest.builder()
@@ -84,7 +87,7 @@ class ChannelControllerTest {
     }
 
     @Test
-    @DisplayName("비공개 채널 생성 성공")
+    @DisplayName("비공�?채널 ?�성 ?�공")
     void createPrivateChannel_success() throws Exception {
         // given
         PrivateChannelCreateRequest request = PrivateChannelCreateRequest.builder()
@@ -112,7 +115,7 @@ class ChannelControllerTest {
     }
 
     @Test
-    @DisplayName("채널 수정 성공")
+    @DisplayName("채널 ?�정 ?�공")
     void updateChannel_success() throws Exception {
         // given
         ChannelUpdateRequest request = ChannelUpdateRequest.builder()
@@ -143,7 +146,7 @@ class ChannelControllerTest {
     }
 
     @Test
-    @DisplayName("유저 ID로 채널 목록 조회 성공")
+    @DisplayName("?��? ID�?채널 목록 조회 ?�공")
     void getChannels_success() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
@@ -169,7 +172,7 @@ class ChannelControllerTest {
     }
 
     @Test
-    @DisplayName("특정 채널 조회 성공")
+    @DisplayName("?�정 채널 조회 ?�공")
     void getChannel_success() throws Exception {
         // given
         given(channelService.find(channelId)).willReturn(channelResponse);
@@ -183,7 +186,7 @@ class ChannelControllerTest {
     }
 
     @Test
-    @DisplayName("존재 하지 않는 채널 조회 404 반환")
+    @DisplayName("존재 ?��? ?�는 채널 조회 404 반환")
     void getChannel_notFound() throws Exception {
         // given
         given(channelService.find(channelId)).willReturn(null);
@@ -195,7 +198,7 @@ class ChannelControllerTest {
     }
 
     @Test
-    @DisplayName("채널 나가기 성공")
+    @DisplayName("채널 ?��?�??�공")
     void leaveChannel_success() throws Exception {
         // given
         ChannelLeaveRequest request = ChannelLeaveRequest.builder()
@@ -223,7 +226,7 @@ class ChannelControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 채널 나가기 400 반환")
+    @DisplayName("존재?��? ?�는 채널 ?��?�?400 반환")
     void leaveChannel_badRequest() throws Exception {
         // given
         ChannelLeaveRequest request = ChannelLeaveRequest.builder()
@@ -240,7 +243,7 @@ class ChannelControllerTest {
     }
 
     @Test
-    @DisplayName("채널 삭제 성공")
+    @DisplayName("채널 ??�� ?�공")
     void deleteChannel_success() throws Exception {
         // given
         ChannelDeleteResponse response = ChannelDeleteResponse.builder()
