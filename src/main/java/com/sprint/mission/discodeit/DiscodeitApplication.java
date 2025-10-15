@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import java.io.IOException;
 
 @EnableJpaAuditing
-@PropertySource("classpath:.env.properties")
+@PropertySource(value = "classpath:.env.properties", ignoreResourceNotFound = true)
 @SpringBootApplication
 public class DiscodeitApplication {
     public static void main(String[] args) throws InterruptedException, IOException {
