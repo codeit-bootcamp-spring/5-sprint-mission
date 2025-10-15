@@ -30,13 +30,28 @@ class AWSS3Test {
 
     @BeforeEach
     void setup() throws IOException {
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(".env"));
+        // 1. 환경 변수에서 먼저 읽기 (GitHub Actions용)
+        String accessKey = System.getenv("AWS_S3_ACCESS_KEY");
+        String secretKey = System.getenv("AWS_S3_SECRET_KEY");
+        String region = System.getenv("AWS_S3_REGION");
+        bucket = System.getenv("AWS_S3_BUCKET");
 
-        String accessKey = properties.getProperty("AWS_S3_ACCESS_KEY");
-        String secretKey = properties.getProperty("AWS_S3_SECRET_KEY");
-        String region = properties.getProperty("AWS_S3_REGION");
-        bucket = properties.getProperty("AWS_S3_BUCKET");
+        // 2. 환경 변수가 없으면 .env 파일에서 읽기 (로컬용)
+        if (accessKey == null || accessKey.isEmpty()) {
+            Properties properties = new Properties();
+            try {
+                properties.load(new FileInputStream(".env"));
+                accessKey = properties.getProperty("AWS_S3_ACCESS_KEY");
+                secretKey = properties.getProperty("AWS_S3_SECRET_KEY");
+                region = properties.getProperty("AWS_S3_REGION");
+                bucket = properties.getProperty("AWS_S3_BUCKET");
+            } catch (IOException e) {
+                // .env 파일도 없으면 테스트 스킵
+                org.junit.jupiter.api.Assumptions.assumeTrue(false,
+                        "AWS credentials not available - skipping S3 tests");
+                return;
+            }
+        }
 
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 

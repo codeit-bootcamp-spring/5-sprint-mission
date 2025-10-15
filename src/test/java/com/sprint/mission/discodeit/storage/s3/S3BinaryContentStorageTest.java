@@ -17,13 +17,28 @@ class S3BinaryContentStorageTest {
 
     @BeforeEach
     void setup() throws IOException {
-        java.util.Properties properties = new java.util.Properties();
-        properties.load(new java.io.FileInputStream(".env"));
+        // 1. 환경 변수에서 먼저 읽기 (GitHub Actions용)
+        String accessKey = System.getenv("AWS_S3_ACCESS_KEY");
+        String secretKey = System.getenv("AWS_S3_SECRET_KEY");
+        String region = System.getenv("AWS_S3_REGION");
+        String bucket = System.getenv("AWS_S3_BUCKET");
 
-        String accessKey = properties.getProperty("AWS_S3_ACCESS_KEY");
-        String secretKey = properties.getProperty("AWS_S3_SECRET_KEY");
-        String region = properties.getProperty("AWS_S3_REGION");
-        String bucket = properties.getProperty("AWS_S3_BUCKET");
+        // 2. 환경 변수가 없으면 .env 파일에서 읽기 (로컬용)
+        if (accessKey == null || accessKey.isEmpty()) {
+            java.util.Properties properties = new java.util.Properties();
+            try {
+                properties.load(new java.io.FileInputStream(".env"));
+                accessKey = properties.getProperty("AWS_S3_ACCESS_KEY");
+                secretKey = properties.getProperty("AWS_S3_SECRET_KEY");
+                region = properties.getProperty("AWS_S3_REGION");
+                bucket = properties.getProperty("AWS_S3_BUCKET");
+            } catch (IOException e) {
+                // .env 파일도 없으면 테스트 스킵
+                org.junit.jupiter.api.Assumptions.assumeTrue(false,
+                        "AWS credentials not available - skipping S3 tests");
+                return;
+            }
+        }
 
         storage = new S3BinaryContentStorage(
                 accessKey,
