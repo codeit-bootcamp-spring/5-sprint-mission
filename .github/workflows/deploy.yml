@@ -35,7 +35,7 @@ jobs:
           docker buildx build \
             -t $ECR_URI:${{ github.sha }} \
             -t $ECR_URI:latest \
-            -f DockerfileSingleStage \
+            -f DockerfileMultiStageAndGradleJDK \
             --push \
             .
 
