@@ -74,14 +74,22 @@ jobs:
 
           echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
 
-      - name: ECS 서비스 중지(프리티어 환경 고려)
-        run: |
-          aws ecs update-service \
-            --cluster ${{ secrets.ECS_CLUSTER }} \
-            --service ${{ secrets.ECS_SERVICE }} \
-            --desired-count 0
-
-      - name: ECS 서비스 업데이트
+      #      - name: ECS 서비스 중지(프리티어 환경 고려)
+      #        run: |
+      #          aws ecs update-service \
+      #            --cluster ${{ secrets.ECS_CLUSTER }} \
+      #            --service ${{ secrets.ECS_SERVICE }} \
+      #            --desired-count 0
+      #
+      #      - name: ECS 서비스 업데이트
+      #        run: |
+      #          aws ecs update-service \
+      #            --cluster ${{ secrets.ECS_CLUSTER }} \
+      #            --service ${{ secrets.ECS_SERVICE }} \
+      #            --task-definition $NEW_TASK_DEF_ARN \
+      #            --desired-count 1 \
+      #            --force-new-deployment
+      - name: ECS 서비스 업데이트 (새 태스크 강제 배포)
         run: |
           aws ecs update-service \
             --cluster ${{ secrets.ECS_CLUSTER }} \
