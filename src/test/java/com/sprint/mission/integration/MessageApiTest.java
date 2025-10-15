@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,8 @@ import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
 
 import jakarta.persistence.EntityManager;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -65,6 +68,10 @@ class MessageApiTest {
 	private BinaryContentRepository binaryContentRepository;
 	@Autowired
 	private BasicBinaryContentService basicBinaryContentService;
+	@MockitoBean
+	private S3Client s3Client;
+	@MockitoBean
+	private S3Presigner s3Presigner;
 
 	String username;
 	String email;

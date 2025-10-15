@@ -19,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -39,6 +40,9 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.basic.BasicBinaryContentService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
 
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -53,6 +57,10 @@ class UserApiTest {
 	UserRepository userRepository;
 	@Autowired
 	UserStatusRepository userStatusRepository;
+	@MockitoBean
+	private S3Client s3Client;
+	@MockitoBean
+	private S3Presigner s3Presigner;
 
 	String username;
 	String email;
