@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://host.docker.internal:5432/discodeit #도커에서 PostSql 돌림
+    driver-class-name: org.postgresql.Driver
+    username: findex_user
+    password: 1234

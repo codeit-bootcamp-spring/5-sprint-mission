@@ -1,31 +1,26 @@
 spring:
   jmx:
     enabled: true
+
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:postgresql://localhost:5432/discodeit # 로컬에서 Postgrel 돌림
+    driver-class-name: org.postgresql.Driver
+    username: findex_user
+    password: 1234
 
   jpa:
     hibernate:
-      ddl-auto: create #엔티티 작성한대로 자동 테이블 만들기 <-> none: 스키마.sql로 테이블 만들기
-    show-sql: false    #콘솔에 SQL 출력 원하면 true
+      ddl-auto: none  # 이미 DB에 테이블이 있으니까 자동 생성 안 함
+    show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         show_sql: true
 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
-
 logging:
   level:
-    root: info # 개발 전체 로그
+    root: info
     org.hibernate.type: trace
     org.hibernate.SQL: debug
 

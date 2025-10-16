@@ -3,7 +3,7 @@ spring:
     name: discodeit
 
   profiles:
-    active: dev     # 기본은 dev
+    active: prod     # 기본은 dev
 
 springdoc:
   swagger-ui:
