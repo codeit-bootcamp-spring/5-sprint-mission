@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.storage.s3;
+package com.sprint.mission.discodeit.storage.s3.test;
 
 import java.io.IOException;
 import java.nio.file.Path;

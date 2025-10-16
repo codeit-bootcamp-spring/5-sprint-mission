@@ -47,8 +47,10 @@ dependencies {
     //Actuator 의존성 설정
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-    //AWS S3 SDK 의존성 설정
-    implementation 'software.amazon.awssdk:s3:2.31.7'
+    //Amazon 의존성 설정
+    implementation platform("software.amazon.awssdk:bom:2.25.12")
+    implementation 'software.amazon.awssdk:s3'
+
 }
 
 tasks.named('test') {

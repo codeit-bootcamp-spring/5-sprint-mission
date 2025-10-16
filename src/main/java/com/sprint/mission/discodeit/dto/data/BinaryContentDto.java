@@ -9,6 +9,8 @@ import lombok.Data;
 @Data
 public class BinaryContentDto {
 
+  private String key; // S3 key 값
+
   private UUID id;
 
   @NotNull(message = "파일 데이터는 필수입니다.")
