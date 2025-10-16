@@ -1,4 +1,4 @@
-sprint6
+# Discodeit
 
-초급프로젝트 이후 API 명세 맞춰서 다시 정리하기!
-Mapper 나머지도 적용해보기
+[![codecov](https://codecov.io/github/userjin2123/5-sprint-mission/graph/badge.svg?token=LBLDHZK1YM)](https://codecov.io/github/userjin2123/5-sprint-mission)
+[![CI - Test](https://github.com/userjin2123/5-sprint-mission/actions/workflows/test.yml/badge.svg)](https://github.com/userjin2123/5-sprint-mission/actions/workflows/test.yml)
