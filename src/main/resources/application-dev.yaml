@@ -3,7 +3,7 @@ spring:
     enabled: true
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit # 로컬에서 Postgrel 돌림
+    url: jdbc:postgresql://localhost:5432/discodeit # 로컬 Postgrel에서 돌림
     driver-class-name: org.postgresql.Driver
     username: findex_user
     password: 1234

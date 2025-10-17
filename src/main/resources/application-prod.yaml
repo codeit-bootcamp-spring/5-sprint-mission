@@ -1,6 +1,7 @@
 spring:
   datasource:
-    url: jdbc:postgresql://host.docker.internal:5432/discodeit #도커에서 PostSql 돌림
+    url: jdbc:postgresql://host.docker.internal:5432/discodeit #도커 컨테이너 안에서 내 컴퓨터 DB로 연결
+    #url: jdbc:postgresql://db:5432/discodeit postgresql도 도커 컨테이너 안의 DB 서비스로 연결
     driver-class-name: org.postgresql.Driver
     username: findex_user
     password: 1234

@@ -37,7 +37,7 @@ info: # [참고용] 서버 정보, actuator/info 등에서 노출
 
 discodeit: # [실제 서비스용!] 파일 저장소 설정
   storage:
-    type: ${STORAGE_TYPE:local}   # local 또는 s3 (기본은 local)
+    type: ${STORAGE_TYPE:local}   # storage 환경변수 있음 그걸 쓰고 없으면 기본값 local
     local:
       root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage} # 로컬 저장소 경로
     s3: # S3 저장소 정보
