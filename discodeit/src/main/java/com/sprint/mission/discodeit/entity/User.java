@@ -9,14 +9,15 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Entity
 @Table(name = "users")
 @Getter
-@NoArgsConstructor // JPA를 위한 기본 생성자
-@AllArgsConstructor //Builder사용을 위해 추가
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA를 위한 기본 생성자
 public class User extends BaseUpdatableEntity {
 
   @Column(length = 50, nullable = false, unique = true)

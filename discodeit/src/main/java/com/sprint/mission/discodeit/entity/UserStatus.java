@@ -2,20 +2,22 @@ package com.sprint.mission.discodeit.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import jakarta.persistence.*;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.time.Duration;
 import java.time.Instant;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
 @Entity
 @Table(name = "user_statuses")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserStatus extends BaseUpdatableEntity {
 
   @JsonBackReference
