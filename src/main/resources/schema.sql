@@ -124,3 +124,7 @@ ALTER TABLE read_statuses
         FOREIGN KEY (channel_id)
             REFERENCES channels (id)
             ON DELETE CASCADE;
+
+aws ecr-public get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin public.ecr.aws/h7t8j5j5/discodeit
+
+aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 669063901523.dkr.ecr.ap-northeast-2.amazonaws.com
