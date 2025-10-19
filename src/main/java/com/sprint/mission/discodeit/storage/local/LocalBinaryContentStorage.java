@@ -43,6 +43,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     }
   }
 
+  @Override
   public UUID put(UUID binaryContentId, byte[] bytes) {
     Path filePath = resolvePath(binaryContentId);
     if (Files.exists(filePath)) {
@@ -56,6 +57,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     return binaryContentId;
   }
 
+  @Override
   public InputStream get(UUID binaryContentId) {
     Path filePath = resolvePath(binaryContentId);
     if (Files.notExists(filePath)) {
@@ -86,4 +88,9 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
         .body(resource);
   }
+
+    @Override
+    public String generatePresignedUrl(String key) {
+      return null;
+    }
 }

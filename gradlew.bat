@@ -13,15 +13,10 @@
 @rem See the License for the specific language governing permissions and
 @rem limitations under the License.
 @rem
-<<<<<<< HEAD
-
-@if "%DEBUG%" == "" @echo off
-=======
 @rem SPDX-License-Identifier: Apache-2.0
 @rem
 
 @if "%DEBUG%"=="" @echo off
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
 @rem ##########################################################################
 @rem
 @rem  Gradle startup script for Windows
@@ -32,12 +27,8 @@
 if "%OS%"=="Windows_NT" setlocal
 
 set DIRNAME=%~dp0
-<<<<<<< HEAD
-if "%DIRNAME%" == "" set DIRNAME=.
-=======
 if "%DIRNAME%"=="" set DIRNAME=.
 @rem This is normally unused
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
 set APP_BASE_NAME=%~n0
 set APP_HOME=%DIRNAME%
 
@@ -52,23 +43,13 @@ if defined JAVA_HOME goto findJavaFromJavaHome
 
 set JAVA_EXE=java.exe
 %JAVA_EXE% -version >NUL 2>&1
-<<<<<<< HEAD
-if "%ERRORLEVEL%" == "0" goto execute
-
-echo.
-echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
-echo.
-echo Please set the JAVA_HOME variable in your environment to match the
-echo location of your Java installation.
-=======
-if %ERRORLEVEL% equ 0 goto execute
+if %ERROR LEVEL% equ 0 goto execute
 
 echo. 1>&2
 echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH. 1>&2
 echo. 1>&2
 echo Please set the JAVA_HOME variable in your environment to match the 1>&2
 echo location of your Java installation. 1>&2
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
 
 goto fail
 
@@ -78,19 +59,11 @@ set JAVA_EXE=%JAVA_HOME%/bin/java.exe
 
 if exist "%JAVA_EXE%" goto execute
 
-<<<<<<< HEAD
-echo.
-echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME%
-echo.
-echo Please set the JAVA_HOME variable in your environment to match the
-echo location of your Java installation.
-=======
 echo. 1>&2
 echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME% 1>&2
 echo. 1>&2
 echo Please set the JAVA_HOME variable in your environment to match the 1>&2
 echo location of your Java installation. 1>&2
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
 
 goto fail
 
@@ -105,24 +78,15 @@ set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
 
 :end
 @rem End local scope for the variables with windows NT shell
-<<<<<<< HEAD
-if "%ERRORLEVEL%"=="0" goto mainEnd
-=======
-if %ERRORLEVEL% equ 0 goto mainEnd
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
+if %ERROR LEVEL% equ 0 goto mainEnd
 
 :fail
 rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
 rem the _cmd.exe /c_ return code!
-<<<<<<< HEAD
-if  not "" == "%GRADLE_EXIT_CONSOLE%" exit 1
-exit /b 1
-=======
 set EXIT_CODE=%ERRORLEVEL%
 if %EXIT_CODE% equ 0 set EXIT_CODE=1
 if not ""=="%GRADLE_EXIT_CONSOLE%" exit %EXIT_CODE%
 exit /b %EXIT_CODE%
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
 
 :mainEnd
 if "%OS%"=="Windows_NT" endlocal
