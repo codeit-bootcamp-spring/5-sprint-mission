@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  app:
+    image: discodeit:1.0.0
+    container_name: discodeit-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    env_file: .env
+    environment:
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads-disc:/app/uploads
+    networks:
+      - discodeit-net
+
+  db:
+    image: postgres:17.6
+    container_name: discodeit-db
+    env_file: .env
+    environment:
+      - TZ=Asia/Seoul
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --lc-collate=C --lc-ctype=C
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata-disc:/var/lib/postgresql/data
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+#      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/02_data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-discodeit}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - discodeit-net
+
+volumes:
+  pgdata-disc:
+  uploads-disc:
+
+networks:
+  discodeit-net:
+    driver: bridge

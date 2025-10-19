@@ -1,3 +1,7 @@
+server:
+  port: 8081
+  address: 0.0.0.0
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -19,9 +23,8 @@ logging:
     com.discodeit: info
 
 info:
-  datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    ddl-auto: validate
   storage:
-    type: local
-    path: ${STORAGE_ROOT_PATH}
+    path: ${FILE_UPLOAD_DIR}
+
+file:
+  upload-dir: ${FILE_UPLOAD_DIR}
