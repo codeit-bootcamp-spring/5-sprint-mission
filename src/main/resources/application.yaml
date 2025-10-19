@@ -46,9 +46,15 @@ info:
 
 discodeit:
   storage:
-    type: local
+    type: ${STORAGE_TYPE:local}  # local | s3 (기본값: local)
     local:
-      root-path: .discodeit/storage
+      root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
+    s3:
+      access-key: ${AWS_S3_ACCESS_KEY:AKIA3JBUZYCPIYWDBQ4U}
+      secret-key: ${AWS_S3_SECRET_KEY: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}
+      region: ${AWS_S3_REGION:ap-northeast-2}
+      bucket: ${AWS_S3_BUCKET:discodeit-binary-content-storage-rlawnsry}
+      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
 
 logging:
   level:

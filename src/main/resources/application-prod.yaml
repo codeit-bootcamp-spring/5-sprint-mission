@@ -28,7 +28,7 @@ management:
     env:
       enabled: false
 
-discodeit:
-  storage:
-    local:
-      root-path: /app/storage
+#discodeit:
+#  storage:
+#    local:
+#      root-path: /app/storage
