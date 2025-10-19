@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-//@EnableJpaAuditing   //JPA Auditing (@CreatedDate, @LastModifiedDate) 활성화
+//@EnableJpaAuditing   //JPA Auditing (@CreatedDate, @LastModifiedDate) 활성화(test 돌려보기 위해)
 public class DiscodeitApplication {
 
   public static void main(String[] args) {
