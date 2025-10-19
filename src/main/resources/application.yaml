@@ -1,0 +1,78 @@
+spring:
+  application:
+    name: discodeit
+
+  # ✅ .env도 프로퍼티로 읽도록 (프로젝트 루트의 .env)
+  config:
+    import: optional:file:.env[.properties]
+
+  servlet:
+    multipart:
+      # ⛳️ 권장 표기: 케밥 케이스 (Spring은 유연 바인딩이지만 표준화)
+      max-file-size: 10MB
+      max-request-size: 30MB
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    # ⚠️ 실제 URL은 환경변수나 profile에서 주입 필요
+    # url: ${SPRING_DATASOURCE_URL:}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  profiles:
+    active: dev
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: always
+
+info:
+  name: Discodeit
+  version: 1.7.0
+  java:
+    version: 17
+  spring-boot:
+    version: 3.4.0
+  config:
+    datasource:
+      url: ${spring.datasource.url}
+      driver-class-name: ${spring.datasource.driver-class-name}
+    jpa:
+      ddl-auto: ${spring.jpa.hibernate.ddl-auto}
+    storage:
+      type: ${discodeit.storage.type}
+      path: ${discodeit.storage.local.root-path}
+    multipart:
+      max-file-size: ${spring.servlet.multipart.max-file-size}
+      max-request-size: ${spring.servlet.multipart.max-request-size}
+
+# ✅ 스토리지 설정: env → 애플리케이션 프로퍼티로 매핑
+discodeit:
+  storage:
+    # local | s3  (기본값: local)
+    type: ${STORAGE_TYPE:local}
+
+    local:
+      # 로컬 스토리지 루트 경로
+      root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
+
+    s3:
+      # ⭐ 폴백 포함: AWS_S3_* 가 없으면 AWS_* / S3_BUCKET도 허용
+      access-key: ${AWS_S3_ACCESS_KEY:${AWS_ACCESS_KEY_ID}}
+      secret-key: ${AWS_S3_SECRET_KEY:${AWS_SECRET_ACCESS_KEY}}
+      region:     ${AWS_S3_REGION:${AWS_REGION}}
+      bucket:     ${AWS_S3_BUCKET:${S3_BUCKET}}
+      # 초 단위, 기본 600초(10분)
+      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
+
+logging:
+  level:
+    root: info

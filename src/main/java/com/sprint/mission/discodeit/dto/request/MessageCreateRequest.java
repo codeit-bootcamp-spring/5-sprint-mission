@@ -1,16 +1,20 @@
 package com.sprint.mission.discodeit.dto.request;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
-@Schema(name = "MessageCreateRequest", description = "Message 생성 정보")
 public record MessageCreateRequest(
-        @Schema(description = "메시지 내용")
-        String content,
-        @Schema(description = "Channel ID", format = "uuid")
-        UUID channelId,
-        @Schema(description = "작성자 User ID", format = "uuid")
-        UUID authorId
+    @NotBlank(message = "메시지 내용은 필수입니다")
+    @Size(max = 2000, message = "메시지 내용은 2000자 이하여야 합니다")
+    String content,
+    
+    @NotNull(message = "채널 ID는 필수입니다")
+    UUID channelId,
+    
+    @NotNull(message = "작성자 ID는 필수입니다")
+    UUID authorId
 ) {
+
 }

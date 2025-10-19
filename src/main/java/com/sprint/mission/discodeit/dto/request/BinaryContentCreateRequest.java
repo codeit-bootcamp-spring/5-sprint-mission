@@ -1,14 +1,19 @@
 package com.sprint.mission.discodeit.dto.request;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-@Schema(name = "BinaryContentCreateRequest", description = "업로드할 바이너리 컨텐츠 정보")
 public record BinaryContentCreateRequest(
-        @Schema(description = "파일명")
-        String fileName,
-        @Schema(description = "콘텐츠 타입(MIME)")
-        String contentType,
-        @Schema(description = "파일 바이트", type = "string", format = "byte")
-        byte[] bytes
+    @NotBlank(message = "파일 이름은 필수입니다")
+    @Size(max = 255, message = "파일 이름은 255자 이하여야 합니다")
+    String fileName,
+    
+    @NotBlank(message = "콘텐츠 타입은 필수입니다")
+    String contentType,
+    
+    @NotNull(message = "파일 데이터는 필수입니다")
+    byte[] bytes
 ) {
+
 }

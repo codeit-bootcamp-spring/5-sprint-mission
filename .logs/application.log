@@ -1,0 +1,370 @@
+25-10-19 19:40:18.358 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+25-10-19 19:40:18.416 [main] [32mINFO [0;39m c.s.m.d.storage.s3.S3ManualTest      [ |  | ] - Starting S3ManualTest using Java 17.0.14 with PID 5568 (C:\Users\user\IdeaProjects\5-sprint-mission\build\classes\java\main started by user in C:\Users\user\IdeaProjects\5-sprint-mission)
+25-10-19 19:40:18.417 [main] [32mDEBUG[0;39m c.s.m.d.storage.s3.S3ManualTest      [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-10-19 19:40:18.418 [main] [32mINFO [0;39m c.s.m.d.storage.s3.S3ManualTest      [ |  | ] - The following 1 profile is active: "dev"
+25-10-19 19:40:19.265 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-10-19 19:40:19.291 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 16 ms. Found 0 JPA repository interfaces.
+25-10-19 19:40:19.805 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+25-10-19 19:40:20.073 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3b4086c1
+25-10-19 19:40:20.075 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+25-10-19 19:40:20.180 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-10-19 19:40:20.259 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-10-19 19:40:20.302 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+25-10-19 19:40:20.636 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-10-19 19:40:20.773 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.6
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-10-19 19:40:21.154 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-10-19 19:40:21.158 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 19:40:21.170 [main] [33mWARN [0;39m o.s.c.a.AnnotationConfigApplicationContext [ |  | ] - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+25-10-19 19:40:21.170 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 19:40:21.175 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown initiated...
+25-10-19 19:40:21.274 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown completed.
+25-10-19 19:40:21.283 [main] [32mINFO [0;39m o.s.b.a.l.ConditionEvaluationReportLogger [ |  | ] - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+25-10-19 19:40:21.305 [main] [31mERROR[0;39m o.s.boot.SpringApplication           [ |  | ] - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:515)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1435)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:336)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:288)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:334)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1122)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1093)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1030)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at com.sprint.mission.discodeit.storage.s3.S3ManualTest.main(S3ManualTest.java:36)
+Caused by: org.springframework.util.PlaceholderResolutionException: Could not resolve placeholder 'AWS_S3_ACCESS_KEY' in value "${AWS_S3_ACCESS_KEY}" <-- "${discodeit.storage.s3.access-key}"
+	at org.springframework.util.PlaceholderResolutionException.withValue(PlaceholderResolutionException.java:81)
+	at org.springframework.util.PlaceholderParser$ParsedValue.resolve(PlaceholderParser.java:416)
+	at org.springframework.util.PlaceholderParser.replacePlaceholders(PlaceholderParser.java:128)
+	at org.springframework.util.PropertyPlaceholderHelper.parseStringValue(PropertyPlaceholderHelper.java:118)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:114)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:255)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:226)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer.lambda$processProperties$0(PropertySourcesPlaceholderConfigurer.java:201)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.resolveEmbeddedValue(AbstractBeanFactory.java:963)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1536)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1514)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:785)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:768)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:509)
+	... 16 common frames omitted
+25-10-19 19:40:36.257 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+25-10-19 19:40:36.302 [main] [32mINFO [0;39m c.s.m.d.storage.s3.S3ManualTest      [ |  | ] - Starting S3ManualTest using Java 17.0.14 with PID 12228 (C:\Users\user\IdeaProjects\5-sprint-mission\build\classes\java\main started by user in C:\Users\user\IdeaProjects\5-sprint-mission)
+25-10-19 19:40:36.303 [main] [32mDEBUG[0;39m c.s.m.d.storage.s3.S3ManualTest      [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-10-19 19:40:36.304 [main] [32mINFO [0;39m c.s.m.d.storage.s3.S3ManualTest      [ |  | ] - The following 1 profile is active: "dev"
+25-10-19 19:40:36.989 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-10-19 19:40:37.009 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 14 ms. Found 0 JPA repository interfaces.
+25-10-19 19:40:37.428 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+25-10-19 19:40:37.612 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@39832280
+25-10-19 19:40:37.614 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+25-10-19 19:40:37.699 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-10-19 19:40:37.760 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-10-19 19:40:37.793 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+25-10-19 19:40:38.055 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-10-19 19:40:38.138 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.6
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-10-19 19:40:38.467 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-10-19 19:40:38.472 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 19:40:38.487 [main] [33mWARN [0;39m o.s.c.a.AnnotationConfigApplicationContext [ |  | ] - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+25-10-19 19:40:38.487 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 19:40:38.490 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown initiated...
+25-10-19 19:40:38.592 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown completed.
+25-10-19 19:40:38.604 [main] [32mINFO [0;39m o.s.b.a.l.ConditionEvaluationReportLogger [ |  | ] - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+25-10-19 19:40:38.622 [main] [31mERROR[0;39m o.s.boot.SpringApplication           [ |  | ] - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:515)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1435)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:336)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:288)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:334)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1122)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1093)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1030)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at com.sprint.mission.discodeit.storage.s3.S3ManualTest.main(S3ManualTest.java:36)
+Caused by: org.springframework.util.PlaceholderResolutionException: Could not resolve placeholder 'AWS_S3_ACCESS_KEY' in value "${AWS_S3_ACCESS_KEY}" <-- "${discodeit.storage.s3.access-key}"
+	at org.springframework.util.PlaceholderResolutionException.withValue(PlaceholderResolutionException.java:81)
+	at org.springframework.util.PlaceholderParser$ParsedValue.resolve(PlaceholderParser.java:416)
+	at org.springframework.util.PlaceholderParser.replacePlaceholders(PlaceholderParser.java:128)
+	at org.springframework.util.PropertyPlaceholderHelper.parseStringValue(PropertyPlaceholderHelper.java:118)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:114)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:255)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:226)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer.lambda$processProperties$0(PropertySourcesPlaceholderConfigurer.java:201)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.resolveEmbeddedValue(AbstractBeanFactory.java:963)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1536)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1514)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:785)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:768)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:509)
+	... 16 common frames omitted
+25-10-19 23:09:47.280 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+25-10-19 23:09:47.359 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.14 with PID 21892 (C:\Users\user\IdeaProjects\5-sprint-mission\build\classes\java\main started by user in C:\Users\user\IdeaProjects\5-sprint-mission)
+25-10-19 23:09:47.360 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-10-19 23:09:47.360 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+25-10-19 23:09:48.824 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-10-19 23:09:48.930 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 96 ms. Found 6 JPA repository interfaces.
+25-10-19 23:09:49.851 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat initialized with port 8080 (http)
+25-10-19 23:09:49.867 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+25-10-19 23:09:49.869 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Starting service [Tomcat]
+25-10-19 23:09:49.869 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+25-10-19 23:09:49.964 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring embedded WebApplicationContext
+25-10-19 23:09:49.964 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 2546 ms
+25-10-19 23:09:50.225 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+25-10-19 23:09:50.496 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@21c99abf
+25-10-19 23:09:50.498 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+25-10-19 23:09:50.597 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-10-19 23:09:50.700 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-10-19 23:09:50.749 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+25-10-19 23:09:51.145 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-10-19 23:09:51.292 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.6
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-10-19 23:09:52.595 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-10-19 23:09:52.715 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 23:09:52.728 [main] [33mWARN [0;39m o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext [ |  | ] - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+25-10-19 23:09:52.728 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 23:09:52.732 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown initiated...
+25-10-19 23:09:52.734 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown completed.
+25-10-19 23:09:52.736 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Stopping service [Tomcat]
+25-10-19 23:09:52.758 [main] [32mINFO [0;39m o.s.b.a.l.ConditionEvaluationReportLogger [ |  | ] - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+25-10-19 23:09:52.782 [main] [31mERROR[0;39m o.s.boot.SpringApplication           [ |  | ] - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:515)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1435)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:336)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:288)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:334)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1122)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1093)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1030)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
+	at com.sprint.mission.discodeit.DiscodeitApplication.main(DiscodeitApplication.java:10)
+Caused by: org.springframework.util.PlaceholderResolutionException: Could not resolve placeholder 'AWS_S3_ACCESS_KEY' in value "${AWS_S3_ACCESS_KEY}" <-- "${discodeit.storage.s3.access-key}"
+	at org.springframework.util.PlaceholderResolutionException.withValue(PlaceholderResolutionException.java:81)
+	at org.springframework.util.PlaceholderParser$ParsedValue.resolve(PlaceholderParser.java:416)
+	at org.springframework.util.PlaceholderParser.replacePlaceholders(PlaceholderParser.java:128)
+	at org.springframework.util.PropertyPlaceholderHelper.parseStringValue(PropertyPlaceholderHelper.java:118)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:114)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:255)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:226)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer.lambda$processProperties$0(PropertySourcesPlaceholderConfigurer.java:201)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.resolveEmbeddedValue(AbstractBeanFactory.java:963)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1536)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1514)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:785)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:768)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:509)
+	... 19 common frames omitted
+25-10-19 23:09:58.894 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+25-10-19 23:09:58.948 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.14 with PID 8028 (C:\Users\user\IdeaProjects\5-sprint-mission\build\classes\java\main started by user in C:\Users\user\IdeaProjects\5-sprint-mission)
+25-10-19 23:09:58.950 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-10-19 23:09:58.950 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+25-10-19 23:10:00.077 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-10-19 23:10:00.181 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 95 ms. Found 6 JPA repository interfaces.
+25-10-19 23:10:00.920 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat initialized with port 8080 (http)
+25-10-19 23:10:00.934 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+25-10-19 23:10:00.936 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Starting service [Tomcat]
+25-10-19 23:10:00.936 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+25-10-19 23:10:01.027 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring embedded WebApplicationContext
+25-10-19 23:10:01.027 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 2037 ms
+25-10-19 23:10:01.296 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+25-10-19 23:10:01.627 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@21c99abf
+25-10-19 23:10:01.629 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+25-10-19 23:10:01.720 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-10-19 23:10:01.786 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-10-19 23:10:01.823 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+25-10-19 23:10:02.143 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-10-19 23:10:02.240 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.6
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-10-19 23:10:03.361 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-10-19 23:10:03.418 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 23:10:03.432 [main] [33mWARN [0;39m o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext [ |  | ] - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+25-10-19 23:10:03.432 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 23:10:03.435 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown initiated...
+25-10-19 23:10:03.439 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown completed.
+25-10-19 23:10:03.441 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Stopping service [Tomcat]
+25-10-19 23:10:03.462 [main] [32mINFO [0;39m o.s.b.a.l.ConditionEvaluationReportLogger [ |  | ] - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+25-10-19 23:10:03.483 [main] [31mERROR[0;39m o.s.boot.SpringApplication           [ |  | ] - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:515)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1435)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:336)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:288)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:334)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1122)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1093)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1030)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
+	at com.sprint.mission.discodeit.DiscodeitApplication.main(DiscodeitApplication.java:10)
+Caused by: org.springframework.util.PlaceholderResolutionException: Could not resolve placeholder 'AWS_S3_ACCESS_KEY' in value "${AWS_S3_ACCESS_KEY}" <-- "${discodeit.storage.s3.access-key}"
+	at org.springframework.util.PlaceholderResolutionException.withValue(PlaceholderResolutionException.java:81)
+	at org.springframework.util.PlaceholderParser$ParsedValue.resolve(PlaceholderParser.java:416)
+	at org.springframework.util.PlaceholderParser.replacePlaceholders(PlaceholderParser.java:128)
+	at org.springframework.util.PropertyPlaceholderHelper.parseStringValue(PropertyPlaceholderHelper.java:118)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:114)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:255)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:226)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer.lambda$processProperties$0(PropertySourcesPlaceholderConfigurer.java:201)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.resolveEmbeddedValue(AbstractBeanFactory.java:963)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1536)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1514)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:785)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:768)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:509)
+	... 19 common frames omitted
+25-10-19 23:18:44.271 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+25-10-19 23:18:44.333 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.14 with PID 3436 (C:\Users\user\IdeaProjects\5-sprint-mission\build\classes\java\main started by user in C:\Users\user\IdeaProjects\5-sprint-mission)
+25-10-19 23:18:44.334 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-10-19 23:18:44.335 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+25-10-19 23:18:45.448 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-10-19 23:18:45.545 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 87 ms. Found 6 JPA repository interfaces.
+25-10-19 23:18:46.224 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat initialized with port 8080 (http)
+25-10-19 23:18:46.235 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+25-10-19 23:18:46.237 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Starting service [Tomcat]
+25-10-19 23:18:46.238 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+25-10-19 23:18:46.320 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring embedded WebApplicationContext
+25-10-19 23:18:46.320 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 1935 ms
+25-10-19 23:18:46.540 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+25-10-19 23:18:46.760 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@35af52dc
+25-10-19 23:18:46.762 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+25-10-19 23:18:46.846 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-10-19 23:18:46.911 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-10-19 23:18:46.947 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+25-10-19 23:18:47.243 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-10-19 23:18:47.337 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.6
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-10-19 23:18:48.414 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-10-19 23:18:48.473 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 23:18:48.908 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory [ |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-10-19 23:18:51.282 [main] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping [ |  | ] - Adding welcome page: class path resource [static/index.html]
+25-10-19 23:18:52.346 [main] [32mINFO [0;39m o.s.b.a.e.web.EndpointLinksResolver  [ |  | ] - Exposing 4 endpoints beneath base path '/actuator'
+25-10-19 23:18:52.474 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Starting ProtocolHandler ["http-nio-8080"]
+25-10-19 23:18:52.500 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat started on port 8080 (http) with context path '/'
+25-10-19 23:18:52.517 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Started DiscodeitApplication in 8.939 seconds (process running for 9.891)
+25-10-19 23:18:53.282 [RMI TCP Connection(4)-172.23.96.1] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+25-10-19 23:18:53.282 [RMI TCP Connection(4)-172.23.96.1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    [ |  | ] - Initializing Servlet 'dispatcherServlet'
+25-10-19 23:18:53.285 [RMI TCP Connection(4)-172.23.96.1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    [ |  | ] - Completed initialization in 3 ms
+25-10-19 23:19:08.628 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  | ] - Commencing graceful shutdown. Waiting for active requests to complete
+25-10-19 23:19:08.739 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  | ] - Graceful shutdown complete
+25-10-19 23:19:08.747 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 23:19:08.750 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown initiated...
+25-10-19 23:19:08.758 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown completed.
+25-10-19 23:43:39.970 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+25-10-19 23:43:40.041 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.14 with PID 7432 (C:\Users\user\IdeaProjects\5-sprint-mission\build\classes\java\main started by user in C:\Users\user\IdeaProjects\5-sprint-mission)
+25-10-19 23:43:40.042 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+25-10-19 23:43:40.042 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+25-10-19 23:43:41.205 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-10-19 23:43:41.294 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 79 ms. Found 6 JPA repository interfaces.
+25-10-19 23:43:42.029 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat initialized with port 8080 (http)
+25-10-19 23:43:42.044 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+25-10-19 23:43:42.046 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Starting service [Tomcat]
+25-10-19 23:43:42.046 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+25-10-19 23:43:42.142 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring embedded WebApplicationContext
+25-10-19 23:43:42.143 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 2052 ms
+25-10-19 23:43:42.360 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+25-10-19 23:43:42.646 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4213bc3e
+25-10-19 23:43:42.648 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+25-10-19 23:43:42.737 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-10-19 23:43:42.810 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+25-10-19 23:43:42.847 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+25-10-19 23:43:43.171 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-10-19 23:43:43.273 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.6
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-10-19 23:43:44.353 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-10-19 23:43:44.446 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 23:43:44.771 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory [ |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-10-19 23:43:46.144 [main] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping [ |  | ] - Adding welcome page: class path resource [static/index.html]
+25-10-19 23:43:46.903 [main] [32mINFO [0;39m o.s.b.a.e.web.EndpointLinksResolver  [ |  | ] - Exposing 4 endpoints beneath base path '/actuator'
+25-10-19 23:43:46.972 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Starting ProtocolHandler ["http-nio-8080"]
+25-10-19 23:43:46.992 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat started on port 8080 (http) with context path '/'
+25-10-19 23:43:47.008 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Started DiscodeitApplication in 7.746 seconds (process running for 8.716)
+25-10-19 23:43:47.355 [RMI TCP Connection(2)-172.23.96.1] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+25-10-19 23:43:47.355 [RMI TCP Connection(2)-172.23.96.1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    [ |  | ] - Initializing Servlet 'dispatcherServlet'
+25-10-19 23:43:47.357 [RMI TCP Connection(2)-172.23.96.1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    [ |  | ] - Completed initialization in 1 ms
+25-10-19 23:43:50.601 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  | ] - Commencing graceful shutdown. Waiting for active requests to complete
+25-10-19 23:43:50.720 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  | ] - Graceful shutdown complete
+25-10-19 23:43:50.729 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-10-19 23:43:50.731 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown initiated...
+25-10-19 23:43:50.740 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown completed.

@@ -1,89 +1,75 @@
 package com.sprint.mission.discodeit.exception;
 
-import org.springframework.http.HttpHeaders;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.util.StringUtils;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.multipart.MultipartException;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
-import java.util.NoSuchElementException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private ResponseEntity<String> plain(HttpStatus status, String message) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8");
-        return new ResponseEntity<>(StringUtils.hasText(message) ? message : status.getReasonPhrase(), headers, status);
-    }
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ErrorResponse> handleException(Exception e) {
+    log.error("예상치 못한 오류 발생: {}", e.getMessage(), e);
+    ErrorResponse errorResponse = new ErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR.value());
+    return ResponseEntity
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(errorResponse);
+  }
 
-    // 404 NOT_FOUND : 리소스 없음
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<String> handleNotFound(NoSuchElementException e) {
-        return plain(HttpStatus.NOT_FOUND, e.getMessage());
-    }
+  @ExceptionHandler(DiscodeitException.class)
+  public ResponseEntity<ErrorResponse> handleDiscodeitException(DiscodeitException exception) {
+    log.error("커스텀 예외 발생: code={}, message={}", exception.getErrorCode(), exception.getMessage(), exception);
+    HttpStatus status = determineHttpStatus(exception);
+    ErrorResponse response = new ErrorResponse(exception, status.value());
+    return ResponseEntity
+        .status(status)
+        .body(response);
+  }
 
-    // 400 BAD_REQUEST : 비즈니스 검증 오류/중복
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleBadRequest(IllegalArgumentException e) {
-        return plain(HttpStatus.BAD_REQUEST, e.getMessage());
-    }
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    log.error("요청 유효성 검사 실패: {}", ex.getMessage());
+    
+    Map<String, Object> validationErrors = new HashMap<>();
+    ex.getBindingResult().getAllErrors().forEach(error -> {
+      String fieldName = ((FieldError) error).getField();
+      String errorMessage = error.getDefaultMessage();
+      validationErrors.put(fieldName, errorMessage);
+    });
+    
+    ErrorResponse response = new ErrorResponse(
+        Instant.now(), 
+        "VALIDATION_ERROR",
+        "요청 데이터 유효성 검사에 실패했습니다",
+        validationErrors,
+        ex.getClass().getSimpleName(),
+        HttpStatus.BAD_REQUEST.value()
+    );
+    
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(response);
+  }
 
-    // 400 BAD_REQUEST : 필수 파라미터 누락 userId 등..
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<String> handleMissingParam(MissingServletRequestParameterException e) {
-        String msg = "Missing required parameter: " + e.getParameterName();
-        return plain(HttpStatus.BAD_REQUEST, msg);
-    }
-
-    // 400 BAD_REQUEST : 경로/쿼리 타입 불일치
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<String> handleTypeMismatch(MethodArgumentTypeMismatchException  e) {
-        String name = e.getName();
-        String required = e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "required Type";
-        String msg = "Parameter '" + name + "' has invalid format (expected " + required + ")";
-        return plain(HttpStatus.BAD_REQUEST, msg);
-    }
-
-    // 400 Bad Request : JSON 바디 누락/파싱 오류
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<String> handleNotReadable(HttpMessageNotReadableException e) {
-        return plain(HttpStatus.BAD_REQUEST, "Malformed JSON request body");
-    }
-
-    // 400 Bad Request: @Valid 검증 실패
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidation(MethodArgumentNotValidException e) {
-        String msg = e.getBindingResult().getFieldErrors().stream()
-                .findFirst()
-                .map(err -> "Validation failed: " + err.getField() + " " + err.getDefaultMessage())
-                .orElse("Validation failed");
-        return plain(HttpStatus.BAD_REQUEST, msg);
-    }
-
-    // 400 Bad Request: 멀티파트 업로드 이슈(파일 누락/형식/사이즈)
-    @ExceptionHandler({MultipartException.class, MaxUploadSizeExceededException.class})
-    public ResponseEntity<String> handleMultipart(Exception e) {
-        return plain(HttpStatus.BAD_REQUEST, "Invalid multipart request");
-    }
-
-    // 404: 잘못된 URL (옵션 — 스프링 설정에서 throw-exception-if-no-handler=true 필요)
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<String> handleNoHandler(NoHandlerFoundException e) {
-        return plain(HttpStatus.NOT_FOUND, "Endpoint not found");
-    }
-
-    // 500: 기타 예기치 않은 오류
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleInternal(Exception e) {
-        return plain(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
-    }
+  private HttpStatus determineHttpStatus(DiscodeitException exception) {
+    ErrorCode errorCode = exception.getErrorCode();
+    return switch (errorCode) {
+      case USER_NOT_FOUND, CHANNEL_NOT_FOUND, MESSAGE_NOT_FOUND, BINARY_CONTENT_NOT_FOUND, 
+           READ_STATUS_NOT_FOUND, USER_STATUS_NOT_FOUND -> HttpStatus.NOT_FOUND;
+      case DUPLICATE_USER, DUPLICATE_READ_STATUS, DUPLICATE_USER_STATUS -> HttpStatus.CONFLICT;
+      case INVALID_USER_CREDENTIALS -> HttpStatus.UNAUTHORIZED;
+      case PRIVATE_CHANNEL_UPDATE, INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
+      case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+    };
+  }
 }

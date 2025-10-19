@@ -7,14 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {BinaryContentMapper.class, UserMapper.class})
 public interface MessageMapper {
-//    UUID id,
-//    Instant createdAt,
-//    Instant updatedAt,
-//    String content,
-//    UUID channelId,
-//    UserDto author,
-//    List<BinaryContentDto> attachments
 
-    @Mapping(target = "channelId", source = "channel.id")
-    MessageDto toDto(Message message);
+  @Mapping(target = "channelId", source = "channel.id")
+  MessageDto toDto(Message message);
 }

@@ -1,65 +1,55 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-
-import java.util.Set;
-import java.util.LinkedHashSet;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "messages")
-@Getter @SuperBuilder
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(name = "Message")
 public class Message extends BaseUpdatableEntity {
 
-    @Column(name = "content", columnDefinition = "text")
-    private String content;
+  @Column(columnDefinition = "text", nullable = false)
+  private String content;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "channel_id", columnDefinition = "uuid")
+  private Channel channel;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "author_id", columnDefinition = "uuid")
+  private User author;
+  @BatchSize(size = 100)
+  @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+  @JoinTable(
+      name = "message_attachments",
+      joinColumns = @JoinColumn(name = "message_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id")
+  )
+  private List<BinaryContent> attachments = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "channel_id",
-            nullable = false,
-            foreignKey = @ForeignKey(name = "fk_messages_channel")
-    )
-    private Channel channel;
+  public Message(String content, Channel channel, User author, List<BinaryContent> attachments) {
+    this.channel = channel;
+    this.content = content;
+    this.author = author;
+    this.attachments = attachments;
+  }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "author_id",
-            foreignKey = @ForeignKey(name = "fk_messages_author")
-    )
-    private User author;
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(
-            name = "message_attachments",
-            joinColumns = @JoinColumn(
-                    name = "message_id",
-                    foreignKey = @ForeignKey(name = "fk_message_attachments_message")
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "attachment_id",
-                    foreignKey = @ForeignKey(name = "fk_message_attachments_attachment")
-            )
-    )
-    private Set<BinaryContent> attachments = new LinkedHashSet<>();
-
-    public Message(String content, Channel channel, User author, Set<BinaryContent> attachmentList) {
-        this.content = content;
-        this.channel = channel;
-        this.author = author;
-        this.attachments = attachmentList;
+  public void update(String newContent) {
+    if (newContent != null && !newContent.equals(this.content)) {
+      this.content = newContent;
     }
-
-    public void update(String newContent) {
-        if (newContent != null && !newContent.equals(this.content)) {
-            this.content = newContent;
-        }
-    }
+  }
 }

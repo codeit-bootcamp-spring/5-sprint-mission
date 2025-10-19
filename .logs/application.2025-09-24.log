@@ -1,0 +1,566 @@
+25-09-24 11:23:52.661 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  - HV000001: Hibernate Validator 8.0.2.Final
+25-09-24 11:23:52.718 [restartedMain] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Starting DiscodeitApplication using Java 17.0.14 with PID 25052 (C:\Users\user\IdeaProjects\5-sprint-mission\build\classes\java\main started by user in C:\Users\user\IdeaProjects\5-sprint-mission)
+25-09-24 11:23:52.719 [restartedMain] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - The following 1 profile is active: "prod"
+25-09-24 11:23:52.767 [restartedMain] [32mINFO [0;39m o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+25-09-24 11:23:52.768 [restartedMain] [32mINFO [0;39m o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+25-09-24 11:23:53.827 [restartedMain] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-09-24 11:23:53.951 [restartedMain] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 114 ms. Found 6 JPA repository interfaces.
+25-09-24 11:23:54.761 [restartedMain] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat initialized with port 8080 (http)
+25-09-24 11:23:54.774 [restartedMain] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Initializing ProtocolHandler ["http-nio-8080"]
+25-09-24 11:23:54.777 [restartedMain] [32mINFO [0;39m o.a.catalina.core.StandardService    - Starting service [Tomcat]
+25-09-24 11:23:54.777 [restartedMain] [32mINFO [0;39m o.a.catalina.core.StandardEngine     - Starting Servlet engine: [Apache Tomcat/10.1.43]
+25-09-24 11:23:54.843 [restartedMain] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring embedded WebApplicationContext
+25-09-24 11:23:54.844 [restartedMain] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2076 ms
+25-09-24 11:23:54.940 [restartedMain] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Starting...
+25-09-24 11:23:55.270 [restartedMain] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6ef6af98
+25-09-24 11:23:55.273 [restartedMain] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Start completed.
+25-09-24 11:23:55.369 [restartedMain] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-09-24 11:23:55.463 [restartedMain] [32mINFO [0;39m org.hibernate.Version                - HHH000412: Hibernate ORM core version 6.6.22.Final
+25-09-24 11:23:55.526 [restartedMain] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       - HHH000026: Second-level cache disabled
+25-09-24 11:23:55.908 [restartedMain] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-09-24 11:23:56.012 [restartedMain] [33mWARN [0;39m org.hibernate.orm.deprecation        - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-09-24 11:23:56.036 [restartedMain] [32mINFO [0;39m o.hibernate.orm.connections.pooling  - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.6
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-09-24 11:23:56.043 [restartedMain] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(2003, org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@2c9d1a85) replaced previous registration(org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@2674548e)
+25-09-24 11:23:56.044 [restartedMain] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(6, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@44dfe80d) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@1c6876f0)
+25-09-24 11:23:57.355 [restartedMain] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-09-24 11:23:57.447 [restartedMain] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-09-24 11:23:57.816 [restartedMain] [32mINFO [0;39m c.s.m.d.s.LocalBinaryContentStorage  - 루트 디렉토리 확인 완료: C:\var\uploads\discodeit
+25-09-24 11:23:57.861 [restartedMain] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-09-24 11:23:58.597 [restartedMain] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+25-09-24 11:23:59.002 [restartedMain] [32mINFO [0;39m o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:postgresql://localhost:5432/discodeit'
+25-09-24 11:23:59.109 [restartedMain] [32mINFO [0;39m o.s.b.d.a.OptionalLiveReloadServer   - LiveReload server is running on port 35729
+25-09-24 11:23:59.151 [restartedMain] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Starting ProtocolHandler ["http-nio-8080"]
+25-09-24 11:23:59.174 [restartedMain] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat started on port 8080 (http) with context path '/'
+25-09-24 11:23:59.182 [restartedMain] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Started DiscodeitApplication in 7.126 seconds (process running for 8.045)
+25-09-24 11:24:01.156 [http-nio-8080-exec-1] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring DispatcherServlet 'dispatcherServlet'
+25-09-24 11:24:01.157 [http-nio-8080-exec-1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    - Initializing Servlet 'dispatcherServlet'
+25-09-24 11:24:01.159 [http-nio-8080-exec-1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    - Completed initialization in 2 ms
+25-09-24 11:24:08.568 [http-nio-8080-exec-1] [33mWARN [0;39m o.a.coyote.http11.Http11Processor    - The HTTP response header [Content-Disposition] with value [attachment; filename="다운로드.jpg"] has been removed from the response because it is invalid
+java.lang.IllegalArgumentException: The Unicode character [다] at code point [45,796] cannot be encoded as it is outside the permitted range of 0 to 255
+	at org.apache.tomcat.util.buf.MessageBytes.toBytesSimple(MessageBytes.java:310)
+	at org.apache.tomcat.util.buf.MessageBytes.toBytes(MessageBytes.java:283)
+	at org.apache.coyote.http11.Http11OutputBuffer.write(Http11OutputBuffer.java:400)
+	at org.apache.coyote.http11.Http11OutputBuffer.sendHeader(Http11OutputBuffer.java:379)
+	at org.apache.coyote.http11.Http11Processor.writeHeaders(Http11Processor.java:1067)
+	at org.apache.coyote.http11.Http11Processor.prepareResponse(Http11Processor.java:1054)
+	at org.apache.coyote.AbstractProcessor.action(AbstractProcessor.java:377)
+	at org.apache.coyote.Response.action(Response.java:208)
+	at org.apache.coyote.http11.Http11OutputBuffer.doWrite(Http11OutputBuffer.java:187)
+	at org.apache.coyote.Response.doWrite(Response.java:628)
+	at org.apache.catalina.connector.OutputBuffer.realWriteBytes(OutputBuffer.java:330)
+	at org.apache.catalina.connector.OutputBuffer.flushByteBuffer(OutputBuffer.java:777)
+	at org.apache.catalina.connector.OutputBuffer.append(OutputBuffer.java:674)
+	at org.apache.catalina.connector.OutputBuffer.writeBytes(OutputBuffer.java:377)
+	at org.apache.catalina.connector.OutputBuffer.write(OutputBuffer.java:355)
+	at org.apache.catalina.connector.CoyoteOutputStream.write(CoyoteOutputStream.java:102)
+	at org.springframework.web.context.request.async.StandardServletAsyncWebRequest$LifecycleServletOutputStream.write(StandardServletAsyncWebRequest.java:401)
+	at java.base/java.io.InputStream.transferTo(InputStream.java:783)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeContent(ResourceHttpMessageConverter.java:160)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:115)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:46)
+	at org.springframework.http.converter.AbstractHttpMessageConverter.write(AbstractHttpMessageConverter.java:235)
+	at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor.writeWithMessageConverters(AbstractMessageConverterMethodProcessor.java:344)
+	at org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor.handleReturnValue(HttpEntityMethodProcessor.java:263)
+	at org.springframework.web.servlet.mvc.method.annotation.ResponseEntityReturnValueHandler.handleReturnValue(ResponseEntityReturnValueHandler.java:79)
+	at org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue(HandlerMethodReturnValueHandlerComposite.java:78)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+25-09-24 11:24:36.198 [http-nio-8080-exec-10] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 사용자 수정 대상 조회 완료 - 사용자ID: 6142a6e1-8019-470d-861c-368ef0ebb5e9, 기존 username: winter1, 기존 email: winter1@codeit.com
+25-09-24 11:24:40.652 [http-nio-8080-exec-2] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 사용자 수정 대상 조회 완료 - 사용자ID: 6142a6e1-8019-470d-861c-368ef0ebb5e9, 기존 username: winter, 기존 email: winter1@codeit.com
+25-09-24 11:24:40.706 [http-nio-8080-exec-2] [33mWARN [0;39m o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [java.lang.IllegalArgumentException: User with username winter already exists]
+25-09-24 11:24:45.160 [http-nio-8080-exec-5] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 사용자 수정 대상 조회 완료 - 사용자ID: 6142a6e1-8019-470d-861c-368ef0ebb5e9, 기존 username: winter, 기존 email: winter1@codeit.com
+25-09-24 11:24:45.168 [http-nio-8080-exec-5] [33mWARN [0;39m o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [java.lang.IllegalArgumentException: User with username winter already exists]
+25-09-24 11:24:56.524 [http-nio-8080-exec-7] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 사용자 수정 대상 조회 완료 - 사용자ID: 6142a6e1-8019-470d-861c-368ef0ebb5e9, 기존 username: winter, 기존 email: winter1@codeit.com
+25-09-24 11:24:56.528 [http-nio-8080-exec-7] [33mWARN [0;39m o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [java.lang.IllegalArgumentException: User with username winter already exists]
+25-09-24 11:25:03.994 [http-nio-8080-exec-4] [33mWARN [0;39m o.a.coyote.http11.Http11Processor    - The HTTP response header [Content-Disposition] with value [attachment; filename="다운로드.jpg"] has been removed from the response because it is invalid
+java.lang.IllegalArgumentException: The Unicode character [다] at code point [45,796] cannot be encoded as it is outside the permitted range of 0 to 255
+	at org.apache.tomcat.util.buf.MessageBytes.toBytesSimple(MessageBytes.java:310)
+	at org.apache.tomcat.util.buf.MessageBytes.toBytes(MessageBytes.java:283)
+	at org.apache.coyote.http11.Http11OutputBuffer.write(Http11OutputBuffer.java:400)
+	at org.apache.coyote.http11.Http11OutputBuffer.sendHeader(Http11OutputBuffer.java:379)
+	at org.apache.coyote.http11.Http11Processor.writeHeaders(Http11Processor.java:1067)
+	at org.apache.coyote.http11.Http11Processor.prepareResponse(Http11Processor.java:1054)
+	at org.apache.coyote.AbstractProcessor.action(AbstractProcessor.java:377)
+	at org.apache.coyote.Response.action(Response.java:208)
+	at org.apache.coyote.http11.Http11OutputBuffer.doWrite(Http11OutputBuffer.java:187)
+	at org.apache.coyote.Response.doWrite(Response.java:628)
+	at org.apache.catalina.connector.OutputBuffer.realWriteBytes(OutputBuffer.java:330)
+	at org.apache.catalina.connector.OutputBuffer.flushByteBuffer(OutputBuffer.java:777)
+	at org.apache.catalina.connector.OutputBuffer.append(OutputBuffer.java:674)
+	at org.apache.catalina.connector.OutputBuffer.writeBytes(OutputBuffer.java:377)
+	at org.apache.catalina.connector.OutputBuffer.write(OutputBuffer.java:355)
+	at org.apache.catalina.connector.CoyoteOutputStream.write(CoyoteOutputStream.java:102)
+	at org.springframework.web.context.request.async.StandardServletAsyncWebRequest$LifecycleServletOutputStream.write(StandardServletAsyncWebRequest.java:401)
+	at java.base/java.io.InputStream.transferTo(InputStream.java:783)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeContent(ResourceHttpMessageConverter.java:160)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:115)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:46)
+	at org.springframework.http.converter.AbstractHttpMessageConverter.write(AbstractHttpMessageConverter.java:235)
+	at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor.writeWithMessageConverters(AbstractMessageConverterMethodProcessor.java:344)
+	at org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor.handleReturnValue(HttpEntityMethodProcessor.java:263)
+	at org.springframework.web.servlet.mvc.method.annotation.ResponseEntityReturnValueHandler.handleReturnValue(ResponseEntityReturnValueHandler.java:79)
+	at org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue(HandlerMethodReturnValueHandlerComposite.java:78)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+25-09-24 11:25:34.520 [http-nio-8080-exec-4] [33mWARN [0;39m o.a.coyote.http11.Http11Processor    - The HTTP response header [Content-Disposition] with value [attachment; filename="다운로드.jpg"] has been removed from the response because it is invalid
+java.lang.IllegalArgumentException: The Unicode character [다] at code point [45,796] cannot be encoded as it is outside the permitted range of 0 to 255
+	at org.apache.tomcat.util.buf.MessageBytes.toBytesSimple(MessageBytes.java:310)
+	at org.apache.tomcat.util.buf.MessageBytes.toBytes(MessageBytes.java:283)
+	at org.apache.coyote.http11.Http11OutputBuffer.write(Http11OutputBuffer.java:400)
+	at org.apache.coyote.http11.Http11OutputBuffer.sendHeader(Http11OutputBuffer.java:379)
+	at org.apache.coyote.http11.Http11Processor.writeHeaders(Http11Processor.java:1067)
+	at org.apache.coyote.http11.Http11Processor.prepareResponse(Http11Processor.java:1054)
+	at org.apache.coyote.AbstractProcessor.action(AbstractProcessor.java:377)
+	at org.apache.coyote.Response.action(Response.java:208)
+	at org.apache.coyote.http11.Http11OutputBuffer.doWrite(Http11OutputBuffer.java:187)
+	at org.apache.coyote.Response.doWrite(Response.java:628)
+	at org.apache.catalina.connector.OutputBuffer.realWriteBytes(OutputBuffer.java:330)
+	at org.apache.catalina.connector.OutputBuffer.flushByteBuffer(OutputBuffer.java:777)
+	at org.apache.catalina.connector.OutputBuffer.append(OutputBuffer.java:674)
+	at org.apache.catalina.connector.OutputBuffer.writeBytes(OutputBuffer.java:377)
+	at org.apache.catalina.connector.OutputBuffer.write(OutputBuffer.java:355)
+	at org.apache.catalina.connector.CoyoteOutputStream.write(CoyoteOutputStream.java:102)
+	at org.springframework.web.context.request.async.StandardServletAsyncWebRequest$LifecycleServletOutputStream.write(StandardServletAsyncWebRequest.java:401)
+	at java.base/java.io.InputStream.transferTo(InputStream.java:783)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeContent(ResourceHttpMessageConverter.java:160)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:115)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:46)
+	at org.springframework.http.converter.AbstractHttpMessageConverter.write(AbstractHttpMessageConverter.java:235)
+	at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor.writeWithMessageConverters(AbstractMessageConverterMethodProcessor.java:344)
+	at org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor.handleReturnValue(HttpEntityMethodProcessor.java:263)
+	at org.springframework.web.servlet.mvc.method.annotation.ResponseEntityReturnValueHandler.handleReturnValue(ResponseEntityReturnValueHandler.java:79)
+	at org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue(HandlerMethodReturnValueHandlerComposite.java:78)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+25-09-24 11:25:43.571 [http-nio-8080-exec-8] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 사용자 수정 대상 조회 완료 - 사용자ID: 6142a6e1-8019-470d-861c-368ef0ebb5e9, 기존 username: winter, 기존 email: winter1@codeit.com
+25-09-24 11:25:47.803 [http-nio-8080-exec-10] [33mWARN [0;39m o.a.coyote.http11.Http11Processor    - The HTTP response header [Content-Disposition] with value [attachment; filename="다운로드.jpg"] has been removed from the response because it is invalid
+java.lang.IllegalArgumentException: The Unicode character [다] at code point [45,796] cannot be encoded as it is outside the permitted range of 0 to 255
+	at org.apache.tomcat.util.buf.MessageBytes.toBytesSimple(MessageBytes.java:310)
+	at org.apache.tomcat.util.buf.MessageBytes.toBytes(MessageBytes.java:283)
+	at org.apache.coyote.http11.Http11OutputBuffer.write(Http11OutputBuffer.java:400)
+	at org.apache.coyote.http11.Http11OutputBuffer.sendHeader(Http11OutputBuffer.java:379)
+	at org.apache.coyote.http11.Http11Processor.writeHeaders(Http11Processor.java:1067)
+	at org.apache.coyote.http11.Http11Processor.prepareResponse(Http11Processor.java:1054)
+	at org.apache.coyote.AbstractProcessor.action(AbstractProcessor.java:377)
+	at org.apache.coyote.Response.action(Response.java:208)
+	at org.apache.coyote.http11.Http11OutputBuffer.doWrite(Http11OutputBuffer.java:187)
+	at org.apache.coyote.Response.doWrite(Response.java:628)
+	at org.apache.catalina.connector.OutputBuffer.realWriteBytes(OutputBuffer.java:330)
+	at org.apache.catalina.connector.OutputBuffer.flushByteBuffer(OutputBuffer.java:777)
+	at org.apache.catalina.connector.OutputBuffer.append(OutputBuffer.java:674)
+	at org.apache.catalina.connector.OutputBuffer.writeBytes(OutputBuffer.java:377)
+	at org.apache.catalina.connector.OutputBuffer.write(OutputBuffer.java:355)
+	at org.apache.catalina.connector.CoyoteOutputStream.write(CoyoteOutputStream.java:102)
+	at org.springframework.web.context.request.async.StandardServletAsyncWebRequest$LifecycleServletOutputStream.write(StandardServletAsyncWebRequest.java:401)
+	at java.base/java.io.InputStream.transferTo(InputStream.java:783)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeContent(ResourceHttpMessageConverter.java:160)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:115)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:46)
+	at org.springframework.http.converter.AbstractHttpMessageConverter.write(AbstractHttpMessageConverter.java:235)
+	at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor.writeWithMessageConverters(AbstractMessageConverterMethodProcessor.java:344)
+	at org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor.handleReturnValue(HttpEntityMethodProcessor.java:263)
+	at org.springframework.web.servlet.mvc.method.annotation.ResponseEntityReturnValueHandler.handleReturnValue(ResponseEntityReturnValueHandler.java:79)
+	at org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue(HandlerMethodReturnValueHandlerComposite.java:78)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+25-09-24 11:26:06.100 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Commencing graceful shutdown. Waiting for active requests to complete
+25-09-24 11:26:06.843 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Graceful shutdown complete
+25-09-24 11:26:06.851 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-09-24 11:26:06.894 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown initiated...
+25-09-24 11:26:06.897 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown completed.
+25-09-24 14:37:36.345 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  - HV000001: Hibernate Validator 8.0.2.Final
+25-09-24 14:37:36.401 [restartedMain] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Starting DiscodeitApplication using Java 17.0.14 with PID 30312 (C:\Users\user\IdeaProjects\5-sprint-mission\build\classes\java\main started by user in C:\Users\user\IdeaProjects\5-sprint-mission)
+25-09-24 14:37:36.401 [restartedMain] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - The following 1 profile is active: "prod"
+25-09-24 14:37:36.451 [restartedMain] [32mINFO [0;39m o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+25-09-24 14:37:36.452 [restartedMain] [32mINFO [0;39m o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+25-09-24 14:37:37.380 [restartedMain] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+25-09-24 14:37:37.466 [restartedMain] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 76 ms. Found 6 JPA repository interfaces.
+25-09-24 14:37:38.143 [restartedMain] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat initialized with port 8080 (http)
+25-09-24 14:37:38.156 [restartedMain] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Initializing ProtocolHandler ["http-nio-8080"]
+25-09-24 14:37:38.157 [restartedMain] [32mINFO [0;39m o.a.catalina.core.StandardService    - Starting service [Tomcat]
+25-09-24 14:37:38.157 [restartedMain] [32mINFO [0;39m o.a.catalina.core.StandardEngine     - Starting Servlet engine: [Apache Tomcat/10.1.43]
+25-09-24 14:37:38.221 [restartedMain] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring embedded WebApplicationContext
+25-09-24 14:37:38.221 [restartedMain] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1769 ms
+25-09-24 14:37:38.309 [restartedMain] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Starting...
+25-09-24 14:37:38.594 [restartedMain] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3276b7a9
+25-09-24 14:37:38.595 [restartedMain] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Start completed.
+25-09-24 14:37:38.685 [restartedMain] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      - HHH000204: Processing PersistenceUnitInfo [name: default]
+25-09-24 14:37:38.765 [restartedMain] [32mINFO [0;39m org.hibernate.Version                - HHH000412: Hibernate ORM core version 6.6.22.Final
+25-09-24 14:37:38.813 [restartedMain] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       - HHH000026: Second-level cache disabled
+25-09-24 14:37:39.174 [restartedMain] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  - No LoadTimeWeaver setup: ignoring JPA class transformer
+25-09-24 14:37:39.272 [restartedMain] [33mWARN [0;39m org.hibernate.orm.deprecation        - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+25-09-24 14:37:39.291 [restartedMain] [32mINFO [0;39m o.hibernate.orm.connections.pooling  - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.6
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+25-09-24 14:37:39.299 [restartedMain] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(2003, org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@23e11378) replaced previous registration(org.hibernate.type.descriptor.sql.internal.ArrayDdlTypeImpl@36a6a2bd)
+25-09-24 14:37:39.299 [restartedMain] [32mDEBUG[0;39m o.h.t.d.sql.spi.DdlTypeRegistry      - addDescriptor(6, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@477ab6fa) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@911ab34)
+25-09-24 14:37:40.488 [restartedMain] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+25-09-24 14:37:40.556 [restartedMain] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+25-09-24 14:37:40.910 [restartedMain] [32mINFO [0;39m c.s.m.d.s.LocalBinaryContentStorage  - 루트 디렉토리 확인 완료: C:\var\uploads\discodeit
+25-09-24 14:37:40.954 [restartedMain] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+25-09-24 14:37:41.582 [restartedMain] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+25-09-24 14:37:41.950 [restartedMain] [32mINFO [0;39m o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:postgresql://localhost:5432/discodeit'
+25-09-24 14:37:42.028 [restartedMain] [32mINFO [0;39m o.s.b.d.a.OptionalLiveReloadServer   - LiveReload server is running on port 35729
+25-09-24 14:37:42.053 [restartedMain] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  - Starting ProtocolHandler ["http-nio-8080"]
+25-09-24 14:37:42.081 [restartedMain] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     - Tomcat started on port 8080 (http) with context path '/'
+25-09-24 14:37:42.091 [restartedMain] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication - Started DiscodeitApplication in 6.364 seconds (process running for 7.165)
+25-09-24 14:37:43.904 [http-nio-8080-exec-2] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   - Initializing Spring DispatcherServlet 'dispatcherServlet'
+25-09-24 14:37:43.904 [http-nio-8080-exec-2] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    - Initializing Servlet 'dispatcherServlet'
+25-09-24 14:37:43.907 [http-nio-8080-exec-2] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    - Completed initialization in 3 ms
+25-09-24 14:37:51.590 [http-nio-8080-exec-8] [33mWARN [0;39m o.a.coyote.http11.Http11Processor    - The HTTP response header [Content-Disposition] with value [attachment; filename="다운로드.jpg"] has been removed from the response because it is invalid
+java.lang.IllegalArgumentException: The Unicode character [다] at code point [45,796] cannot be encoded as it is outside the permitted range of 0 to 255
+	at org.apache.tomcat.util.buf.MessageBytes.toBytesSimple(MessageBytes.java:310)
+	at org.apache.tomcat.util.buf.MessageBytes.toBytes(MessageBytes.java:283)
+	at org.apache.coyote.http11.Http11OutputBuffer.write(Http11OutputBuffer.java:400)
+	at org.apache.coyote.http11.Http11OutputBuffer.sendHeader(Http11OutputBuffer.java:379)
+	at org.apache.coyote.http11.Http11Processor.writeHeaders(Http11Processor.java:1067)
+	at org.apache.coyote.http11.Http11Processor.prepareResponse(Http11Processor.java:1054)
+	at org.apache.coyote.AbstractProcessor.action(AbstractProcessor.java:377)
+	at org.apache.coyote.Response.action(Response.java:208)
+	at org.apache.coyote.http11.Http11OutputBuffer.doWrite(Http11OutputBuffer.java:187)
+	at org.apache.coyote.Response.doWrite(Response.java:628)
+	at org.apache.catalina.connector.OutputBuffer.realWriteBytes(OutputBuffer.java:330)
+	at org.apache.catalina.connector.OutputBuffer.flushByteBuffer(OutputBuffer.java:777)
+	at org.apache.catalina.connector.OutputBuffer.append(OutputBuffer.java:674)
+	at org.apache.catalina.connector.OutputBuffer.writeBytes(OutputBuffer.java:377)
+	at org.apache.catalina.connector.OutputBuffer.write(OutputBuffer.java:355)
+	at org.apache.catalina.connector.CoyoteOutputStream.write(CoyoteOutputStream.java:102)
+	at org.springframework.web.context.request.async.StandardServletAsyncWebRequest$LifecycleServletOutputStream.write(StandardServletAsyncWebRequest.java:401)
+	at java.base/java.io.InputStream.transferTo(InputStream.java:783)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeContent(ResourceHttpMessageConverter.java:160)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:115)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:46)
+	at org.springframework.http.converter.AbstractHttpMessageConverter.write(AbstractHttpMessageConverter.java:235)
+	at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor.writeWithMessageConverters(AbstractMessageConverterMethodProcessor.java:344)
+	at org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor.handleReturnValue(HttpEntityMethodProcessor.java:263)
+	at org.springframework.web.servlet.mvc.method.annotation.ResponseEntityReturnValueHandler.handleReturnValue(ResponseEntityReturnValueHandler.java:79)
+	at org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue(HandlerMethodReturnValueHandlerComposite.java:78)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+25-09-24 14:37:58.914 [http-nio-8080-exec-4] [33mWARN [0;39m o.a.coyote.http11.Http11Processor    - The HTTP response header [Content-Disposition] with value [attachment; filename="다운로드.jpg"] has been removed from the response because it is invalid
+java.lang.IllegalArgumentException: The Unicode character [다] at code point [45,796] cannot be encoded as it is outside the permitted range of 0 to 255
+	at org.apache.tomcat.util.buf.MessageBytes.toBytesSimple(MessageBytes.java:310)
+	at org.apache.tomcat.util.buf.MessageBytes.toBytes(MessageBytes.java:283)
+	at org.apache.coyote.http11.Http11OutputBuffer.write(Http11OutputBuffer.java:400)
+	at org.apache.coyote.http11.Http11OutputBuffer.sendHeader(Http11OutputBuffer.java:379)
+	at org.apache.coyote.http11.Http11Processor.writeHeaders(Http11Processor.java:1067)
+	at org.apache.coyote.http11.Http11Processor.prepareResponse(Http11Processor.java:1054)
+	at org.apache.coyote.AbstractProcessor.action(AbstractProcessor.java:377)
+	at org.apache.coyote.Response.action(Response.java:208)
+	at org.apache.coyote.http11.Http11OutputBuffer.doWrite(Http11OutputBuffer.java:187)
+	at org.apache.coyote.Response.doWrite(Response.java:628)
+	at org.apache.catalina.connector.OutputBuffer.realWriteBytes(OutputBuffer.java:330)
+	at org.apache.catalina.connector.OutputBuffer.flushByteBuffer(OutputBuffer.java:777)
+	at org.apache.catalina.connector.OutputBuffer.append(OutputBuffer.java:674)
+	at org.apache.catalina.connector.OutputBuffer.writeBytes(OutputBuffer.java:377)
+	at org.apache.catalina.connector.OutputBuffer.write(OutputBuffer.java:355)
+	at org.apache.catalina.connector.CoyoteOutputStream.write(CoyoteOutputStream.java:102)
+	at org.springframework.web.context.request.async.StandardServletAsyncWebRequest$LifecycleServletOutputStream.write(StandardServletAsyncWebRequest.java:401)
+	at java.base/java.io.InputStream.transferTo(InputStream.java:783)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeContent(ResourceHttpMessageConverter.java:160)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:115)
+	at org.springframework.http.converter.ResourceHttpMessageConverter.writeInternal(ResourceHttpMessageConverter.java:46)
+	at org.springframework.http.converter.AbstractHttpMessageConverter.write(AbstractHttpMessageConverter.java:235)
+	at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor.writeWithMessageConverters(AbstractMessageConverterMethodProcessor.java:344)
+	at org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor.handleReturnValue(HttpEntityMethodProcessor.java:263)
+	at org.springframework.web.servlet.mvc.method.annotation.ResponseEntityReturnValueHandler.handleReturnValue(ResponseEntityReturnValueHandler.java:79)
+	at org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue(HandlerMethodReturnValueHandlerComposite.java:78)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+25-09-24 14:38:25.696 [http-nio-8080-exec-3] [32mINFO [0;39m c.s.m.d.controller.UserController    - 사용자 수정 API 요청 - 사용자ID: 60c4765b-a19a-4306-b0dc-90f62d6be005, 새 username: null, 새 email: null, 프로필: 변경됨
+25-09-24 14:38:25.700 [http-nio-8080-exec-3] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 사용자 수정 대상 조회 완료 - 사용자ID: 60c4765b-a19a-4306-b0dc-90f62d6be005, 기존 username: winter2, 기존 email: winter2@codeit.com
+25-09-24 14:38:25.709 [http-nio-8080-exec-3] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 사용자 수정 중복 검사 통과 - 사용자ID: 60c4765b-a19a-4306-b0dc-90f62d6be005, 새 username: null, 새 email: null
+25-09-24 14:38:25.710 [http-nio-8080-exec-3] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 기존 프로필 이미지 삭제 시작 - 사용자ID: 60c4765b-a19a-4306-b0dc-90f62d6be005, 프로필ID: 55210a4f-d78e-46da-9123-3b4a65792d0a
+25-09-24 14:38:25.714 [http-nio-8080-exec-3] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 기존 프로필 이미지 삭제 완료 - 프로필ID: 55210a4f-d78e-46da-9123-3b4a65792d0a
+25-09-24 14:38:25.723 [http-nio-8080-exec-3] [32mINFO [0;39m c.s.m.d.s.LocalBinaryContentStorage  - 파일 저장 완료: C:\var\uploads\discodeit\ea53e536-f535-4a89-9f1c-00c86a7d8505
+25-09-24 14:38:25.724 [http-nio-8080-exec-3] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 새 프로필 이미지 저장 완료 - 사용자ID: 60c4765b-a19a-4306-b0dc-90f62d6be005, 프로필ID: ea53e536-f535-4a89-9f1c-00c86a7d8505
+25-09-24 14:38:25.725 [http-nio-8080-exec-3] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 사용자 정보 수정 저장 완료 - 사용자ID: 60c4765b-a19a-4306-b0dc-90f62d6be005, username: winter2, email: winter2@codeit.com
+25-09-24 14:38:25.725 [http-nio-8080-exec-3] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     - 사용자 수정 프로세스 완료 - 사용자ID: 60c4765b-a19a-4306-b0dc-90f62d6be005, 최종 username: winter2, 최종 email: winter2@codeit.com
+25-09-24 14:38:25.738 [http-nio-8080-exec-3] [32mINFO [0;39m c.s.m.d.controller.UserController    - 사용자 수정 API 성공 - 사용자ID: 60c4765b-a19a-4306-b0dc-90f62d6be005, 최종 username: winter2, 응답코드: 200
+25-09-24 14:38:57.220 [http-nio-8080-exec-8] [32mINFO [0;39m c.s.m.d.controller.ChannelController - 개인 채널 생성 API 요청 - 참여자 수: 2명
+25-09-24 14:38:57.221 [http-nio-8080-exec-8] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 개인 채널 생성 요청 - 참여자 수: 2명
+25-09-24 14:38:57.251 [http-nio-8080-exec-8] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 개인 채널 참여자 검증 완료 - 참여자 수: 2명
+25-09-24 14:38:57.254 [http-nio-8080-exec-8] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 개인 채널 기본 정보 저장 완료 - 채널ID: 7d6863da-df4d-453d-a22c-c9963916b562
+25-09-24 14:38:57.256 [http-nio-8080-exec-8] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 개인 채널 참여자 설정 완료 - 채널ID: 7d6863da-df4d-453d-a22c-c9963916b562, 처리된 참여자: 2명
+25-09-24 14:38:57.263 [http-nio-8080-exec-8] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 개인 채널 생성 완료 - 채널ID: 7d6863da-df4d-453d-a22c-c9963916b562, 참여자: 2명
+25-09-24 14:38:57.264 [http-nio-8080-exec-8] [32mINFO [0;39m c.s.m.d.controller.ChannelController - 개인 채널 생성 API 성공 - 채널ID: 7d6863da-df4d-453d-a22c-c9963916b562, 참여자 수: 2명, 응답코드: 201
+25-09-24 14:39:17.470 [http-nio-8080-exec-7] [32mINFO [0;39m c.s.m.d.controller.ChannelController - 개인 채널 생성 API 요청 - 참여자 수: 3명
+25-09-24 14:39:17.471 [http-nio-8080-exec-7] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 개인 채널 생성 요청 - 참여자 수: 3명
+25-09-24 14:39:17.473 [http-nio-8080-exec-7] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 개인 채널 참여자 검증 완료 - 참여자 수: 3명
+25-09-24 14:39:17.474 [http-nio-8080-exec-7] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 개인 채널 기본 정보 저장 완료 - 채널ID: e7260ef6-e073-4399-b7a5-76365fa6d176
+25-09-24 14:39:17.476 [http-nio-8080-exec-7] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 개인 채널 참여자 설정 완료 - 채널ID: e7260ef6-e073-4399-b7a5-76365fa6d176, 처리된 참여자: 3명
+25-09-24 14:39:17.483 [http-nio-8080-exec-7] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 개인 채널 생성 완료 - 채널ID: e7260ef6-e073-4399-b7a5-76365fa6d176, 참여자: 3명
+25-09-24 14:39:17.490 [http-nio-8080-exec-7] [32mINFO [0;39m c.s.m.d.controller.ChannelController - 개인 채널 생성 API 성공 - 채널ID: e7260ef6-e073-4399-b7a5-76365fa6d176, 참여자 수: 3명, 응답코드: 201
+25-09-24 14:41:38.212 [http-nio-8080-exec-9] [32mINFO [0;39m c.s.m.d.controller.ChannelController - 공개 채널 생성 API 요청 - name: testChannel, description: log 테스트용 채널입니다
+25-09-24 14:41:38.212 [http-nio-8080-exec-9] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 공개 채널 생성 요청 - name: testChannel
+25-09-24 14:41:38.213 [http-nio-8080-exec-9] [32mINFO [0;39m c.s.m.d.s.basic.BasicChannelService  - 공개 채널 생성 완료 - 채널ID: 7717abaf-df9a-4539-afb7-a8d760d73381, name: testChannel
+25-09-24 14:41:38.215 [http-nio-8080-exec-9] [32mINFO [0;39m c.s.m.d.controller.ChannelController - 공개 채널 생성 API 성공 - 채널ID: 7717abaf-df9a-4539-afb7-a8d760d73381, name: testChannel, 응답코드: 201
+25-09-24 14:42:07.136 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Commencing graceful shutdown. Waiting for active requests to complete
+25-09-24 14:42:07.656 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    - Graceful shutdown complete
+25-09-24 14:42:07.671 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+25-09-24 14:42:07.673 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown initiated...
+25-09-24 14:42:07.677 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   - HikariPool-1 - Shutdown completed.

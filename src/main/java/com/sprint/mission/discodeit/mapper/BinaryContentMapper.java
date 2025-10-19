@@ -6,10 +6,6 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface BinaryContentMapper {
-//    UUID id,
-//    String fileName,
-//    Long size,
-//    String contentType
 
-    BinaryContentDto toDto(BinaryContent binaryContent);
+  BinaryContentDto toDto(BinaryContent binaryContent);
 }

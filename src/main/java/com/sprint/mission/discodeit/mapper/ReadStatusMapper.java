@@ -7,12 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ReadStatusMapper {
-//    UUID id,
-//    UUID userId,
-//    UUID channelId,
-//    Instant lastReadAt
 
-    @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "channelId", source = "channel.id")
-    ReadStatusDto toDto(ReadStatus readStatus);
+  @Mapping(target = "userId", source = "user.id")
+  @Mapping(target = "channelId", source = "channel.id")
+  ReadStatusDto toDto(ReadStatus readStatus);
 }

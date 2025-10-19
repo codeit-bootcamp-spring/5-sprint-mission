@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.dto.request;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 
-@Schema(name = "PublicChannelUpdateRequest", description = "수정할 Channel 정보")
 public record PublicChannelUpdateRequest(
-        @Schema(description = "새 채널명")
-        String newName,
-        @Schema(description = "새 채널 설명")
-        String newDescription
+    @Size(min = 2, max = 50, message = "채널명은 2자 이상 50자 이하여야 합니다")
+    String newName,
+    
+    @Size(max = 255, message = "채널 설명은 255자 이하여야 합니다")
+    String newDescription
 ) {
+
 }

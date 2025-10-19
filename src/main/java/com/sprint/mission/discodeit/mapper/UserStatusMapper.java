@@ -7,10 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserStatusMapper {
-//    UUID id,
-//    UUID userId,
-//    Instant lastActiveAt
 
-    @Mapping(target = "userId", source = "user.id")
-    UserStatusDto toDto(UserStatus userStatus);
+  @Mapping(target = "userId", source = "user.id")
+  UserStatusDto toDto(UserStatus userStatus);
 }

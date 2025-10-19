@@ -1,123 +1,126 @@
-DROP TABLE IF EXISTS message_attachments CASCADE;
-DROP TABLE IF EXISTS read_statuses CASCADE;
-DROP TABLE IF EXISTS user_statuses CASCADE;
-DROP TABLE IF EXISTS messages CASCADE;
-DROP TABLE IF EXISTS channels CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS binary_contents CASCADE;
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- ===== 테이블 생성 (외래 키 제약 조건 없이) =====
-
--- 기본 테이블들 먼저 생성
-CREATE TABLE binary_contents (
-    id            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    created_at    timestamptz NOT NULL,
-    file_name     varchar(255) NOT NULL,
-    size          bigint NOT NULL,
-    content_type  varchar(100) NOT NULL
---     bytes         bytea NOT NULL  -- 필요에 따라 제거 가능
+-- 테이블
+-- User
+CREATE TABLE users
+(
+    id         uuid PRIMARY KEY,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone,
+    username   varchar(50) UNIQUE       NOT NULL,
+    email      varchar(100) UNIQUE      NOT NULL,
+    password   varchar(60)              NOT NULL,
+    profile_id uuid
 );
 
-CREATE TABLE users (
-    id           uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    created_at   timestamptz NOT NULL,
-    updated_at   timestamptz,
-    username     varchar(50)  UNIQUE NOT NULL,
-    email        varchar(100) UNIQUE NOT NULL,
-    password     varchar(60)  NOT NULL,
-    profile_id   uuid
+-- BinaryContent
+CREATE TABLE binary_contents
+(
+    id           uuid PRIMARY KEY,
+    created_at   timestamp with time zone NOT NULL,
+    file_name    varchar(255)             NOT NULL,
+    size         bigint                   NOT NULL,
+    content_type varchar(100)             NOT NULL
+--     ,bytes        bytea        NOT NULL
 );
 
-CREATE TABLE channels (
-    id           uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    created_at   timestamptz NOT NULL,
-    updated_at   timestamptz,
-    name         varchar(100),
-    description  varchar(500),
-    type         varchar(10) NOT NULL CHECK (type IN ('PUBLIC', 'PRIVATE'))
+-- UserStatus
+CREATE TABLE user_statuses
+(
+    id             uuid PRIMARY KEY,
+    created_at     timestamp with time zone NOT NULL,
+    updated_at     timestamp with time zone,
+    user_id        uuid UNIQUE              NOT NULL,
+    last_active_at timestamp with time zone NOT NULL
 );
 
-CREATE TABLE messages (
-    id           uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    created_at   timestamptz NOT NULL,
-    updated_at   timestamptz,
-    content      text,
-    channel_id   uuid NOT NULL,
-    author_id    uuid
+-- Channel
+CREATE TABLE channels
+(
+    id          uuid PRIMARY KEY,
+    created_at  timestamp with time zone NOT NULL,
+    updated_at  timestamp with time zone,
+    name        varchar(100),
+    description varchar(500),
+    type        varchar(10)              NOT NULL
 );
 
-CREATE TABLE user_statuses (
-    id             uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    created_at     timestamptz NOT NULL,
-    updated_at     timestamptz,
-    user_id        uuid UNIQUE NOT NULL,
-    last_active_at timestamptz NOT NULL
+-- Message
+CREATE TABLE messages
+(
+    id         uuid PRIMARY KEY,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone,
+    content    text,
+    channel_id uuid                     NOT NULL,
+    author_id  uuid
 );
 
-CREATE TABLE read_statuses (
-    id            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    created_at    timestamptz NOT NULL,
-    updated_at    timestamptz,
-    user_id       uuid NOT NULL,
-    channel_id    uuid NOT NULL,
-    last_read_at  timestamptz NOT NULL,
-    UNIQUE (user_id, channel_id)
-);
-
-CREATE TABLE message_attachments (
+-- Message.attachments
+CREATE TABLE message_attachments
+(
     message_id    uuid,
     attachment_id uuid,
     PRIMARY KEY (message_id, attachment_id)
 );
 
--- ===== 외래 키 제약 조건 추가 =====
+-- ReadStatus
+CREATE TABLE read_statuses
+(
+    id           uuid PRIMARY KEY,
+    created_at   timestamp with time zone NOT NULL,
+    updated_at   timestamp with time zone,
+    user_id      uuid                     NOT NULL,
+    channel_id   uuid                     NOT NULL,
+    last_read_at timestamp with time zone NOT NULL,
+    UNIQUE (user_id, channel_id)
+);
 
--- User -> BinaryContent (profile)
+
+-- 제약 조건
+-- User (1) -> BinaryContent (1)
 ALTER TABLE users
-    ADD CONSTRAINT fk_users_profile
-        FOREIGN KEY (profile_id) REFERENCES binary_contents(id)
+    ADD CONSTRAINT fk_user_binary_content
+        FOREIGN KEY (profile_id)
+            REFERENCES binary_contents (id)
             ON DELETE SET NULL;
 
--- UserStatus -> User
+-- UserStatus (1) -> User (1)
 ALTER TABLE user_statuses
-    ADD CONSTRAINT fk_user_statuses_user
-        FOREIGN KEY (user_id) REFERENCES users(id)
+    ADD CONSTRAINT fk_user_status_user
+        FOREIGN KEY (user_id)
+            REFERENCES users (id)
             ON DELETE CASCADE;
 
--- Message -> Channel
+-- Message (N) -> Channel (1)
 ALTER TABLE messages
-    ADD CONSTRAINT fk_messages_channel
-        FOREIGN KEY (channel_id) REFERENCES channels(id)
+    ADD CONSTRAINT fk_message_channel
+        FOREIGN KEY (channel_id)
+            REFERENCES channels (id)
             ON DELETE CASCADE;
 
--- Message -> User (author)
+-- Message (N) -> Author (1)
 ALTER TABLE messages
-    ADD CONSTRAINT fk_messages_author
-        FOREIGN KEY (author_id) REFERENCES users(id)
+    ADD CONSTRAINT fk_message_user
+        FOREIGN KEY (author_id)
+            REFERENCES users (id)
             ON DELETE SET NULL;
 
--- ReadStatus -> User
-ALTER TABLE read_statuses
-    ADD CONSTRAINT fk_read_statuses_user
-        FOREIGN KEY (user_id) REFERENCES users(id)
-            ON DELETE CASCADE;
-
--- ReadStatus -> Channel
-ALTER TABLE read_statuses
-    ADD CONSTRAINT fk_read_statuses_channel
-        FOREIGN KEY (channel_id) REFERENCES channels(id)
-            ON DELETE CASCADE;
-
--- MessageAttachment -> Message
+-- MessageAttachment (1) -> BinaryContent (1)
 ALTER TABLE message_attachments
-    ADD CONSTRAINT fk_message_attachments_message
-        FOREIGN KEY (message_id) REFERENCES messages(id)
+    ADD CONSTRAINT fk_message_attachment_binary_content
+        FOREIGN KEY (attachment_id)
+            REFERENCES binary_contents (id)
             ON DELETE CASCADE;
 
--- MessageAttachment -> BinaryContent
-ALTER TABLE message_attachments
-    ADD CONSTRAINT fk_message_attachments_attachment
-        FOREIGN KEY (attachment_id) REFERENCES binary_contents(id)
+-- ReadStatus (N) -> User (1)
+ALTER TABLE read_statuses
+    ADD CONSTRAINT fk_read_status_user
+        FOREIGN KEY (user_id)
+            REFERENCES users (id)
+            ON DELETE CASCADE;
+
+-- ReadStatus (N) -> User (1)
+ALTER TABLE read_statuses
+    ADD CONSTRAINT fk_read_status_channel
+        FOREIGN KEY (channel_id)
+            REFERENCES channels (id)
             ON DELETE CASCADE;
