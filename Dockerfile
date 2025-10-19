@@ -16,7 +16,6 @@ RUN ./gradlew clean bootJar -x test
 FROM amazoncorretto:17-alpine
 WORKDIR /app
 
-# (요구사항) 프로젝트 정보 & JVM 옵션 환경 변수
 #  - 실행할 jar 이름을 이 값으로 조합합니다.
 ENV PROJECT_NAME=discodeit \
     PROJECT_VERSION=1.2-M8 \
