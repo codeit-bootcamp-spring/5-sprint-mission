@@ -76,6 +76,7 @@ public class ChannelController {
     return ResponseEntity.ok(updated); // 최신 dto 응답
   }
 
+
   //채널 삭제
   @Operation(summary = "채널 삭제")
   @DeleteMapping("/api/channels/{channelId}")
