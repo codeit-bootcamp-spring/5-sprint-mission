@@ -1,0 +1,73 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    container_name: discodeit
+    ports:
+      - "8081:80"
+    environment:
+      STORAGE_TYPE: s3
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION}
+    volumes:
+      - ./BinaryContentStorage:/app/BinaryContentStorage
+    depends_on:
+      - postgres
+    restart: always
+
+  postgres:
+    image: postgres:15
+    container_name: discodeit-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    restart: always
+
+volumes:
+  postgres_data:
+
+# 이미지 빌드 ( Dockerfile 기준 )
+#docker-compose build
+
+# 컨테이너 실행( 백그라운드 모드 )
+#docker-compose up -d
+
+# 컨테이너를 실행하는데 이미지를 먼저 빌드하고 실행
+#docker-compose up -d --build
+
+
+
+#services:
+#  file-management-app:
+#    build: .
+#    ports: ["8081:80"]
+#    environment:
+#      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default}
+#      DB_HOST: ${DB_HOST}
+#      DB_PORT: ${DB_PORT}
+#      DB_NAME: ${DB_NAME}
+#      DB_USERNAME: ${DB_USERNAME}
+#      DB_PASSWORD: ${DB_PASSWORD}
+#      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+#      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+#      AWS_REGION: ${AWS_REGION}
+#      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+#    restart: always
+
+#  docker-compose build
+#  docker-compose up -d

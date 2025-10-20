@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
@@ -22,7 +24,9 @@ public class AuthController implements AuthApi {
 
   @PostMapping(path = "login")
   public ResponseEntity<UserDto> login(@RequestBody @Valid LoginRequest loginRequest) {
+    log.info("로그인 요청: username={}", loginRequest.username());
     UserDto user = authService.login(loginRequest);
+    log.debug("로그인 응답: {}", user);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(user);
