@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RequiredArgsConstructor // Lombok 어노테이션: final 필드를 자동으로 생성자 주입해줌
 @RestController // REST API 컨트롤러임을 나타냄
 @RequestMapping("/api/messages") // 모든 메서드가 "/api/messages" 경로를 기반으로 실행됨
@@ -48,6 +50,9 @@ public class MessageController implements MessageApi {
             // 첨부파일 리스트 (선택적으로 받을 수 있음)
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
+        log.info("메시지 생성 요청: request={}, attachmentCount={}",
+                messageCreateRequest, attachments != null ? attachments.size() : 0);
+
         // 첨부파일이 존재한다면 BinaryContentCreateRequest 리스트로 변환, 없으면 빈 리스트 생성
         List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
                 .map(files -> files.stream()
@@ -70,6 +75,8 @@ public class MessageController implements MessageApi {
         // 서비스 계층을 통해 메시지 생성
         MessageDto createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
 
+        log.debug("메시지 생성 응답: {}", createdMessage);
+
         // 생성된 메시지를 201 CREATED 상태 코드와 함께 응답
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -78,10 +85,15 @@ public class MessageController implements MessageApi {
 
     // 메시지 수정 API (특정 메시지 ID 기반)
     @PatchMapping(path = "{messageId}")
-    public ResponseEntity<MessageDto> update(@PathVariable("messageId") UUID messageId,
-                                             @RequestBody MessageUpdateRequest request) {
+    public ResponseEntity<MessageDto> update(
+            @PathVariable("messageId") UUID messageId,
+            @RequestBody MessageUpdateRequest request) {
+
+        log.info("메시지 수정 요청: id={}, request={}", messageId, request);
+
         // 서비스 계층에서 메시지 수정 처리
         MessageDto updatedMessage = messageService.update(messageId, request);
+        log.debug("메시지 수정 응답: {}", updatedMessage);
 
         // 수정된 메시지를 200 OK 상태 코드와 함께 응답
         return ResponseEntity
@@ -92,8 +104,11 @@ public class MessageController implements MessageApi {
     // 메시지 삭제 API (특정 메시지 ID 기반)
     @DeleteMapping(path = "{messageId}")
     public ResponseEntity<Void> delete(@PathVariable("messageId") UUID messageId) {
+        log.info("메시지 삭제 요청: id={}", messageId);
         // 서비스 계층에서 메시지 삭제 처리
         messageService.delete(messageId);
+
+        log.debug("메시지 삭제 완료");
 
         // 204 No Content 상태 코드로 응답 (본문 없음)
         return ResponseEntity
@@ -115,9 +130,14 @@ public class MessageController implements MessageApi {
                     sort = "createdAt",
                     direction = Direction.DESC
             ) Pageable pageable) {
+        log.info("채널별 메시지 목록 조회 요청: channelId={}, cursor={}, pageable={}",
+                channelId, cursor, pageable);
+
         // 서비스 계층에서 메시지 조회
         PageResponse<MessageDto> messages = messageService.findAllByChannelId(channelId, cursor,
                 pageable);
+
+        log.debug("채널별 메시지 목록 조회 응답: totalElements={}", messages.totalElements());
 
         // 조회된 메시지 페이지를 200 OK 상태 코드와 함께 응답
         return ResponseEntity
