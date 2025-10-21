@@ -31,7 +31,7 @@ public class BinaryContentService {
         contentType
     );
     binaryContentRepository.save(binaryContent);
-    binaryContentStorage.put(binaryContent.getId(), bytes);
+    binaryContentStorage.upload(binaryContent.getId(), bytes);
 
     return binaryContentMapper.toDto(binaryContent);
   }

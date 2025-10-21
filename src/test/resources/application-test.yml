@@ -1,4 +1,9 @@
 spring:
+  boot:
+    admin:
+      client:
+        enabled: false
+
   h2:
     console:
       enabled: true

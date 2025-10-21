@@ -10,7 +10,7 @@ springBoot {
 }
 
 group = 'com.sprint.mission'
-version = '0.0.1-SNAPSHOT'
+version = '1.2-M8'
 
 java {
     toolchain {
@@ -54,6 +54,9 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'com.h2database:h2'
+
+    // S3
+    implementation 'software.amazon.awssdk:s3:2.25.65'
 }
 
 tasks.named('test') {

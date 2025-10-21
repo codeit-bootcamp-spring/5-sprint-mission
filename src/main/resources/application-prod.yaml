@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
 
 logging:
   level:
@@ -11,9 +11,9 @@ logging:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/discodeit
-    username: discodeit_user  # 운영 DB 계정 (예시, 실제 운영에서는 환경변수로 관리)
-    password: discodeit1234
+    url: jdbc:postgresql://postgres:5432/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
