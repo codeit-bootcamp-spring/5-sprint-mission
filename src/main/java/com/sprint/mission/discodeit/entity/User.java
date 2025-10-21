@@ -15,7 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Entity
@@ -39,7 +38,6 @@ public class User extends BaseUpdatableEntity {
   private BinaryContent profile;
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  @Setter
   private UserStatus status;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -64,5 +62,9 @@ public class User extends BaseUpdatableEntity {
     if (profile != null && !profile.equals(this.profile)) {
       this.profile = profile;
     }
+  }
+
+  public void updateStatus(UserStatus status) {
+    this.status = status;
   }
 }

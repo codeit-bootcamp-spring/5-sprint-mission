@@ -2,15 +2,11 @@ spring:
   config:
     activate:
       on-profile: prod
-  boot:
-    admin:
-      client:
-        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
-    username: discodeit_user
-    password: discodeit1234
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -30,3 +26,10 @@ logging:
     org.hibernate.SQL: off
     org.hibernate.orm.jdbc.bind: off
     org.springframework.web: info
+
+aws:
+  accessKeyId: ${AWS_S3_ACCESS_KEY}
+  secretKey: ${AWS_S3_SECRET_KEY}
+  region: ${AWS_S3_REGION}
+  bucket: ${AWS_S3_BUCKET}
+  presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)

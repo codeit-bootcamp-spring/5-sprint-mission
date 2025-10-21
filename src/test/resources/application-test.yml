@@ -1,5 +1,6 @@
 spring:
   config:
+    import: optional:file:.env[.properties]  # .env 파일 자동 로드
     activate:
       on-profile: test
   main:
@@ -23,3 +24,15 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+discodeit:
+  storage:
+    type: ${STORAGE_TYPE:s3}
+    local:
+      root-path: ./data.dir
+aws:
+  accessKeyId: ${AWS_S3_ACCESS_KEY}
+  secretKey: ${AWS_S3_SECRET_KEY}
+  region: ${AWS_S3_REGION}
+  bucket: ${AWS_S3_BUCKET}
+  presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)

@@ -7,7 +7,7 @@ import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoun
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.storage.LocalBinaryContentStorage;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BasicBinaryContentService implements BinaryContentService {
 
   private final BinaryContentRepository binaryContentRepository;
-  private final LocalBinaryContentStorage localBinaryContentStorage;
+  private final BinaryContentStorage binaryContentStorage;
   private final BinaryContentMapper binaryContentMapper;
 
   @Override
@@ -31,7 +31,7 @@ public class BasicBinaryContentService implements BinaryContentService {
       BinaryContent binaryContent = binaryContentRepository.save(
           binaryContentMapper.toEntity(create));
 
-      localBinaryContentStorage.put(binaryContent.getId(), create.getBytes());
+      binaryContentStorage.put(binaryContent.getId(), create.getBytes());
 
       return binaryContent;
     } catch (Exception e) {
@@ -48,8 +48,8 @@ public class BasicBinaryContentService implements BinaryContentService {
                                                                  id));
 
     try {
-      return binaryContentMapper.toDetail(binaryContent, localBinaryContentStorage.get(id)
-                                                                                  .readAllBytes());
+      return binaryContentMapper.toDetail(binaryContent, binaryContentStorage.get(id)
+                                                                             .readAllBytes());
     } catch (Exception e) {
       throw new BinaryContentCreateException(e.getMessage());
     }
@@ -63,8 +63,8 @@ public class BasicBinaryContentService implements BinaryContentService {
                          .map(bc -> {
                            try {
                              return binaryContentMapper.toDetail(bc,
-                                 localBinaryContentStorage.get(bc.getId())
-                                                          .readAllBytes());
+                                 binaryContentStorage.get(bc.getId())
+                                                     .readAllBytes());
                            } catch (Exception e) {
                              return null;
                            }

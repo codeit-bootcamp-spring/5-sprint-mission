@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.storage;
 
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentCreateException;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,11 +18,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@ConditionalOnProperty(
-    name = "discodeit.storage.type",
-    havingValue = "local",
-    matchIfMissing = true
-)
+@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local", matchIfMissing = true)
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   private final Path root;
@@ -43,7 +40,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     try (OutputStream os = Files.newOutputStream(filePath)) {
       os.write(data);
     } catch (IOException e) {
-      throw new RuntimeException("Failed to store binary content", e);
+      throw new BinaryContentCreateException(e.getMessage());
     }
 
     log.info("Stored file : {}", id);
@@ -57,7 +54,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     try {
       return Files.newInputStream(filePath);
     } catch (IOException e) {
-      throw new RuntimeException("Failed to read binary content", e);
+      throw new BinaryContentCreateException(e.getMessage());
     }
   }
 
@@ -67,10 +64,9 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     Resource resource = new FileSystemResource(filePath.toFile());
 
     log.info("Downloading file : {}", id);
-    return ResponseEntity
-        .ok()
-        .header("Content-Disposition", "attachment; filename=\"" + id + "\"")
-        .body(resource);
+    return ResponseEntity.ok()
+                         .header("Content-Disposition", "attachment; filename=\"" + id + "\"")
+                         .body(resource);
   }
 
   private Path resolvePath(UUID id) {

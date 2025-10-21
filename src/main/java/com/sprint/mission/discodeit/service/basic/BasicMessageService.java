@@ -79,8 +79,6 @@ public class BasicMessageService implements MessageService {
 
     message.update(update.getContent());
 
-//    messageRepository.save(message);
-
     log.info("Message {} updated", message.getId());
 
     return messageMapper.toDetail(message);

@@ -1,6 +1,6 @@
 -- DROP DATABASE IF EXISTS discodeit;
 -- CREATE DATABASE discodeit ENCODING = 'UTF8';
---
+
 -- CREATE USER discodeit_user WITH ENCRYPTED PASSWORD 'discodeit1234';
 -- GRANT ALL PRIVILEGES ON DATABASE discodeit TO discodeit_user;
 --

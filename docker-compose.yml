@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  #  aws rds로 대체
+  #  db:
+  #    image: postgres:17.6
+  #    container_name: discodeit-db
+  #    environment:
+  #      POSTGRES_DB: ${POSTGRES_DB}
+  #      POSTGRES_USER: ${POSTGRES_USER}
+  #      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #    ports:
+  #      - "5433:5432" # 로컬에서 접속할 땐 localhost:5433
+  #    volumes:
+  #      - db_data:/var/lib/postgresql/data
+  #      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discodeit-app
+    #    depends_on:
+    #      - db
+    env_file:
+      - .env
+    environment:
+      TZ: ${TZ}
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      STORAGE_TYPE: s3
+      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
+      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
+      AWS_S3_REGION: ${AWS_S3_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_S3_PRESIGNED_URL_EXPIRATION: 600
+    ports:
+      - "8080:8080"
+
+#volumes:
+#  db_data:
