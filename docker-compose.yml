@@ -1,0 +1,55 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discodeit-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Spring Datasource (컨테이너 네트워크에서 db 호스트명은 서비스명 "db")
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
+      # 애플리케이션 정보 (미션 요구)
+      PROJECT_NAME: ${PROJECT_NAME}
+      PROJECT_VERSION: ${PROJECT_VERSION}
+      JVM_OPTS: ${JVM_OPTS}
+
+      # 필요시 추가(예: 스토리지 타입/루트 경로가 ENV로 오버라이드 되게 하려면)
+      # DISC ODEIT_STORAGE_TYPE: local
+      # DISC ODEIT_STORAGE_LOCAL_ROOT_PATH: /app/.discodeit/storage
+
+      # 프로필을 여기서도 강제 가능 (CMD에서 이미 prod로 지정했으므로 선택)
+      # SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8081:80"  # 호스트 8081 -> 컨테이너 80
+    volumes:
+      # 로컬 파일 저장소 영속화 (BinaryContentStorage)
+      - discodeit_storage:/app/.discodeit/storage
+
+  db:
+    image: postgres:15-alpine
+    container_name: discodeit-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      # schema.sql 자동 실행
+      - ./schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+
+volumes:
+  pg_data:
+  discodeit_storage:
