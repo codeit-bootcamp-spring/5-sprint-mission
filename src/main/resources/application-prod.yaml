@@ -1,9 +1,13 @@
+server:
+  port: 8081
+  address: 0.0.0.0
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/discodeit
-    username: postgres
-    password: 1234
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -19,9 +23,8 @@ logging:
     com.discodeit: info
 
 info:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
-    ddl-auto: validate
   storage:
-    type: local
-    path: ${STORAGE_ROOT_PATH}
+    path: ${FILE_UPLOAD_DIR}
+
+file:
+  upload-dir: ${FILE_UPLOAD_DIR}

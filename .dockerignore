@@ -1,0 +1,8 @@
+# .dockerignore
+.git
+.gradle
+build
+.env
+*.iml
+*.log
+.DS_Store

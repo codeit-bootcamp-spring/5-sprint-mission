@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${DEV.DB_URL}
-    username: ${DEV.DB_USERNAME}
-    password: ${DEV.DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -11,7 +11,7 @@ spring:
   boot:
     admin:
       client:
-        url: http://localhost:9090
+        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
 
 logging:
   level:
@@ -22,7 +22,7 @@ logging:
 
 info:
   datasource:
-    url: ${DEV.DB_URL}
+    url: ${SPRING_DATASOURCE_URL}
     ddl-auto: update
   storage:
     type: local
