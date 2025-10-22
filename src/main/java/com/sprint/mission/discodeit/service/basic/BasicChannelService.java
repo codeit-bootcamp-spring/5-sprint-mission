@@ -9,18 +9,20 @@ import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
-import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +30,7 @@ import org.springframework.validation.annotation.Validated;
 @Service("channelService")
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class BasicChannelService implements ChannelService {
 
   private final ChannelRepository channelRepository;
@@ -38,48 +41,58 @@ public class BasicChannelService implements ChannelService {
 
   @Override
   @Transactional
-  public ChannelDto create(@Valid PublicChannelCreateRequest request) {
+  public ChannelDto create(PublicChannelCreateRequest request) {
+    log.debug("[ChannelService#create(public)] try request={}", request);
+
     Channel channel = channelRepository.save(new Channel(
         ChannelType.PUBLIC,
         request.name(),
         request.description()));
 
-    return channelMapper.toDto(
+    ChannelDto dto = channelMapper.toDto(
         channel,
         findParticipants(channel.getId()),
         findLastMessageAt(channel.getId()));
+
+    log.info("[ChannelService#create(public)] Channel created: {}", dto.forLog());
+
+    return dto;
   }
 
   @Override
   @Transactional
-  public ChannelDto create(@Valid PrivateChannelCreateRequest request) {
+  public ChannelDto create(PrivateChannelCreateRequest request) {
+    log.debug("[ChannelService#create(private)] try request={}", request);
 
     List<User> participants = request.participantIds()
         .stream()
         .map(userId -> userRepository.findById(userId)
-            .orElseThrow(() -> new NoSuchElementException("User not found [" + userId + "]"))
-        )
+            .orElseThrow(() -> new UserNotFoundException().addDetail("userId", userId)))
         .toList();
 
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
     channelRepository.save(channel);
 
     for (User user : participants) {
-      readStatusRepository.save(
+      ReadStatus readStatus = readStatusRepository.save(
           new ReadStatus(channel.getCreatedAt(), user, channel));
+      log.debug("[ChannelService#create(private)] ReadStatus created: readStatusId={}",
+          readStatus.getId());
     }
 
-    return channelMapper.toDto(
+    ChannelDto dto = channelMapper.toDto(
         channel,
         findParticipants(channel.getId()),
         findLastMessageAt(channel.getId()));
+    log.info("[ChannelService#create(private)] Channel created: {}", dto.forLog());
+
+    return dto;
   }
 
   @Override
   @Transactional(readOnly = true)
   public ChannelDto findById(UUID channelId) {
-    Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(() -> new NoSuchElementException("Channel not found [" + channelId + "]"));
+    Channel channel = validateId(channelId);
 
     return channelMapper.toDto(channel, findParticipants(channelId), findLastMessageAt(channelId));
   }
@@ -87,53 +100,65 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional(readOnly = true)
   public List<ChannelDto> findAllByUserId(UUID userId) {
-    return channelRepository.findAll().stream()
-        .filter(channel -> (
-            readStatusRepository.findAllByUserId(userId).stream()
-                .map(readStatus -> readStatus.getChannel().getId())
-                .toList()
-                .contains(channel.getId()) && channel.getType().equals(ChannelType.PRIVATE))
-            || channel.getType().equals(ChannelType.PUBLIC))
-        .map(channel -> channelMapper.toDto(
-            channel,
-            findParticipants(channel.getId()),
-            findLastMessageAt(channel.getId())))
+    List<UUID> ids = readStatusRepository.findAllByUserId(userId).stream()
+        .map(readStatus -> readStatus.getChannel().getId())
+        .toList();
+
+    return channelRepository.findAllByIdInOrType(ids, ChannelType.PUBLIC)
+        .stream()
+        .map(channel ->
+            channelMapper.toDto(
+                channel,
+                findParticipants(channel.getId()),
+                findLastMessageAt(channel.getId())))
         .toList();
   }
 
   @Override
   @Transactional
   public ChannelDto update(UUID channelId,
-      @Valid PublicChannelUpdateRequest publicChannelUpdateRequest) {
-    Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(
-            () -> new NoSuchElementException("update : 채널을 찾을 수 없습니다. [" + channelId + "]"));
+      PublicChannelUpdateRequest request) {
+    log.debug("[ChannelService#update] try: channelId={}, request={}", channelId, request);
+    Channel channel = validateId(channelId);
+
     if (channel.getType() == ChannelType.PRIVATE) {
-      throw new IllegalArgumentException("update : Private 채널은 업데이트 할 수 없습니다. [" + channelId + "]");
+      throw new PrivateChannelUpdateException().addDetail("channelId", channelId);
     }
-    channel.update(publicChannelUpdateRequest.newName(),
-        publicChannelUpdateRequest.newDescription());
+    channel.update(request.newName(), request.newDescription());
     channelRepository.save(channel);
 
-    return channelMapper.toDto(
+    ChannelDto dto = channelMapper.toDto(
         channel,
         findParticipants(channelId),
         findLastMessageAt(channelId));
+
+    log.info("[ChannelService#update] Channel updated: {}", dto.forLog());
+
+    return dto;
   }
 
   @Override
   @Transactional
   public void delete(UUID channelId) {
-    if (!channelRepository.existsById(channelId)) {
-      throw new NoSuchElementException("delete : 채널을 찾을 수 없습니다. [" + channelId + "]");
-    }
+    log.debug("[ChannelService#delete] try channelId={}", channelId);
+    validateId(channelId);
 
     readStatusRepository.findAllByChannelId(channelId)
-        .forEach(readStatus -> readStatusRepository.deleteById(readStatus.getId()));
+        .forEach(readStatus -> {
+          readStatusRepository.deleteById(readStatus.getId());
+          log.debug("[ChannelService#delete] ReadStatus deleted: readStatusId={}",
+              readStatus.getId());
+        });
+
     messageRepository.findAll().stream()
         .filter(message -> message.getChannel().getId().equals(channelId))
-        .forEach(message -> messageRepository.deleteById(message.getId()));
+        .forEach(message -> {
+          messageRepository.deleteById(message.getId());
+          log.debug("[ChannelService#delete] Message deleted: messageId={}", message.getId());
+        });
+
     channelRepository.deleteById(channelId);
+    log.info("[ChannelService#delete] Channel deleted: channelId={}", channelId);
   }
 
   private List<User> findParticipants(UUID channelId) {
@@ -148,5 +173,10 @@ public class BasicChannelService implements ChannelService {
     return messageRepository.findTopByChannelIdOrderByCreatedAtDescIdDesc(channelId)
         .map(Message::getCreatedAt)
         .orElse(null);
+  }
+
+  private Channel validateId(UUID channelId) {
+    return channelRepository.findById(channelId)
+        .orElseThrow(() -> new ChannelNotFoundException().addDetail("channelId", channelId));
   }
 }

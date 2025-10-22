@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto;
 
+import com.sprint.mission.discodeit.log.LogUtils;
 import java.util.UUID;
 import lombok.Builder;
 
@@ -11,5 +12,15 @@ public record UserDto(
     BinaryContentDto profile,
     Boolean online
 ) {
+
+  public String forLog() {
+    return "UserDto{" +
+        "id=" + id +
+        ", username=" + username +
+        ", email=" + LogUtils.maskEmail(email) +
+        ", profile=" + LogUtils.summarizeAttachment(profile) +
+        ", online=" + online +
+        "}";
+  }
 
 }

@@ -38,4 +38,15 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+# logs
+logs/
+*.log
+*.log.*
+*.out
+*.err
+*.gz
+
 .discodeit
+
+# 환경변수
+/src/main/resources/properties/env.properties

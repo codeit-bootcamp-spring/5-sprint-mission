@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
@@ -30,7 +31,7 @@ public interface MessageApi {
           content = @Content(examples = @ExampleObject(value = "Channel | Author with id {channelId | author} not found")))
   })
   ResponseEntity<MessageDto> create(
-      @Parameter(description = "Message 생성 정보") MessageCreateRequest messageCreateRequest,
+      @Valid @Parameter(description = "Message 생성 정보") MessageCreateRequest messageCreateRequest,
       @Parameter(description = "Message 첨부 파일들") List<MultipartFile> attachments
   ) throws IOException;
 
@@ -42,7 +43,7 @@ public interface MessageApi {
   })
   ResponseEntity<MessageDto> update(
       @Parameter(description = "수정할 Message ID") UUID messageId,
-      @Parameter(description = "수정할 Message 내용") MessageUpdateRequest messageUpdateRequest
+      @Valid @Parameter(description = "수정할 Message 내용") MessageUpdateRequest messageUpdateRequest
   );
 
   @Operation(summary = "Message 삭제")

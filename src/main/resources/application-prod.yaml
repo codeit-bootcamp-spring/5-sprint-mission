@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: discodeit
+
+  boot:
+    admin:
+      client:
+        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    root: info
+    com.sprint.mission.discodeit: ingo
+    org.springframework.web: info
+
+server:
+  port: ${PORT:8080}

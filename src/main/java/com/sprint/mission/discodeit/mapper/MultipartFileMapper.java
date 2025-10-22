@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.neutral.NewBinaryContent;
-import com.sprint.mission.discodeit.exception.ThrowableIOException;
+import com.sprint.mission.discodeit.exception.multipartfile.MultipartReadException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class MultipartFileMapper {
           multipartFile.getContentType(),
           multipartFile.getBytes()));
     } catch (IOException e) {
-      throw new ThrowableIOException("파일 변환 실패", e);
+      throw new MultipartReadException(e);
     }
   }
 }

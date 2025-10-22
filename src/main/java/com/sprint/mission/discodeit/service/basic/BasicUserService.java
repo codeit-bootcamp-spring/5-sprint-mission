@@ -6,25 +6,27 @@ import com.sprint.mission.discodeit.dto.neutral.UserCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.log.LogUtils;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 @Service("userService")
 @RequiredArgsConstructor
+@Slf4j
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
@@ -35,27 +37,30 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
-  public UserDto create(UserCommand userCommand) {
-    String username = userCommand.username();
-    String password = userCommand.password();
-    String email = userCommand.email();
-    BinaryContent profile = profileMapper(userCommand.profile());
+  public UserDto create(UserCommand command) {
+    log.debug("[UserService#create] try: {}", command.forLog());
+
+    String username = validateUsername(command.username());
+    String password = command.password();
+    String email = validateEmail(command.email());
+    BinaryContent profile = profileMapper(command.profile());
 
     User user = new User(username, email, password, profile);
     UserStatus userStatus = new UserStatus();
     userStatus.setLastActiveAt(Instant.now());
     user.attachStatus(userStatus);
 
-    return userMapper.toDto(userRepository.save(user));
+    UserDto dto = userMapper.toDto(userRepository.save(user));
+
+    log.info("[UserService#create] User created: {}", dto.forLog());
+
+    return dto;
   }
 
   @Override
   @Transactional(readOnly = true)
   public UserDto findById(UUID userId) {
-    return userMapper.toDto(
-        userRepository.findById(userId)
-            .orElseThrow(
-                () -> new NoSuchElementException("findById : 유저를 찾을 수 없습니다. [" + userId + "]")));
+    return userMapper.toDto(validateId(userId));
   }
 
   @Override
@@ -68,42 +73,59 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
-  public UserDto update(UUID userId, @Valid UserCommand userCommand) {
-    String newUserName = userCommand.username();
-    String newPassword = userCommand.password();
-    String newEmail = userCommand.email();
+  public UserDto update(UUID userId, UserCommand command) {
+    log.debug("[UserService#update] try id={}, command={}", userId, command.forLog());
 
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("update : 유저를 찾을 수 없습니다. [" + userId + "]"));
+    User user = validateId(userId);
+    String newUserName = command.username();
+    String newEmail = command.email();
+    String newPassword = command.password();
 
-    BinaryContent newProfile = profileMapper(userCommand.profile());
+    if (command.username() != null && !user.getUsername().equals(command.username())) {
+      validateUsername(newUserName);
+    }
+    if (command.email() != null && !user.getEmail().equals(command.email())) {
+      validateEmail(newEmail);
+    }
+
+    BinaryContent newProfile = profileMapper(command.profile());
 
     if (newProfile != null && user.getProfile() != null) {
       binaryContentRepository.deleteById(user.getProfile().getId());
+      log.debug("[UserService#update] old profile deleted: {}", user.getProfile().getId());
     }
 
     user.update(newUserName, newEmail, newPassword, newProfile);
+    UserDto dto = userMapper.toDto(userRepository.save(user));
 
-    return userMapper.toDto(userRepository.save(user));
+    log.info("[UserService#update] User updated: {}", dto.forLog());
+
+    return dto;
   }
 
   @Override
   @Transactional
   public void delete(UUID userId) {
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("delete : 유저를 찾을 수 없습니다. [" + userId + "]"));
+    log.debug("[UserService#delete] try id={}", userId);
+    User user = validateId(userId);
 
     if (user.getProfile() != null) {
       binaryContentRepository.deleteById(user.getProfile().getId());
+      log.debug("[UserService#delete] profile deleted: {}", user.getProfile().getId());
     }
 
     userStatusRepository.findByUserId(user.getId())
-        .ifPresent(userStatus -> userStatusRepository.deleteById(userStatus.getId()));
+        .ifPresent(userStatus -> {
+          userStatusRepository.deleteById(userStatus.getId());
+          log.debug("[UserService#delete] UserStatus deleted: {}", userStatus.getId());
+        });
 
     userRepository.deleteById(user.getId());
+    log.info("[UserService#delete] User deleted: id={}, username={}, email={}",
+        user.getId(), user.getUsername(), LogUtils.maskEmail(user.getEmail()));
   }
 
-  private BinaryContent profileMapper(@Valid Optional<NewBinaryContent> profile) {
+  private BinaryContent profileMapper(Optional<NewBinaryContent> profile) {
     return profile.stream()
         .map(dto -> {
           BinaryContent binaryContent = new BinaryContent(
@@ -116,5 +138,24 @@ public class BasicUserService implements UserService {
         })
         .findFirst()
         .orElse(null);
+  }
+
+  private User validateId(UUID userId) {
+    return userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException().addDetail("userId", userId));
+  }
+
+  private String validateUsername(String username) {
+    if (userRepository.existsByUsername(username)) {
+      throw new UserAlreadyExistsException().addDetail("username", username);
+    }
+    return username;
+  }
+
+  private String validateEmail(String email) {
+    if (userRepository.existsByEmail(email)) {
+      throw new UserAlreadyExistsException().addDetail("email", email);
+    }
+    return email;
   }
 }
