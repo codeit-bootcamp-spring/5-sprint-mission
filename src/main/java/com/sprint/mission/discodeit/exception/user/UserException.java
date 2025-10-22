@@ -2,11 +2,13 @@ package com.sprint.mission.discodeit.exception.user;
 
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
-import java.util.Map;
 
-public abstract class UserException extends DiscodeitException {
-  protected UserException(ErrorCode code) { super(code); }
-  protected UserException(ErrorCode code, Map<String, Object> details) { super(code, details); }
-  protected UserException(ErrorCode code, String message, Map<String, Object> details) { super(code, message, details); }
-}
+public class UserException extends DiscodeitException {
+    public UserException(ErrorCode errorCode) {
+        super(errorCode);
+    }
 
+    public UserException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+} 
