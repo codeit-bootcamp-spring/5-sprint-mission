@@ -1,57 +1,45 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "users")
 @Getter
-@Setter
-@SuperBuilder
-@ToString(callSuper = true)
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseUpdatableEntity implements Serializable {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA를 위한 기본 생성자
+public class User extends BaseUpdatableEntity {
 
-  private static final long serialVersionUID = 1L;
-
-  @Column(nullable = false, unique = true, length = 50)
+  @Column(length = 50, nullable = false, unique = true)
   private String username;
-
-  @Column(nullable = false, unique = true, length = 100)
+  @Column(length = 100, nullable = false, unique = true)
   private String email;
-
-  @JsonIgnore
-  @Column(nullable = false, length = 60)
+  @Column(length = 60, nullable = false)
   private String password;
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JoinColumn(name = "profile_id", columnDefinition = "uuid")
+  private BinaryContent profile;
+  @JsonManagedReference
+  @Setter(AccessLevel.PROTECTED)
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private UserStatus status;
 
-  @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "profile_id")
-  private BinaryContent profile;     // BinaryContent
-
-  @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
-  private UserStatus userStatus;
+  public User(String username, String email, String password, BinaryContent profile) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.profile = profile;
+  }
 
   public void update(String newUsername, String newEmail, String newPassword,
       BinaryContent newProfile) {
@@ -64,9 +52,8 @@ public class User extends BaseUpdatableEntity implements Serializable {
     if (newPassword != null && !newPassword.equals(this.password)) {
       this.password = newPassword;
     }
-    if (newProfile != null && !newProfile.getId().equals(this.profile.getId())) {
+    if (newProfile != null) {
       this.profile = newProfile;
     }
-
   }
 }
