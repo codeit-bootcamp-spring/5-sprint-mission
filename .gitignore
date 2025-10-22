@@ -50,3 +50,5 @@ logs/
 
 # 환경변수
 /src/main/resources/properties/env.properties
+/.env
+/discodeit.env

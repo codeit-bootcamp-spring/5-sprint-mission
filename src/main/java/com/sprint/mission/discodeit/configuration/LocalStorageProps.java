@@ -5,7 +5,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "discodeit.storage.local")
-public class StorageProps {
+public class LocalStorageProps {
 
   @Getter
   @Setter
