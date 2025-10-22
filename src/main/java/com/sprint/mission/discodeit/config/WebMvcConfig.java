@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * 웹 MVC 설정 클래스
+ */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
@@ -16,6 +19,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(mdcLoggingInterceptor())
-        .addPathPatterns("/**");
+        .addPathPatterns("/**"); // 모든 경로에 적용
   }
 }
