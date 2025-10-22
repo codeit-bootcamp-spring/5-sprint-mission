@@ -293,6 +293,8 @@ postman-swagger-api-old
 postman-swagger-api-old/*
 
 .env*
+*.env
+discodeit.env
 
 .logs/
 logs/

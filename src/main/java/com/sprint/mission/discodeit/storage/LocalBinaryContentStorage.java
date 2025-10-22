@@ -20,12 +20,10 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 @Slf4j
-@Component
-@ConditionalOnProperty(name = "storage.type", havingValue = "local")
 public class LocalBinaryContentStorage implements BinaryContentStorage {
     private final Path root;
 
-    public LocalBinaryContentStorage(@Value("${storage.local.root-path}") String root) {
+    public LocalBinaryContentStorage(@Value("${discodeit.storage.local.root-path:.discodeit/storage}") String root) {
         this.root = Path.of(root);
         init();
     }

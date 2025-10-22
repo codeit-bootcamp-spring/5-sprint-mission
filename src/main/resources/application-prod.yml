@@ -1,14 +1,9 @@
 server:
-  port: ${SERVER_PORT}
+  port: 80
 
 spring:
   application:
     name: discodeit
-
-  boot:
-    admin:
-      client:
-        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
 
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -50,10 +45,6 @@ logging:
     rollingpolicy:
       max-file-size: 100MB
       max-history: 30
-
-storage:
-  local:
-    root-path: ${UPLOAD_PATH}
 
 management:
   endpoints:

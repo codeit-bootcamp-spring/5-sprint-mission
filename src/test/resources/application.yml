@@ -34,9 +34,11 @@ logging:
     org.springframework.web: warn
     root: warn
 
-storage:
-  local:
-    root-path: ./test-uploads
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: ./test-uploads
 
 management:
   endpoints:
