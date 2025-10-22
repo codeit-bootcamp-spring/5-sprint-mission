@@ -1,11 +1,11 @@
 package com.codeit.mission.discodeit.controller;
 
+import com.codeit.mission.discodeit.controller.api.ReadStatusApi;
+import com.codeit.mission.discodeit.dto.data.ReadStatusDto;
 import com.codeit.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.codeit.mission.discodeit.dto.request.ReadStatusUpdateRequest;
-import com.codeit.mission.discodeit.entity.ReadStatus;
 import com.codeit.mission.discodeit.service.ReadStatusService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -20,54 +20,37 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 @RequiredArgsConstructor
+@RestController
 @RequestMapping("/api/readStatuses")
-@Tag(name = "ReadStatus", description = "ReadStatus API")
-public class ReadStatusController {
+public class ReadStatusController implements ReadStatusApi {
 
     private final ReadStatusService readStatusService;
 
     @PostMapping
-    @Operation(summary = "읽음 확인 생성", description = "읽음 확인을 위한 readStatus를 생성합니다.")
-    public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("request가 필요합니다.");
-        }
-        if (request.userId() == null) {
-            throw new IllegalArgumentException("userId가 필요합니다.");
-        }
-        if (request.channelId() == null) {
-            throw new IllegalArgumentException("channelId가 필요합니다.");
-        }
-
-        ReadStatus readStatus = readStatusService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(readStatus);
+    public ResponseEntity<ReadStatusDto> create(
+            @Valid @RequestBody ReadStatusCreateRequest request) {
+        ReadStatusDto createdReadStatus = readStatusService.create(request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdReadStatus);
     }
 
-    @PatchMapping(value = "/{readStatusId}")
-    @Operation(summary = "읽음 상태 업데이트", description = "해당 Id의 읽음 상태를 업데이트합니다.")
-    public ResponseEntity<ReadStatus> update(@PathVariable UUID readStatusId,
-        @RequestBody ReadStatusUpdateRequest request) {
-        if (readStatusId == null) {
-            throw new IllegalArgumentException("readStatusId가 필요합니다.");
-        }
-        if (request == null) {
-            throw new IllegalArgumentException("request가 필요합니다.");
-        }
-
-        ReadStatus updatedReadStatus = readStatusService.update(readStatusId, request);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedReadStatus);
+    @PatchMapping(path = "{readStatusId}")
+    public ResponseEntity<ReadStatusDto> update(@PathVariable("readStatusId") UUID readStatusId,
+            @RequestBody ReadStatusUpdateRequest request) {
+        ReadStatusDto updatedReadStatus = readStatusService.update(readStatusId, request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(updatedReadStatus);
     }
 
     @GetMapping
-    @Operation(summary = "유저별 읽음 상태 조회", description = "해당 userId의 전체 읽음 상태를 조회합니다.")
-    public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam("userId") UUID userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException("userId가 필요합니다.");
-        }
-
-        List<ReadStatus> allByUserId = readStatusService.findAllByUserId(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(allByUserId);
+    public ResponseEntity<List<ReadStatusDto>> findAllByUserId(
+            @RequestParam("userId") UUID userId) {
+        List<ReadStatusDto> readStatuses = readStatusService.findAllByUserId(userId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(readStatuses);
     }
 }

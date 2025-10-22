@@ -4,5 +4,3 @@ public enum ChannelType {
     PUBLIC,
     PRIVATE,
 }
-
-

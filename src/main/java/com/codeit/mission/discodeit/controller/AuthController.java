@@ -1,39 +1,34 @@
 package com.codeit.mission.discodeit.controller;
 
+import com.codeit.mission.discodeit.controller.api.AuthApi;
+import com.codeit.mission.discodeit.dto.data.UserDto;
 import com.codeit.mission.discodeit.dto.request.LoginRequest;
-import com.codeit.mission.discodeit.entity.User;
 import com.codeit.mission.discodeit.service.AuthService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@Slf4j
 @RequiredArgsConstructor
+@RestController
 @RequestMapping("/api/auth")
-@Tag(name = "Auth", description = "Auth API")
-public class AuthController {
+public class AuthController implements AuthApi {
 
     private final AuthService authService;
 
-    @PostMapping("/login")
-    @Operation(summary = "로그인", description = "로그인 요청을 보냅니다.")
-    public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
-        if (!StringUtils.hasText(loginRequest.username())) {
-            throw new IllegalArgumentException("username이 필요합니다.");
-        }
-        if (!StringUtils.hasText(loginRequest.password())) {
-            throw new IllegalArgumentException("password가 필요합니다.");
-        }
-
-        User loginedUser = authService.login(loginRequest);
-
-        return ResponseEntity.status(HttpStatus.OK).body(loginedUser);
+    @PostMapping(path = "login")
+    public ResponseEntity<UserDto> login(@Valid @RequestBody LoginRequest loginRequest) {
+        log.info("로그인 API 호출 - username: {}", loginRequest.username());
+        UserDto user = authService.login(loginRequest);
+        log.info("로그인 API 성공 - username: {}, userId: {}", loginRequest.username(), user.id());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(user);
     }
 }

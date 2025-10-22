@@ -1,19 +1,9 @@
 package com.codeit.mission.discodeit.repository;
 
 import com.codeit.mission.discodeit.entity.BinaryContent;
-
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BinaryContentRepository {
-    BinaryContent save(BinaryContent binaryContent);
+public interface BinaryContentRepository extends JpaRepository<BinaryContent, UUID> {
 
-    Optional<BinaryContent> findById(UUID id);
-
-    List<BinaryContent> findAllByIdIn(List<UUID> ids);
-
-    boolean existsById(UUID id);
-
-    void deleteById(UUID id);
 }

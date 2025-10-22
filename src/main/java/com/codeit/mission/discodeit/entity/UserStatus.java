@@ -1,49 +1,51 @@
 package com.codeit.mission.discodeit.entity;
 
-import lombok.Getter;
-import lombok.ToString;
-
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.codeit.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Entity
+@Table(name = "user_statuses")
 @Getter
-@ToString
-public class UserStatus implements Serializable {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UserStatus extends BaseUpdatableEntity {
 
-    private static final long serialVersionUID = 1L;
+    @JsonBackReference
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
 
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
+    @Column(columnDefinition = "timestamp with time zone", nullable = false)
+    private Instant lastActiveAt;
 
-    private UUID userId;
-    private Instant lastAccessTime;
-
-    public UserStatus(UUID userId, Instant lastAccessTime) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-
-        this.userId = userId;
-        this.lastAccessTime = lastAccessTime;
+    public UserStatus(User user, Instant lastActiveAt) {
+        setUser(user);
+        this.lastActiveAt = lastActiveAt;
     }
 
-    public void update(Instant newLastAccessTime) {
-        boolean anyValueUpdated = false;
-        if (newLastAccessTime != null && !newLastAccessTime.equals(this.lastAccessTime)) {
-            this.lastAccessTime = newLastAccessTime;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
+    public void update(Instant lastActiveAt) {
+        if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+            this.lastActiveAt = lastActiveAt;
         }
     }
 
-    public boolean isOnline() {
+    public Boolean isOnline() {
         Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
+        return lastActiveAt.isAfter(instantFiveMinutesAgo);
+    }
 
-        return lastAccessTime.isAfter(instantFiveMinutesAgo);
+    protected void setUser(User user) {
+        this.user = user;
+        user.setStatus(this);
     }
 }
