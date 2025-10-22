@@ -1,29 +1,6 @@
 spring:
   application:
     name: discodeit
-<<<<<<< HEAD
-
-discodeit:
-  repository:
-    type: file        # 선택: jcf | file
-    file-directory: .discodeit
-
-logging:
-  level:
-    org.springdoc: DEBUG
-    org.springdoc.webmvc.api.OpenApiResource: DEBUG
-    org.springframework.web: DEBUG
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-  api-docs:
-    path: /api-docs
-  info:
-    title: Discodeit API 문서
-    description: 스프린트 미션 #4에서 설계한 RESTful API 문서입니다.
-    version: v1.0.0
-=======
   servlet:
     multipart:
       max-file-size: 10MB
@@ -36,8 +13,7 @@ springdoc:
 
 logging:
   level:
-    root: info     # 기본 info (요구사항)
-    # 패키지 기본값은 프로파일에서 조절
+    root: info
 
 management:
   endpoints:
@@ -48,6 +24,12 @@ management:
     health:
       show-details: when_authorized
 
+discodeit:
+  storage:
+    type: ${discodeit.storage.type:local}
+    local:
+      root-path: ${discodeit.storage.local.root-path:/tmp/discodeit}
+
 info:
   app:
     name: Discodeit
@@ -57,7 +39,7 @@ info:
   spring-boot:
     version: 3.4.0
   datasource:
-    url: ${spring.datasource.url}
+    url: ${spring.datasource.url:jdbc:postgresql://discodeit-db:5432/postgres}
     driver: ${spring.datasource.driver-class-name:org.postgresql.Driver}
   jpa:
     ddl-auto: ${spring.jpa.hibernate.ddl-auto}
@@ -65,6 +47,8 @@ info:
     type: ${discodeit.storage.type}
     path: ${discodeit.storage.local.root-path}
   multipart:
-    max-file-size: ${spring.servlet.multipart.maxFileSize}
-    max-request-size: ${spring.servlet.multipart.maxRequestSize}
->>>>>>> 8a7ffb72 (feat: 스프린트 7 요구사항 구현)
+    max-file-size: ${spring.servlet.multipart.max-file-size}
+    max-request-size: ${spring.servlet.multipart.max-request-size}
+  s3:
+    region: ${discodeit.s3.region}
+    bucket: ${discodeit.s3.bucket}

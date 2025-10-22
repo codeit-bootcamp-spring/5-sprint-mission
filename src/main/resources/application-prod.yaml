@@ -1,12 +1,20 @@
 spring:
   config.activate.on-profile: prod
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/discodeit_prod}
-    username: ${DB_USERNAME:discodeit_prod}
-    password: ${DB_PASSWORD:1234}
+    url: ${DB_URL:jdbc:postgresql://discodeit-db:5432/postgres}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD}
   jpa.hibernate.ddl-auto: validate
 server.port: 8080
 logging.level:
   com.sprint.mission.discodeit: info
   org.hibernate.SQL: warn
   org.hibernate.orm.jdbc.bind: warn
+
+discodeit:
+  s3:
+    access-key: ${AWS_S3_ACCESS_KEY_PROD}
+    secret-key: ${AWS_S3_SECRET_KEY_PROD}
+    region: ${AWS_S3_REGION_PROD:ap-northeast-2}
+    bucket: ${AWS_S3_BUCKET_PROD:discodeit-prod-bucket}
+    presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION_PROD:600}
