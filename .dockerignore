@@ -1,0 +1,8 @@
+*.env
+.git
+.gitignore
+.gradle
+build/
+.idea
+out/
+nbproject/

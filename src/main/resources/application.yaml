@@ -15,7 +15,7 @@ management: # actuator 외부 접근 허용
       exposure:
         include: health, info, metrics, loggers
 
-info: # 확인 가능한 앱정보/환경정보 넣기
+info: # [참고용] 서버 정보, actuator/info 등에서 노출
   app:
     name: Discodeit
     version: 1.7.0
@@ -24,15 +24,30 @@ info: # 확인 가능한 앱정보/환경정보 넣기
   spring-boot:
     version: 3.4.0
   datasource:
-    url: ${spring.datasource.url} # DB 연결 설정값 info에 그대로 노출
+    url: ${spring.datasource.url} # DB 연결 정보
     driver-class-name: ${spring.datasource.driver-class-name}
   jpa:
-    ddl-auto: ${spring.jpa.hibernate.ddl-auto} #DB 생성 스키마 or JPA 자동
+    ddl-auto: ${spring.jpa.hibernate.ddl-auto} # JPA ddl 설정(자동 테이블 생성 등)
   storage:
     type: local
     path: /data/storage
   multipart:
     max-file-size: 10MB
     max-request-size: 20MB
+
+discodeit: # [실제 서비스용!] 파일 저장소 설정
+  storage:
+    type: ${STORAGE_TYPE:local}   # storage 환경변수 있음 그걸 쓰고 없으면 기본값 local
+    local:
+      root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage} # 로컬 저장소 경로
+    s3: # S3 저장소 정보
+      access-key: ${AWS_S3_ACCESS_KEY}
+      secret-key: ${AWS_S3_SECRET_KEY}
+      region: ${AWS_S3_REGION}
+      bucket: ${AWS_S3_BUCKET}
+      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # Presigned URL 만료 시간(초)
+
+
+
 
 

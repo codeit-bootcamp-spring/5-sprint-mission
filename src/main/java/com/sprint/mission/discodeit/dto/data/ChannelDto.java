@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.Data;
 
-@Data
+@Data //getter & setter 자동 생성
 public class ChannelDto {
 
   private UUID id;

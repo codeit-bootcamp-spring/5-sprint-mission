@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    #url: jdbc:postgresql://host.docker.internal:5432/discodeit # 도커 컨테이너 안에서 내 컴퓨터 DB 연결 (dev용)
+    #url: jdbc:postgresql://db:5432/discodeit # postgresql 도커 컨테이너 안의 DB 서비스로 연결 (dev용)
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update # <-> none 이미 DB에 테이블이 있으니까 자동 생성 안 함
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect # PostgreSQL 문법 사용
+    show-sql: true # 처음엔 로그에서 테이블 생성 확인용으로 true
+
+discodeit:
+  storage:
+    type: s3
+    s3:
+      region: ${AWS_S3_REGION}
+      bucket: ${AWS_S3_BUCKET}
+      access-key: ${AWS_S3_ACCESS_KEY}
+      secret-key: ${AWS_S3_SECRET_KEY}
+      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}

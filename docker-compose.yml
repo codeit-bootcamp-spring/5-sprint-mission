@@ -1,0 +1,35 @@
+version: '3.8'
+
+services: # 1. PostgreSQL 데이터베이스 컨테이너
+  db: #1. DB
+    image: postgres:15
+    container_name: discodeit-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql # 컨테이너 시작 시 schema.sql 실행됨
+    ports:
+      - "5432:5432"
+
+  app: # 2. Spring Boot 애플리케이션 컨테이너
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discodeit-app
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "8081:80"
+    volumes:
+      - C:/dev_source/storage:/app/BinaryContentStorage #컨테이너가 삭제되더라도 데이터가 날아가지 않도록 보존
+    depends_on:
+      - db # DB 실행 다음 App 실행
+
+volumes:
+  postgres-data:
