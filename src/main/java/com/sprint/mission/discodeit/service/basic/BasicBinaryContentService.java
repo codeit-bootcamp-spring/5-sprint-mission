@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 	@Transactional
 	public BinaryContent create(CreateBiContentDTO dto) {
 		BinaryContent newContent = binaryContentRepository.save(DTOtoBinaryContent(dto));
-		binaryContentStorage.put(newContent.getId(), dto.getContent());
+		binaryContentStorage.put(newContent.getId(), dto.getContent(), MediaType.parseMediaType(dto.getContentType()));
 
 		return newContent;
 	}
@@ -58,7 +59,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 		if (!binaryContentRepository.existsById(id)) {
 			throw new BinaryContentNotFoundException();
 		}
-		binaryContentStorage.put(id, null);
+		binaryContentStorage.put(id, null, null);
 		binaryContentRepository.deleteById(id);
 	}
 

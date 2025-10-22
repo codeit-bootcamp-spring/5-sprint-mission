@@ -1,13 +1,3 @@
--- CREATE USER discodeit_user WITH PASSWORD 'discodeit1234';
---
--- -- 2. postgres 계정은 AWS RDS 환경 특성상 완전한 super user가 아니므로, discodeit_user에 대한 권한을 추가로 부여해야함.
--- GRANT discodeit_user TO postgres;
---
--- -- 3. 'discodeit' 데이터베이스 생성 (소유자는 'discodeit_user')
--- CREATE DATABASE discodeit OWNER discodeit_user;
-
-DROP TABLE IF EXISTS "read_statuses" CASCADE;
-
 DROP TABLE IF EXISTS "read_status" CASCADE;
 
 CREATE TABLE "read_status"

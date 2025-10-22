@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import static org.springframework.http.MediaType.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -105,7 +107,7 @@ public class BasicUserService implements UserService {
 		Optional<BinaryContent> profileImage = Optional.ofNullable(targetUser.getProfileImage());
 		if (profileImage.isPresent() && binaryContentRepository.findById(profileImage.get().getId()).isPresent()) {
 			binaryContentRepository.deleteById(targetUser.getProfileImage().getId());
-			binaryContentStorage.put(targetUser.getProfileImage().getId(), null); // 스토리지에서 삭제
+			binaryContentStorage.put(targetUser.getProfileImage().getId(), null, null); // 스토리지에서 삭제
 			log.debug("success delete userProfile  userID={}", userId);
 		}
 		// 3. User 삭제
@@ -154,10 +156,11 @@ public class BasicUserService implements UserService {
 		Optional<UUID> newProfileId = Optional.ofNullable(newProfileImage)
 		  .map((profileContent) -> {
 			  binaryContentRepository.deleteById(oldProfile.getId());
-			  binaryContentStorage.put(oldProfile.getId(), null); // 스토리지 삭제
+			  binaryContentStorage.put(oldProfile.getId(), null, null); // 스토리지 삭제
 
 			  BinaryContent savedProfile = binaryContentRepository.save(newProfileImage.toBinaryContent());
-			  binaryContentStorage.put(savedProfile.getId(), profileContent.getContent()); // 스토리지 저장
+			  binaryContentStorage.put(savedProfile.getId(), profileContent.getContent(),
+				parseMediaType(newProfileImage.getContentType())); // 스토리지 저장
 			  log.debug("success store new user profile image username={}", newUsername);
 
 			  targetUser.setProfileImage(savedProfile);

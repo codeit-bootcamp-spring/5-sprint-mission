@@ -49,7 +49,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 	}
 
 	@Override
-	public UUID put(UUID id, byte[] bytes) {
+	public UUID put(UUID id, byte[] bytes, MediaType contentType) {
 		try {
 			Path path = resolvePath(id);
 
