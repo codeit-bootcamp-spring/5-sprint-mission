@@ -1,0 +1,66 @@
+services:
+  app:
+    image: discodeit:local
+    container_name: app-prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"                       # 호스트 8081 -> 컨테이너 80
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      # Spring이 80 포트에서 리슨하도록(예: server.port=80)
+      SERVER_PORT: "80"
+
+      # DB 연결(내부 네트워크 통신은 고정 5432가 가장 안전)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
+    volumes:
+      # BinaryContentStorage 지속화 (오타 수정 + 선언과 동일 이름)
+      - discodeit_storage:/app/.discodeit/storage
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 80 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+    restart: unless-stopped
+    networks:
+      - discodeit-network
+
+  db:
+    image: postgres:16
+    container_name: discodeit-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"                      # (로컬 개발 편의상 노출)
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # 최초 초기화 시에만 실행됨(볼륨 비어있어야 함)
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -p 5432"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    networks:
+      - discodeit-network
+
+volumes:
+  discodeit_storage:
+  pgdata:
+
+networks:
+  discodeit-network:
+    driver: bridge

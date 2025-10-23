@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 @ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
 @Component
-@Slf4j
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   private final Path root;
@@ -61,7 +59,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   public InputStream get(UUID binaryContentId) {
     Path filePath = resolvePath(binaryContentId);
     if (Files.notExists(filePath)) {
-      throw new NoSuchElementException("File with key " + binaryContentId + " not found");
+      throw new NoSuchElementException("File with key " + binaryContentId + " does not exist");
     }
     try {
       return Files.newInputStream(filePath);
@@ -77,11 +75,9 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   @Override
   public ResponseEntity<Resource> download(BinaryContentDto metaData) {
-    log.debug("@@ 파일 다운로드 시작 - metaData : {}",metaData);
     InputStream inputStream = get(metaData.id());
     Resource resource = new InputStreamResource(inputStream);
 
-    log.debug("@@ 파일 다운로드 완료 - metaData : {}",metaData);
     return ResponseEntity
         .status(HttpStatus.OK)
         .header(HttpHeaders.CONTENT_DISPOSITION,
