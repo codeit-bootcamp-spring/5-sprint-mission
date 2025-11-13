@@ -10,7 +10,7 @@ spring:
     #    username: ${DB_USERNAME}
     #    password: ${DB_PASSWORD}
     # for RDS
-    url: ${SPRING_DATASOURCE_URL}
+    url: ${SPRING_DATASOURCE_URL}:${DB_PORT}/${DB_NAME}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
 
