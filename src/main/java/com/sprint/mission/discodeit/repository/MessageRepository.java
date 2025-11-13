@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,12 +21,31 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 	  SELECT m
 	  FROM Message m
 	  JOIN FETCH m.channel
-	  JOIN FETCH m.attachments
 	  JOIN FETCH m.user u
+	  LEFT JOIN FETCH m.attachments
 	  LEFT JOIN FETCH u.profileImage
 	  WHERE m.channel.id = :channelId
 	  """)
 	Page<Message> findAllDetailsByChannelId(@Param("channelId") UUID channelId, Pageable pageable);
+
+	@Query("""
+	      SELECT m.id 
+	      FROM Message m 
+	      WHERE m.channel.id = :channelId
+	      ORDER BY m.createdAt DESC
+	  """)
+	Page<UUID> findMessageIdsByChannelId(@Param("channelId") UUID channelId, Pageable pageable);
+
+	@Query("""
+	      SELECT m
+	      FROM Message m
+	      JOIN FETCH m.channel
+	      JOIN FETCH m.user u
+	      LEFT JOIN FETCH m.attachments
+	      LEFT JOIN FETCH u.profileImage
+	      WHERE m.id IN :messageIds
+	  """)
+	List<Message> findAllDetailsByIds(@Param("messageIds") List<UUID> messageIds);
 
 	@Query("""
 	      SELECT m

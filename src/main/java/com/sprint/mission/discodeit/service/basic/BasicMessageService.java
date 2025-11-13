@@ -137,19 +137,23 @@ public class BasicMessageService implements MessageService {
 	@Override
 	@Transactional(readOnly = true)
 	public Page<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
-		Page<Message> messages = messageRepository.findAllDetailsByChannelId(channelId, pageable);
+		Page<UUID> messageIdsInPage = messageRepository.findMessageIdsByChannelId(channelId, pageable);
+		List<UUID> messageIds = messageIdsInPage.getContent();
+		List<Message> messages = messageRepository.findAllDetailsByIds(messageIds);
+		Map<UUID, Message> messageMap = messages.stream().collect(Collectors.toMap(Message::getId, m -> m));
 
-		List<UUID> userIds = messages.map(m -> m.getUser().getId()).stream().toList();
+		List<UUID> userIds = messages.stream().map(m -> m.getUser().getId()).toList();
 
 		Map<UUID, Boolean> userId2Status = userStatusRepository.findByUserIdIn(userIds)
 		  .stream()
 		  .collect(Collectors.toMap(us -> us.getUser().getId(), UserStatus::isOnline));
 
-		messages.getContent().forEach(System.out::println);
-		return messages.map(message ->
+		return messageIdsInPage.map(messageId ->
 		  {
+			  Message message = messageMap.get(messageId);
 			  User user = message.getUser();
 			  boolean isOnline = userId2Status.get(user.getId());
+
 			  return messageMapper.toDto(
 				message,
 				userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage()))
