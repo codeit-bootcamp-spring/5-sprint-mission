@@ -34,6 +34,8 @@ logging:
     # Spring Web
     org.springframework.web: trace
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.springframework.security: trace
+    org.springframework.security.web: trace
 
 discodeit:
   storage:
