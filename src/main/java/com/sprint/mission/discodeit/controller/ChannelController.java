@@ -10,6 +10,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +29,7 @@ public class ChannelController {
   private final ChannelService channelService;
   private final ChannelMapper channelMapper;
 
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Operation(summary = "Channel 생성(PUBLIC)")
   @PostMapping("/public")
   public ResponseEntity<ChannelDto.DetailResponse> createPublicChannel(
@@ -48,6 +50,7 @@ public class ChannelController {
                              channelMapper.toCommand(request, ChannelType.PRIVATE))));
   }
 
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Operation(summary = "Channel 정보 수정")
   @PutMapping("/{id}")
   public ResponseEntity<ChannelDto.DetailResponse> updateChannel(@PathVariable UUID id,
@@ -57,6 +60,7 @@ public class ChannelController {
         channelService.update(channelMapper.toCommand(request, id))));
   }
 
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Operation(summary = "Channel 삭제")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteChannel(@PathVariable UUID id) {
