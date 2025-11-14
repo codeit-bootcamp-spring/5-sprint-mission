@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.config;
+package com.sprint.mission.discodeit.security.log;
 
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
