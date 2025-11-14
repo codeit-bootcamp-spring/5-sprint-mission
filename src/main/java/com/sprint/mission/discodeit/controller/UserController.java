@@ -73,12 +73,9 @@ public class UserController {
 			));
 		}
 
-		UserDto createdUser = userService.create(CreateUserDTO.builder()
-		  .username(userCreateRequest.getUsername())
-		  .email(userCreateRequest.getEmail())
-		  .password(userCreateRequest.getPassword())
-		  .binaryContent(biContentDTO.orElse(null))
-		  .build());
+		UserDto createdUser = userService.create(CreateUserDTO
+		  .from(userCreateRequest, biContentDTO.orElse(null))
+		);
 
 		URI location = URI.create("api/users");
 		log.debug("URI location={} in username={}", location, userCreateRequest.getUsername());

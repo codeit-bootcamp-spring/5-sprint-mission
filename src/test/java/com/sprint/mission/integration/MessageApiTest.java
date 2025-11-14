@@ -205,8 +205,6 @@ class MessageApiTest {
 		  .build();
 
 		Message savedMessage = messageRepository.findById(storedMessage.getId()).get();
-		System.out.println("@@@");
-		System.out.println(savedMessage.getCreatedAt().toString());
 
 		mockMvc.perform(patch("/api/messages/" + storedMessage.getId())
 			.contentType(MediaType.APPLICATION_JSON)

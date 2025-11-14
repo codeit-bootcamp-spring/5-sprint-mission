@@ -6,8 +6,6 @@
 -- -- 3. 'discodeit' 데이터베이스 생성 (소유자는 'discodeit_user')
 -- CREATE DATABASE discodeit OWNER discodeit_user;
 
-DROP TABLE IF EXISTS "read_statuses" CASCADE;
-
 DROP TABLE IF EXISTS "read_status" CASCADE;
 
 CREATE TABLE "read_status"
@@ -65,7 +63,8 @@ CREATE TABLE "user"
     "username"   varchar(50)              NOT NULL UNIQUE,
     "email"      varchar(50)              NOT NULL UNIQUE,
     "password"   varchar(60)              NOT NULL,
-    "profile_id" uuid
+    "profile_id" uuid,
+    "role"       varchar(20)              NOT NULL
 );
 
 COMMENT ON COLUMN "user"."username" IS 'unique';

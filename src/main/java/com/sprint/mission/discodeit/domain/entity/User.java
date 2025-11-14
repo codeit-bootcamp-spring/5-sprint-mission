@@ -3,9 +3,12 @@ package com.sprint.mission.discodeit.domain.entity;
 import java.util.Objects;
 
 import com.sprint.mission.discodeit.domain.entity.base.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.domain.enums.Role;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -36,11 +39,15 @@ public class User extends BaseUpdatableEntity {
 	@JoinColumn(name = "profile_id")
 	private BinaryContent profileImage;
 
-	public User(String username, String email, String password, BinaryContent profileImage) {
+	@Enumerated(EnumType.STRING)
+	private Role role;
+
+	public User(String username, String email, String password, BinaryContent profileImage, Role role) {
 		this.username = username;
 		this.email = email;
 		this.password = password;
 		this.profileImage = profileImage;
+		this.role = role;
 	}
 
 	@Override

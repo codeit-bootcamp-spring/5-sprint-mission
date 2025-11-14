@@ -19,6 +19,8 @@ public enum ErrorCode {
 
 	// AUTH
 	WRONG_PASSWORD("잘못된 비밀번호입니다."),
+	LOGIN_FAIL("로그인 실패입니다."),
+	NOT_AUTHORIZED("인증되지 않은 사용자 입니다."),
 
 	// Server 에러 코드
 	INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다."),
@@ -44,7 +46,7 @@ public enum ErrorCode {
 	// READ STATUS
 	READ_STATUS_NOT_FOUND("읽음 상태를 찾을 수 없습니다."),
 	READ_STATUS_DUPLICATE("이미 존재하는 읽음 상태입니다."),
-	
+
 	// VALIDATION_ERROR
 	VALIDATION_ERROR("요청값이 잘못되었습니다.");
 

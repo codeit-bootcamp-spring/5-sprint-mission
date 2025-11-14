@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +58,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
 	public ChannelDto createPublic(CreatePublicChannelDTO dto) {
 		log.debug("PUBLIC channel create 트랜잭션 시작");
 		String name = dto.getName();
@@ -179,6 +181,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
 	public boolean delete(UUID id) {
 		log.debug("channel delete 트랜잭션 시작");
 
@@ -203,6 +206,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
 	public ChannelDto update(UpdateChannelDTO dto) {
 		log.debug("channel update 트랜잭션 시작");
 

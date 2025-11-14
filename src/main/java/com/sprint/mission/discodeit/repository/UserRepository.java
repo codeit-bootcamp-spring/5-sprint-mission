@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.enums.Role;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
@@ -37,4 +38,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 	  	LEFT JOIN FETCH u.profileImage
 	  """)
 	List<User> findUserDetailsAll();
+
+	boolean existsByRole(Role role);
 }

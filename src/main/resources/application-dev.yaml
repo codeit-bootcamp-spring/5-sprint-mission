@@ -36,12 +36,13 @@ logging:
     org.hibernate.SQL: off
     org.hibernate.orm.jdbc.bind: trace
     org.hibernate.type.descriptor.sql: trace
+    org.springframework.security: trace
 
     # Spring Web
     #    org.springframework.web: trace
     #    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
 
     # 사용자 package
-    com.codeit.blog: debug
+    com.sprint.mission.discodeit: debug
 server:
   port: 8081

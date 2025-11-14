@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import com.sprint.mission.discodeit.domain.dto.user.UserDto;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.entity.UserStatus;
+import com.sprint.mission.discodeit.domain.enums.Role;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserEmailException;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserNameException;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserNameOrEmailException;
@@ -47,6 +49,7 @@ public class BasicUserService implements UserService {
 	private final BinaryContentStorage binaryContentStorage;
 	private final UserMapper userMapper;
 	private final BinaryContentMapper binaryContentMapper;
+	private final PasswordEncoder passwordEncoder;
 
 	@Override
 	@Transactional
@@ -54,7 +57,7 @@ public class BasicUserService implements UserService {
 		log.debug("user create 트랜잭션 시작");
 		String username = dto.getUsername();
 		String email = dto.getEmail();
-		String password = dto.getPassword();
+		String password = passwordEncoder.encode(dto.getPassword());
 		CreateBiContentDTO profileImage = dto.getBinaryContent();
 		log.debug("user info username={}, email={}, password={},", username, email, password);
 
@@ -76,7 +79,8 @@ public class BasicUserService implements UserService {
 		  username,
 		  email,
 		  password,
-		  userProfile
+		  userProfile,
+		  Role.USER
 		);
 		userRepository.save(newUser);
 		log.debug("success save userEntity  username={}", username);

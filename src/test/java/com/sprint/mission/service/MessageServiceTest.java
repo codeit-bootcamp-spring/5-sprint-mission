@@ -399,7 +399,6 @@ public class MessageServiceTest {
 		Slice<MessageDto> result = messageService.findAllCursorByChannelId
 		  (mockChannel.getId(), Instant.MIN, PageRequest.of(0, 10));
 
-		System.out.println(result);
 		// Then
 		assertAll(
 		  () -> assertThat(result.getContent().size()).isEqualTo(3),
