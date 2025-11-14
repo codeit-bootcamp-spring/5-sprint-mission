@@ -33,6 +33,10 @@ public class User extends BaseUpdatableEntity {
   @Column(nullable = false)
   private String password;
 
+  @Column(nullable = false)
+  @Builder.Default
+  private String role = UserRole.USER.name();
+
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "profile_id")
   private BinaryContent profile;
@@ -58,6 +62,10 @@ public class User extends BaseUpdatableEntity {
     if (update.getPassword() != null && !update.getPassword()
                                                .equals(this.password)) {
       this.password = update.getPassword();
+    }
+    if (update.getRole() != null && !update.getRole()
+                                           .equals(this.role)) {
+      this.role = update.getRole();
     }
     if (profile != null && !profile.equals(this.profile)) {
       this.profile = profile;
