@@ -41,9 +41,6 @@ public class User extends BaseUpdatableEntity {
   @JoinColumn(name = "profile_id")
   private BinaryContent profile;
 
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private UserStatus status;
-
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private List<ReadStatus> readStatuses = new ArrayList<>();
@@ -70,9 +67,5 @@ public class User extends BaseUpdatableEntity {
     if (profile != null && !profile.equals(this.profile)) {
       this.profile = profile;
     }
-  }
-
-  public void updateStatus(UserStatus status) {
-    this.status = status;
   }
 }

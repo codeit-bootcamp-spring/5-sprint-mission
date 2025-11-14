@@ -27,6 +27,7 @@ class UserRepositoryTest {
                .username("testuser")
                .email("test@example.com")
                .password("pass")
+               .role("USER")
                .build();
     userRepository.save(user);
   }

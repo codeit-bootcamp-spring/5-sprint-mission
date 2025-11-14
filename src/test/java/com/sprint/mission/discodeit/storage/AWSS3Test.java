@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
@@ -20,6 +21,7 @@ class AWSS3Test {
   private AWSConfig config;
 
   @Test
+  @EnabledIf(expression = "#{environment['discodeit.storage.type'] == 's3'}", reason = "Only run when storage type is S3")
   void testUpload() {
     S3Client s3 = config.s3Client();
     String key = "test/" + UUID.randomUUID() + ".txt";
@@ -31,6 +33,7 @@ class AWSS3Test {
   }
 
   @Test
+  @EnabledIf(expression = "#{environment['discodeit.storage.type'] == 's3'}", reason = "Only run when storage type is S3")
   void testDonwload() throws Exception {
     S3Client s3 = config.s3Client();
 

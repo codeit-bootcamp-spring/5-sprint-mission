@@ -13,14 +13,11 @@ import com.sprint.mission.discodeit.dto.UserDto.Detail;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.UserDuplicateException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,9 +33,6 @@ class UserServiceTest {
 
   @Mock
   private UserRepository userRepository;
-
-  @Mock
-  private UserStatusRepository userStatusRepository;
 
   @Mock
   private BinaryContentService binaryContentService;
@@ -61,18 +55,11 @@ class UserServiceTest {
 
     BinaryContent profile = BinaryContent.builder()
                                          .build();
-
-    UserStatus status = UserStatus.builder()
-                                  .user(null)
-                                  .lastActiveAt(Instant.now())
-                                  .build();
-
     user = User.builder()
                .username("testuser")
                .email("test@example.com")
                .password("password")
                .profile(profile)
-               .status(status)
                .build();
 
     createCommand = CreateCommand.builder()
@@ -104,7 +91,7 @@ class UserServiceTest {
     given(userRepository.existsByUsername(createCommand.getUsername())).willReturn(false);
     given(userRepository.existsByEmail(createCommand.getEmail())).willReturn(false);
     doReturn(user).when(userMapper)
-                  .toEntity(any(CreateCommand.class), any());
+                  .toEntity(any(CreateCommand.class), any(), any());
     doReturn(detail).when(userMapper)
                     .toDetail(any(User.class));
 
@@ -112,8 +99,6 @@ class UserServiceTest {
 
     then(userRepository).should()
                         .save(user);
-    then(userStatusRepository).should()
-                              .save(any(UserStatus.class));
     assertThat(result).isNotNull();
     assertThat(result.getUsername()).isEqualTo(user.getUsername());
   }

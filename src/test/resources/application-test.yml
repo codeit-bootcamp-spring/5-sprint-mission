@@ -11,15 +11,17 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.test.sql
   jpa:
     hibernate:
-      ddl-auto: update
-    database-platform: org.hibernate.dialect.H2Dialect
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        temp.use_jdbc_metadata_defaults: false
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -27,7 +29,7 @@ logging:
 
 discodeit:
   storage:
-    type: ${STORAGE_TYPE:s3}
+    type: ${STORAGE_TYPE:local}
     local:
       root-path: ./data.dir
 aws:

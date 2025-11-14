@@ -4,11 +4,8 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.UserDto.CreateRequest;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateRequest;
-import com.sprint.mission.discodeit.dto.UserStatusDto;
 import com.sprint.mission.discodeit.mapper.UserMapper;
-import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -33,9 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
   private final UserService userService;
-  private final UserStatusService userStatusService;
   private final UserMapper userMapper;
-  private final UserStatusMapper userStatusMapper;
 
   @Operation(summary = "User 생성")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -76,13 +71,5 @@ public class UserController {
                                         .stream()
                                         .map(userMapper::toDetailResponse)
                                         .toList());
-  }
-
-  @Operation(summary = "User Status 수정")
-  @PatchMapping("/{id}/userStatus")
-  public ResponseEntity<UserStatusDto.DetailResponse> updateUserStatus(@PathVariable UUID id) {
-
-    return ResponseEntity.ok(
-        userStatusMapper.toDetailResponse(userStatusService.updateByUserId(id)));
   }
 }
