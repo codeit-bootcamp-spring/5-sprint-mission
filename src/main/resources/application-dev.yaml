@@ -1,10 +1,6 @@
 spring:
   application:
     name: discodeit
-  boot:
-    admin:
-      client:
-        url: http://localhost:9090
   datasource:
     url: jdbc:postgresql://localhost:5432/discodeit
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -24,6 +20,8 @@ spring:
     init:
       mode: always
       platform: postgresql   # ⬅️ data-postgresql.sql만 실행
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data-postgresql.sql
 
 logging:
   level:
@@ -38,4 +36,8 @@ logging:
     #SQL 로그
     org.hibernate.sql: debug # 실행된 SQL
     org.hibernate.orm.jdbc.bind: trace # 바인딩 파라미터
+
+    com.codeit.session: DEBUG
+    org.springframework.security: TRACE
+    org.springframework.security.web.csrf: DEBUG
 
