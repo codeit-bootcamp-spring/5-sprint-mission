@@ -11,7 +11,9 @@ u AS (
                (gen_random_uuid(), NOW(), NULL, 'bob', 'bob@example.com',
                 '12341234', NULL),
                (gen_random_uuid(), NOW(), NULL, 'charlie', 'charlie@example.com',
-                '12341234', NULL)
+                '12341234', NULL),
+               (gen_random_uuid(), now(), null, 'test', 'test@email.com',
+                '$2a$10$B3mSgHyUmpbDvOYgYVjJee3fz4MDBtvp0KDppmaRO6hMWJFz/XDYW', null)
         RETURNING id, username),
 
 -- 2) 유저 상태 (선택: 3명 모두 생성)

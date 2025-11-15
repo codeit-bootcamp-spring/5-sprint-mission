@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
+import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,10 @@ import lombok.extern.slf4j.Slf4j;
 public class SecurityConfig {
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain filterChain(
+		HttpSecurity http,
+		LoginFailureHandler loginFailureHandler
+	) throws Exception {
 		http
 			.csrf(csrf -> csrf
 				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -33,6 +37,7 @@ public class SecurityConfig {
 			)
 			.formLogin(login -> login
 				.loginProcessingUrl("/api/auth/login")
+				.failureHandler(loginFailureHandler)
 			)
 
 		;
