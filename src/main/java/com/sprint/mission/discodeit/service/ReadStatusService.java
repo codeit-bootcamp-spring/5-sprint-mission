@@ -1,21 +1,23 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.ReadStatusDto;
-import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.dto.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
+
+import jakarta.validation.Valid;
+
 public interface ReadStatusService {
 
-  ReadStatusDto create(@Valid ReadStatusCreateRequest readStatusCreateRequest);
+	ReadStatusDto create(@Valid ReadStatusCreateRequest readStatusCreateRequest);
 
-  ReadStatusDto findById(UUID id);
+	ReadStatusDto findById(UUID id);
 
-  List<ReadStatusDto> findAllByUserId(UUID userId);
+	List<ReadStatusDto> findAllByUserId(UUID userId);
 
-  ReadStatusDto update(UUID readStatusId, @Valid ReadStatusUpdateRequest readStatusUpdateRequest);
+	ReadStatusDto update(UUID readStatusId, @Valid ReadStatusUpdateRequest readStatusUpdateRequest);
 
-  void delete(UUID id);
+	void delete(UUID id);
 }

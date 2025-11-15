@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.exception.ErrorCode;
 
 public class BinaryContentNotFoundException extends BinaryContentException {
 
-  public BinaryContentNotFoundException() {
-    super(ErrorCode.BINARY_CONTENT_NOT_FOUND);
-  }
+	public BinaryContentNotFoundException() {
+		super(ErrorCode.BINARY_CONTENT_NOT_FOUND);
+	}
 }

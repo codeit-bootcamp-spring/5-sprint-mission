@@ -8,14 +8,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-  @Bean
-  public MDCLoggingInterceptor MDCLoggingInterceptor() {
-    return new MDCLoggingInterceptor();
-  }
+	@Bean
+	public MDCLoggingInterceptor MDCLoggingInterceptor() {
+		return new MDCLoggingInterceptor();
+	}
 
-  @Override
-  public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(MDCLoggingInterceptor())
-        .addPathPatterns("/**");
-  }
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(MDCLoggingInterceptor())
+			.addPathPatterns("/**");
+	}
 }

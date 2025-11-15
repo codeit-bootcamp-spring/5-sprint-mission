@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -22,12 +23,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BinaryContent extends BaseEntity {
 
-  @Column(updatable = false)
-  private String fileName;
+	@Column(updatable = false)
+	private String fileName;
 
-  @Column(updatable = false)
-  private String contentType;
+	@Column(updatable = false)
+	private String contentType;
 
-  @Column(updatable = false)
-  private long size;
+	@Column(updatable = false)
+	private long size;
 }

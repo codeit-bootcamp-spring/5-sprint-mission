@@ -10,9 +10,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 public class DiscodeitApplication {
 
-  public static void main(String[] args) {
-    SpringApplication.run(DiscodeitApplication.class, args);
-    System.out.println("localhost : http://localhost:8080");
-    System.out.println("swagger : http://localhost:8080/swagger-ui/index.html");
-  }
+	public static void main(String[] args) {
+		SpringApplication.run(DiscodeitApplication.class, args);
+		System.out.println("localhost : http://localhost:8080");
+		System.out.println("swagger : http://localhost:8080/swagger-ui/index.html");
+	}
 }
