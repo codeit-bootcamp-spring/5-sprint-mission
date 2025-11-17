@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,13 +28,13 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         log.info("[security] 로그인 성공: {}", authentication.getName());
 
         DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
-        UserDto userDto = userDetails.getUserDto();
+        UserResponse userResponse = userDetails.getUserResponse();
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        String jsonResponse = objectMapper.writeValueAsString(userDto);
+        String jsonResponse = objectMapper.writeValueAsString(userResponse);
         response.getWriter().write(jsonResponse);
     }
 }

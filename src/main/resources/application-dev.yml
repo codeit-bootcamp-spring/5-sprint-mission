@@ -17,7 +17,7 @@ spring:
 logging:
   level:
     com.sprint.mission.discodeit: debug
-    org.springframework.security: TRACE
+#    org.springframework.security: TRACE
 
 management:
   endpoints:

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.security;
 
-import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,12 +15,12 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class DiscodeitUserDetails implements UserDetails {
 
-    private final UserDto userDto;
+    private final UserResponse userResponse;
     private final String password;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + userDto.role().name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + userResponse.getRole().name()));
     }
 
     @Override
@@ -30,7 +30,7 @@ public class DiscodeitUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userDto.username();
+        return userResponse.getUsername();
     }
 
     @Override
@@ -58,11 +58,11 @@ public class DiscodeitUserDetails implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DiscodeitUserDetails that = (DiscodeitUserDetails) o;
-        return Objects.equals(userDto.id(), that.userDto.id());
+        return Objects.equals(userResponse.getId(), that.userResponse.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userDto.id());
+        return Objects.hash(userResponse.getId());
     }
 }

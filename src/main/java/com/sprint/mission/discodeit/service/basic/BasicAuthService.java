@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.user.UserRoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +23,12 @@ import java.util.List;
 public class BasicAuthService implements AuthService {
     private final UserRepository userRepository;
     private final SessionRegistry sessionRegistry;
+    private final BinaryContentMapper binaryContentMapper;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Override
     @Transactional
-    public UserDto updateUserRole(UserRoleUpdateRequest request) {
+    public UserResponse updateUserRole(UserRoleUpdateRequest request) {
         log.info("[AuthService] 사용자 권한 수정 시도: {}", request);
 
         User user = userRepository.findById(request.userId())
@@ -43,15 +45,6 @@ public class BasicAuthService implements AuthService {
 
         log.info("[AuthService] 사용자 권한 수정 완료: {} -> {}", user.getUsername(), request.role());
 
-        return new UserDto(
-                user.getId(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole(),
-                user.getProfile() != null ? user.getProfile().getId() : null,
-                null
-        );
+        return UserResponse.success(user);
     }
 }

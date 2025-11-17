@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.UserDto;
-import com.sprint.mission.discodeit.dto.request.auth.LoginRequest;
+import com.sprint.mission.discodeit.dto.BinaryContentDTO;
 import com.sprint.mission.discodeit.dto.request.user.UserRoleUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.auth.LoginResponse;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.AuthService;
 import jakarta.validation.Valid;
@@ -15,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
@@ -22,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
+    private final BinaryContentMapper binaryContentMapper;
 
     @GetMapping("csrf-token")
     public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
@@ -31,17 +37,24 @@ public class AuthController {
     }
 
     @GetMapping("me")
-    public ResponseEntity<UserDto> getCurrentUser(
+    public ResponseEntity<UserResponse> getCurrentUser(
             @AuthenticationPrincipal DiscodeitUserDetails userDetails) {
-        log.info("현재 사용자 정보 조회: {}", userDetails.getUsername());
-        return ResponseEntity.ok(userDetails.getUserDto());
+
+        UUID userId = userDetails.getUserResponse().getId();
+
+        User user = userRepository.findByIdWithProfile(userId)
+                .orElseThrow(() -> new IllegalStateException("현재 로그인한 사용자를 찾을 수 없습니다."));
+
+        UserResponse userResponse = UserResponse.success(user);
+
+        return ResponseEntity.ok(userResponse);
     }
 
     @PutMapping("role")
-    public ResponseEntity<UserDto> updateUserRole(
+    public ResponseEntity<UserResponse> updateUserRole(
             @Valid @RequestBody UserRoleUpdateRequest request) {
         log.info("[Controller] 권한 수정 요청: {}", request);
-        UserDto userDto = authService.updateUserRole(request);
+        UserResponse userDto = authService.updateUserRole(request);
         return ResponseEntity.ok(userDto);
     }
 }

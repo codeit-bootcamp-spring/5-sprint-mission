@@ -100,10 +100,10 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
             byte[] bytes = s3Client.getObjectAsBytes(getRequest).asByteArray();
 
-            log.info("S3에서 파일 조회 성공: {}", key);
+            log.info("S3에서 파일 조회 성공");
             return new ByteArrayInputStream(bytes);
         } catch (Exception e) {
-            log.error("S3 조회 실패: {}", id, e);
+            log.error("S3 조회 실패", e);
             throw new RuntimeException("S3 조회 실패", e);
         }
     }
