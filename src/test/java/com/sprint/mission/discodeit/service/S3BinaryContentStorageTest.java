@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
 
 import java.net.URL;
 import java.util.UUID;

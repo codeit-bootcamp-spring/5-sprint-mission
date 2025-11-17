@@ -2,10 +2,6 @@ package com.sprint.mission.discodeit.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.BDDMockito.any;
-import static org.mockito.BDDMockito.times;
-import static org.mockito.BDDMockito.verify;
-import static org.mockito.Mockito.*;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
