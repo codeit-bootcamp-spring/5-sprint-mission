@@ -74,11 +74,13 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
                         .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+                        .deleteCookies("JSESSIONID", "remember-me")
                 )
                 .sessionManagement(management -> management
                         .sessionConcurrency(concurrency -> concurrency
                                 .maximumSessions(1)
                                 .maxSessionsPreventsLogin(false)
+                                .sessionRegistry(sessionRegistry)
                         )
                 )
                 .rememberMe(remember -> remember
