@@ -16,7 +16,8 @@ CREATE TABLE users
     username   VARCHAR(50) UNIQUE       NOT NULL,
     email      VARCHAR(100) UNIQUE      NOT NULL,
     password   VARCHAR(60)              NOT NULL,
-    profile_id uuid
+    profile_id uuid,
+    role       VARCHAR(20)              NOT NULL
 );
 
 -- BinaryContent

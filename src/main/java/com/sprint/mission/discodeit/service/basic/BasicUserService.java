@@ -100,7 +100,7 @@ public class BasicUserService implements UserService {
 			log.debug("[UserService#update] old profile deleted: {}", user.getProfile().getId());
 		}
 
-		user.update(newUserName, newEmail, newPassword, newProfile);
+		user.update(newUserName, newEmail, newPassword, newProfile, null);
 		UserDto dto = userMapper.toDto(userRepository.save(user));
 
 		log.info("[UserService#update] User updated: {}", dto.forLog());

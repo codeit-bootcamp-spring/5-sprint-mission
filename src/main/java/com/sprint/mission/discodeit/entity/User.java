@@ -31,6 +31,9 @@ public class User extends BaseUpdatableEntity {
 	@Column(length = 60, nullable = false)
 	private String password;
 
+	@Column(length = 20, nullable = false)
+	private Role role;
+
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@JoinColumn(name = "profile_id", columnDefinition = "uuid")
 	private BinaryContent profile;
@@ -45,6 +48,16 @@ public class User extends BaseUpdatableEntity {
 		this.email = email;
 		this.password = password;
 		this.profile = profile;
+		this.role = Role.USER;
+	}
+
+	public User(String username, String email, String password, BinaryContent profile, Role role) {
+		super();
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.profile = profile;
+		this.role = role;
 	}
 
 	public void attachStatus(UserStatus status) {
@@ -52,14 +65,14 @@ public class User extends BaseUpdatableEntity {
 		status.linkToUser(this);
 	}
 
-	public void update(String username, String email, String password, BinaryContent profile) {
-		if (checkUpdated(username, email, password, profile)) {
+	public void update(String username, String email, String password, BinaryContent profile, Role role) {
+		if (checkUpdated(username, email, password, profile, role)) {
 			super.setUpdatedAt(Instant.now());
 		}
 	}
 
 	private boolean checkUpdated(String username, String email, String password,
-		BinaryContent profile) {
+		BinaryContent profile, Role role) {
 		boolean anyValueUpdated = false;
 
 		if (username != null && !username.equals(this.username)) {
@@ -77,6 +90,9 @@ public class User extends BaseUpdatableEntity {
 		if (profile != null && !profile.equals(this.profile)) {
 			this.profile = profile;
 			anyValueUpdated = true;
+		}
+		if (role != null && !role.equals(this.role)) {
+			this.role = role;
 		}
 
 		return anyValueUpdated;

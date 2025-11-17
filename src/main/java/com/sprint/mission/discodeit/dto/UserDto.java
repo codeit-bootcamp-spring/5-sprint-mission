@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.dto;
 
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.log.LogUtils;
 
 import lombok.Builder;
@@ -12,7 +13,8 @@ public record UserDto(
 	String username,
 	String email,
 	BinaryContentDto profile,
-	Boolean online
+	Boolean online,
+	Role role
 ) {
 
 	public String forLog() {
@@ -22,6 +24,7 @@ public record UserDto(
 			", email=" + LogUtils.maskEmail(email) +
 			", profile=" + LogUtils.summarizeAttachment(profile) +
 			", online=" + online +
+			", role=" + role +
 			"}";
 	}
 

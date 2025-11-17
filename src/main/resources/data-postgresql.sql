@@ -5,15 +5,15 @@ BEGIN;
 WITH
 -- 1) 유저 3명 (프로필 이미지 없음 → profile_id = NULL)
 u AS (
-    INSERT INTO users (id, created_at, updated_at, username, email, password, profile_id)
+    INSERT INTO users (id, created_at, updated_at, username, email, password, profile_id, role)
         VALUES (gen_random_uuid(), NOW(), NULL, 'alice', 'alice@example.com',
-                '12341234', NULL),
+                '12341234', NULL, 'USER'),
                (gen_random_uuid(), NOW(), NULL, 'bob', 'bob@example.com',
-                '12341234', NULL),
+                '12341234', NULL, 'USER'),
                (gen_random_uuid(), NOW(), NULL, 'charlie', 'charlie@example.com',
-                '12341234', NULL),
+                '12341234', NULL, 'USER'),
                (gen_random_uuid(), now(), null, 'test', 'test@email.com',
-                '$2a$10$B3mSgHyUmpbDvOYgYVjJee3fz4MDBtvp0KDppmaRO6hMWJFz/XDYW', null)
+                '$2a$10$B3mSgHyUmpbDvOYgYVjJee3fz4MDBtvp0KDppmaRO6hMWJFz/XDYW', null, 'USER')
         RETURNING id, username),
 
 -- 2) 유저 상태 (선택: 3명 모두 생성)
