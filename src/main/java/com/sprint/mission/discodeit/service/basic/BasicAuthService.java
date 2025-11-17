@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.sprint.mission.discodeit.dto.UserDto;
@@ -21,6 +22,7 @@ public class BasicAuthService implements AuthService {
 	private final UserMapper userMapper;
 
 	@Override
+	@PreAuthorize("hasRole('ADMIN')")
 	public UserDto updateRole(UserRoleUpdateRequest request) {
 		log.debug("[AuthService#updateRole] request={}]", request);
 		User user = userRepository.findById(request.userId())

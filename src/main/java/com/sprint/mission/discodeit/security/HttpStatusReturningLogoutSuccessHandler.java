@@ -21,5 +21,6 @@ public class HttpStatusReturningLogoutSuccessHandler implements LogoutSuccessHan
 		Authentication authentication
 	) throws IOException, ServletException {
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		response.getWriter().flush();
 	}
 }

@@ -9,11 +9,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.sprint.mission.discodeit.dto.UserDto;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
+@EqualsAndHashCode(of = "userDto")
 public class DiscodeitUserDetails implements UserDetails {
 	private final UserDto userDto;
 	private final String password;
@@ -21,6 +23,11 @@ public class DiscodeitUserDetails implements UserDetails {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return List.of(new SimpleGrantedAuthority("ROLE_" + userDto.role().name()));
+	}
+
+	@Override
+	public String getPassword() {
+		return password;
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -44,6 +45,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
 	public ChannelDto create(PublicChannelCreateRequest request) {
 		log.debug("[ChannelService#create(public)] try request={}", request);
 
@@ -119,6 +121,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
 	public ChannelDto update(UUID channelId,
 		PublicChannelUpdateRequest request) {
 		log.debug("[ChannelService#update] try: channelId={}, request={}", channelId, request);
@@ -142,6 +145,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
 	public void delete(UUID channelId) {
 		log.debug("[ChannelService#delete] try channelId={}", channelId);
 		validateId(channelId);
