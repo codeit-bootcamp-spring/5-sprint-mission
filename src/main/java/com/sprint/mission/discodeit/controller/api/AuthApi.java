@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Auth", description = "인증 API")
@@ -31,6 +32,7 @@ public interface AuthApi {
       )
   })
   ResponseEntity<UserDto> login(
+          @PathParam("remember_me") boolean rememberMe,
       @Parameter(description = "로그인 정보") LoginRequest loginRequest
   );
 } 

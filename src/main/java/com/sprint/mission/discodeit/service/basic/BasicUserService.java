@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -34,36 +35,19 @@ public class BasicUserService implements UserService {
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
+    private final PasswordEncoder passwordEncoder;
 
-  @Transactional
+    @Transactional
   @Override
-  public UserDto create(UserCreateRequest userCreateRequest,
-      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
-    log.debug("사용자 생성 시작: {}", userCreateRequest);
+  public UserDto create(UserCreateRequest userReq, Optional<BinaryContentCreateRequest> profileReq) {
+    log.debug("사용자 생성 시작: {}", userReq);
 
-    String username = userCreateRequest.username();
-    String email = userCreateRequest.email();
+    String username = userReq.username();
+    String email = userReq.email();
+    validateUser(userReq.username(), userReq.email());
 
-    if (userRepository.existsByEmail(email)) {
-      throw UserAlreadyExistsException.withEmail(email);
-    }
-    if (userRepository.existsByUsername(username)) {
-      throw UserAlreadyExistsException.withUsername(username);
-    }
-
-    BinaryContent nullableProfile = optionalProfileCreateRequest
-        .map(profileRequest -> {
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
-          binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
-          return binaryContent;
-        })
-        .orElse(null);
-    String password = userCreateRequest.password();
+    BinaryContent nullableProfile = saveProfile(profileReq);
+    String password = passwordEncoder.encode(userReq.password());
 
     User user = new User(username, email, password, nullableProfile);
     Instant now = Instant.now();
@@ -120,19 +104,7 @@ public class BasicUserService implements UserService {
       throw UserAlreadyExistsException.withUsername(newUsername);
     }
 
-    BinaryContent nullableProfile = optionalProfileCreateRequest
-        .map(profileRequest -> {
-
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
-          binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
-          return binaryContent;
-        })
-        .orElse(null);
+    BinaryContent nullableProfile = saveProfile(optionalProfileCreateRequest);
 
     String newPassword = userUpdateRequest.newPassword();
     user.update(newUsername, newEmail, newPassword, nullableProfile);
@@ -153,4 +125,39 @@ public class BasicUserService implements UserService {
     userRepository.deleteById(userId);
     log.info("사용자 삭제 완료: id={}", userId);
   }
+
+    private BinaryContent saveProfile(Optional<BinaryContentCreateRequest> profileReq) {
+        return profileReq
+                .map(profileRequest -> {
+                    String fileName = profileRequest.fileName();
+                    String contentType = profileRequest.contentType();
+                    byte[] bytes = profileRequest.bytes();
+
+                    BinaryContent binaryContent =
+                            new BinaryContent(fileName, (long) bytes.length, contentType);
+
+                    binaryContentRepository.save(binaryContent);
+                    binaryContentStorage.put(binaryContent.getId(), bytes);
+
+                    return binaryContent;
+                })
+                .orElse(null);
+    }
+
+    private void validateUser(String username, String email) {
+        validateEmail(email);
+        validateUsername(username);
+    }
+
+    private void validateEmail(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw UserAlreadyExistsException.withEmail(email);
+        }
+    }
+
+    private void validateUsername(String username) {
+        if (userRepository.existsByUsername(username)) {
+            throw UserAlreadyExistsException.withUsername(username);
+        }
+    }
 }
