@@ -9,18 +9,20 @@ import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.*;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -29,11 +31,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final BinaryContentStorage binaryContentStorage;
+    private final PasswordEncoder passwordEncoder;
+    private final SessionRegistry sessionRegistry;
 
     @Override
     @Transactional
@@ -50,6 +53,7 @@ public class BasicUserService implements UserService {
             throw DuplicateUserException.withEmail(request.getEmail());
         }
 
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
         User user;
 
         if (request.getProfileImage() != null) {
@@ -58,16 +62,13 @@ public class BasicUserService implements UserService {
             binaryContentRepository.save(profileImage);
             binaryContentStorage.put(profileImage.getId(), request.getProfileImage().getBytes());
 
-            user = request.toUserWithProfile(profileImage);
+            user = request.toUserWithProfile(encodedPassword, profileImage);
         } else {
             log.info("[Service] 프로필 이미지 없는 유저 생성");
-            user = request.toUser();
+            user = request.toUser(encodedPassword);
         }
 
         User savedUser = userRepository.save(user);
-
-        UserStatus userStatus = new UserStatus(savedUser);
-        userStatusRepository.save(userStatus);
 
         List<Channel> publicChannels = channelRepository.findByType(ChannelType.PUBLIC);
 
@@ -76,8 +77,8 @@ public class BasicUserService implements UserService {
             readStatusRepository.save(readStatus);
         }
 
-        log.info("[Service] 유저 생성 성공: {}", user.getId());
-        return UserResponse.success(user);
+        log.info("[Service] 유저 생성 성공: {}", savedUser.getId());
+        return UserResponse.success(savedUser);
     }
 
     @Override
@@ -119,6 +120,7 @@ public class BasicUserService implements UserService {
         return userResponseList;
     }
 
+    @PreAuthorize("#id == authentication.principal.userDto.id()")
     @Override
     @Transactional
     public UserResponse update(UUID id, UserUpdateRequest request,
@@ -170,6 +172,7 @@ public class BasicUserService implements UserService {
         return UserResponse.success(user);
     }
 
+    @PreAuthorize("#id == authentication.principal.userDto.id()")
     @Override
     @Transactional
     public UserDeleteResponse delete(UUID id) {
@@ -221,19 +224,20 @@ public class BasicUserService implements UserService {
 
     private void updateOnlineStatus(List<UserResponse> userResponses) {
         log.info("[Service] 유저 온라인 상태 업데이트");
-        List<UUID> userIds = userResponses.stream()
-                .map(UserResponse::getId)
-                .toList();
+        List<Object> allPrincipals = sessionRegistry.getAllPrincipals();
 
-        List<UserStatus> userStatuses = userStatusRepository.findByUserIdIn(userIds);
-
-        Map<UUID, UserStatus> statusMap = userStatuses.stream()
-                .collect(Collectors.toMap(us -> us.getUser().getId(), Function.identity()));
+        Set<String> onlineUsernames = allPrincipals.stream()
+                .filter(principal -> principal instanceof DiscodeitUserDetails)
+                .map(principal -> (DiscodeitUserDetails) principal)
+                .filter(details -> {
+                    List<SessionInformation> sessions = sessionRegistry.getAllSessions(details, false);
+                    return !sessions.isEmpty();
+                })
+                .map(DiscodeitUserDetails::getUsername)
+                .collect(Collectors.toSet());
 
         for (UserResponse response : userResponses) {
-            UserStatus status = statusMap.get(response.getId());
-            boolean online = status != null &&
-                    status.getLastActiveAt().isAfter(Instant.now().minusSeconds(300));
+            boolean online = onlineUsernames.contains(response.getUsername());
             response.setOnline(online);
         }
     }

@@ -2,15 +2,10 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdateDefaultNicknameRequest;
-import com.sprint.mission.discodeit.dto.request.user.UserUpdatePasswordRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.request.userStatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
-import com.sprint.mission.discodeit.dto.response.userStatus.UserStatusResponse;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,31 +25,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final UserStatusService userStatusService;
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<UserResponse>> getUserAll() {
         List<UserResponse> userResponses = userService.findAll();
 
         return ResponseEntity.ok(userResponses);
-    }
-
-    // username(=loginId)로 조회
-    @RequestMapping(path = "/username/{username}", method = RequestMethod.GET)
-    public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
-        UserResponse userResponse = userService.findByUsername(username);
-        boolean online = userStatusService.isOnline(userResponse.getId());
-        userResponse.setOnline(online);
-        return ResponseEntity.ok(userResponse);
-    }
-
-    @RequestMapping(path = "/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID userId) {
-        UserResponse userResponse = userService.findById(userId);
-        boolean online = userStatusService.isOnline(userId);
-        userResponse.setOnline(online);
-
-        return ResponseEntity.ok(userResponse);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -97,15 +73,6 @@ public class UserController {
     public ResponseEntity<UserDeleteResponse> deleteUserById(@PathVariable UUID userId) {
         UserDeleteResponse userDeleteResponse = userService.delete(userId);
         return ResponseEntity.ok(userDeleteResponse);
-    }
-
-    @RequestMapping(path = "/{userId}/userStatus", method = RequestMethod.PATCH)
-    public ResponseEntity<UserStatusResponse> getUserStatusById(
-            @PathVariable UUID userId,
-            @Valid @RequestBody UserStatusUpdateRequest request) {
-        userStatusService.isOnline(userId);
-        UserStatusResponse updatedUserStatus = userStatusService.updateByUserId(userId, request);
-        return ResponseEntity.ok(updatedUserStatus);
     }
 
     @RequestMapping(path = "/list", method = RequestMethod.GET)

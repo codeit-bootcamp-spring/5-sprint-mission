@@ -28,18 +28,18 @@ public class User extends BaseUpdatableEntity implements Serializable {
 
     @Column(unique = true, nullable = false, length = 50)
     private String username;
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 100)
     @JsonIgnore
     private String password;
     @Column(unique = true, nullable = false, length = 100)
     private String email;
     @Column(nullable = false, length = 100)
     private String defaultNickname;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role = Role.USER;
 
     // 연관관계
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private UserStatus userStatus;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @BatchSize(size = 20)
@@ -53,11 +53,12 @@ public class User extends BaseUpdatableEntity implements Serializable {
     @JoinColumn(name = "profile_id", unique = true)
     private BinaryContent profile;
 
-    public User(String username, String password, String defaultNickname, String email, BinaryContent profile) {
+    public User(String username, String password, String defaultNickname, String email,Role role, BinaryContent profile) {
         this.username = username;
         this.password = password;
         this.defaultNickname = defaultNickname;
         this.email = email;
+        this.role = role;
         this.profile = profile;
     }
 
@@ -65,11 +66,11 @@ public class User extends BaseUpdatableEntity implements Serializable {
     public User(User original) {
         super(original.getId(), original.getCreatedAt(), original.getUpdatedAt());
         this.email = original.email;
+        this.role = original.role;
         this.profile = original.profile;
         this.username = original.username;
         this.password = original.password;
         this.defaultNickname = original.defaultNickname;
-        this.userStatus = original.userStatus;
         this.readStatus = original.readStatus;
         this.messages = original.messages;
     }
@@ -88,6 +89,10 @@ public class User extends BaseUpdatableEntity implements Serializable {
 
     public void updatePassword(String password) {
         this.password = Objects.requireNonNull(password, "비밀번호는 필수 입력값입니다.");
+    }
+
+    public void updateRole(Role role) {
+        this.role = Objects.requireNonNull(role, "권한은 필수 입력값입니다.");
     }
 
     public void updateDefaultNickname(String defaultNickname) {
