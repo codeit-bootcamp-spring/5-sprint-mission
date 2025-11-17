@@ -34,7 +34,7 @@ public class BasicAuthService implements AuthService {
         User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> UserNotFoundException.withId(request.userId()));
 
-        user.updateRole(request.role());
+        user.updateRole(request.newRole());
         userRepository.save(user);
 
         List<SessionInformation> sessions = sessionRegistry.getAllSessions(user.getUsername(), false);
@@ -43,7 +43,7 @@ public class BasicAuthService implements AuthService {
             log.info("[AuthService] 세션 무효화: sessionId={}", session.getSessionId());
         }
 
-        log.info("[AuthService] 사용자 권한 수정 완료: {} -> {}", user.getUsername(), request.role());
+        log.info("[AuthService] 사용자 권한 수정 완료: {} -> {}", user.getUsername(), request.newRole());
 
         return UserResponse.success(user);
     }
