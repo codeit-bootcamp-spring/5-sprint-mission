@@ -34,6 +34,7 @@ import com.sprint.mission.discodeit.dto.neutral.NewBinaryContent;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
@@ -41,7 +42,6 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 
 @WebMvcTest(controllers = UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -57,9 +57,6 @@ public class UserControllerTest {
 
 	@MockitoBean
 	private UserService userService;
-
-	@MockitoBean
-	private UserStatusService userStatusService;
 
 	@MockitoBean
 	private MultipartFileMapper multipartFileMapper;
@@ -105,7 +102,8 @@ public class UserControllerTest {
 			"test",
 			"test@email.com",
 			binaryContentDto,
-			false
+			false,
+			Role.USER
 		);
 
 		given(userService.create(any())).willReturn(userDto);
@@ -241,7 +239,8 @@ public class UserControllerTest {
 			"update",
 			"update@email.com",
 			binaryContentDto,
-			false
+			false,
+			Role.USER
 		);
 
 		given(userService.update(any(), any())).willReturn(userDto);
@@ -338,8 +337,8 @@ public class UserControllerTest {
 	@DisplayName("findAll - 성공 시 200 + 리스트 반환")
 	void findAll_success() throws Exception {
 		List<UserDto> users = List.of(
-			new UserDto(UUID.randomUUID(), "u1", "u1@email.com", null, false),
-			new UserDto(UUID.randomUUID(), "u2", "u2@email.com", null, true)
+			new UserDto(UUID.randomUUID(), "u1", "u1@email.com", null, false, Role.USER),
+			new UserDto(UUID.randomUUID(), "u2", "u2@email.com", null, true, Role.USER)
 		);
 		given(userService.findAll()).willReturn(users);
 
@@ -368,53 +367,6 @@ public class UserControllerTest {
 			.andExpect(jsonPath("$.exceptionType").value("RuntimeException"))
 			.andExpect(jsonPath("$.message").value("boom"))
 			.andExpect(jsonPath("$.timestamp").exists());
-	}
-
-	// ---------------------- PATCH(userStatus) ----------------------
-
-	@Test
-	@DisplayName("updateUserStatus - 성공")
-	void updateUserStatus() throws Exception {
-		UUID userId = UUID.randomUUID();
-		Instant lastActiveAt = Instant.now();
-		UserStatusUpdateRequest req = new UserStatusUpdateRequest(lastActiveAt);
-		String requestBody = objectMapper.writeValueAsString(req);
-		UserStatusDto userStatusDto = new UserStatusDto(UUID.randomUUID(), userId, lastActiveAt);
-
-		given(userStatusService.updateByUserId(any(), any())).willReturn(userStatusDto);
-
-		mockMvc.perform(
-				patch("/api/users/{userId}/userStatus", userId)
-					.content(requestBody)
-					.contentType(MediaType.APPLICATION_JSON))
-			.andExpect(status().isOk())
-			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-			.andExpect(jsonPath("$.id", notNullValue()))
-			.andExpect(jsonPath("$.lastActiveAt").isNotEmpty());
-	}
-
-	@Test
-	@DisplayName("updateUserStatus - 실패(userStatus를 찾을 수 없음)")
-	void updateUserStatus_userStatusNotFound() throws Exception {
-		UUID userId = UUID.randomUUID();
-		Instant lastActiveAt = Instant.now();
-		UserStatusUpdateRequest req = new UserStatusUpdateRequest(lastActiveAt);
-		String requestBody = objectMapper.writeValueAsString(req);
-
-		DiscodeitException ex = new UserStatusNotFoundException().addDetail("userId", userId);
-		given(userStatusService.updateByUserId(any(), any())).willThrow(ex);
-
-		mockMvc.perform(
-				patch("/api/users/{userId}/userStatus", userId)
-					.content(requestBody)
-					.contentType(MediaType.APPLICATION_JSON))
-			.andExpect(status().isNotFound())
-			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-			.andExpect(jsonPath("$.code").value("USER_STATUS_NOT_FOUND"))
-			.andExpect(jsonPath("$.status").value(404))
-			.andExpect(jsonPath("$.exceptionType").value(ex.getClass().getSimpleName()))
-			.andExpect(jsonPath("$.message").value("사용자 상태를 찾을 수 없습니다."))
-			.andExpect(jsonPath("$.details.userId").isNotEmpty());
 	}
 }
 

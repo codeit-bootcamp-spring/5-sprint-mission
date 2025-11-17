@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,14 +20,13 @@ import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.neutral.NewBinaryContent;
 import com.sprint.mission.discodeit.dto.neutral.UserCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 
@@ -42,9 +40,6 @@ public class UserServiceTest {
 	private BinaryContentRepository binaryContentRepository;
 
 	@Mock
-	private UserStatusRepository userStatusRepository;
-
-	@Mock
 	private BinaryContentStorage binaryContentStorage;
 
 	@Mock
@@ -55,7 +50,6 @@ public class UserServiceTest {
 
 	private User user;
 	private UserDto userDto;
-	private UserStatus userStatus;
 	private UserCommand userCommand;
 	private String username;
 	private String password;
@@ -82,10 +76,6 @@ public class UserServiceTest {
 			email,
 			password,
 			Optional.empty()
-		);
-		userStatus = new UserStatus(
-			user,
-			Instant.now()
 		);
 		newBinaryContent = Optional.of(new NewBinaryContent(
 			"profile",
@@ -149,7 +139,7 @@ public class UserServiceTest {
 		userCommand = new UserCommand(username,
 			email, password, newBinaryContent);
 		user = new User(username, email, password, binaryContent);
-		userDto = new UserDto(user.getId(), username, email, binaryContentDto, false);
+		userDto = new UserDto(user.getId(), username, email, binaryContentDto, false, Role.USER);
 		given(userMapper.toDto(any())).willReturn(userDto);
 
 		given(userRepository.existsByUsername(username)).willReturn(false);
@@ -182,15 +172,11 @@ public class UserServiceTest {
 	void deleteUserSuccess() {
 		user = new User(username, email, password, binaryContent);
 		given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
-		given(userStatusRepository.findByUserId(user.getId()))
-			.willReturn(Optional.of(userStatus));
 
 		userService.delete(user.getId());
 
 		verify(userRepository, times(1)).findById(user.getId());
 		verify(binaryContentRepository, times(1)).deleteById(user.getProfile().getId());
-		verify(userStatusRepository, times(1)).findByUserId(user.getId());
-		verify(userStatusRepository, times(1)).deleteById(userStatus.getId());
 		verify(userRepository, times(1)).deleteById(user.getId());
 	}
 

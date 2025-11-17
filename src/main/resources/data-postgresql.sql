@@ -16,13 +16,6 @@ u AS (
                 '$2a$10$B3mSgHyUmpbDvOYgYVjJee3fz4MDBtvp0KDppmaRO6hMWJFz/XDYW', null, 'USER')
         RETURNING id, username),
 
--- 2) 유저 상태 (선택: 3명 모두 생성)
-us AS (
-    INSERT INTO user_statuses (id, created_at, updated_at, user_id, last_active_at)
-        SELECT gen_random_uuid(), NOW(), NULL, id, NOW()
-        FROM u
-        RETURNING id),
-
 -- 3) 채널 2개 (type은 자유 문자열. 예: PUBLIC)
 ch AS (
     INSERT INTO channels (id, created_at, updated_at, name, description, type)

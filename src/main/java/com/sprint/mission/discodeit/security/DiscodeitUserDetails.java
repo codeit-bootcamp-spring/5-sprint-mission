@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.security;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,8 +16,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-@EqualsAndHashCode(of = "userDto")
+@EqualsAndHashCode(of = "userId")
 public class DiscodeitUserDetails implements UserDetails {
+	private final UUID userId;
 	private final UserDto userDto;
 	private final String password;
 

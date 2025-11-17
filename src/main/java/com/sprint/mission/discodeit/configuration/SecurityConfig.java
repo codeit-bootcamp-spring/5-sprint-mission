@@ -16,12 +16,15 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.Http403ForbiddenAccessDeniedHandler;
@@ -44,11 +47,12 @@ public class SecurityConfig {
 		LoginSuccessHandler loginSuccessHandler,
 		LoginFailureHandler loginFailureHandler,
 		HttpStatusReturningLogoutSuccessHandler logoutSuccessHandler,
-		Http403ForbiddenAccessDeniedHandler accessDeniedHandler
+		Http403ForbiddenAccessDeniedHandler accessDeniedHandler,
+		SessionRegistry sessionRegistry
 	) throws Exception {
 		http
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/login", "/api/auth/me", "/", "/error", "/index.html").permitAll()
+				.requestMatchers("/login", "/", "/error", "/index.html").permitAll()
 				.requestMatchers("/favicon.ico", "/static/**", "/assets/**", "/webjars/**").permitAll()
 				.requestMatchers("/logout").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
@@ -73,6 +77,12 @@ public class SecurityConfig {
 			.exceptionHandling(ex -> ex
 				.authenticationEntryPoint(new Http403ForbiddenEntryPoint())
 				.accessDeniedHandler(accessDeniedHandler)
+			)
+			.sessionManagement(management -> management
+				.sessionFixation().migrateSession()
+				.maximumSessions(1)
+				.maxSessionsPreventsLogin(false)
+				.sessionRegistry(sessionRegistry)
 
 			)
 
@@ -93,6 +103,16 @@ public class SecurityConfig {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public SessionRegistry sessionRegistry() {
+		return new SessionRegistryImpl();
+	}
+
+	@Bean
+	public HttpSessionEventPublisher httpSessionEventPublisher() {
+		return new HttpSessionEventPublisher();
 	}
 
 	@Bean

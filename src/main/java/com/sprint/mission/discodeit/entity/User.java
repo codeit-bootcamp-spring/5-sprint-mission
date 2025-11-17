@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.entity;
 
 import java.time.Instant;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 
 import jakarta.persistence.CascadeType;
@@ -41,10 +40,6 @@ public class User extends BaseUpdatableEntity {
 	@JoinColumn(name = "profile_id", columnDefinition = "uuid")
 	private BinaryContent profile;
 
-	@JsonManagedReference
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private UserStatus status;
-
 	public User(String username, String email, String password, BinaryContent profile) {
 		super();
 		this.username = username;
@@ -61,11 +56,6 @@ public class User extends BaseUpdatableEntity {
 		this.password = password;
 		this.profile = profile;
 		this.role = role;
-	}
-
-	public void attachStatus(UserStatus status) {
-		this.status = status;
-		status.linkToUser(this);
 	}
 
 	public void update(String username, String email, String password, BinaryContent profile, Role role) {

@@ -23,6 +23,7 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
 			.orElseThrow(() -> new UsernameNotFoundException(username));
 
 		return new DiscodeitUserDetails(
+			user.getId(),
 			userMapper.toDto(user),
 			user.getPassword()
 		);

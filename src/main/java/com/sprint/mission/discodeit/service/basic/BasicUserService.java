@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,14 +14,12 @@ import com.sprint.mission.discodeit.dto.neutral.NewBinaryContent;
 import com.sprint.mission.discodeit.dto.neutral.UserCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.log.LogUtils;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 
@@ -35,10 +33,10 @@ public class BasicUserService implements UserService {
 
 	private final UserRepository userRepository;
 	private final BinaryContentRepository binaryContentRepository;
-	private final UserStatusRepository userStatusRepository;
 	private final BinaryContentStorage binaryContentStorage;
 	private final UserMapper userMapper;
 	private final PasswordEncoder passwordEncoder;
+	private final SessionRegistry sessionRegistry;
 
 	@Override
 	@Transactional
@@ -51,9 +49,6 @@ public class BasicUserService implements UserService {
 		BinaryContent profile = profileMapper(command.profile());
 
 		User user = new User(username, email, password, profile);
-		UserStatus userStatus = new UserStatus();
-		userStatus.setLastActiveAt(Instant.now());
-		user.attachStatus(userStatus);
 
 		UserDto dto = userMapper.toDto(userRepository.save(user));
 
@@ -118,12 +113,6 @@ public class BasicUserService implements UserService {
 			binaryContentRepository.deleteById(user.getProfile().getId());
 			log.debug("[UserService#delete] profile deleted: {}", user.getProfile().getId());
 		}
-
-		userStatusRepository.findByUserId(user.getId())
-			.ifPresent(userStatus -> {
-				userStatusRepository.deleteById(userStatus.getId());
-				log.debug("[UserService#delete] UserStatus deleted: {}", userStatus.getId());
-			});
 
 		userRepository.deleteById(user.getId());
 		log.info("[UserService#delete] User deleted: id={}, username={}, email={}",
