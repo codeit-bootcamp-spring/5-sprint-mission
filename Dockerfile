@@ -1,37 +1,40 @@
-# ===== Build Stage =====
-FROM amazoncorretto:17-alpine AS builder
+# 빌드 스테이지
+FROM amazoncorretto:17 AS builder
+
+# 작업 디렉토리 설정
 WORKDIR /app
 
-# gradlew 실행에 필요한 최소 도구
-RUN apk add --no-cache bash unzip
+# Gradle Wrapper 파일 먼저 복사
+COPY gradle ./gradle
+COPY gradlew ./gradlew
 
-# 프로젝트 복사 (.dockerignore 로 불필요한 파일 제외)
-COPY . .
+# Gradle 캐시를 위한 의존성 파일 복사
+COPY build.gradle settings.gradle ./
 
-# Gradle Wrapper 권한 및 빌드 (필요시 -x test 제거 가능)
-RUN chmod +x ./gradlew
-RUN ./gradlew clean bootJar -x test
+# 의존성 다운로드
+RUN ./gradlew dependencies
 
-# ===== Run Stage =====
-FROM amazoncorretto:17-alpine
+# 소스 코드 복사 및 빌드
+COPY src ./src
+RUN ./gradlew build -x test
+
+
+# 런타임 스테이지
+FROM amazoncorretto:17-alpine3.21
+
+# 작업 디렉토리 설정
 WORKDIR /app
 
-#  - 실행할 jar 이름을 이 값으로 조합합니다.
+# 프로젝트 정보를 ENV로 설정
 ENV PROJECT_NAME=discodeit \
     PROJECT_VERSION=1.2-M8 \
     JVM_OPTS=""
 
-# 컨테이너 내부에서 열어줄 포트
+# 빌드 스테이지에서 jar 파일만 복사
+COPY --from=builder /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar ./
+
+# 80 포트 노출
 EXPOSE 80
 
-# 빌드 산출물 복사 (디렉터리째 복사해서 jar 원래 이름을 유지)
-COPY --from=builder /app/build/libs /app/build/libs
-
-# 필요 시 Spring profile을 prod로 강제하고 80포트로 실행
-ENV SPRING_PROFILES_ACTIVE=prod
-
-# 환경변수로 정의한 이름을 이용해 jar 파일을 실행
-ENTRYPOINT sh -c "exec java $JVM_OPTS \
-  -jar /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar \
-  --spring.profiles.active=${SPRING_PROFILES_ACTIVE} \
-  --server.port=80"
+# jar 파일 실행
+ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar ${PROJECT_NAME}-${PROJECT_VERSION}.jar"]
