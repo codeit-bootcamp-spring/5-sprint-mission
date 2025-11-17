@@ -9,11 +9,7 @@ spring:
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: validate
-      format_sql: false
-    show-sql: false
+        format_sql: false
 
 logging:
   level:
@@ -27,8 +23,3 @@ management:
   info:
     env:
       enabled: false
-
-#discodeit:
-#  storage:
-#    local:
-#      root-path: /app/storage
