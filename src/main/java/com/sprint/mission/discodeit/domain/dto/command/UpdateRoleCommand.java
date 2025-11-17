@@ -17,7 +17,7 @@ public class UpdateRoleCommand {
 	private UUID userId;
 
 	public static UpdateRoleCommand of(UserRoleUpdateRequest request) {
-		return new UpdateRoleCommand(request.getRole(), request.getUserId());
+		return new UpdateRoleCommand(request.getNewRole(), request.getUserId());
 	}
 
 }

@@ -37,6 +37,7 @@ spring:
           name: discodeit
 
 
+
 # log
 logging:
   level:
@@ -90,3 +91,8 @@ management:
       enabled: true
     build:
       enabled: true
+
+server:
+  servlet:
+    session:
+      tracking-modes: cookie

@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,7 +53,7 @@ public class AuthController {
 		return ResponseEntity.ok(userDto);
 	}
 
-	@PatchMapping("/role")
+	@PutMapping("/role")
 	private ResponseEntity<UserDto> updateRole(@RequestBody UserRoleUpdateRequest request) {
 
 		UserDto userDto = authService.updateRole(UpdateRoleCommand.of(request));

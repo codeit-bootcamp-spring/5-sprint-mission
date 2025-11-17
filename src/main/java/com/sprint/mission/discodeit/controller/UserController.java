@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,19 +21,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.sprint.mission.discodeit.domain.dto.CreateBiContentDTO;
 import com.sprint.mission.discodeit.domain.dto.CreateUserDTO;
-import com.sprint.mission.discodeit.domain.dto.UpdateStatusByUserIdDTO;
 import com.sprint.mission.discodeit.domain.dto.UpdateUserDTO;
 import com.sprint.mission.discodeit.domain.dto.user.UserDto;
 import com.sprint.mission.discodeit.domain.dto.user.UserResponse;
-import com.sprint.mission.discodeit.domain.dto.userStatus.UserStatusDto;
-import com.sprint.mission.discodeit.domain.dto.userStatus.UserStatusResponse;
-import com.sprint.mission.discodeit.domain.request.UpdateUserStatusRequest;
 import com.sprint.mission.discodeit.domain.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -49,7 +43,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
 	private final UserService userService;
-	private final UserStatusService userStatusService;
 	private final UserMapper userMapper;
 	private final UserStatusMapper userStatusMapper;
 
@@ -136,18 +129,14 @@ public class UserController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@PatchMapping("/{userId}/userStatus")
-	public ResponseEntity<UserStatusResponse> updateUserStatus(
-	  @PathVariable UUID userId,
-	  @RequestBody @Valid UpdateUserStatusRequest updateUserStatusRequest) {
-
-		UserStatusDto newUserStatus = userStatusService.updateStatusByUserId(
-		  UpdateStatusByUserIdDTO.builder()
-			.userId(userId)
-			.newLastActiveAt(updateUserStatusRequest.getNewLastActiveAt())
-			.build());
-
-		return ResponseEntity.ok(userStatusMapper.toResponse(newUserStatus));
-	}
+	// @PatchMapping("/{userId}/userStatus")
+	// public ResponseEntity<UserStatusResponse> updateUserStatus(
+	//   @PathVariable UUID userId,
+	//   @RequestBody @Valid UpdateUserStatusRequest updateUserStatusRequest) {
+	//
+	//
+	//
+	// 	return ResponseEntity.ok(new User));
+	// }
 
 }

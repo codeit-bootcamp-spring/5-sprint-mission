@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.security;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,8 +36,28 @@ public class DiscodeitUserDetails implements UserDetails {
 		return userDto.getUsername();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		DiscodeitUserDetails that = (DiscodeitUserDetails)o;
+		return Objects.equals(userDto, that.userDto) && Objects.equals(password, that.password);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(userDto, password);
+	}
+
 	public static DiscodeitUserDetails from(UserDto userDto, String password) {
 		return new DiscodeitUserDetails(userDto, password);
 
 	}
+
+	public UUID getUserId() {
+		return userDto.getId();
+	}
+
 }

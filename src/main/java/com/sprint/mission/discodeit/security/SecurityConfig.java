@@ -11,14 +11,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyAuthoritiesMapper;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
@@ -38,10 +44,13 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(
 	  HttpSecurity http,
 	  LoginSuccessHandler loginSuccessHandler,
-	  LoginFailureHandler loginFailureHandler
+	  LoginFailureHandler loginFailureHandler,
+	  DaoAuthenticationProvider daoAuthenticationProvider,
+	  SessionRegistry sessionRegistry
 	) throws Exception {
 
 		http
+		  .authenticationProvider(daoAuthenticationProvider)
 		  .authorizeHttpRequests(auth -> auth
 			// permitAll 경로 설정
 			.requestMatchers("/api/auth/login", "/error", "/", "/index.html").permitAll()
@@ -85,9 +94,16 @@ public class SecurityConfig {
 				response.setStatus(FORBIDDEN.value());
 				response.setContentType("application/json");
 				ErrorResponse body = ErrorResponse.of(NOT_AUTHORIZED, FORBIDDEN.value(), authException);
+				response.getWriter().write(objectMapper.writeValueAsString(body));
 			})
 
 		  )
+		  .sessionManagement(session -> session
+			.maximumSessions(1)
+			.maxSessionsPreventsLogin(false)
+			.sessionRegistry(sessionRegistry)
+		  )
+		// .rememberMe(Customizer.withDefaults())
 		;
 
 		return http.build();
@@ -112,5 +128,27 @@ public class SecurityConfig {
 		DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 		expressionHandler.setRoleHierarchy(roleHierarchy);
 		return expressionHandler;
+	}
+
+	@Bean
+	public SessionRegistry sessionRegistry() {
+		return new SessionRegistryImpl();
+	}
+
+	@Bean
+	public HttpSessionEventPublisher httpSessionEventPublisher() {
+		return new HttpSessionEventPublisher();
+	}
+
+	@Bean
+	public DaoAuthenticationProvider daoAuthenticationProvider(
+	  UserDetailsService userDetailsService,
+	  PasswordEncoder passwordEncoder,
+	  RoleHierarchy roleHierarchy
+	) {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+		provider.setPasswordEncoder(passwordEncoder);
+		provider.setAuthoritiesMapper(new RoleHierarchyAuthoritiesMapper(roleHierarchy));
+		return provider;
 	}
 }

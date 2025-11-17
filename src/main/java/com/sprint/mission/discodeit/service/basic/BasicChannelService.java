@@ -9,11 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +27,6 @@ import com.sprint.mission.discodeit.domain.dto.user.UserDto;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.ReadStatus;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.ParticipantsEmptyException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateNotAllowedException;
@@ -36,7 +37,8 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.SecurityService;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import lombok.RequiredArgsConstructor;
@@ -52,9 +54,10 @@ public class BasicChannelService implements ChannelService {
 	private final ReadStatusRepository readStatusRepository;
 	private final UserRepository userRepository;
 	private final ChannelMapper channelMapper;
-	private final UserStatusRepository userStatusRepository;
 	private final UserMapper userMapper;
 	private final BinaryContentMapper binaryContentMapper;
+	private final SessionRegistry sessionRegistry;
+	private final SecurityService securityService;
 
 	@Override
 	@Transactional
@@ -95,13 +98,16 @@ public class BasicChannelService implements ChannelService {
 		readStatusRepository.saveAll(newReadStatuses);
 		log.debug("success save readStatuses  channelUserIDs={}", dto.getUserIds().toString());
 
-		List<UserStatus> userStatuses = userStatusRepository.findByUserIdIn(
-		  participants.stream().map(User::getId).toList());
+		Set<UUID> participantIds = participants.stream()
+		  .map(User::getId)
+		  .collect(Collectors.toSet());
 
-		Map<UUID, Boolean> userID2IsOnlineMap = userStatuses.stream()
+		Map<UUID, Boolean> userID2IsOnlineMap = sessionRegistry.getAllPrincipals().stream()
+		  .filter(principal -> principal instanceof DiscodeitUserDetails)
+		  .map(principal -> (DiscodeitUserDetails)principal)
 		  .collect(Collectors.toMap(
-			us -> us.getUser().getId(), // key: User ID
-			UserStatus::isOnline       // value: online 상태
+			DiscodeitUserDetails::getUserId,                      // keyMapper
+			userDetails -> participantIds.contains(userDetails.getUserId())  // valueMapper
 		  ));
 
 		List<UserDto> userDtoList = participants.stream()
@@ -161,11 +167,10 @@ public class BasicChannelService implements ChannelService {
 			});
 		});
 
-		List<UserStatus> userStatuses = userStatusRepository.findByUserIdIn(
-		  allReadStatusesDetails.stream().map(rs -> rs.getUser().getId()).toList());
-
-		Map<UUID, Boolean> UserId2IsOnlineMap = new HashMap<>();
-		userStatuses.forEach(us -> UserId2IsOnlineMap.put(us.getUser().getId(), us.isOnline()));
+		Set<UUID> userIds = ChannelID2Participants.values().stream()
+		  .flatMap(users -> users.stream().map(User::getId))
+		  .collect(Collectors.toSet());
+		Map<UUID, Boolean> UserId2IsOnlineMap = securityService.getUserId2OnlineMap(userIds);
 
 		return allChannels.stream().map(c -> channelMapper.toDto(
 			c,
@@ -245,15 +250,8 @@ public class BasicChannelService implements ChannelService {
 		  .map(ReadStatus::getUser)
 		  .toList();
 
-		List<UserStatus> userStatuses = userStatusRepository.findByUserIdIn(
-		  participants.stream().map(User::getId).toList()
-		);
-
-		Map<UUID, Boolean> userID2IsOnlineMap = userStatuses.stream()
-		  .collect(Collectors.toMap(
-			us -> us.getUser().getId(),
-			UserStatus::isOnline
-		  ));
+		Set<UUID> userIds = participants.stream().map(User::getId).collect(Collectors.toSet());
+		Map<UUID, Boolean> userID2IsOnlineMap = securityService.getUserId2OnlineMap(userIds);
 
 		List<UserDto> userDtos = participants.stream()
 		  .map(u -> userMapper.toDto(u, userID2IsOnlineMap.getOrDefault(u.getId(), false),

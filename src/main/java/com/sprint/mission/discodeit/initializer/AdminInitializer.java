@@ -6,10 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.Role;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +19,6 @@ public class AdminInitializer implements ApplicationRunner {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final UserStatusRepository userStatusRepository;
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
@@ -39,9 +36,8 @@ public class AdminInitializer implements ApplicationRunner {
 		  .role(Role.ADMIN)
 		  .build();
 
-		UserStatus adminStatus = new UserStatus(admin);
 		userRepository.save(admin);
-		userStatusRepository.save(adminStatus);
+
 		log.info("Admin initialized");
 	}
 }
