@@ -296,6 +296,9 @@ postman-swagger-api-old/*
 *.env
 discodeit.env
 
+.discodeit
+.discodeit/*
+
 .logs/
 logs/
 

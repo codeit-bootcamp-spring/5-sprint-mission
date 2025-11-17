@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.storage.s3;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -27,6 +28,10 @@ class AWSS3Test {
     private S3Presigner s3Presigner;
     private String bucket;
     private String testKey = "test-file.txt";
+
+    private static S3Client staticS3Client;
+    private static String staticBucket;
+    private static String staticTestKey;
 
     @BeforeEach
     void setup() throws IOException {
@@ -64,6 +69,10 @@ class AWSS3Test {
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
+
+        staticS3Client = s3Client;
+        staticBucket = bucket;
+        staticTestKey = testKey;
     }
 
     @Test
@@ -127,5 +136,22 @@ class AWSS3Test {
         assertThat(presignedUrl).isNotEmpty();
         assertThat(presignedUrl).contains(bucket);
         assertThat(presignedUrl).contains(testKey);
+    }
+
+    @AfterAll
+    static void cleanup() {
+        if (staticS3Client != null && staticBucket != null) {
+            try {
+                DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                        .bucket(staticBucket)
+                        .key(staticTestKey)
+                        .build();
+
+                staticS3Client.deleteObject(deleteRequest);
+                System.out.println("S3 test file deleted: " + staticTestKey);
+            } catch (Exception e) {
+                System.err.println("Failed to delete S3 test file: " + e.getMessage());
+            }
+        }
     }
 }
