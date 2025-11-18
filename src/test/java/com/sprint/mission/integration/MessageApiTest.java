@@ -55,8 +55,6 @@ class MessageApiTest {
 	MockMvc mockMvc;
 	@Autowired
 	UserRepository userRepository;
-	@Autowired
-	UserStatusRepository userStatusRepository;
 
 	@Autowired
 	EntityManager em;

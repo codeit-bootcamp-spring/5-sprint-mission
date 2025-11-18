@@ -72,8 +72,6 @@ public class MessageServiceTest {
 	@Mock
 	private UserMapper userMapper;
 	@Mock
-	private UserStatusRepository userStatusRepository;
-	@Mock
 	private BinaryContentMapper binaryContentMapper;
 
 	String username;
@@ -99,7 +97,6 @@ public class MessageServiceTest {
 
 	User mockUser;
 	UserDto mockUserDto;
-	UserStatus mockUserStatus;
 
 	Channel mockChannel;
 
@@ -150,13 +147,12 @@ public class MessageServiceTest {
 		  .password(password)
 		  .profileImage(null)
 		  .build();
-		mockUserStatus = new UserStatus(mockUser);
 		mockUserDto = UserDto.builder()
 		  .id(mockUser.getId())
 		  .username(mockUser.getUsername())
 		  .email(mockUser.getEmail())
 		  .profile(null)
-		  .online(mockUserStatus.isOnline())
+		  .online(true)
 		  .build();
 
 		mockChannel = Channel.builder()
@@ -208,7 +204,6 @@ public class MessageServiceTest {
 		// Given
 		given(channelRepository.findById(any())).willReturn(Optional.of(mockChannel));
 		given(userRepository.findUserWithProfileImageByID(any())).willReturn(Optional.of(mockUser));
-		given(userStatusRepository.findByUserId(any())).willReturn(Optional.of(mockUserStatus));
 		given(binaryContentService.create(any())).willReturn(mockAttachment);
 		given(messageRepository.save(any())).willReturn(mockMessage);
 		given(userMapper.toDto(any(), anyBoolean(), any())).willReturn(mockUserDto);
@@ -304,7 +299,6 @@ public class MessageServiceTest {
 		  .build();
 
 		given(messageRepository.findMessageDetailsById(any())).willReturn(Optional.of(mockMessage));
-		given(userStatusRepository.findByUserId(any())).willReturn(Optional.of(mockUserStatus));
 		given(messageRepository.save(any())).willReturn(null);
 		given(userMapper.toDto(any(), anyBoolean(), any())).willReturn(mockUserDto);
 		given(messageMapper.toDto(any(), any())).willReturn(newMessageDto);
@@ -356,7 +350,6 @@ public class MessageServiceTest {
 
 		given(messageRepository.findAllDetailsByChannelId(mockChannel.getId(), PageRequest.of(0, 10)))
 		  .willReturn(mockMessageEntiesPage);
-		given(userStatusRepository.findByUserIdIn(any())).willReturn(List.of(mockUserStatus));
 		given(binaryContentMapper.toDto(null)).willReturn(null);
 		given(userMapper.toDto(any(), anyBoolean(), any())).willReturn(mockUserDto);
 		given(messageMapper.toDto(mockMessage, mockUserDto)).willReturn(mockMessageDto);
@@ -387,7 +380,6 @@ public class MessageServiceTest {
 		  , 3);
 		given(messageRepository.findAllDetailsByChannelIdAndCursor(any(), any(), any()))
 		  .willReturn(mockMessageEntiesPage);
-		given(userStatusRepository.findByUserIdIn(any())).willReturn(List.of(mockUserStatus));
 		given(binaryContentMapper.toDto(null)).willReturn(null);
 		given(userMapper.toDto(any(), anyBoolean(), any())).willReturn(mockUserDto);
 		given(messageMapper.toDto(mockMessage, mockUserDto)).willReturn(mockMessageDto);

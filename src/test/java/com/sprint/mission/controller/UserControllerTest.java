@@ -45,10 +45,7 @@ class UserControllerTest {
 	private UserService userService;
 	@MockitoBean
 	private UserMapper userMapper;
-	@MockitoBean
-	private UserStatusService userStatusService;
-	@MockitoBean
-	private UserStatusMapper userStatusMapper;
+
 	@MockitoBean
 	private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 

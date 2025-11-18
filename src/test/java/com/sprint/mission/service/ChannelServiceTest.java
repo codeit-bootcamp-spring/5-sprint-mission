@@ -57,8 +57,6 @@ public class ChannelServiceTest {
 	@Mock
 	private ChannelMapper channelMapper;
 	@Mock
-	private UserStatusRepository userStatusRepository;
-	@Mock
 	private UserMapper userMapper;
 	@Mock
 	BinaryContentMapper binaryContentMapper;
@@ -85,7 +83,6 @@ public class ChannelServiceTest {
 		  .build();
 		given(channelRepository.save(any())).willReturn(MockChannel);
 		given(readStatusRepository.findAllByChannelId(any())).willReturn(List.of());
-		given(userStatusRepository.findByUserIdIn(any())).willReturn(List.of());
 		given(channelMapper.toDto(any(), any(), any())).willReturn(MockChannelDto);
 
 		CreatePublicChannelDTO command = CreatePublicChannelDTO.builder()
@@ -126,7 +123,6 @@ public class ChannelServiceTest {
 		  .password("mockUser1PW")
 		  .profileImage(null)
 		  .build();
-		UserStatus mockUserStatus1 = new UserStatus(mockUser1);
 
 		UserDto mockUserDto1 = UserDto.builder()
 		  .id(id1)
@@ -143,7 +139,6 @@ public class ChannelServiceTest {
 		  .password("mockUser2PW")
 		  .profileImage(null)
 		  .build();
-		UserStatus mockUserStatus2 = new UserStatus(mockUser2);
 
 		UserDto mockUserDto2 = UserDto.builder()
 		  .id(id2)
@@ -160,7 +155,6 @@ public class ChannelServiceTest {
 		  .password("mockUser3PW")
 		  .profileImage(null)
 		  .build();
-		UserStatus mockUserStatus3 = new UserStatus(mockUser3);
 
 		UserDto mockUserDto3 = UserDto.builder()
 		  .id(id3)
@@ -190,8 +184,6 @@ public class ChannelServiceTest {
 		given(channelRepository.save(any())).willReturn(mockChannel);
 		given(userRepository.findUsersWithProfileByIdIn(any())).willReturn(List.of(mockUser1, mockUser2, mockUser3));
 		given(readStatusRepository.saveAll(any())).willReturn(null);
-		given(userStatusRepository.findByUserIdIn(any()))
-		  .willReturn(List.of(mockUserStatus1, mockUserStatus2, mockUserStatus3));
 		given(binaryContentMapper.toDto(any())).willReturn(mockBinaryContentDto);
 		given(binaryContentMapper.toDto(any())).willReturn(mockBinaryContentDto);
 		given(binaryContentMapper.toDto(any())).willReturn(mockBinaryContentDto);
@@ -297,7 +289,6 @@ public class ChannelServiceTest {
 		given(channelRepository.findPublicChannels(any())).willReturn(List.of(mockPublicChannel1, mockPublicChannel2));
 		given(readStatusRepository.findAllByUserId(any())).willReturn(List.of(mockReadStatus1));
 		given(readStatusRepository.findReadStatusDetailAllByChannelIds(any())).willReturn(List.of(mockReadStatus1));
-		given(userStatusRepository.findByUserIdIn(any())).willReturn(List.of());
 		given(channelMapper.toDto(eq(mockPublicChannel1), any(), any()))
 		  .willReturn(mockPublicChannelDto1);
 		given(channelMapper.toDto(eq(mockPublicChannel2), any(), any()))
@@ -377,7 +368,6 @@ public class ChannelServiceTest {
 		given(channelRepository.findById(any())).willReturn(Optional.of(mockOldChannel));
 		given(channelRepository.save(any())).willReturn(null);
 		given(readStatusRepository.findAllByChannelId(any())).willReturn(List.of());
-		given(userStatusRepository.findByUserIdIn(any())).willReturn(List.of());
 		given(channelMapper.toDto(any(), any(), any())).willReturn(mockChannelDto);
 
 		UpdateChannelDTO command = UpdateChannelDTO.builder()

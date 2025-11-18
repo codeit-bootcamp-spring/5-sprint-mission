@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -53,8 +52,7 @@ class UserApiTest {
 	MockMvc mockMvc;
 	@Autowired
 	UserRepository userRepository;
-	@Autowired
-	UserStatusRepository userStatusRepository;
+
 	@MockitoBean
 	private S3Client s3Client;
 	@MockitoBean
@@ -176,10 +174,7 @@ class UserApiTest {
 			  .email(email + i)
 			  .build();
 
-			UserStatus userStatus = new UserStatus(user);
-
 			userRepository.save(user);
-			userStatusRepository.save(userStatus);
 
 		}
 
@@ -290,8 +285,6 @@ class UserApiTest {
 
 		assertThat(userRepository.findById(userWithProfileDto.getId())).isEmpty();
 		assertThat(userRepository.findById(userWithOutProfileDto.getId())).isEmpty();
-		assertThat(userStatusRepository.findByUserIdIn(
-		  List.of(userWithProfileDto.getId(), userWithProfileDto.getId()))).isEmpty();
 
 	}
 }
