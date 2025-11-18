@@ -29,6 +29,7 @@ import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
@@ -139,7 +140,8 @@ class MessageControllerTest {
 				"test",
 				"test@test.com",
 				null,
-				false
+				false,
+				Role.USER
 			))
 			.attachments(List.of())
 			.build();

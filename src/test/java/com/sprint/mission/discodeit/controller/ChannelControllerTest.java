@@ -29,6 +29,7 @@ import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
@@ -112,7 +113,8 @@ public class ChannelControllerTest {
 			"test",
 			"test@email.com",
 			null,
-			false
+			false,
+			Role.USER
 		);
 		ChannelDto channelDto = new ChannelDto(
 			UUID.randomUUID(),
@@ -267,7 +269,8 @@ public class ChannelControllerTest {
 			"test1",
 			"test1@email.com",
 			null,
-			false
+			false,
+			Role.USER
 		);
 		List<ChannelDto> channelDtos = List.of(
 			new ChannelDto(

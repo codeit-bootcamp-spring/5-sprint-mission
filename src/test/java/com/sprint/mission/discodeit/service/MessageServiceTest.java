@@ -35,6 +35,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
@@ -101,7 +102,8 @@ public class MessageServiceTest {
 			author.getUsername(),
 			author.getEmail(),
 			null,
-			false
+			false,
+			Role.USER
 		);
 		command = new MessageCreateCommand(
 			channel.getId(),
