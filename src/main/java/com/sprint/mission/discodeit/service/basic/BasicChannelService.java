@@ -37,7 +37,6 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.SecurityService;
 import com.sprint.mission.discodeit.service.ChannelService;
 
@@ -102,13 +101,7 @@ public class BasicChannelService implements ChannelService {
 		  .map(User::getId)
 		  .collect(Collectors.toSet());
 
-		Map<UUID, Boolean> userID2IsOnlineMap = sessionRegistry.getAllPrincipals().stream()
-		  .filter(principal -> principal instanceof DiscodeitUserDetails)
-		  .map(principal -> (DiscodeitUserDetails)principal)
-		  .collect(Collectors.toMap(
-			DiscodeitUserDetails::getUserId,                      // keyMapper
-			userDetails -> participantIds.contains(userDetails.getUserId())  // valueMapper
-		  ));
+		Map<UUID, Boolean> userID2IsOnlineMap = securityService.getUserId2OnlineMap(participantIds);
 
 		List<UserDto> userDtoList = participants.stream()
 		  .map(u -> userMapper.toDto(
