@@ -1,9 +1,11 @@
-package com.sprint.mission.discodeit.dto;
+package com.sprint.mission.discodeit.dto.message;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.log.LogUtils;
 
 import lombok.Builder;

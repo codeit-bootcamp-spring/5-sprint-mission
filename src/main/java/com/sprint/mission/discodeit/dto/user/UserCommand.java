@@ -1,7 +1,8 @@
-package com.sprint.mission.discodeit.dto.neutral;
+package com.sprint.mission.discodeit.dto.user;
 
 import java.util.Optional;
 
+import com.sprint.mission.discodeit.dto.binarycontent.NewBinaryContent;
 import com.sprint.mission.discodeit.log.LogUtils;
 
 public record UserCommand(

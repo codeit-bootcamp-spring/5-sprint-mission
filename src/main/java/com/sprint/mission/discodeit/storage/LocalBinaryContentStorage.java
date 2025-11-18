@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.sprint.mission.discodeit.configuration.LocalStorageProps;
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.exception.storage.StorageFileMissingException;
 import com.sprint.mission.discodeit.exception.storage.StorageInitException;
 import com.sprint.mission.discodeit.exception.storage.StorageReadException;

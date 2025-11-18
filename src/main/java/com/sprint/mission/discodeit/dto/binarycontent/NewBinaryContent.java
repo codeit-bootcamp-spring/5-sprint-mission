@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.neutral;
+package com.sprint.mission.discodeit.dto.binarycontent;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

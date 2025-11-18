@@ -1,9 +1,10 @@
-package com.sprint.mission.discodeit.dto;
+package com.sprint.mission.discodeit.dto.channel;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.log.LogUtils;
 

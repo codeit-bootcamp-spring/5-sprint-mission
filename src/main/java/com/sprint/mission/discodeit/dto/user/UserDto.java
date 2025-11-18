@@ -1,7 +1,8 @@
-package com.sprint.mission.discodeit.dto;
+package com.sprint.mission.discodeit.dto.user;
 
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.log.LogUtils;
 

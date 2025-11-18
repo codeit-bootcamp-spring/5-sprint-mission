@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 
 public final class LogUtils {
 

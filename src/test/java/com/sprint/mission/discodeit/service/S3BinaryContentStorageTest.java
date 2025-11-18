@@ -19,7 +19,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
 import com.sprint.mission.discodeit.configuration.AWSProperties;
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.exception.storage.StorageWriteException;
 import com.sprint.mission.discodeit.storage.s3.S3BinaryContentStorage;
 import com.sprint.mission.discodeit.storage.s3.S3PresignService;

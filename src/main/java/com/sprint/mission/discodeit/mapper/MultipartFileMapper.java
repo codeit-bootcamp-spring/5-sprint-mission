@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.sprint.mission.discodeit.dto.neutral.NewBinaryContent;
+import com.sprint.mission.discodeit.dto.binarycontent.NewBinaryContent;
 import com.sprint.mission.discodeit.exception.multipartfile.MultipartReadException;
 
 @Component

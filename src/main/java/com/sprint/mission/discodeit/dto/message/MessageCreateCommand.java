@@ -1,8 +1,9 @@
-package com.sprint.mission.discodeit.dto.neutral;
+package com.sprint.mission.discodeit.dto.message;
 
 import java.util.List;
 import java.util.UUID;
 
+import com.sprint.mission.discodeit.dto.binarycontent.NewBinaryContent;
 import com.sprint.mission.discodeit.log.LogUtils;
 
 public record MessageCreateCommand(

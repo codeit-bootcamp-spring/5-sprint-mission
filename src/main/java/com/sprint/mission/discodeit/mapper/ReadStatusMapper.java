@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.sprint.mission.discodeit.dto.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 
 @Mapper(componentModel = "spring")

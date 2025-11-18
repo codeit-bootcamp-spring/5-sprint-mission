@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.sprint.mission.discodeit.dto.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.entity.Message;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class, BinaryContentMapper.class})
