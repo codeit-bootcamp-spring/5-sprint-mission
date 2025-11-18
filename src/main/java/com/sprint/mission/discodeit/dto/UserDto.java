@@ -51,7 +51,7 @@ public class UserDto {
   @Builder
   public static class UpdateRoleRequest {
 
-    private UUID id;
+    private UUID userId;
     private String newRole;
   }
 

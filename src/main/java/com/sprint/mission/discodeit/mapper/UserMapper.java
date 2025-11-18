@@ -8,15 +8,11 @@ import com.sprint.mission.discodeit.dto.UserDto.UpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserRole;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
-import java.util.List;
 import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.web.multipart.MultipartFile;
 
 @Mapper(componentModel = "spring", uses = {
@@ -26,12 +22,9 @@ public abstract class UserMapper {
   @Autowired
   protected BinaryContentMapper binaryContentMapper;
 
-  @Autowired
-  protected SessionRegistry sessionRegistry;
-
   @Mapping(target = "profile", expression = "java(binaryContentMapper.toDetail(user.getProfile()))")
-  @Mapping(target = "online", expression = "java(isUserOnline(user))")
-  public abstract UserDto.Detail toDetail(User user);
+  @Mapping(target = "online", source = "isUserOnline", defaultValue = "false")
+  public abstract UserDto.Detail toDetail(User user, boolean isUserOnline);
 
   @Mapping(target = "profile", expression = "java(binaryContentMapper.toDetailResponse(detail.getProfile()))")
   public abstract UserDto.DetailResponse toDetailResponse(UserDto.Detail detail);
@@ -68,19 +61,5 @@ public abstract class UserMapper {
                         .role(request.getNewRole() == null ? UserRole.USER.name()
                             : request.getNewRole())
                         .build();
-  }
-
-  protected boolean isUserOnline(User user) {
-    List<Object> principals = sessionRegistry.getAllPrincipals();
-    for (Object principal : principals) {
-      if (principal instanceof DiscodeitUserDetails ud && ud.getUsername()
-                                                            .equals(user.getUsername())) {
-        List<SessionInformation> sessions = sessionRegistry.getAllSessions(ud, false);
-        if (!sessions.isEmpty()) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 }

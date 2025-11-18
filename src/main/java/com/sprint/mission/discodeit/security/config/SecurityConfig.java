@@ -1,14 +1,19 @@
 package com.sprint.mission.discodeit.security.config;
 
+import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetailsService;
+import com.sprint.mission.discodeit.security.filter.CustomRememberMeAuthenticationFilter;
 import com.sprint.mission.discodeit.security.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.handler.LogoutSuccessHandlerImpl;
 import com.sprint.mission.discodeit.security.handler.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.security.repository.InMemoryTokenRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -19,6 +24,9 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
@@ -28,47 +36,42 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final DiscodeitUserDetailsService disUserDetailsService;
+  private final DiscodeitUserDetailsService discodeitUserDetailsService;
   private final LoginSuccessHandler loginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
+  private final LogoutSuccessHandlerImpl logoutSuccessHandler;
+  private final SpaCsrfTokenRequestHandler spaCsrfTokenRequestHandler;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http,
+      PersistentTokenBasedRememberMeServices rememberMeServices,
+      CustomRememberMeAuthenticationFilter customRememberMeAuthenticationFilter) throws Exception {
     http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                          .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()))
+                          .csrfTokenRequestHandler(spaCsrfTokenRequestHandler))
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/api/auth/csrf-token", "/api/auth/login",
-                            "/api/auth/logout", "/api/users", "/swagger-ui/**", "/v3/api-docs/**",
-                            "/actuator/**")
+            auth -> auth.requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico",
+                            "/api/auth/csrf-token", "/api/auth/login", "/api/auth/logout", "/api/users",
+                            "/api/auth/me", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
         .formLogin(form -> form.loginProcessingUrl("/api/auth/login")
-                               .usernameParameter("username")
-                               .passwordParameter("password")
                                .successHandler(loginSuccessHandler)
-                               .failureHandler(loginFailureHandler)
-                               .permitAll())
+                               .failureHandler(loginFailureHandler))
         .logout(logout -> logout.logoutUrl("/api/auth/logout")
-                                .logoutSuccessHandler(new LogoutSuccessHandlerImpl())
-                                .invalidateHttpSession(true)
-                                .deleteCookies("JSESSIONID"))
-        .sessionManagement(session -> session
-            .maximumSessions(1)
-            .maxSessionsPreventsLogin(true)
-            .sessionRegistry(sessionRegistry())
-        )
-        .rememberMe(rm -> rm
-            .userDetailsService(disUserDetailsService)
-            .key("uniqueAndSecret")
-            .tokenValiditySeconds(7 * 24 * 60 * 60)
-        )
-        .userDetailsService(disUserDetailsService)
-        .exceptionHandling(exception -> exception
-            .accessDeniedHandler(
-                (request, response, accessDeniedException) -> {
-                  response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                }));
+                                .logoutSuccessHandler(logoutSuccessHandler)
+                                .invalidateHttpSession(true))
+        .sessionManagement(session -> session.maximumSessions(1)
+                                             .maxSessionsPreventsLogin(true)
+                                             .sessionRegistry(sessionRegistry()))
+        .rememberMe(rm -> rm.rememberMeServices(rememberMeServices))
+        .userDetailsService(discodeitUserDetailsService)
+        .exceptionHandling(ex -> ex.accessDeniedHandler(
+            (request, response, accessDeniedException) -> response.setStatus(
+                HttpServletResponse.SC_FORBIDDEN)));
+
+    http.addFilterBefore(customRememberMeAuthenticationFilter,
+        UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }
@@ -81,12 +84,20 @@ public class SecurityConfig {
 
   @Bean
   public RoleHierarchy roleHierarchy() {
-    String hierarchy = """
-        ROLE_ADMIN > ROLE_CHANNEL_MANAGER
-        ROLE_CHANNEL_MANAGER > ROLE_USER
-        """;
+    return RoleHierarchyImpl.withDefaultRolePrefix()
+                            .role(UserRole.ADMIN.name())
+                            .implies(UserRole.CHANNEL_MANAGER.name())
+                            .role(UserRole.CHANNEL_MANAGER.name())
+                            .implies(UserRole.USER.name())
+                            .build();
+  }
 
-    return RoleHierarchyImpl.fromHierarchy(hierarchy);
+  @Bean
+  static MethodSecurityExpressionHandler methodSecurityExpressionHandler(
+      RoleHierarchy roleHierarchy) {
+    DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+    handler.setRoleHierarchy(roleHierarchy);
+    return handler;
   }
 
   @Bean
@@ -97,5 +108,23 @@ public class SecurityConfig {
   @Bean
   public HttpSessionEventPublisher httpSessionEventPublisher() {
     return new HttpSessionEventPublisher();
+  }
+
+  @Bean
+  public PersistentTokenRepository persistentTokenRepository() {
+    return new InMemoryTokenRepository();
+  }
+
+  @Bean
+  public PersistentTokenBasedRememberMeServices rememberMeServices(
+      PersistentTokenRepository tokenRepository) {
+    return new PersistentTokenBasedRememberMeServices("remember-me-key",
+        discodeitUserDetailsService, tokenRepository);
+  }
+
+  @Bean
+  public CustomRememberMeAuthenticationFilter customRememberMeAuthenticationFilter(
+      PersistentTokenBasedRememberMeServices rememberMeServices) {
+    return new CustomRememberMeAuthenticationFilter(rememberMeServices);
   }
 }

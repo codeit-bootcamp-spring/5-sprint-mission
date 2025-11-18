@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,8 +43,13 @@ public class AuthController {
   public ResponseEntity<UserDto.DetailResponse> getCurrentUser(
       @AuthenticationPrincipal DiscodeitUserDetails userDetails) {
 
+    if (userDetails == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                           .build();
+    }
+
     return ResponseEntity.ok(
-        userMapper.toDetailResponse(userMapper.toDetail(userDetails.getUser())));
+        userMapper.toDetailResponse(userDetails.getUserDetail()));
   }
 
   @Operation(summary = "사용자 권한 수정")
@@ -52,7 +58,7 @@ public class AuthController {
   public ResponseEntity<Void> updateRole(@RequestBody UserDto.UpdateRoleRequest request) {
 
     userService.update(UserDto.UpdateCommand.builder()
-                                            .id(request.getId())
+                                            .id(request.getUserId())
                                             .role(request.getNewRole())
                                             .build());
 

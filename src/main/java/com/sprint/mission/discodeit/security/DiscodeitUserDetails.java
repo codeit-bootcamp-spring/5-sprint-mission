@@ -1,38 +1,35 @@
 package com.sprint.mission.discodeit.security;
 
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.dto.UserDto;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@Getter
+@RequiredArgsConstructor
 public class DiscodeitUserDetails implements UserDetails {
 
-  private final User user;
-
-  public DiscodeitUserDetails(User user) {
-    this.user = user;
-  }
+  private final UserDto.Detail userDetail;
+  private final String password;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
+    return List.of(new SimpleGrantedAuthority("ROLE_" + userDetail.getRole()));
   }
 
   @Override
   public String getPassword() {
-    return user.getPassword();
+    return this.password;
   }
 
   @Override
   public String getUsername() {
-    return user.getUsername();
-  }
-
-  public User getUser() {
-    return user;
+    return userDetail.getUsername();
   }
 
   @Override
@@ -43,12 +40,11 @@ public class DiscodeitUserDetails implements UserDetails {
     if (!(o instanceof DiscodeitUserDetails that)) {
       return false;
     }
-    return Objects.equals(this.user.getUsername(), that.user.getUsername());
+    return Objects.equals(this.userDetail.getId(), that.userDetail.getId());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(user.getUsername());
+    return Objects.hash(userDetail.getId());
   }
-
 }

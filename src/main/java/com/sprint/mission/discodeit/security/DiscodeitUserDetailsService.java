@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.security;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class DiscodeitUserDetailsService implements UserDetailsService {
 
   private final UserRepository userRepository;
+  private final UserMapper userMapper;
 
   @Override
   public UserDetails loadUserByUsername(String username) {
@@ -20,6 +22,6 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
                               .orElseThrow(() -> new UsernameNotFoundException(
                                   "User not found with email: " + username));
 
-    return new DiscodeitUserDetails(user);
+    return new DiscodeitUserDetails(userMapper.toDetail(user, false), user.getPassword());
   }
 }

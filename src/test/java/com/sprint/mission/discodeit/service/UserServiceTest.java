@@ -13,10 +13,12 @@ import com.sprint.mission.discodeit.dto.UserDto.Detail;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.exception.user.UserDuplicateException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.SessionManager;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +42,12 @@ class UserServiceTest {
 
   @Mock
   private UserMapper userMapper;
+
+  @Mock
+  private PasswordEncoder passwordEncoder;
+
+  @Mock
+  private SessionManager sessionManager;
 
   @InjectMocks
   private BasicUserService userService;
@@ -60,6 +69,7 @@ class UserServiceTest {
                .email("test@example.com")
                .password("password")
                .profile(profile)
+               .role(UserRole.USER.name())
                .build();
 
     createCommand = CreateCommand.builder()
@@ -93,7 +103,7 @@ class UserServiceTest {
     doReturn(user).when(userMapper)
                   .toEntity(any(CreateCommand.class), any(), any());
     doReturn(detail).when(userMapper)
-                    .toDetail(any(User.class));
+                    .toDetail(any(User.class), false);
 
     Detail result = userService.create(createCommand);
 
@@ -123,7 +133,7 @@ class UserServiceTest {
     // given
     given(userRepository.findById(updateCommand.getId())).willReturn(Optional.of(user));
     doReturn(detail).when(userMapper)
-                    .toDetail(any(User.class));
+                    .toDetail(any(User.class), false);
     given(binaryContentService.create(any())).willReturn(mock(BinaryContent.class));
 
     // when

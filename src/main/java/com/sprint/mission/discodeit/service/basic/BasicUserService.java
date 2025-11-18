@@ -10,15 +10,13 @@ import com.sprint.mission.discodeit.exception.user.UserDuplicateException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.SessionManager;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +31,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentService binaryContentService;
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
-  private final SessionRegistry sessionRegistry;
+  private final SessionManager sessionManager;
 
   @Override
   @Transactional
@@ -62,7 +60,7 @@ public class BasicUserService implements UserService {
 
     log.info("User {} created", user.getUsername());
 
-    return userMapper.toDetail(user);
+    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getUsername()));
   }
 
   @Override
@@ -71,7 +69,7 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
                               .orElseThrow(() -> new UserNotFoundException(userId));
 
-    return userMapper.toDetail(user);
+    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getUsername()));
   }
 
   @Override
@@ -80,7 +78,8 @@ public class BasicUserService implements UserService {
     List<User> users = userRepository.findAll();
 
     return users.stream()
-                .map(userMapper::toDetail)
+                .map(user -> userMapper.toDetail(user,
+                    sessionManager.isUserOnline(user.getUsername())))
                 .toList();
   }
 
@@ -115,7 +114,7 @@ public class BasicUserService implements UserService {
     if (!user.getRole()
              .equals(update.getRole())) {
 
-      expireSessionsForUser(user.getUsername());
+      sessionManager.expireSessionsForUser(user.getUsername());
     }
 
     user.update(updateWithEncodedPassword, newProfile);
@@ -126,7 +125,7 @@ public class BasicUserService implements UserService {
 
     log.info("User {} updated", user.getUsername());
 
-    return userMapper.toDetail(user);
+    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getUsername()));
   }
 
   @Override
@@ -150,20 +149,5 @@ public class BasicUserService implements UserService {
   @Transactional
   public void deleteAll() {
     userRepository.deleteAll();
-  }
-
-  private void expireSessionsForUser(String username) {
-
-    List<Object> principals = sessionRegistry.getAllPrincipals();
-    for (Object principal : principals) {
-      if (principal instanceof DiscodeitUserDetails userDetails && userDetails.getUsername()
-                                                                              .equals(username)) {
-
-        List<SessionInformation> sessions = sessionRegistry.getAllSessions(userDetails, false);
-        for (SessionInformation sessionInfo : sessions) {
-          sessionInfo.expireNow();
-        }
-      }
-    }
   }
 }
