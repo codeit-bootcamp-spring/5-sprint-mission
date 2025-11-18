@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.UserDto;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,6 +23,10 @@ public class DiscodeitUserDetails implements UserDetails {
     return List.of(new SimpleGrantedAuthority("ROLE_" + userDetail.getRole()));
   }
 
+  public UUID getId() {
+    return userDetail.getId(); // principal.id로 접근 가능
+  }
+  
   @Override
   public String getPassword() {
     return this.password;

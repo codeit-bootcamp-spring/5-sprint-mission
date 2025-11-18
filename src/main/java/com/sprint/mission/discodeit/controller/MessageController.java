@@ -19,6 +19,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,7 +37,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/messages")
 public class MessageController {
 
-  // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
   private final MessageService messageService;
   private final MessageMapper messageMapper;
 
@@ -53,6 +53,7 @@ public class MessageController {
 
   @Operation(summary = "Message 수정")
   @PatchMapping("/{id}")
+  @PreAuthorize("@basicMessageService.isAuthor(#id, authentication.principal.userDetail.id)")
   public ResponseEntity<MessageDto.DetailResponse> updateMessage(@PathVariable UUID id,
       @RequestBody UpdateRequest request) {
 
@@ -62,6 +63,7 @@ public class MessageController {
 
   @Operation(summary = "Message 삭제")
   @DeleteMapping("/{id}")
+  @PreAuthorize("@basicMessageService.isAuthor(#id, authentication.principal.userDetail.id)")
   public ResponseEntity<Void> deleteMessage(@PathVariable UUID id) {
 
     messageService.delete(id);

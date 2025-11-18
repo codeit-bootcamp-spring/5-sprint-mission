@@ -136,4 +136,18 @@ public class BasicMessageService implements MessageService {
   public void deleteAll() {
     messageRepository.deleteAll();
   }
+
+  @Override
+  public boolean isAuthor(UUID messageId, UUID userId) {
+
+    if (userId == null) {
+      return false;
+    }
+
+    return messageRepository.findById(messageId)
+                            .map(msg -> msg.getAuthor()
+                                           .getId()
+                                           .equals(userId))
+                            .orElse(false);
+  }
 }
