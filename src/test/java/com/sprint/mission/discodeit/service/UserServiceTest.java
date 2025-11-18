@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.doReturn;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -103,7 +104,7 @@ class UserServiceTest {
     doReturn(user).when(userMapper)
                   .toEntity(any(CreateCommand.class), any(), any());
     doReturn(detail).when(userMapper)
-                    .toDetail(any(User.class), false);
+                    .toDetail(any(User.class), eq(false));
 
     Detail result = userService.create(createCommand);
 
@@ -133,7 +134,7 @@ class UserServiceTest {
     // given
     given(userRepository.findById(updateCommand.getId())).willReturn(Optional.of(user));
     doReturn(detail).when(userMapper)
-                    .toDetail(any(User.class), false);
+                    .toDetail(any(User.class), eq(false));
     given(binaryContentService.create(any())).willReturn(mock(BinaryContent.class));
 
     // when

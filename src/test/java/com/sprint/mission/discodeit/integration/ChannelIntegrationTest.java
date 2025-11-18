@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.dto.UserDto;
 import jakarta.transaction.Transactional;
@@ -18,14 +19,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class ChannelIntegrationTest {
 
   @Autowired
@@ -62,6 +66,7 @@ class ChannelIntegrationTest {
 
   @Test
   @Transactional
+  @WithMockUser(username = "manager", roles = "CHANNEL_MANAGER")
   void testCreateAndGetPublicChannel() throws Exception {
     UUID userId = createTestUser("channelUser1", "channel1@test.com");
 
@@ -100,6 +105,7 @@ class ChannelIntegrationTest {
 
   @Test
   @Transactional
+  @WithMockUser(username = "manager", roles = "CHANNEL_MANAGER")
   void testUpdateAndDeleteChannel() throws Exception {
     UUID userId = createTestUser("channelUser2", "channel2@test.com");
 
