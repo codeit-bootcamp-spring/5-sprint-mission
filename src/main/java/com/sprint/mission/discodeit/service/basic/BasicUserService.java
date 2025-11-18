@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,7 @@ public class BasicUserService implements UserService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("principal.userDto.id == #userId")
 	public UserDto update(UUID userId, UserCommand command) {
 		log.debug("[UserService#update] try id={}, command={}", userId, command.forLog());
 
@@ -105,6 +107,7 @@ public class BasicUserService implements UserService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("principal.userDto.id == #userId")
 	public void delete(UUID userId) {
 		log.debug("[UserService#delete] try id={}", userId);
 		User user = validateId(userId);
