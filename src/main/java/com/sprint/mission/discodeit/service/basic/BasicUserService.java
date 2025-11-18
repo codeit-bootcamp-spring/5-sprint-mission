@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +36,6 @@ public class BasicUserService implements UserService {
 	private final BinaryContentStorage binaryContentStorage;
 	private final UserMapper userMapper;
 	private final PasswordEncoder passwordEncoder;
-	private final SessionRegistry sessionRegistry;
 
 	@Override
 	@Transactional

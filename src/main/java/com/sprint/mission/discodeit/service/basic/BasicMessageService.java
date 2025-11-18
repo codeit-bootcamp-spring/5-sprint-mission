@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -116,6 +117,7 @@ public class BasicMessageService implements MessageService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("@messageService.isOwner(#messageId, principal.userDto.id)")
 	public MessageDto update(UUID messageId, MessageUpdateRequest request) {
 		log.debug("[BasicMessageService#update] try messageId={} request={}", messageId, request);
 		Message message = validateId(messageId);
@@ -129,6 +131,7 @@ public class BasicMessageService implements MessageService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("@messageService.isOwner(#messageId, principal.userDto.id)")
 	public void delete(UUID messageId) {
 		log.debug("[BasicMessageService#delete] try messageId={}", messageId);
 		Message message = validateId(messageId);
@@ -142,6 +145,16 @@ public class BasicMessageService implements MessageService {
 
 		messageRepository.deleteById(message.getId());
 		log.info("[MessageService#delete] Message Deleted:{}", message.getId());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isOwner(UUID messageId, UUID userId) {
+		return messageRepository.findById(messageId)
+			.map(Message::getAuthor)
+			.map(User::getId)
+			.filter(userId::equals)
+			.isPresent();
 	}
 
 	private Message validateId(UUID messageId) {
