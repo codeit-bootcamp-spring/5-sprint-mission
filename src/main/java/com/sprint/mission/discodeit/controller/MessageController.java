@@ -1,21 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.controller.api.MessageApi;
-import com.sprint.mission.discodeit.dto.MessageDto;
-import com.sprint.mission.discodeit.dto.neutral.MessageCreateCommand;
-import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
-import com.sprint.mission.discodeit.log.LogUtils;
-import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
-import com.sprint.mission.discodeit.service.MessageService;
-import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
@@ -34,65 +23,79 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sprint.mission.discodeit.controller.api.MessageApi;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageCreateCommand;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.PageResponse;
+import com.sprint.mission.discodeit.log.LogUtils;
+import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
+import com.sprint.mission.discodeit.service.MessageService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/messages")
 @Slf4j
 public class MessageController implements MessageApi {
 
-  private final MessageService messageService;
-  private final MultipartFileMapper multipartFileMapper;
+	private final MessageService messageService;
+	private final MultipartFileMapper multipartFileMapper;
 
-  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<MessageDto> create(
-      @RequestPart(name = "messageCreateRequest") @Valid MessageCreateRequest request,
-      @RequestPart(name = "attachments", required = false) List<MultipartFile> attachments
-  ) throws IOException {
-    log.debug("payload: message={}, attachments={}",
-        request.forLog(), LogUtils.summarizeMultipartFiles(attachments, 3));
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<MessageDto> create(
+		@RequestPart(name = "messageCreateRequest") @Valid MessageCreateRequest request,
+		@RequestPart(name = "attachments", required = false) List<MultipartFile> attachments
+	) throws IOException {
+		log.debug("payload: message={}, attachments={}",
+			request.forLog(), LogUtils.summarizeMultipartFiles(attachments, 3));
 
-    MessageCreateCommand messageCreateCommand = new MessageCreateCommand(
-        request.channelId(),
-        request.authorId(),
-        request.content(),
-        multipartFileMapper.toNewBinaryContentList(attachments)
-    );
+		MessageCreateCommand messageCreateCommand = new MessageCreateCommand(
+			request.channelId(),
+			request.authorId(),
+			request.content(),
+			multipartFileMapper.toNewBinaryContentList(attachments)
+		);
 
-    MessageDto messageDto = messageService.create(messageCreateCommand);
-    log.info("Message Created: {}", messageDto.forLog());
+		MessageDto messageDto = messageService.create(messageCreateCommand);
+		log.info("Message Created: {}", messageDto.forLog());
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(messageDto);
-  }
+		return ResponseEntity.status(HttpStatus.CREATED).body(messageDto);
+	}
 
-  @PatchMapping("/{messageId}")
-  public ResponseEntity<MessageDto> update(
-      @PathVariable UUID messageId,
-      @RequestBody @Valid MessageUpdateRequest request) {
-    log.debug("payload: - messageId={}, request={}",
-        messageId, LogUtils.summarize(request.newContent(), 30));
+	@PatchMapping("/{messageId}")
+	public ResponseEntity<MessageDto> update(
+		@PathVariable UUID messageId,
+		@RequestBody @Valid MessageUpdateRequest request) {
+		log.debug("payload: - messageId={}, request={}",
+			messageId, LogUtils.summarize(request.newContent(), 30));
 
-    MessageDto messageDto = messageService.update(messageId, request);
-    log.info("Message Updated: {}", messageDto.forLog());
+		MessageDto messageDto = messageService.update(messageId, request);
+		log.info("Message Updated: {}", messageDto.forLog());
 
-    return ResponseEntity.status(HttpStatus.OK).body(messageDto);
-  }
+		return ResponseEntity.status(HttpStatus.OK).body(messageDto);
+	}
 
-  @DeleteMapping("/{messageId}")
-  public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
-    messageService.delete(messageId);
-    log.info("Message deleted: messageId={}", messageId);
+	@DeleteMapping("/{messageId}")
+	public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
+		messageService.delete(messageId);
+		log.info("Message deleted: messageId={}", messageId);
 
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-  }
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
 
-  @GetMapping
-  public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
-      @RequestParam UUID channelId,
-      @RequestParam(required = false) Instant cursor,
-      @PageableDefault(size = 50,
-          sort = "createdAt",
-          direction = Direction.DESC) Pageable pageable) {
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(messageService.findAllByChannelId(channelId, cursor, pageable));
-  }
+	@GetMapping
+	public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
+		@RequestParam UUID channelId,
+		@RequestParam(required = false) Instant cursor,
+		@PageableDefault(size = 50,
+			sort = "createdAt",
+			direction = Direction.DESC) Pageable pageable) {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(messageService.findAllByChannelId(channelId, cursor, pageable));
+	}
 }

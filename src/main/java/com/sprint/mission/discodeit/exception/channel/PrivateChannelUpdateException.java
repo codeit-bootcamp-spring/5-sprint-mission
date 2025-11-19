@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.exception.ErrorCode;
 
 public class PrivateChannelUpdateException extends ChannelException {
 
-  public PrivateChannelUpdateException() {
-    super(ErrorCode.INVALID_CHANNEL_UPDATE);
-  }
+	public PrivateChannelUpdateException() {
+		super(ErrorCode.INVALID_CHANNEL_UPDATE);
+	}
 }

@@ -1,65 +1,66 @@
 package com.sprint.mission.discodeit.exception;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
-  // User 관련 에러 코드
-  USER_NOT_FOUND("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-  DUPLICATE_USER("이미 존재하는 사용자입니다.", HttpStatus.CONFLICT),
-  INVALID_USER_CREDENTIALS("잘못된 사용자 인증 정보입니다."),
-  INVALID_USER_PARAMETER("잘못된 사용자 파라미터입니다."),
+	// User 관련 에러 코드
+	USER_NOT_FOUND("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+	DUPLICATE_USER("이미 존재하는 사용자입니다.", HttpStatus.CONFLICT),
+	INVALID_USER_CREDENTIALS("잘못된 사용자 인증 정보입니다."),
+	INVALID_USER_PARAMETER("잘못된 사용자 파라미터입니다."),
 
-  // UserStatus 관련 에러 코드
-  USER_STATUS_NOT_FOUND("사용자 상태를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-  DUPLICATE_USER_STATUS("이미 존재하는 사용자 상태입니다.", HttpStatus.CONFLICT),
+	// UserStatus 관련 에러 코드
+	USER_STATUS_NOT_FOUND("사용자 상태를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+	DUPLICATE_USER_STATUS("이미 존재하는 사용자 상태입니다.", HttpStatus.CONFLICT),
 
-  // Channel 관련 에러 코드
-  CHANNEL_NOT_FOUND("채널을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-  INVALID_CHANNEL_UPDATE("개인 채널은 수정할 수 없습니다."),
+	// Channel 관련 에러 코드
+	CHANNEL_NOT_FOUND("채널을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+	INVALID_CHANNEL_UPDATE("개인 채널은 수정할 수 없습니다."),
 
-  // Message 관련 에러 코드
-  MESSAGE_NOT_FOUND("메세지를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+	// Message 관련 에러 코드
+	MESSAGE_NOT_FOUND("메세지를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
-  // ReadStatus 관련 에러 코드
-  READ_STATUS_NOT_FOUND("메세지 읽음 상태를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-  DUPLICATE_READ_STATUS("이미 존재하는 메세지 읽음 상태입니다.", HttpStatus.CONFLICT),
+	// ReadStatus 관련 에러 코드
+	READ_STATUS_NOT_FOUND("메세지 읽음 상태를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+	DUPLICATE_READ_STATUS("이미 존재하는 메세지 읽음 상태입니다.", HttpStatus.CONFLICT),
 
-  // BinaryContent 관련 에러 코드
-  BINARY_CONTENT_NOT_FOUND("파일 메타 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+	// BinaryContent 관련 에러 코드
+	BINARY_CONTENT_NOT_FOUND("파일 메타 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
-  // Storage 관련 에러 코드
-  STORAGE_INIT_FAILED("저장소 디렉토리 생성에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-  STORAGE_WRITE_FAILED("파일 쓰기에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-  STORAGE_READ_FAILED("파일 읽기에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-  STORAGE_FILE_MISSING("파일을 찾을 수 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	// Storage 관련 에러 코드
+	STORAGE_INIT_FAILED("저장소 디렉토리 생성에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	STORAGE_WRITE_FAILED("파일 쓰기에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	STORAGE_READ_FAILED("파일 읽기에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	STORAGE_FILE_MISSING("파일을 찾을 수 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
-  // MultiPartFile 관련 에러 코드
-  MULTIPART_EMPTY,
-  MULTIPART_READ_FAILED("멀티파트 바이트 변환에 실패하였습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
-  MULTIPART_UNSUPPORTED_TYPE,
-  FILENAME_INVALID,
-  MULTIPART_TOO_LARGE,
+	// MultiPartFile 관련 에러 코드
+	MULTIPART_EMPTY,
+	MULTIPART_READ_FAILED("멀티파트 바이트 변환에 실패하였습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
+	MULTIPART_UNSUPPORTED_TYPE,
+	FILENAME_INVALID,
+	MULTIPART_TOO_LARGE,
 
-  // Server 에러 코드
-  VALIDATION_ERROR("요청 데이터 유효성 검사에 실패했습니다."),
-  INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-  INVALID_REQUEST("잘못된 요청입니다."),
-  ;
+	// Server 에러 코드
+	VALIDATION_ERROR("요청 데이터 유효성 검사에 실패했습니다."),
+	INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	INVALID_REQUEST("잘못된 요청입니다."),
+	;
 
-  private final String message;
-  private final HttpStatus status;
+	private final String message;
+	private final HttpStatus status;
 
-  ErrorCode() {
-    this.status = HttpStatus.BAD_REQUEST;
-    this.message = this.name();
-  }
+	ErrorCode() {
+		this.status = HttpStatus.BAD_REQUEST;
+		this.message = this.name();
+	}
 
-  ErrorCode(String message) {
-    this.message = message;
-    this.status = HttpStatus.BAD_REQUEST;
-  }
+	ErrorCode(String message) {
+		this.message = message;
+		this.status = HttpStatus.BAD_REQUEST;
+	}
 }

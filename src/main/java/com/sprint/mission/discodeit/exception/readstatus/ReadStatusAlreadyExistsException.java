@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.exception.ErrorCode;
 
 public class ReadStatusAlreadyExistsException extends ReadStatusException {
 
-  public ReadStatusAlreadyExistsException() {
-    super(ErrorCode.DUPLICATE_READ_STATUS);
-  }
+	public ReadStatusAlreadyExistsException() {
+		super(ErrorCode.DUPLICATE_READ_STATUS);
+	}
 }

@@ -1,9 +1,20 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.MessageDto;
-import com.sprint.mission.discodeit.dto.neutral.MessageCreateCommand;
-import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
+import com.sprint.mission.discodeit.dto.message.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageCreateCommand;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -20,16 +31,9 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 @Service("messageService")
 @RequiredArgsConstructor
@@ -37,113 +41,124 @@ import org.springframework.validation.annotation.Validated;
 @Slf4j
 public class BasicMessageService implements MessageService {
 
-  private final MessageRepository messageRepository;
-  private final ChannelRepository channelRepository;
-  private final UserRepository userRepository;
-  private final BinaryContentRepository binaryContentRepository;
-  private final BinaryContentStorage binaryContentStorage;
-  private final MessageMapper messageMapper;
-  private final PageResponseMapper pageResponseMapper;
+	private final MessageRepository messageRepository;
+	private final ChannelRepository channelRepository;
+	private final UserRepository userRepository;
+	private final BinaryContentRepository binaryContentRepository;
+	private final BinaryContentStorage binaryContentStorage;
+	private final MessageMapper messageMapper;
+	private final PageResponseMapper pageResponseMapper;
 
-  @Override
-  @Transactional
-  public MessageDto create(MessageCreateCommand command) {
-    log.debug("[BasicMessageService#create] try command={}", command.forLog());
+	@Override
+	@Transactional
+	public MessageDto create(MessageCreateCommand command) {
+		log.debug("[BasicMessageService#create] try command={}", command.forLog());
 
-    String content = command.content();
-    User author = userRepository.findById(command.authorId())
-        .orElseThrow(() -> new UserNotFoundException().addDetail("author", command.authorId()));
-    Channel channel = channelRepository.findById(command.channelId())
-        .orElseThrow(
-            () -> new ChannelNotFoundException().addDetail("channel", command.channelId()));
+		String content = command.content();
+		User author = userRepository.findById(command.authorId())
+			.orElseThrow(() -> new UserNotFoundException().addDetail("author", command.authorId()));
+		Channel channel = channelRepository.findById(command.channelId())
+			.orElseThrow(
+				() -> new ChannelNotFoundException().addDetail("channel", command.channelId()));
 
-    List<BinaryContent> attachments = command.attachments().stream()
-        .map(request -> {
-          BinaryContent binaryContent = new BinaryContent(
-              request.fileName(),
-              request.contentType(),
-              request.bytes().length
-          );
-          binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), request.bytes());
-          log.debug(
-              "[BasicMessageService#create] BinaryContent created: filename={}, contentType={}, size={}",
-              binaryContent.getFileName(),
-              binaryContent.getContentType(),
-              LogUtils.humanReadableSize(binaryContent.getSize()));
-          return binaryContent;
-        })
-        .toList();
+		List<BinaryContent> attachments = command.attachments().stream()
+			.map(request -> {
+				BinaryContent binaryContent = new BinaryContent(
+					request.fileName(),
+					request.contentType(),
+					request.bytes().length
+				);
+				binaryContentRepository.save(binaryContent);
+				binaryContentStorage.put(binaryContent.getId(), request.bytes());
+				log.debug(
+					"[BasicMessageService#create] BinaryContent created: filename={}, contentType={}, size={}",
+					binaryContent.getFileName(),
+					binaryContent.getContentType(),
+					LogUtils.humanReadableSize(binaryContent.getSize()));
+				return binaryContent;
+			})
+			.toList();
 
-    Message message = new Message(content, channel, author, attachments);
+		Message message = new Message(content, channel, author, attachments);
 
-    MessageDto dto = messageMapper.toDto(messageRepository.save(message));
-    log.info("[MessageService#create] Message Created:{}", dto);
+		MessageDto dto = messageMapper.toDto(messageRepository.save(message));
+		log.info("[MessageService#create] Message Created:{}", dto);
 
-    return dto;
-  }
+		return dto;
+	}
 
-  @Override
-  @Transactional(readOnly = true)
-  public MessageDto findById(UUID messageId) {
-    return messageMapper.toDto(validateId(messageId));
-  }
+	@Override
+	@Transactional(readOnly = true)
+	public MessageDto findById(UUID messageId) {
+		return messageMapper.toDto(validateId(messageId));
+	}
 
-  @Override
-  @Transactional(readOnly = true)
-  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor,
-      Pageable pageable) {
+	@Override
+	@Transactional(readOnly = true)
+	public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor,
+		Pageable pageable) {
 
-    if (!channelRepository.existsById(channelId)) {
-      throw new ChannelNotFoundException().addDetail("channel", channelId);
-    }
+		if (!channelRepository.existsById(channelId)) {
+			throw new ChannelNotFoundException().addDetail("channel", channelId);
+		}
 
-    Slice<MessageDto> slice = (cursor == null)
-        ? messageRepository.findAllByChannelIdOrderByCreatedAtDescIdDesc(channelId, pageable)
-        .map(messageMapper::toDto)
-        : messageRepository.findNextPage(channelId, cursor, channelId, pageable)
-            .map(messageMapper::toDto);
+		Slice<MessageDto> slice = (cursor == null)
+			? messageRepository.findAllByChannelIdOrderByCreatedAtDescIdDesc(channelId, pageable)
+			.map(messageMapper::toDto)
+			: messageRepository.findNextPage(channelId, cursor, channelId, pageable)
+			.map(messageMapper::toDto);
 
-    Instant nextCursor = (slice.hasNext() && slice.hasContent())
-        ? slice.getContent().get(slice.getContent().size() - 1).createdAt()
-        : null;
+		Instant nextCursor = (slice.hasNext() && slice.hasContent())
+			? slice.getContent().get(slice.getContent().size() - 1).createdAt()
+			: null;
 
-    return pageResponseMapper.fromSlice(slice, nextCursor);
-  }
+		return pageResponseMapper.fromSlice(slice, nextCursor);
+	}
 
+	@Override
+	@Transactional
+	@PreAuthorize("@messageService.isOwner(#messageId, principal.userDto.id)")
+	public MessageDto update(UUID messageId, MessageUpdateRequest request) {
+		log.debug("[BasicMessageService#update] try messageId={} request={}", messageId, request);
+		Message message = validateId(messageId);
+		message.update(request.newContent());
 
-  @Override
-  @Transactional
-  public MessageDto update(UUID messageId, MessageUpdateRequest request) {
-    log.debug("[BasicMessageService#update] try messageId={} request={}", messageId, request);
-    Message message = validateId(messageId);
-    message.update(request.newContent());
+		MessageDto dto = messageMapper.toDto(messageRepository.save(message));
+		log.info("[MessageService#update] Message Updated:{}", dto);
 
-    MessageDto dto = messageMapper.toDto(messageRepository.save(message));
-    log.info("[MessageService#update] Message Updated:{}", dto);
+		return dto;
+	}
 
-    return dto;
-  }
+	@Override
+	@Transactional
+	@PreAuthorize("@messageService.isOwner(#messageId, principal.userDto.id)")
+	public void delete(UUID messageId) {
+		log.debug("[BasicMessageService#delete] try messageId={}", messageId);
+		Message message = validateId(messageId);
 
-  @Override
-  @Transactional
-  public void delete(UUID messageId) {
-    log.debug("[BasicMessageService#delete] try messageId={}", messageId);
-    Message message = validateId(messageId);
+		if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
+			for (BinaryContent binaryContent : message.getAttachments()) {
+				binaryContentRepository.deleteById(binaryContent.getId());
+				log.debug("[MessageService#delete] BinaryContent Deleted:{}", binaryContent.getId());
+			}
+		}
 
-    if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
-      for (BinaryContent binaryContent : message.getAttachments()) {
-        binaryContentRepository.deleteById(binaryContent.getId());
-        log.debug("[MessageService#delete] BinaryContent Deleted:{}", binaryContent.getId());
-      }
-    }
+		messageRepository.deleteById(message.getId());
+		log.info("[MessageService#delete] Message Deleted:{}", message.getId());
+	}
 
-    messageRepository.deleteById(message.getId());
-    log.info("[MessageService#delete] Message Deleted:{}", message.getId());
-  }
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isOwner(UUID messageId, UUID userId) {
+		return messageRepository.findById(messageId)
+			.map(Message::getAuthor)
+			.map(User::getId)
+			.filter(userId::equals)
+			.isPresent();
+	}
 
-  private Message validateId(UUID messageId) {
-    return messageRepository.findById(messageId)
-        .orElseThrow(() -> new MessageNotFoundException().addDetail("id", messageId));
-  }
+	private Message validateId(UUID messageId) {
+		return messageRepository.findById(messageId)
+			.orElseThrow(() -> new MessageNotFoundException().addDetail("id", messageId));
+	}
 }
