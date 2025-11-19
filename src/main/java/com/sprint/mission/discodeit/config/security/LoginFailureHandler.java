@@ -44,7 +44,6 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
                 HttpStatus.UNAUTHORIZED.value()
         );
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(response.getWriter(), error);
+        objectMapper.writeValue(response.getWriter(), error);
     }
 }

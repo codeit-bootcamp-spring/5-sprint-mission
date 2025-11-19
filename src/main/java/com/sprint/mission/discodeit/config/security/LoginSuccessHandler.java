@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -25,10 +26,11 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         Authentication authentication
     ) throws IOException, ServletException {
 
-        DiscodeitUserDetails principal = (DiscodeitUserDetails) authentication.getPrincipal();
-        UserDto dto = principal.getUserDto();
+        DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
+        UserDto dto = userDetails.getUserDto();
 
         response.setStatus(HttpServletResponse.SC_OK);
+        response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
         objectMapper.writeValue(response.getWriter(), dto);
