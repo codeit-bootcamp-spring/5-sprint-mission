@@ -8,13 +8,21 @@ spring:
     username: ${PGUSER}
     password: ${PGPASSWORD}
 
-management:
-  endpoint:
-    health:
-      show-details: when_authorized
+  jpa:
+    hibernate:
+      ddl-auto: validate
 
 logging:
   level:
     org.hibernate.SQL: off
     org.hibernate.orm.jdbc.bind: off
-    org.hibernate.type.descriptor.sql: off
+    org.hibernate.orm.jdbc.extract: off
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health, prometheus"
+  endpoint:
+    health:
+      show-details: when_authorized

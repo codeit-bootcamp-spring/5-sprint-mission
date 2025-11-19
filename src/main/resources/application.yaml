@@ -1,24 +1,11 @@
 spring:
   profiles:
     active: dev
-  datasource:
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
 
   jpa:
-    hibernate:
-      ddl-auto: validate
     open-in-view: false
     properties:
       hibernate:
-        format_sql: true
-        highlight_sql: true
-        use_sql_comments: true
-        jdbc.lob.non_contextual_creation: true
         jdbc.time_zone: UTC
 
 logging:
@@ -28,7 +15,6 @@ logging:
 
 server:
   shutdown: graceful
-  forward-headers-strategy: native
 
 springdoc:
   api-docs:
@@ -39,7 +25,7 @@ springdoc:
 
 discodeit:
   storage:
-    type: local
+    type: LOCAL
     local:
-      root-path: ${user.dir}/storage
+      root-path: ./storage
       orphan-grace: 10m
