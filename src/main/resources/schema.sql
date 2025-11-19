@@ -83,6 +83,9 @@ ALTER TABLE users
             REFERENCES binary_contents (id)
             ON DELETE SET NULL;
 
+ALTER TABLE users
+    ADD COLUMN role varchar(20) NOT NULL DEFAULT 'USER';
+
 -- UserStatus (1) -> User (1)
 ALTER TABLE user_statuses
     ADD CONSTRAINT fk_user_status_user
