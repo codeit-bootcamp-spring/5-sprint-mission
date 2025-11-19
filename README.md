@@ -201,9 +201,9 @@
     
     @SpringBootApplication
     @EnableAdminServer
-    public class AdminApplication {
+    class AdminApplication {
     
-        public static void main(String[] args) {
+        void main(String[] args) {
             SpringApplication.run(AdminApplication.class, args);
         }
     }
