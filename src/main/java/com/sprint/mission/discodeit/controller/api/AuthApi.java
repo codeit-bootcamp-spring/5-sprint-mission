@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.controller.api;
 
-import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.config.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -46,5 +47,21 @@ public interface AuthApi {
   })
   ResponseEntity<UserDto> me(
       @Parameter(hidden = true) DiscodeitUserDetails principal
+  );
+
+  @Operation(
+      summary = "사용자 권한 변경",
+      description = "관리자가 특정 사용자의 권한(Role)을 변경합니다."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "권한 변경 성공",
+          content = @Content(schema = @Schema(implementation = UserDto.class))
+      )
+  })
+  ResponseEntity<UserDto> updateRole(
+      @Parameter(description = "사용자 권한 변경 요청")
+      UserRoleUpdateRequest request
   );
 }
