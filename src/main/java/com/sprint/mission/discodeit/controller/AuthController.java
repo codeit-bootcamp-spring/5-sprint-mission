@@ -1,17 +1,16 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.config.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.config.security.login.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,4 +37,10 @@ public class AuthController implements AuthApi {
                 .online(user.getUserDto().online())
                 .build();
     }
+
+    @PutMapping("/role")
+    public UserDto updateRole(@RequestBody UserRoleUpdateRequest request) {
+        return authService.updateUserRole(request.userId(), request.role());
+    }
+
 }

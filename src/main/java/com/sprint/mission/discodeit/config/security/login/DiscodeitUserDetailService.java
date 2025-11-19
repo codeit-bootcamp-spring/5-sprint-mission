@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.config.security;
+package com.sprint.mission.discodeit.config.security.login;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.UserMapper;

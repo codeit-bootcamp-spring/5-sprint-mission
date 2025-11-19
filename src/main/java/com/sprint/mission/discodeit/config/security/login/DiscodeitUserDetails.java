@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.config.security;
+package com.sprint.mission.discodeit.config.security.login;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public class DiscodeitUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(() -> "ROLE_" + userDto.role().name());
     }
 
     @Override
