@@ -1,6 +1,7 @@
-package com.sprint.mission.discodeit.config.security;
+package com.sprint.mission.discodeit.security;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.entity.Role;
 import java.util.Collection;
 import java.util.List;
 import lombok.Getter;
@@ -18,7 +19,15 @@ public class DiscodeitUserDetails implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    // UserDto에 담긴 역할 기반으로 권한 생성
+    Role role = userDto.role();
+    if (role == null) {
+      role = Role.USER; // 안전 장치: null이면 기본 USER
+    }
+
+    String authority = "ROLE_" + role.name(); // 예: ROLE_ADMIN, ROLE_USER ...
+
+    return List.of(new SimpleGrantedAuthority(authority));
   }
 
   @Override

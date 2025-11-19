@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.config;
 
-import com.sprint.mission.discodeit.config.security.LoginFailureHandler;
-import com.sprint.mission.discodeit.config.security.LoginSuccessHandler;
-import com.sprint.mission.discodeit.config.security.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.security.LoginFailureHandler;
+import com.sprint.mission.discodeit.security.LoginSuccessHandler;
+import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

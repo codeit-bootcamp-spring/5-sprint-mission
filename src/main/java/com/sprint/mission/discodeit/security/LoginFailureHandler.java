@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.config.security;
+package com.sprint.mission.discodeit.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.exception.ErrorResponse;

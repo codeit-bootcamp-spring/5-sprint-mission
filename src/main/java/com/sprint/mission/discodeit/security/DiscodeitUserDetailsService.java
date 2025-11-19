@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.config.security;
+package com.sprint.mission.discodeit.security;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.User;
