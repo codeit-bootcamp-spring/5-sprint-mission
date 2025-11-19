@@ -18,9 +18,10 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -28,29 +29,31 @@ import lombok.extern.slf4j.Slf4j;
 public class BasicChannelService implements ChannelService {
 
   private final ChannelRepository channelRepository;
-  //
   private final ReadStatusRepository readStatusRepository;
   private final MessageRepository messageRepository;
   private final UserRepository userRepository;
   private final ChannelMapper channelMapper;
 
+  // === 퍼블릭 채널 생성: CHANNEL_MANAGER 이상만 허용 ===
   @Transactional
   @Override
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   public ChannelDto create(PublicChannelCreateRequest request) {
-    log.debug("채널 생성 시작: {}", request);
+    log.debug("채널 생성 시작(퍼블릭): {}", request);
     String name = request.name();
     String description = request.description();
     Channel channel = new Channel(ChannelType.PUBLIC, name, description);
 
     channelRepository.save(channel);
-    log.info("채널 생성 완료: id={}, name={}", channel.getId(), channel.getName());
+    log.info("채널 생성 완료(퍼블릭): id={}, name={}", channel.getId(), channel.getName());
     return channelMapper.toDto(channel);
   }
 
+  // === 프라이빗 채널 생성: 일반 인증 사용자면 OK (추가 제약 없음) ===
   @Transactional
   @Override
   public ChannelDto create(PrivateChannelCreateRequest request) {
-    log.debug("채널 생성 시작: {}", request);
+    log.debug("채널 생성 시작(프라이빗): {}", request);
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
     channelRepository.save(channel);
 
@@ -59,7 +62,7 @@ public class BasicChannelService implements ChannelService {
         .toList();
     readStatusRepository.saveAll(readStatuses);
 
-    log.info("채널 생성 완료: id={}, name={}", channel.getId(), channel.getName());
+    log.info("채널 생성 완료(프라이빗): id={}, name={}", channel.getId(), channel.getName());
     return channelMapper.toDto(channel);
   }
 
@@ -85,8 +88,10 @@ public class BasicChannelService implements ChannelService {
         .toList();
   }
 
+  // === 퍼블릭 채널 수정: CHANNEL_MANAGER 이상만 허용 ===
   @Transactional
   @Override
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
     log.debug("채널 수정 시작: id={}, request={}", channelId, request);
     String newName = request.newName();
@@ -101,8 +106,10 @@ public class BasicChannelService implements ChannelService {
     return channelMapper.toDto(channel);
   }
 
+  // === 퍼블릭 채널 삭제: CHANNEL_MANAGER 이상만 허용 ===
   @Transactional
   @Override
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   public void delete(UUID channelId) {
     log.debug("채널 삭제 시작: id={}", channelId);
     if (!channelRepository.existsById(channelId)) {

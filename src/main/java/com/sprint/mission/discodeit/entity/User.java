@@ -52,6 +52,7 @@ public class User extends BaseUpdatableEntity {
     this.profile = profile;
     this.role = Role.USER;
   }
+
   // === 프로필/계정 정보 수정 ===
   public void update(String newUsername, String newEmail, String newPassword,
       BinaryContent newProfile) {
@@ -69,6 +70,7 @@ public class User extends BaseUpdatableEntity {
       this.profile = newProfile;
     }
   }
+
   // === 권한 변경 ===
   public void updateRole(Role role) {
     if (role == null) {
