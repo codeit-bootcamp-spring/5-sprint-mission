@@ -17,8 +17,6 @@ logging:
     org.hibernate.orm.jdbc.extract: off
     org.hibernate.tool.schema: off
     org.springframework: info
-  pattern:
-    console: "{\"timestamp\": \"%d{yyyy-MM-dd'T'HH:mm:ss.SSS}\", \"level\": \"%level\", \"thread\": \"%thread\", \"logger\": \"%logger\", \"message\": \"%message\"}"
 
 management:
   endpoints:
