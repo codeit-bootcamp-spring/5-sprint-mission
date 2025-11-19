@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -78,6 +79,7 @@ public class BasicUserService implements UserService {
     User user = new User(username, email, encodedPassword, nullableProfile);
     Instant now = Instant.now();
     UserStatus userStatus = new UserStatus(user, now);
+    // 필요하다면 userStatusRepository.save(userStatus); 를 별도로 호출하는 구조일 수도 있음
 
     userRepository.save(user);
     log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);
@@ -157,6 +159,25 @@ public class BasicUserService implements UserService {
     return userMapper.toDto(user);
   }
 
+  //  권한 변경 메서드 추가
+  @Transactional
+  @Override
+  public UserDto updateRole(UserRoleUpdateRequest request) {
+    UUID userId = request.userId();
+
+    log.debug("사용자 권한 변경 시작: userId={}, newRole={}",
+        userId, request.newRole());
+
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> UserNotFoundException.withId(userId));
+
+    user.updateRole(request.newRole());
+
+    log.info("사용자 권한 변경 완료: userId={}, newRole={}",
+        userId, request.newRole());
+    return userMapper.toDto(user);
+  }
+
   @Transactional
   @Override
   public void delete(UUID userId) {
@@ -165,7 +186,6 @@ public class BasicUserService implements UserService {
     if (!userRepository.existsById(userId)) {
       throw UserNotFoundException.withId(userId);
     }
-
     userRepository.deleteById(userId);
     log.info("사용자 삭제 완료: id={}", userId);
   }
