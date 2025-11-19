@@ -9,20 +9,20 @@ DROP TABLE IF EXISTS read_statuses CASCADE;
 CREATE TABLE IF NOT EXISTS binary_contents
 (
     id           uuid PRIMARY KEY,
-    created_at   timestamptz  NOT NULL,
-    file_name    varchar(255) NOT NULL,
-    size         bigint       NOT NULL,
-    content_type varchar(100) NOT NULL
+    created_at   timestamp WITH TIME ZONE NOT NULL,
+    file_name    varchar(255)             NOT NULL,
+    size         bigint                   NOT NULL,
+    content_type varchar(100)             NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS users
 (
     id         uuid PRIMARY KEY,
-    created_at timestamptz  NOT NULL,
-    updated_at timestamptz,
-    username   varchar(50)  NOT NULL UNIQUE,
-    email      varchar(100) NOT NULL UNIQUE,
-    password   varchar(60)  NOT NULL,
+    created_at timestamp WITH TIME ZONE NOT NULL,
+    updated_at timestamp WITH TIME ZONE,
+    username   varchar(50)              NOT NULL UNIQUE,
+    email      varchar(100)             NOT NULL UNIQUE,
+    password   varchar(60)              NOT NULL,
     profile_id uuid
 );
 
@@ -31,18 +31,18 @@ CREATE INDEX IF NOT EXISTS idx_users_profile ON users (profile_id);
 CREATE TABLE IF NOT EXISTS user_statuses
 (
     id             uuid PRIMARY KEY,
-    created_at     timestamptz NOT NULL,
-    updated_at     timestamptz,
-    user_id        uuid        NOT NULL UNIQUE,
-    last_active_at timestamptz NOT NULL
+    created_at     timestamp WITH TIME ZONE NOT NULL,
+    updated_at     timestamp WITH TIME ZONE,
+    user_id        uuid                     NOT NULL UNIQUE,
+    last_active_at timestamptz              NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS channels
 (
     id          uuid PRIMARY KEY,
-    created_at  timestamptz NOT NULL,
-    updated_at  timestamptz,
-    type        varchar(10) NOT NULL,
+    created_at  timestamp WITH TIME ZONE NOT NULL,
+    updated_at  timestamp WITH TIME ZONE,
+    type        varchar(10)              NOT NULL,
     name        varchar(100),
     description varchar(500)
 );
@@ -50,11 +50,11 @@ CREATE TABLE IF NOT EXISTS channels
 CREATE TABLE IF NOT EXISTS read_statuses
 (
     id           uuid PRIMARY KEY,
-    created_at   timestamptz NOT NULL,
-    updated_at   timestamptz,
-    user_id      uuid        NOT NULL,
-    channel_id   uuid        NOT NULL,
-    last_read_at timestamptz NOT NULL,
+    created_at   timestamp WITH TIME ZONE NOT NULL,
+    updated_at   timestamp WITH TIME ZONE,
+    user_id      uuid                     NOT NULL,
+    channel_id   uuid                     NOT NULL,
+    last_read_at timestamptz              NOT NULL,
     CONSTRAINT uq_read_statuses UNIQUE (user_id, channel_id)
 );
 
@@ -63,10 +63,10 @@ CREATE INDEX IF NOT EXISTS idx_read_statuses_channel ON read_statuses (channel_i
 CREATE TABLE IF NOT EXISTS messages
 (
     id         uuid PRIMARY KEY,
-    created_at timestamptz NOT NULL,
-    updated_at timestamptz,
+    created_at timestamp WITH TIME ZONE NOT NULL,
+    updated_at timestamp WITH TIME ZONE,
     content    text,
-    channel_id uuid        NOT NULL,
+    channel_id uuid                     NOT NULL,
     author_id  uuid
 );
 
