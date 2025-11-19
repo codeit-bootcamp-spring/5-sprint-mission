@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity.base;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,5 +25,6 @@ public abstract class BaseEntity {
     private UUID id;
 
     @CreatedDate
+    @Column(nullable = false)
     private Instant createdAt;
 }
