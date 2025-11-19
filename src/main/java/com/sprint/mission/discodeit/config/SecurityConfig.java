@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.logout.HttpStatusReturnin
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+  // 로그인 성공/실패 핸들러 주입
   private final LoginSuccessHandler loginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
 
@@ -44,14 +45,16 @@ public class SecurityConfig {
         // === 로그인(formLogin) 설정 ===
         .formLogin(login -> login
             .loginProcessingUrl("/api/auth/login")
+            // 로그인 성공 시 UserDto를 반환하는 커스텀 성공 핸들러
             .successHandler(loginSuccessHandler)
+            // 로그인 실패 시 401 ErrorResponse 반환하는 실패 핸들러
             .failureHandler(loginFailureHandler)
         )
         // === 로그아웃 설정 ===
         .logout(logout -> logout
-            // 로그아웃 요청 URL (기본은 /logout 이지만 미션 요구사항에 맞게 변경)
+            // 로그아웃 요청 URL (미션 요구사항: /api/auth/logout)
             .logoutUrl("/api/auth/logout")
-            // 204 No Content 응답을 반환하는 LogoutSuccessHandler로 교체
+            // HttpStatusReturningLogoutSuccessHandler 사용, 204 No Content 반환
             .logoutSuccessHandler(
                 new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
             )
