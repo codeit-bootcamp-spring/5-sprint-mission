@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.4.8'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'jacoco'
+    id 'checkstyle'
 }
 
 java {
@@ -23,7 +24,6 @@ repositories {
 
 dependencies {
 
-    // Spring Boot 기본 스타터
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -31,43 +31,33 @@ dependencies {
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-
-
-    // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 
-    // Testcontainers (통합 테스트)
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:postgresql'
 
 
-    // DB 드라이버
     implementation 'org.postgresql:postgresql'
     testImplementation 'com.h2database:h2'
 
 
-    // Security
     implementation 'org.springframework.security:spring-security-crypto'
 
 
-    // 문서화
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11'
 
 
-    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
 
-    // MapStruct
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
 
-    // Dotenv
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 }
 
@@ -97,4 +87,12 @@ tasks.jacocoTestCoverageVerification {
             }
         }
     }
+}
+
+checkstyle {
+    toolVersion = "10.12.4"
+    configFile = file("config/checkstyle/checkstyle.xml")
+    configProperties = [
+            "suppressionFile": file("config/checkstyle/checkstyle-suppressions.xml")
+    ]
 }
