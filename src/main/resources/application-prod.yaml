@@ -2,12 +2,10 @@ spring:
   config:
     activate:
       on-profile: prod
-
   datasource:
     url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
     username: ${PGUSER}
     password: ${PGPASSWORD}
-
   jpa:
     hibernate:
       ddl-auto: validate
@@ -17,6 +15,10 @@ logging:
     org.hibernate.SQL: off
     org.hibernate.orm.jdbc.bind: off
     org.hibernate.orm.jdbc.extract: off
+    org.hibernate.tool.schema: off
+    org.springframework: info
+  pattern:
+    console: "{\"timestamp\": \"%d{yyyy-MM-dd'T'HH:mm:ss.SSS}\", \"level\": \"%level\", \"thread\": \"%thread\", \"logger\": \"%logger\", \"message\": \"%message\"}"
 
 management:
   endpoints:

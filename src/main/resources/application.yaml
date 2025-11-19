@@ -1,20 +1,18 @@
 spring:
   profiles:
     active: dev
-
   jpa:
     open-in-view: false
     properties:
       hibernate:
         jdbc.time_zone: UTC
 
-logging:
-  level:
-    org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo: OFF
-    org.hibernate.orm.connections.pooling: OFF
-
 server:
   shutdown: graceful
+
+logging:
+  pattern:
+    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
 
 springdoc:
   api-docs:
