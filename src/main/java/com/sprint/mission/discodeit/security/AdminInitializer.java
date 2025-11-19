@@ -17,6 +17,7 @@ public class AdminInitializer implements ApplicationRunner {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AdminProperties adminProperties;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -24,10 +25,10 @@ public class AdminInitializer implements ApplicationRunner {
             log.info("[AdminInitializer] ADMIN 계정이 없습니다. 초기화를 시작합니다.");
 
             User admin = new User(
-                    "admin",
-                    passwordEncoder.encode("admin"),
-                    "관리자",
-                    "admin@discodeit.com",
+                    adminProperties.getUsername(),
+                    passwordEncoder.encode(adminProperties.getPassword()),
+                    adminProperties.getNickname(),
+                    adminProperties.getEmail(),
                     Role.ADMIN,
                     null
             );
