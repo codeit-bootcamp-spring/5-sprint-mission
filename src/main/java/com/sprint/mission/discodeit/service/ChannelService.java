@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 import static org.springframework.util.StringUtils.hasText;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class ChannelService {
@@ -48,38 +47,27 @@ public class ChannelService {
 
     private final ChannelMapper channelMapper;
 
-    private static void updateChannel(Channel channel, PublicChannelUpdateRequest request) {
-        String newName = null;
-        if (hasText(request.newName())) {
-            newName = request.newName().strip();
-        }
-
-        String newDescription = null;
-        if (request.newDescription() != null) {
-            newDescription = request.newDescription().strip();
-        }
-
-        channel.update(
-            newName,
-            newDescription
-        );
-    }
-
     @Transactional
     public ChannelDto create(PublicChannelCreateRequest request) {
-        log.info("Creating public channel. Name: {}, Description: {}", request.name(), request.description());
+        log.debug("공개 채널 생성 요청: name={}, description={}",
+            request.name(), request.description());
 
         String name = request.name().strip();
         String description = request.description() != null ? request.description().strip() : null;
 
-        Channel channel = channelRepository.save(
-            new Channel(ChannelType.PUBLIC, name, description)
+        Channel savedChannel = channelRepository.save(
+            new Channel(
+                ChannelType.PUBLIC,
+                name,
+                description
+            )
         );
 
-        log.info("Public channel created successfully. ChannelId: {}", channel.getId());
+        log.info("공개 채널 생성 완료: channelId={}, name={}",
+            savedChannel.getId(), savedChannel.getName());
 
         return channelMapper.toDto(
-            channel,
+            savedChannel,
             List.of(),
             null,
             null
@@ -88,12 +76,14 @@ public class ChannelService {
 
     @Transactional
     public ChannelDto create(PrivateChannelCreateRequest request) {
-        log.info("Creating private channel. ParticipantIds: {}", request.participantIds());
+        log.debug("비공개 채널 생성 요청: participantIds={}", request.participantIds());
 
         List<User> users = userRepository.findAllByIdIn(request.participantIds());
         if (users.size() != request.participantIds().size()) {
             Set<UUID> missingIds = request.participantIds().stream()
-                .filter(id -> users.stream().noneMatch(user -> user.getId().equals(id)))
+                .filter(id -> users.stream().noneMatch(
+                    user -> user.getId().equals(id))
+                )
                 .collect(Collectors.toSet());
 
             throw new NotFoundException("Users not found: " + missingIds);
@@ -110,7 +100,7 @@ public class ChannelService {
 
         Instant now = Instant.now();
 
-        Channel channel = channelRepository.save(
+        Channel savedChannel = channelRepository.save(
             new Channel(
                 ChannelType.PRIVATE,
                 null,
@@ -119,20 +109,26 @@ public class ChannelService {
         );
 
         List<ReadStatus> readStatuses = users.stream()
-            .map(user -> new ReadStatus(user, channel, now))
+            .map(user -> new ReadStatus(
+                user,
+                savedChannel,
+                now
+            ))
             .toList();
         readStatusRepository.saveAll(readStatuses);
 
+        log.info("비공개 채널 생성 완료: channelId={}", savedChannel.getId());
+
         return channelMapper.toDto(
-            channel,
+            savedChannel,
             users,
             null,
             now.minus(Duration.ofMinutes(5))
         );
     }
 
+    @Transactional(readOnly = true)
     public List<ChannelDto> findAll(UUID userId) {
-        log.debug("Finding all channels for user, UserId: {}", userId);
         List<Channel> channels = channelRepository.findAllByUserId(userId);
         if (channels.isEmpty()) {
             return List.of();
@@ -142,7 +138,7 @@ public class ChannelService {
 
         Map<UUID, List<UUID>> channelToUserIds = readStatuses.stream()
             .collect(Collectors.groupingBy(
-                rs -> rs.getChannel().getId(),
+                readStatus -> readStatus.getChannel().getId(),
                 Collectors.mapping(rs -> rs.getUser().getId(), Collectors.toList())
             ));
 
@@ -186,7 +182,8 @@ public class ChannelService {
         UUID channelId,
         PublicChannelUpdateRequest request
     ) {
-        log.info("Updating channel. ChannelId: {}", channelId);
+        log.debug("채널 수정 요청: userId={}", channelId);
+
         Channel channel = channelRepository.getOrThrow(channelId);
 
         if (channel.getType() == ChannelType.PRIVATE) {
@@ -194,6 +191,8 @@ public class ChannelService {
         }
 
         updateChannel(channel, request);
+
+        log.info("채널 수정 완료: channelId={}", channelId);
 
         Instant lastMessageAt = messageRepository.findLastMessageAtByChannelId(channel.getId());
         Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
@@ -203,11 +202,35 @@ public class ChannelService {
 
     @Transactional
     public void delete(UUID channelId) {
-        Channel c = channelRepository.getOrThrow(channelId);
+        log.debug("채널 삭제 요창: channelId={}", channelId);
 
-        messageRepository.deleteAllByChannelId(c.getId());
-        readStatusRepository.deleteAllByChannelId(c.getId());
+        Channel channel = channelRepository.getOrThrow(channelId);
 
-        channelRepository.delete(c);
+        messageRepository.deleteAllByChannelId(channel.getId());
+        readStatusRepository.deleteAllByChannelId(channel.getId());
+
+        channelRepository.delete(channel);
+
+        log.info("채널 삭제 완료: channelId={}", channelId);
+    }
+
+    private void updateChannel(
+        Channel channel,
+        PublicChannelUpdateRequest request
+    ) {
+        String newName = null;
+        if (hasText(request.newName())) {
+            newName = request.newName().strip();
+        }
+
+        String newDescription = null;
+        if (request.newDescription() != null) {
+            newDescription = request.newDescription().strip();
+        }
+
+        channel.update(
+            newName,
+            newDescription
+        );
     }
 }

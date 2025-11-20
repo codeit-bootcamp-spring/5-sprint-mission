@@ -9,20 +9,17 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.Duration;
-import java.time.Instant;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+import java.time.Duration;
+import java.time.Instant;
+
 @Entity
 @Table(name = "user_statuses")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserStatus extends BaseUpdatableEntity {
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
@@ -32,8 +29,26 @@ public class UserStatus extends BaseUpdatableEntity {
     @Column(nullable = false)
     private Instant lastActiveAt;
 
+    public UserStatus(User user, Instant lastActiveAt) {
+        if (user == null) {
+            throw new IllegalArgumentException("user must not be null");
+        }
+        if (lastActiveAt == null) {
+            throw new IllegalArgumentException("lastActiveAt must not be null");
+        }
+
+        this.user = user;
+        this.lastActiveAt = lastActiveAt;
+    }
+
     public UserStatus(User user) {
         this(user, Instant.now());
+    }
+
+    public void update(Instant lastActiveAt) {
+        if (lastActiveAt != null) {
+            this.lastActiveAt = lastActiveAt;
+        }
     }
 
     public boolean isOnline() {

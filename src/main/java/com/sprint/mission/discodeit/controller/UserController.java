@@ -36,8 +36,8 @@ public class UserController implements UserControllerDocs {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(
-        @Valid
         @RequestPart("userCreateRequest")
+        @Valid
         UserCreateRequest req,
 
         @RequestPart(value = "profile", required = false)
@@ -53,12 +53,13 @@ public class UserController implements UserControllerDocs {
     }
 
     @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.OK)
     public UserDto update(
         @PathVariable
         UUID userId,
 
-        @Valid
         @RequestPart(value = "userUpdateRequest")
+        @Valid
         UserUpdateRequest req,
 
         @RequestPart(value = "profile", required = false)

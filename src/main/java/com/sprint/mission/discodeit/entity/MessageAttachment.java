@@ -13,19 +13,17 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(
     name = "message_attachments",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uq_msg_attachments_message_order", columnNames = { "message_id",
-            "order_index" })
+        @UniqueConstraint(name = "uq_msg_attachments_message_order", columnNames = {"message_id",
+            "order_index"})
     }
 )
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MessageAttachment {
 
     @EmbeddedId
@@ -43,7 +41,18 @@ public class MessageAttachment {
 
     private int orderIndex;
 
-    public MessageAttachment(Message message, BinaryContent attachment, int orderIndex) {
+    public MessageAttachment(
+        Message message,
+        BinaryContent attachment,
+        int orderIndex
+    ) {
+        if (message == null) {
+            throw new IllegalArgumentException("message must not be null");
+        }
+        if (attachment == null) {
+            throw new IllegalArgumentException("attachment must not be null");
+        }
+
         this.id = new MessageAttachmentId();
         this.message = message;
         this.attachment = attachment;

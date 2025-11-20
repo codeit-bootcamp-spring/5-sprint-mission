@@ -11,17 +11,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Entity
 @Table(name = "messages")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Message extends BaseUpdatableEntity {
 
     @Column(columnDefinition = "TEXT")
@@ -34,6 +30,29 @@ public class Message extends BaseUpdatableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User author;
+
+    public Message(
+        String content,
+        Channel channel,
+        User author
+    ) {
+        if (channel == null) {
+            throw new IllegalArgumentException("Channel cannot be null.");
+        }
+        if (author == null) {
+            throw new IllegalArgumentException("Author cannot be null.");
+        }
+
+        this.content = content;
+        this.channel = channel;
+        this.author = author;
+    }
+
+    public void update(String newContent) {
+        if (newContent != null) {
+            this.content = newContent;
+        }
+    }
 
     @Override
     public String toString() {

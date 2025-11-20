@@ -33,7 +33,6 @@ import java.util.UUID;
 import static org.springframework.util.StringUtils.hasText;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
@@ -54,10 +53,11 @@ public class UserService {
         UserCreateRequest request,
         MultipartFile profile
     ) {
-        log.info("Creating user. Email: {}, Username: {}", request.email(), request.username());
-
         String username = request.username().strip().toLowerCase(Locale.ROOT);
         String email = request.email().strip().toLowerCase(Locale.ROOT);
+
+        log.debug("사용자 생성 요청: username={}, email={}", username, email);
+
         String password = passwordEncoder.encode(request.password());
 
         BinaryContent savedProfile = null;
@@ -66,17 +66,21 @@ public class UserService {
         }
 
         User savedUser = userRepository.save(
-            new User(username, email, password, savedProfile)
+            new User(
+                username,
+                email,
+                password,
+                savedProfile
+            )
         );
 
-        log.info("User created successfully. UserId: {}", savedUser.getId());
+        log.info("사용자 생성 완료: userId={}, email={}", savedUser.getId(), savedUser.getEmail());
 
         return userMapper.toDto(savedUser);
     }
 
+    @Transactional(readOnly = true)
     public List<UserDto> findAll() {
-        log.debug("Finding all users");
-
         Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
 
         return userRepository.findAllGraph()
@@ -91,7 +95,7 @@ public class UserService {
         UserUpdateRequest request,
         MultipartFile profile
     ) {
-        log.info("Updating user. UserId: {}", userId);
+        log.debug("사용자 수정 요청: userId={}", userId);
 
         User user = userRepository.getOrThrow(userId);
 
@@ -102,6 +106,7 @@ public class UserService {
 
         updateUser(user, request, newProfile);
 
+        log.info("사용자 수정 완료: userId={}", userId);
         return userMapper.toDto(user);
     }
 
@@ -110,13 +115,11 @@ public class UserService {
         UUID userId,
         UserStatusUpdateRequest request
     ) {
-        log.debug("Updating user status. UserId: {}", userId);
-
         User user = userRepository.getOrThrow(userId);
         UserStatus userStatus = user.getUserStatus();
 
         if (request.newLastActiveAt() != null) {
-            userStatus.setLastActiveAt(request.newLastActiveAt());
+            userStatus.update(request.newLastActiveAt());
         }
 
         return userStatusMapper.toDto(userStatus);
@@ -124,7 +127,7 @@ public class UserService {
 
     @Transactional
     public void delete(UUID userId) {
-        log.info("Deleting user. UserId: {}", userId);
+        log.debug("사용자 삭제 요청: userId={}", userId);
 
         User user = userRepository.getOrThrow(userId);
 
@@ -132,13 +135,15 @@ public class UserService {
         readStatusRepository.deleteAllByUser(user);
 
         userRepository.delete(user);
-        log.info("User deleted successfully. UserId: {}", userId);
+
+        log.info("사용자 삭제 완료: userId={}", userId);
     }
 
     private BinaryContent saveProfileImage(MultipartFile profile) {
-        log.info("Uploading profile image. FileName: {}", profile.getOriginalFilename());
+        log.debug("프로필 이미지 업로드 시도: filename={}, size={}",
+            profile.getOriginalFilename(), profile.getSize());
 
-        BinaryContent savedContent = binaryContentRepository.save(
+        BinaryContent savedProfile = binaryContentRepository.save(
             new BinaryContent(
                 profile.getOriginalFilename(),
                 profile.getSize(),
@@ -147,13 +152,15 @@ public class UserService {
         );
 
         try {
-            binaryContentStorage.put(savedContent.getId(), profile.getBytes());
+            binaryContentStorage.put(savedProfile.getId(), profile.getBytes());
         } catch (IOException e) {
-            log.error("Failed to save profile image file. ContentId: {}", savedContent.getId(), e);
-            throw new UncheckedIOException("프로필 파일 저장 실패: " + savedContent.getId(), e);
+            throw new UncheckedIOException("프로필 이미지 저장 실패: " + savedProfile.getId(), e);
         }
 
-        return savedContent;
+        log.info("프로필 이미지 저장 완료: binaryContentId={}, size={}",
+            savedProfile.getId(), savedProfile.getSize());
+
+        return savedProfile;
     }
 
     private void updateUser(

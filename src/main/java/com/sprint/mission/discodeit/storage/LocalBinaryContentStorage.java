@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.storage;
 
-import com.sprint.mission.discodeit.config.StorageProperties;
+import com.sprint.mission.discodeit.config.properties.StorageProperties;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import jakarta.annotation.PostConstruct;
@@ -15,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +37,6 @@ import java.util.stream.Stream;
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
     private final Path root;
-
     private final Duration orphanGrace;
 
     private final BinaryContentRepository binaryContentRepository;
@@ -72,9 +70,13 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         return root.resolve(id.toString());
     }
 
-    // 용량이 크면 OutOfMemoryError 발생 가능하지만 추후 원격 스토리지 직접 업로드로 변경
     @Override
-    public UUID put(UUID id, byte[] bytes) {
+    public UUID put(
+        UUID id,
+        byte[] bytes
+    ) {
+        log.debug("로컬 스토리지 파일 저장 시도: id={}, size={}", id, bytes.length);
+
         try {
             Files.write(
                 resolvePath(id),
@@ -83,24 +85,34 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
                 StandardOpenOption.TRUNCATE_EXISTING
             );
 
+            log.info("로컬 스토리지 파일 저장 완료: id={}", id);
+
             return id;
         } catch (IOException e) {
+            log.error("로컬 스토리지 파일 저장 실패: id={}", id, e);
+
             throw new UncheckedIOException("파일 저장 실패: " + id, e);
         }
     }
 
     @Override
     public InputStream get(UUID id) {
+        log.debug("로컬 스토리지 파일 조회 시도: id={}", id);
+
         try {
             return Files.newInputStream(resolvePath(id), StandardOpenOption.READ);
         } catch (IOException e) {
+            log.error("로컬 스토리지 파일 조회 실패: id={}", id, e);
             throw new UncheckedIOException("파일 읽기 실패: " + id, e);
         }
     }
 
     @Override
-    public ResponseEntity<Resource> download(BinaryContentDto bcd) {
-        UUID id = bcd.id();
+    public ResponseEntity<Resource> download(BinaryContentDto binaryContentDto) {
+        UUID id = binaryContentDto.id();
+
+        log.debug("파일 다운로드 응답 생성 시도: binaryContentId={}", id);
+
         Path filePath = resolvePath(id);
 
         try {
@@ -112,14 +124,14 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
             MediaType mediaType;
             try {
-                mediaType = (bcd.contentType() != null && !bcd.contentType().isBlank())
-                    ? MediaType.parseMediaType(bcd.contentType())
+                mediaType = (binaryContentDto.contentType() != null && !binaryContentDto.contentType().isBlank())
+                    ? MediaType.parseMediaType(binaryContentDto.contentType())
                     : MediaType.APPLICATION_OCTET_STREAM;
             } catch (InvalidMediaTypeException e) {
                 mediaType = MediaType.APPLICATION_OCTET_STREAM;
             }
 
-            String safeName = sanitizeFilename(bcd.fileName());
+            String safeName = sanitizeFilename(binaryContentDto.fileName());
             ContentDisposition cd = ContentDisposition.attachment()
                 .filename(safeName, StandardCharsets.UTF_8)
                 .build();
@@ -138,6 +150,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
             if (size >= 0) {
                 builder.contentLength(size);
             }
+
+            log.debug("파일 다운로드 응답 생성 완료: binaryContentId={}", id);
 
             return builder.body(resource);
         } catch (NoSuchFileException e) {
@@ -164,7 +178,6 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     }
 
     @Scheduled(fixedDelay = 300_000)
-    @Transactional(readOnly = true)
     public void cleanOrphanFiles() {
         if (!Files.isDirectory(root)) {
             log.warn("스토리지 디렉토리가 없습니다: {}", root);

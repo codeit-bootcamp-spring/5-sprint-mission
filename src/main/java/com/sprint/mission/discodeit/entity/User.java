@@ -79,34 +79,34 @@ public class User extends BaseUpdatableEntity {
     }
 
     public void update(
-        String username,
-        String email,
-        String password,
-        BinaryContent profile
+        String newUsername,
+        String newEmail,
+        String newPassword,
+        BinaryContent newProfile
     ) {
-        if (username != null) {
-            if (username.length() > 50) {
-                throw new IllegalArgumentException("username must not exceed 50 characters");
+        if (newUsername != null) {
+            if (newUsername.length() > 50) {
+                throw new IllegalArgumentException("newUsername must not exceed 50 characters");
             }
-            this.username = username;
+            this.username = newUsername;
         }
 
-        if (email != null) {
-            if (email.length() > 100) {
-                throw new IllegalArgumentException("email must not exceed 100 characters");
+        if (newEmail != null) {
+            if (newEmail.length() > 100) {
+                throw new IllegalArgumentException("newEmail must not exceed 100 characters");
             }
-            this.email = email;
+            this.email = newEmail;
         }
 
-        if (password != null) {
-            if (password.length() > 60) {
-                throw new IllegalArgumentException("encoded password must not exceed 60 characters");
+        if (newPassword != null) {
+            if (newPassword.length() > 60) {
+                throw new IllegalArgumentException("encoded newPassword must not exceed 60 characters");
             }
-            this.password = password;
+            this.password = newPassword;
         }
 
-        if (profile != null) {
-            this.profile = profile;
+        if (newProfile != null) {
+            this.profile = newProfile;
         }
     }
 

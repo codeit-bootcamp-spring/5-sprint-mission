@@ -10,24 +10,21 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.time.Instant;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+import java.time.Instant;
+
 @Entity
 @Table(
     name = "read_statuses",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uq_read_statuses", columnNames = { "user_id", "channel_id" })
+        @UniqueConstraint(name = "uq_read_statuses", columnNames = {"user_id", "channel_id"})
     }
 )
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReadStatus extends BaseUpdatableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -40,6 +37,32 @@ public class ReadStatus extends BaseUpdatableEntity {
 
     @Column(nullable = false)
     private Instant lastReadAt;
+
+    public ReadStatus(
+        User user,
+        Channel channel,
+        Instant lastReadAt
+    ) {
+        if (user == null) {
+            throw new IllegalArgumentException("user must not be null");
+        }
+        if (channel == null) {
+            throw new IllegalArgumentException("channel must not be null");
+        }
+        if (lastReadAt == null) {
+            throw new IllegalArgumentException("lastReadAt must not be null");
+        }
+
+        this.user = user;
+        this.channel = channel;
+        this.lastReadAt = lastReadAt;
+    }
+
+    public void update(Instant newLastReadAt) {
+        if (newLastReadAt != null) {
+            this.lastReadAt = newLastReadAt;
+        }
+    }
 
     @Override
     public String toString() {
