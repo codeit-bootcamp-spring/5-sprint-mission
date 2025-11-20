@@ -13,8 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Tag(name = "BinaryContent")
@@ -98,7 +98,7 @@ public interface BinaryContentControllerDocs {
             }
         )
     )
-    List<BinaryContentDto> findAllByIn(Set<UUID> binaryContentIds);
+    List<BinaryContentDto> getAllBinaryContents(Collection<UUID> binaryContentIds);
 
     @Operation(summary = "첨부 파일 조회")
     @Parameter(
@@ -167,7 +167,7 @@ public interface BinaryContentControllerDocs {
             }
         )
     )
-    BinaryContentDto find(UUID binaryContentId);
+    BinaryContentDto getBinaryContent(UUID binaryContentId);
 
     @Operation(summary = "파일 다운로드")
     @Parameter(

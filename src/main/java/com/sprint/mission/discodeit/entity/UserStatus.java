@@ -29,6 +29,10 @@ public class UserStatus extends BaseUpdatableEntity {
     @Column(nullable = false)
     private Instant lastActiveAt;
 
+    public UserStatus(User user) {
+        this(user, Instant.now());
+    }
+
     public UserStatus(User user, Instant lastActiveAt) {
         if (user == null) {
             throw new IllegalArgumentException("user must not be null");
@@ -39,10 +43,6 @@ public class UserStatus extends BaseUpdatableEntity {
 
         this.user = user;
         this.lastActiveAt = lastActiveAt;
-    }
-
-    public UserStatus(User user) {
-        this(user, Instant.now());
     }
 
     public void update(Instant lastActiveAt) {
