@@ -6,17 +6,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
-import java.time.Instant;
-import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Getter
+import java.time.Instant;
+import java.util.UUID;
+
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Getter
+@EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
     @Id

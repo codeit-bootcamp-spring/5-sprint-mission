@@ -11,17 +11,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+import static org.springframework.util.StringUtils.hasText;
+
 @Entity
 @Table(name = "users")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseUpdatableEntity {
 
     @Column(nullable = false, unique = true, length = 50)
@@ -48,12 +46,68 @@ public class User extends BaseUpdatableEntity {
     )
     private UserStatus userStatus;
 
-    public User(String username, String email, String password, BinaryContent profile) {
+    public User(
+        String username,
+        String email,
+        String password,
+        BinaryContent profile
+    ) {
+        if (!hasText(username)) {
+            throw new IllegalArgumentException("username must not be blank");
+        }
+        if (username.length() > 50) {
+            throw new IllegalArgumentException("username must not exceed 50 characters");
+        }
+        if (!hasText(email)) {
+            throw new IllegalArgumentException("email must not be blank");
+        }
+        if (email.length() > 100) {
+            throw new IllegalArgumentException("email must not exceed 100 characters");
+        }
+        if (!hasText(password)) {
+            throw new IllegalArgumentException("password must not be blank");
+        }
+        if (password.length() > 60) {
+            throw new IllegalArgumentException("encoded password must not exceed 60 characters");
+        }
+
         this.username = username;
         this.email = email;
         this.password = password;
         this.profile = profile;
         this.userStatus = new UserStatus(this);
+    }
+
+    public void update(
+        String username,
+        String email,
+        String password,
+        BinaryContent profile
+    ) {
+        if (username != null) {
+            if (username.length() > 50) {
+                throw new IllegalArgumentException("username must not exceed 50 characters");
+            }
+            this.username = username;
+        }
+
+        if (email != null) {
+            if (email.length() > 100) {
+                throw new IllegalArgumentException("email must not exceed 100 characters");
+            }
+            this.email = email;
+        }
+
+        if (password != null) {
+            if (password.length() > 60) {
+                throw new IllegalArgumentException("encoded password must not exceed 60 characters");
+            }
+            this.password = password;
+        }
+
+        if (profile != null) {
+            this.profile = profile;
+        }
     }
 
     @Override

@@ -7,5 +7,4 @@ public record ChannelLastMessageAtDto(
     UUID channelId,
     Instant lastMessageAt
 ) {
-
 }

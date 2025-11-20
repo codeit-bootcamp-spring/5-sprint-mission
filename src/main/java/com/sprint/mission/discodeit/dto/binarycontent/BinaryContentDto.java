@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto.binarycontent;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.UUID;
 
 @Schema(
@@ -19,5 +20,4 @@ public record BinaryContentDto(
     Long size,
     String contentType
 ) {
-
 }

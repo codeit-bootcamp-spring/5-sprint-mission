@@ -1,14 +1,19 @@
 package com.sprint.mission.discodeit.dto.response;
 
 import jakarta.validation.constraints.Min;
-import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
+import java.util.List;
+
 public record Pageable(
-    @Min(0) Integer page,
-    @Min(1) Integer size,
+    @Min(0)
+    Integer page,
+
+    @Min(1)
+    Integer size,
+
     List<String> sort
 ) {
 
@@ -20,9 +25,11 @@ public record Pageable(
         if (page == null) {
             page = DEFAULT_PAGE;
         }
+
         if (size == null) {
             size = DEFAULT_SIZE;
         }
+
         if (sort == null || sort.isEmpty()) {
             sort = DEFAULT_SORT;
         }
@@ -35,6 +42,10 @@ public record Pageable(
             ? Sort.Direction.DESC
             : Sort.Direction.ASC;
 
-        return PageRequest.of(pageable.page(), pageable.size(), Sort.by(direction, property));
+        return PageRequest.of(
+            pageable.page(),
+            pageable.size(),
+            Sort.by(direction, property)
+        );
     }
 }
