@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.controller.advice;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.time.Instant;
-import java.util.Map;
 import org.springframework.http.HttpStatus;
 
+import java.time.Instant;
+import java.util.Map;
+
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public record ApiError(
+public record ErrorResponse(
     Instant timestamp,
     String code,
     String message,
@@ -16,7 +17,7 @@ public record ApiError(
     String requestId
 ) {
 
-    public static ApiError of(
+    public static ErrorResponse of(
         String code,
         String message,
         Map<String, Object> details,
@@ -24,7 +25,7 @@ public record ApiError(
         HttpStatus httpStatus,
         String requestId
     ) {
-        return new ApiError(
+        return new ErrorResponse(
             Instant.now(),
             code,
             message,

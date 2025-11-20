@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.controller.advice.ApiError;
+import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
 import com.sprint.mission.discodeit.dto.user.UserCreateMultipartForm;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
@@ -90,7 +90,7 @@ public interface UserControllerDocs {
         description = "Request body가 유효하지 않음",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -171,7 +171,7 @@ public interface UserControllerDocs {
         responseCode = "409",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "duplicateUsername",
@@ -216,7 +216,7 @@ public interface UserControllerDocs {
         responseCode = "415",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidMediaType",
@@ -254,7 +254,7 @@ public interface UserControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -281,7 +281,7 @@ public interface UserControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "userNotFound",
@@ -336,7 +336,7 @@ public interface UserControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -363,7 +363,7 @@ public interface UserControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "userNotFound",
@@ -416,7 +416,7 @@ public interface UserControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -443,7 +443,7 @@ public interface UserControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "userNotFound",

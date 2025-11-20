@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.controller.advice.ApiError;
+import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
 import com.sprint.mission.discodeit.dto.message.MessageCreateMultipartForm;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
@@ -114,7 +114,7 @@ public interface MessageControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -208,7 +208,7 @@ public interface MessageControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -252,7 +252,7 @@ public interface MessageControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "channelNotFound",
@@ -297,7 +297,7 @@ public interface MessageControllerDocs {
         responseCode = "413",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "payloadTooLarge",
@@ -335,7 +335,7 @@ public interface MessageControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "messageNotFound",
@@ -383,7 +383,7 @@ public interface MessageControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -417,7 +417,7 @@ public interface MessageControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "messageNotFound",

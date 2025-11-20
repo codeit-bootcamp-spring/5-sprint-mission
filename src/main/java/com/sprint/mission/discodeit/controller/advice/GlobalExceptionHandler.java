@@ -7,11 +7,6 @@ import com.sprint.mission.discodeit.filter.RequestIdFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -35,6 +30,12 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Slf4j
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -43,7 +44,36 @@ public class GlobalExceptionHandler {
     private static final String REQ_ID_HEADER = RequestIdFilter.HEADER;
     private static final String REQ_ID_ATTR = RequestIdFilter.ATTR;
 
-    private ResponseEntity<ApiError> build(
+    private static String sliceKeyToBracket(String message) {
+        if (message == null) {
+            return null;
+        }
+        int start = message.indexOf("Key ");
+        if (start < 0) {
+            return null;
+        }
+        int end = message.indexOf(']', start);
+        if (end < 0) {
+            return null;
+        }
+        String s = message.substring(start + 3, end).strip();
+        return s.isEmpty() ? null : s;
+    }
+
+    private static String propertyPath(ConstraintViolation<?> cv) {
+        return cv.getPropertyPath() != null ? cv.getPropertyPath().toString() : "";
+    }
+
+    private static void log(
+        HttpStatus httpStatus,
+        String code,
+        HttpServletRequest req,
+        String msg
+    ) {
+        log.warn("{}({}) {} {} -> {}", httpStatus, code, req.getMethod(), req.getRequestURI(), msg);
+    }
+
+    private ResponseEntity<ErrorResponse> build(
         String code,
         String message,
         Map<String, Object> details,
@@ -58,7 +88,7 @@ public class GlobalExceptionHandler {
         }
 
         String requestId = (String) req.getAttribute(REQ_ID_ATTR);
-        ApiError body = ApiError.of(code, message, details, exception, httpStatus, requestId);
+        ErrorResponse body = ErrorResponse.of(code, message, details, exception, httpStatus, requestId);
 
         return ResponseEntity.status(httpStatus)
             .header(REQ_ID_HEADER, requestId != null ? requestId : "")
@@ -67,7 +97,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiError> handleInvalidJson(
+    public ResponseEntity<ErrorResponse> handleInvalidJson(
         HttpMessageNotReadableException e,
         HttpServletRequest req
     ) {
@@ -89,7 +119,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiError> handleConstraintViolation(
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(
         ConstraintViolationException e,
         HttpServletRequest req
     ) {
@@ -113,7 +143,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidation(
+    public ResponseEntity<ErrorResponse> handleValidation(
         MethodArgumentNotValidException e,
         HttpServletRequest req
     ) {
@@ -153,7 +183,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiError> handleParameterTypeValidation(
+    public ResponseEntity<ErrorResponse> handleParameterTypeValidation(
         MethodArgumentTypeMismatchException e,
         HttpServletRequest req
     ) {
@@ -171,7 +201,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ApiError> handleMissingParameter(
+    public ResponseEntity<ErrorResponse> handleMissingParameter(
         MissingServletRequestParameterException e,
         HttpServletRequest req
     ) {
@@ -188,7 +218,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MissingServletRequestPartException.class)
-    public ResponseEntity<ApiError> handleMissingPart(
+    public ResponseEntity<ErrorResponse> handleMissingPart(
         MissingServletRequestPartException e,
         HttpServletRequest req
     ) {
@@ -202,7 +232,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ApiError> handleUnauthorized(
+    public ResponseEntity<ErrorResponse> handleUnauthorized(
         UnauthorizedException e,
         HttpServletRequest req
     ) {
@@ -216,7 +246,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiError> handleForbidden(
+    public ResponseEntity<ErrorResponse> handleForbidden(
         AccessDeniedException e,
         HttpServletRequest req
     ) {
@@ -229,8 +259,8 @@ public class GlobalExceptionHandler {
         return build(code, msg, new HashMap<>(), e, httpStatus, req);
     }
 
-    @ExceptionHandler({ NoHandlerFoundException.class, NoResourceFoundException.class })
-    public ResponseEntity<ApiError> handleNoHandler(
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    public ResponseEntity<ErrorResponse> handleNoHandler(
         Exception e,
         HttpServletRequest req
     ) {
@@ -244,7 +274,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(
+    public ResponseEntity<ErrorResponse> handleNotFound(
         NotFoundException e,
         HttpServletRequest req
     ) {
@@ -258,7 +288,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ApiError> handleMethodNotAllowed(
+    public ResponseEntity<ErrorResponse> handleMethodNotAllowed(
         HttpRequestMethodNotSupportedException e,
         HttpServletRequest req
     ) {
@@ -269,8 +299,8 @@ public class GlobalExceptionHandler {
             (e.getSupportedHttpMethods() == null || e.getSupportedHttpMethods().isEmpty())
                 ? ""
                 : e.getSupportedHttpMethods().stream()
-                    .map(HttpMethod::name)
-                    .collect(Collectors.joining(", "));
+                .map(HttpMethod::name)
+                .collect(Collectors.joining(", "));
 
         Map<String, Object> details = new HashMap<>();
         if (!allowed.isBlank()) {
@@ -286,7 +316,7 @@ public class GlobalExceptionHandler {
             allowed
         );
 
-        ResponseEntity<ApiError> body = build(
+        ResponseEntity<ErrorResponse> body = build(
             code,
             msg,
             details,
@@ -306,7 +336,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
-    public ResponseEntity<ApiError> handleNotAcceptable(
+    public ResponseEntity<ErrorResponse> handleNotAcceptable(
         HttpMediaTypeNotAcceptableException e,
         HttpServletRequest req
     ) {
@@ -325,7 +355,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiError> handleDataIntegrity(
+    public ResponseEntity<ErrorResponse> handleDataIntegrity(
         DataIntegrityViolationException e,
         HttpServletRequest req
     ) {
@@ -339,24 +369,8 @@ public class GlobalExceptionHandler {
         return build(code, msg, new HashMap<>(), e, httpStatus, req);
     }
 
-    private static String sliceKeyToBracket(String message) {
-        if (message == null) {
-            return null;
-        }
-        int start = message.indexOf("Key ");
-        if (start < 0) {
-            return null;
-        }
-        int end = message.indexOf(']', start);
-        if (end < 0) {
-            return null;
-        }
-        String s = message.substring(start + 3, end).strip();
-        return s.isEmpty() ? null : s;
-    }
-
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ApiError> handleMaxSizeExceeded(
+    public ResponseEntity<ErrorResponse> handleMaxSizeExceeded(
         MaxUploadSizeExceededException e,
         HttpServletRequest req
     ) {
@@ -370,7 +384,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<ApiError> handleMediaTypeNotSupported(
+    public ResponseEntity<ErrorResponse> handleMediaTypeNotSupported(
         HttpMediaTypeNotSupportedException e,
         HttpServletRequest req
     ) {
@@ -389,7 +403,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleAny(
+    public ResponseEntity<ErrorResponse> handleAny(
         Exception e,
         HttpServletRequest req
     ) {
@@ -400,18 +414,5 @@ public class GlobalExceptionHandler {
         log(httpStatus, code, req, e.toString());
 
         return build(code, msg, new HashMap<>(), e, httpStatus, req);
-    }
-
-    private static String propertyPath(ConstraintViolation<?> cv) {
-        return cv.getPropertyPath() != null ? cv.getPropertyPath().toString() : "";
-    }
-
-    private static void log(
-        HttpStatus httpStatus,
-        String code,
-        HttpServletRequest req,
-        String msg
-    ) {
-        log.warn("{}({}) {} {} -> {}", httpStatus, code, req.getMethod(), req.getRequestURI(), msg);
     }
 }

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.controller.advice.ApiError;
+import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
 import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
@@ -86,7 +86,7 @@ public interface ChannelControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -161,7 +161,7 @@ public interface ChannelControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -276,7 +276,7 @@ public interface ChannelControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -334,7 +334,7 @@ public interface ChannelControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "userNotFound",
@@ -361,7 +361,7 @@ public interface ChannelControllerDocs {
         responseCode = "409",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "duplicatePrivateChannel",
@@ -399,7 +399,7 @@ public interface ChannelControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "channelNotFound",
@@ -459,7 +459,7 @@ public interface ChannelControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidJson",
@@ -487,7 +487,7 @@ public interface ChannelControllerDocs {
         responseCode = "403",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "updateNotAllowed",
@@ -514,7 +514,7 @@ public interface ChannelControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "channelNotFound",

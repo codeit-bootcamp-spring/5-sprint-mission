@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.controller.advice.ApiError;
+import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
 import com.sprint.mission.discodeit.dto.auth.LoginRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +28,7 @@ public interface AuthControllerDocs {
         description = "Request body가 유효하지 않음",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -86,7 +86,7 @@ public interface AuthControllerDocs {
         responseCode = "401",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "unauthorized",

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.controller.advice.ApiError;
+import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
@@ -36,7 +36,7 @@ public interface ReadStatusControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -94,7 +94,7 @@ public interface ReadStatusControllerDocs {
         description = "Request body가 유효하지 않음",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -157,7 +157,7 @@ public interface ReadStatusControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "userNotFound",
@@ -202,7 +202,7 @@ public interface ReadStatusControllerDocs {
         responseCode = "409",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     description = "이미 읽음 상태가 존재함",
@@ -243,7 +243,7 @@ public interface ReadStatusControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -270,7 +270,7 @@ public interface ReadStatusControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "readStatusNotFound",
