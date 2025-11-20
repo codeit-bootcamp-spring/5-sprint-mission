@@ -11,6 +11,16 @@ spring:
       hibernate:
         format_sql: true
 
+discodeit:
+  admin:
+    username: admin
+    email: admin@test.com
+    password: admin
+  user:
+    username: user0
+    email: user0@test.com
+    password: test
+
 logging:
   level:
     root: info
