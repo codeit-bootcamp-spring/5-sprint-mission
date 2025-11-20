@@ -29,12 +29,15 @@ import java.nio.file.attribute.FileTime;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Component
 @ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "local")
 @Slf4j
 public class LocalBinaryContentStorage implements BinaryContentStorage {
+
+    private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
     private final Path root;
     private final Duration orphanGrace;
@@ -199,8 +202,13 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
                     String name = file.getFileName().toString();
                     UUID id;
                     try {
+                        if (!UUID_PATTERN.matcher(name).matches()) {
+                            throw new IllegalArgumentException("Invalid UUID format");
+                        }
+
                         id = UUID.fromString(name);
-                        log.error(id.toString());
+                        log.info("고아 파일 검사 중: {}", id);
+
                     } catch (IllegalArgumentException bad) {
                         Files.deleteIfExists(file);
                         deleted++;
@@ -214,17 +222,19 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
                         deleted++;
                         log.info("고아 파일 삭제: {}", name);
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     log.error("고아 파일 처리 실패: {}", file.getFileName(), e);
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("스토리지 디렉토리 탐색 실패: {}", root, e);
             return;
         }
 
         if (deleted > 0) {
             log.info("고아 파일 정리 완료. 삭제 {}건.", deleted);
+        } else {
+            log.info("고아 파일 정리 완료. 삭제된 파일이 없습니다.");
         }
     }
 }
