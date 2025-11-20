@@ -124,3 +124,6 @@ ALTER TABLE read_statuses
         FOREIGN KEY (channel_id)
             REFERENCES channels (id)
             ON DELETE CASCADE;
+
+-- User 테이블에 role 칼럼 추가
+ALTER TABLE users ADD COLUMN role varchar(20) NOT NULL DEFAULT 'USER';
