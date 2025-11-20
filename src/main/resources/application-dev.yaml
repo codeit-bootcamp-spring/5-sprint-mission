@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -20,10 +23,10 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
 
-info:
-  datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    ddl-auto: update
-  storage:
-    type: local
-    path: ${STORAGE_ROOT_PATH}
+management:
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
