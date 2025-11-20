@@ -17,13 +17,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.web.multipart.MultipartFile;
 
-@SuppressWarnings("checkstyle:LineLength")
 @Tag(name = "Message")
+@SuppressWarnings("checkstyle:LineLength")
 public interface MessageControllerDocs {
 
     @Operation(summary = "Channel의 Message 목록 조회")

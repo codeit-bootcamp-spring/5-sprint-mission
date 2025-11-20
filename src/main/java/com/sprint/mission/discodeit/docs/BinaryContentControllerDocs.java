@@ -10,14 +10,15 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
-@SuppressWarnings("checkstyle:LineLength")
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 @Tag(name = "BinaryContent")
+@SuppressWarnings("checkstyle:LineLength")
 public interface BinaryContentControllerDocs {
 
     @Operation(summary = "여러 첨부 파일 조회")

@@ -14,11 +14,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.List;
 import java.util.UUID;
 
-@SuppressWarnings("checkstyle:LineLength")
 @Tag(name = "Channel")
+@SuppressWarnings("checkstyle:LineLength")
 public interface ChannelControllerDocs {
 
     @Operation(summary = "User가 참여 중인 Channel 목록 조회")

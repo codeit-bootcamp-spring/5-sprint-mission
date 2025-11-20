@@ -10,8 +10,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@SuppressWarnings("checkstyle:LineLength")
 @Tag(name = "Auth")
+@SuppressWarnings("checkstyle:LineLength")
 public interface AuthControllerDocs {
 
     @Operation(summary = "로그인")

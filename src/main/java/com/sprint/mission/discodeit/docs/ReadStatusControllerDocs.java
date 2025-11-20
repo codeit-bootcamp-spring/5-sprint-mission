@@ -11,11 +11,12 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.List;
 import java.util.UUID;
 
-@SuppressWarnings("checkstyle:LineLength")
 @Tag(name = "ReadStatus")
+@SuppressWarnings("checkstyle:LineLength")
 public interface ReadStatusControllerDocs {
 
     @Operation(summary = "User의 Message 읽음 상태 목록 조회")
