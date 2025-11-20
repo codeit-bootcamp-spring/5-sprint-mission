@@ -28,3 +28,4 @@ discodeit:
     type: LOCAL
     local:
       root-path: ./build/test-storage
+      orphan-grace: 2s

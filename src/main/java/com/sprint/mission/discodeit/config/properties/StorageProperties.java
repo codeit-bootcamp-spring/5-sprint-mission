@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.config;
+package com.sprint.mission.discodeit.config.properties;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -8,14 +8,14 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
 
-@Validated
 @ConfigurationProperties(prefix = "discodeit.storage")
+@Validated
 public record StorageProperties(
     @NotBlank
     String type,
 
-    @Valid
     @NotNull
+    @Valid
     Local local
 ) {
 

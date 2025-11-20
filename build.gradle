@@ -6,6 +6,9 @@ plugins {
     id 'checkstyle'
 }
 
+group = 'com.sprint.mission'
+version = '0.0.1-SNAPSHOT'
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
@@ -50,12 +53,12 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
 
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
 
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
