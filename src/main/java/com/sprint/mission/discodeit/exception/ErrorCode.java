@@ -1,11 +1,9 @@
 package com.sprint.mission.discodeit.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-@AllArgsConstructor
 public enum ErrorCode {
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
@@ -28,4 +26,16 @@ public enum ErrorCode {
 
     private final HttpStatus status;
     private final String message;
+
+    ErrorCode(HttpStatus status, String message) {
+        if (status == null) {
+            throw new IllegalArgumentException("HttpStatus must not be null");
+        }
+        if (message == null) {
+            throw new IllegalArgumentException("Message must not be null");
+        }
+
+        this.status = status;
+        this.message = message;
+    }
 }
