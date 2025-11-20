@@ -6,11 +6,13 @@ import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
@@ -32,8 +34,13 @@ public class SecurityConfig {
             .successHandler(loginSuccessHandler)
             .failureHandler(loginFailureHandler)
         )
+        .logout(logout -> logout
+            .logoutUrl("/api/auth/logout")
+            .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+        )
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("api/users", "/api/auth/**").permitAll()
+            .requestMatchers("/api/users", "/api/auth/login", "/api/auth/csrf-token").permitAll()
+            .requestMatchers("/api/auth/me").authenticated()
             .anyRequest().authenticated()
         );
 
