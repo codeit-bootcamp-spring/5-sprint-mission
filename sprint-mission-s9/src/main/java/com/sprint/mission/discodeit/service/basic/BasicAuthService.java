@@ -7,9 +7,12 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,7 @@ public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
+  private final SessionRegistry sessionRegistry;
 
 //  @Transactional(readOnly = true)
 //  @Override
@@ -48,6 +52,14 @@ public class BasicAuthService implements AuthService {
         .orElseThrow(() -> UserNotFoundException.withId(request.userId()));
 
     user.updateRole(request.role());
+    invalidateUserSessions(user.getUsername());
+
     return userMapper.toDto(user);
+  }
+
+  private void invalidateUserSessions(String username) {
+    List<SessionInformation> sessions = sessionRegistry.getAllSessions(username, false);
+    sessions.forEach(SessionInformation::expireNow);
+    log.info("사용자명 {}의 모든 세션을 무효화 완료. 무효화된 세션 수: {}", username, sessions.size());
   }
 }

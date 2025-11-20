@@ -49,4 +49,18 @@ public class DiscodeitUserDetails implements UserDetails {
   public boolean isEnabled() {
     return UserDetails.super.isEnabled();
   }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    DiscodeitUserDetails that = (DiscodeitUserDetails) o;
+    return userDto.id().equals(that.userDto.id());
+  }
+
+  @Override
+  public int hashCode() {
+    return userDto.id().hashCode();
+  }
 }
