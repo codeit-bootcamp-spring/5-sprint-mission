@@ -23,3 +23,5 @@ discodeit:
     local:
       root-path: ./storage
       orphan-grace: 10m
+  api:
+    server-url: http://localhost:8081

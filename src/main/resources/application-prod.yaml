@@ -26,3 +26,7 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+
+discodeit:
+  api:
+    server-url: https://discodeit.com

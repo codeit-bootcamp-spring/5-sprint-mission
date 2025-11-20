@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.context.annotation.Configuration;
 
+@Configuration
 @OpenAPIDefinition(
     info = @Info(
         title = "Discodeit API 문서",
@@ -13,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
         version = "1.2"
     ),
     servers = {
-        @Server(url = "http://localhost:8080", description = "로컬 서버")
+        @Server(url = "${discodeit.api.server-url}", description = "Discodeit API Server")
     },
     tags = {
         @Tag(name = "Channel", description = "Channel API"),
@@ -24,7 +25,5 @@ import org.springframework.context.annotation.Configuration;
         @Tag(name = "Auth", description = "인증 API")
     }
 )
-@Configuration
 public class OpenApiConfig {
-
 }
