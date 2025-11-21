@@ -13,7 +13,7 @@
 ## 프로파일 기반 설정 관리
 
 - [x] 개발, 운영 환경에 대한 프로파일을 구성하세요.
-    - [x] `application-dev.yaml`, `application-prod.yaml` 파일을 생성하세요.
+    - [x] `application-local.yaml`, `application-prod.yaml` 파일을 생성하세요.
     - [x] 다음과 같은 설정값을 프로파일별로 분리하세요.
         - [x] 데이터베이스 연결 정보
         - [x] 서버 포트
@@ -242,7 +242,7 @@
         ...
         ```
         ```
-        # application-dev.yml
+        # application-local.yml
         spring:
           application:
             name: discodeit

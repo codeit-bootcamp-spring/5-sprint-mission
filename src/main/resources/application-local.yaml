@@ -17,6 +17,7 @@ logging:
   level:
     com.sprint.mission: DEBUG
     org.springframework.web: DEBUG
+    net.ttddyy.dsproxy.listener: DEBUG
 
 management:
   endpoints:

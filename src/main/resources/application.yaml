@@ -2,7 +2,7 @@ spring:
   config:
     import: optional:file:.env[.properties]
   profiles:
-    active: dev
+    active: local
   jpa:
     open-in-view: false
     hibernate:
@@ -30,7 +30,7 @@ server:
 logging:
   level:
     org.hibernate.SQL: OFF
-    net.ttddyy.dsproxy.listener: DEBUG
+    net.ttddyy.dsproxy.listener: OFF
 
 management:
   endpoints:
