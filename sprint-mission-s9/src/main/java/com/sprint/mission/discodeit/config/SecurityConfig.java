@@ -48,6 +48,19 @@ public class SecurityConfig {
             .logoutUrl("/api/auth/logout")
             .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
         )
+        .rememberMe(remember -> remember
+            .key("discodeit-remember-me-key")
+            .tokenValiditySeconds(60 * 60 * 24 * 14)
+            .rememberMeParameter("remember-me")
+            .rememberMeCookieName("remember-me")
+        )
+        .sessionManagement(management -> management
+            .sessionConcurrency(concurrency -> concurrency
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+                .sessionRegistry(sessionRegistry)
+            )
+        )
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(
                 "/api/users",                    // 회원가입

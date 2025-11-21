@@ -1,3 +1,11 @@
+-- 기존 테이블 삭제 후 재생성
+DROP TABLE IF EXISTS read_statuses CASCADE;
+DROP TABLE IF EXISTS message_attachments CASCADE;
+DROP TABLE IF EXISTS messages CASCADE;
+DROP TABLE IF EXISTS channels CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS binary_contents CASCADE;
+
 -- 테이블
 -- User
 CREATE TABLE users
