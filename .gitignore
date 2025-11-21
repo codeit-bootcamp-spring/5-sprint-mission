@@ -15,8 +15,8 @@ out/
 !**/src/test/**/out/
 
 ### Application Runtime ###
-/storage
 .logs
+storage/
 !**/src/main/**/storage/
 !**/src/test/**/storage/
 
