@@ -1,6 +1,10 @@
 package com.sprint.mission.discodeit.util;
 
-public class StringUtil {
+public final class StringUtil {
+
+    private StringUtil() {
+        throw new AssertionError("Utility class");
+    }
 
     public static String sanitizeFilename(String original) {
         if (original == null || original.isBlank()) {
