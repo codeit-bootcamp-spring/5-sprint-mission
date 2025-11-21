@@ -1,27 +1,45 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   profiles:
     active: dev
   jpa:
     open-in-view: false
+    hibernate:
+      ddl-auto: validate
     properties:
       hibernate:
-        jdbc.time_zone: UTC
+        jdbc:
+          time_zone: UTC
+        default_batch_fetch_size: 100
+  jackson:
+    time-zone: UTC
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 server:
   shutdown: graceful
+  compression:
+    enabled: true
+
+logging:
+  level:
+    org.hibernate.SQL: OFF
+    net.ttddyy.dsproxy.listener: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
 
 springdoc:
   api-docs:
-    path: /docs
+    enabled: true
   swagger-ui:
-    path: /docs/ui
-    display-request-duration: true
-
-discodeit:
-  storage:
-    type: LOCAL
-    local:
-      root-path: ./storage
-      orphan-grace: 10m
-  api:
-    server-url: http://localhost:8081
+    enabled: true

@@ -1,7 +1,4 @@
 spring:
-  config:
-    activate:
-      on-profile: dev
   datasource:
     url: jdbc:postgresql://localhost:5432/discodeit
     username: ${DB_USERNAME}
@@ -9,20 +6,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-        highlight_sql: true
-        use_sql_comments: true
+  devtools:
+    restart:
+      enabled: true
 
 server:
   port: 8081
 
 logging:
   level:
-    com.sprint.mission.discodeit: debug
-    org.hibernate.SQL: debug
-    org.springframework.web: debug
+    com.sprint.mission: DEBUG
+    org.springframework.web: DEBUG
 
 management:
   endpoints:
@@ -32,3 +26,12 @@ management:
   endpoint:
     health:
       show-details: always
+
+discodeit:
+  storage:
+    type: LOCAL
+    local:
+      root-path: ./storage
+      orphan-grace: 10m
+  api:
+    server-url: http://localhost:8081
