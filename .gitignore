@@ -18,6 +18,7 @@ out/
 /storage
 .logs
 !**/src/main/**/storage/
+!**/src/test/**/storage/
 
 ### Environment & Config ###
 .env
