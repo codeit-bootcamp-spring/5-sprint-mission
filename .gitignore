@@ -17,6 +17,7 @@ out/
 ### Application Runtime ###
 /storage
 .logs
+!**/src/main/**/storage/
 
 ### Environment & Config ###
 .env
