@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.auth.LoginRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.auth.UserInvalidCredentialsException;
+import com.sprint.mission.discodeit.exception.auth.InvalidCredentialsException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +33,9 @@ public class AuthService {
         log.debug("로그인 시도: username={}", username);
 
         User user = userRepository.findByUsername(username)
-            .orElseThrow(UserInvalidCredentialsException::new);
+            .orElseThrow(InvalidCredentialsException::new);
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new UserInvalidCredentialsException();
+            throw new InvalidCredentialsException();
         }
 
         user.getUserStatus().update(Instant.now());

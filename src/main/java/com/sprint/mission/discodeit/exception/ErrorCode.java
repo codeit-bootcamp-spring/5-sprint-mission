@@ -9,7 +9,7 @@ import java.util.Objects;
 public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     DUPLICATE_USER(HttpStatus.CONFLICT, "이미 존재하는 사용자입니다."),
-    USER_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "사용자 이름 또는 비밀번호가 올바르지 않습니다."),
+    WRONG_USERNAME_OR_PASSWORD(HttpStatus.UNAUTHORIZED, "사용자 이름 또는 비밀번호가 올바르지 않습니다."),
 
     CHANNEL_NOT_FOUND(HttpStatus.NOT_FOUND, "채널을 찾을 수 없습니다."),
     DUPLICATE_CHANNEL_NAME(HttpStatus.CONFLICT, "이미 존재하는 채널 이름입니다."),
