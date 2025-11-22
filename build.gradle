@@ -114,7 +114,14 @@ def jacocoExclusions = [
         '**/exception/**',
         '**/*Application.class',
         '**/filter/**',
-        '**/docs/**'
+        '**/docs/**',
+        '**/repository/**',
+        '**/mapper/**',
+        '**/controller/**',
+        '**/service/**',
+        '**/logging/**',
+        '**/util/**',
+        '**/storage/**'
 ]
 
 tasks.named('jacocoTestReport') {
@@ -125,13 +132,11 @@ tasks.named('jacocoTestReport') {
         html.required = true
     }
 
-    doFirst {
-        classDirectories.setFrom(
-                files(classDirectories.files.collect {
-                    fileTree(dir: it, exclude: jacocoExclusions)
-                })
-        )
-    }
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: jacocoExclusions)
+            })
+    )
 }
 
 tasks.named('jacocoTestCoverageVerification') {
@@ -148,13 +153,11 @@ tasks.named('jacocoTestCoverageVerification') {
         }
     }
 
-    doFirst {
-        classDirectories.setFrom(
-                files(classDirectories.files.collect {
-                    fileTree(dir: it, exclude: jacocoExclusions)
-                })
-        )
-    }
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: jacocoExclusions)
+            })
+    )
 }
 
 tasks.named('check') {

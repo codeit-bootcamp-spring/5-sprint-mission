@@ -25,5 +25,11 @@ public record StorageProperties(
 
         Duration orphanGrace
     ) {
+
+        public Local {
+            if (orphanGrace == null) {
+                orphanGrace = Duration.ofHours(1);
+            }
+        }
     }
 }

@@ -34,3 +34,10 @@ discodeit:
     local:
       root-path: ./build/test-storage
       orphan-grace: 2s
+  api:
+    server-url: http://localhost:8080
+  datasource-proxy:
+    name: DS-Proxy-Test
+    log-level: DEBUG
+    slow-query-threshold: 5s
+    slow-query-log-level: WARN

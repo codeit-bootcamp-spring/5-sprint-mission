@@ -41,3 +41,8 @@ discodeit:
       orphan-grace: 10m
   api:
     server-url: http://localhost:8081
+  datasource-proxy:
+    name: DS-Proxy-Local
+    log-level: DEBUG
+    slow-query-threshold: 5s
+    slow-query-log-level: WARN
