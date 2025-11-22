@@ -34,8 +34,5 @@ springdoc:
 discodeit:
   storage:
     type: S3
-    s3:
-      bucket-name: discodeit
-      orphan-grace: 24h
   api:
     server-url: https://discodeit.com

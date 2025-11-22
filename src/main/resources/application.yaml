@@ -1,12 +1,14 @@
 spring:
+  application:
+    name: discodeit
   config:
     import: optional:file:.env[.properties]
   profiles:
-    active: local
+    default: local
   jpa:
-    open-in-view: false
     hibernate:
       ddl-auto: validate
+    open-in-view: false
     properties:
       hibernate:
         jdbc:

@@ -30,9 +30,10 @@
         </rollingPolicy>
     </appender>
 
-    <springProfile name="local">
+    <springProfile name="local,dev">
         <logger name="com.sprint.mission.discodeit" level="DEBUG"/>
-        <logger name="org.hibernate.SQL" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="OFF"/>
+        <logger name="net.ttddyy.dsproxy.listener" level="DEBUG"/>
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
@@ -41,7 +42,18 @@
 
     <springProfile name="prod,default">
         <logger name="com.sprint.mission.discodeit" level="INFO"/>
+        <logger name="org.hibernate.SQL" level="OFF"/>
+        <logger name="net.ttddyy.dsproxy.listener" level="OFF"/>
+        <root level="WARN">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
 
+    <springProfile name="test">
+        <logger name="com.sprint.mission.discodeit" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="OFF"/>
+        <logger name="net.ttddyy.dsproxy.listener" level="DEBUG"/>
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
