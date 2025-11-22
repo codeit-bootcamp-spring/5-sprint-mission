@@ -67,30 +67,30 @@
     - [x] `DiscodeitException`을 상속하는 주요 도메인 별 메인 예외 클래스를 정의하세요.
         - `UserException`, `ChannelException` 등
         - 실제로 활용되는 클래스라기보다는 예외 클래스의 계층 구조를 명확하게 하기 위한 클래스 입니다.
-    - [ ] 도메인 메인 예외 클래스를 상속하는 구체적인 예외 클래스를 정의하세요.
+    - [x] 도메인 메인 예외 클래스를 상속하는 구체적인 예외 클래스를 정의하세요.
         - `UserNotFoundException`, `UserAlreadyExistException` 등 필요한 예외를 정의하세요.
         - 예시
           ![](readme3.png)
-- [ ] 기존에 구현했던 예외를 커스텀 예외로 대체하세요.
+- [x] 기존에 구현했던 예외를 커스텀 예외로 대체하세요.
     - NoSuchElementException
     - IllegalArgumentException
     - …
-- [ ] `ErrorResponse`를 통해 일관된 예외 응답을 정의하세요.
+- [x] `ErrorResponse`를 통해 일관된 예외 응답을 정의하세요.
     - 클래스 다이어그램
       ![](readme4.png)
     - `int status`: HTTP 상태코드
     - `String exceptionType`: 발생한 예외의 클래스 이름
-- [ ] 앞서 정의한 `ErrorResponse`와 `@RestControllerAdvice`를 활용해 예외를 처리하는 예외 핸들러를 구현하세요.
+- [x] 앞서 정의한 `ErrorResponse`와 `@RestControllerAdvice`를 활용해 예외를 처리하는 예외 핸들러를 구현하세요.
     - 모든 핸들러는 일관된 응답(`ErrorResponse`)을 가져야 합니다.
 
 ## 유효성 검사
 
-- [ ] Spring Validation 의존성을 추가하세요.
-- [ ] 주요 Request DTO에 제약 조건 관련 어노테이션을 추구하세요.
+- [x] Spring Validation 의존성을 추가하세요.
+- [x] 주요 Request DTO에 제약 조건 관련 어노테이션을 추구하세요.
     - `@NotNull`, `@NotBlank`, `@Size`, `@Email` 등
-- [ ] 컨트롤러에 `@Valid` 를 사용해 요청 데이터를 검증하세요.
-- [ ] 검증 실패 시 발생하는 `MethodArgumentNotValidException`을 전역 예외 핸들러에서 처리하세요.
-- [ ] 유효성 검증 실패 시 상세한 오류 메시지를 포함한 응답을 반환하세요.
+- [x] 컨트롤러에 `@Valid` 를 사용해 요청 데이터를 검증하세요.
+- [x] 검증 실패 시 발생하는 `MethodArgumentNotValidException`을 전역 예외 핸들러에서 처리하세요.
+- [x] 유효성 검증 실패 시 상세한 오류 메시지를 포함한 응답을 반환하세요.
 
 ## Actuator
 
