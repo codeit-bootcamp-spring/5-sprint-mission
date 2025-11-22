@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.filter.RequestIdFilter;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -52,7 +51,13 @@ public class GlobalExceptionHandler {
         DiscodeitException exception,
         HttpServletRequest request
     ) {
-        return createResponse(exception.getErrorCode(), exception.getDetails(), exception, request);
+        return createResponse(
+            exception.getErrorCode(),
+            exception.getErrorCode().getMessage(),
+            exception.getDetails(),
+            exception,
+            request
+        );
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -89,7 +94,7 @@ public class GlobalExceptionHandler {
 
         List<Map<String, Object>> violations = exception.getConstraintViolations().stream()
             .map(cv -> Map.of(
-                "property", propertyPath(cv),
+                "property", (cv.getPropertyPath() != null ? cv.getPropertyPath().toString() : ""),
                 "message", cv.getMessage(),
                 "invalid", cv.getInvalidValue()
             ))
@@ -378,19 +383,10 @@ public class GlobalExceptionHandler {
         Exception exception,
         HttpServletRequest request
     ) {
-        return createResponse(ErrorCode.INTERNAL_SERVER_ERROR, Collections.emptyMap(), exception, request);
-    }
-
-    private ResponseEntity<ErrorResponse> createResponse(
-        ErrorCode errorCode,
-        Map<String, Object> details,
-        Exception exception,
-        HttpServletRequest request
-    ) {
         return createResponse(
-            errorCode,
-            errorCode.getMessage(),
-            details,
+            ErrorCode.INTERNAL_SERVER_ERROR,
+            ErrorCode.INTERNAL_SERVER_ERROR.getMessage(),
+            Collections.emptyMap(),
             exception,
             request
         );
@@ -511,9 +507,5 @@ public class GlobalExceptionHandler {
         }
         String s = message.substring(start + 3, end).strip();
         return s.isEmpty() ? null : s;
-    }
-
-    private String propertyPath(ConstraintViolation<?> cv) {
-        return cv.getPropertyPath() != null ? cv.getPropertyPath().toString() : "";
     }
 }
