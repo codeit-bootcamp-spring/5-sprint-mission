@@ -39,9 +39,3 @@ management:
     web:
       exposure:
         include: health,info,metrics
-
-springdoc:
-  api-docs:
-    enabled: true
-  swagger-ui:
-    enabled: true

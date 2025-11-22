@@ -27,7 +27,7 @@ public class DataSourceProxyConfig {
     public DataSource proxyDataSource(DataSource actualDataSource) {
         return ProxyDataSourceBuilder
             .create(actualDataSource)
-            .name("MyDS")
+            .name("DS-Proxy")
             .logQueryBySlf4j(SLF4JLogLevel.INFO)
             .logSlowQueryBySlf4j(5, TimeUnit.SECONDS)
             .multiline()

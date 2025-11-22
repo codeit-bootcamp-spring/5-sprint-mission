@@ -3,9 +3,6 @@ spring:
     url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
     username: ${PGUSER}
     password: ${PGPASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: validate
 
 server:
   error:
@@ -17,7 +14,6 @@ logging:
   level:
     root: WARN
     com.sprint.mission: INFO
-    net.ttddyy.dsproxy.listener: OFF
 
 management:
   endpoints:
@@ -25,14 +21,11 @@ management:
       exposure:
         include: health,info,metrics,prometheus
 
-springdoc:
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
-
 discodeit:
   storage:
-    type: S3
+    type: LOCAL
+    local:
+      root-path: /var/app/storage
+      orphan-grace: 1h
   api:
-    server-url: https://discodeit.com
+    server-url: ${API_SERVER_URL:https://discodeit.com}
