@@ -29,5 +29,3 @@ discodeit:
       orphan-grace: 1h
   api:
     server-url: ${API_SERVER_URL:https://discodeit.com}
-  error:
-    expose-details: false

@@ -46,5 +46,3 @@ discodeit:
     log-level: DEBUG
     slow-query-threshold: 5s
     slow-query-log-level: WARN
-  error:
-    expose-details: true
