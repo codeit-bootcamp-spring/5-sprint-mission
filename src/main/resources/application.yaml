@@ -5,6 +5,9 @@ spring:
     import: optional:file:.env[.properties]
   profiles:
     default: local
+  output:
+    ansi:
+      enabled: always
   jpa:
     hibernate:
       ddl-auto: validate

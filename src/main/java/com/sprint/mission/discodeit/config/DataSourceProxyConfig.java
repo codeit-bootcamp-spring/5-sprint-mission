@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.config.properties.DataSourceProxyProperties;
+import com.sprint.mission.discodeit.util.SqlKeywordColorizer;
 import com.zaxxer.hikari.HikariDataSource;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
+import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -32,9 +34,11 @@ public class DataSourceProxyConfig {
     @Bean
     @Primary
     public DataSource proxyDataSource(DataSource rawDataSource) {
+        BasicFormatterImpl formatter = new BasicFormatterImpl();
         return ProxyDataSourceBuilder
             .create(rawDataSource)
             .name(proxyProperties.name())
+            .formatQuery(sql -> SqlKeywordColorizer.colorize(formatter.format(sql)))
             .multiline()
             .logQueryBySlf4j(proxyProperties.logLevel())
             .logSlowQueryBySlf4j(
