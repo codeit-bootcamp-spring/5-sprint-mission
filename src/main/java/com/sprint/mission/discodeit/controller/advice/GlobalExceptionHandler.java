@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.controller.advice;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.sprint.mission.discodeit.config.properties.ErrorHandlingProperties;
 import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.exception.UnauthorizedException;
 import com.sprint.mission.discodeit.filter.RequestIdFilter;
+import com.sprint.mission.discodeit.util.JsonErrorAnalyzer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -49,6 +50,12 @@ public class GlobalExceptionHandler {
     private static final String REQ_ID_HEADER = RequestIdFilter.HEADER;
     private static final String REQ_ID_ATTR = RequestIdFilter.ATTR;
 
+    private final ErrorHandlingProperties errorProperties;
+
+    public GlobalExceptionHandler(ErrorHandlingProperties errorProperties) {
+        this.errorProperties = errorProperties;
+    }
+
     @ExceptionHandler(DiscodeitException.class)
     public ResponseEntity<ErrorResponse> handleDiscodeitException(
         DiscodeitException exception,
@@ -57,33 +64,47 @@ public class GlobalExceptionHandler {
         return createResponse(exception.getErrorCode(), exception.getDetails(), exception, request);
     }
 
-    @ExceptionHandler({
-        HttpMessageNotReadableException.class,
-        InvalidFormatException.class
-    })
+    @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleInvalidJson(
         HttpMessageNotReadableException exception,
         HttpServletRequest request
     ) {
         ErrorCode errorCode = ErrorCode.INVALID_JSON;
+        Throwable rootCause = exception.getMostSpecificCause();
 
-        String cause = Optional.of(exception.getMostSpecificCause())
-            .map(Throwable::getMessage)
-            .orElse(exception.getMessage());
+        Map<String, Object> details = JsonErrorAnalyzer.analyze(
+            rootCause,
+            errorProperties.exposeDetails()
+        );
 
-        Map<String, Object> details = new HashMap<>();
-        if (cause != null && !cause.isBlank()) {
-            details.put("cause", cause);
-        }
+        String logMessage = createDetailedLogMessage(rootCause);
 
         return createResponse(
             errorCode,
             errorCode.getMessage(),
-            cause,
+            logMessage,
             details,
             exception,
             request
         );
+    }
+
+    private String createDetailedLogMessage(Throwable rootCause) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("JSON parsing failed: [");
+        sb.append(rootCause.getClass().getSimpleName());
+        sb.append("] ");
+
+        String message = rootCause.getMessage();
+        if (message != null) {
+            if (message.length() > 500) {
+                sb.append(message, 0, 500).append("...");
+            } else {
+                sb.append(message);
+            }
+        }
+
+        return sb.toString();
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -131,8 +152,6 @@ public class GlobalExceptionHandler {
         if (!globalErrors.isEmpty()) {
             details.put("globalErrors", globalErrors);
         }
-        details.put("fieldErrors", getFieldErrors(exception.getBindingResult()));
-        details.put("globalErrors", getGlobalErrors(exception.getBindingResult()));
 
         String logMessage = "fieldErrors=%s, globalErrors=%s".formatted(fieldErrors, globalErrors);
 
@@ -437,7 +456,6 @@ public class GlobalExceptionHandler {
             request
         );
     }
-
 
     private ResponseEntity<ErrorResponse> createResponse(
         ErrorCode errorCode,

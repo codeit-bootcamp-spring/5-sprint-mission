@@ -67,7 +67,7 @@ public interface AuthControllerDocs {
                         {
                           "timestamp": "2025-09-03T15:45:44.976824Z",
                           "code": "INVALID_JSON",
-                          "message": "Unable to read request body, please check JSON format and field type",
+                          "message": "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인해주세요.",
                           "details": {
                             "path": "/api/auth/login",
                             "method": "POST",
