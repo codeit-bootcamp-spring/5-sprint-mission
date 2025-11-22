@@ -7,10 +7,10 @@ import java.util.UUID;
 
 public class DuplicateChannelException extends ChannelException {
 
-    public DuplicateChannelException(UUID firstUserId, UUID secondUserId) {
+    public DuplicateChannelException(UUID userId1, UUID userId2) {
         super(
             ErrorCode.DUPLICATE_PRIVATE_CHANNEL,
-            Map.of("firstUserId", firstUserId, "secondUserId", secondUserId)
+            Map.of("userId1", userId1, "userId2", userId2)
         );
     }
 }

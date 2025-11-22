@@ -4,11 +4,6 @@ import com.sprint.mission.discodeit.dto.channel.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.NotFoundException;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -16,6 +11,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
@@ -80,7 +80,8 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
             WHERE bc.id IN (
                 SELECT ma.attachment_id
                 FROM message_attachments ma
-                WHERE ma.channel_id = :channelId
+                INNER JOIN messages m ON ma.message_id = m.id
+                WHERE m.channel_id = :channelId
             );
             DELETE FROM message_attachments ma
             WHERE ma.message_id IN (
@@ -93,11 +94,4 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         nativeQuery = true
     )
     int deleteAllByChannelId(@Param("channelId") UUID channelId);
-
-    default Message getOrThrow(UUID id) {
-        return findById(id).orElseThrow(() ->
-            new NotFoundException(
-                "Message with id %s not found".formatted(id))
-        );
-    }
 }

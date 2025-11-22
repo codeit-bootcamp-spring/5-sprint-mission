@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.DuplicateChannelException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.exception.channel.UsersNotFoundException;
@@ -158,7 +159,7 @@ public class ChannelService {
     ) {
         log.debug("채널 수정 요청: channelId={}", channelId);
 
-        Channel channel = channelRepository.getOrThrow(channelId);
+        Channel channel = getChannelOrThrow(channelId);
 
         if (channel.getType() == ChannelType.PRIVATE) {
             throw new PrivateChannelUpdateException();
@@ -178,7 +179,7 @@ public class ChannelService {
     public void delete(UUID channelId) {
         log.debug("채널 삭제 요청: channelId={}", channelId);
 
-        Channel channel = channelRepository.getOrThrow(channelId);
+        Channel channel = getChannelOrThrow(channelId);
 
         messageRepository.deleteAllByChannelId(channel.getId());
         readStatusRepository.deleteAllByChannelId(channel.getId());
@@ -228,12 +229,16 @@ public class ChannelService {
 
     private void checkDuplicateTwoPersonChannel(List<User> participants) {
         if (participants.size() == 2) {
-            UUID firstUserId = participants.get(0).getId();
-            UUID secondUserId = participants.get(1).getId();
-            if (channelRepository.existsBetweenUsers(firstUserId, secondUserId)) {
-                throw new DuplicateChannelException(firstUserId, secondUserId);
+            UUID userId1 = participants.get(0).getId();
+            UUID userId2 = participants.get(1).getId();
+            if (channelRepository.existsBetweenUsers(userId1, userId2)) {
+                throw new DuplicateChannelException(userId1, userId2);
             }
         }
+    }
+
+    private Channel getChannelOrThrow(UUID channelId) {
+        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
     }
 
     private void initializeReadStatuses(Channel channel, List<User> participants, Instant timestamp) {

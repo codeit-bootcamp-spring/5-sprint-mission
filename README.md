@@ -94,10 +94,10 @@
 
 ## Actuator
 
-- [ ] Spring Boot Actuator 의존성을 추가하세요.
-- [ ] 기본 Actuator 엔트포인트를 설정하세요.
+- [x] Spring Boot Actuator 의존성을 추가하세요.
+- [x] 기본 Actuator 엔트포인트를 설정하세요.
     - health, info, metrics, loggers
-- [ ] Actuator info를 위한 애플리케이션 정보를 추가하세요.
+- [x] Actuator info를 위한 애플리케이션 정보를 추가하세요.
     - 애플리케이션 이름: `Discodeit`
     - 애플리케이션 버전: `1.7.0`
     - 자바 버전: `17`
@@ -107,7 +107,7 @@
         - jpa: ddl-auto
         - storage 설정: type, path
         - multipart 설정: max-file-size, max-request-size
-- [ ] Spring Boot 서버를 실행 후 각종 정보를 확인해보세요.
+- [x] Spring Boot 서버를 실행 후 각종 정보를 확인해보세요.
     - `/actuator/info`
     - `/actuator/metrics`
     - `/actuator/health`

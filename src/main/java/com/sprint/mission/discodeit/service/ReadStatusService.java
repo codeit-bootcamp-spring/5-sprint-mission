@@ -6,6 +6,9 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -28,8 +31,8 @@ public class ReadStatusService {
 
     @Transactional
     public ReadStatusDto create(ReadStatusCreateRequest request) {
-        User user = userRepository.getOrThrow(request.userId());
-        Channel channel = channelRepository.getOrThrow(request.channelId());
+        User user = getUserOrThrow(request.userId());
+        Channel channel = getChannelOrThrow(request.channelId());
 
         ReadStatus savedReadStatus = new ReadStatus(user, channel, request.lastReadAt());
 
@@ -41,12 +44,24 @@ public class ReadStatusService {
         UUID readStatusId,
         ReadStatusUpdateRequest request
     ) {
-        ReadStatus readStatus = readStatusRepository.getOrThrow(readStatusId);
+        ReadStatus readStatus = getReadStatusOrThrow(readStatusId);
 
         if (request.newLastReadAt() != null) {
             readStatus.update(request.newLastReadAt());
         }
 
         return readStatusMapper.toDto(readStatus);
+    }
+
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    }
+
+    private Channel getChannelOrThrow(UUID channelId) {
+        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
+    }
+
+    private ReadStatus getReadStatusOrThrow(UUID readStatusId) {
+        return readStatusRepository.findById(readStatusId).orElseThrow(ReadStatusNotFoundException::new);
     }
 }

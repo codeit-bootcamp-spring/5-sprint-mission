@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.exception.NotFoundException;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,11 +33,4 @@ public interface ChannelRepository extends JpaRepository<Channel, UUID> {
           AND (SELECT COUNT(rs3) FROM ReadStatus rs3 WHERE rs3.channel = c) = 2
         """)
     boolean existsBetweenUsers(@Param("userId1") UUID userId1, @Param("userId2") UUID userId2);
-
-    default Channel getOrThrow(UUID id) {
-        return findById(id).orElseThrow(() ->
-            new NotFoundException(
-                "Channel with id %s not found".formatted(id))
-        );
-    }
 }

@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.NotFoundException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -21,11 +20,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @EntityGraph(attributePaths = { "profile", "userStatus" })
     Optional<User> findByUsername(String username);
-
-    default User getOrThrow(UUID id) {
-        return findById(id).orElseThrow(() ->
-            new NotFoundException(
-                "User with id %s not found".formatted(id))
-        );
-    }
 }

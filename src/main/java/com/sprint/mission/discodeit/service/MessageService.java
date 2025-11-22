@@ -11,6 +11,10 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentUploadException;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -28,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -62,8 +65,8 @@ public class MessageService {
         log.debug("메시지 생성 요청: channelId={}, authorId={}",
             request.channelId(), request.authorId());
 
-        Channel channel = channelRepository.getOrThrow(request.channelId());
-        User author = userRepository.getOrThrow(request.authorId());
+        Channel channel = getChannelOrThrow(request.channelId());
+        User author = getUserOrThrow(request.authorId());
 
         String content = request.content() != null ? request.content().strip() : null;
 
@@ -95,7 +98,7 @@ public class MessageService {
                         attachment.getBytes()
                     );
                 } catch (IOException e) {
-                    throw new UncheckedIOException("첨부 파일 저장 실패: " + binaryContent.getId(), e);
+                    throw new BinaryContentUploadException(e);
                 }
 
                 messageAttachmentRepository.save(
@@ -195,7 +198,7 @@ public class MessageService {
     ) {
         log.debug("메시지 수정 요청: messageId={}", messageId);
 
-        Message message = messageRepository.getOrThrow(messageId);
+        Message message = getMessageOrThrow(messageId);
 
         if (request.newContent() != null) {
             message.update(request.newContent().strip());
@@ -213,10 +216,22 @@ public class MessageService {
     public void delete(UUID messageId) {
         log.debug("메시지 삭제 요청: messageId={}", messageId);
 
-        messageRepository.getOrThrow(messageId);
+        getMessageOrThrow(messageId);
         messageAttachmentRepository.deleteAllByMessageId(messageId);
         messageRepository.deleteById(messageId);
 
         log.debug("메시지 삭제 완료: messageId={}", messageId);
+    }
+
+    private Channel getChannelOrThrow(UUID channelId) {
+        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
+    }
+
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    }
+
+    private Message getMessageOrThrow(UUID messageId) {
+        return messageRepository.findById(messageId).orElseThrow(MessageNotFoundException::new);
     }
 }

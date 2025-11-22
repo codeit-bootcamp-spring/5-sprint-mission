@@ -8,6 +8,8 @@ import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserProfileUploadException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -23,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -97,7 +98,7 @@ public class UserService {
     ) {
         log.debug("사용자 수정 요청: userId={}", userId);
 
-        User user = userRepository.getOrThrow(userId);
+        User user = getUserOrThrow(userId);
 
         BinaryContent newProfile = null;
         if (profile != null && !profile.isEmpty()) {
@@ -115,7 +116,7 @@ public class UserService {
         UUID userId,
         UserStatusUpdateRequest request
     ) {
-        User user = userRepository.getOrThrow(userId);
+        User user = getUserOrThrow(userId);
         UserStatus userStatus = user.getUserStatus();
 
         if (request.newLastActiveAt() != null) {
@@ -129,7 +130,7 @@ public class UserService {
     public void delete(UUID userId) {
         log.debug("사용자 삭제 요청: userId={}", userId);
 
-        User user = userRepository.getOrThrow(userId);
+        User user = getUserOrThrow(userId);
 
         messageRepository.nullifyAuthorByUser(user);
         readStatusRepository.deleteAllByUser(user);
@@ -154,13 +155,17 @@ public class UserService {
         try {
             binaryContentStorage.put(savedProfile.getId(), profile.getBytes());
         } catch (IOException e) {
-            throw new UncheckedIOException("프로필 이미지 저장 실패: " + savedProfile.getId(), e);
+            throw new UserProfileUploadException(e);
         }
 
         log.info("프로필 이미지 저장 완료: binaryContentId={}, size={}",
             savedProfile.getId(), savedProfile.getSize());
 
         return savedProfile;
+    }
+
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 
     private void updateUser(
