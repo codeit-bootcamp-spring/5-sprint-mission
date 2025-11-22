@@ -9,8 +9,9 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.AccessDeniedException;
-import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.exception.channel.DuplicateChannelException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
+import com.sprint.mission.discodeit.exception.channel.UsersNotFoundException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -18,7 +19,6 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,11 +40,12 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class ChannelService {
 
+    private static final Duration ONLINE_STATUS_THRESHOLD = Duration.ofMinutes(5);
+
     private final ChannelRepository channelRepository;
     private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
-
     private final ChannelMapper channelMapper;
 
     @Transactional
@@ -52,14 +53,11 @@ public class ChannelService {
         log.debug("공개 채널 생성 요청: name={}, description={}",
             request.name(), request.description());
 
-        String name = request.name().strip();
-        String description = request.description() != null ? request.description().strip() : null;
-
         Channel savedChannel = channelRepository.save(
             new Channel(
                 ChannelType.PUBLIC,
-                name,
-                description
+                request.name().strip(),
+                request.description() != null ? request.description().strip() : null
             )
         );
 
@@ -78,25 +76,8 @@ public class ChannelService {
     public ChannelDto create(PrivateChannelCreateRequest request) {
         log.debug("비공개 채널 생성 요청: participantIds={}", request.participantIds());
 
-        List<User> users = userRepository.findAllByIdIn(request.participantIds());
-        if (users.size() != request.participantIds().size()) {
-            Set<UUID> missingIds = request.participantIds().stream()
-                .filter(id -> users.stream().noneMatch(
-                    user -> user.getId().equals(id))
-                )
-                .collect(Collectors.toSet());
-
-            throw new NotFoundException("Users not found: " + missingIds);
-        }
-
-        if (users.size() == 2) {
-            UUID userId1 = users.get(0).getId();
-            UUID userId2 = users.get(1).getId();
-            if (channelRepository.existsBetweenUsers(userId1, userId2)) {
-                throw new DataIntegrityViolationException("[Key (userId1, userId2)=(%s, %s) already exists.]"
-                    .formatted(userId1, userId2));
-            }
-        }
+        List<User> participants = validateAndFetchParticipants(request.participantIds());
+        checkDuplicateTwoPersonChannel(participants);
 
         Instant now = Instant.now();
 
@@ -108,22 +89,15 @@ public class ChannelService {
             )
         );
 
-        List<ReadStatus> readStatuses = users.stream()
-            .map(user -> new ReadStatus(
-                user,
-                savedChannel,
-                now
-            ))
-            .toList();
-        readStatusRepository.saveAll(readStatuses);
+        initializeReadStatuses(savedChannel, participants, now);
 
         log.info("비공개 채널 생성 완료: channelId={}", savedChannel.getId());
 
         return channelMapper.toDto(
             savedChannel,
-            users,
+            participants,
             null,
-            now.minus(Duration.ofMinutes(5))
+            now.minus(ONLINE_STATUS_THRESHOLD)
         );
     }
 
@@ -157,7 +131,7 @@ public class ChannelService {
                     ChannelLastMessageAtDto::lastMessageAt
                 ));
 
-        Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
+        Instant onlineSince = Instant.now().minus(ONLINE_STATUS_THRESHOLD);
 
         return channels.stream()
             .map(channel -> {
@@ -182,12 +156,12 @@ public class ChannelService {
         UUID channelId,
         PublicChannelUpdateRequest request
     ) {
-        log.debug("채널 수정 요청: userId={}", channelId);
+        log.debug("채널 수정 요청: channelId={}", channelId);
 
         Channel channel = channelRepository.getOrThrow(channelId);
 
         if (channel.getType() == ChannelType.PRIVATE) {
-            throw new AccessDeniedException("Private channel cannot be updated");
+            throw new PrivateChannelUpdateException();
         }
 
         updateChannel(channel, request);
@@ -195,14 +169,14 @@ public class ChannelService {
         log.info("채널 수정 완료: channelId={}", channelId);
 
         Instant lastMessageAt = messageRepository.findLastMessageAtByChannelId(channel.getId());
-        Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
+        Instant onlineSince = Instant.now().minus(ONLINE_STATUS_THRESHOLD);
 
         return channelMapper.toDto(channel, new ArrayList<>(), lastMessageAt, onlineSince);
     }
 
     @Transactional
     public void delete(UUID channelId) {
-        log.debug("채널 삭제 요창: channelId={}", channelId);
+        log.debug("채널 삭제 요청: channelId={}", channelId);
 
         Channel channel = channelRepository.getOrThrow(channelId);
 
@@ -232,5 +206,40 @@ public class ChannelService {
             newName,
             newDescription
         );
+    }
+
+    private List<User> validateAndFetchParticipants(Set<UUID> participantIds) {
+        List<User> users = userRepository.findAllByIdIn(participantIds);
+
+        if (users.size() != participantIds.size()) {
+            Set<UUID> foundUserIds = users.stream()
+                .map(User::getId)
+                .collect(Collectors.toSet());
+
+            Set<UUID> missingUserIds = participantIds.stream()
+                .filter(id -> !foundUserIds.contains(id))
+                .collect(Collectors.toSet());
+
+            throw new UsersNotFoundException(missingUserIds);
+        }
+
+        return users;
+    }
+
+    private void checkDuplicateTwoPersonChannel(List<User> participants) {
+        if (participants.size() == 2) {
+            UUID firstUserId = participants.get(0).getId();
+            UUID secondUserId = participants.get(1).getId();
+            if (channelRepository.existsBetweenUsers(firstUserId, secondUserId)) {
+                throw new DuplicateChannelException(firstUserId, secondUserId);
+            }
+        }
+    }
+
+    private void initializeReadStatuses(Channel channel, List<User> participants, Instant timestamp) {
+        List<ReadStatus> readStatuses = participants.stream()
+            .map(user -> new ReadStatus(user, channel, timestamp))
+            .toList();
+        readStatusRepository.saveAll(readStatuses);
     }
 }

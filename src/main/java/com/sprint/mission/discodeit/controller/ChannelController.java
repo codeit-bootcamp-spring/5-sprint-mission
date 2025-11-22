@@ -32,30 +32,19 @@ public class ChannelController implements ChannelControllerDocs {
 
     @PostMapping("/public")
     @ResponseStatus(HttpStatus.CREATED)
-    public ChannelDto createPublic(
-        @RequestBody
-        @Valid
-        PublicChannelCreateRequest request
-    ) {
+    public ChannelDto createPublic(@RequestBody @Valid PublicChannelCreateRequest request) {
         return channelService.create(request);
     }
 
     @PostMapping("/private")
     @ResponseStatus(HttpStatus.CREATED)
-    public ChannelDto createPrivate(
-        @RequestBody
-        @Valid
-        PrivateChannelCreateRequest request
-    ) {
+    public ChannelDto createPrivate(@RequestBody @Valid PrivateChannelCreateRequest request) {
         return channelService.create(request);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ChannelDto> findAll(
-        @RequestParam
-        UUID userId
-    ) {
+    public List<ChannelDto> findAll(@RequestParam UUID userId) {
         return channelService.findAll(userId);
     }
 

@@ -58,10 +58,6 @@ public class BinaryContentService {
 
     private BinaryContent getOrThrow(UUID binaryContentId) {
         return binaryContentRepository.findById(binaryContentId)
-            .orElseThrow(() -> {
-                log.warn("파일을 찾을 수 없습니다. binaryContentId={}", binaryContentId);
-
-                return new BinaryContentNotFoundException();
-            });
+            .orElseThrow(BinaryContentNotFoundException::new);
     }
 }
