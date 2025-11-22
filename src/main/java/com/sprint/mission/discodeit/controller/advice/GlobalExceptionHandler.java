@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.NotFoundException;
-import com.sprint.mission.discodeit.exception.UnauthorizedException;
 import com.sprint.mission.discodeit.filter.RequestIdFilter;
 import com.sprint.mission.discodeit.util.JsonErrorAnalyzer;
 import jakarta.servlet.http.HttpServletRequest;
@@ -222,23 +221,6 @@ public class GlobalExceptionHandler {
         return createResponse(
             errorCode,
             message,
-            Map.of(),
-            exception,
-            request
-        );
-    }
-
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorized(
-        UnauthorizedException exception,
-        HttpServletRequest request
-    ) {
-        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
-
-        return createResponse(
-            errorCode,
-            errorCode.getMessage(),
-            exception.getMessage(),
             Map.of(),
             exception,
             request
@@ -465,10 +447,11 @@ public class GlobalExceptionHandler {
         Exception exception,
         HttpServletRequest request
     ) {
-        details.put("path", request.getRequestURI());
-        details.put("method", request.getMethod());
+        Map<String, Object> mutableDetails = new HashMap<>(details);
+        mutableDetails.put("path", request.getRequestURI());
+        mutableDetails.put("method", request.getMethod());
         if (request.getQueryString() != null) {
-            details.put("query", request.getQueryString());
+            mutableDetails.put("query", request.getQueryString());
         }
 
         String requestId = Optional.ofNullable(request.getAttribute(REQ_ID_ATTR))
@@ -486,7 +469,7 @@ public class GlobalExceptionHandler {
         ErrorResponse response = ErrorResponse.of(
             errorCode.name(),
             message,
-            details,
+            mutableDetails,
             exception,
             errorCode.getHttpStatus(),
             requestId
