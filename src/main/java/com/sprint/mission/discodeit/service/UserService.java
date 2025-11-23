@@ -8,8 +8,6 @@ import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
-import com.sprint.mission.discodeit.exception.user.DuplicateUsernameException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserProfileUploadException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -34,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.util.ExceptionUtil.handleDuplicateUserConstraint;
 import static org.springframework.util.StringUtils.hasText;
 
 @Service
@@ -214,40 +213,5 @@ public class UserService {
             newEncodedPassword,
             newProfile
         );
-    }
-
-    private void handleDuplicateUserConstraint(
-        DataIntegrityViolationException e,
-        String username,
-        String email
-    ) {
-        String message = e.getMessage();
-        if (message == null) {
-            throw e;
-        }
-
-        String lowerMessage = message.toLowerCase(Locale.ROOT);
-
-        if (lowerMessage.contains("users_email_key")) {
-            log.warn("중복된 이메일: email={}", email);
-            throw new DuplicateEmailException(email);
-        }
-
-        if (lowerMessage.contains("users_username_key")) {
-            log.warn("중복된 사용자명: username={}", username);
-            throw new DuplicateUsernameException(username);
-        }
-
-        if (lowerMessage.contains("email")) {
-            log.warn("중복된 이메일: email={}", email);
-            throw new DuplicateEmailException(email);
-        }
-
-        if (lowerMessage.contains("username")) {
-            log.warn("중복된 사용자명: username={}", username);
-            throw new DuplicateUsernameException(username);
-        }
-
-        throw e;
     }
 }

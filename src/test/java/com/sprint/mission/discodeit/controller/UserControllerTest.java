@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
+import com.sprint.mission.discodeit.exception.user.DuplicateUsernameException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.service.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -157,6 +159,68 @@ class UserControllerTest {
         mockMvc.perform(multipart("/api/users")
                 .file(requestPart))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /api/users - 실패: 중복된 사용자명")
+    void create_DuplicateUsername_Conflict() throws Exception {
+        // given
+        UserCreateRequest request = new UserCreateRequest(
+            "existinguser",
+            "new@example.com",
+            "password123"
+        );
+
+        MockMultipartFile requestPart = new MockMultipartFile(
+            "userCreateRequest",
+            "",
+            MediaType.APPLICATION_JSON_VALUE,
+            objectMapper.writeValueAsBytes(request)
+        );
+
+        given(userService.create(any(UserCreateRequest.class), eq(null)))
+            .willThrow(new DuplicateUsernameException("existinguser"));
+
+        // when & then
+        mockMvc.perform(multipart("/api/users")
+                .file(requestPart))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("DUPLICATE_USERNAME"))
+            .andExpect(jsonPath("$.message").value("중복된 사용자명입니다."))
+            .andExpect(jsonPath("$.details.username").value("existinguser"));
+
+        then(userService).should().create(any(UserCreateRequest.class), eq(null));
+    }
+
+    @Test
+    @DisplayName("POST /api/users - 실패: 중복된 이메일")
+    void create_DuplicateEmail_Conflict() throws Exception {
+        // given
+        UserCreateRequest request = new UserCreateRequest(
+            "newuser",
+            "existing@example.com",
+            "password123"
+        );
+
+        MockMultipartFile requestPart = new MockMultipartFile(
+            "userCreateRequest",
+            "",
+            MediaType.APPLICATION_JSON_VALUE,
+            objectMapper.writeValueAsBytes(request)
+        );
+
+        given(userService.create(any(UserCreateRequest.class), eq(null)))
+            .willThrow(new DuplicateEmailException("existing@example.com"));
+
+        // when & then
+        mockMvc.perform(multipart("/api/users")
+                .file(requestPart))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("DUPLICATE_EMAIL"))
+            .andExpect(jsonPath("$.message").value("중복된 이메일입니다."))
+            .andExpect(jsonPath("$.details.email").value("existing@example.com"));
+
+        then(userService).should().create(any(UserCreateRequest.class), eq(null));
     }
 
     @Test
