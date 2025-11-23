@@ -1,9 +1,7 @@
 package com.sprint.mission.discodeit.controller.advice;
 
-import com.sprint.mission.discodeit.exception.AccessDeniedException;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
-import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.filter.RequestIdFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -206,46 +204,12 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleForbidden(
-        AccessDeniedException exception,
-        HttpServletRequest request
-    ) {
-        ErrorCode errorCode = ErrorCode.FORBIDDEN;
-
-        return createResponse(
-            errorCode,
-            errorCode.getMessage(),
-            exception.getMessage(),
-            Map.of(),
-            exception,
-            request
-        );
-    }
-
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<ErrorResponse> handleNoHandler(
         Exception exception,
         HttpServletRequest request
     ) {
         ErrorCode errorCode = ErrorCode.ENDPOINT_NOT_FOUND;
-
-        return createResponse(
-            errorCode,
-            errorCode.getMessage(),
-            exception.getMessage(),
-            Map.of(),
-            exception,
-            request
-        );
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(
-        NotFoundException exception,
-        HttpServletRequest request
-    ) {
-        ErrorCode errorCode = ErrorCode.RESOURCE_NOT_FOUND;
 
         return createResponse(
             errorCode,
