@@ -94,8 +94,8 @@ tasks.named('test') {
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
 
     testLogging {
-        events 'passed', 'skipped', 'failed'
-        exceptionFormat 'full'
+        events = ['passed', 'skipped', 'failed']
+        exceptionFormat = 'full'
         showStandardStreams = false
     }
 
@@ -111,8 +111,7 @@ def jacocoExclusions = [
         '**/config/**',
         '**/dto/**',
         '**/entity/**',
-        '**/*Application.class',
-        '**/*MapperImpl.class'
+        '**/*Application.class'
 ]
 
 tasks.named('jacocoTestReport') {
