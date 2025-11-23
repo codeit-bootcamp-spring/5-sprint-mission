@@ -279,4 +279,132 @@ class UserApiIntegrationTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
     }
+
+    @Test
+    @DisplayName("사용자 생성 - 실패: 중복된 사용자명으로 생성 시도")
+    void createUser_DuplicateUsername_Fails() throws Exception {
+        // given - 먼저 사용자 생성
+        User existingUser = new User("duplicateuser", "unique@example.com", "encoded", null);
+        userRepository.saveAndFlush(existingUser);
+
+        // 같은 username으로 새 사용자 생성 시도
+        UserCreateRequest request = new UserCreateRequest(
+            "duplicateuser",
+            "different@example.com",
+            "password123"
+        );
+
+        MockMultipartFile requestPart = new MockMultipartFile(
+            "userCreateRequest",
+            "",
+            MediaType.APPLICATION_JSON_VALUE,
+            objectMapper.writeValueAsBytes(request)
+        );
+
+        // when & then
+        mockMvc.perform(multipart("/api/users")
+                .file(requestPart))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("DUPLICATE_USERNAME"))
+            .andExpect(jsonPath("$.message").value("중복된 사용자명입니다."))
+            .andExpect(jsonPath("$.details.username").value("duplicateuser"));
+    }
+
+    @Test
+    @DisplayName("사용자 생성 - 실패: 중복된 이메일로 생성 시도")
+    void createUser_DuplicateEmail_Fails() throws Exception {
+        // given - 먼저 사용자 생성
+        User existingUser = new User("uniqueuser", "duplicate@example.com", "encoded", null);
+        userRepository.saveAndFlush(existingUser);
+
+        // 같은 email로 새 사용자 생성 시도
+        UserCreateRequest request = new UserCreateRequest(
+            "differentuser",
+            "duplicate@example.com",
+            "password123"
+        );
+
+        MockMultipartFile requestPart = new MockMultipartFile(
+            "userCreateRequest",
+            "",
+            MediaType.APPLICATION_JSON_VALUE,
+            objectMapper.writeValueAsBytes(request)
+        );
+
+        // when & then
+        mockMvc.perform(multipart("/api/users")
+                .file(requestPart))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("DUPLICATE_EMAIL"))
+            .andExpect(jsonPath("$.message").value("중복된 이메일입니다."))
+            .andExpect(jsonPath("$.details.email").value("duplicate@example.com"));
+    }
+
+    @Test
+    @DisplayName("사용자 수정 - 실패: 중복된 사용자명으로 수정 시도")
+    void updateUser_DuplicateUsername_Fails() throws Exception {
+        // given - 두 명의 사용자 생성
+        User user1 = new User("user1", "user1@example.com", "encoded", null);
+        User user2 = new User("user2", "user2@example.com", "encoded", null);
+        userRepository.saveAllAndFlush(java.util.List.of(user1, user2));
+
+        // user2의 username을 user1의 username으로 변경 시도
+        UserUpdateRequest request = new UserUpdateRequest(
+            "user1",
+            null,
+            null
+        );
+
+        MockMultipartFile requestPart = new MockMultipartFile(
+            "userUpdateRequest",
+            "",
+            MediaType.APPLICATION_JSON_VALUE,
+            objectMapper.writeValueAsBytes(request)
+        );
+
+        // when & then
+        mockMvc.perform(multipart("/api/users/{userId}", user2.getId())
+                .file(requestPart)
+                .with(req -> {
+                    req.setMethod("PATCH");
+                    return req;
+                }))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("DUPLICATE_USERNAME"))
+            .andExpect(jsonPath("$.message").value("중복된 사용자명입니다."));
+    }
+
+    @Test
+    @DisplayName("사용자 수정 - 실패: 중복된 이메일로 수정 시도")
+    void updateUser_DuplicateEmail_Fails() throws Exception {
+        // given - 두 명의 사용자 생성
+        User user1 = new User("user1", "user1@example.com", "encoded", null);
+        User user2 = new User("user2", "user2@example.com", "encoded", null);
+        userRepository.saveAllAndFlush(java.util.List.of(user1, user2));
+
+        // user2의 email을 user1의 email로 변경 시도
+        UserUpdateRequest request = new UserUpdateRequest(
+            null,
+            "user1@example.com",
+            null
+        );
+
+        MockMultipartFile requestPart = new MockMultipartFile(
+            "userUpdateRequest",
+            "",
+            MediaType.APPLICATION_JSON_VALUE,
+            objectMapper.writeValueAsBytes(request)
+        );
+
+        // when & then
+        mockMvc.perform(multipart("/api/users/{userId}", user2.getId())
+                .file(requestPart)
+                .with(req -> {
+                    req.setMethod("PATCH");
+                    return req;
+                }))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("DUPLICATE_EMAIL"))
+            .andExpect(jsonPath("$.message").value("중복된 이메일입니다."));
+    }
 }

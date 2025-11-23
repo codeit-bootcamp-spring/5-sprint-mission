@@ -8,6 +8,8 @@ import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
+import com.sprint.mission.discodeit.exception.user.DuplicateUsernameException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserProfileUploadException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -19,6 +21,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,14 +69,21 @@ public class UserService {
             savedProfile = saveProfileImage(profile);
         }
 
-        User savedUser = userRepository.save(
-            new User(
-                username,
-                email,
-                password,
-                savedProfile
-            )
-        );
+        User savedUser;
+        try {
+            savedUser = userRepository.save(
+                new User(
+                    username,
+                    email,
+                    password,
+                    savedProfile
+                )
+            );
+            userRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            handleDuplicateUserConstraint(e, username, email);
+            throw e;
+        }
 
         log.info("사용자 생성 완료: userId={}, email={}", savedUser.getId(), savedUser.getEmail());
 
@@ -105,7 +115,23 @@ public class UserService {
             newProfile = saveProfileImage(profile);
         }
 
-        updateUser(user, request, newProfile);
+        String newUsername = null;
+        if (hasText(request.newUsername())) {
+            newUsername = request.newUsername().strip().toLowerCase(Locale.ROOT);
+        }
+
+        String newEmail = null;
+        if (request.newEmail() != null && !request.newEmail().isBlank()) {
+            newEmail = request.newEmail().strip().toLowerCase(Locale.ROOT);
+        }
+
+        try {
+            updateUser(user, request, newProfile, newUsername, newEmail);
+            userRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            handleDuplicateUserConstraint(e, newUsername, newEmail);
+            throw e;
+        }
 
         log.info("사용자 수정 완료: userId={}", userId);
         return userMapper.toDto(user);
@@ -171,18 +197,10 @@ public class UserService {
     private void updateUser(
         User user,
         UserUpdateRequest request,
-        BinaryContent newProfile
+        BinaryContent newProfile,
+        String newUsername,
+        String newEmail
     ) {
-        String newUsername = null;
-        if (hasText(request.newUsername())) {
-            newUsername = request.newUsername().strip().toLowerCase(Locale.ROOT);
-        }
-
-        String newEmail = null;
-        if (request.newEmail() != null && !request.newEmail().isBlank()) {
-            newEmail = request.newEmail().strip().toLowerCase(Locale.ROOT);
-        }
-
         String newEncodedPassword = null;
         if (request.newPassword() != null
             && !request.newPassword().isBlank()
@@ -196,5 +214,40 @@ public class UserService {
             newEncodedPassword,
             newProfile
         );
+    }
+
+    private void handleDuplicateUserConstraint(
+        DataIntegrityViolationException e,
+        String username,
+        String email
+    ) {
+        String message = e.getMessage();
+        if (message == null) {
+            throw e;
+        }
+
+        String lowerMessage = message.toLowerCase(Locale.ROOT);
+
+        if (lowerMessage.contains("users_email_key")) {
+            log.warn("중복된 이메일: email={}", email);
+            throw new DuplicateEmailException(email);
+        }
+
+        if (lowerMessage.contains("users_username_key")) {
+            log.warn("중복된 사용자명: username={}", username);
+            throw new DuplicateUsernameException(username);
+        }
+
+        if (lowerMessage.contains("email")) {
+            log.warn("중복된 이메일: email={}", email);
+            throw new DuplicateEmailException(email);
+        }
+
+        if (lowerMessage.contains("username")) {
+            log.warn("중복된 사용자명: username={}", username);
+            throw new DuplicateUsernameException(username);
+        }
+
+        throw e;
     }
 }

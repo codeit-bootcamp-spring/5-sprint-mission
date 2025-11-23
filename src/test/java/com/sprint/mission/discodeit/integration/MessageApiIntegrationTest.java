@@ -157,7 +157,8 @@ class MessageApiIntegrationTest {
         assertThat(savedMessage).isPresent();
 
         // MessageAttachment 확인
-        List<BinaryContent> attachments = messageAttachmentRepository.findAttachmentsByMessageId(savedMessage.get().getId());
+        List<BinaryContent> attachments =
+            messageAttachmentRepository.findAttachmentsByMessageId(savedMessage.get().getId());
         assertThat(attachments).hasSize(1);
         assertThat(attachments.get(0).getFileName()).isEqualTo("test.txt");
 

@@ -13,8 +13,7 @@ public record ErrorResponse(
     String message,
     Map<String, Object> details,
     String exceptionType,
-    int status,
-    String requestId
+    int status
 ) {
 
     public static ErrorResponse of(
@@ -22,8 +21,7 @@ public record ErrorResponse(
         String message,
         Map<String, Object> details,
         Throwable exception,
-        HttpStatus httpStatus,
-        String requestId
+        HttpStatus httpStatus
     ) {
         return new ErrorResponse(
             Instant.now(),
@@ -31,8 +29,7 @@ public record ErrorResponse(
             message,
             details,
             exception != null ? exception.getClass().getSimpleName() : null,
-            httpStatus.value(),
-            requestId
+            httpStatus.value()
         );
     }
 }
