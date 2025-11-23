@@ -115,13 +115,13 @@
 
 ## 단위 테스트
 
-- [ ] 서비스 레이어의 주요 메소드에 대한 단위 테스트를 작성하세요.
-    - [ ] 다음 서비스의 핵심 메소드에 대해 각각 최소 2개 이상(성공, 실패)의 테스트 케이스를 작성하세요.
-        - [ ] UserService: create, update, delete 메소드
-        - [ ] ChannelService: create(PUBLIC, PRIVATE), update, delete, findByUserId 메소드
-        - [ ] MessageService: create, update, delete, findByChannelId 메소드
-    - [ ] `Mockito`를 활용해 Repository 의존성을 모의(mock)하세요.
-    - [ ] `BDDMockito`를 활용해 테스트 가독성을 높이세요.
+- [x] 서비스 레이어의 주요 메소드에 대한 단위 테스트를 작성하세요.
+    - [x] 다음 서비스의 핵심 메소드에 대해 각각 최소 2개 이상(성공, 실패)의 테스트 케이스를 작성하세요.
+        - [x] UserService: create, update, delete 메소드
+        - [x] ChannelService: create(PUBLIC, PRIVATE), update, delete, findByUserId 메소드
+        - [x] MessageService: create, update, delete, findByChannelId 메소드
+    - [x] `Mockito`를 활용해 Repository 의존성을 모의(mock)하세요.
+    - [x] `BDDMockito`를 활용해 테스트 가독성을 높이세요.
 
 ## 슬라이스 테스트
 
