@@ -37,7 +37,7 @@ public interface AuthControllerDocs {
                         {
                            "timestamp": "2025-09-03T15:44:53.822173Z",
                            "code": "INVALID_BODY_VALUE",
-                           "message": "Request body value not valid",
+                           "message": "요청 본문 값이 유효하지 않습니다.",
                            "details": {
                              "path": "/api/auth/login",
                              "fieldErrors": [
@@ -94,13 +94,13 @@ public interface AuthControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T15:47:16.592910Z",
-                          "code": "UNAUTHORIZED",
-                          "message": "Username or password incorrect",
+                          "code": "INVALID_CREDENTIALS",
+                          "message": "사용자 이름 또는 비밀번호가 올바르지 않습니다.",
                           "details": {
                             "path": "/api/auth/login",
                             "method": "POST"
                           },
-                          "exceptionType": "UnauthorizedException",
+                          "exceptionType": "InvalidCredentialsException",
                           "status": 401,
                           "requestId": "5667739b-beb7-490f-953c-89808ae8a09f"
                         }

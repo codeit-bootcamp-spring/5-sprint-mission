@@ -94,8 +94,8 @@ public interface ChannelControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T02:19:30.016741Z",
-                          "code": "INVALID_PARAMETER_TYPE",
-                          "message": "parameter=userId, value=not-uuid, expectedType=UUID",
+                          "code": "INVALID_PARAMETER_VALUE",
+                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=userId, value=not-uuid, expectedType=UUID",
                           "details": {
                             "path": "/api/channels",
                             "method": "GET",
@@ -114,7 +114,7 @@ public interface ChannelControllerDocs {
                         {
                           "timestamp": "2025-09-04T02:18:20.915845Z",
                           "code": "MISSING_PARAMETER",
-                          "message": "missing parameter: userId (required type: UUID)",
+                          "message": "요청 매개변수가 누락되었습니다.: userId (필요한 매개변수: UUID)",
                           "details": {
                             "path": "/api/channels",
                             "method": "GET"
@@ -170,7 +170,7 @@ public interface ChannelControllerDocs {
                         {
                           "timestamp": "2025-09-04T02:28:35.399138Z",
                           "code": "INVALID_BODY_VALUE",
-                          "message": "Request body value not valid",
+                          "message": "요청 본문 값이 유효하지 않습니다.",
                           "details": {
                             "path": "/api/channels/public",
                             "fieldErrors": [
@@ -195,7 +195,7 @@ public interface ChannelControllerDocs {
                         {
                           "timestamp": "2025-09-04T02:30:41.756840Z",
                           "code": "INVALID_JSON",
-                          "message": "Unable to read request body, please check JSON format and field type",
+                          "message": "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인해주세요.",
                           "details": {
                             "path": "/api/channels/public",
                             "method": "POST",
@@ -285,7 +285,7 @@ public interface ChannelControllerDocs {
                         {
                           "timestamp": "2025-09-04T03:21:34.614436Z",
                           "code": "INVALID_BODY_VALUE",
-                          "message": "Request body value not valid",
+                          "message": "요청 본문 값이 유효하지 않습니다.",
                           "details": {
                             "path": "/api/channels/private",
                             "fieldErrors": [
@@ -315,7 +315,7 @@ public interface ChannelControllerDocs {
                         {
                           "timestamp": "2025-09-04T03:22:27.277804Z",
                           "code": "INVALID_JSON",
-                          "message": "Unable to read request body, please check JSON format and field type",
+                          "message": "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인해주세요.",
                           "details": {
                             "path": "/api/channels/private",
                             "method": "POST",
@@ -342,13 +342,13 @@ public interface ChannelControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T04:23:03.208002Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "Users not found: [850eb396-cd33-432d-9da0-9254c19800a7, 8fb5dd71-b7a0-4b5d-bf37-ea410473c618]",
+                          "code": "USERS_NOT_FOUND",
+                          "message": "일부 사용자를 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/channels/private",
                             "method": "POST"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "UsersNotFoundException",
                           "status": 404,
                           "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
                         }
@@ -369,13 +369,13 @@ public interface ChannelControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T03:25:45.708692Z",
-                          "code": "CONFLICT",
-                          "message": "(userId1, userId2)=(dd210d1a-ebe6-499f-8936-859790fd3716, 8fb5dd71-b7a0-4b5d-bf37-ea410473c618) already exists.",
+                          "code": "DUPLICATE_PRIVATE_CHANNEL",
+                          "message": "이미 존재하는 개인 채널입니다.",
                           "details": {
                             "path": "/api/channels/private",
                             "method": "POST"
                           },
-                          "exceptionType": "DataIntegrityViolationException",
+                          "exceptionType": "DuplicateChannelException",
                           "status": 409,
                           "requestId": "b52caf04-c71f-4446-8a18-8a1f485d6e1c"
                         }
@@ -407,13 +407,13 @@ public interface ChannelControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T02:48:55.109967Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "Channel with id d1d96548-3f49-4bef-9a61-52f723b146d1 not found",
+                          "code": "CHANNEL_NOT_FOUND",
+                          "message": "채널을 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/channels/d1d96548-3f49-4bef-9a61-52f723b146d1",
                             "method": "DELETE"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "ChannelNotFoundException",
                           "status": 404,
                           "requestId": "4d8855d4-439b-45a4-a7da-5ab049c46e14"
                         }
@@ -468,7 +468,7 @@ public interface ChannelControllerDocs {
                         {
                           "timestamp": "2025-09-04T02:44:16.013658Z",
                           "code": "INVALID_JSON",
-                          "message": "Unable to read request body, please check JSON format and field type",
+                          "message": "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인해주세요.",
                           "details": {
                             "path": "/api/channels/6fb818cd-44f3-4289-bb83-fe49741c4de5",
                             "method": "PATCH",
@@ -495,13 +495,13 @@ public interface ChannelControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T02:46:05.486359Z",
-                          "code": "FORBIDDEN",
-                          "message": "Private channel cannot be updated",
+                          "code": "PRIVATE_CHANNEL_UPDATE",
+                          "message": "개인 채널은 수정할 수 없습니다.",
                           "details": {
                             "path": "/api/channels/d1d96548-3f49-4bef-9a61-52f723b146de",
                             "method": "PATCH"
                           },
-                          "exceptionType": "AccessDeniedException",
+                          "exceptionType": "PrivateChannelUpdateException",
                           "status": 403,
                           "requestId": "c331901b-2828-45e5-aa5c-d5b1e66175ef"
                         }
@@ -522,13 +522,13 @@ public interface ChannelControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T02:43:49.646270Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "Channel with id 6fb818cd-44f3-4289-bb83-fe49741c4de5 not found",
+                          "code": "CHANNEL_NOT_FOUND",
+                          "message": "채널을 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/channels/6fb818cd-44f3-4289-bb83-fe49741c4de5",
                             "method": "PATCH"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "ChannelNotFoundException",
                           "status": 404,
                           "requestId": "3fc8c881-61d2-48eb-bb83-ae58d5729fc8"
                         }

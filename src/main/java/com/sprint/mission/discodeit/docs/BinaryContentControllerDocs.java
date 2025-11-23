@@ -64,8 +64,8 @@ public interface BinaryContentControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T16:00:37.339821Z",
-                          "code": "INVALID_PARAMETER_TYPE",
-                          "message": "parameter=binaryContentIds, value=[Ljava.lang.String;@4df10515, expectedType=Set",
+                          "code": "INVALID_PARAMETER_VALUE",
+                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=binaryContentIds, value=[Ljava.lang.String;@4df10515, expectedType=Set",
                           "details": {
                             "path": "/api/binaryContents",
                             "method": "GET",
@@ -84,7 +84,7 @@ public interface BinaryContentControllerDocs {
                         {
                           "timestamp": "2025-09-03T16:03:12.387990Z",
                           "code": "MISSING_PARAMETER",
-                          "message": "missing parameter: binaryContentIds (required type: Set)",
+                          "message": "요청 매개변수가 누락되었습니다.: binaryContentIds (필요한 매개변수: Set)",
                           "details": {
                             "path": "/api/binaryContents",
                             "method": "GET"
@@ -125,8 +125,8 @@ public interface BinaryContentControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T16:07:55.585502Z",
-                          "code": "INVALID_PARAMETER_TYPE",
-                          "message": "parameter=binaryContentId, value=not-uuid, expectedType=UUID",
+                          "code": "INVALID_PARAMETER_VALUE",
+                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=binaryContentId, value=not-uuid, expectedType=UUID",
                           "details": {
                             "path": "/api/binaryContents/not-uuid",
                             "method": "GET"
@@ -152,13 +152,13 @@ public interface BinaryContentControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T16:08:40.117674Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "BinaryContent with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found",
+                          "code": "BINARY_CONTENT_NOT_FOUND",
+                          "message": "파일을 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/binaryContents/e6681542-a6b1-43f3-b759-6dc9cfebcf41",
                             "method": "GET"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "BinaryContentNotFoundException",
                           "status": 404,
                           "requestId": "1f485a6e-6293-4d5b-9cc1-5ec19969734e"
                         }
@@ -190,8 +190,8 @@ public interface BinaryContentControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T16:07:55.585502Z",
-                          "code": "INVALID_PARAMETER_TYPE",
-                          "message": "parameter=binaryContentId, value=not-uuid, expectedType=UUID",
+                          "code": "INVALID_PARAMETER_VALUE",
+                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=binaryContentId, value=not-uuid, expectedType=UUID",
                           "details": {
                             "path": "/api/binaryContents/not-uuid/download",
                             "method": "GET"
@@ -217,13 +217,13 @@ public interface BinaryContentControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T16:08:40.117674Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "BinaryContent with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found",
+                          "code": "BINARY_CONTENT_NOT_FOUND",
+                          "message": "파일을 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/binaryContents/e6681542-a6b1-43f3-b759-6dc9cfebcf41/download",
                             "method": "GET"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "BinaryContentNotFoundException",
                           "status": 404,
                           "requestId": "1f485a6e-6293-4d5b-9cc1-5ec19969734e"
                         }
