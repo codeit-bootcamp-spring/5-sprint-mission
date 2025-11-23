@@ -83,6 +83,9 @@ ALTER TABLE users
             REFERENCES binary_contents (id)
             ON DELETE SET NULL;
 
+ALTER TABLE users
+    ADD COLUMN role varchar(20) NOT NULL DEFAULT 'USER';
+
 -- UserStatus (1) -> User (1)
 ALTER TABLE user_statuses
     ADD CONSTRAINT fk_user_status_user
@@ -124,7 +127,3 @@ ALTER TABLE read_statuses
         FOREIGN KEY (channel_id)
             REFERENCES channels (id)
             ON DELETE CASCADE;
-
-aws ecr-public get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin public.ecr.aws/h7t8j5j5/discodeit
-
-aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 669063901523.dkr.ecr.ap-northeast-2.amazonaws.com
