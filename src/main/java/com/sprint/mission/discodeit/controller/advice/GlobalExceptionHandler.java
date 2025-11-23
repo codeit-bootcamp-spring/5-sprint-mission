@@ -2,10 +2,10 @@ package com.sprint.mission.discodeit.controller.advice;
 
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
-import com.sprint.mission.discodeit.filter.RequestIdFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    private static final String REQ_ID_HEADER = RequestIdFilter.HEADER;
-    private static final String REQ_ID_ATTR = RequestIdFilter.ATTR;
+    private static final String REQ_ID_HEADER = "Discodeit-Request-ID";
+    private static final String MDC_REQUEST_ID_KEY = "requestId";
 
     @ExceptionHandler(DiscodeitException.class)
     public ResponseEntity<ErrorResponse> handleDiscodeitException(
@@ -388,8 +388,7 @@ public class GlobalExceptionHandler {
             mutableDetails.put("query", request.getQueryString());
         }
 
-        String requestId = Optional.ofNullable(request.getAttribute(REQ_ID_ATTR))
-            .map(Object::toString)
+        String requestId = Optional.ofNullable(MDC.get(MDC_REQUEST_ID_KEY))
             .orElse("");
 
         log(

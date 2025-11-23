@@ -111,7 +111,8 @@ def jacocoExclusions = [
         '**/config/**',
         '**/dto/**',
         '**/entity/**',
-        '**/*Application.class'
+        '**/*Application.class',
+        '**/*MapperImpl.class'
 ]
 
 tasks.named('jacocoTestReport') {
