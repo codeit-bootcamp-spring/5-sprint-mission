@@ -45,5 +45,6 @@ bin/
 .*
 !.gitignore
 
-# .gitignore
-.env
+
+### Github Actions ###
+!.github/
