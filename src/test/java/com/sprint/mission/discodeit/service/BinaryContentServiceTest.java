@@ -139,7 +139,11 @@ class BinaryContentServiceTest {
     void download_Success() {
         // given
         UUID binaryContentId = UUID.randomUUID();
-        BinaryContent binaryContent = new BinaryContent("document.docx", 10240L, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        BinaryContent binaryContent = new BinaryContent(
+            "document.docx",
+            10240L,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        );
         Resource resource = mock(Resource.class);
 
         given(binaryContentRepository.findById(binaryContentId)).willReturn(Optional.of(binaryContent));
@@ -152,7 +156,9 @@ class BinaryContentServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.resource()).isEqualTo(resource);
         assertThat(result.fileName()).isEqualTo("document.docx");
-        assertThat(result.contentType()).isEqualTo("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        assertThat(result.contentType()).isEqualTo(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        );
         assertThat(result.size()).isEqualTo(10240L);
 
         then(binaryContentRepository).should().findById(binaryContentId);

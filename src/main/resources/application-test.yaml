@@ -7,6 +7,9 @@ spring:
     hibernate:
       ddl-auto: create-drop
     defer-datasource-initialization: true
+  sql:
+    init:
+      mode: never
 
 logging:
   level:

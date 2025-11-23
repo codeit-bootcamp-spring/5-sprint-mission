@@ -15,7 +15,7 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
     List<ReadStatusDto> findAllByUserId(UUID userId);
 
-    @EntityGraph(attributePaths = { "userStatus", "profile" })
+    @EntityGraph(attributePaths = { "user.userStatus", "user.profile" })
     @Query("""
             SELECT DISTINCT rs.user
             FROM ReadStatus rs
