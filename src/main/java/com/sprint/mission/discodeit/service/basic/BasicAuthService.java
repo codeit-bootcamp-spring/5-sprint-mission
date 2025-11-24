@@ -1,43 +1,42 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
-import com.sprint.mission.discodeit.dto.response.LoginResponse;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.exception.user.InvalidCredentialsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.Optional;
-
-@Service
+@Slf4j
 @RequiredArgsConstructor
+@Service
 public class BasicAuthService implements AuthService {
 
-    private final UserRepository userRepository;
-    private final BinaryContentRepository binaryContentRepository;
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
 
-    @Override
-    public LoginResponse login(LoginRequest loginRequest) {
-        User user = userRepository.findByUserName(loginRequest.username()).orElseThrow(()
-                -> new IllegalArgumentException("Login: User not found"));
-        if(!user.getPassword().equals(loginRequest.password())){
-            throw new IllegalArgumentException("Login: Wrong password");
-        }
+  @Transactional(readOnly = true)
+  @Override
+  public UserDto login(LoginRequest loginRequest) {
+    log.debug("로그인 시도: username={}", loginRequest.username());
+    
+    String username = loginRequest.username();
+    String password = loginRequest.password();
 
-        byte[] binaryContent = null;
-        Optional<BinaryContent> byId = binaryContentRepository.findById(user.getProfileId());
-        if(byId.isPresent()){
-            binaryContent = byId.get().getContent();
-        }
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> UserNotFoundException.withUsername(username));
 
-        return new LoginResponse(
-                user.getUserName(),
-                user.getEmail(),
-                user.getPhoneNumber(),
-                binaryContent
-        );
+    if (!user.getPassword().equals(password)) {
+      throw InvalidCredentialsException.wrongPassword();
     }
+
+    log.info("로그인 성공: userId={}, username={}", user.getId(), username);
+    return userMapper.toDto(user);
+  }
 }

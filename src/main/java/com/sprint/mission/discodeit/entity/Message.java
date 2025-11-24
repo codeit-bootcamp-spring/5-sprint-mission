@@ -1,74 +1,55 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
-
-import java.io.Serializable;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
+@Entity
+@Table(name = "messages")
 @Getter
-public class Message extends BaseEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Message extends BaseUpdatableEntity {
 
-    private final UUID authorUserId;
-    private final UUID channelId;
-    private final List<UUID> attachmentIds = new ArrayList<>();
-    private String content;
+  @Column(columnDefinition = "text", nullable = false)
+  private String content;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "channel_id", columnDefinition = "uuid")
+  private Channel channel;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "author_id", columnDefinition = "uuid")
+  private User author;
+  @BatchSize(size = 100)
+  @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+  @JoinTable(
+      name = "message_attachments",
+      joinColumns = @JoinColumn(name = "message_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id")
+  )
+  private List<BinaryContent> attachments = new ArrayList<>();
 
-    public Message(
-            String content, UUID authorUserId, UUID channelId
-    ) {
-        super();
-        this.authorUserId = authorUserId;
-        this.channelId = channelId;
-        this.content = content;
+  public Message(String content, Channel channel, User author, List<BinaryContent> attachments) {
+    this.channel = channel;
+    this.content = content;
+    this.author = author;
+    this.attachments = attachments;
+  }
+
+  public void update(String newContent) {
+    if (newContent != null && !newContent.equals(this.content)) {
+      this.content = newContent;
     }
-
-    public void addAttachmentId(UUID attachmentId) {
-        this.attachmentIds.add(attachmentId);
-    }
-
-    public void removeAttachmentId(UUID attachmentId) {
-        if(!this.attachmentIds.contains(attachmentId)){
-            throw new IllegalArgumentException("잘못된 접근입니다.");
-        }
-        this.attachmentIds.remove(attachmentId);
-    }
-
-    public void removeAllAttachmentId() {
-        this.attachmentIds.clear();
-    }
-
-
-    public void updateContent(String content) {
-        if(!this.content.equals(content)){
-            this.content = content;
-            super.updateUpdatedAt();
-        }
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("Message{");
-        sb.append("authorUserId=").append(authorUserId);
-        sb.append(", channelId=").append(channelId);
-        sb.append(", attachmentIds=").append(attachmentIds);
-        sb.append(", content='").append(content).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Message message = (Message) o;
-        return Objects.equals(authorUserId, message.authorUserId) && Objects.equals(channelId, message.channelId) && Objects.equals(attachmentIds, message.attachmentIds) && Objects.equals(content, message.content);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(authorUserId, channelId, attachmentIds, content);
-    }
+  }
 }
