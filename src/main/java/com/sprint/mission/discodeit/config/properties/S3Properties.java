@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.config.properties;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
@@ -22,7 +23,17 @@ public record S3Properties(
     @NotBlank
     String bucket,
 
-    @NotNull
+    @DefaultValue("10m")
     Duration presignedUrlExpiration
 ) {
+
+    @Override
+    @NonNull
+    public String toString() {
+        return "S3Properties{"
+            + "region='" + region + '\''
+            + ", bucket='" + bucket + '\''
+            + ", presignedUrlExpiration=" + presignedUrlExpiration
+            + '}';
+    }
 }
