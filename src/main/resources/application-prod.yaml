@@ -27,3 +27,8 @@ management:
   info:
     env:
       enabled: false
+
+discodeit:
+  datasource-proxy:
+    name: DS-Proxy-Prod
+    log-level: INFO

@@ -19,14 +19,12 @@ public record StorageProperties(
     Local local
 ) {
 
-    public record Local(
-        @NotBlank
-        String rootPath,
-
-        Duration orphanGrace
-    ) {
+    public record Local(String rootPath, Duration orphanGrace) {
 
         public Local {
+            if (rootPath == null || rootPath.isBlank()) {
+                rootPath = ".discodeit/storage";
+            }
             if (orphanGrace == null) {
                 orphanGrace = Duration.ofHours(1);
             }

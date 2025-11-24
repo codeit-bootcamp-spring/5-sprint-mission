@@ -98,6 +98,11 @@ discodeit:
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
   api:
     server-url: ${API_SERVER_URL:http://localhost:8080}
+  datasource-proxy:
+    name: DS-Proxy
+    log-level: DEBUG
+    slow-query-threshold: 5s
+    slow-query-log-level: WARN
 
 logging:
   level:
