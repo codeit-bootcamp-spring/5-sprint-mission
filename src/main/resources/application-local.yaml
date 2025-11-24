@@ -1,17 +1,15 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
-    username: ${DB_USERNAME:discodeit_user}
-    password: ${DB_PASSWORD:discodeit1234}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/discodeit}
+    # Use PostgreSQL standard environment variables (consistent with docker-compose)
+    username: ${POSTGRES_USER:discodeit_user}
+    password: ${POSTGRES_PASSWORD:discodeit1234}
   jpa:
     hibernate:
-      ddl-auto: update
-  devtools:
-    restart:
-      enabled: true
+      ddl-auto: validate
 
 server:
-  port: 8081
+  port: 8080
   error:
     include-stacktrace: on_param
     include-message: always
@@ -34,13 +32,6 @@ management:
       show-details: always
 
 discodeit:
-  storage:
-    type: LOCAL
-    local:
-      root-path: ./.storage
-      orphan-grace: 10m
-  api:
-    server-url: http://localhost:8081
   datasource-proxy:
     name: DS-Proxy-Local
     log-level: DEBUG

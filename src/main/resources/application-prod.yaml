@@ -1,10 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://host.docker.internal:5432/discodeit
-    username: ${DB_USERNAME:discodeit_user}
-    password: ${DB_PASSWORD:discodeit1234}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
 server:
+  port: 80
   error:
     include-stacktrace: never
     include-message: never
@@ -26,12 +27,3 @@ management:
   info:
     env:
       enabled: false
-
-discodeit:
-  storage:
-    type: LOCAL
-    local:
-      root-path: /var/app/.storage
-      orphan-grace: 1h
-  api:
-    server-url: http://localhost:8081
