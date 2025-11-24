@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.configuration;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.springframework.boot.CommandLineRunner;
@@ -17,6 +18,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -33,6 +35,10 @@ import com.sprint.mission.discodeit.security.HttpStatusReturningLogoutSuccessHan
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.security.jwt.InMemoryJwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,11 +51,10 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(
 		HttpSecurity http,
-		LoginSuccessHandler loginSuccessHandler,
+		JwtLoginSuccessHandler loginSuccessHandler,
 		LoginFailureHandler loginFailureHandler,
 		HttpStatusReturningLogoutSuccessHandler logoutSuccessHandler,
-		Http403ForbiddenAccessDeniedHandler accessDeniedHandler,
-		SessionRegistry sessionRegistry
+		Http403ForbiddenAccessDeniedHandler accessDeniedHandler
 	) throws Exception {
 		http
 			.authorizeHttpRequests(auth -> auth
@@ -80,10 +85,7 @@ public class SecurityConfig {
 				.accessDeniedHandler(accessDeniedHandler)
 			)
 			.sessionManagement(management -> management
-				.sessionFixation().migrateSession()
-				.maximumSessions(1)
-				.maxSessionsPreventsLogin(false)
-				.sessionRegistry(sessionRegistry)
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			)
 			.rememberMe(Customizer.withDefaults())
 
@@ -146,5 +148,10 @@ public class SecurityConfig {
 				.toList();
 			log.debug("Debug Filter Chain...\n{}", String.join(System.lineSeparator(), filterNames));
 		};
+	}
+
+	@Bean
+	public JwtRegistry<UUID> jwtRegistry(JwtTokenProvider jwtTokenProvider) {
+		return new InMemoryJwtRegistry(1, jwtTokenProvider);
 	}
 }

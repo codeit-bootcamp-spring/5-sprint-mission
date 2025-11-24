@@ -39,6 +39,13 @@ discodeit:
       bucket: ${AWS_S3_BUCKET}
       expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
 
+security:
+  jwt:
+    issuer: ${JWT_ISSUER:discodeit}
+    secret: ${JWT_SECRET}
+    access-token-validity-seconds: ${JWT_ACCESS_TOKEN_EXPIRATION:10} # 10초
+    refresh-token-validity-seconds: ${JWT_REFRESH_TOKEN_EXPIRATION:86400} # 1일
+
 springdoc:
   api-docs:
     enabled: true          # API 스펙 JSON 활성화
