@@ -26,6 +26,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
@@ -33,9 +34,9 @@ import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.Http403ForbiddenAccessDeniedHandler;
 import com.sprint.mission.discodeit.security.HttpStatusReturningLogoutSuccessHandler;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
-import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
 import com.sprint.mission.discodeit.security.jwt.InMemoryJwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.jwt.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
@@ -51,10 +52,11 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(
 		HttpSecurity http,
-		JwtLoginSuccessHandler loginSuccessHandler,
+		JwtLoginSuccessHandler jwtLoginSuccessHandler,
 		LoginFailureHandler loginFailureHandler,
 		HttpStatusReturningLogoutSuccessHandler logoutSuccessHandler,
-		Http403ForbiddenAccessDeniedHandler accessDeniedHandler
+		Http403ForbiddenAccessDeniedHandler accessDeniedHandler,
+		JwtAuthenticationFilter jwtAuthenticationFilter
 	) throws Exception {
 		http
 			.authorizeHttpRequests(auth -> auth
@@ -73,7 +75,7 @@ public class SecurityConfig {
 			)
 			.formLogin(login -> login
 				.loginProcessingUrl("/api/auth/login")
-				.successHandler(loginSuccessHandler)
+				.successHandler(jwtLoginSuccessHandler)
 				.failureHandler(loginFailureHandler)
 			)
 			.logout(logout -> logout
@@ -87,6 +89,7 @@ public class SecurityConfig {
 			.sessionManagement(management -> management
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			)
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 			.rememberMe(Customizer.withDefaults())
 
 		;
