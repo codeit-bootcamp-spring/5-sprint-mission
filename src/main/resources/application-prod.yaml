@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
-    username: ${PGUSER}
-    password: ${PGPASSWORD}
+    url: jdbc:postgresql://host.docker.internal:5432/discodeit
+    username: ${DB_USERNAME:discodeit_user}
+    password: ${DB_PASSWORD:discodeit1234}
 
 server:
   error:
@@ -20,6 +20,12 @@ management:
     web:
       exposure:
         include: health,info,metrics,loggers,prometheus
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: false
 
 discodeit:
   storage:
@@ -28,4 +34,4 @@ discodeit:
       root-path: /var/app/.storage
       orphan-grace: 1h
   api:
-    server-url: ${API_SERVER_URL:https://discodeit.com}
+    server-url: http://localhost:8081

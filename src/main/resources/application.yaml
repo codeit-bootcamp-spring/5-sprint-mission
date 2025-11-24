@@ -46,6 +46,14 @@ management:
     env:
       enabled: true
 
+springdoc:
+  api-docs:
+    path: /docs
+    enabled: true
+  swagger-ui:
+    path: /docs/ui
+    enabled: true
+
 info:
   app:
     name: Discodeit
