@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -7,6 +8,15 @@ import org.springframework.data.domain.Sort.Direction;
 
 import java.util.List;
 
+@Schema(
+    example = """
+        {
+          "page": 0,
+          "size": 50,
+          "sort": ["createdAt", "desc"]
+        }
+        """
+)
 public record Pageable(
     @Min(0)
     Integer page,
