@@ -1,7 +1,6 @@
 spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/discodeit}
-    # Use PostgreSQL standard environment variables (consistent with docker-compose)
     username: ${POSTGRES_USER:discodeit_user}
     password: ${POSTGRES_PASSWORD:discodeit1234}
   jpa:

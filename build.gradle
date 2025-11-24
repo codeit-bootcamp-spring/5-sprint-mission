@@ -37,6 +37,7 @@ ext {
     mapstructVersion = '1.6.3'
     springdocVersion = '2.8.11'
     datasourceProxyVersion = '1.10'
+    testcontainersVersion = '1.20.4'
 }
 
 dependencies {
@@ -57,6 +58,10 @@ dependencies {
 
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation "org.testcontainers:testcontainers:${testcontainersVersion}"
+    testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+    testImplementation "org.testcontainers:localstack:${testcontainersVersion}"
+    testImplementation 'com.amazonaws:aws-java-sdk-s3:1.12.778'
 
     // Security
     implementation "org.springframework.security:spring-security-crypto:${springSecurityVersion}"
@@ -133,6 +138,7 @@ def jacocoExclusions = [
         '**/exception/**',
         '**/mapper/**',
         '**/*MapperImpl.class',
+        '**/scheduler/**',
         '**/storage/**',
         '**/util/**',
         '**/*Application.class'
@@ -203,7 +209,7 @@ tasks.named('dependencyUpdates').configure {
     outputDir = 'build/dependencyUpdates'
     reportfileName = 'report'
 
-    rejectVersionIf {
+    rejectVersionIf { selection ->
         def isNonStable = { String version ->
             def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any {
                 it.toLowerCase() in version.toLowerCase()
@@ -211,6 +217,6 @@ tasks.named('dependencyUpdates').configure {
             def regex = /^[0-9,.v-]+(-r)?$/
             return !stableKeyword && !(version ==~ regex)
         }
-        isNonStable(candidate.version) && !isNonStable(currentVersion)
+        isNonStable(selection.candidate.version) && !isNonStable(selection.currentVersion)
     }
 }

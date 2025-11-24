@@ -190,7 +190,7 @@ DiscodeitException (base)
 - Abstraction for file storage with LOCAL implementation (`LocalBinaryContentStorage`)
 - Configured via `discodeit.storage.type=LOCAL`
 - Files stored in `.discodeit/storage` directory by default
-- Supports orphan file cleanup with configurable grace period (10m default)
+- Supports orphan file cleanup with configurable grace period (1h default)
 
 **File Upload:**
 

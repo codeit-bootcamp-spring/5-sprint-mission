@@ -8,10 +8,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.UUID;
 
-/**
- * MDC(Mapped Diagnostic Context) Logging Interceptor.
- * Adds request metadata to MDC for enhanced logging context.
- */
 public class MDCLoggingInterceptor implements HandlerInterceptor {
 
     private static final String REQUEST_ID_KEY = "requestId";
@@ -21,9 +17,9 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull Object handler
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull Object handler
     ) {
         String requestId = UUID.randomUUID().toString();
         String requestMethod = request.getMethod();
@@ -40,10 +36,10 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull Object handler,
-            Exception ex
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull Object handler,
+        Exception ex
     ) {
         MDC.clear();
     }
