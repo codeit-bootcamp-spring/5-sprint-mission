@@ -5,6 +5,7 @@ spring:
     password: ${POSTGRES_PASSWORD:discodeit1234}
 
 server:
+  port: 8080
   error:
     include-stacktrace: on_param
     include-message: always
