@@ -29,16 +29,16 @@ public class AwsS3Config {
     }
 
     @Bean
-    public S3Client s3Client() {
-        AwsCredentialsProvider credentialsProvider;
-
+    public AwsCredentialsProvider awsCredentialsProvider() {
         if (hasText(accessKey) && hasText(secretKey)) {
             AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
-            credentialsProvider = StaticCredentialsProvider.create(credentials);
-        } else {
-            credentialsProvider = DefaultCredentialsProvider.create();
+            return StaticCredentialsProvider.create(credentials);
         }
+        return DefaultCredentialsProvider.create();
+    }
 
+    @Bean
+    public S3Client s3Client(AwsCredentialsProvider credentialsProvider) {
         return S3Client.builder()
             .region(Region.of(region))
             .credentialsProvider(credentialsProvider)
@@ -46,16 +46,7 @@ public class AwsS3Config {
     }
 
     @Bean
-    public S3Presigner s3Presigner() {
-        AwsCredentialsProvider credentialsProvider;
-
-        if (hasText(accessKey) && hasText(secretKey)) {
-            AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
-            credentialsProvider = StaticCredentialsProvider.create(credentials);
-        } else {
-            credentialsProvider = DefaultCredentialsProvider.create();
-        }
-
+    public S3Presigner s3Presigner(AwsCredentialsProvider credentialsProvider) {
         return S3Presigner.builder()
             .region(Region.of(region))
             .credentialsProvider(credentialsProvider)
