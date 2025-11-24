@@ -61,23 +61,22 @@ dependencies {
     // Security
     implementation "org.springframework.security:spring-security-crypto:${springSecurityVersion}"
 
-    // API Documentation
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
 
-    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    // MapStruct
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
     testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
-    // Database Utilities
     implementation "net.ttddyy:datasource-proxy:${datasourceProxyVersion}"
+
+    // S3
+    implementation 'software.amazon.awssdk:s3:2.31.7'
 }
 
 dependencyManagement {
@@ -134,6 +133,7 @@ def jacocoExclusions = [
         '**/exception/**',
         '**/mapper/**',
         '**/*MapperImpl.class',
+        '**/storage/**',
         '**/util/**',
         '**/*Application.class'
 ]

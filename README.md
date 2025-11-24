@@ -31,38 +31,38 @@
 - [x] 빌드된 이미지를 활용해서 컨테이너를 실행하고 애플리케이션을 테스트하세요.
     - [x] `prod` 프로필로 실행하세요.
     - [x] 데이터베이스는 로컬 환경에서 구동 중인 PostgreSQL 서버를 활용하세요.
-    - [x] http://localhost:8081로 접속 가능하도록 포트를 매핑하세요.
+    - [x] http://localhost:8080로 접속 가능하도록 포트를 매핑하세요.
 
 ### Docker Compose 구성
 
 - 개발 환경용 docker-compose.yml 파일을 작성합니다.
-- [ ] 애플리케이션과 PostgreSQL 서비스를 포함하세요.
-- [ ] 각 서비스에 필요한 모든 환경 변수를 설정하세요.
+- [x] 애플리케이션과 PostgreSQL 서비스를 포함하세요.
+- [x] 각 서비스에 필요한 모든 환경 변수를 설정하세요.
     - `.env` 파일을 활용하되, `.env`는 형상관리에서 제외하여 보안을 유지하세요.
-- [ ] 애플리케이션 서비스를 로컬 Dockerfile에서 빌드하도록 구성하세요.
-- [ ] 애플리케이션 볼륨을 구성하여 컨테이너가 재시작되어도 `BinaryContentStorage` 데이터가 유지되도록 하세요.
-- [ ] PostgreSQL 볼륨을 구성하여 컨테이너가 재시작되어도 데이터가 유지되도록 하세요.
-- [ ] PostgreSQL 서비스 실행 후 `schema.sql`이 자동으로 실행되도록 구성하세요.
-- [ ] 서비스 간 의존성을 설정하세요(`depends_on`).
-- [ ] 필요한 포트 매핑을 구성하세요.
-- [ ] Docker Compose를 사용하여 서비스를 시작하고 테스트하세요.
+- [x] 애플리케이션 서비스를 로컬 Dockerfile에서 빌드하도록 구성하세요.
+- [x] 애플리케이션 볼륨을 구성하여 컨테이너가 재시작되어도 `BinaryContentStorage` 데이터가 유지되도록 하세요.
+- [x] PostgreSQL 볼륨을 구성하여 컨테이너가 재시작되어도 데이터가 유지되도록 하세요.
+- [x] PostgreSQL 서비스 실행 후 `schema.sql`이 자동으로 실행되도록 구성하세요.
+- [x] 서비스 간 의존성을 설정하세요(`depends_on`).
+- [x] 필요한 포트 매핑을 구성하세요.
+- [x] Docker Compose를 사용하여 서비스를 시작하고 테스트하세요.
     - `--build` 플래그를 사용하여 서비스 시작 전에 이미지를 빌드하도록 합니다.
 
 ## BinaryContentStorage 고도화 (AWS S3)
 
 ### AWS S3 버킷 구성
 
-- [ ] AWS S3 버킷을 생성하세요.
-    - [ ] 버킷 이름을 `discodeit-binary-content-storage-(사용자 이니셜)` 형식으로 지정하세요.
-    - [ ] 퍼블릭 액세스 차단 설정을 활성화하세요(모든 퍼블릭 액세스 차단).
-    - [ ] 버전 관리는 비활성화 상태로 두세요.
+- [x] AWS S3 버킷을 생성하세요.
+    - [x] 버킷 이름을 `discodeit-binary-content-storage-(사용자 이니셜)` 형식으로 지정하세요.
+    - [x] 퍼블릭 액세스 차단 설정을 활성화하세요(모든 퍼블릭 액세스 차단).
+    - [x] 버전 관리는 비활성화 상태로 두세요.
 
 ### AWS S3 접근을 위한 IAM 구성
 
-- [ ] S3 버킷에 접근하기 위한 IAM 사용자(`discodeit`)를 생성하세요.
-- [ ] `AmazonS3FullAccess` 권한을 할당하고, 사용자 생성을 완료하세요.
-- [ ] 생성된 사용자에 엑세스 키를 생성하세요.
-- [ ] 발급받은 키를 포함해서 AWS 관련 정보는 `.env` 파일에 추가합니다.
+- [x] S3 버킷에 접근하기 위한 IAM 사용자(`discodeit`)를 생성하세요.
+- [x] `AmazonS3FullAccess` 권한을 할당하고, 사용자 생성을 완료하세요.
+- [x] 생성된 사용자에 엑세스 키를 생성하세요.
+- [x] 발급받은 키를 포함해서 AWS 관련 정보는 `.env` 파일에 추가합니다.
     ```dotenv
     # AWS
     AWS_S3_ACCESS_KEY=**엑세스_키**
@@ -74,17 +74,17 @@
 
 ### AWS S3 테스트
 
-- [ ]  AWS S3 SDK 의존성을 추가하세요.
+- [x]  AWS S3 SDK 의존성을 추가하세요.
 
   ```groovy
   implementation 'software.amazon.awssdk:s3:2.31.7'
   ```
 
-- [ ]  S3 API를 간단하게 테스트하세요.
+- [x]  S3 API를 간단하게 테스트하세요.
     - 패키지명: `com.sprint.mission.discodeit.stoarge.s3`
     - 클래스명: `AWSS3Test`
-    - [ ] `Properties` 클래스를 활용해서 `.env`에 정의한 AWS 정보를 로드하세요.
-    - [ ] 작업 별 테스트 메소드를 작성하세요.
+    - [x] `Properties` 클래스를 활용해서 `.env`에 정의한 AWS 정보를 로드하세요.
+    - [x] 작업 별 테스트 메소드를 작성하세요.
         - 업로드
         - 다운로드
         - `PresignedUrl` 생성
@@ -102,7 +102,7 @@
       storage:
         type: ${STORAGE_TYPE:local} # local | s3 (기본값: local)
         local:
-          root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/.storage}
+          root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
         s3:
           access-key: ${AWS_S3_ACCESS_KEY}
           secret-key: ${AWS_S3_SECRET_KEY}
@@ -121,7 +121,7 @@
 - [ ] AWS RDS PostgreSQL 인스턴스를 생성하세요.
 
   | 항목                       | 값            | 비고         |
-                                                                  |--------------------------|--------------|------------|
+                                                                                      |--------------------------|--------------|------------|
   | 데이터베이스 생성 방식             | 표준 생성        |            | 
   | 엔진 옵션 > 엔진 유형            | PostgreSQL   |            | 
   | 엔진 옵션 > 엔진 버전            | 17.2-R2      | 기본값        | 
@@ -148,7 +148,7 @@
     - [ ]  EC2 인스턴스를 생성하세요.
 
   | 항목                  | 값           | 비고                    |
-                                                      |---------------------|-------------|-----------------------|
+                                                                          |---------------------|-------------|-----------------------|
   | 이름 및 태그             | rds-ssh     |                       |
   | 인스턴스 유형             | t2.micro    | 기본값, 과금 주의            |
   | 키 페어                | 새 키 페어 생성   | .pem 파일 저장 위치를 기억하세요. |
@@ -215,7 +215,7 @@
         AWS_S3_PRESIGNED_URL_EXPIRATION=600
         # DataSource Configuration
         RDS_ENDPOINT="RDS_엔드포인트(포트 포함)"
-        SPRING_DATASOURCE_URL="jdbc:postgresql://${RDS_ENDPOINT}/discodeit"
+        # SPRING_DATASOURCE_URL="jdbc:postgresql://${RDS_ENDPOINT}/discodeit"
         SPRING_DATASOURCE_USERNAME="RDS_유저네임(DataGrip을 통해 생성했던 유저)"
         SPRING_DATASOURCE_PASSWORD="RDS_비밀번호
         # JVM Configuration (프리티어 고려)
@@ -226,7 +226,7 @@
 - [ ] AWS ECS 콘솔에서 클러스터를 생성하세요.
 
   | 항목                      | 값                 | 비고    |
-                                          |-------------------------|-------------------|-------|
+                                                              |-------------------------|-------------------|-------|
   | 클러스터 구성 > 클러스터 이름       | discodeit-cluster |       |   
   | 인프라 > AWS Fargate(서버리스) | 체크해제              | 과금 주의 | 
   | 인프라 > Amazon EC2 인스턴스   | 체크                |       |
@@ -237,7 +237,7 @@
 - [ ] 태스크를 정의하세요.
 
   | 항목                               | 값                                                      | 비고 |
-                                      |----------------------------------|--------------------------------------------------------|----|
+                                                          |----------------------------------|--------------------------------------------------------|----|
   | 태스크 정의 구성 > 태스크 정의 패밀리           | discodeit-task                                         |    |
   | 인프라 요구 사항 > 시작 유형                | AWS Fargate: 체크 해제, Amazon EC2 인스턴스: 체크                |    |
   | 인프라 요구 사항 > 네트워크 모드              | bridge                                                 |    |
@@ -252,7 +252,7 @@
 - [ ] `discodeit` 클러스터 상세 화면에서 서비스를 생성하세요.
 
   | 항목                  | 값                 | 비고  |
-                                    |---------------------|-------------------|-----|
+                                                        |---------------------|-------------------|-----|
   | 배포 구성 > 태스크 정의 패밀리  | discodeit-task    |     |
   | 배포 구성 > 서비스 이름      | discodeit-service |     |
   | 배포 구성 > 원하는 태스크     | 1                 | 기본값 |

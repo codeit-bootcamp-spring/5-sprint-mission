@@ -95,7 +95,7 @@ com.sprint.mission.discodeit/
 - **UserStatus**: User online/offline/away status
 - **Channel**: Two types - PUBLIC (named channels) and PRIVATE (direct messages)
 - **Message**: Messages in channels with optional file attachments
-- **BinaryContent**: File storage metadata (actual files stored in ./.storage)
+- **BinaryContent**: File storage metadata (actual files stored in .discodeit/storage)
 - **MessageAttachment**: Junction table linking messages to files
 - **ReadStatus**: Tracks which messages users have read in channels
 
@@ -189,7 +189,7 @@ DiscodeitException (base)
 
 - Abstraction for file storage with LOCAL implementation (`LocalBinaryContentStorage`)
 - Configured via `discodeit.storage.type=LOCAL`
-- Files stored in `./.storage` directory by default
+- Files stored in `.discodeit/storage` directory by default
 - Supports orphan file cleanup with configurable grace period (10m default)
 
 **File Upload:**
