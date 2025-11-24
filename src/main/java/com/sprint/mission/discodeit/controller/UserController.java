@@ -2,13 +2,8 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.data.UserStatusDto;
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.*;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,7 +25,6 @@ import java.util.UUID;
 public class UserController implements UserApi {
 
   private final UserService userService;
-  private final UserStatusService userStatusService;
 
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @Override
@@ -93,39 +87,32 @@ public class UserController implements UserApi {
     return ResponseEntity.status(HttpStatus.OK).body(users);
   }
 
-  @PatchMapping(path = "{userId}/userStatus")
-  @Override
-  public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
+  @PatchMapping("/{userId}/role")
+  public ResponseEntity<UserDto> updateRole(
           @PathVariable("userId") UUID userId,
-          @Validated @RequestBody UserStatusUpdateRequest request
+          @Validated @RequestBody RoleUpdateRequest request
   ) {
-    log.info("사용자 상태 업데이트 요청 수신: userId={}, newLastActiveAt={}",
-            userId, request.newLastActiveAt());
-
-    UserStatusDto updatedUserStatus = userStatusService.updateByUserId(userId, request);
-
-    log.info("사용자 상태 업데이트 완료: userStatusId={}", updatedUserStatus.id());
-    return ResponseEntity.status(HttpStatus.OK).body(updatedUserStatus);
+    log.info("유저 권한 수정 요청 수신: userId={}, newRole={}", userId, request.newRole());
+    request = new RoleUpdateRequest(userId, request.newRole());
+    UserDto updatedUser = userService.updateRole(request);
+    log.info("유저 권한 수정 완료: userId={}, role={}", updatedUser.id(), updatedUser.role());
+    return ResponseEntity.ok(updatedUser);
   }
 
   private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {
-    if (profileFile.isEmpty()) {
-      log.warn("프로필 파일이 비어있음");
+    if (profileFile == null || profileFile.isEmpty()) {
       return Optional.empty();
-    } else {
-      try {
-        BinaryContentCreateRequest binaryContentCreateRequest = new BinaryContentCreateRequest(
-                profileFile.getOriginalFilename(),
-                profileFile.getContentType(),
-                profileFile.getBytes()
-        );
-        log.debug("프로필 파일 변환 완료: name={}, contentType={}",
-                profileFile.getOriginalFilename(), profileFile.getContentType());
-        return Optional.of(binaryContentCreateRequest);
-      } catch (IOException e) {
-        log.error("프로필 파일 변환 실패", e);
-        throw new RuntimeException(e);
-      }
+    }
+    try {
+      BinaryContentCreateRequest binaryContentCreateRequest = new BinaryContentCreateRequest(
+              profileFile.getOriginalFilename(),
+              profileFile.getContentType(),
+              profileFile.getBytes()
+      );
+      return Optional.of(binaryContentCreateRequest);
+    } catch (IOException e) {
+      log.error("프로필 파일 변환 실패", e);
+      throw new RuntimeException(e);
     }
   }
 }

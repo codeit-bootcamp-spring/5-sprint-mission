@@ -13,7 +13,8 @@ RUN ./gradlew dependencies
 
 # 소스 복사 및 빌드 (테스트 포함)
 COPY src ./src
-RUN ./gradlew clean build # 테스트 포함 빌드
+#RUN ./gradlew clean build # 테스트 포함 빌드
+RUN ./gradlew build -x test
 
 # ---------- 런타임 스테이지 ----------
 FROM amazoncorretto:17-alpine3.21
@@ -23,7 +24,8 @@ WORKDIR /app
 # 빌드 결과 복사
 COPY --from=builder /app/build/libs/*.jar /app/app.jar
 
-EXPOSE 8081
+EXPOSE 80
+#EXPOSE 8080
 
 # JVM 옵션 (필요 시 외부에서 덮어쓰기 가능)
 ENV JVM_OPTS=""

@@ -2,13 +2,14 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.request.LoginRequest;
-import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -17,26 +18,28 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController implements AuthApi {
 
-  private final AuthService authService;
+  private final UserService userService;
 
-  @PostMapping(path = "login")
-  public ResponseEntity<UserDto> login(@Validated @RequestBody LoginRequest loginRequest) {
-    log.info("로그인 요청 수신: username={}", loginRequest.username());
+  @GetMapping("/csrf-token")
+  public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
+    log.debug("CSRF 토큰 요청: {}", csrfToken.getToken());
+    return ResponseEntity.status(203).build();  // Body 없음
+  }
 
-    try {
-      UserDto user = authService.login(loginRequest);
-      log.info("로그인 성공: username={}, userId={}", loginRequest.username(), user.id());
-      return ResponseEntity.status(HttpStatus.OK).body(user);
-
-    } catch (IllegalArgumentException e) {
-      // 잘못된 비밀번호 같은 인증 실패
-      log.warn("로그인 실패(잘못된 비밀번호): username={}", loginRequest.username());
-      throw e;
-
-    } catch (Exception e) {
-      // 시스템 오류 (DB 등)
-      log.error("로그인 처리 중 예외 발생: username={}", loginRequest.username(), e);
-      throw e;
+  @GetMapping("/me")
+  public ResponseEntity<UserDto> me(
+          @AuthenticationPrincipal DiscodeitUserDetails user
+  ) {
+    if (user == null) {
+      return ResponseEntity.status(401).build();
     }
+
+    return ResponseEntity.status(200).body(user.getUserDto());
+  }
+
+  @PutMapping("/role")
+  public ResponseEntity<UserDto> updateRole(@RequestBody RoleUpdateRequest request) {
+    UserDto userDto = userService.updateRole(request);
+    return ResponseEntity.status(200).body(userDto);
   }
 }

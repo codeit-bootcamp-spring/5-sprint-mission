@@ -1,6 +1,6 @@
 server:
-  port: 8081
-  address: 0.0.0.0
+  port: 80
+#  port: 8080
 
 spring:
   datasource:
@@ -19,12 +19,15 @@ spring:
 
 logging:
   level:
-    root: info
-    com.discodeit: info
+    root: debug
+    com.discodeit: debug
+    org.springframework.boot.autoconfigure.jdbc: debug
+    org.hibernate.engine.jdbc.connections: debug
 
-info:
-  storage:
-    path: ${FILE_UPLOAD_DIR}
-
-file:
-  upload-dir: ${FILE_UPLOAD_DIR}
+management:
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: false
