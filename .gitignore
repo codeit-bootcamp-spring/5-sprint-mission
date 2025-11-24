@@ -18,14 +18,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### Application Runtime ###
-.logs
-storage/
-!**/src/main/**/storage/
-!**/src/test/**/storage/
-
-### Environment & Config ###
-.env
-
-### Claude AI ###
-.claude
+### 숨김 파일 ###
+.*
+!.gitignore
+!.github/

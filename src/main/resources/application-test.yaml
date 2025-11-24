@@ -35,7 +35,7 @@ discodeit:
   storage:
     type: LOCAL
     local:
-      root-path: ./build/test-storage
+      root-path: ./build/.storage
       orphan-grace: 2s
   api:
     server-url: http://localhost:8080

@@ -25,7 +25,7 @@ discodeit:
   storage:
     type: LOCAL
     local:
-      root-path: /var/app/storage
+      root-path: /var/app/.storage
       orphan-grace: 1h
   api:
     server-url: ${API_SERVER_URL:https://discodeit.com}

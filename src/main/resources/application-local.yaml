@@ -37,7 +37,7 @@ discodeit:
   storage:
     type: LOCAL
     local:
-      root-path: ./storage
+      root-path: ./.storage
       orphan-grace: 10m
   api:
     server-url: http://localhost:8081
