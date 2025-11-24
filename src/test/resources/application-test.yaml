@@ -36,10 +36,9 @@ discodeit:
   storage:
     type: local
     local:
-      root-path: ./build/storage
-      orphan-grace: 2s
+      root-path: ./build/.discodeit/storage
+    orphan-grace: 2s
   api:
     server-url: http://localhost:8080
   datasource-proxy:
     name: DS-Proxy-Test
-    log-level: DEBUG

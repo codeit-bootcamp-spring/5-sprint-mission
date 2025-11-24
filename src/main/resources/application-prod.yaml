@@ -31,4 +31,4 @@ management:
 discodeit:
   datasource-proxy:
     name: DS-Proxy-Prod
-    log-level: INFO
+    slow-query-threshold: 1s

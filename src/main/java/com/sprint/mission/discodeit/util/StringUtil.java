@@ -6,6 +6,10 @@ public final class StringUtil {
         throw new AssertionError("Utility class");
     }
 
+    public static boolean hasText(String str) {
+        return (str != null && !str.isBlank());
+    }
+
     public static String sanitizeFilename(String original) {
         if (original == null || original.isBlank()) {
             return "file";

@@ -3,12 +3,8 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/discodeit}
     username: ${POSTGRES_USER:discodeit_user}
     password: ${POSTGRES_PASSWORD:discodeit1234}
-  jpa:
-    hibernate:
-      ddl-auto: validate
 
 server:
-  port: 8080
   error:
     include-stacktrace: on_param
     include-message: always
@@ -17,6 +13,7 @@ server:
 
 logging:
   level:
+    root: INFO
     com.sprint.mission: DEBUG
     org.springframework.web: DEBUG
     net.ttddyy.dsproxy.listener: DEBUG
@@ -33,4 +30,3 @@ management:
 discodeit:
   datasource-proxy:
     name: DS-Proxy-Local
-    log-level: DEBUG
