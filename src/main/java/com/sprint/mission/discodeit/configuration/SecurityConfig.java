@@ -7,6 +7,7 @@ import java.util.stream.IntStream;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -14,7 +15,6 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyAuthoritiesMapper;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -49,6 +49,13 @@ import lombok.extern.slf4j.Slf4j;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+	// TODO: 인증/인가 설정 분리 권장: 하나의 SecurityConfig에 모든 설정이 들어가 있어 파일이 너무 비대함
+	/* 권장 구조
+	WebSecurityConfig (HttpSecurity, FilterChain)
+	MethodSecurityConfig (이미 Handler 하나 추가된 상태라 분리 권장)
+	AuthenticationProviderConfig
+	RoleHierarchyConfig
+	 */
 	@Bean
 	public SecurityFilterChain filterChain(
 		HttpSecurity http,
@@ -58,9 +65,10 @@ public class SecurityConfig {
 		Http403ForbiddenAccessDeniedHandler accessDeniedHandler,
 		JwtAuthenticationFilter jwtAuthenticationFilter
 	) throws Exception {
-		http
+		http // TODO: permitAll 설정 정리정돈
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/login", "/", "/error", "/index.html").permitAll()
+				.requestMatchers("/api/auth/refresh").permitAll()
 				.requestMatchers("/favicon.ico", "/static/**", "/assets/**", "/webjars/**").permitAll()
 				.requestMatchers("/logout").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
@@ -90,7 +98,6 @@ public class SecurityConfig {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			)
 			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-			.rememberMe(Customizer.withDefaults())
 
 		;
 		return http.build();
@@ -141,6 +148,7 @@ public class SecurityConfig {
 		return handler;
 	}
 
+	@Profile("dev")
 	@Bean
 	public CommandLineRunner debugFilterChain(SecurityFilterChain filterChain) {
 		return args -> {

@@ -13,6 +13,4 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface AuthApi {
 
 	ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken);
-
-	ResponseEntity<UserDto> me(@AuthenticationPrincipal DiscodeitUserDetails userDetails);
 }
