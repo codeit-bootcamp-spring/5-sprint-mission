@@ -1,14 +1,13 @@
-package com.sprint.mission.discodeit.config;
+package com.sprint.mission.discodeit.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.function.Supplier;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.util.StringUtils;
-
-import java.util.function.Supplier;
 
 public class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
 
@@ -17,7 +16,7 @@ public class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
 
   @Override
   public void handle(HttpServletRequest request, HttpServletResponse response,
-                     Supplier<CsrfToken> csrfToken) {
+      Supplier<CsrfToken> csrfToken) {
     /*
      * Always use XorCsrfTokenRequestAttributeHandler to provide BREACH protection of
      * the CsrfToken when it is rendered in the response body.
@@ -44,6 +43,6 @@ public class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
      * hidden input.
      */
     return (StringUtils.hasText(headerValue) ? this.plain : this.xor).resolveCsrfTokenValue(request,
-            csrfToken);
+        csrfToken);
   }
 }

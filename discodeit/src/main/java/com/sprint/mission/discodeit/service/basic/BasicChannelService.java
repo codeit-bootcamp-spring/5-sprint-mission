@@ -35,7 +35,6 @@ public class BasicChannelService implements ChannelService {
   private final UserRepository userRepository;
   private final ChannelMapper channelMapper;
 
-
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
   @Override
