@@ -153,7 +153,7 @@ public interface UserControllerDocs {
                         {
                           "timestamp": "2025-09-03T08:44:32.921900Z",
                           "code": "MISSING_PART",
-                          "message": "요청에 필요한 요소가 포함되어 있지 않습니다.userCreateRequest",
+                          "message": "요청에 필요한 요소가 포함되어 있지 않습니다. userCreateRequest",
                           "details": {
                             "path": "/api/users",
                             "method": "POST"
