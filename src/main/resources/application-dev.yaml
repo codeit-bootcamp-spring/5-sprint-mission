@@ -4,12 +4,12 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: postgres
+    password: 1234
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
 
   boot:
     admin:
@@ -22,6 +22,7 @@ logging:
     com.discodeit: debug
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+    org.springframework.security: TRACE
 
 management:
   endpoint:
