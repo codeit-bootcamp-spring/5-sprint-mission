@@ -22,7 +22,6 @@ public class JwtLogoutHandler implements LogoutHandler {
   public void logout(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) {
 
-    // REFRESH_TOKEN 쿠키 조회
     Optional<Cookie> refreshCookie = Optional.ofNullable(request.getCookies())
                                              .flatMap(cookies ->
                                                  Arrays.stream(cookies)
@@ -31,7 +30,6 @@ public class JwtLogoutHandler implements LogoutHandler {
                                                        .findFirst()
                                              );
 
-    // 쿠키 제거
     refreshCookie.ifPresent(cookie -> {
       cookie.setValue("");
       cookie.setPath("/");
@@ -39,12 +37,10 @@ public class JwtLogoutHandler implements LogoutHandler {
       response.addCookie(cookie);
     });
 
-    // Refresh Token 기반으로 Registry 무효화
     refreshCookie.map(Cookie::getValue)
                  .map(jwtTokenProvider::getUserIdFromRefreshToken)
                  .ifPresent(jwtRegistry::invalidateJwtInformationByUserId);
 
-    // 인증 정보 기반 무효화 (추가 안전 장치)
     if (authentication != null
         && authentication.getPrincipal() instanceof DiscodeitUserDetails userDetails) {
       jwtRegistry.invalidateJwtInformationByUserId(userDetails.getId());

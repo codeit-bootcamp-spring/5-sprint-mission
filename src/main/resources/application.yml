@@ -65,3 +65,7 @@ management:
 discodeit:
   storage:
     type: ${STORAGE_TYPE:local}
+
+jwt:
+  access-secret: ${JWT_ACCESS_SECRET:testaccessestdsafasdfadsfadsfawefwbqtqwerreqvwrevwetewt12351132531561613}
+  refresh-secret: ${JWT_REFRESH_SECRET:testrefreshsestdsafasdfadsfadsfawefwbqtqwerreqvwrevwetewt12351132531561613}

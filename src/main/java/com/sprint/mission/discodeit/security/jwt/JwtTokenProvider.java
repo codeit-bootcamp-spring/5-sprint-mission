@@ -59,36 +59,7 @@ public class JwtTokenProvider {
   public boolean isRefreshTokenExpired(String token) {
     return isExpired(token, refreshSecret);
   }
-
-  public String rotateRefreshToken(String oldRefreshToken) {
-
-    Optional<JWTClaimsSet> claimsOpt = parseRefreshToken(oldRefreshToken);
-
-    if (claimsOpt.isEmpty()) {
-      throw new RuntimeException("Invalid refresh token");
-    }
-
-    JWTClaimsSet claims = claimsOpt.get();
-    String sub = claims.getSubject();
-
-    if (sub == null) {
-      throw new RuntimeException("Invalid refresh token subject");
-    }
-
-    UUID userId;
-
-    try {
-      userId = UUID.fromString(sub);
-    } catch (NumberFormatException e) {
-      throw new RuntimeException("Invalid userId in token", e);
-    }
-
-    String username = (String) claims.getClaim("username");
-    String role = (String) claims.getClaim("role");
-
-    return createRefreshToken(userId, username, role);
-  }
-
+  
   private String createToken(UUID userId, String username, String role, Date iat, Date exp,
       String type, String secret) {
 
