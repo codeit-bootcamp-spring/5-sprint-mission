@@ -1,13 +1,18 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDTO;
+import com.sprint.mission.discodeit.dto.jwt.JwtDto;
+import com.sprint.mission.discodeit.dto.jwt.JwtInformation;
 import com.sprint.mission.discodeit.dto.request.user.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.jwt.JwtProperties;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +32,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserRepository userRepository;
-    private final BinaryContentMapper binaryContentMapper;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("csrf-token")
     public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
@@ -56,5 +61,25 @@ public class AuthController {
         log.info("[Controller] 권한 수정 요청: {}", request);
         UserResponse userDto = authService.updateUserRole(request);
         return ResponseEntity.ok(userDto);
+    }
+
+    @PostMapping("refresh")
+    public ResponseEntity<JwtDto> refreshToken(
+            @CookieValue(JwtProperties.REFRESH_TOKEN_COOKIE_NAME) String refreshToken,
+            HttpServletResponse response) {
+
+        log.info("토큰 재발급 요청");
+
+        JwtInformation jwtInformation = authService.refreshToken(refreshToken);
+
+        Cookie cookie = jwtTokenProvider.generateRefreshTokenCookie(jwtInformation.getRefreshToken());
+        response.addCookie(cookie);
+
+        JwtDto body = new JwtDto(
+                jwtInformation.getUserResponse(),
+                jwtInformation.getAccessToken()
+        );
+
+        return ResponseEntity.ok(body);
     }
 }
