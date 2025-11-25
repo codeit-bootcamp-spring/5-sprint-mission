@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.JwtDto.JwtInformation;
 import com.sprint.mission.discodeit.dto.JwtDto.JwtResponse;
 import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.exception.auth.InvalidTokenException;
 import com.sprint.mission.discodeit.exception.auth.LoginFailedException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.security.config.JwtProperties;
@@ -30,7 +31,7 @@ public class BasicAuthService implements AuthService {
   public JwtResponse refresh(String refreshToken, HttpServletResponse response) {
 
     JwtInformation jwtInfo = jwtRegistry.findByRefreshToken(refreshToken)
-                                        .orElseThrow(LoginFailedException::new);
+                                        .orElseThrow(InvalidTokenException::new);
 
     String accessToken = jwtInfo.getAccessToken();
     UUID userId = jwtTokenProvider.getUserIdFromAccessToken(accessToken);
