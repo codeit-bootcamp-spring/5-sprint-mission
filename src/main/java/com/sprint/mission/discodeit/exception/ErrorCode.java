@@ -39,6 +39,7 @@ public enum ErrorCode {
     MISSING_PART(HttpStatus.BAD_REQUEST, "요청에 필요한 요소가 포함되어 있지 않습니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    INSUFFICIENT_ROLE(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다."),
     ENDPOINT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 API 엔드포인트입니다."),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않는 HTTP 메서드입니다."),
