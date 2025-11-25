@@ -31,7 +31,6 @@ repositories {
 
 ext {
     postgresqlVersion = '42.7.7'
-    springSecurityVersion = '6.4.4'
     logbackVersion = '1.5.19'
     commonsLang3Version = '3.18.0'
     mapstructVersion = '1.6.3'
@@ -64,7 +63,8 @@ dependencies {
     testImplementation "org.testcontainers:localstack:${testcontainersVersion}"
 
     // Security
-    implementation "org.springframework.security:spring-security-crypto:${springSecurityVersion}"
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
 
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
 
