@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -27,7 +26,6 @@ import java.time.Duration;
 import java.util.Properties;
 import java.util.UUID;
 
-@Disabled
 @Slf4j
 @DisplayName("S3 API 테스트")
 public class AWSS3Test {

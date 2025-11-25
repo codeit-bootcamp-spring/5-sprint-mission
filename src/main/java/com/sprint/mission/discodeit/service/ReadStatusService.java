@@ -35,7 +35,9 @@ public class ReadStatusService {
         User user = getUserOrThrow(request.userId());
         Channel channel = getChannelOrThrow(request.channelId());
 
-        ReadStatus savedReadStatus = new ReadStatus(user, channel, request.lastReadAt());
+        ReadStatus savedReadStatus = readStatusRepository.save(
+            new ReadStatus(user, channel, request.lastReadAt())
+        );
 
         return readStatusMapper.toDto(savedReadStatus);
     }
