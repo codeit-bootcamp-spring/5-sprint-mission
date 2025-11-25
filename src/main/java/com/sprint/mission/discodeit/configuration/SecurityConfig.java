@@ -38,6 +38,7 @@ import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
 import com.sprint.mission.discodeit.security.jwt.InMemoryJwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.jwt.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.jwt.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 
@@ -61,6 +62,7 @@ public class SecurityConfig {
 		HttpSecurity http,
 		JwtLoginSuccessHandler jwtLoginSuccessHandler,
 		LoginFailureHandler loginFailureHandler,
+		JwtLogoutHandler jwtLogoutHandler,
 		HttpStatusReturningLogoutSuccessHandler logoutSuccessHandler,
 		Http403ForbiddenAccessDeniedHandler accessDeniedHandler,
 		JwtAuthenticationFilter jwtAuthenticationFilter
@@ -88,6 +90,7 @@ public class SecurityConfig {
 			)
 			.logout(logout -> logout
 				.logoutUrl("/api/auth/logout")
+				.addLogoutHandler(jwtLogoutHandler)
 				.logoutSuccessHandler(logoutSuccessHandler)
 			)
 			.exceptionHandling(ex -> ex
