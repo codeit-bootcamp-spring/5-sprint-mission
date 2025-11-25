@@ -18,6 +18,7 @@ logging:
     com.sprint.mission: DEBUG
     org.springframework.web: DEBUG
     org.springframework.security: TRACE
+    org.springframework.security.web.FilterChainProxy: DEBUG
     net.ttddyy.dsproxy.listener: DEBUG
 
 management:

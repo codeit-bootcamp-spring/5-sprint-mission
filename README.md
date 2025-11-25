@@ -22,6 +22,19 @@
 - [x] 개발 환경에서 Spring Security 모듈의 로깅 레벨을 `trace`로 설정하세요.
     - 각 요청마다 통과하는 필터 목록을 확인할 수 있습니다.
 
+| #  | 필터                                      | 설명                                  |
+|----|-----------------------------------------|-------------------------------------|
+| 1  | DisableEncodeUrlFilter                  | URL 인코딩에서 세션 ID 노출 방지               |
+| 2  | WebAsyncManagerIntegrationFilter        | 비동기 요청에서 SecurityContext 통합         |
+| 3  | SecurityContextHolderFilter             | SecurityContext 관리                  |
+| 4  | HeaderWriterFilter                      | 보안 헤더 추가 (X-Content-Type-Options 등) |
+| 5  | CsrfFilter                              | CSRF 공격 방지                          |
+| 6  | LogoutFilter                            | 로그아웃 처리                             |
+| 7  | RequestCacheAwareFilter                 | 인증 후 원래 요청 복원                       |
+| 8  | SecurityContextHolderAwareRequestFilter | 서블릿 API 통합                          |
+| 9  | AnonymousAuthenticationFilter           | 익명 사용자 처리                           |
+| 10 | ExceptionTranslationFilter              | 보안 예외를 HTTP 응답으로 변환                 |
+
 ## CSRF 보호 설정하기
 
 ![](readme1.png)
@@ -32,7 +45,7 @@
 > 3. 클라이언트에서 매 요청마다 쿠키에 저장된 CSRF 토큰을 헤더(`X-XSRF-TOKEN`)에 포함
 > 4. 서버는 요청 헤더에 포함된 두 토큰 값(`X-XSRF-TOKEN`, `Cookie`)을 비교해 유효성 검증
 
-- [ ] `CsrfTokenRepository` 구현체를 `CookieCsrfTokenRepository`로 설정하세요.
+- [x] `CsrfTokenRepository` 구현체를 `CookieCsrfTokenRepository`로 설정하세요.
     - 디폴트 구현체는 `HttpSessionCsrfTokenRepository`입니다.
         ```
         http
@@ -40,8 +53,8 @@
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
         )
         ```
-    - [ ] 이때 클라이언트에서 쿠키에 저장된 CSRF 토큰에 접근해야 하므로 Http Only는 `false`로 설정합니다.
-- [ ] `CsrfTokenRequestHandler` 컴포넌트를 대체하세요.
+    - [x] 이때 클라이언트에서 쿠키에 저장된 CSRF 토큰에 접근해야 하므로 Http Only는 `false`로 설정합니다.
+- [x] `CsrfTokenRequestHandler` 컴포넌트를 대체하세요.
     - 디폴트 구현체는 `XorCsrfTokenRequestAttributeHandler`입니다.
     - [Spring 공식문서](https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html#csrf-integration-javascript-spa)
       에서 권장하는 CSR+SPA(Single Page Application) 환경에 적합한 구현체를 정의하세요.
@@ -85,10 +98,10 @@
         http
             .csrf(csrf -> csrf
             ...
-            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
         )
         ```
-- [ ] CSRF 토큰을 발급하는 API를 구현하세요.
+- [x] CSRF 토큰을 발급하는 API를 구현하세요.
     - API 스펙
         - 엔드포인트: `GET /api/auth/csrf-token`
         - 요청: 없음
@@ -101,27 +114,35 @@
             // ...
         }
         ```
-    - [ ] `CsrfToken` 파라미터를 메서드 인자로 선언하면, `HandlerMethodArgumentResolver`를 통해 자동으로
+    - [x] `CsrfToken` 파라미터를 메서드 인자로 선언하면, `HandlerMethodArgumentResolver`를 통해 자동으로
       주입됩니다. ([공식문서](https://docs.spring.io/spring-security/reference/servlet/integrations/mvc.html#mvc-csrf-resolver))
-    - [ ] GET 요청에는 CSRF 인증이 이루어지지 않기 때문에 토큰이 초기화되지 않습니다. 따라서 명시적으로 메소드에서 토큰을 호출합니다.
+    - [x] GET 요청에는 CSRF 인증이 이루어지지 않기 때문에 토큰이 초기화되지 않습니다. 따라서 명시적으로 메소드에서 토큰을 호출합니다.
 
 ## 회원가입
 
-- [ ] 회원가입 API 스펙은 유지합니다.
+- [x] 회원가입 API 스펙은 유지합니다.
     - API 스펙
         - 엔드포인트: `POST /api/users`
         - 요청: `Body UserCreateRequest, MultipartFile`
         - 응답: `200 UserDto`
-    - [ ] 회원가입 시 비밀번호는 `PasswordEncoder`를 통해 해시로 저장하세요.
-        - [ ] `PasswordEncoder`의 구현체는 `BCryptPasswordEncoder`를 활용하세요.
+    - [x] 회원가입 시 비밀번호는 `PasswordEncoder`를 통해 해시로 저장하세요.
+        - [x] `PasswordEncoder`의 구현체는 `BCryptPasswordEncoder`를 활용하세요.
 
 ## 인증 — 로그인
 
-- [ ] `formLogin`을 기본값으로 활성화하고, 추가된 필터를 확인해보세요.
+- [x] `formLogin`을 기본값으로 활성화하고, 추가된 필터를 확인해보세요.
   ```
   http
         .formLogin(withDefaults())
   ```
+
+| # | 필터                                   | 설명                                            |
+|---|--------------------------------------|-----------------------------------------------|
+| 1 | UsernamePasswordAuthenticationFilter | `POST /login` 요청에서 `username`과 `password`로 인증 |
+| 2 | DefaultResourcesFilter               | 기본 로그인/로그아웃 페이지 정적 리소스 제공                     |
+| 3 | DefaultLoginPageGeneratingFilter     | 커스텀 로그인 페이지가 없을 때 기본 로그인 페이지 생성               |
+| 4 | DefaultLogoutPageGeneratingFilter    | 커스텀 로그아웃 페이지가 없을 때 기본 로그아웃 페이지 생성             |
+
 - [ ] Spring Security의 formLogin 인증 흐름은 그대로 유지하면서 필요한 부분만 대체합니다.
   ![](readme2.png)
     - 이번 미션에서는 보라색 음영 처리된 5가지 컴포넌트를 대체합니다.
