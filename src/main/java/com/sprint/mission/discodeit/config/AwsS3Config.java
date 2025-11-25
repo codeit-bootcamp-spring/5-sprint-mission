@@ -12,7 +12,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
-import static com.sprint.mission.discodeit.util.StringUtil.hasText;
+import static org.springframework.util.StringUtils.hasText;
 
 @Configuration
 @ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "s3")
