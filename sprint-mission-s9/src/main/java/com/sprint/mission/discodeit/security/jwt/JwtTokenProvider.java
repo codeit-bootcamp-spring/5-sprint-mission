@@ -53,19 +53,19 @@ public class JwtTokenProvider {
   }
 
   // access 토큰 발급
-  public String generateAccessToken(String username, Long userId, List<String> roles) throws JOSEException {
+  public String generateAccessToken(String username, UUID userId, List<String> roles) throws JOSEException {
     return generateToken(username, userId, roles, accessTokenExpirationMs, accessTokenSigner, "access");
   }
 
   // refresh 토큰 발급
-  public String generateRefreshToken(String username, Long userId) throws JOSEException {
+  public String generateRefreshToken(String username, UUID userId) throws JOSEException {
     return generateToken(username, userId, null, refreshTokenExpirationMs, refreshTokenSigner, "refresh");
   }
 
   // 공용 토큰 발급
   private String generateToken(
       String username,
-      Long userId,
+      UUID userId,
       List<String> roles,
       long expirationMs,
       JWSSigner signer,
@@ -80,7 +80,7 @@ public class JwtTokenProvider {
         .subject(username)
         .jwtID(tokenId)
         .issuer(issuer)
-        .claim("userId", userId)
+        .claim("userId", userId.toString())
         .claim("type", tokenType)
         .issueTime(now)
         .expirationTime(expiryDate);
@@ -103,13 +103,15 @@ public class JwtTokenProvider {
     return token;
   }
 
+
+  // refresh 토큰으로 새 access 토큰 발급
   public String refreshAccessToken(String refreshToken, List<String> roles) throws JOSEException {
     if (!validateRefreshToken(refreshToken)) {
       throw new IllegalArgumentException("Invalid or expired refresh token");
     }
 
     String username = getUsernameFromToken(refreshToken);
-    Long userId = getUserId(refreshToken);
+    UUID userId = getUserId(refreshToken);
 
     return generateAccessToken(username, userId, roles);
   }
@@ -177,16 +179,13 @@ public class JwtTokenProvider {
   }
 
   // 토큰에서 사용자 ID 추출
-  public Long getUserId(String token) {
+  public UUID getUserId(String token) {
     try {
       SignedJWT signedJWT = SignedJWT.parse(token);
       Object claim = signedJWT.getJWTClaimsSet().getClaim("userId");
 
-      if (claim instanceof Number number) {
-        return number.longValue();
-      }
       if (claim instanceof String str) {
-        return Long.parseLong(str);
+        return UUID.fromString(str);
       }
 
       throw new IllegalArgumentException("User ID claim not found in JWT token");
@@ -233,5 +232,4 @@ public class JwtTokenProvider {
     cookie.setMaxAge(0);
     return cookie;
   }
-
 }
