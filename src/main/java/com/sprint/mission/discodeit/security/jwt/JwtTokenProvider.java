@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.security.jwt;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -19,9 +18,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 
 import jakarta.servlet.http.Cookie;
@@ -208,72 +205,4 @@ public class JwtTokenProvider {
 		cookie.setMaxAge(0); // 무효화 시간 정하기
 		return cookie;
 	}
-
-	public JwtObject parseAccessToken(String token) {
-		return parseInternal(token, "access");
-	}
-
-	public JwtObject parseRefreshToken(String token) {
-		return parseInternal(token, "refresh");
-	}
-
-	private JwtObject parseInternal(String token, String expectedType) {
-		try {
-			SignedJWT signedJWT = SignedJWT.parse(token);
-			JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
-
-			// 1) 서명 검증
-			JWSVerifier verifier = "access".equals(expectedType)
-				? accessTokenVerifier
-				: refreshTokenVerifier;
-
-			if (!signedJWT.verify(verifier)) {
-				throw new IllegalArgumentException("JWT 서명 검증 실패");
-			}
-
-			// 2) type 검증
-			String actualType = claims.getStringClaim("type");
-			if (!expectedType.equals(actualType)) {
-				throw new IllegalArgumentException("JWT 타입 불일치: expected="
-					+ expectedType + ", actual=" + actualType);
-			}
-
-			// 3) 만료 체크
-			Date exp = claims.getExpirationTime();
-			if (exp == null || exp.before(new Date())) {
-				throw new IllegalArgumentException("JWT 만료됨");
-			}
-
-			// 4) 생성 시 넣은 클레임 읽기
-			UUID userId = UUID.fromString(claims.getClaim("userId").toString());
-			String username = claims.getSubject();             // sub
-			String email = claims.getStringClaim("email");
-			Date issueTime = claims.getIssueTime();            // iat
-			BinaryContentDto profile = (BinaryContentDto)claims.getClaim("profile");
-			boolean online = claims.getBooleanClaim("online");
-
-			List<String> roleList = claims.getStringListClaim("roles");
-			Role primaryRole = Role.valueOf(roleList.get(0).substring(5));
-
-			UserDto userDto = new UserDto(
-				userId,
-				username,
-				email,
-				profile,
-				online,
-				primaryRole
-			);
-
-			return new JwtObject(
-				issueTime.toInstant(),
-				exp.toInstant(),
-				userDto,
-				token
-			);
-
-		} catch (Exception e) {
-			throw new IllegalArgumentException("JWT 파싱 실패: " + e.getMessage(), e);
-		}
-	}
-
 }
