@@ -5,6 +5,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
@@ -31,6 +33,10 @@ public class User extends BaseUpdatableEntity {
     @Column(nullable = false, length = 60)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
+
     @OneToOne(
         fetch = FetchType.LAZY,
         cascade = CascadeType.ALL,
@@ -38,13 +44,6 @@ public class User extends BaseUpdatableEntity {
     )
     @JoinColumn(name = "profile_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private BinaryContent profile;
-
-    @OneToOne(
-        mappedBy = "user",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
-    )
-    private UserStatus userStatus;
 
     public User(
         String username,
@@ -75,7 +74,6 @@ public class User extends BaseUpdatableEntity {
         this.email = email;
         this.password = password;
         this.profile = profile;
-        this.userStatus = new UserStatus(this);
     }
 
     public void update(
@@ -107,6 +105,12 @@ public class User extends BaseUpdatableEntity {
 
         if (newProfile != null) {
             this.profile = newProfile;
+        }
+    }
+
+    public void updateRole(Role newRole) {
+        if (newRole != null && this.role != newRole) {
+            this.role = newRole;
         }
     }
 

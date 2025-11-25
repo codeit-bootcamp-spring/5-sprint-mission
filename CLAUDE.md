@@ -92,7 +92,6 @@ com.sprint.mission.discodeit/
 **Core Entities:**
 
 - **User**: Users with authentication (bcrypt password hashing)
-- **UserStatus**: User online/offline/away status
 - **Channel**: Two types - PUBLIC (named channels) and PRIVATE (direct messages)
 - **Message**: Messages in channels with optional file attachments
 - **BinaryContent**: File storage metadata (actual files stored in .discodeit/storage)

@@ -6,8 +6,6 @@ import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateMultipartForm;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -387,84 +385,4 @@ public interface UserControllerDocs {
         )
     )
     UserDto update(UUID userId, UserUpdateRequest req, MultipartFile profile);
-
-    @Operation(summary = "User 온라인 상태 업데이트")
-    @Parameter(
-        name = "userId",
-        description = "상태를 변경할 User ID"
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "User 온라인 상태가 성공적으로 업데이트됨",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = UserStatusDto.class),
-            examples = {
-                @ExampleObject(
-                    value = """
-                        {
-                          "id": "062fa858-4e4d-4f8d-82d8-727cd5f0781d",
-                          "userId": "dd210d1a-ebe6-499f-8936-859790fd3716",
-                          "lastActiveAt": "2025-09-03T15:29:19.674Z"
-                        }
-                        """
-                )
-            }
-        )
-    )
-    @ApiResponse(
-        responseCode = "400",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class),
-            examples = {
-                @ExampleObject(
-                    name = "invalidParameterType",
-                    description = "parameter(userId) 타입이 UUID가 아님",
-                    value = """
-                        {
-                          "timestamp": "2025-09-03T09:49:27.703663Z",
-                          "code": "INVALID_PARAMETER_VALUE",
-                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=userId, value=not-uuid, expectedType=UUID",
-                          "details": {
-                            "path": "/api/users/not-uuid/userStatus",
-                            "method": "PATCH"
-                          },
-                          "exceptionType": "MethodArgumentTypeMismatchException",
-                          "status": 400,
-                          "requestId": "2014bf9c-387a-443b-a59b-6c00edfea84b"
-                        }
-                        """
-                )
-            }
-        )
-    )
-    @ApiResponse(
-        responseCode = "404",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class),
-            examples = {
-                @ExampleObject(
-                    name = "userNotFound",
-                    description = "User를 찾을 수 없음",
-                    value = """
-                        {
-                          "timestamp": "2025-09-03T09:48:06.598818Z",
-                          "code": "USER_NOT_FOUND",
-                          "message": "사용자를 찾을 수 없습니다.",
-                          "details": {
-                            "path": "/api/users/73c8f68b-0e72-4c46-b8e8-b3c2f570bac1/userStatus",
-                            "method": "PATCH"
-                          },
-                          "exceptionType": "UserNotFoundException",
-                          "status": 404,
-                          "requestId": "a783f2f8-5340-4746-a7b1-da1adca3ef86"
-                        }
-                        """
-                )
-            }
-        )
-    )
-    UserStatusDto updateUserStatusByUserId(UUID userId, UserStatusUpdateRequest req);
 }

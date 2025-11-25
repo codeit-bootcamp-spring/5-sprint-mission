@@ -4,8 +4,6 @@ import com.sprint.mission.discodeit.docs.UserControllerDocs;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -66,18 +63,6 @@ public class UserController implements UserControllerDocs {
         MultipartFile profile
     ) {
         return userService.update(userId, req, profile);
-    }
-
-    @PatchMapping("/{userId}/userStatus")
-    @ResponseStatus(HttpStatus.OK)
-    public UserStatusDto updateUserStatusByUserId(
-        @PathVariable
-        UUID userId,
-
-        @RequestBody
-        UserStatusUpdateRequest req
-    ) {
-        return userService.updateUserStatusByUserId(userId, req);
     }
 
     @DeleteMapping("/{userId}")

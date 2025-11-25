@@ -63,15 +63,6 @@ CREATE TABLE IF NOT EXISTS read_statuses
 
 CREATE INDEX IF NOT EXISTS idx_read_statuses_channel ON read_statuses (channel_id);
 
-CREATE TABLE IF NOT EXISTS user_statuses
-(
-    id             uuid PRIMARY KEY,
-    created_at     timestamp WITH TIME ZONE NOT NULL,
-    updated_at     timestamp WITH TIME ZONE,
-    user_id        uuid                     NOT NULL UNIQUE,
-    last_active_at timestamptz              NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS users
 (
     id         uuid PRIMARY KEY,
@@ -80,7 +71,8 @@ CREATE TABLE IF NOT EXISTS users
     username   varchar(50)              NOT NULL UNIQUE,
     email      varchar(100)             NOT NULL UNIQUE,
     password   varchar(60)              NOT NULL,
-    profile_id uuid
+    profile_id uuid,
+    role       varchar(20)              NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_profile ON users (profile_id);

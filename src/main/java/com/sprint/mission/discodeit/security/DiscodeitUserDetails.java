@@ -1,6 +1,9 @@
 package com.sprint.mission.discodeit.security;
 
 import com.sprint.mission.discodeit.dto.user.UserDto;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,10 +11,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-public record DiscodeitUserDetails(
-    UserDto userDto,
-    String password
-) implements UserDetails {
+@EqualsAndHashCode(of = "userDto")
+@Getter
+@RequiredArgsConstructor
+public class DiscodeitUserDetails implements UserDetails {
+
+    private final UserDto userDto;
+    private final String password;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

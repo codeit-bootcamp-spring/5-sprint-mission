@@ -143,7 +143,7 @@
 | 3 | DefaultLoginPageGeneratingFilter     | 커스텀 로그인 페이지가 없을 때 기본 로그인 페이지 생성               |
 | 4 | DefaultLogoutPageGeneratingFilter    | 커스텀 로그아웃 페이지가 없을 때 기본 로그아웃 페이지 생성             |
 
-- [ ] Spring Security의 formLogin 인증 흐름은 그대로 유지하면서 필요한 부분만 대체합니다.
+- [x] Spring Security의 formLogin 인증 흐름은 그대로 유지하면서 필요한 부분만 대체합니다.
   ![](readme2.png)
     - 이번 미션에서는 보라색 음영 처리된 5가지 컴포넌트를 대체합니다.
         1. `UserDetails`
@@ -153,14 +153,14 @@
         5. `AuthenticationFailureHandler`
     - 각 컴포넌트의 기본 구현체가 무엇인지 디버깅해보세요.
 
-- [ ] 로그인을 처리할 url을 `/api/auth/login`로 설정하세요.
+- [x] 로그인을 처리할 url을 `/api/auth/login`로 설정하세요.
     ```
     http
         .formLogin(login -> login
         .loginProcessingUrl(...)
     )
     ```
-- [ ] `UserDetailsService` 컴포넌트를 대체하세요.
+- [x] `UserDetailsService` 컴포넌트를 대체하세요.
     - 디폴트 구현체는 InMemoryUserDetailsManager입니다.
     - `DiscodeitUserDetailsService`를 정의하세요.
         ```java
@@ -175,7 +175,7 @@
         ```
         - 디스코드잇 DB에서 자체 관리하는 사용자 정보로 `UserDetails` 객체를 생성합니다.
         - 구현체를 Bean으로 등록하면 자동으로 대체됩니다.
-- [ ] `UserDetails` 컴포넌트를 대체하세요.
+- [x] `UserDetails` 컴포넌트를 대체하세요.
     - 디폴트 구현체는 `org.springframework.security.core.userdetails.User`입니다.
     - `DiscodeitUserDetails`를 정의하세요.
         ```java
@@ -190,7 +190,7 @@
         - 인증 정보(`Principal`)에 담을 수 있는 정보를 자유롭게 확장할 수 있습니다.
         - `UserDto`와 비밀번호 정보를 저장하세요.
     - 앞서 정의한 `DiscodeitUserDetailsService`에서 `DiscodeitUserDetails`를 생성 후 반환하세요.
-- [ ] `AuthenticationSuccessHandler` 컴포넌트를 대체하세요.
+- [x] `AuthenticationSuccessHandler` 컴포넌트를 대체하세요.
     - 디폴트 구현체는 `SavedRequestAwareAuthenticationSuccessHandler`입니다.
     - `LoginSuccessHandler`를 정의하고 대체하세요.
         ```java
@@ -213,7 +213,7 @@
                 .successHandler(loginSuccessHandler)
             )
         ```
-- [ ] `AuthenticationFailureHandler` 컴포넌트를 대체하세요.
+- [x] `AuthenticationFailureHandler` 컴포넌트를 대체하세요.
     - 디폴트 구현체는 `SimpleUrlAuthenticationFailureHandler`입니다.
     - `LoginFailureHandler`를 정의하고 대체하세요.
         ```java
@@ -236,7 +236,7 @@
                 .failureHandler(loginFailureHandler)
             )
         ```
-- [ ] 이제 로그인 처리는 `SecurityFilterChain`에서 모두 처리되기 때문에 기존에 구현했던 로그인 관련 코드는 제거하세요.
+- [x] 이제 로그인 처리는 `SecurityFilterChain`에서 모두 처리되기 때문에 기존에 구현했던 로그인 관련 코드는 제거하세요.
     - `AuthApi.login`, `AuthController.login`
     - `AuthService.login`
     - `LoginRequest`
@@ -253,7 +253,7 @@
 >
 > 따라서 새로고침 시 쿠키에 저장된 세션 ID를 통해 현재 사용자 정보를 조회합니다.
 
-- [ ] 세션ID를 통해 사용자의 기본 정보(`UserDto`)를 가져올 수 있도록 API를 정의하세요.
+- [x] 세션ID를 통해 사용자의 기본 정보(`UserDto`)를 가져올 수 있도록 API를 정의하세요.
     - API 스펙
         - 엔드포인트: `GET /api/auth/me`
         - 요청: `Header(자동 포함) Cookie: JSESSIONID=…`
@@ -266,14 +266,14 @@
 - 이번 미션에서는 2가지 요소를 대체합니다.
     - Logout 처리 URL
     - `LogoutSuccessHandler`
-- [ ] 로그아웃을 처리할 url을 `/api/auth/logout`로 설정하세요
+- [x] 로그아웃을 처리할 url을 `/api/auth/logout`로 설정하세요
     ```
     http
         .logout(logout -> logout
             .logoutUrl(...)
     )
     ```
-- [ ] `LogoutSuccessHandler` 컴포넌트를 대체하세요.
+- [x] `LogoutSuccessHandler` 컴포넌트를 대체하세요.
     - 디폴트 구현체는 `HttpStatusReturningLogoutSuccessHandler`입니다.
     - `HttpStatusReturningLogoutSuccessHandler`로 대체하세요.
         ```
@@ -287,39 +287,39 @@
 
 ## 인가 — 권한 정의
 
-- [ ] 다음과 같이 권한을 정의하세요.
+- [x] 다음과 같이 권한을 정의하세요.
   ![](readme3.png)
     - 관리자: `ADMIN`
     - 채널 매니저: `CHANNEL_MANAGER`
     - 일반 사용자: `USER`
-- [ ] 데이터베이스 스키마를 변경하세요.
+- [x] 데이터베이스 스키마를 변경하세요.
     ```sql
     CREATE TABLE users
     (
         role varchar(20) NOT NULL
     );
     ```
-- [ ] 회원 가입 시 모든 사용자는 `USER` 권한을 기본 권한으로 설정하세요.
-- [ ] 사용자 권한을 수정하는 API를 구현하세요.
+- [x] 회원 가입 시 모든 사용자는 `USER` 권한을 기본 권한으로 설정하세요.
+- [x] 사용자 권한을 수정하는 API를 구현하세요.
     - API 스펙
         - 엔드포인트: `PUT /api/auth/role`
         - 요청: `Body UserRoleUpdateRequest`
         - 응답: `200 UserDto`
           ![](readme4.png)
-- [ ] 애플리케이션 실행 시 `ADMIN` 권한을 가진 어드민 계정이 초기화되도록 구현하세요.
+- [x] 애플리케이션 실행 시 `ADMIN` 권한을 가진 어드민 계정이 초기화되도록 구현하세요.
     - 어드민 계정이 없는 경우에만 초기화하세요.
-- [ ] `DiscodeitUserDetails.getAuthorities`를 수정하세요.
+- [x] `DiscodeitUserDetails.getAuthorities`를 수정하세요.
 
 ## 인가 — 권한 적용
 
-- [ ] `authorizeHttpRequests`를 활성화하고, 모든 요청을 인증하도록 설정하세요.
+- [x] `authorizeHttpRequests`를 활성화하고, 모든 요청을 인증하도록 설정하세요.
     ```
     http
         .authorizeHttpRequests(auth -> auth
             .anyRequest().authenticated()
         )
     ```
-- [ ] 다음의 요청은 인증하지 않도록 설정하세요.
+- [x] 다음의 요청은 인증하지 않도록 설정하세요.
     ```
     http
         .authorizeHttpRequests(auth -> auth
@@ -332,15 +332,15 @@
     - 로그인
     - 로그아웃
     - API가 아닌 요청(Swagger, Actuator 등)
-- [ ] Method Security를 활성화하세요.
+- [x] Method Security를 활성화하세요.
     ```java
     @EnableMethodSecurity
     public class SecurityConfig { }
     ```
-- [ ] Service의 메소드 별로 아래의 조건에 맞게 권한을 수정하세요.
+- [x] Service의 메소드 별로 아래의 조건에 맞게 권한을 수정하세요.
     - 퍼블릭 채널 생성, 수정, 삭제는 `CHANNEL_MANAGER` 권한을 가져야합니다.
     - 사용자 권한 수정은 `ADMIN` 권한을 가져야합니다.
-- [ ] 적절한 권한이 없는 경우 403 응답을 반환하세요.
+- [x] 적절한 권한이 없는 경우 403 응답을 반환하세요.
     - `SecurityFilterChain`
         ```
         http
@@ -354,7 +354,7 @@
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) { }
         ```
-- [ ] `RoleHierarchy`를 활용해 권한의 계층 구조를 정의하세요.
+- [x] `RoleHierarchy`를 활용해 권한의 계층 구조를 정의하세요.
     - 관리자 > 채널 매니저 > 일반 사용자
         - 관리자 권한은 채널 매니저, 일반 사용자 권한을 포함합니다.
         - 채널 매니저 권한은 일반 사용자 권한을 포함합니다.
@@ -396,7 +396,7 @@
       > correctly identify and manage user sessions. Failing to override them may lead to issues where session tracking
       and user
       > comparison behave unexpectedly.
-- [ ] 권한이 변경된 사용자가 로그인 상태라면 세션을 무효화하세요.
+- [x] 권한이 변경된 사용자가 로그인 상태라면 세션을 무효화하세요.
     - `sessionRegistry`를 활용하세요.
     ```java
     @Bean
@@ -428,7 +428,7 @@
         // ...
     }
     ```
-- [ ] UserStatus 엔티티 대신 SessionRegistry를 활용해 사용자의 로그인 여부를 판단하도록 리팩토링하세요.
+- [x] UserStatus 엔티티 대신 SessionRegistry를 활용해 사용자의 로그인 여부를 판단하도록 리팩토링하세요.
     - UserStatus 엔티티와 관련된 코드는 모두 삭제하세요.
         - (로그아웃처럼) `HttpSession` 만료 시 `SessionRegistry`의 `SessionInformation`도 자동으로 만료 처리할 수 있도록
           `HttpSessionEventPublisher`를 Bean으로 등록합니다.
@@ -441,7 +441,7 @@
 
 ## 로그인 고도화 — RememberMe
 
-- [ ] 로그인 요청 파라미터(`remember-me`)가 `true`인 경우 세션이 무효화되어도 자동으로 다시 로그인되도록 하세요.
+- [x] 로그인 요청 파라미터(`remember-me`)가 `true`인 경우 세션이 무효화되어도 자동으로 다시 로그인되도록 하세요.
     - 로그인 화면에서 로그인 유지 체크 후 로그인하면 `remember-me` 파라미터가 `true`로 설정되어 요청합니다.
       ![](readme5.png)
     - `rememberMe` 설정을 활용하세요.
@@ -454,6 +454,6 @@
 
 ## 권한 적용 고도화
 
-- [ ] `SpEL`을 활용해 Method Security 기반 리소스 보호 정책을 강화해보세요.
+- [x] `SpEL`을 활용해 Method Security 기반 리소스 보호 정책을 강화해보세요.
     - 사용자 정보 수정, 삭제는 본인만 할 수 있습니다.
     - 메시지 수정, 삭제는 해당 메시지를 작성한 사람만 할 수 있습니다.

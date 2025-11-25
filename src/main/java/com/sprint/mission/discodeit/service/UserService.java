@@ -3,15 +3,11 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserProfileUploadException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
-import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -20,14 +16,13 @@ import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -49,7 +44,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final UserMapper userMapper;
-    private final UserStatusMapper userStatusMapper;
 
     @Transactional
     public UserDto create(
@@ -91,14 +85,19 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserDto> findAll() {
-        Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
-
         return userRepository.findAllGraph()
             .stream()
-            .map(u -> userMapper.toDto(u, onlineSince))
+            .map(userMapper::toDto)
             .toList();
     }
 
+    @Transactional(readOnly = true)
+    public UserDto find(UUID userId) {
+        User user = getUserOrThrow(userId);
+        return userMapper.toDto(user);
+    }
+
+    @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     public UserDto update(
         UUID userId,
@@ -136,21 +135,7 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
-    @Transactional
-    public UserStatusDto updateUserStatusByUserId(
-        UUID userId,
-        UserStatusUpdateRequest request
-    ) {
-        User user = getUserOrThrow(userId);
-        UserStatus userStatus = user.getUserStatus();
-
-        if (request.newLastActiveAt() != null) {
-            userStatus.update(request.newLastActiveAt());
-        }
-
-        return userStatusMapper.toDto(userStatus);
-    }
-
+    @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     public void delete(UUID userId) {
         log.debug("사용자 삭제 요청: userId={}", userId);
