@@ -11,11 +11,12 @@ import com.sprint.mission.discodeit.dto.user.JwtInformation;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.security.SessionManager;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
@@ -29,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 public class BasicAuthService implements AuthService {
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
-	private final SessionManager sessionManager;
 	private final JwtRegistry<UUID> jwtRegistry;
 	private final JwtTokenProvider tokenProvider;
 	private final UserDetailsService userDetailsService;
@@ -43,7 +43,7 @@ public class BasicAuthService implements AuthService {
 		user.update(null, null, null, null, request.newRole());
 		UserDto dto = userMapper.toDto(userRepository.save(user));
 
-		sessionManager.invalidateSessionsByUserId(user.getId());
+		jwtRegistry.invalidateJwtInformationByUserId(user.getId());
 
 		log.info("[AuthService#updateRole] success dto={}", dto);
 		return dto;
@@ -54,7 +54,7 @@ public class BasicAuthService implements AuthService {
 		if (!tokenProvider.validateRefreshToken(refreshToken)
 			|| !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
 			log.info("Invalid or expired refresh token: {}", refreshToken);
-			throw new RuntimeException("Invalid or expired refresh token"); // TODO: JWT 관련 예외 추가
+			throw new DiscodeitException(ErrorCode.INVALID_TOKEN);
 		}
 		String username = tokenProvider.getUsernameFromToken(refreshToken);
 		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -74,10 +74,10 @@ public class BasicAuthService implements AuthService {
 				newRefreshToken
 			);
 
-			jwtRegistry.rotateJwtInformation(newRefreshToken, newJwtInformation);
+			jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
 			return newJwtInformation;
 		} catch (Exception e) {
-			throw new RuntimeException(e); // TODO:INTERNAL_SERVER_ERROR 예외 추가
+			throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR, e);
 		}
 	}
 }
