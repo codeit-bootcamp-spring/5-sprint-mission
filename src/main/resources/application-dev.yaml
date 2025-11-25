@@ -23,16 +23,6 @@ spring:
       schema-locations: classpath:schema.sql
       data-locations: classpath:data-postgresql.sql
 
-discodeit:
-  admin:
-    username: admin
-    email: admin@email.com
-    password: admin
-  user:
-    username: user
-    email: user@email.com
-    password: 1234
-
 logging:
   level:
     root: info

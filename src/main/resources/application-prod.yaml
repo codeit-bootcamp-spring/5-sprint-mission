@@ -2,11 +2,6 @@ spring:
   application:
     name: discodeit
 
-  boot:
-    admin:
-      client:
-        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
-
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -16,7 +11,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-      format_sql: false
     show-sql: false
     properties:
       hibernate:
@@ -27,6 +21,7 @@ logging:
     root: info
     com.sprint.mission.discodeit: info
     org.springframework.web: info
+    org.hibernate.orm.jdbc.bind: info
 
 server:
   port: ${PORT:80}
