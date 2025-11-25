@@ -29,4 +29,16 @@ public class ErrorResponse {
 		  status
 		);
 	}
+
+	public static ErrorResponse of(DiscodeitException e, int status) {
+		ErrorCode errorCode = e.getErrorCode();
+		return new ErrorResponse(
+		  Instant.now(),
+		  errorCode.name(),
+		  errorCode.getMessage(),
+		  Collections.emptyMap(),
+		  e.getClass().getSimpleName(),
+		  status
+		);
+	}
 }

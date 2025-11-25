@@ -92,6 +92,14 @@ management:
     build:
       enabled: true
 
+security:
+  jwt:
+    issuer: codeit-blog
+    secret: your-jwt-secret-key-here-12345628219012345
+    access-token-validity-seconds: 3600 # 1시간
+    refresh-token-validity-seconds: 86400 # 1일
+
+
 server:
   servlet:
     session:
