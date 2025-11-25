@@ -96,9 +96,6 @@ class ReadStatusRepositoryTest {
         assertThat(users).hasSize(2);
         assertThat(users).extracting(User::getUsername)
             .containsExactlyInAnyOrder("user1", "user2");
-
-        // EntityGraph로 userStatus, profile이 함께 로드되었는지 확인
-        users.forEach(user -> assertThat(user.getUserStatus()).isNotNull());
     }
 
     @Test

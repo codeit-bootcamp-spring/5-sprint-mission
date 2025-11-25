@@ -32,6 +32,8 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
+import org.springframework.context.annotation.Profile;
+
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -39,6 +41,7 @@ import java.util.stream.IntStream;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@Profile("!test")
 public class SecurityConfig {
 
     @Bean

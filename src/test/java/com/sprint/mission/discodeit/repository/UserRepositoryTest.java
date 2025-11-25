@@ -44,7 +44,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("findAllGraph - 모든 사용자를 프로필, 상태와 함께 조회 성공")
+    @DisplayName("findAllGraph - 모든 사용자를 프로필과 함께 조회 성공")
     void findAllGraph_Success() {
         // when
         List<User> users = userRepository.findAllGraph();
@@ -53,9 +53,6 @@ class UserRepositoryTest {
         assertThat(users).hasSize(3);
         assertThat(users).extracting(User::getUsername)
             .containsExactlyInAnyOrder("testuser1", "testuser2", "testuser3");
-
-        // EntityGraph로 프로필과 상태가 함께 로드되었는지 확인
-        users.forEach(user -> assertThat(user.getUserStatus()).isNotNull());
     }
 
     @Test
@@ -84,9 +81,6 @@ class UserRepositoryTest {
         assertThat(users).hasSize(2);
         assertThat(users).extracting(User::getUsername)
             .containsExactlyInAnyOrder("testuser1", "testuser2");
-
-        // EntityGraph로 프로필과 상태가 함께 로드되었는지 확인
-        users.forEach(user -> assertThat(user.getUserStatus()).isNotNull());
     }
 
     @Test
@@ -125,9 +119,6 @@ class UserRepositoryTest {
         assertThat(foundUser).isPresent();
         assertThat(foundUser.get().getUsername()).isEqualTo("testuser1");
         assertThat(foundUser.get().getEmail()).isEqualTo("test1@example.com");
-
-        // EntityGraph로 프로필과 상태가 함께 로드되었는지 확인
-        assertThat(foundUser.get().getUserStatus()).isNotNull();
     }
 
     @Test
@@ -153,8 +144,6 @@ class UserRepositoryTest {
         assertThat(savedUser.getId()).isNotNull();
         assertThat(savedUser.getCreatedAt()).isNotNull();
         assertThat(savedUser.getUpdatedAt()).isNotNull();
-        assertThat(savedUser.getUserStatus()).isNotNull();
-        assertThat(savedUser.getUserStatus().getLastActiveAt()).isNotNull();
     }
 
     @Test

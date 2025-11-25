@@ -74,6 +74,7 @@ discodeit:
     slow-query-threshold: 200ms
     slow-query-log-level: WARN
   admin:
+    enabled: true
     username: ${DISCODEIT_ADMIN_USERNAME}
     email: ${DISCODEIT_ADMIN_EMAIL}
     password: ${DISCODEIT_ADMIN_PASSWORD}

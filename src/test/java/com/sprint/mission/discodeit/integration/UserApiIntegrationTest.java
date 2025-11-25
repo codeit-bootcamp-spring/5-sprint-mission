@@ -1,18 +1,25 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@Import(TestSecurityConfig.class)
 class UserApiIntegrationTest {
 
     @Autowired
@@ -44,6 +52,22 @@ class UserApiIntegrationTest {
 
     @Autowired
     private BinaryContentRepository binaryContentRepository;
+
+    private void setSecurityContextForUser(User user) {
+        UserDto userDto = new UserDto(
+            user.getId(),
+            user.getUsername(),
+            user.getEmail(),
+            null,
+            true,
+            user.getRole()
+        );
+        DiscodeitUserDetails principal = new DiscodeitUserDetails(userDto, "password");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+            principal, principal.getPassword(), principal.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
 
     @Test
     @DisplayName("사용자 생성 - 성공: 프로필 없이 사용자를 생성하고 데이터베이스에 저장됨")
@@ -82,7 +106,6 @@ class UserApiIntegrationTest {
         assertThat(savedUser.get().getUsername()).isEqualTo("integrationuser");
         assertThat(savedUser.get().getEmail()).isEqualTo("integration@example.com");
         assertThat(savedUser.get().getProfile()).isNull();
-        assertThat(savedUser.get().getUserStatus()).isNotNull();
     }
 
     @Test
@@ -160,6 +183,7 @@ class UserApiIntegrationTest {
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("사용자 목록 조회 - 성공: 모든 사용자를 조회하고 프로필 정보가 포함됨")
     void findAllUsers_Success() throws Exception {
         // given - 사용자 2명 생성
@@ -176,6 +200,7 @@ class UserApiIntegrationTest {
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("사용자 목록 조회 - 성공: 사용자가 없으면 빈 배열 반환")
     void findAllUsers_EmptyList() throws Exception {
         // when & then
@@ -190,6 +215,9 @@ class UserApiIntegrationTest {
         // given - 사용자 생성
         User user = new User("updateuser", "update@example.com", "encoded", null);
         userRepository.save(user);
+
+        // 생성된 사용자로 보안 컨텍스트 설정
+        setSecurityContextForUser(user);
 
         UserUpdateRequest request = new UserUpdateRequest(
             "newusername",
@@ -223,6 +251,7 @@ class UserApiIntegrationTest {
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("사용자 수정 - 실패: 존재하지 않는 사용자 수정 시도")
     void updateUser_NotFound_Fails() throws Exception {
         // given
@@ -247,8 +276,7 @@ class UserApiIntegrationTest {
                     req.setMethod("PATCH");
                     return req;
                 }))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
+            .andExpect(status().isForbidden());  // 권한 검사에서 실패 (자신의 정보가 아님)
     }
 
     @Test
@@ -258,6 +286,9 @@ class UserApiIntegrationTest {
         User user = new User("deleteuser", "delete@example.com", "encoded", null);
         userRepository.save(user);
         UUID userId = user.getId();
+
+        // 생성된 사용자로 보안 컨텍스트 설정
+        setSecurityContextForUser(user);
 
         // when
         mockMvc.perform(delete("/api/users/{userId}", userId))
@@ -269,6 +300,7 @@ class UserApiIntegrationTest {
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("사용자 삭제 - 실패: 존재하지 않는 사용자 삭제 시도")
     void deleteUser_NotFound_Fails() throws Exception {
         // given
@@ -276,8 +308,7 @@ class UserApiIntegrationTest {
 
         // when & then
         mockMvc.perform(delete("/api/users/{userId}", nonExistentId))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
+            .andExpect(status().isForbidden());  // 권한 검사에서 실패 (자신의 정보가 아님)
     }
 
     @Test
@@ -348,6 +379,9 @@ class UserApiIntegrationTest {
         User user2 = new User("user2", "user2@example.com", "encoded", null);
         userRepository.saveAllAndFlush(java.util.List.of(user1, user2));
 
+        // user2로 보안 컨텍스트 설정
+        setSecurityContextForUser(user2);
+
         // user2의 username을 user1의 username으로 변경 시도
         UserUpdateRequest request = new UserUpdateRequest(
             "user1",
@@ -381,6 +415,9 @@ class UserApiIntegrationTest {
         User user1 = new User("user1", "user1@example.com", "encoded", null);
         User user2 = new User("user2", "user2@example.com", "encoded", null);
         userRepository.saveAllAndFlush(java.util.List.of(user1, user2));
+
+        // user2로 보안 컨텍스트 설정
+        setSecurityContextForUser(user2);
 
         // user2의 email을 user1의 email로 변경 시도
         UserUpdateRequest request = new UserUpdateRequest(

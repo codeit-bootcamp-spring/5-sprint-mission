@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserProfileUploadException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
-import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -18,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.sprint.mission.discodeit.entity.Role;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,9 +56,6 @@ class UserServiceTest {
     @Mock
     private UserMapper userMapper;
 
-    @Mock
-    private UserStatusMapper userStatusMapper;
-
     @InjectMocks
     private UserService userService;
 
@@ -87,7 +84,8 @@ class UserServiceTest {
             "testuser",
             "test@example.com",
             null,
-            false
+            false,
+            Role.USER
         );
 
         given(passwordEncoder.encode("password123")).willReturn(encodedPassword);
@@ -151,7 +149,8 @@ class UserServiceTest {
             "testuser",
             "test@example.com",
             null,
-            false
+            false,
+            Role.USER
         );
 
         given(passwordEncoder.encode("password123")).willReturn(encodedPassword);
@@ -212,7 +211,8 @@ class UserServiceTest {
             "testuser",
             "test@example.com",
             null,
-            false
+            false,
+            Role.USER
         );
 
         given(passwordEncoder.encode("password123")).willReturn(encodedPassword);
@@ -291,7 +291,8 @@ class UserServiceTest {
             "testuser",
             "test@example.com",
             null,
-            false
+            false,
+            Role.USER
         );
 
         given(passwordEncoder.encode("password123")).willReturn(encodedPassword);
