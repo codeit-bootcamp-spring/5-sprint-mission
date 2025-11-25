@@ -34,7 +34,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         if (authentication.getPrincipal() instanceof DiscodeitUserDetails userDetails) {
             response.setStatus(HttpServletResponse.SC_OK);
-            UserDto userDto = userDetails.userDto();
+            UserDto userDto = userDetails.getUserDto();
             response.getWriter().write(objectMapper.writeValueAsString(userDto));
 
         } else {
