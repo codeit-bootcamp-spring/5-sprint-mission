@@ -6,87 +6,100 @@ import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.readstatus.DuplicateReadStatusException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
-@RequiredArgsConstructor // Lombok: final 필드들을 생성자 주입으로 초기화하는 생성자 자동 생성
-@Service // 스프링 서비스 컴포넌트로 등록
-public class BasicReadStatusService implements ReadStatusService { // 읽음 상태(ReadStatus) 도메인 로직을 담당하는 서비스 구현체
+@Slf4j
+@RequiredArgsConstructor
+@Service
+public class BasicReadStatusService implements ReadStatusService {
 
-    private final ReadStatusRepository readStatusRepository; // ReadStatus 엔티티 저장/조회 리포지토리
-    private final UserRepository userRepository; // 사용자 엔티티 조회 리포지토리
-    private final ChannelRepository channelRepository; // 채널 엔티티 조회 리포지토리
-    private final ReadStatusMapper readStatusMapper; // ReadStatus ↔ ReadStatusDto 변환 매퍼
+    private final ReadStatusRepository readStatusRepository;
+    private final UserRepository userRepository;
+    private final ChannelRepository channelRepository;
+    private final ReadStatusMapper readStatusMapper;
 
-    @Transactional // 생성 작업을 트랜잭션으로 처리
-    @Override // 인터페이스 메서드 구현
-    public ReadStatusDto create(ReadStatusCreateRequest request) { // ReadStatus 생성
-        UUID userId = request.userId(); // 요청에서 사용자 ID 추출
-        UUID channelId = request.channelId(); // 요청에서 채널 ID 추출
+    @Transactional
+    @Override
+    public ReadStatusDto create(ReadStatusCreateRequest request) {
+        log.debug("읽음 상태 생성 시작: userId={}, channelId={}", request.userId(), request.channelId());
 
-        User user = userRepository.findById(userId) // 사용자 조회
-                .orElseThrow( // 없으면 예외
-                        () -> new NoSuchElementException("User with id " + userId + " does not exist"));
-        Channel channel = channelRepository.findById(channelId) // 채널 조회
-                .orElseThrow( // 없으면 예외
-                        () -> new NoSuchElementException("Channel with id " + channelId + " does not exist")
-                );
+        UUID userId = request.userId();
+        UUID channelId = request.channelId();
 
-        if (readStatusRepository.existsByUserIdAndChannelId(user.getId(), channel.getId())) { // 중복 존재 여부 검사
-            throw new IllegalArgumentException( // 이미 존재하면 예외
-                    "ReadStatus with userId " + userId + " and channelId " + channelId + " already exists");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> UserNotFoundException.withId(userId));
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
+
+        if (readStatusRepository.existsByUserIdAndChannelId(user.getId(), channel.getId())) {
+            throw DuplicateReadStatusException.withUserIdAndChannelId(userId, channelId);
         }
 
-        Instant lastReadAt = request.lastReadAt(); // 마지막 읽은 시각 추출
-        ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt); // 엔티티 생성
-        readStatusRepository.save(readStatus); // 엔티티 저장
+        Instant lastReadAt = request.lastReadAt();
+        ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt);
+        readStatusRepository.save(readStatus);
 
-        return readStatusMapper.toDto(readStatus); // DTO로 변환하여 반환
+        log.info("읽음 상태 생성 완료: id={}, userId={}, channelId={}",
+                readStatus.getId(), userId, channelId);
+        return readStatusMapper.toDto(readStatus);
     }
 
-    @Override // 인터페이스 메서드 구현
-    public ReadStatusDto find(UUID readStatusId) { // ReadStatus 단건 조회
-        return readStatusRepository.findById(readStatusId) // ID로 조회
-                .map(readStatusMapper::toDto) // 존재 시 DTO로 매핑
-                .orElseThrow( // 없으면 예외
-                        () -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
+    @Override
+    public ReadStatusDto find(UUID readStatusId) {
+        log.debug("읽음 상태 조회 시작: id={}", readStatusId);
+        ReadStatusDto dto = readStatusRepository.findById(readStatusId)
+                .map(readStatusMapper::toDto)
+                .orElseThrow(() -> ReadStatusNotFoundException.withId(readStatusId));
+        log.info("읽음 상태 조회 완료: id={}", readStatusId);
+        return dto;
     }
 
-    @Override // 인터페이스 메서드 구현
-    public List<ReadStatusDto> findAllByUserId(UUID userId) { // 특정 사용자 기준 모든 ReadStatus 조회
-        return readStatusRepository.findAllByUserId(userId).stream() // 사용자 ID로 목록 조회
-                .map(readStatusMapper::toDto) // 각 엔티티를 DTO로 변환
-                .toList(); // 리스트로 수집하여 반환
+    @Override
+    public List<ReadStatusDto> findAllByUserId(UUID userId) {
+        log.debug("사용자별 읽음 상태 목록 조회 시작: userId={}", userId);
+        List<ReadStatusDto> dtos = readStatusRepository.findAllByUserId(userId).stream()
+                .map(readStatusMapper::toDto)
+                .toList();
+        log.info("사용자별 읽음 상태 목록 조회 완료: userId={}, 조회된 항목 수={}", userId, dtos.size());
+        return dtos;
     }
 
-    @Transactional // 수정 작업을 트랜잭션으로 처리
-    @Override // 인터페이스 메서드 구현
-    public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) { // ReadStatus 수정
-        Instant newLastReadAt = request.newLastReadAt(); // 새 마지막 읽은 시각 추출
-        ReadStatus readStatus = readStatusRepository.findById(readStatusId) // 대상 엔티티 조회
-                .orElseThrow( // 없으면 예외
-                        () -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
-        readStatus.update(newLastReadAt); // 엔티티 상태 변경(더티 체킹으로 flush 예정)
-        return readStatusMapper.toDto(readStatus); // DTO로 변환하여 반환
+    @Transactional
+    @Override
+    public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) {
+        log.debug("읽음 상태 수정 시작: id={}, newLastReadAt={}", readStatusId, request.newLastReadAt());
+
+        ReadStatus readStatus = readStatusRepository.findById(readStatusId)
+                .orElseThrow(() -> ReadStatusNotFoundException.withId(readStatusId));
+        readStatus.update(request.newLastReadAt());
+
+        log.info("읽음 상태 수정 완료: id={}", readStatusId);
+        return readStatusMapper.toDto(readStatus);
     }
 
-    @Transactional // 삭제 작업을 트랜잭션으로 처리
-    @Override // 인터페이스 메서드 구현
-    public void delete(UUID readStatusId) { // ReadStatus 삭제
-        if (!readStatusRepository.existsById(readStatusId)) { // 존재 여부 선검증
-            throw new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"); // 없으면 예외
+    @Transactional
+    @Override
+    public void delete(UUID readStatusId) {
+        log.debug("읽음 상태 삭제 시작: id={}", readStatusId);
+        if (!readStatusRepository.existsById(readStatusId)) {
+            throw ReadStatusNotFoundException.withId(readStatusId);
         }
-        readStatusRepository.deleteById(readStatusId); // 엔티티 삭제 실행
+        readStatusRepository.deleteById(readStatusId);
+        log.info("읽음 상태 삭제 완료: id={}", readStatusId);
     }
 }
