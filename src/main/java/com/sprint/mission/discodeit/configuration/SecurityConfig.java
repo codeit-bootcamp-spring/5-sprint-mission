@@ -44,13 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	// TODO: 인증/인가 설정 분리 권장: 하나의 SecurityConfig에 모든 설정이 들어가 있어 파일이 너무 비대함
-	/* 권장 구조
-	WebSecurityConfig (HttpSecurity, FilterChain)
-	MethodSecurityConfig (이미 Handler 하나 추가된 상태라 분리 권장)
-	AuthenticationProviderConfig
-	RoleHierarchyConfig
-	 */
 	@Bean
 	public SecurityFilterChain filterChain(
 		HttpSecurity http,
@@ -61,16 +54,16 @@ public class SecurityConfig {
 		Http403ForbiddenAccessDeniedHandler accessDeniedHandler,
 		JwtAuthenticationFilter jwtAuthenticationFilter
 	) throws Exception {
-		http // TODO: permitAll 설정 정리정돈
+		http
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/login", "/", "/error", "/index.html").permitAll()
-				.requestMatchers("/api/auth/refresh").permitAll()
-				.requestMatchers("/favicon.ico", "/static/**", "/assets/**", "/webjars/**").permitAll()
-				.requestMatchers("/logout").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
+				.requestMatchers(
+					"/", "/login", "/logout", "/error",
+					"/index.html", "/favicon.ico", "/static/**", "/assets/**", "/webjars/**",
+					"/actuator/**", "/swagger-ui/**", "/api-docs/**"
+				).permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-				.requestMatchers("/actuator/**").permitAll()
-				.requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
 				.anyRequest().authenticated()
 			)
 			.csrf(csrf -> csrf
