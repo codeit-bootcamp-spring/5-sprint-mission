@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sprint.mission.discodeit.dto.user.JwtInformation;
 import com.sprint.mission.discodeit.dto.user.UserDto;
@@ -36,6 +37,7 @@ public class BasicAuthService implements AuthService {
 
 	@Override
 	@PreAuthorize("hasRole('ADMIN')")
+	@Transactional
 	public UserDto updateRole(UserRoleUpdateRequest request) {
 		log.debug("[AuthService#updateRole] request={}]", request);
 		User user = userRepository.findById(request.userId())
@@ -50,6 +52,7 @@ public class BasicAuthService implements AuthService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public JwtInformation refreshToken(String refreshToken) {
 		if (!tokenProvider.validateRefreshToken(refreshToken)
 			|| !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
