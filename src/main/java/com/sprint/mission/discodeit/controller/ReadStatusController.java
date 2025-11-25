@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.docs.ReadStatusControllerDocs;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +26,6 @@ import java.util.UUID;
 @RequestMapping("/api/readStatuses")
 public class ReadStatusController implements ReadStatusControllerDocs {
 
-    private final ReadStatusRepository readStatusRepository;
-
     private final ReadStatusService readStatusService;
 
     @PostMapping
@@ -40,7 +37,7 @@ public class ReadStatusController implements ReadStatusControllerDocs {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<ReadStatusDto> findAllByUserId(@RequestParam("userId") UUID userId) {
-        return readStatusRepository.findAllByUserId(userId);
+        return readStatusService.findAllByUserId(userId);
     }
 
     @PatchMapping("/{readStatusId}")

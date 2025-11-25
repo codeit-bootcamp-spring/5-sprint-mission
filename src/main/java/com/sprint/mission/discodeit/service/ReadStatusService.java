@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -37,6 +38,11 @@ public class ReadStatusService {
         ReadStatus savedReadStatus = new ReadStatus(user, channel, request.lastReadAt());
 
         return readStatusMapper.toDto(savedReadStatus);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReadStatusDto> findAllByUserId(UUID userId) {
+        return readStatusRepository.findAllByUserId(userId);
     }
 
     @Transactional
