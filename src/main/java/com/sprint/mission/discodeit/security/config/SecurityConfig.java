@@ -20,7 +20,6 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,29 +46,28 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
     http
-//        .csrf(AbstractHttpConfigurer::disable)
-.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                  .csrfTokenRequestHandler(spaCsrfTokenRequestHandler))
-.sessionManagement(
-    session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-.authorizeHttpRequests(
-    auth -> auth.requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico",
-                    "/api/auth/csrf-token", "/api/auth/refresh", "/api/auth/login", "/api/auth/logout",
-                    "/api/users",
-                    "/swagger-ui/**", "/v3/api-docs/**", "/actuator/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated())
-.formLogin(form -> form
-    .loginProcessingUrl("/api/auth/login")
-    .successHandler(jwtLoginSuccessHandler)
-    .failureHandler(jwtAuthenticationFailureHandler)
-)
-.logout(logout -> logout
-    .logoutUrl("/api/auth/logout")
-    .addLogoutHandler(jwtLogoutHandler)
-)
-.userDetailsService(userDetailsService);
+        .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                          .csrfTokenRequestHandler(spaCsrfTokenRequestHandler))
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            auth -> auth.requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico",
+                            "/api/auth/csrf-token", "/api/auth/refresh", "/api/auth/login", "/api/auth/logout",
+                            "/api/users",
+                            "/swagger-ui/**", "/v3/api-docs/**", "/actuator/**")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
+        .formLogin(form -> form
+            .loginProcessingUrl("/api/auth/login")
+            .successHandler(jwtLoginSuccessHandler)
+            .failureHandler(jwtAuthenticationFailureHandler)
+        )
+        .logout(logout -> logout
+            .logoutUrl("/api/auth/logout")
+            .addLogoutHandler(jwtLogoutHandler)
+        )
+        .userDetailsService(userDetailsService);
 
     http.addFilterBefore(
         new JwtAuthenticationFilter(jwtTokenProvider, jwtRegistry),
