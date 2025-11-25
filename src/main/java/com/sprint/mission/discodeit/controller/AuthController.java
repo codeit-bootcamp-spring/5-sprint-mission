@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +16,6 @@ import com.sprint.mission.discodeit.dto.user.JwtDto;
 import com.sprint.mission.discodeit.dto.user.JwtInformation;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserRoleUpdateRequest;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 
@@ -48,7 +46,7 @@ public class AuthController implements AuthApi {
 	) {
 		log.info("Refresh Token: {}", refreshToken);
 		JwtInformation jwtInformation = authService.refreshToken(refreshToken);
-		Cookie cookie = jwtTokenProvider.genereateRefreshTokenCookie(refreshToken);
+		Cookie cookie = jwtTokenProvider.genereateRefreshTokenCookie(jwtInformation.getRefreshToken());
 		response.addCookie(cookie);
 
 		JwtDto jwtDto = new JwtDto(jwtInformation.getUserDto(), jwtInformation.getAccessToken());

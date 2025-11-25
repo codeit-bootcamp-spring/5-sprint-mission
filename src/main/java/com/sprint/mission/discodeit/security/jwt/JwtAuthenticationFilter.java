@@ -6,15 +6,15 @@ import java.util.UUID;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtTokenProvider tokenProvider;
 	private final ObjectMapper objectMapper;
 	private final JwtRegistry<UUID> jwtRegistry;
+	private final UserDetailsService userDetailsService;
 
 	// 필터에서 제외할 request를 탐지할 메서드
 	@Override
@@ -51,8 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 					jwtRegistry.hasActiveJwtInformationByAccessToken(token)) {
 					String username = tokenProvider.getUsernameFromToken(token);
 
-					UserDto userDto = tokenProvider.parseAccessToken(token).userDto();
-					DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto.id(), userDto, null);
+					UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 					UsernamePasswordAuthenticationToken authentication
 						= new UsernamePasswordAuthenticationToken(
 						userDetails, null, userDetails.getAuthorities());

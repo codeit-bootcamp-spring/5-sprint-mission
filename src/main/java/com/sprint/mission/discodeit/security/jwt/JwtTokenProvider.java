@@ -94,12 +94,9 @@ public class JwtTokenProvider {
 			.issuer(issuer)
 			.claim("userId", user.id().toString())
 			.claim("type", tokenType)
-			.claim("email", user.email())
 			.claim("roles", userDetails.getAuthorities().stream()
 				.map(GrantedAuthority::getAuthority)
 				.collect(Collectors.toList()))
-			.claim("profile", user.profile())
-			.claim("online", user.online())
 			.issueTime(now)
 			.expirationTime(expiryDate)
 			.build();
