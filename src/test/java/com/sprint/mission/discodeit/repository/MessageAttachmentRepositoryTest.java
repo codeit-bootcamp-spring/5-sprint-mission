@@ -177,7 +177,7 @@ class MessageAttachmentRepositoryTest {
     }
 
     @Test
-    @DisplayName("deleteAllByMessageId - 메시지의 모든 첨부파일과 BinaryContent 삭제 성공")
+    @DisplayName("deleteAllByMessageId - 메시지의 모든 첨부파일 삭제 성공")
     void deleteAllByMessageId_Success() {
         // when
         messageAttachmentRepository.deleteAllByMessageId(message1.getId());
@@ -190,10 +190,10 @@ class MessageAttachmentRepositoryTest {
         assertThat(remainingAttachments).hasSize(1);
         assertThat(remainingAttachments.get(0).getMessage().getId()).isEqualTo(message2.getId());
 
-        // 검증 - BinaryContent도 함께 삭제되었는지 확인
+        // 검증 - BinaryContent는 orphan cleanup scheduler에 의해 별도로 정리됨
+        // MessageAttachment 삭제 시 BinaryContent는 즉시 삭제되지 않음
         List<BinaryContent> remainingFiles = binaryContentRepository.findAll();
-        assertThat(remainingFiles).hasSize(1);
-        assertThat(remainingFiles.get(0).getId()).isEqualTo(file3.getId());
+        assertThat(remainingFiles).hasSize(3); // 모든 BinaryContent는 여전히 존재
     }
 
     @Test

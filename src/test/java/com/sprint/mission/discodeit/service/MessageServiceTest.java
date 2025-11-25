@@ -259,6 +259,8 @@ class MessageServiceTest {
             .isInstanceOf(BinaryContentUploadException.class)
             .hasCauseInstanceOf(IOException.class);
 
+        // 메시지와 BinaryContent 메타데이터는 저장 시도됨 (트랜잭션 롤백으로 실제로는 저장되지 않음)
+        then(messageRepository).should().save(any(Message.class));
         then(binaryContentRepository).should().save(any(BinaryContent.class));
     }
 

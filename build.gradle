@@ -139,9 +139,6 @@ def jacocoExclusions = [
         '**/exception/**',
         '**/mapper/**',
         '**/*MapperImpl.class',
-        '**/scheduler/**',
-        '**/storage/**',
-        '**/util/**',
         '**/*Application.class'
 ]
 

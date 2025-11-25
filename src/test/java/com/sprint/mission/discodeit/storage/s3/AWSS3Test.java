@@ -30,6 +30,12 @@ import java.util.UUID;
 @DisplayName("S3 API 테스트")
 public class AWSS3Test {
 
+    private static final String TEST_CONTENT = "Hello from .env via Properties!";
+    private static final String TEST_CONTENT_DOWNLOAD = "Test content for download";
+    private static final String TEST_CONTENT_PRESIGNED = "Test content for presigned URL";
+    private static final String TEXT_PLAIN = "text/plain";
+    private static final Duration PRESIGNED_URL_DURATION = Duration.ofMinutes(10);
+
     private static String accessKey;
     private static String secretKey;
     private static String region;
@@ -78,19 +84,32 @@ public class AWSS3Test {
         testKey = "test-" + UUID.randomUUID();
     }
 
+    // Helper methods
+    private PutObjectRequest createPutObjectRequest(String key) {
+        return PutObjectRequest.builder()
+            .bucket(bucket)
+            .key(key)
+            .contentType(AWSS3Test.TEXT_PLAIN)
+            .build();
+    }
+
+    private GetObjectRequest createGetObjectRequest(String key) {
+        return GetObjectRequest.builder()
+            .bucket(bucket)
+            .key(key)
+            .build();
+    }
+
+    private void uploadTestContent(String key, String content) {
+        PutObjectRequest request = createPutObjectRequest(key);
+        s3Client.putObject(request, RequestBody.fromString(content));
+    }
+
     @Test
     @DisplayName("S3에 파일을 업로드한다")
     void uploadToS3() {
-        String content = "Hello from .env via Properties!";
-
         try {
-            PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(testKey)
-                .contentType("text/plain")
-                .build();
-
-            s3Client.putObject(request, RequestBody.fromString(content));
+            uploadTestContent(testKey, TEST_CONTENT);
             log.info("파일 업로드 성공: {}", testKey);
         } catch (S3Exception e) {
             log.error("파일 업로드 실패: {}", e.getMessage());
@@ -102,20 +121,10 @@ public class AWSS3Test {
     @DisplayName("S3에서 파일을 다운로드한다")
     void downloadFromS3() {
         // 테스트를 위한 파일 먼저 업로드
-        String content = "Test content for download";
-        PutObjectRequest uploadRequest = PutObjectRequest.builder()
-            .bucket(bucket)
-            .key(testKey)
-            .contentType("text/plain")
-            .build();
-        s3Client.putObject(uploadRequest, RequestBody.fromString(content));
+        uploadTestContent(testKey, TEST_CONTENT_DOWNLOAD);
 
         try {
-            GetObjectRequest request = GetObjectRequest.builder()
-                .bucket(bucket)
-                .key(testKey)
-                .build();
-
+            GetObjectRequest request = createGetObjectRequest(testKey);
             String downloadedContent = s3Client.getObjectAsBytes(request).asUtf8String();
             log.info("다운로드된 파일 내용: {}", downloadedContent);
         } catch (S3Exception e) {
@@ -128,22 +137,13 @@ public class AWSS3Test {
     @DisplayName("S3 파일에 대한 Presigned URL을 생성한다")
     void generatePresignedUrl() {
         // 테스트를 위한 파일 먼저 업로드
-        String content = "Test content for presigned URL";
-        PutObjectRequest uploadRequest = PutObjectRequest.builder()
-            .bucket(bucket)
-            .key(testKey)
-            .contentType("text/plain")
-            .build();
-        s3Client.putObject(uploadRequest, RequestBody.fromString(content));
+        uploadTestContent(testKey, TEST_CONTENT_PRESIGNED);
 
         try {
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucket)
-                .key(testKey)
-                .build();
+            GetObjectRequest getObjectRequest = createGetObjectRequest(testKey);
 
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(10))
+                .signatureDuration(PRESIGNED_URL_DURATION)
                 .getObjectRequest(getObjectRequest)
                 .build();
 

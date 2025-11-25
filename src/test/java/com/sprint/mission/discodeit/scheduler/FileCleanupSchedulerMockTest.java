@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.never;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FileCleanupScheduler 단위 테스트 (Mockito)")
@@ -112,7 +113,7 @@ class FileCleanupSchedulerMockTest {
 
     @Test
     @DisplayName("DB에 존재하는 파일은 삭제하지 않는다")
-    void cleanOrphanFiles_KeepsExistingFiles() {
+    void cleanOrphanFiles_KeepsExistingFiles() throws Exception {
         // given
         UUID existingId = UUID.randomUUID();
         Instant oldTime = Instant.now().minus(Duration.ofHours(1));
@@ -131,9 +132,15 @@ class FileCleanupSchedulerMockTest {
         given(mockIterable.iterator())
             .willReturn(List.of(response).iterator());
 
+        // BinaryContent의 ID를 existingId로 설정 (reflection 사용)
         BinaryContent binaryContent = new BinaryContent(
             "test.txt", 1024L, "text/plain"
         );
+        java.lang.reflect.Field idField = binaryContent.getClass()
+            .getSuperclass().getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(binaryContent, existingId);
+
         given(binaryContentRepository.findAllByIdIn(anyList()))
             .willReturn(List.of(binaryContent));
 
@@ -150,7 +157,7 @@ class FileCleanupSchedulerMockTest {
     void cleanOrphanFiles_SkipsRecentFiles() {
         // given
         UUID recentId = UUID.randomUUID();
-        Instant recentTime = Instant.now().minus(Duration.ofMinutes(5));
+        Instant recentTime = Instant.now().minus(Duration.ofSeconds(1));
 
         S3Object s3Object = S3Object.builder()
             .key(recentId.toString())
@@ -272,7 +279,8 @@ class FileCleanupSchedulerMockTest {
         scheduler.cleanOrphanFiles();
 
         // then
-        then(s3Client).should().deleteObjects(any(DeleteObjectsRequest.class));
-        then(binaryContentRepository).should().findAllByIdIn(anyList());
+        // 페이지별로 배치 삭제가 수행되므로 2번 호출됨
+        then(s3Client).should(times(2)).deleteObjects(any(DeleteObjectsRequest.class));
+        then(binaryContentRepository).should(times(2)).findAllByIdIn(anyList());
     }
 }

@@ -130,7 +130,6 @@ class BinaryContentControllerTest {
 
     @Test
     @DisplayName("GET /api/binaryContents/{binaryContentId}/download - 성공: 파일 다운로드")
-    @SuppressWarnings("unchecked")
     void download_Success() throws Exception {
         // given
         UUID contentId = UUID.randomUUID();
@@ -151,7 +150,7 @@ class BinaryContentControllerTest {
             .body(resource);
 
         given(binaryContentService.find(contentId)).willReturn(metaData);
-        given(binaryContentStorage.download(metaData)).willReturn((ResponseEntity) response);
+        given(binaryContentStorage.download(metaData)).willAnswer(invocation -> response);
 
         // when & then
         mockMvc.perform(get("/api/binaryContents/{binaryContentId}/download", contentId))
@@ -166,7 +165,6 @@ class BinaryContentControllerTest {
 
     @Test
     @DisplayName("GET /api/binaryContents/{binaryContentId}/download - 성공: 파일 다운로드 (이미지)")
-    @SuppressWarnings("unchecked")
     void download_Image_Success() throws Exception {
         // given
         UUID contentId = UUID.randomUUID();
@@ -187,7 +185,7 @@ class BinaryContentControllerTest {
             .body(resource);
 
         given(binaryContentService.find(contentId)).willReturn(metaData);
-        given(binaryContentStorage.download(metaData)).willReturn((ResponseEntity) response);
+        given(binaryContentStorage.download(metaData)).willAnswer(invocation -> response);
 
         // when & then
         mockMvc.perform(get("/api/binaryContents/{binaryContentId}/download", contentId))
@@ -202,7 +200,6 @@ class BinaryContentControllerTest {
 
     @Test
     @DisplayName("GET /api/binaryContents/{binaryContentId}/download - 성공: contentType이 없을 때 기본값 적용")
-    @SuppressWarnings("unchecked")
     void download_NoContentType_DefaultsToOctetStream() throws Exception {
         // given
         UUID contentId = UUID.randomUUID();
@@ -223,7 +220,7 @@ class BinaryContentControllerTest {
             .body(resource);
 
         given(binaryContentService.find(contentId)).willReturn(metaData);
-        given(binaryContentStorage.download(metaData)).willReturn((ResponseEntity) response);
+        given(binaryContentStorage.download(metaData)).willAnswer(invocation -> response);
 
         // when & then
         mockMvc.perform(get("/api/binaryContents/{binaryContentId}/download", contentId))

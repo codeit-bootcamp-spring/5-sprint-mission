@@ -138,7 +138,7 @@ class FileCleanupSchedulerTest {
         );
 
         // grace period만큼 대기
-        Thread.sleep(2100);
+        Thread.sleep(3000);
 
         given(mockRepository.findAllByIdIn(anyList()))
             .willReturn(List.of()); // DB에 없음
@@ -154,7 +154,7 @@ class FileCleanupSchedulerTest {
 
     @Test
     @DisplayName("DB에 존재하는 파일은 삭제하지 않는다")
-    void cleanOrphanFiles_KeepsExistingFiles() throws InterruptedException {
+    void cleanOrphanFiles_KeepsExistingFiles() throws Exception {
         // given - S3에 파일 업로드 (DB에도 존재)
         UUID existingId = UUID.randomUUID();
         s3Client.putObject(
@@ -165,12 +165,17 @@ class FileCleanupSchedulerTest {
             RequestBody.fromString("existing content")
         );
 
-        Thread.sleep(2100);
+        Thread.sleep(3000);
 
-        // DB에 존재하는 것으로 Mock
+        // DB에 존재하는 것으로 Mock - ID를 existingId로 설정
         BinaryContent binaryContent = new BinaryContent(
             "test.txt", 1024L, "text/plain"
         );
+        java.lang.reflect.Field idField = binaryContent.getClass()
+            .getSuperclass().getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(binaryContent, existingId);
+
         given(mockRepository.findAllByIdIn(anyList()))
             .willReturn(List.of(binaryContent));
 
@@ -217,7 +222,7 @@ class FileCleanupSchedulerTest {
             RequestBody.fromString("invalid key content")
         );
 
-        Thread.sleep(2100);
+        Thread.sleep(3000);
 
         // when
         scheduler.cleanOrphanFiles();
@@ -263,7 +268,7 @@ class FileCleanupSchedulerTest {
             RequestBody.fromString("existing")
         );
 
-        Thread.sleep(2100);
+        Thread.sleep(3000);
 
         // 최근 파일 (grace period 이내)
         s3Client.putObject(
@@ -274,10 +279,19 @@ class FileCleanupSchedulerTest {
             RequestBody.fromString("recent")
         );
 
-        // existing만 DB에 존재
+        // existing만 DB에 존재 - ID를 existing UUID로 설정
         BinaryContent binaryContent = new BinaryContent(
             "existing.txt", 1024L, "text/plain"
         );
+        try {
+            java.lang.reflect.Field idField = binaryContent.getClass()
+                .getSuperclass().getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(binaryContent, existing);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         given(mockRepository.findAllByIdIn(anyList()))
             .willReturn(List.of(binaryContent));
 

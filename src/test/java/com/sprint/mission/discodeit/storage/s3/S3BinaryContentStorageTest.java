@@ -31,6 +31,7 @@ import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +52,44 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
  * </ul>
  */
 @DisplayName("S3BinaryContentStorage 테스트")
-class S3BinaryContentStorageTest {
+public final class S3BinaryContentStorageTest {
+
+    // Test constants
+    private static final String TEST_CONTENT = "테스트 데이터";
+    private static final String TEST_CONTENT_ENGLISH = "test content";
+    private static final String ORIGINAL_CONTENT = "original content";
+    private static final String NEW_CONTENT = "new content";
+    private static final int LARGE_FILE_SIZE_MB = 1;
+    private static final int BYTES_PER_MB = 1024 * 1024;
+
+    // Private constructor to prevent instantiation (this is a test container class)
+    private S3BinaryContentStorageTest() {
+        throw new UnsupportedOperationException("This is a test container class with nested tests");
+    }
+
+    // Helper methods
+    static byte[] createTestContent(String content) {
+        return content.getBytes();
+    }
+
+    static byte[] createLargeContent() {
+        byte[] content = new byte[S3BinaryContentStorageTest.LARGE_FILE_SIZE_MB * BYTES_PER_MB];
+        for (int i = 0; i < content.length; i++) {
+            content[i] = (byte) (i % 256);
+        }
+        return content;
+    }
+
+    static BinaryContentDto createBinaryContentDto(UUID id, String fileName, long size, String contentType) {
+        return new BinaryContentDto(id, fileName, size, contentType);
+    }
+
+    static void assertStreamContentEquals(InputStream stream, byte[] expected) throws IOException {
+        try (stream) {
+            byte[] actual = stream.readAllBytes();
+            assertThat(actual).isEqualTo(expected);
+        }
+    }
 
     /**
      * 실제 AWS S3를 사용한 통합 테스트.
@@ -65,7 +103,7 @@ class S3BinaryContentStorageTest {
     class RealS3IntegrationTest {
 
         private final UUID testId = UUID.randomUUID();
-        private final byte[] testData = "테스트 데이터".getBytes();
+        private final byte[] testData = createTestContent(TEST_CONTENT);
 
         @Autowired
         private S3BinaryContentStorage s3BinaryContentStorage;
@@ -81,6 +119,12 @@ class S3BinaryContentStorageTest {
 
         @Value("${discodeit.storage.s3.region}")
         private String region;
+
+        @Autowired
+        private S3Client s3Client;
+
+        @Autowired
+        private S3Presigner s3Presigner;
 
         @AfterEach
         void tearDown() {
@@ -128,8 +172,7 @@ class S3BinaryContentStorageTest {
 
             // then
             assertThat(result).isNotNull();
-            byte[] resultBytes = result.readAllBytes();
-            assertThat(resultBytes).isEqualTo(testData);
+            assertStreamContentEquals(result, testData);
         }
 
         @Test
@@ -145,8 +188,8 @@ class S3BinaryContentStorageTest {
         void downloadSuccess() {
             // given
             s3BinaryContentStorage.put(testId, testData);
-            BinaryContentDto dto = new BinaryContentDto(
-                testId, "test.txt", (long) testData.length, "text/plain"
+            BinaryContentDto dto = createBinaryContentDto(
+                testId, "test.txt", testData.length, "text/plain"
             );
 
             // when
@@ -198,6 +241,20 @@ class S3BinaryContentStorageTest {
                 )
                 .build();
 
+            // S3 Presigner 생성
+            S3Presigner s3Presigner = S3Presigner.builder()
+                .endpointOverride(localStack.getEndpointOverride(S3))
+                .region(Region.of(localStack.getRegion()))
+                .credentialsProvider(
+                    StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(
+                            localStack.getAccessKey(),
+                            localStack.getSecretKey()
+                        )
+                    )
+                )
+                .build();
+
             // 버킷 생성
             s3Client.createBucket(CreateBucketRequest.builder()
                 .bucket(BUCKET_NAME)
@@ -213,7 +270,7 @@ class S3BinaryContentStorageTest {
             );
 
             // Storage 인스턴스 생성
-            storage = new S3BinaryContentStorage(s3Properties);
+            storage = new S3BinaryContentStorage(s3Client, s3Presigner, s3Properties);
         }
 
         @AfterEach
@@ -236,7 +293,7 @@ class S3BinaryContentStorageTest {
         void putSuccess() {
             // given
             UUID id = UUID.randomUUID();
-            byte[] content = "test content".getBytes();
+            byte[] content = createTestContent(TEST_CONTENT_ENGLISH);
 
             // when
             UUID result = storage.put(id, content);
@@ -258,8 +315,8 @@ class S3BinaryContentStorageTest {
         void putOverwrite() {
             // given
             UUID id = UUID.randomUUID();
-            byte[] originalContent = "original content".getBytes();
-            byte[] newContent = "new content".getBytes();
+            byte[] originalContent = createTestContent(ORIGINAL_CONTENT);
+            byte[] newContent = createTestContent(NEW_CONTENT);
 
             storage.put(id, originalContent);
 
@@ -280,7 +337,7 @@ class S3BinaryContentStorageTest {
         void getSuccess() throws IOException {
             // given
             UUID id = UUID.randomUUID();
-            byte[] content = "test content".getBytes();
+            byte[] content = createTestContent(TEST_CONTENT_ENGLISH);
 
             s3Client.putObject(
                 PutObjectRequest.builder()
@@ -295,9 +352,7 @@ class S3BinaryContentStorageTest {
 
             // then
             assertThat(inputStream).isNotNull();
-            byte[] readContent = inputStream.readAllBytes();
-            assertThat(readContent).isEqualTo(content);
-            inputStream.close();
+            assertStreamContentEquals(inputStream, content);
         }
 
         @Test
@@ -316,7 +371,7 @@ class S3BinaryContentStorageTest {
         void downloadSuccess() {
             // given
             UUID id = UUID.randomUUID();
-            byte[] content = "test content".getBytes();
+            byte[] content = createTestContent(TEST_CONTENT_ENGLISH);
 
             s3Client.putObject(
                 PutObjectRequest.builder()
@@ -326,10 +381,10 @@ class S3BinaryContentStorageTest {
                 RequestBody.fromBytes(content)
             );
 
-            BinaryContentDto metaData = new BinaryContentDto(
+            BinaryContentDto metaData = createBinaryContentDto(
                 id,
                 "test.txt",
-                (long) content.length,
+                content.length,
                 "text/plain"
             );
 
@@ -350,7 +405,7 @@ class S3BinaryContentStorageTest {
         void downloadNonExistentFileGeneratesUrl() {
             // given
             UUID id = UUID.randomUUID();
-            BinaryContentDto metaData = new BinaryContentDto(
+            BinaryContentDto metaData = createBinaryContentDto(
                 id,
                 "notfound.txt",
                 1024L,
@@ -375,9 +430,9 @@ class S3BinaryContentStorageTest {
             UUID id2 = UUID.randomUUID();
             UUID id3 = UUID.randomUUID();
 
-            byte[] content1 = "content 1".getBytes();
-            byte[] content2 = "content 2".getBytes();
-            byte[] content3 = "content 3".getBytes();
+            byte[] content1 = createTestContent("content 1");
+            byte[] content2 = createTestContent("content 2");
+            byte[] content3 = createTestContent("content 3");
 
             // when
             storage.put(id1, content1);
@@ -385,9 +440,9 @@ class S3BinaryContentStorageTest {
             storage.put(id3, content3);
 
             // then
-            assertThat(storage.get(id1).readAllBytes()).isEqualTo(content1);
-            assertThat(storage.get(id2).readAllBytes()).isEqualTo(content2);
-            assertThat(storage.get(id3).readAllBytes()).isEqualTo(content3);
+            assertStreamContentEquals(storage.get(id1), content1);
+            assertStreamContentEquals(storage.get(id2), content2);
+            assertStreamContentEquals(storage.get(id3), content3);
         }
 
         @Test
@@ -395,20 +450,14 @@ class S3BinaryContentStorageTest {
         void putLargeFile() throws IOException {
             // given
             UUID id = UUID.randomUUID();
-            byte[] largeContent = new byte[1024 * 1024]; // 1MB
-            for (int i = 0; i < largeContent.length; i++) {
-                largeContent[i] = (byte) (i % 256);
-            }
+            byte[] largeContent = createLargeContent();
 
             // when
             UUID result = storage.put(id, largeContent);
 
             // then
             assertThat(result).isEqualTo(id);
-            InputStream inputStream = storage.get(id);
-            byte[] readContent = inputStream.readAllBytes();
-            assertThat(readContent).isEqualTo(largeContent);
-            inputStream.close();
+            assertStreamContentEquals(storage.get(id), largeContent);
         }
 
         @Test
@@ -427,10 +476,10 @@ class S3BinaryContentStorageTest {
                 RequestBody.fromBytes(content)
             );
 
-            BinaryContentDto metaData = new BinaryContentDto(
+            BinaryContentDto metaData = createBinaryContentDto(
                 id,
                 "image.jpg",
-                (long) content.length,
+                content.length,
                 "image/jpeg"
             );
 
@@ -457,10 +506,7 @@ class S3BinaryContentStorageTest {
 
             // then
             assertThat(result).isEqualTo(id);
-            InputStream inputStream = storage.get(id);
-            byte[] readContent = inputStream.readAllBytes();
-            assertThat(readContent).isEmpty();
-            inputStream.close();
+            assertStreamContentEquals(storage.get(id), emptyContent);
         }
     }
 }

@@ -23,6 +23,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("LocalBinaryContentStorage 단위 테스트")
 class LocalBinaryContentStorageTest {
 
+    private static final String TEST_CONTENT = "test content";
+    private static final String ORIGINAL_CONTENT = "original content";
+    private static final String NEW_CONTENT = "new content";
+    private static final int LARGE_FILE_SIZE_MB = 1;
+    private static final int BYTES_PER_MB = 1024 * 1024;
+
     private LocalBinaryContentStorage storage;
 
     @TempDir
@@ -51,12 +57,36 @@ class LocalBinaryContentStorageTest {
         }
     }
 
+    // Helper methods
+    private byte[] createTestContent(String content) {
+        return content.getBytes();
+    }
+
+    private byte[] createLargeContent() {
+        byte[] content = new byte[LocalBinaryContentStorageTest.LARGE_FILE_SIZE_MB * BYTES_PER_MB];
+        for (int i = 0; i < content.length; i++) {
+            content[i] = (byte) (i % 256);
+        }
+        return content;
+    }
+
+    private BinaryContentDto createBinaryContentDto(UUID id, String fileName, long size, String contentType) {
+        return new BinaryContentDto(id, fileName, size, contentType);
+    }
+
+    private void assertStreamContentEquals(InputStream stream, byte[] expected) throws IOException {
+        try (stream) {
+            byte[] actual = stream.readAllBytes();
+            assertThat(actual).isEqualTo(expected);
+        }
+    }
+
     @Test
     @DisplayName("파일 저장 성공")
     void put_Success() throws IOException {
         // given
         UUID id = UUID.randomUUID();
-        byte[] content = "test content".getBytes();
+        byte[] content = createTestContent(TEST_CONTENT);
 
         // when
         UUID result = storage.put(id, content);
@@ -73,7 +103,7 @@ class LocalBinaryContentStorageTest {
     void get_Success() throws IOException {
         // given
         UUID id = UUID.randomUUID();
-        byte[] content = "test content".getBytes();
+        byte[] content = createTestContent(TEST_CONTENT);
         storage.put(id, content);
 
         // when
@@ -81,9 +111,7 @@ class LocalBinaryContentStorageTest {
 
         // then
         assertThat(inputStream).isNotNull();
-        byte[] readContent = inputStream.readAllBytes();
-        assertThat(readContent).isEqualTo(content);
-        inputStream.close();
+        assertStreamContentEquals(inputStream, content);
     }
 
     @Test
@@ -103,13 +131,13 @@ class LocalBinaryContentStorageTest {
     void download_Success() throws IOException {
         // given
         UUID id = UUID.randomUUID();
-        byte[] content = "test content".getBytes();
+        byte[] content = createTestContent(TEST_CONTENT);
         storage.put(id, content);
 
-        BinaryContentDto metaData = new BinaryContentDto(
+        BinaryContentDto metaData = createBinaryContentDto(
             id,
             "test.txt",
-            (long) content.length,
+            content.length,
             "text/plain"
         );
 
@@ -130,7 +158,7 @@ class LocalBinaryContentStorageTest {
     void download_FileNotFound() {
         // given
         UUID id = UUID.randomUUID();
-        BinaryContentDto metaData = new BinaryContentDto(
+        BinaryContentDto metaData = createBinaryContentDto(
             id,
             "notfound.txt",
             1024L,
@@ -147,8 +175,8 @@ class LocalBinaryContentStorageTest {
     void put_Overwrite() throws IOException {
         // given
         UUID id = UUID.randomUUID();
-        byte[] originalContent = "original content".getBytes();
-        byte[] newContent = "new content".getBytes();
+        byte[] originalContent = createTestContent(ORIGINAL_CONTENT);
+        byte[] newContent = createTestContent(NEW_CONTENT);
 
         storage.put(id, originalContent);
 
@@ -183,9 +211,9 @@ class LocalBinaryContentStorageTest {
         UUID id2 = UUID.randomUUID();
         UUID id3 = UUID.randomUUID();
 
-        byte[] content1 = "content 1".getBytes();
-        byte[] content2 = "content 2".getBytes();
-        byte[] content3 = "content 3".getBytes();
+        byte[] content1 = createTestContent("content 1");
+        byte[] content2 = createTestContent("content 2");
+        byte[] content3 = createTestContent("content 3");
 
         // when
         storage.put(id1, content1);
@@ -193,9 +221,9 @@ class LocalBinaryContentStorageTest {
         storage.put(id3, content3);
 
         // then
-        assertThat(storage.get(id1).readAllBytes()).isEqualTo(content1);
-        assertThat(storage.get(id2).readAllBytes()).isEqualTo(content2);
-        assertThat(storage.get(id3).readAllBytes()).isEqualTo(content3);
+        assertStreamContentEquals(storage.get(id1), content1);
+        assertStreamContentEquals(storage.get(id2), content2);
+        assertStreamContentEquals(storage.get(id3), content3);
     }
 
     @Test
@@ -203,20 +231,14 @@ class LocalBinaryContentStorageTest {
     void put_LargeFile() throws IOException {
         // given
         UUID id = UUID.randomUUID();
-        byte[] largeContent = new byte[1024 * 1024]; // 1MB
-        for (int i = 0; i < largeContent.length; i++) {
-            largeContent[i] = (byte) (i % 256);
-        }
+        byte[] largeContent = createLargeContent();
 
         // when
         UUID result = storage.put(id, largeContent);
 
         // then
         assertThat(result).isEqualTo(id);
-        InputStream inputStream = storage.get(id);
-        byte[] readContent = inputStream.readAllBytes();
-        assertThat(readContent).isEqualTo(largeContent);
-        inputStream.close();
+        assertStreamContentEquals(storage.get(id), largeContent);
     }
 
     @Test
@@ -231,10 +253,7 @@ class LocalBinaryContentStorageTest {
 
         // then
         assertThat(result).isEqualTo(id);
-        InputStream inputStream = storage.get(id);
-        byte[] readContent = inputStream.readAllBytes();
-        assertThat(readContent).isEmpty();
-        inputStream.close();
+        assertStreamContentEquals(storage.get(id), emptyContent);
     }
 
     @Test
@@ -242,13 +261,13 @@ class LocalBinaryContentStorageTest {
     void download_ContentDisposition() {
         // given
         UUID id = UUID.randomUUID();
-        byte[] content = "test content".getBytes();
+        byte[] content = createTestContent(TEST_CONTENT);
         storage.put(id, content);
 
-        BinaryContentDto metaData = new BinaryContentDto(
+        BinaryContentDto metaData = createBinaryContentDto(
             id,
             "testfile.txt",
-            (long) content.length,
+            content.length,
             "text/plain"
         );
 
@@ -269,10 +288,10 @@ class LocalBinaryContentStorageTest {
         byte[] content = new byte[]{0x12, 0x34, 0x56, 0x78};
         storage.put(id, content);
 
-        BinaryContentDto metaData = new BinaryContentDto(
+        BinaryContentDto metaData = createBinaryContentDto(
             id,
             "image.jpg",
-            (long) content.length,
+            content.length,
             "image/jpeg"
         );
 

@@ -66,6 +66,7 @@ class ReadStatusServiceTest {
 
         User user = new User("testuser", "test@example.com", "encoded", null);
         Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
+        ReadStatus savedReadStatus = new ReadStatus(user, channel, lastReadAt);
 
         ReadStatusDto expectedDto = new ReadStatusDto(
             UUID.randomUUID(),
@@ -76,6 +77,7 @@ class ReadStatusServiceTest {
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
+        given(readStatusRepository.save(any(ReadStatus.class))).willReturn(savedReadStatus);
         given(readStatusMapper.toDto(any(ReadStatus.class))).willReturn(expectedDto);
 
         // when
