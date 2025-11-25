@@ -1,12 +1,11 @@
 package com.sprint.mission.discodeit.security.jwt;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
-
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,11 +30,15 @@ public class JwtLogoutHandler implements LogoutHandler {
 		Cookie refreshTokenCookie = jwtTokenProvider.genereateRefreshTokenExpirationCookie();
 		response.addCookie(refreshTokenCookie);
 
-		try {
-			jwtRegistry.invalidateJwtInformationByUserId(
-				((DiscodeitUserDetails)authentication.getPrincipal()).getUserId());
-		} catch (Exception ignore) {
-		}
+		Arrays.stream(request.getCookies())
+			.filter(cookie -> cookie.getName().equals(JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME))
+			.findFirst()
+			.ifPresent(cookie -> {
+				String refreshToken = cookie.getValue();
+				UUID userId = jwtTokenProvider.getUserId(refreshToken);
+				jwtRegistry.invalidateJwtInformationByUserId(userId);
+			});
+
 		log.debug("JWT logout handler executed - refresh token cookie cleared");
 	}
 }
