@@ -60,7 +60,7 @@ public class BasicUserService implements UserService {
 
     log.info("User {} created", user.getUsername());
 
-    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getUsername()));
+    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getId()));
   }
 
   @Override
@@ -69,7 +69,7 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
                               .orElseThrow(() -> new UserNotFoundException(userId));
 
-    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getUsername()));
+    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getId()));
   }
 
   @Override
@@ -78,8 +78,7 @@ public class BasicUserService implements UserService {
     List<User> users = userRepository.findAll();
 
     return users.stream()
-                .map(user -> userMapper.toDetail(user,
-                    sessionManager.isUserOnline(user.getUsername())))
+                .map(user -> userMapper.toDetail(user, sessionManager.isUserOnline(user.getId())))
                 .toList();
   }
 
@@ -114,7 +113,7 @@ public class BasicUserService implements UserService {
     if (!user.getRole()
              .equals(update.getRole())) {
 
-      sessionManager.expireSessionsForUser(user.getUsername());
+      sessionManager.expireSessionsForUser(user.getId());
     }
 
     user.update(updateWithEncodedPassword, newProfile);
@@ -125,7 +124,7 @@ public class BasicUserService implements UserService {
 
     log.info("User {} updated", user.getUsername());
 
-    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getUsername()));
+    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getId()));
   }
 
   @Override
