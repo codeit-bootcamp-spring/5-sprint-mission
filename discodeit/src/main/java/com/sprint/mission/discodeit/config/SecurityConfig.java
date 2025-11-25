@@ -8,6 +8,8 @@ import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
 import java.util.List;
 import java.util.stream.IntStream;
+
+import com.sprint.mission.discodeit.security.jwt.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -22,12 +24,14 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -46,7 +50,9 @@ public class SecurityConfig {
       LoginSuccessHandler loginSuccessHandler,
       LoginFailureHandler loginFailureHandler,
       ObjectMapper objectMapper,
-      SessionRegistry sessionRegistry
+      JwtLoginSuccessHandler jwtLoginSuccessHandler,
+      JwtLogoutHandler jwtLogoutHandler,
+      JwtAuthenticationFilter jwtAuthenticationFilter
   )
       throws Exception {
     http
@@ -56,18 +62,22 @@ public class SecurityConfig {
         )
         .formLogin(login -> login
             .loginProcessingUrl("/api/auth/login")
-            .successHandler(loginSuccessHandler)
+            .successHandler(jwtLoginSuccessHandler)
             .failureHandler(loginFailureHandler)
         )
         .logout(logout -> logout
             .logoutUrl("/api/auth/logout")
             .logoutSuccessHandler(
                 new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+            .addLogoutHandler(jwtLogoutHandler)
         )
         .authorizeHttpRequests(auth -> auth
+                // 여기에 csrf와 refresh가 들어가는게 맞는지 아직 헷갈림
+                // 들어가야 정상 동작하기는 함.
             .requestMatchers(
                 AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/auth/csrf-token"),
                 AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/users"),
+                AntPathRequestMatcher.antMatcher(HttpMethod.POST,"/api/auth/refresh"),
                 AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/login"),
                 AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/logout"),
                 new NegatedRequestMatcher(AntPathRequestMatcher.antMatcher("/api/**"))
@@ -79,12 +89,14 @@ public class SecurityConfig {
             .accessDeniedHandler(new Http403ForbiddenAccessDeniedHandler(objectMapper))
         )
         .sessionManagement(session -> session
-            .sessionConcurrency(concurrency -> concurrency
-                .maximumSessions(1)
-                .sessionRegistry(sessionRegistry)
-            )
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
-        .rememberMe(Customizer.withDefaults())
+        .addFilterBefore(
+                jwtAuthenticationFilter,
+                // JsonUsernamePasswordAuthenticationFilter.class // json 쓰고 싶을때
+                UsernamePasswordAuthenticationFilter.class // 미션 요구사항
+        )
+        // 리프레시 토큰으로 rememberMe 대체 가능
     ;
     return http.build();
   }
@@ -134,5 +146,10 @@ public class SecurityConfig {
   @Bean
   public HttpSessionEventPublisher httpSessionEventPublisher() {
     return new HttpSessionEventPublisher();
+  }
+
+  @Bean
+  public JwtRegistry jwtRegistry(JwtTokenProvider jwtTokenProvider) {
+    return new InMemoryJwtRegistry(1, jwtTokenProvider);
   }
 }

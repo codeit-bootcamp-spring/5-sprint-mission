@@ -58,9 +58,13 @@ discodeit:
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
   admin:
-    username: admin #${DISCODEIT_ADMIN_USERNAME}
-    email: admin@mail.com #${DISCODEIT_ADMIN_EMAIL}
-    password: 1234asdf! #${DISCODEIT_ADMIN_PASSWORD}
+    username: admin
+    email: admin@mail.com
+    password: 1234asdf!
+  user:
+    username: user
+    email: user@mail.com
+    password: 1234asdf!
 
 logging:
   level:
