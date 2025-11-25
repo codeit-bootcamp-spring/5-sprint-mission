@@ -266,7 +266,6 @@ src/test/java/com/sprint/mission/discodeit/
 **Authentication:**
 
 - Basic authentication support via `AuthService` and `AuthController`
-- `LoginRequest` DTO for credentials
 - No JWT/session management visible in configuration
 
 ### Utilities and Tooling
