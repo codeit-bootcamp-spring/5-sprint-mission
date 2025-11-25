@@ -2,18 +2,18 @@ package com.sprint.mission.discodeit.scheduler;
 
 import com.sprint.mission.discodeit.config.properties.S3Properties;
 import com.sprint.mission.discodeit.config.properties.StorageProperties;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
+import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
@@ -21,15 +21,16 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-@Component
+@Slf4j
 @ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "s3")
 @RequiredArgsConstructor
-@Slf4j
+@Component
 public class FileCleanupScheduler {
 
     private static final Pattern UUID_PATTERN = Pattern.compile(
@@ -39,141 +40,89 @@ public class FileCleanupScheduler {
     private final BinaryContentRepository binaryContentRepository;
     private final S3Properties s3Properties;
     private final StorageProperties storageProperties;
+    private final S3Client s3Client;
 
-    private S3Client getS3Client() {
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(
-            s3Properties.accessKey(),
-            s3Properties.secretKey()
-        );
-
-        return S3Client.builder()
-            .region(Region.of(s3Properties.region()))
-            .credentialsProvider(StaticCredentialsProvider.create(credentials))
-            .build();
-    }
-
+    @Transactional(readOnly = true)
     @Scheduled(fixedDelay = 3600_000)
     public void cleanOrphanFiles() {
         log.info("S3 고아 파일 정리 작업 시작");
+        String bucket = s3Properties.bucket();
 
-        Duration orphanGrace = storageProperties.local() != null
-            && storageProperties.local().orphanGrace() != null
-            ? storageProperties.local().orphanGrace()
-            : Duration.ofMinutes(10);
+        Duration gracePeriod = storageProperties.orphanGrace();
+        Instant threshold = Instant.now().minus(gracePeriod);
 
-        Instant threshold = Instant.now().minus(orphanGrace);
-        int deletedCount = 0;
-        List<ObjectIdentifier> orphanObjects = new ArrayList<>();
+        ListObjectsV2Request request = ListObjectsV2Request.builder()
+            .bucket(bucket)
+            .maxKeys(1000)
+            .build();
 
-        try (S3Client s3Client = getS3Client()) {
-            String bucket = s3Properties.bucket();
-            String continuationToken = null;
+        int totalDeleted = 0;
 
-            do {
-                ListObjectsV2Request.Builder requestBuilder = ListObjectsV2Request.builder()
-                    .bucket(bucket)
-                    .maxKeys(1000);
-
-                if (continuationToken != null) {
-                    requestBuilder.continuationToken(continuationToken);
-                }
-
-                ListObjectsV2Response response = s3Client.listObjectsV2(requestBuilder.build());
-
-                for (S3Object s3Object : response.contents()) {
-                    try {
-                        String key = s3Object.key();
-
-                        if (!UUID_PATTERN.matcher(key).matches()) {
-                            log.debug("유효하지 않은 UUID 형식의 키 발견, 건너뜀: {}", key);
-                            continue;
-                        }
-
-                        if (s3Object.lastModified().isAfter(threshold)) {
-                            log.trace("최근 파일이므로 건너뜀: key={}, lastModified={}",
-                                key, s3Object.lastModified());
-                            continue;
-                        }
-
-                        UUID id = UUID.fromString(key);
-
-                        boolean existsInDb = binaryContentRepository.existsById(id);
-
-                        if (!existsInDb) {
-                            log.info("고아 파일 발견: key={}, size={}, lastModified={}",
-                                key, s3Object.size(), s3Object.lastModified());
-
-                            orphanObjects.add(ObjectIdentifier.builder()
-                                .key(key)
-                                .build());
-
-                            if (orphanObjects.size() >= 1000) {
-                                int batchDeleted = deleteOrphanObjects(s3Client, bucket, orphanObjects);
-                                deletedCount += batchDeleted;
-                                orphanObjects.clear();
-                            }
-                        } else {
-                            log.trace("DB에 존재하는 파일, 보존: key={}", key);
-                        }
-                    } catch (Exception e) {
-                        log.error("객체 처리 중 오류 발생: key={}", s3Object.key(), e);
-                    }
-                }
-
-                continuationToken = response.nextContinuationToken();
-            } while (continuationToken != null);
-
-            if (!orphanObjects.isEmpty()) {
-                int batchDeleted = deleteOrphanObjects(s3Client, bucket, orphanObjects);
-                deletedCount += batchDeleted;
-            }
-
-            if (deletedCount > 0) {
-                log.info("S3 고아 파일 정리 완료. 삭제: {}건", deletedCount);
-            } else {
-                log.info("S3 고아 파일 정리 완료. 삭제된 파일이 없습니다.");
-            }
-        } catch (Exception e) {
-            log.error("S3 고아 파일 정리 작업 중 오류 발생", e);
+        for (ListObjectsV2Response page : s3Client.listObjectsV2Paginator(request)) {
+            totalDeleted += processBatch(page.contents(), bucket, threshold);
         }
+
+        log.info("S3 고아 파일 정리 완료. 총 삭제: {}건", totalDeleted);
     }
 
-    private int deleteOrphanObjects(S3Client s3Client, String bucket, List<ObjectIdentifier> objects) {
+    private int processBatch(List<S3Object> s3Objects, String bucket, Instant threshold) {
+        if (s3Objects.isEmpty()) {
+            return 0;
+        }
+
+        List<UUID> candidateIds = s3Objects.stream()
+            .filter(obj -> UUID_PATTERN.matcher(obj.key()).matches())
+            .filter(obj -> obj.lastModified().isBefore(threshold))
+            .map(obj -> UUID.fromString(obj.key()))
+            .toList();
+
+        if (candidateIds.isEmpty()) {
+            return 0;
+        }
+
+        Set<UUID> existingIds = binaryContentRepository.findAllByIdIn(candidateIds).stream()
+            .map(BaseEntity::getId)
+            .collect(Collectors.toSet());
+
+        List<ObjectIdentifier> orphansToDelete = candidateIds.stream()
+            .filter(id -> !existingIds.contains(id))
+            .map(id -> ObjectIdentifier.builder().key(id.toString()).build())
+            .toList();
+
+        return deleteObjectsFromS3(bucket, orphansToDelete);
+    }
+
+    private int deleteObjectsFromS3(String bucket, List<ObjectIdentifier> objects) {
         if (objects.isEmpty()) {
             return 0;
         }
 
         try {
-            Delete delete = Delete.builder()
-                .objects(objects)
-                .quiet(false)
-                .build();
-
             DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
                 .bucket(bucket)
-                .delete(delete)
+                .delete(Delete.builder().objects(objects).build())
                 .build();
 
-            var response = s3Client.deleteObjects(deleteRequest);
-
+            DeleteObjectsResponse response = s3Client.deleteObjects(deleteRequest);
             int deletedCount = response.deleted().size();
             int errorCount = response.errors().size();
 
             if (errorCount > 0) {
-                log.warn("S3 객체 삭제 중 일부 오류 발생. 성공: {}, 실패: {}",
-                    deletedCount, errorCount);
+                log.warn("배치 삭제 일부 실패: 요청 {}건 -> 성공 {}건, 실패 {}건",
+                    objects.size(), deletedCount, errorCount);
 
                 response.errors().forEach(error ->
-                    log.error("삭제 실패: key={}, code={}, message={}",
+                    log.warn("삭제 실패: key={}, code={}, message={}",
                         error.key(), error.code(), error.message())
                 );
             } else {
-                log.debug("S3 객체 배치 삭제 성공: {}건", deletedCount);
+                log.info("배치 삭제 수행: 요청 {}건 -> 성공 {}건", objects.size(), deletedCount);
             }
 
             return deletedCount;
         } catch (Exception e) {
-            log.error("S3 객체 배치 삭제 실패: 객체 수={}", objects.size(), e);
+            log.error("S3 객체 삭제 실패: bucket={}, objectCount={}",
+                bucket, objects.size(), e);
             return 0;
         }
     }

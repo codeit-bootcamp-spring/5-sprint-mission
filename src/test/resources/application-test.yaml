@@ -37,6 +37,12 @@ discodeit:
     type: local
     local:
       root-path: ./build/.discodeit/storage
+    s3:
+      access-key: test-access-key
+      secret-key: test-secret-key
+      region: us-east-1
+      bucket: test-bucket
+      presigned-url-expiration: 5m
     orphan-grace: 2s
   api:
     server-url: http://localhost:8080

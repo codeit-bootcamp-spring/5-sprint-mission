@@ -2,15 +2,12 @@ package com.sprint.mission.discodeit.scheduler;
 
 import com.sprint.mission.discodeit.config.properties.S3Properties;
 import com.sprint.mission.discodeit.config.properties.StorageProperties;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -21,44 +18,42 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.never;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
 @Testcontainers
-@ExtendWith(MockitoExtension.class)
-@Disabled("LocalStack과 S3Client 설정 문제로 수동 실행 필요. ./gradlew test -Dtest.s3.enabled=true")
-@DisplayName("FileCleanupScheduler 단위 테스트")
+@DisplayName("FileCleanupScheduler 통합 테스트 (LocalStack)")
 class FileCleanupSchedulerTest {
 
-    private static final String BUCKET_NAME = "test-bucket";
+    private static final String BUCKET_NAME = "test-cleanup-bucket";
 
     @Container
     static LocalStackContainer localStack = new LocalStackContainer(
-        DockerImageName.parse("localstack/localstack:3.0"))
-        .withServices(S3);
-
-    @Mock
-    private BinaryContentRepository binaryContentRepository;
+        DockerImageName.parse("localstack/localstack:3.0")
+    ).withServices(S3);
 
     private FileCleanupScheduler scheduler;
     private S3Client s3Client;
-    private S3Properties s3Properties;
+    private BinaryContentRepository mockRepository;
 
     @BeforeEach
     void setUp() {
-        // S3 클라이언트 생성
         s3Client = S3Client.builder()
             .endpointOverride(localStack.getEndpointOverride(S3))
             .region(Region.of(localStack.getRegion()))
@@ -77,8 +72,8 @@ class FileCleanupSchedulerTest {
             .bucket(BUCKET_NAME)
             .build());
 
-        // Properties 생성
-        s3Properties = new S3Properties(
+        // Properties 설정
+        S3Properties s3Properties = new S3Properties(
             localStack.getAccessKey(),
             localStack.getSecretKey(),
             localStack.getRegion(),
@@ -86,339 +81,242 @@ class FileCleanupSchedulerTest {
             Duration.ofMinutes(5)
         );
 
-        StorageProperties.Local localProps = new StorageProperties.Local(
-            "/tmp/test-storage",
-            Duration.ofSeconds(1) // 테스트를 위해 1초로 설정
+        StorageProperties storageProperties = new StorageProperties(
+            "s3",
+            Duration.ofSeconds(2), // 테스트용 짧은 grace period
+            null
         );
-        StorageProperties storageProperties = new StorageProperties("s3", localProps);
 
-        // Scheduler 인스턴스 생성
+        // Repository Mock
+        mockRepository = mock(BinaryContentRepository.class);
+
+        // Scheduler 생성
         scheduler = new FileCleanupScheduler(
-            binaryContentRepository,
+            mockRepository,
             s3Properties,
-            storageProperties
+            storageProperties,
+            s3Client
         );
     }
 
     @AfterEach
     void tearDown() {
         // 버킷 내 모든 객체 삭제
-        var listResponse = s3Client.listObjectsV2(ListObjectsV2Request.builder()
-            .bucket(BUCKET_NAME)
-            .build());
+        var listResponse = s3Client.listObjectsV2(
+            ListObjectsV2Request.builder()
+                .bucket(BUCKET_NAME)
+                .build()
+        );
 
-        listResponse.contents().forEach(s3Object -> s3Client.deleteObject(DeleteObjectRequest.builder()
-            .bucket(BUCKET_NAME)
-            .key(s3Object.key())
-            .build()));
+        if (!listResponse.contents().isEmpty()) {
+            s3Client.deleteObjects(DeleteObjectsRequest.builder()
+                .bucket(BUCKET_NAME)
+                .delete(Delete.builder()
+                    .objects(listResponse.contents().stream()
+                        .map(obj -> ObjectIdentifier.builder()
+                            .key(obj.key())
+                            .build())
+                        .toList())
+                    .build())
+                .build());
+        }
 
         s3Client.close();
     }
 
     @Test
-    @DisplayName("고아 파일 정리 - 오래된 UUID 파일 삭제")
-    void cleanOrphanFilesDeletesOldOrphanFile() throws InterruptedException {
-        // given
+    @DisplayName("고아 파일을 성공적으로 삭제한다")
+    void cleanOrphanFiles_DeletesOrphanFiles() throws InterruptedException {
+        // given - S3에 고아 파일 업로드 (DB에는 없음)
         UUID orphanId = UUID.randomUUID();
-
-        // S3에 파일 업로드
         s3Client.putObject(
             PutObjectRequest.builder()
                 .bucket(BUCKET_NAME)
                 .key(orphanId.toString())
                 .build(),
-            RequestBody.fromBytes("orphan content".getBytes())
+            RequestBody.fromString("orphan content")
         );
 
-        // Grace period 경과를 위한 대기
-        Thread.sleep(2000);
+        // grace period만큼 대기
+        Thread.sleep(2100);
 
-        given(binaryContentRepository.existsById(orphanId)).willReturn(false);
+        given(mockRepository.findAllByIdIn(anyList()))
+            .willReturn(List.of()); // DB에 없음
 
         // when
         scheduler.cleanOrphanFiles();
 
-        // then
-        assertThatCode(() -> s3Client.headObject(HeadObjectRequest.builder()
-            .bucket(BUCKET_NAME)
-            .key(orphanId.toString())
-            .build()))
-            .isInstanceOf(NoSuchKeyException.class);
+        // then - S3에서 삭제되었는지 확인
+        assertThat(listAllKeys()).doesNotContain(orphanId.toString());
+
+        then(mockRepository).should().findAllByIdIn(anyList());
     }
 
     @Test
-    @DisplayName("고아 파일 정리 - 최근 파일은 삭제하지 않음")
-    void cleanOrphanFilesKeepsRecentFiles() {
-        // given
-        UUID recentId = UUID.randomUUID();
+    @DisplayName("DB에 존재하는 파일은 삭제하지 않는다")
+    void cleanOrphanFiles_KeepsExistingFiles() throws InterruptedException {
+        // given - S3에 파일 업로드 (DB에도 존재)
+        UUID existingId = UUID.randomUUID();
+        s3Client.putObject(
+            PutObjectRequest.builder()
+                .bucket(BUCKET_NAME)
+                .key(existingId.toString())
+                .build(),
+            RequestBody.fromString("existing content")
+        );
 
-        // S3에 파일 업로드 (방금 업로드된 파일)
+        Thread.sleep(2100);
+
+        // DB에 존재하는 것으로 Mock
+        BinaryContent binaryContent = new BinaryContent(
+            "test.txt", 1024L, "text/plain"
+        );
+        given(mockRepository.findAllByIdIn(anyList()))
+            .willReturn(List.of(binaryContent));
+
+        // when
+        scheduler.cleanOrphanFiles();
+
+        // then - S3에 여전히 존재해야 함
+        assertThat(listAllKeys()).contains(existingId.toString());
+    }
+
+    @Test
+    @DisplayName("grace period 이전의 파일은 삭제하지 않는다")
+    void cleanOrphanFiles_SkipsRecentFiles() {
+        // given - 방금 업로드한 파일
+        UUID recentId = UUID.randomUUID();
         s3Client.putObject(
             PutObjectRequest.builder()
                 .bucket(BUCKET_NAME)
                 .key(recentId.toString())
                 .build(),
-            RequestBody.fromBytes("recent content".getBytes())
+            RequestBody.fromString("recent content")
         );
 
-        given(binaryContentRepository.existsById(recentId)).willReturn(false);
+        given(mockRepository.findAllByIdIn(anyList()))
+            .willReturn(List.of());
 
-        // when
+        // when - 대기 없이 바로 실행
         scheduler.cleanOrphanFiles();
 
-        // then
-        // Grace period 이내이므로 삭제되지 않음
-        assertThatCode(() -> s3Client.headObject(HeadObjectRequest.builder()
-            .bucket(BUCKET_NAME)
-            .key(recentId.toString())
-            .build()))
-            .doesNotThrowAnyException();
+        // then - 아직 삭제되지 않아야 함
+        assertThat(listAllKeys()).contains(recentId.toString());
     }
 
     @Test
-    @DisplayName("고아 파일 정리 - DB에 존재하는 파일은 삭제하지 않음")
-    void cleanOrphanFilesKeepsFilesInDatabase() throws InterruptedException {
+    @DisplayName("UUID 패턴이 아닌 파일명은 무시한다")
+    void cleanOrphanFiles_IgnoresNonUuidKeys() throws InterruptedException {
         // given
-        UUID validId = UUID.randomUUID();
-
-        // S3에 파일 업로드
-        s3Client.putObject(
-            PutObjectRequest.builder()
-                .bucket(BUCKET_NAME)
-                .key(validId.toString())
-                .build(),
-            RequestBody.fromBytes("valid content".getBytes())
-        );
-
-        // Grace period 경과를 위한 대기
-        Thread.sleep(2000);
-
-        given(binaryContentRepository.existsById(validId)).willReturn(true);
-
-        // when
-        scheduler.cleanOrphanFiles();
-
-        // then
-        assertThatCode(() -> s3Client.headObject(HeadObjectRequest.builder()
-            .bucket(BUCKET_NAME)
-            .key(validId.toString())
-            .build()))
-            .doesNotThrowAnyException();
-    }
-
-    @Test
-    @DisplayName("고아 파일 정리 - 잘못된 형식의 파일명은 건너뜀")
-    void cleanOrphanFilesSkipsInvalidFilenames() throws InterruptedException {
-        // given
-        String invalidKey = "invalid-filename.txt";
-
-        // S3에 파일 업로드
+        String invalidKey = "not-a-uuid.txt";
         s3Client.putObject(
             PutObjectRequest.builder()
                 .bucket(BUCKET_NAME)
                 .key(invalidKey)
                 .build(),
-            RequestBody.fromBytes("invalid content".getBytes())
+            RequestBody.fromString("invalid key content")
         );
 
-        // Grace period 경과를 위한 대기
-        Thread.sleep(2000);
+        Thread.sleep(2100);
 
         // when
         scheduler.cleanOrphanFiles();
 
-        // then
-        // UUID 형식이 아니므로 무시되고 삭제되지 않음
-        assertThatCode(() -> s3Client.headObject(HeadObjectRequest.builder()
-            .bucket(BUCKET_NAME)
-            .key(invalidKey)
-            .build()))
-            .doesNotThrowAnyException();
+        // then - UUID가 아닌 파일은 그대로 유지
+        assertThat(listAllKeys()).contains(invalidKey);
+
+        // Repository는 호출되지 않아야 함 (UUID 파일이 없으므로)
+        then(mockRepository).should(never()).findAllByIdIn(anyList());
     }
 
     @Test
-    @DisplayName("고아 파일 정리 - 여러 고아 파일 동시 삭제")
-    void cleanOrphanFilesDeletesMultipleOrphanFiles() throws InterruptedException {
+    @DisplayName("여러 파일 중 고아 파일만 선택적으로 삭제한다")
+    void cleanOrphanFiles_MixedScenario() throws InterruptedException {
         // given
         UUID orphan1 = UUID.randomUUID();
         UUID orphan2 = UUID.randomUUID();
-        UUID orphan3 = UUID.randomUUID();
+        UUID existing = UUID.randomUUID();
+        UUID recent = UUID.randomUUID();
 
+        // 고아 파일 2개
         s3Client.putObject(
             PutObjectRequest.builder()
                 .bucket(BUCKET_NAME)
                 .key(orphan1.toString())
                 .build(),
-            RequestBody.fromBytes("content 1".getBytes())
+            RequestBody.fromString("orphan1")
         );
-
         s3Client.putObject(
             PutObjectRequest.builder()
                 .bucket(BUCKET_NAME)
                 .key(orphan2.toString())
                 .build(),
-            RequestBody.fromBytes("content 2".getBytes())
+            RequestBody.fromString("orphan2")
         );
 
+        // DB에 존재하는 파일
         s3Client.putObject(
             PutObjectRequest.builder()
                 .bucket(BUCKET_NAME)
-                .key(orphan3.toString())
+                .key(existing.toString())
                 .build(),
-            RequestBody.fromBytes("content 3".getBytes())
+            RequestBody.fromString("existing")
         );
 
-        // Grace period 경과를 위한 대기
-        Thread.sleep(2000);
+        Thread.sleep(2100);
 
-        given(binaryContentRepository.existsById(any(UUID.class))).willReturn(false);
+        // 최근 파일 (grace period 이내)
+        s3Client.putObject(
+            PutObjectRequest.builder()
+                .bucket(BUCKET_NAME)
+                .key(recent.toString())
+                .build(),
+            RequestBody.fromString("recent")
+        );
+
+        // existing만 DB에 존재
+        BinaryContent binaryContent = new BinaryContent(
+            "existing.txt", 1024L, "text/plain"
+        );
+        given(mockRepository.findAllByIdIn(anyList()))
+            .willReturn(List.of(binaryContent));
 
         // when
         scheduler.cleanOrphanFiles();
 
         // then
-        assertThatCode(() -> s3Client.headObject(HeadObjectRequest.builder()
-            .bucket(BUCKET_NAME)
-            .key(orphan1.toString())
-            .build()))
-            .isInstanceOf(NoSuchKeyException.class);
-
-        assertThatCode(() -> s3Client.headObject(HeadObjectRequest.builder()
-            .bucket(BUCKET_NAME)
-            .key(orphan2.toString())
-            .build()))
-            .isInstanceOf(NoSuchKeyException.class);
-
-        assertThatCode(() -> s3Client.headObject(HeadObjectRequest.builder()
-            .bucket(BUCKET_NAME)
-            .key(orphan3.toString())
-            .build()))
-            .isInstanceOf(NoSuchKeyException.class);
+        List<String> remainingKeys = listAllKeys();
+        assertThat(remainingKeys).doesNotContain(
+            orphan1.toString(),
+            orphan2.toString()
+        );
+        assertThat(remainingKeys).contains(
+            existing.toString(),
+            recent.toString()
+        );
     }
 
     @Test
-    @DisplayName("고아 파일 정리 - 혼합 시나리오")
-    void cleanOrphanFilesMixedScenario() throws InterruptedException {
-        // given
-        UUID orphanId = UUID.randomUUID();
-        UUID validId = UUID.randomUUID();
-        UUID recentId = UUID.randomUUID();
-
-        // 고아 파일 (오래됨, DB에 없음)
-        s3Client.putObject(
-            PutObjectRequest.builder()
-                .bucket(BUCKET_NAME)
-                .key(orphanId.toString())
-                .build(),
-            RequestBody.fromBytes("orphan".getBytes())
-        );
-
-        // 유효 파일 (오래됨, DB에 있음)
-        s3Client.putObject(
-            PutObjectRequest.builder()
-                .bucket(BUCKET_NAME)
-                .key(validId.toString())
-                .build(),
-            RequestBody.fromBytes("valid".getBytes())
-        );
-
-        // Grace period 경과를 위한 대기
-        Thread.sleep(2000);
-
-        // 최근 파일 (최근 업로드, DB에 없음)
-        s3Client.putObject(
-            PutObjectRequest.builder()
-                .bucket(BUCKET_NAME)
-                .key(recentId.toString())
-                .build(),
-            RequestBody.fromBytes("recent".getBytes())
-        );
-
-        given(binaryContentRepository.existsById(orphanId)).willReturn(false);
-        given(binaryContentRepository.existsById(validId)).willReturn(true);
-        given(binaryContentRepository.existsById(recentId)).willReturn(false);
+    @DisplayName("빈 버킷에서는 정상 종료한다")
+    void cleanOrphanFiles_EmptyBucket() {
+        // given - 빈 버킷
 
         // when
         scheduler.cleanOrphanFiles();
 
-        // then
-        // 고아 파일만 삭제됨
-        assertThatCode(() -> s3Client.headObject(HeadObjectRequest.builder()
-            .bucket(BUCKET_NAME)
-            .key(orphanId.toString())
-            .build()))
-            .isInstanceOf(NoSuchKeyException.class);
+        // then - 예외 없이 종료
+        assertThat(listAllKeys()).isEmpty();
 
-        // 유효 파일은 보존됨
-        assertThatCode(() -> s3Client.headObject(HeadObjectRequest.builder()
-            .bucket(BUCKET_NAME)
-            .key(validId.toString())
-            .build()))
-            .doesNotThrowAnyException();
-
-        // 최근 파일은 보존됨
-        assertThatCode(() -> s3Client.headObject(HeadObjectRequest.builder()
-            .bucket(BUCKET_NAME)
-            .key(recentId.toString())
-            .build()))
-            .doesNotThrowAnyException();
+        then(mockRepository).should(never()).findAllByIdIn(anyList());
     }
 
-    @Test
-    @DisplayName("고아 파일 정리 - 빈 버킷에서도 정상 동작")
-    void cleanOrphanFilesEmptyBucket() {
-        // given - 버킷에 파일이 없음
-
-        // when & then - 예외 없이 완료되어야 함
-        assertThatCode(() -> scheduler.cleanOrphanFiles())
-            .doesNotThrowAnyException();
-    }
-
-    @Test
-    @DisplayName("고아 파일 정리 - 대량 파일 처리")
-    void cleanOrphanFilesBatchDeletion() throws InterruptedException {
-        // given - 50개의 고아 파일 생성
-        for (int i = 0; i < 50; i++) {
-            UUID orphanId = UUID.randomUUID();
-            s3Client.putObject(
-                PutObjectRequest.builder()
+    private List<String> listAllKeys() {
+        return s3Client.listObjectsV2(
+                ListObjectsV2Request.builder()
                     .bucket(BUCKET_NAME)
-                    .key(orphanId.toString())
-                    .build(),
-                RequestBody.fromBytes(("content " + i).getBytes())
-            );
-        }
-
-        // Grace period 경과를 위한 대기
-        Thread.sleep(2000);
-
-        given(binaryContentRepository.existsById(any(UUID.class))).willReturn(false);
-
-        // when
-        scheduler.cleanOrphanFiles();
-
-        // then
-        var listResponse = s3Client.listObjectsV2(ListObjectsV2Request.builder()
-            .bucket(BUCKET_NAME)
-            .build());
-
-        assertThat(listResponse.contents()).isEmpty();
-    }
-
-    @Test
-    @DisplayName("고아 파일 정리 - orphanGrace가 null일 때 기본값 사용")
-    void cleanOrphanFilesDefaultOrphanGrace() {
-        // given
-        StorageProperties storagePropertiesWithNullGrace = new StorageProperties("s3", null);
-
-        FileCleanupScheduler schedulerWithDefaultGrace = new FileCleanupScheduler(
-            binaryContentRepository,
-            s3Properties,
-            storagePropertiesWithNullGrace
-        );
-
-        // when & then - 예외 없이 완료되어야 함
-        assertThatCode(schedulerWithDefaultGrace::cleanOrphanFiles)
-            .doesNotThrowAnyException();
+                    .build()
+            ).contents().stream()
+            .map(S3Object::key)
+            .toList();
     }
 }

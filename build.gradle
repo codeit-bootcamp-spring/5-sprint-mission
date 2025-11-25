@@ -38,6 +38,7 @@ ext {
     springdocVersion = '2.8.11'
     datasourceProxyVersion = '1.10'
     testcontainersVersion = '1.20.4'
+    awsSdkVersion = '2.31.7'
 }
 
 dependencies {
@@ -61,7 +62,6 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers:${testcontainersVersion}"
     testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
     testImplementation "org.testcontainers:localstack:${testcontainersVersion}"
-    testImplementation 'com.amazonaws:aws-java-sdk-s3:1.12.778'
 
     // Security
     implementation "org.springframework.security:spring-security-crypto:${springSecurityVersion}"
@@ -81,7 +81,8 @@ dependencies {
     implementation "net.ttddyy:datasource-proxy:${datasourceProxyVersion}"
 
     // S3
-    implementation 'software.amazon.awssdk:s3:2.31.7'
+    implementation "software.amazon.awssdk:s3:${awsSdkVersion}"
+    testImplementation "software.amazon.awssdk:s3:${awsSdkVersion}"
 }
 
 dependencyManagement {
