@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.security.jwt;
 import com.sprint.mission.discodeit.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Slf4j
 @Component
-@Profile("!test")
 public class InMemoryJwtRegistry implements JwtRegistry {
 
     private final Map<UUID, Queue<JwtInformation>> origin = new ConcurrentHashMap<>();

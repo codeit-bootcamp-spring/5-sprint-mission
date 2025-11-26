@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
@@ -18,7 +17,6 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-@Profile("!test")
 public class JwtLogoutHandler implements LogoutHandler {
 
     private final JwtTokenProvider tokenProvider;
