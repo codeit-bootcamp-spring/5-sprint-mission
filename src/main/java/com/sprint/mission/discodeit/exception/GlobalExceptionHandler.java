@@ -19,12 +19,12 @@ import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -373,7 +373,7 @@ public class GlobalExceptionHandler {
 
         if (requiredRole != null) {
             errorCode = ErrorCode.INSUFFICIENT_ROLE;
-            message = "%s 권한이 필요합니다.".formatted(formatRoleName(requiredRole));
+            message = "%s 권한이 필요합니다.".formatted(requiredRole.toLowerCase());
             details.put("requiredRole", requiredRole);
         } else {
             errorCode = ErrorCode.FORBIDDEN;
@@ -396,7 +396,7 @@ public class GlobalExceptionHandler {
         }
 
         // @PreAuthorize("hasRole('ROLE_NAME')") 패턴에서 역할 추출
-        Pattern pattern = java.util.regex.Pattern.compile(
+        Pattern pattern = Pattern.compile(
             "hasRole\\(['\"](?:ROLE_)?([^'\"]+)['\"]\\)"
         );
         Matcher matcher = pattern.matcher(message);
@@ -404,25 +404,7 @@ public class GlobalExceptionHandler {
             return matcher.group(1);
         }
 
-        // @PreAuthorize("hasAuthority('ROLE_NAME')") 패턴에서 역할 추출
-        pattern = java.util.regex.Pattern.compile(
-            "hasAuthority\\(['\"](?:ROLE_)?([^'\"]+)['\"]\\)"
-        );
-        matcher = pattern.matcher(message);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
         return null;
-    }
-
-    private String formatRoleName(String role) {
-        return switch (role.toUpperCase()) {
-            case "ADMIN" -> "관리자";
-            case "CHANNEL_MANAGER" -> "채널 관리자";
-            case "USER" -> "사용자";
-            default -> role;
-        };
     }
 
     @ExceptionHandler(Exception.class)

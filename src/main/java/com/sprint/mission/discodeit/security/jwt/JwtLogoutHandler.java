@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.security.jwt;
 
-import com.sprint.mission.discodeit.service.audit.AuthAuditService;
-import com.sprint.mission.discodeit.service.audit.AuthMetricsService;
+import com.sprint.mission.discodeit.security.audit.AuthAuditService;
+import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

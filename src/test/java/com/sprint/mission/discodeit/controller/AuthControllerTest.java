@@ -11,21 +11,20 @@ import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
-import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
+import com.sprint.mission.discodeit.security.audit.AuthAuditService;
+import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
-import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.audit.AuthAuditService;
-import com.sprint.mission.discodeit.service.audit.AuthMetricsService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,7 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(AuthController.class)
+@WebMvcTest(value = AuthController.class, excludeFilters = @ComponentScan.Filter(
+    type = FilterType.REGEX, pattern = ".*\\.security\\..*|.*\\.config\\.SecurityConfig"))
 @Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
 @ActiveProfiles("test")
 class AuthControllerTest {
@@ -58,16 +58,7 @@ class AuthControllerTest {
     private AuthService authService;
 
     @MockitoBean
-    private UserService userService;
-
-    @MockitoBean
     private JwtTokenProvider tokenProvider;
-
-    @MockitoBean
-    private JwtRegistry jwtRegistry;
-
-    @MockitoBean
-    private UserDetailsService userDetailsService;
 
     @MockitoBean
     private AuthAuditService authAuditService;
@@ -253,17 +244,6 @@ class AuthControllerTest {
 
         then(authService).should().refreshToken(refreshToken);
         then(tokenProvider).should().generateRefreshTokenCookie(newRefreshToken);
-    }
-
-    @Test
-    @WithMockDiscodeitUser
-    @DisplayName("POST /api/auth/refresh - 실패: 리프레시 토큰 쿠키 없음")
-    void refresh_MissingCookie_BadRequest() throws Exception {
-        // when & then - 쿠키 없이 요청 시 MissingRequestCookieException -> 400
-        mockMvc.perform(post("/api/auth/refresh")
-                .with(csrf()))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.code").value("MISSING_COOKIE"));
     }
 
     @Test

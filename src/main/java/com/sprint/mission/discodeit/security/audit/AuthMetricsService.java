@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service.audit;
+package com.sprint.mission.discodeit.security.audit;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;

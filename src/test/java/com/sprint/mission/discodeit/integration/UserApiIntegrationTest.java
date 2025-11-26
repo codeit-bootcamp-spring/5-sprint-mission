@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -39,7 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-@Import(TestSecurityConfig.class)
 class UserApiIntegrationTest {
 
     @Autowired
@@ -89,7 +87,8 @@ class UserApiIntegrationTest {
 
         // when
         String responseBody = mockMvc.perform(multipart("/api/users")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.username").value("integrationuser"))
             .andExpect(jsonPath("$.email").value("integration@example.com"))
@@ -136,7 +135,8 @@ class UserApiIntegrationTest {
         // when
         String responseBody = mockMvc.perform(multipart("/api/users")
                 .file(requestPart)
-                .file(profilePart))
+                .file(profilePart)
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.username").value("profileuser"))
             .andExpect(jsonPath("$.profile").exists())
@@ -176,7 +176,8 @@ class UserApiIntegrationTest {
 
         // when & then
         mockMvc.perform(multipart("/api/users")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isBadRequest());
 
         // 데이터베이스에 저장되지 않았는지 확인
@@ -236,6 +237,7 @@ class UserApiIntegrationTest {
         // when
         mockMvc.perform(multipart("/api/users/{userId}", user.getId())
                 .file(requestPart)
+                .with(csrf())
                 .with(req -> {
                     req.setMethod("PATCH");
                     return req;
@@ -273,6 +275,7 @@ class UserApiIntegrationTest {
         // when & then
         mockMvc.perform(multipart("/api/users/{userId}", nonExistentId)
                 .file(requestPart)
+                .with(csrf())
                 .with(req -> {
                     req.setMethod("PATCH");
                     return req;
@@ -292,7 +295,8 @@ class UserApiIntegrationTest {
         setSecurityContextForUser(user);
 
         // when
-        mockMvc.perform(delete("/api/users/{userId}", userId))
+        mockMvc.perform(delete("/api/users/{userId}", userId)
+                .with(csrf()))
             .andExpect(status().isNoContent());
 
         // then - 데이터베이스에서 실제로 삭제되었는지 확인
@@ -308,7 +312,8 @@ class UserApiIntegrationTest {
         UUID nonExistentId = UUID.randomUUID();
 
         // when & then
-        mockMvc.perform(delete("/api/users/{userId}", nonExistentId))
+        mockMvc.perform(delete("/api/users/{userId}", nonExistentId)
+                .with(csrf()))
             .andExpect(status().isForbidden());  // 권한 검사에서 실패 (자신의 정보가 아님)
     }
 
@@ -335,7 +340,8 @@ class UserApiIntegrationTest {
 
         // when & then
         mockMvc.perform(multipart("/api/users")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DUPLICATE_USERNAME"))
             .andExpect(jsonPath("$.message").value("중복된 사용자명입니다."))
@@ -365,7 +371,8 @@ class UserApiIntegrationTest {
 
         // when & then
         mockMvc.perform(multipart("/api/users")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DUPLICATE_EMAIL"))
             .andExpect(jsonPath("$.message").value("중복된 이메일입니다."))
@@ -400,6 +407,7 @@ class UserApiIntegrationTest {
         // when & then
         mockMvc.perform(multipart("/api/users/{userId}", user2.getId())
                 .file(requestPart)
+                .with(csrf())
                 .with(req -> {
                     req.setMethod("PATCH");
                     return req;
@@ -437,6 +445,7 @@ class UserApiIntegrationTest {
         // when & then
         mockMvc.perform(multipart("/api/users/{userId}", user2.getId())
                 .file(requestPart)
+                .with(csrf())
                 .with(req -> {
                     req.setMethod("PATCH");
                     return req;
