@@ -28,7 +28,7 @@ import java.util.Map;
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final ObjectMapper objectMapper;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider tokenProvider;
 
     @Override
     public void onAuthenticationSuccess(
@@ -42,10 +42,10 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         if (authentication.getPrincipal() instanceof DiscodeitUserDetails userDetails) {
             try {
-                String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
-                String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+                String accessToken = tokenProvider.generateAccessToken(userDetails);
+                String refreshToken = tokenProvider.generateRefreshToken(userDetails);
 
-                Cookie refreshCookie = jwtTokenProvider.genereateRefreshTokenCookie(refreshToken);
+                Cookie refreshCookie = tokenProvider.genereateRefreshTokenCookie(refreshToken);
                 response.addCookie(refreshCookie);
 
                 JwtDto jwtDto = new JwtDto(

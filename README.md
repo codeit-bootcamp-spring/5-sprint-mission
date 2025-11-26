@@ -56,7 +56,7 @@
 
 ## JWT 인증 필터 구현
 
-- [ ] 엑세스 토큰을 통해 인증하는 필터(`JwtAuthenticationFilter`)를 구현하세요.
+- [x] 엑세스 토큰을 통해 인증하는 필터(`JwtAuthenticationFilter`)를 구현하세요.
     ```java
     public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

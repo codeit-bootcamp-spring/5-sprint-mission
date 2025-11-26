@@ -100,6 +100,73 @@ public class JwtTokenProvider {
         return token;
     }
 
+    public boolean validateAccessToken(String token) {
+        return validateToken(token, accessTokenVerifier, "access");
+    }
+
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token, refreshTokenVerifier, "refresh");
+    }
+
+    private boolean validateToken(String token, JWSVerifier verifier, String expectedType) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+
+            if (!signedJWT.verify(verifier)) {
+                log.debug("JWT signature verification failed for {} token", expectedType);
+                return false;
+            }
+
+            String tokenType = signedJWT.getJWTClaimsSet().getClaim("type").toString();
+            if (!expectedType.equals(tokenType)) {
+                log.debug("JWT token type mismatch: expected {}, got {}", expectedType, tokenType);
+                return false;
+            }
+
+            Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+            if (expirationTime == null || expirationTime.before(new Date())) {
+                log.debug("JWT {} token expired", expectedType);
+                return false;
+            }
+
+            return true;
+        } catch (Exception e) {
+            log.debug("JWT {} token validation failed: {}", expectedType, e.getMessage());
+            return false;
+        }
+    }
+
+    public String getUsernameFromToken(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            return signedJWT.getJWTClaimsSet().getSubject();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid JWT token", e);
+        }
+    }
+
+    public String getTokenId(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            return signedJWT.getJWTClaimsSet().getJWTID();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid JWT token", e);
+        }
+    }
+
+    public UUID getUserId(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            String userIdStr = (String) signedJWT.getJWTClaimsSet().getClaim("userId");
+            if (userIdStr == null) {
+                throw new IllegalArgumentException("User ID claim not found in JWT token");
+            }
+            return UUID.fromString(userIdStr);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid JWT token", e);
+        }
+    }
+
     public Cookie genereateRefreshTokenCookie(String refreshToken) {
         Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken);
         refreshCookie.setHttpOnly(true);
