@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 import jakarta.servlet.http.Cookie;
@@ -14,7 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,8 +31,6 @@ public class AuthController implements AuthControllerDocs {
 
     private final AuthService authService;
     private final JwtTokenProvider tokenProvider;
-    private final JwtRegistry jwtRegistry;
-    private final UserDetailsService userDetailsService;
 
     @GetMapping("/csrf-token")
     @ResponseStatus(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
@@ -44,7 +40,6 @@ public class AuthController implements AuthControllerDocs {
     }
 
     @PostMapping("/refresh")
-    @ResponseStatus(HttpStatus.OK)
     public JwtDto refresh(
         @CookieValue("REFRESH_TOKEN") String refreshToken,
         HttpServletResponse response
@@ -56,15 +51,17 @@ public class AuthController implements AuthControllerDocs {
         Cookie refreshCookie = tokenProvider.genereateRefreshTokenCookie(jwtInformation.getRefreshToken());
         response.addCookie(refreshCookie);
 
-        log.info("토큰 재발급 완료 (Rotation 적용): {}", jwtInformation.getUserDto().username());
-
-        return new JwtDto(
+        JwtDto jwtDto = new JwtDto(
             jwtInformation.getUserDto(),
             jwtInformation.getAccessToken()
         );
+
+        log.info("토큰 재발급 완료 (Rotation 적용): {}", jwtInformation.getUserDto().username());
+
+        return jwtDto;
     }
 
-    @PutMapping("role")
+    @PutMapping("/role")
     public UserDto updateRole(@RequestBody RoleUpdateRequest request) {
         log.info("권한 수정 요청");
         return authService.updateRole(request);
