@@ -9,7 +9,6 @@ import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(
@@ -26,7 +25,7 @@ public abstract class ChannelMapper {
 
     protected List<UserDto> mapParticipants(List<User> participants) {
         if (participants == null) {
-            return new ArrayList<>();
+            return List.of();
         }
         return participants.stream()
             .map(userMapper::toDto)
