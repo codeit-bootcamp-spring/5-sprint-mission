@@ -4,12 +4,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +23,6 @@ import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.AuthorNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
@@ -32,7 +33,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.security.SecurityService;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import lombok.RequiredArgsConstructor;
@@ -50,8 +51,8 @@ public class BasicMessageService implements MessageService {
 	private final BasicBinaryContentService binaryContentService;
 	private final MessageMapper messageMapper;
 	private final UserMapper userMapper;
-	private final UserStatusRepository userStatusRepository;
 	private final BinaryContentMapper binaryContentMapper;
+	private final SecurityService securityService;
 
 	@Override
 	@Transactional
@@ -68,8 +69,7 @@ public class BasicMessageService implements MessageService {
 
 		User user = userRepository.findUserWithProfileImageByID(userId).orElseThrow(AuthorNotFoundException::new);
 
-		boolean isOnline = userStatusRepository.findByUserId(user.getId())
-		  .map(UserStatus::isOnline).orElse(false);
+		boolean isOnline = securityService.isOnline(user);
 
 		List<BinaryContent> attachments = Optional.ofNullable(attachmentsInMessage)
 		  .map(a -> a.stream().map(binaryContentService::create).toList())
@@ -88,6 +88,7 @@ public class BasicMessageService implements MessageService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("@securityService.isMessageOwner(#id, principal.userDto.id)")
 	public void delete(UUID id) {
 		log.debug("message  delete 트랜잭션 시작");
 
@@ -108,6 +109,7 @@ public class BasicMessageService implements MessageService {
 
 	@Override
 	@Transactional
+	@PreAuthorize("@securityService.isMessageOwner(#dto.id, principal.userDto.id)")
 	public MessageDto update(UpdateMessageDTO dto) {
 		log.debug("message update 트랜잭션 시작");
 
@@ -121,9 +123,7 @@ public class BasicMessageService implements MessageService {
 
 		// 2. User 정보 가져오기
 		User user = targetMessage.getUser();
-		boolean isOnline = userStatusRepository.findByUserId(targetMessage.getUser().getId())
-		  .map(UserStatus::isOnline)
-		  .orElse(false);
+		boolean isOnline = securityService.isOnline(user);
 
 		messageRepository.save(targetMessage);
 		log.debug("success update messageEntity  channelId={}", id);
@@ -137,19 +137,21 @@ public class BasicMessageService implements MessageService {
 	@Override
 	@Transactional(readOnly = true)
 	public Page<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
-		Page<Message> messages = messageRepository.findAllDetailsByChannelId(channelId, pageable);
+		Page<UUID> messageIdsInPage = messageRepository.findMessageIdsByChannelId(channelId, pageable);
+		List<UUID> messageIds = messageIdsInPage.getContent();
+		List<Message> messages = messageRepository.findAllDetailsByIds(messageIds);
+		Map<UUID, Message> messageMap = messages.stream().collect(Collectors.toMap(Message::getId, m -> m));
 
-		List<UUID> userIds = messages.map(m -> m.getUser().getId()).stream().toList();
+		Set<UUID> userIds = messages.stream().map(m -> m.getUser().getId()).collect(Collectors.toSet());
 
-		Map<UUID, Boolean> userId2Status = userStatusRepository.findByUserIdIn(userIds)
-		  .stream()
-		  .collect(Collectors.toMap(us -> us.getUser().getId(), UserStatus::isOnline));
+		Map<UUID, Boolean> userId2Status = securityService.getUserId2OnlineMap(userIds);
 
-		messages.getContent().forEach(System.out::println);
-		return messages.map(message ->
+		return messageIdsInPage.map(messageId ->
 		  {
+			  Message message = messageMap.get(messageId);
 			  User user = message.getUser();
 			  boolean isOnline = userId2Status.get(user.getId());
+
 			  return messageMapper.toDto(
 				message,
 				userMapper.toDto(user, isOnline, binaryContentMapper.toDto(user.getProfileImage()))
@@ -163,11 +165,10 @@ public class BasicMessageService implements MessageService {
 	public Slice<MessageDto> findAllCursorByChannelId(UUID channelId, Instant cursor, Pageable pageable) {
 		Slice<Message> messages = messageRepository.findAllDetailsByChannelIdAndCursor(channelId, cursor, pageable);
 
-		List<UUID> userIds = messages.map(m -> m.getUser().getId()).stream().toList();
+		Set<UUID> userIds = messages.map(m -> m.getUser().getId()).stream().collect(Collectors.toSet());
 
-		Map<UUID, Boolean> userId2Status = userStatusRepository.findByUserIdIn(userIds)
-		  .stream()
-		  .collect(Collectors.toMap(us -> us.getUser().getId(), UserStatus::isOnline));
+		Map<UUID, Boolean> userId2Status = securityService.getUserId2OnlineMap(userIds);
+
 		return messages.map(message ->
 		  {
 			  User user = message.getUser();

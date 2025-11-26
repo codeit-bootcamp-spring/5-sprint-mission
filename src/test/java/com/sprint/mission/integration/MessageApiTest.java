@@ -35,7 +35,6 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.basic.BasicBinaryContentService;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
@@ -56,8 +55,6 @@ class MessageApiTest {
 	MockMvc mockMvc;
 	@Autowired
 	UserRepository userRepository;
-	@Autowired
-	UserStatusRepository userStatusRepository;
 
 	@Autowired
 	EntityManager em;
@@ -205,8 +202,6 @@ class MessageApiTest {
 		  .build();
 
 		Message savedMessage = messageRepository.findById(storedMessage.getId()).get();
-		System.out.println("@@@");
-		System.out.println(savedMessage.getCreatedAt().toString());
 
 		mockMvc.perform(patch("/api/messages/" + storedMessage.getId())
 			.contentType(MediaType.APPLICATION_JSON)

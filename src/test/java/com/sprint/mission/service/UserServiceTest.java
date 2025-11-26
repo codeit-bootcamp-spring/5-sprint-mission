@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,14 +27,12 @@ import com.sprint.mission.discodeit.domain.dto.binaryContent.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.dto.user.UserDto;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserNameOrEmailException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
@@ -53,8 +50,6 @@ public class UserServiceTest {
 	private UserRepository userRepository;
 	@Mock
 	private BinaryContentRepository binaryContentRepository;
-	@Mock
-	private UserStatusRepository userStatusRepository;
 	@Mock
 	private BinaryContentStorage binaryContentStorage;
 	@Mock
@@ -139,7 +134,6 @@ public class UserServiceTest {
 		given(userRepository.findByEmail(any())).willReturn(Optional.empty());
 		given(binaryContentService.create(any())).willReturn(mockProfileImage);
 		given(userRepository.save(any())).willReturn(null);
-		given(userStatusRepository.save(any())).willReturn(null);
 		given(binaryContentMapper.toDto(any())).willReturn(mockBinaryContentDto);
 		given(userMapper.toDto(any(), anyBoolean(), any())).willReturn(mockUserDto1);
 
@@ -199,7 +193,6 @@ public class UserServiceTest {
 	public void deleteUserTestWithRightValue() {
 
 		given(userRepository.findById(any())).willReturn(Optional.of(mockUser));
-		doNothing().when(userStatusRepository).deleteByUserId(any());
 		given(binaryContentRepository.findById(any())).willReturn(Optional.of(mockBinaryContent));
 		doNothing().when(binaryContentRepository).deleteById(any());
 		given(binaryContentStorage.put(any(), any(), any())).willReturn(UUID.randomUUID());
@@ -260,8 +253,6 @@ public class UserServiceTest {
 		  .online(false)
 		  .build();
 
-		UserStatus mockUserStatus = new UserStatus(mockUser);
-
 		given(userRepository.findById(any())).willReturn(Optional.of(mockUser));
 		given(userRepository.existsByUsername(any())).willReturn(false);
 		given(userRepository.existsByEmail(any())).willReturn(false);
@@ -271,7 +262,6 @@ public class UserServiceTest {
 		given(binaryContentRepository.save(any())).willReturn(newBinaryContent);
 		given(binaryContentStorage.put(any(), any(), any())).willReturn(UUID.randomUUID());
 		given(userRepository.save(any())).willReturn(null);
-		given(userStatusRepository.findByUserId(any())).willReturn(Optional.of(mockUserStatus));
 		given(binaryContentMapper.toDto(any())).willReturn(newBinaryContentDto);
 		given(userMapper.toDto(any(), anyBoolean(), any())).willReturn(newUserDto);
 
@@ -337,14 +327,7 @@ public class UserServiceTest {
 		  .online(false)
 		  .build();
 
-		UserStatus mockUserStatus1 = new UserStatus(mockUser);
-		mockUserStatus1.setLastActiveAt(Instant.now());
-		UserStatus mockUserStatus2 = new UserStatus(mockUser2);
-		UserStatus mockUserStatus3 = new UserStatus(mockUser3);
-
 		given(userRepository.findUserDetailsAll()).willReturn(List.of(mockUser, mockUser2, mockUser3));
-		given(userStatusRepository.findByUserIdIn(any()))
-		  .willReturn(List.of(mockUserStatus1, mockUserStatus2, mockUserStatus3));
 		given(binaryContentMapper.toDto(null)).willReturn(null);
 		given(binaryContentMapper.toDto(mockUser.getProfileImage())).willReturn(mockBinaryContentDto);
 		given(userMapper.toDto(mockUser, true, mockBinaryContentDto)).willReturn(mockUserDto1);

@@ -134,7 +134,6 @@ public class MessageController {
 		} else {
 			Page<MessageResponse> readMessages = messageService.findAllByChannelId(channelId, pageable).map(
 			  messageMapper::toResponse);
-			readMessages.forEach(m -> System.out.println(m.getAuthor()));
 
 			return ResponseEntity.ok((pageResponseMapper.fromPage(readMessages)));
 		}

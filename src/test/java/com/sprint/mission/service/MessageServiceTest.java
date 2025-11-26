@@ -36,7 +36,6 @@ import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.User;
-import com.sprint.mission.discodeit.domain.entity.UserStatus;
 import com.sprint.mission.discodeit.domain.enums.ChannelType;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.AuthorNotFoundException;
@@ -48,7 +47,6 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.basic.BasicBinaryContentService;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 
@@ -73,8 +71,6 @@ public class MessageServiceTest {
 	private MessageMapper messageMapper;
 	@Mock
 	private UserMapper userMapper;
-	@Mock
-	private UserStatusRepository userStatusRepository;
 	@Mock
 	private BinaryContentMapper binaryContentMapper;
 
@@ -101,7 +97,6 @@ public class MessageServiceTest {
 
 	User mockUser;
 	UserDto mockUserDto;
-	UserStatus mockUserStatus;
 
 	Channel mockChannel;
 
@@ -152,13 +147,12 @@ public class MessageServiceTest {
 		  .password(password)
 		  .profileImage(null)
 		  .build();
-		mockUserStatus = new UserStatus(mockUser);
 		mockUserDto = UserDto.builder()
 		  .id(mockUser.getId())
 		  .username(mockUser.getUsername())
 		  .email(mockUser.getEmail())
 		  .profile(null)
-		  .online(mockUserStatus.isOnline())
+		  .online(true)
 		  .build();
 
 		mockChannel = Channel.builder()
@@ -210,7 +204,6 @@ public class MessageServiceTest {
 		// Given
 		given(channelRepository.findById(any())).willReturn(Optional.of(mockChannel));
 		given(userRepository.findUserWithProfileImageByID(any())).willReturn(Optional.of(mockUser));
-		given(userStatusRepository.findByUserId(any())).willReturn(Optional.of(mockUserStatus));
 		given(binaryContentService.create(any())).willReturn(mockAttachment);
 		given(messageRepository.save(any())).willReturn(mockMessage);
 		given(userMapper.toDto(any(), anyBoolean(), any())).willReturn(mockUserDto);
@@ -306,7 +299,6 @@ public class MessageServiceTest {
 		  .build();
 
 		given(messageRepository.findMessageDetailsById(any())).willReturn(Optional.of(mockMessage));
-		given(userStatusRepository.findByUserId(any())).willReturn(Optional.of(mockUserStatus));
 		given(messageRepository.save(any())).willReturn(null);
 		given(userMapper.toDto(any(), anyBoolean(), any())).willReturn(mockUserDto);
 		given(messageMapper.toDto(any(), any())).willReturn(newMessageDto);
@@ -358,7 +350,6 @@ public class MessageServiceTest {
 
 		given(messageRepository.findAllDetailsByChannelId(mockChannel.getId(), PageRequest.of(0, 10)))
 		  .willReturn(mockMessageEntiesPage);
-		given(userStatusRepository.findByUserIdIn(any())).willReturn(List.of(mockUserStatus));
 		given(binaryContentMapper.toDto(null)).willReturn(null);
 		given(userMapper.toDto(any(), anyBoolean(), any())).willReturn(mockUserDto);
 		given(messageMapper.toDto(mockMessage, mockUserDto)).willReturn(mockMessageDto);
@@ -389,7 +380,6 @@ public class MessageServiceTest {
 		  , 3);
 		given(messageRepository.findAllDetailsByChannelIdAndCursor(any(), any(), any()))
 		  .willReturn(mockMessageEntiesPage);
-		given(userStatusRepository.findByUserIdIn(any())).willReturn(List.of(mockUserStatus));
 		given(binaryContentMapper.toDto(null)).willReturn(null);
 		given(userMapper.toDto(any(), anyBoolean(), any())).willReturn(mockUserDto);
 		given(messageMapper.toDto(mockMessage, mockUserDto)).willReturn(mockMessageDto);
@@ -399,7 +389,6 @@ public class MessageServiceTest {
 		Slice<MessageDto> result = messageService.findAllCursorByChannelId
 		  (mockChannel.getId(), Instant.MIN, PageRequest.of(0, 10));
 
-		System.out.println(result);
 		// Then
 		assertAll(
 		  () -> assertThat(result.getContent().size()).isEqualTo(3),
