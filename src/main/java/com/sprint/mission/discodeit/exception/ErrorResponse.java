@@ -1,7 +1,6 @@
-package com.sprint.mission.discodeit.controller.advice;
+package com.sprint.mission.discodeit.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;

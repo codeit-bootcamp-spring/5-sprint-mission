@@ -1,7 +1,5 @@
-package com.sprint.mission.discodeit.controller.advice;
+package com.sprint.mission.discodeit.exception;
 
-import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;

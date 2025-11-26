@@ -2,10 +2,10 @@ package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
-import com.sprint.mission.discodeit.controller.advice.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import org.junit.jupiter.api.DisplayName;

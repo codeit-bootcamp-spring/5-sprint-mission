@@ -72,7 +72,7 @@ public class TestSecurityConfig {
         return mock(JwtTokenProvider.class);
     }
 
-    private static class NoOpJwtRegistry implements JwtRegistry {
+    private static final class NoOpJwtRegistry implements JwtRegistry {
 
         @Override
         public void registerJwtInformation(JwtInformation jwtInformation) {

@@ -2,13 +2,13 @@ package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
-import com.sprint.mission.discodeit.controller.advice.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;

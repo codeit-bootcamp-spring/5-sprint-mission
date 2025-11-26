@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
+import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.exception.auth.InvalidTokenException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
