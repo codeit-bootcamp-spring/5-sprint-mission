@@ -231,7 +231,7 @@ class AuthControllerTest {
         refreshCookie.setHttpOnly(true);
 
         given(authService.refreshToken(refreshToken)).willReturn(jwtInformation);
-        given(tokenProvider.genereateRefreshTokenCookie(newRefreshToken)).willReturn(refreshCookie);
+        given(tokenProvider.generateRefreshTokenCookie(newRefreshToken)).willReturn(refreshCookie);
 
         // when & then
         mockMvc.perform(post("/api/auth/refresh")
@@ -244,7 +244,7 @@ class AuthControllerTest {
             .andExpect(cookie().value("REFRESH_TOKEN", newRefreshToken));
 
         then(authService).should().refreshToken(refreshToken);
-        then(tokenProvider).should().genereateRefreshTokenCookie(newRefreshToken);
+        then(tokenProvider).should().generateRefreshTokenCookie(newRefreshToken);
     }
 
     @Test

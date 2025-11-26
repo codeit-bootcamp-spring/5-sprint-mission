@@ -48,7 +48,7 @@ public class AuthController implements AuthControllerDocs {
 
         JwtInformation jwtInformation = authService.refreshToken(refreshToken);
 
-        Cookie refreshCookie = tokenProvider.genereateRefreshTokenCookie(jwtInformation.getRefreshToken());
+        Cookie refreshCookie = tokenProvider.generateRefreshTokenCookie(jwtInformation.getRefreshToken());
         response.addCookie(refreshCookie);
 
         JwtDto jwtDto = new JwtDto(
