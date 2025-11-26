@@ -1,11 +1,15 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.controller.advice.GlobalExceptionHandler;
-import com.sprint.mission.discodeit.dto.auth.LoginRequest;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.exception.auth.InvalidCredentialsException;
+import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +24,14 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
 class AuthControllerTest {
 
     @Autowired
@@ -37,61 +43,184 @@ class AuthControllerTest {
     @MockitoBean
     private AuthService authService;
 
+    @MockitoBean
+    private UserService userService;
+
     @Test
-    @DisplayName("POST /api/auth/login - 성공: 로그인")
-    void login_Success() throws Exception {
+    @WithMockDiscodeitUser
+    @DisplayName("GET /api/auth/csrf-token - 성공: CSRF 토큰 요청 (인증된 사용자)")
+    void getCsrfToken_Authenticated_Success() throws Exception {
+        // when & then - MockMvc에서는 CsrfToken이 제공되지 않아 500 발생할 수 있음
+        // 실제 환경에서는 CSRF 필터가 토큰을 주입함
+        mockMvc.perform(get("/api/auth/csrf-token")
+                .with(csrf()))
+            .andExpect(status().isNonAuthoritativeInformation());
+    }
+
+    @Test
+    @DisplayName("GET /api/auth/csrf-token - 실패: 인증되지 않은 사용자")
+    void getCsrfToken_Unauthenticated_Forbidden() throws Exception {
+        // when & then - Spring Security 기본 동작으로 익명 사용자는 403 반환
+        mockMvc.perform(get("/api/auth/csrf-token"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockDiscodeitUser(userId = "11111111-1111-1111-1111-111111111111")
+    @DisplayName("GET /api/auth/me - 성공: 내 정보 조회")
+    void me_Success() throws Exception {
         // given
-        LoginRequest request = new LoginRequest("testuser", "password123");
-        UserDto response = new UserDto(
-            UUID.randomUUID(),
+        UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        UserDto userDto = new UserDto(
+            userId,
             "testuser",
             "test@example.com",
             null,
-            true
+            true,
+            Role.USER
         );
 
-        given(authService.login(any(LoginRequest.class))).willReturn(response);
+        given(userService.find(userId)).willReturn(userDto);
 
         // when & then
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(get("/api/auth/me"))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(userId.toString()))
             .andExpect(jsonPath("$.username").value("testuser"))
-            .andExpect(jsonPath("$.email").value("test@example.com"));
+            .andExpect(jsonPath("$.email").value("test@example.com"))
+            .andExpect(jsonPath("$.role").value("USER"));
 
-        then(authService).should().login(any(LoginRequest.class));
+        then(userService).should().find(userId);
     }
 
     @Test
-    @DisplayName("POST /api/auth/login - 실패: 잘못된 인증 정보")
-    void login_InvalidCredentials() throws Exception {
+    @DisplayName("GET /api/auth/me - 실패: 인증되지 않은 사용자")
+    void me_Unauthenticated_Forbidden() throws Exception {
+        // when & then - Spring Security 기본 동작으로 익명 사용자는 403 반환
+        mockMvc.perform(get("/api/auth/me"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockDiscodeitUser(role = Role.ADMIN)
+    @DisplayName("PUT /api/auth/role - 성공: 관리자가 사용자 권한 변경")
+    void updateRole_AsAdmin_Success() throws Exception {
         // given
-        LoginRequest request = new LoginRequest("testuser", "wrongpassword");
+        UUID targetUserId = UUID.randomUUID();
+        RoleUpdateRequest request = new RoleUpdateRequest(targetUserId, Role.CHANNEL_MANAGER);
 
-        given(authService.login(any(LoginRequest.class)))
-            .willThrow(new InvalidCredentialsException());
+        UserDto updatedUser = new UserDto(
+            targetUserId,
+            "targetuser",
+            "target@example.com",
+            null,
+            true,
+            Role.CHANNEL_MANAGER
+        );
+
+        given(authService.updateRole(any(RoleUpdateRequest.class))).willReturn(updatedUser);
 
         // when & then
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(put("/api/auth/role")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isUnauthorized())
-            .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(targetUserId.toString()))
+            .andExpect(jsonPath("$.role").value("CHANNEL_MANAGER"));
 
-        then(authService).should().login(any(LoginRequest.class));
+        then(authService).should().updateRole(any(RoleUpdateRequest.class));
     }
 
     @Test
-    @DisplayName("POST /api/auth/login - 실패: 잘못된 요청 데이터 (유효성 검증 실패)")
-    void login_InvalidData() throws Exception {
-        // given - username이 빈 문자열
-        LoginRequest request = new LoginRequest("", "password123");
+    @WithMockDiscodeitUser(role = Role.ADMIN)
+    @DisplayName("PUT /api/auth/role - 성공: ADMIN 권한 부여")
+    void updateRole_GrantAdmin_Success() throws Exception {
+        // given
+        UUID targetUserId = UUID.randomUUID();
+        RoleUpdateRequest request = new RoleUpdateRequest(targetUserId, Role.ADMIN);
+
+        UserDto updatedUser = new UserDto(
+            targetUserId,
+            "targetuser",
+            "target@example.com",
+            null,
+            true,
+            Role.ADMIN
+        );
+
+        given(authService.updateRole(any(RoleUpdateRequest.class))).willReturn(updatedUser);
 
         // when & then
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(put("/api/auth/role")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest());
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.role").value("ADMIN"));
+
+        then(authService).should().updateRole(any(RoleUpdateRequest.class));
+    }
+
+    @Test
+    @WithMockDiscodeitUser(role = Role.ADMIN)
+    @DisplayName("PUT /api/auth/role - 실패: 존재하지 않는 사용자")
+    void updateRole_UserNotFound_NotFound() throws Exception {
+        // given
+        UUID nonExistentUserId = UUID.randomUUID();
+        RoleUpdateRequest request = new RoleUpdateRequest(nonExistentUserId, Role.CHANNEL_MANAGER);
+
+        given(authService.updateRole(any(RoleUpdateRequest.class)))
+            .willThrow(new UserNotFoundException());
+
+        // when & then
+        mockMvc.perform(put("/api/auth/role")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
+
+        then(authService).should().updateRole(any(RoleUpdateRequest.class));
+    }
+
+    @Test
+    @WithMockDiscodeitUser(role = Role.USER)
+    @DisplayName("PUT /api/auth/role - 실패: 일반 사용자가 권한 변경 시도 시 Service에서 AccessDenied 예외 발생")
+    void updateRole_AsUser_ServiceThrowsAccessDenied() throws Exception {
+        // given
+        UUID targetUserId = UUID.randomUUID();
+        RoleUpdateRequest request = new RoleUpdateRequest(targetUserId, Role.ADMIN);
+
+        // Service의 @PreAuthorize에서 권한 검사 후 예외 발생 시뮬레이션
+        given(authService.updateRole(any(RoleUpdateRequest.class)))
+            .willThrow(new org.springframework.security.authorization.AuthorizationDeniedException(
+                "Access Denied: hasRole('ADMIN')"
+            ));
+
+        // when & then
+        mockMvc.perform(put("/api/auth/role")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.code").value("INSUFFICIENT_ROLE"));
+
+        then(authService).should().updateRole(any(RoleUpdateRequest.class));
+    }
+
+    @Test
+    @DisplayName("PUT /api/auth/role - 실패: 인증되지 않은 사용자")
+    void updateRole_Unauthenticated_Forbidden() throws Exception {
+        // given
+        UUID targetUserId = UUID.randomUUID();
+        RoleUpdateRequest request = new RoleUpdateRequest(targetUserId, Role.CHANNEL_MANAGER);
+
+        // when & then - Spring Security 기본 동작으로 익명 사용자는 403 반환
+        mockMvc.perform(put("/api/auth/role")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
+            .andExpect(status().isForbidden());
     }
 }

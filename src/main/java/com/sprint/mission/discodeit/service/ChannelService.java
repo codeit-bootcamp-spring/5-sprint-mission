@@ -20,6 +20,7 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +50,7 @@ public class ChannelService {
     private final UserRepository userRepository;
     private final ChannelMapper channelMapper;
 
+    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     public ChannelDto create(PublicChannelCreateRequest request) {
         log.debug("공개 채널 생성 요청: name={}, description={}",
@@ -68,7 +70,6 @@ public class ChannelService {
         return channelMapper.toDto(
             savedChannel,
             List.of(),
-            null,
             null
         );
     }
@@ -97,8 +98,7 @@ public class ChannelService {
         return channelMapper.toDto(
             savedChannel,
             participants,
-            null,
-            now.minus(ONLINE_STATUS_THRESHOLD)
+            null
         );
     }
 
@@ -132,8 +132,6 @@ public class ChannelService {
                     ChannelLastMessageAtDto::lastMessageAt
                 ));
 
-        Instant onlineSince = Instant.now().minus(ONLINE_STATUS_THRESHOLD);
-
         return channels.stream()
             .map(channel -> {
                 List<User> participants = channelToUserIds
@@ -145,13 +143,13 @@ public class ChannelService {
                 return channelMapper.toDto(
                     channel,
                     participants,
-                    channelToLastMessageAt.get(channel.getId()),
-                    onlineSince
+                    channelToLastMessageAt.get(channel.getId())
                 );
             })
             .toList();
     }
 
+    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     public ChannelDto update(
         UUID channelId,
@@ -170,11 +168,11 @@ public class ChannelService {
         log.info("채널 수정 완료: channelId={}", channelId);
 
         Instant lastMessageAt = messageRepository.findLastMessageAtByChannelId(channel.getId());
-        Instant onlineSince = Instant.now().minus(ONLINE_STATUS_THRESHOLD);
 
-        return channelMapper.toDto(channel, new ArrayList<>(), lastMessageAt, onlineSince);
+        return channelMapper.toDto(channel, new ArrayList<>(), lastMessageAt);
     }
 
+    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     public void delete(UUID channelId) {
         log.debug("채널 삭제 요청: channelId={}", channelId);

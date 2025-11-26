@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -338,6 +340,70 @@ public class GlobalExceptionHandler {
             exception,
             request
         );
+    }
+
+    @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
+    public ResponseEntity<ErrorResponse> handleAccessDenied(
+        Exception exception,
+        HttpServletRequest request
+    ) {
+        String requiredRole = extractRequiredRole(exception);
+        ErrorCode errorCode;
+        String message;
+        Map<String, Object> details = new HashMap<>();
+
+        if (requiredRole != null) {
+            errorCode = ErrorCode.INSUFFICIENT_ROLE;
+            message = "%s 권한이 필요합니다.".formatted(formatRoleName(requiredRole));
+            details.put("requiredRole", requiredRole);
+        } else {
+            errorCode = ErrorCode.FORBIDDEN;
+            message = errorCode.getMessage();
+        }
+
+        return createResponse(
+            errorCode,
+            message,
+            details,
+            exception,
+            request
+        );
+    }
+
+    private String extractRequiredRole(Exception exception) {
+        String message = exception.getMessage();
+        if (message == null) {
+            return null;
+        }
+
+        // @PreAuthorize("hasRole('ROLE_NAME')") 패턴에서 역할 추출
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(
+            "hasRole\\(['\"](?:ROLE_)?([^'\"]+)['\"]\\)"
+        );
+        java.util.regex.Matcher matcher = pattern.matcher(message);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+
+        // @PreAuthorize("hasAuthority('ROLE_NAME')") 패턴에서 역할 추출
+        pattern = java.util.regex.Pattern.compile(
+            "hasAuthority\\(['\"](?:ROLE_)?([^'\"]+)['\"]\\)"
+        );
+        matcher = pattern.matcher(message);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+
+        return null;
+    }
+
+    private String formatRoleName(String role) {
+        return switch (role.toUpperCase()) {
+            case "ADMIN" -> "관리자";
+            case "CHANNEL_MANAGER" -> "채널 관리자";
+            case "USER" -> "사용자";
+            default -> role;
+        };
     }
 
     @ExceptionHandler(Exception.class)

@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.controller.advice.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
-import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
 import com.sprint.mission.discodeit.exception.user.DuplicateUsernameException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -18,10 +18,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,15 +31,15 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
 class UserControllerTest {
 
     @Autowired
@@ -65,7 +65,8 @@ class UserControllerTest {
             "testuser",
             "test@example.com",
             null,
-            true
+            true,
+            Role.USER
         );
 
         MockMultipartFile requestPart = new MockMultipartFile(
@@ -80,7 +81,8 @@ class UserControllerTest {
 
         // when & then
         mockMvc.perform(multipart("/api/users")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.username").value("testuser"))
             .andExpect(jsonPath("$.email").value("test@example.com"));
@@ -108,7 +110,8 @@ class UserControllerTest {
                 1024L,
                 "image/jpeg"
             ),
-            true
+            true,
+            Role.USER
         );
 
         MockMultipartFile requestPart = new MockMultipartFile(
@@ -130,7 +133,8 @@ class UserControllerTest {
         // when & then
         mockMvc.perform(multipart("/api/users")
                 .file(requestPart)
-                .file(profilePart))
+                .file(profilePart)
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.username").value("testuser"))
             .andExpect(jsonPath("$.profile.id").value(profileId.toString()));
@@ -157,7 +161,8 @@ class UserControllerTest {
 
         // when & then
         mockMvc.perform(multipart("/api/users")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isBadRequest());
     }
 
@@ -183,7 +188,8 @@ class UserControllerTest {
 
         // when & then
         mockMvc.perform(multipart("/api/users")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DUPLICATE_USERNAME"))
             .andExpect(jsonPath("$.message").value("중복된 사용자명입니다."))
@@ -214,7 +220,8 @@ class UserControllerTest {
 
         // when & then
         mockMvc.perform(multipart("/api/users")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DUPLICATE_EMAIL"))
             .andExpect(jsonPath("$.message").value("중복된 이메일입니다."))
@@ -224,12 +231,13 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/users - 성공: 사용자 목록 조회")
     void findAll_Success() throws Exception {
         // given
         List<UserDto> users = List.of(
-            new UserDto(UUID.randomUUID(), "user1", "user1@example.com", null, true),
-            new UserDto(UUID.randomUUID(), "user2", "user2@example.com", null, false)
+            new UserDto(UUID.randomUUID(), "user1", "user1@example.com", null, true, Role.USER),
+            new UserDto(UUID.randomUUID(), "user2", "user2@example.com", null, false, Role.USER)
         );
 
         given(userService.findAll()).willReturn(users);
@@ -245,6 +253,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/users - 성공: 빈 사용자 목록")
     void findAll_EmptyList() throws Exception {
         // given
@@ -259,6 +268,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("PATCH /api/users/{userId} - 성공: 사용자 정보 수정")
     void update_Success() throws Exception {
         // given
@@ -269,7 +279,8 @@ class UserControllerTest {
             "testuser",
             "updated@example.com",
             null,
-            true
+            true,
+            Role.USER
         );
 
         MockMultipartFile requestPart = new MockMultipartFile(
@@ -285,6 +296,7 @@ class UserControllerTest {
         // when & then
         mockMvc.perform(multipart("/api/users/{userId}", userId)
                 .file(requestPart)
+                .with(csrf())
                 .with(req -> {
                     req.setMethod("PATCH");
                     return req;
@@ -296,6 +308,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("PATCH /api/users/{userId} - 실패: 존재하지 않는 사용자")
     void update_UserNotFound() throws Exception {
         // given
@@ -315,6 +328,7 @@ class UserControllerTest {
         // when & then
         mockMvc.perform(multipart("/api/users/{userId}", userId)
                 .file(requestPart)
+                .with(csrf())
                 .with(req -> {
                     req.setMethod("PATCH");
                     return req;
@@ -326,52 +340,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("PATCH /api/users/{userId}/userStatus - 성공: 사용자 상태 수정")
-    void updateUserStatus_Success() throws Exception {
-        // given
-        UUID userId = UUID.randomUUID();
-        Instant newLastActiveAt = Instant.now();
-        UserStatusUpdateRequest request = new UserStatusUpdateRequest(newLastActiveAt);
-        UserStatusDto response = new UserStatusDto(
-            UUID.randomUUID(),
-            userId,
-            newLastActiveAt
-        );
-
-        given(userService.updateUserStatusByUserId(eq(userId), any(UserStatusUpdateRequest.class)))
-            .willReturn(response);
-
-        // when & then
-        mockMvc.perform(patch("/api/users/{userId}/userStatus", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.lastActiveAt").exists());
-
-        then(userService).should().updateUserStatusByUserId(eq(userId), any(UserStatusUpdateRequest.class));
-    }
-
-    @Test
-    @DisplayName("PATCH /api/users/{userId}/userStatus - 실패: 존재하지 않는 사용자")
-    void updateUserStatus_UserNotFound() throws Exception {
-        // given
-        UUID userId = UUID.randomUUID();
-        UserStatusUpdateRequest request = new UserStatusUpdateRequest(Instant.now());
-
-        given(userService.updateUserStatusByUserId(eq(userId), any(UserStatusUpdateRequest.class)))
-            .willThrow(new UserNotFoundException());
-
-        // when & then
-        mockMvc.perform(patch("/api/users/{userId}/userStatus", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
-
-        then(userService).should().updateUserStatusByUserId(eq(userId), any(UserStatusUpdateRequest.class));
-    }
-
-    @Test
+    @WithMockUser
     @DisplayName("DELETE /api/users/{userId} - 성공: 사용자 삭제")
     void delete_Success() throws Exception {
         // given
@@ -379,13 +348,15 @@ class UserControllerTest {
         willDoNothing().given(userService).delete(userId);
 
         // when & then
-        mockMvc.perform(delete("/api/users/{userId}", userId))
+        mockMvc.perform(delete("/api/users/{userId}", userId)
+                .with(csrf()))
             .andExpect(status().isNoContent());
 
         then(userService).should().delete(userId);
     }
 
     @Test
+    @WithMockUser
     @DisplayName("DELETE /api/users/{userId} - 실패: 존재하지 않는 사용자")
     void delete_UserNotFound() throws Exception {
         // given
@@ -393,7 +364,8 @@ class UserControllerTest {
         willThrow(new UserNotFoundException()).given(userService).delete(userId);
 
         // when & then
-        mockMvc.perform(delete("/api/users/{userId}", userId))
+        mockMvc.perform(delete("/api/users/{userId}", userId)
+                .with(csrf()))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
 

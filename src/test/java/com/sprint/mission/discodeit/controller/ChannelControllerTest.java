@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.controller.advice.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
@@ -8,6 +9,7 @@ import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.service.ChannelService;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -30,6 +33,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -38,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ChannelController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
 class ChannelControllerTest {
 
     @Autowired
@@ -51,6 +55,7 @@ class ChannelControllerTest {
     private ChannelService channelService;
 
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("POST /api/channels/public - 성공: 공개 채널 생성")
     void createPublic_Success() throws Exception {
         // given
@@ -72,7 +77,8 @@ class ChannelControllerTest {
         // when & then
         mockMvc.perform(post("/api/channels/public")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.type").value("PUBLIC"))
             .andExpect(jsonPath("$.name").value("General"))
@@ -82,6 +88,7 @@ class ChannelControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("POST /api/channels/public - 실패: 잘못된 요청 데이터 (유효성 검증 실패)")
     void createPublic_InvalidData_BadRequest() throws Exception {
         // given - name이 빈 문자열
@@ -93,11 +100,13 @@ class ChannelControllerTest {
         // when & then
         mockMvc.perform(post("/api/channels/public")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isBadRequest());
     }
 
     @Test
+    @WithMockUser
     @DisplayName("POST /api/channels/private - 성공: 비공개 채널 생성")
     void createPrivate_Success() throws Exception {
         // given
@@ -106,8 +115,8 @@ class ChannelControllerTest {
         PrivateChannelCreateRequest request = new PrivateChannelCreateRequest(
             Set.of(user1Id, user2Id)
         );
-        UserDto user1 = new UserDto(user1Id, "user1", "user1@example.com", null, true);
-        UserDto user2 = new UserDto(user2Id, "user2", "user2@example.com", null, false);
+        UserDto user1 = new UserDto(user1Id, "user1", "user1@example.com", null, true, Role.USER);
+        UserDto user2 = new UserDto(user2Id, "user2", "user2@example.com", null, false, Role.USER);
         ChannelDto response = new ChannelDto(
             UUID.randomUUID(),
             ChannelType.PRIVATE,
@@ -122,7 +131,8 @@ class ChannelControllerTest {
         // when & then
         mockMvc.perform(post("/api/channels/private")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.type").value("PRIVATE"))
             .andExpect(jsonPath("$.participants.length()").value(2));
@@ -131,6 +141,7 @@ class ChannelControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("POST /api/channels/private - 실패: 잘못된 요청 데이터 (참가자 수 부족)")
     void createPrivate_InvalidData_BadRequest() throws Exception {
         // given - 참가자가 1명만 있음 (최소 2명 필요)
@@ -141,11 +152,13 @@ class ChannelControllerTest {
         // when & then
         mockMvc.perform(post("/api/channels/private")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isBadRequest());
     }
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/channels - 성공: 채널 목록 조회")
     void findAll_Success() throws Exception {
         // given
@@ -183,6 +196,7 @@ class ChannelControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/channels - 성공: 빈 채널 목록")
     void findAll_EmptyList() throws Exception {
         // given
@@ -199,6 +213,7 @@ class ChannelControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("PATCH /api/channels/{channelId} - 성공: 채널 정보 수정")
     void update_Success() throws Exception {
         // given
@@ -222,7 +237,8 @@ class ChannelControllerTest {
         // when & then
         mockMvc.perform(patch("/api/channels/{channelId}", channelId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.name").value("Updated Name"))
             .andExpect(jsonPath("$.description").value("Updated Description"));
@@ -231,6 +247,7 @@ class ChannelControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("PATCH /api/channels/{channelId} - 실패: 존재하지 않는 채널")
     void update_ChannelNotFound() throws Exception {
         // given
@@ -246,7 +263,8 @@ class ChannelControllerTest {
         // when & then
         mockMvc.perform(patch("/api/channels/{channelId}", channelId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("CHANNEL_NOT_FOUND"));
 
@@ -254,6 +272,7 @@ class ChannelControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("DELETE /api/channels/{channelId} - 성공: 채널 삭제")
     void delete_Success() throws Exception {
         // given
@@ -261,13 +280,15 @@ class ChannelControllerTest {
         willDoNothing().given(channelService).delete(channelId);
 
         // when & then
-        mockMvc.perform(delete("/api/channels/{channelId}", channelId))
+        mockMvc.perform(delete("/api/channels/{channelId}", channelId)
+                .with(csrf()))
             .andExpect(status().isNoContent());
 
         then(channelService).should().delete(channelId);
     }
 
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("DELETE /api/channels/{channelId} - 실패: 존재하지 않는 채널")
     void delete_ChannelNotFound() throws Exception {
         // given
@@ -275,7 +296,8 @@ class ChannelControllerTest {
         willThrow(new ChannelNotFoundException()).given(channelService).delete(channelId);
 
         // when & then
-        mockMvc.perform(delete("/api/channels/{channelId}", channelId))
+        mockMvc.perform(delete("/api/channels/{channelId}", channelId)
+                .with(csrf()))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("CHANNEL_NOT_FOUND"));
 

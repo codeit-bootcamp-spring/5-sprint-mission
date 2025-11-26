@@ -21,14 +21,14 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 
     @EntityGraph(
         attributePaths = {
-            "author", "author.profile", "author.userStatus"
+            "author", "author.profile"
         }
     )
     Page<Message> findPageWithoutCursorByChannelId(UUID channelId, Pageable pageable);
 
     @EntityGraph(
         attributePaths = {
-            "author", "author.profile", "author.userStatus"
+            "author", "author.profile"
         }
     )
     @Query("""

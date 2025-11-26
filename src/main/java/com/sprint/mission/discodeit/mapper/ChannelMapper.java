@@ -4,25 +4,32 @@ import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
-import java.time.Instant;
-import java.util.List;
-import org.mapstruct.Context;
-import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Mapper(
     componentModel = "spring",
     uses = UserMapper.class
 )
-public interface ChannelMapper {
+public abstract class ChannelMapper {
 
-    ChannelDto toDto(
-        Channel channel,
-        List<User> participants,
-        Instant lastMessageAt,
-        @Context Instant onlineSince
-    );
+    @Autowired
+    protected UserMapper userMapper;
 
-    @IterableMapping(qualifiedByName = "userToDtoWithSince")
-    List<UserDto> mapParticipants(List<User> users, @Context Instant onlineSince);
+    @Mapping(target = "participants", expression = "java(mapParticipants(participants))")
+    public abstract ChannelDto toDto(Channel channel, List<User> participants, Instant lastMessageAt);
+
+    protected List<UserDto> mapParticipants(List<User> participants) {
+        if (participants == null) {
+            return new ArrayList<>();
+        }
+        return participants.stream()
+            .map(userMapper::toDto)
+            .toList();
+    }
 }

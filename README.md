@@ -1,335 +1,459 @@
 # 프로젝트 마일스톤
 
-- 애플리케이션 컨테이너화
-- BinaryContentStorage 고도화 (`AWS S3`)
-- AWS를 활용한 배포 (`AWS ECS`, `RDS`)
-- CI/CD 파이프라인 구축 (`GitHub Actions`)
+- Sprint Security 환경 설정
+- 세션 기반 인증 / 인가
 
 # 기본 요구사항
 
-## 애플리케이션 컨테이너화
+## Spring Security 환경설정
 
-### Dockerfile 작성
+- [x] 프로젝트에 Spring Security 의존성을 추가하세요.
+- [x] Security 설정 클래스를 생성하세요.
+    - 패키지명: `com.sprint.mission.discodeit.config`
+    - 클래스명: `SecurityConfig`
+- [x] `SecurityFilterChain` Bean을 선언하세요.
+    - [x] 가장 기본적인 `SecurityFilterChain`을 등록하고, 이때 등록되는 필터 목록을 디버깅해보세요. 필터 목록은 PR에 첨부하세요.
+        ```java
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+            return http.build();
+        }
+        ```
+- [x] 개발 환경에서 Spring Security 모듈의 로깅 레벨을 `trace`로 설정하세요.
+    - 각 요청마다 통과하는 필터 목록을 확인할 수 있습니다.
 
-- [x] [Amazon Corretto 17](https://hub.docker.com/layers/library/amazoncorretto/17/images/sha256-8929bdc3e2be20250ae46b3bc1dc361fcd637cd189ec02174251b0e499a22fad)
-  이미지를 베이스 이미지로 사용하세요.
-- [x] 작업 디렉토리를 설정하세요. (`/app`)
-- [x] 프로젝트 파일을 컨테이너로 복사하세요. 단, 불필요한 파일은 .dockerignore를 활용해 제외하세요.
-- [x] Gradle Wrapper를 사용하여 애플리케이션을 빌드하세요.
-- [x] 80 포트를 노출하도록 설정하세요.
-- [x] 프로젝트 정보를 환경 변수로 설정하세요.
-    - 실행할 `jar` 파일의 이름을 추론하는데 활용됩니다.
-    - `PROJECT_NAME`: discodeit
-    - `PROJECT_VERSION`: 1.2-M8
-- [x] JVM 옵션을 환경 변수로 설정하세요.
-- JVM_OPTS: 기본값은 빈 문자열로 정의
-- [x] 애플리케이션 실행 명령어를 설정하세요. 이때 환경변수로 정의한 프로젝트 정보를 활용하세요.
+| #  | 필터                                      | 설명                                  |
+|----|-----------------------------------------|-------------------------------------|
+| 1  | DisableEncodeUrlFilter                  | URL 인코딩에서 세션 ID 노출 방지               |
+| 2  | WebAsyncManagerIntegrationFilter        | 비동기 요청에서 SecurityContext 통합         |
+| 3  | SecurityContextHolderFilter             | SecurityContext 관리                  |
+| 4  | HeaderWriterFilter                      | 보안 헤더 추가 (X-Content-Type-Options 등) |
+| 5  | CsrfFilter                              | CSRF 공격 방지                          |
+| 6  | LogoutFilter                            | 로그아웃 처리                             |
+| 7  | RequestCacheAwareFilter                 | 인증 후 원래 요청 복원                       |
+| 8  | SecurityContextHolderAwareRequestFilter | 서블릿 API 통합                          |
+| 9  | AnonymousAuthenticationFilter           | 익명 사용자 처리                           |
+| 10 | ExceptionTranslationFilter              | 보안 예외를 HTTP 응답으로 변환                 |
 
-### 이미지 빌드 및 실행 테스트
+## CSRF 보호 설정하기
 
-- [x] Docker 이미지를 빌드하고 태그(`local`)를 지정하세요.
-- [x] 빌드된 이미지를 활용해서 컨테이너를 실행하고 애플리케이션을 테스트하세요.
-    - [x] `prod` 프로필로 실행하세요.
-    - [x] 데이터베이스는 로컬 환경에서 구동 중인 PostgreSQL 서버를 활용하세요.
-    - [x] http://localhost:8080로 접속 가능하도록 포트를 매핑하세요.
+![](readme1.png)
 
-### Docker Compose 구성
+> 디스코드잇은 CSR 방식이기 때문에 CSRF 토큰은 다음과 같이 처리합니다.
+> 1. 클라이언트에서 페이지가 로드될 때 CSRF 토큰 발급 API를 명시적으로 호출
+> 2. 서버는 CSRF 토큰을 응답 헤더(`Set-Cookie`)를 통해 쿠키에 저장
+> 3. 클라이언트에서 매 요청마다 쿠키에 저장된 CSRF 토큰을 헤더(`X-XSRF-TOKEN`)에 포함
+> 4. 서버는 요청 헤더에 포함된 두 토큰 값(`X-XSRF-TOKEN`, `Cookie`)을 비교해 유효성 검증
 
-- 개발 환경용 docker-compose.yml 파일을 작성합니다.
-- [x] 애플리케이션과 PostgreSQL 서비스를 포함하세요.
-- [x] 각 서비스에 필요한 모든 환경 변수를 설정하세요.
-    - `.env` 파일을 활용하되, `.env`는 형상관리에서 제외하여 보안을 유지하세요.
-- [x] 애플리케이션 서비스를 로컬 Dockerfile에서 빌드하도록 구성하세요.
-- [x] 애플리케이션 볼륨을 구성하여 컨테이너가 재시작되어도 `BinaryContentStorage` 데이터가 유지되도록 하세요.
-- [x] PostgreSQL 볼륨을 구성하여 컨테이너가 재시작되어도 데이터가 유지되도록 하세요.
-- [x] PostgreSQL 서비스 실행 후 `schema.sql`이 자동으로 실행되도록 구성하세요.
-- [x] 서비스 간 의존성을 설정하세요(`depends_on`).
-- [x] 필요한 포트 매핑을 구성하세요.
-- [x] Docker Compose를 사용하여 서비스를 시작하고 테스트하세요.
-    - `--build` 플래그를 사용하여 서비스 시작 전에 이미지를 빌드하도록 합니다.
+- [x] `CsrfTokenRepository` 구현체를 `CookieCsrfTokenRepository`로 설정하세요.
+    - 디폴트 구현체는 `HttpSessionCsrfTokenRepository`입니다.
+        ```
+        http
+            .csrf(csrf -> csrf
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+        )
+        ```
+    - [x] 이때 클라이언트에서 쿠키에 저장된 CSRF 토큰에 접근해야 하므로 Http Only는 `false`로 설정합니다.
+- [x] `CsrfTokenRequestHandler` 컴포넌트를 대체하세요.
+    - 디폴트 구현체는 `XorCsrfTokenRequestAttributeHandler`입니다.
+    - [Spring 공식문서](https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html#csrf-integration-javascript-spa)
+      에서 권장하는 CSR+SPA(Single Page Application) 환경에 적합한 구현체를 정의하세요.
+        ```java
+        public class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
+            private final CsrfTokenRequestHandler plain = new CsrfTokenRequestAttributeHandler();
+            private final CsrfTokenRequestHandler xor = new XorCsrfTokenRequestAttributeHandler();
+        
+            @Override
+            public void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken) {
+                /*
+                 * Always use XorCsrfTokenRequestAttributeHandler to provide BREACH protection of
+                 * the CsrfToken when it is rendered in the response body.
+                 */
+                this.xor.handle(request, response, csrfToken);
+                /*
+                 * Render the token value to a cookie by causing the deferred token to be loaded.
+                 */
+                csrfToken.get();
+            }
+        
+            @Override
+            public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+                String headerValue = request.getHeader(csrfToken.getHeaderName());
+                /*
+                 * If the request contains a request header, use CsrfTokenRequestAttributeHandler
+                 * to resolve the CsrfToken. This applies when a single-page application includes
+                 * the header value automatically, which was obtained via a cookie containing the
+                 * raw CsrfToken.
+                 *
+                 * In all other cases (e.g. if the request contains a request parameter), use
+                 * XorCsrfTokenRequestAttributeHandler to resolve the CsrfToken. This applies
+                 * when a server-side rendered form includes the _csrf request parameter as a
+                 * hidden input.
+                 */
+                return (StringUtils.hasText(headerValue) ? this.plain : this.xor).resolveCsrfTokenValue(request, csrfToken);
+            }
+        }
+        ```
+        ```
+        http
+            .csrf(csrf -> csrf
+            ...
+            .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+        )
+        ```
+- [x] CSRF 토큰을 발급하는 API를 구현하세요.
+    - API 스펙
+        - 엔드포인트: `GET /api/auth/csrf-token`
+        - 요청: 없음
+        - 응답: `203 Void`
+        ```java
+        @GetMapping("csrf-token")
+        public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
+            String tokenValue = csrfToken.getToken();
+            log.debug("CSRF 토큰 요청: {}", tokenValue);    
+            // ...
+        }
+        ```
+    - [x] `CsrfToken` 파라미터를 메서드 인자로 선언하면, `HandlerMethodArgumentResolver`를 통해 자동으로
+      주입됩니다. ([공식문서](https://docs.spring.io/spring-security/reference/servlet/integrations/mvc.html#mvc-csrf-resolver))
+    - [x] GET 요청에는 CSRF 인증이 이루어지지 않기 때문에 토큰이 초기화되지 않습니다. 따라서 명시적으로 메소드에서 토큰을 호출합니다.
 
-## BinaryContentStorage 고도화 (AWS S3)
+## 회원가입
 
-### AWS S3 버킷 구성
+- [x] 회원가입 API 스펙은 유지합니다.
+    - API 스펙
+        - 엔드포인트: `POST /api/users`
+        - 요청: `Body UserCreateRequest, MultipartFile`
+        - 응답: `200 UserDto`
+    - [x] 회원가입 시 비밀번호는 `PasswordEncoder`를 통해 해시로 저장하세요.
+        - [x] `PasswordEncoder`의 구현체는 `BCryptPasswordEncoder`를 활용하세요.
 
-- [x] AWS S3 버킷을 생성하세요.
-    - [x] 버킷 이름을 `discodeit-binary-content-storage-(사용자 이니셜)` 형식으로 지정하세요.
-    - [x] 퍼블릭 액세스 차단 설정을 활성화하세요(모든 퍼블릭 액세스 차단).
-    - [x] 버전 관리는 비활성화 상태로 두세요.
+## 인증 — 로그인
 
-### AWS S3 접근을 위한 IAM 구성
-
-- [x] S3 버킷에 접근하기 위한 IAM 사용자(`discodeit`)를 생성하세요.
-- [x] `AmazonS3FullAccess` 권한을 할당하고, 사용자 생성을 완료하세요.
-- [x] 생성된 사용자에 엑세스 키를 생성하세요.
-- [x] 발급받은 키를 포함해서 AWS 관련 정보는 `.env` 파일에 추가합니다.
-    ```dotenv
-    # AWS
-    AWS_S3_ACCESS_KEY=**엑세스_키**
-    AWS_S3_SECRET_KEY=**시크릿_키**
-    AWS_S3_REGION=**ap-northeast-2**
-    AWS_S3_BUCKET=**버킷_이름**
-    ```
-    - 작성한 `.env` 파일은 리뷰를 위해 PR에 별도로 첨부해주세요. 단, 엑세스 키와 시크릿 키는 제외하세요.
-
-### AWS S3 테스트
-
-- [x]  AWS S3 SDK 의존성을 추가하세요.
-
-  ```groovy
-  implementation 'software.amazon.awssdk:s3:2.31.7'
+- [x] `formLogin`을 기본값으로 활성화하고, 추가된 필터를 확인해보세요.
+  ```
+  http
+        .formLogin(withDefaults())
   ```
 
-- [x]  S3 API를 간단하게 테스트하세요.
-    - 패키지명: `com.sprint.mission.discodeit.stoarge.s3`
-    - 클래스명: `AWSS3Test`
-    - [x] `Properties` 클래스를 활용해서 `.env`에 정의한 AWS 정보를 로드하세요.
-    - [x] 작업 별 테스트 메소드를 작성하세요.
-        - 업로드
-        - 다운로드
-        - `PresignedUrl` 생성
+| # | 필터                                   | 설명                                            |
+|---|--------------------------------------|-----------------------------------------------|
+| 1 | UsernamePasswordAuthenticationFilter | `POST /login` 요청에서 `username`과 `password`로 인증 |
+| 2 | DefaultResourcesFilter               | 기본 로그인/로그아웃 페이지 정적 리소스 제공                     |
+| 3 | DefaultLoginPageGeneratingFilter     | 커스텀 로그인 페이지가 없을 때 기본 로그인 페이지 생성               |
+| 4 | DefaultLogoutPageGeneratingFilter    | 커스텀 로그아웃 페이지가 없을 때 기본 로그아웃 페이지 생성             |
 
-### AWS S3를 활용한 BinaryContentStorage 고도화
+- [x] Spring Security의 formLogin 인증 흐름은 그대로 유지하면서 필요한 부분만 대체합니다.
+  ![](readme2.png)
+    - 이번 미션에서는 보라색 음영 처리된 5가지 컴포넌트를 대체합니다.
+        1. `UserDetails`
+        2. `UserDetailsService`
+        3. `PasswordEncoder`: 이전에 정의한 `BCryptPasswordEncoder`로 대체됩니다.
+        4. `AuthenticationSuccessHandler`
+        5. `AuthenticationFailureHandler`
+    - 각 컴포넌트의 기본 구현체가 무엇인지 디버깅해보세요.
 
-- [x]  앞서 작성한 테스트 메소드를 참고해 S3BinaryContentStorage를 구현하세요.
-    - 클래스 다이어그램
-      ![](readme1.png)
-- [x] `discodeit.storage.type` 값이 `s3`인 경우에만 Bean으로 등록되어야 합니다.
-- [x] `S3BinaryContentStorageTest`를 함께 작성하면서 구현하세요.
-- [x] `BinaryContentStorage` 설정을 유연하게 제어할 수 있도록 `application.yaml`을 수정하세요.
-    ```yaml
-    discodeit:
-      storage:
-        type: ${STORAGE_TYPE:local} # local | s3 (기본값: local)
-        local:
-          root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
-        s3:
-          access-key: ${AWS_S3_ACCESS_KEY}
-          secret-key: ${AWS_S3_SECRET_KEY}
-          region: ${AWS_S3_REGION}
-          bucket: ${AWS_S3_BUCKET}
-          presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
+- [x] 로그인을 처리할 url을 `/api/auth/login`로 설정하세요.
     ```
-    - [x] AWS 관련 정보는 형상관리하면 안되므로 `.env` 파일에 작성된 값을 임포트하는 방식으로 설정하세요.
-    - [x] Docker Compose에서도 위 설정을 주입할 수 있도록 수정하세요.
-- [x] `download` 메소드는 `PresignedUrl`을 활용해 리다이렉트하는 방식으로 구현하세요.
-
-## AWS를 활용한 배포 (AWS RDS, ECR, ECS)
-
-### AWS RDS 구성
-
-- [x] AWS RDS PostgreSQL 인스턴스를 생성하세요.
-
-  | 항목                       | 값            | 비고         |
-                                                                                                            |--------------------------|--------------|------------|
-  | 데이터베이스 생성 방식             | 표준 생성        |            | 
-  | 엔진 옵션 > 엔진 유형            | PostgreSQL   |            | 
-  | 엔진 옵션 > 엔진 버전            | 17.2-R2      | 기본값        | 
-  | 템플릿                      | 프리 티어        | 과금 주의      |
-  | 설정 > DB 인스턴스 식별자         | discodeit-db |            | 
-  | 설정 > 자격증명설정 > 마스터 사용자 이름 | postgres     | 기본값        | 
-  | 설정 > 자격증명설정 > 자격 증명 관리   | 자체 관리        | 기본값        | 
-  | 설정 > 자격증명설정 > 마스터 암호     | 임의의 값        | 따로 메모해두세요. |
-  | 인스턴스 구성 > DB 인스턴스 클래스    | db.t4g.micro | 기본값        | 
-  | 연결 > 퍼블릭 액세스             | 아니오          | 과금 주의      | 
-  | 연결 > 추가구성 > 데이터베이스 포트    | 5432         | 기본값        | 
-  | 모니터링 > 보존기간 7일           | (프리티어)       | 과금 주의      | 
-  | 모니터링 > 추가 모니터링 설정        | 모두 체크 해제     | 기본값, 과금 주의 |
-  | 추가 구성 > 백업               | 체크 해제        | 과금 주의      | 
-
-    - 이외 설정은 기본값을 유지하세요.
-- [x] 과금이 발생할 수 있으니 다음 항목은 한번 더 확인해주세요.
-    - [x] 템플릿: `프리티어`
-    - [x] 퍼블릭 액세스: `아니오`
-    - [x] 모니터링 > 보존기간: `7일`
-    - [x] 모니터링 > 추가 모니터링 설정: `모두 체크 해제`
-    - [x] 추가 구성 > 백업: `비활성화`
-- [x] SSH 터널링을 통해 개발 환경에서 접근할 수 있도록 EC2를 구성하세요.
-    - [x]  EC2 인스턴스를 생성하세요.
-
-  | 항목                  | 값           | 비고                    |
-                                                                                                |---------------------|-------------|-----------------------|
-  | 이름 및 태그             | rds-ssh     |                       |
-  | 인스턴스 유형             | t2.micro    | 기본값, 과금 주의            |
-  | 키 페어                | 새 키 페어 생성   | .pem 파일 저장 위치를 기억하세요. |
-  | 네트워크 설정 > 방화벽(보안그룹) | 기존 보안 그룹 선택 |                       |
-    - 이외 설정은 기본값을 유지하세요.
-- [x] 보안 그룹에서 인바운드 규칙을 편집하세요.
-    - 유형: `SSH`
-    - 소스: `내 IP`
-        - 작업 환경의 네트워크(와이파이 등)가 달라지면 계속 수정해주어야 할 수 있습니다.
-- [x] DataGrip을 통해 연결 후 데이터베이스와 사용자, 테이블을 초기화하세요.
-    - [x] 데이터 소스 추가 시 `SSH/SSL > Use SSH tunnel` 설정을 활성화하세요. 이때 이전에 다운로드한 `.pem` 파일을 활용하세요.
-    - [x] 연결이 성공하면 데이터베이스와 사용자, 테이블을 초기화하세요.
-      ```sql
-      -- 1. 새 유저 'discodeit_user' 생성 (비밀번호는 원하는 값으로 설정)
-      CREATE USER discodeit_user WITH PASSWORD 'discodeit1234';
-    
-      -- 2. postgres 계정은 AWS RDS 환경 특성상 완전한 super user가 아니므로, discodeit_user에 대한 권한을 추가로 부여해야함.  
-      GRANT discodeit_user TO postgres;
-    
-      -- 3. 'discodeit' 데이터베이스 생성 (소유자는 'discodeit_user')
-      CREATE DATABASE discodeit OWNER discodeit_user;
-    
-      -- 4. schema.sql 실행하여 테이블 생성
-      ```
-    - [x] 구성이 완료되면 `rds-ssh` 인스턴스는 완전히 삭제하여 과금에 유의하세요.
-
-### AWS ECR 구성
-
-- [x] 이미지를 배포할 퍼블릭 레포지토리(`discodeit`)를 생성하세요.
-    - 프라이빗 레포지토리는 용량 제한이 있으므로 퍼블릭 레포지토리로 생성합니다.
-- [x] [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html#getting-started-install-instructions)
-  를 설치하세요.
-- [x] `aws configure` 실행 후 앞서 생성한 `discodeit` IAM 사용자 정보를 입력하세요.
-    - 엑세스 키
-    - 시크릿 키
-    - region: `ap-northeast-2`
-    - output format: `json`
-- [x] `discodeit` IAM 사용자가 ECR에 접근할 수 있도록 다음 권한을 부여하세요.
-    - `AmazonElasticContainerRegistryPublicFullAccess`
-- [x] Docker 클라이언트를 배포할 레지스트리에 대해 인증합니다.
-    - AWS 콘솔을 통해 생성한 레포지토리 페이지로 이동 후 우측 상단 `푸시 명령 보기`를 클릭하면 관련 명령어를 확인할 수 있습니다.
+    http
+        .formLogin(login -> login
+        .loginProcessingUrl(...)
+    )
+    ```
+- [x] `UserDetailsService` 컴포넌트를 대체하세요.
+    - 디폴트 구현체는 InMemoryUserDetailsManager입니다.
+    - `DiscodeitUserDetailsService`를 정의하세요.
+        ```java
+        @Service
+        @RequiredArgsConstructor
+        public class DiscodeitUserDetailsService implements UserDetailsService {
+            @Override
+            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+            // ...
+            }
+        }
         ```
-        # 예시
-        aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/...
+        - 디스코드잇 DB에서 자체 관리하는 사용자 정보로 `UserDetails` 객체를 생성합니다.
+        - 구현체를 Bean으로 등록하면 자동으로 대체됩니다.
+- [x] `UserDetails` 컴포넌트를 대체하세요.
+    - 디폴트 구현체는 `org.springframework.security.core.userdetails.User`입니다.
+    - `DiscodeitUserDetails`를 정의하세요.
+        ```java
+        @Getter
+        @RequiredArgsConstructor
+        public class DiscodeitUserDetails implements UserDetails {
+            private final UserDto userDto;
+            private final String password;
+            // ...
+        }
         ```
-- [x] 멀티플랫폼을 지원하도록 애플리케이션 이미지를 빌드하고, `discodeit` 레포지토리에 push 하세요.
-    - 태그명: `latest`, `1.2-M8`
-    - 멀티플랫폼: `linux/amd64`, `linux/arm64`
-- [x] AWS 콘솔에서 푸시된 이미지를 확인하세요.
-
-### AWS ECS 구성
-
-- [x] 배포 환경에서 컨테이너 실행 간 사용할 환경 변수를 정의하고, S3에 업로드하세요.
-    - [x] `discodeit.env` 파일을 만들어 다음의 내용을 작성하세요.
-        ```dotenv
-        # Spring Configuration
-        SPRING_PROFILES_ACTIVE=prod
-        # Application Configuration
-        STORAGE_TYPE=s3
-        AWS_S3_ACCESS_KEY=엑세스_키
-        AWS_S3_SECRET_KEY=시크릿_키
-        AWS_S3_REGION=ap-northeast-2
-        AWS_S3_BUCKET=버킷_이름
-        AWS_S3_PRESIGNED_URL_EXPIRATION=600
-        # DataSource Configuration
-        RDS_ENDPOINT="RDS_엔드포인트(포트 포함)"
-        # SPRING_DATASOURCE_URL="jdbc:postgresql://${RDS_ENDPOINT}/discodeit"
-        SPRING_DATASOURCE_USERNAME="RDS_유저네임(DataGrip을 통해 생성했던 유저)"
-        SPRING_DATASOURCE_PASSWORD="RDS_비밀번호
-        # JVM Configuration (프리티어 고려)
-        JVM_OPTS="-Xmx384m -Xms256m -XX:MaxMetaspaceSize=64m -XX:+UseSerialGC"
+        - 인증 정보(`Principal`)에 담을 수 있는 정보를 자유롭게 확장할 수 있습니다.
+        - `UserDto`와 비밀번호 정보를 저장하세요.
+    - 앞서 정의한 `DiscodeitUserDetailsService`에서 `DiscodeitUserDetails`를 생성 후 반환하세요.
+- [x] `AuthenticationSuccessHandler` 컴포넌트를 대체하세요.
+    - 디폴트 구현체는 `SavedRequestAwareAuthenticationSuccessHandler`입니다.
+    - `LoginSuccessHandler`를 정의하고 대체하세요.
+        ```java
+        @Component
+        public class LoginSuccessHandler implements AuthenticationSuccessHandler {
+            // ...
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                Authentication authentication) throws IOException, ServletException {
+                // ...
+            }
+        }
         ```
-    - [x] 이 파일을 S3에 업로드하세요.
-    - [x] 이 파일은 형상관리되지 않도록 주의하세요.
-- [x] AWS ECS 콘솔에서 클러스터를 생성하세요.
+        - 인증 성공 시 `200 UserDto`로 응답합니다.
+    - 설정에 추가하세요
+        ```
+        http
+            .formLogin(login -> login
+                ...
+                .successHandler(loginSuccessHandler)
+            )
+        ```
+- [x] `AuthenticationFailureHandler` 컴포넌트를 대체하세요.
+    - 디폴트 구현체는 `SimpleUrlAuthenticationFailureHandler`입니다.
+    - `LoginFailureHandler`를 정의하고 대체하세요.
+        ```java
+        @Component
+        public class LoginFailureHandler implements AuthenticationFailureHandler {
+            // ...
+            @Override
+            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+                AuthenticationException exception) throws IOException, ServletException {
+                // ...
+            }
+        }
+        ```
+        - 인증 실패 시 `401 ErrorResponse`로 응답합니다.
+    - 설정에 추가하세요
+        ```
+        http
+            .formLogin(login -> login
+                ...
+                .failureHandler(loginFailureHandler)
+            )
+        ```
+- [x] 이제 로그인 처리는 `SecurityFilterChain`에서 모두 처리되기 때문에 기존에 구현했던 로그인 관련 코드는 제거하세요.
+    - `AuthApi.login`, `AuthController.login`
+    - `AuthService.login`
+    - `LoginRequest`
 
-  | 항목                      | 값                 | 비고    |
-                                                                                    |-------------------------|-------------------|-------|
-  | 클러스터 구성 > 클러스터 이름       | discodeit-cluster |       |   
-  | 인프라 > AWS Fargate(서버리스) | 체크해제              | 과금 주의 | 
-  | 인프라 > Amazon EC2 인스턴스   | 체크                |       |
-  | 인프라 > EC2 인스턴스 유형       | t2.micro          | 과금 주의 |      
-  | 인프라 > 원하는 용량            | 최소 0, 최대 1        | 과금 주의 |
-  | 인프라 > SSH 키 페어          | 새 키 페어 생성 후 지정    |       |
-    - 이외 설정은 기본값을 유지하세요.
-- [x] 태스크를 정의하세요.
+## 인증 — 세션을 활용한 현재 사용자 정보 조회
 
-  | 항목                               | 값                                                      | 비고 |
-                                                                                |----------------------------------|--------------------------------------------------------|----|
-  | 태스크 정의 구성 > 태스크 정의 패밀리           | discodeit-task                                         |    |
-  | 인프라 요구 사항 > 시작 유형                | AWS Fargate: 체크 해제, Amazon EC2 인스턴스: 체크                |    |
-  | 인프라 요구 사항 > 네트워크 모드              | bridge                                                 |    |
-  | 인프라 요구 사항 > 태스크 크기               | CPU: 0.25 vCPU, 메모리: 0.5 GB                            |    |
-  | 컨테이너-1 > 컨테이너 세부 정보              | 이름: discodeit-app, 이미지 URI: 이전에 배포한 이미지                |    |
-  | 컨테이너-1 > 포트 매핑                   | 호스트 포트: 80, 컨테이너 포트: 80                                |    |
-  | 컨테이너-1 > 리소스 할당 제한 - 조건부         | CPU: 0.25 vCPU, 메모리 하드 제한: 0.5 GB, 메모리 소프트 제한: 0.25 GB |    |
-  | 컨테이너-1 > 환경 변수 - 선택 사항 > 파일에서 추가 | 이전에 S3에 업로드한 discodeit.env 파일 지정                       |    |
-- 이외 설정은 기본값을 유지하세요.
-- [x] 태스크 생성 후 `태스크 실행 역할`에 S3 관련 권한을 추가하세요.
-    - 환경 변수 파일을 읽기위해 필요합니다.
-- [x] `discodeit` 클러스터 상세 화면에서 서비스를 생성하세요.
+> 이전 버전까지의 디스코드잇 프론트엔드에서는 현재 사용자 정보를 브라우저의 세션 스토리지(user-storage)에서 관리해왔습니다.
+>
+> 브라우저의 세션 스토리지는 Javascript로 접근이 가능하기 때문에, XSS(Cross-Site Scripting) 공격에 취약합니다.
+>
+> 따라서 프론트엔드 `2.0.x` 부터는 사용자 정보를 브라우저의 메모리에서 관리하도록 변경되었습니다.
+>
+> 하지만, 메모리에 저장된 정보는 브라우저 새로고침 시 모두 삭제됩니다.
+>
+> 따라서 새로고침 시 쿠키에 저장된 세션 ID를 통해 현재 사용자 정보를 조회합니다.
 
-  | 항목                  | 값                 | 비고  |
-                                                                              |---------------------|-------------------|-----|
-  | 배포 구성 > 태스크 정의 패밀리  | discodeit-task    |     |
-  | 배포 구성 > 서비스 이름      | discodeit-service |     |
-  | 배포 구성 > 원하는 태스크     | 1                 | 기본값 |
-  | 배포 구성 > 상태 검사 유예 기간 | 30초               |     |
-    - 이외 설정은 기본값을 유지하세요.
-- [x] 태스크의 EC2 보안 그룹의 인바운드 규칙을 설정하여 어디서든 접근할 수 있도록 하세요.
-    - [x] EC2 보안 그룹에서 인바운드 규칙을 편집하세요.
-    - [x] 규칙 유형으로 `HTTP`를 선택하세요.
-    - [x] 소스로 `Anywhere-IPv4`를 선택하여 모든 IP를 허용하세요.
-- [x] 태스크 실행이 완료되면 해당 EC2의 퍼블릭 IP에 접속해보세요.
+- [x] 세션ID를 통해 사용자의 기본 정보(`UserDto`)를 가져올 수 있도록 API를 정의하세요.
+    - API 스펙
+        - 엔드포인트: `GET /api/auth/me`
+        - 요청: `Header(자동 포함) Cookie: JSESSIONID=…`
+        - 응답: `200 UserDto`
+    - `SecurityFilterChain`의 필터를 통해 인증에 성공하면 `Controller`에서 `@AuthenticationPrincipal`를 통해 인증 정보에 접근할 수 있습니다.
+
+## 인증 — 로그아웃
+
+- Spring Security의 logout 흐름은 그대로 유지하면서 필요한 부분만 대체합니다.
+- 이번 미션에서는 2가지 요소를 대체합니다.
+    - Logout 처리 URL
+    - `LogoutSuccessHandler`
+- [x] 로그아웃을 처리할 url을 `/api/auth/logout`로 설정하세요
+    ```
+    http
+        .logout(logout -> logout
+            .logoutUrl(...)
+    )
+    ```
+- [x] `LogoutSuccessHandler` 컴포넌트를 대체하세요.
+    - 디폴트 구현체는 `HttpStatusReturningLogoutSuccessHandler`입니다.
+    - `HttpStatusReturningLogoutSuccessHandler`로 대체하세요.
+        ```
+        http
+            .logout(logout -> logout
+                // ...
+                .logoutSuccessHandler(...)
+            )
+        ```
+        - `204 Void` 응답을 반환하세요.
+
+## 인가 — 권한 정의
+
+- [x] 다음과 같이 권한을 정의하세요.
+  ![](readme3.png)
+    - 관리자: `ADMIN`
+    - 채널 매니저: `CHANNEL_MANAGER`
+    - 일반 사용자: `USER`
+- [x] 데이터베이스 스키마를 변경하세요.
+    ```sql
+    CREATE TABLE users
+    (
+        role varchar(20) NOT NULL
+    );
+    ```
+- [x] 회원 가입 시 모든 사용자는 `USER` 권한을 기본 권한으로 설정하세요.
+- [x] 사용자 권한을 수정하는 API를 구현하세요.
+    - API 스펙
+        - 엔드포인트: `PUT /api/auth/role`
+        - 요청: `Body UserRoleUpdateRequest`
+        - 응답: `200 UserDto`
+          ![](readme4.png)
+- [x] 애플리케이션 실행 시 `ADMIN` 권한을 가진 어드민 계정이 초기화되도록 구현하세요.
+    - 어드민 계정이 없는 경우에만 초기화하세요.
+- [x] `DiscodeitUserDetails.getAuthorities`를 수정하세요.
+
+## 인가 — 권한 적용
+
+- [x] `authorizeHttpRequests`를 활성화하고, 모든 요청을 인증하도록 설정하세요.
+    ```
+    http
+        .authorizeHttpRequests(auth -> auth
+            .anyRequest().authenticated()
+        )
+    ```
+- [x] 다음의 요청은 인증하지 않도록 설정하세요.
+    ```
+    http
+        .authorizeHttpRequests(auth -> auth
+            ...
+            .requestsMatchers(...).permitAll()
+        )
+    ```
+    - Csrf Token 발급
+    - 회원가입
+    - 로그인
+    - 로그아웃
+    - API가 아닌 요청(Swagger, Actuator 등)
+- [x] Method Security를 활성화하세요.
+    ```java
+    @EnableMethodSecurity
+    public class SecurityConfig { }
+    ```
+- [x] Service의 메소드 별로 아래의 조건에 맞게 권한을 수정하세요.
+    - 퍼블릭 채널 생성, 수정, 삭제는 `CHANNEL_MANAGER` 권한을 가져야합니다.
+    - 사용자 권한 수정은 `ADMIN` 권한을 가져야합니다.
+- [x] 적절한 권한이 없는 경우 403 응답을 반환하세요.
+    - `SecurityFilterChain`
+        ```
+        http
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(...)
+                .accessDeniedHandler(...)
+            )
+        ```
+    - `GlobalExceptionHandler`
+        ```java
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) { }
+        ```
+- [x] `RoleHierarchy`를 활용해 권한의 계층 구조를 정의하세요.
+    - 관리자 > 채널 매니저 > 일반 사용자
+        - 관리자 권한은 채널 매니저, 일반 사용자 권한을 포함합니다.
+        - 채널 매니저 권한은 일반 사용자 권한을 포함합니다.
+    ```java
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+    }
+    
+    @Bean
+    static MethodSecurityExpressionHandler methodSecurityExpressionHandler(
+        RoleHierarchy roleHierarchy) {
+        DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+        handler.setRoleHierarchy(roleHierarchy);
+        return handler;
+    }
+    ```
 
 # 심화 요구사항
 
-## 이미지 최적화하기
+## 세션 관리 고도화
 
-- [x] 멀티 스테이지(`빌드`, `런타임`) 빌드를 활용해 이미지의 크기를 줄여보세요.
-    - 태그명: `local-slim`
-    - 이전에 빌드한 이미지(`1.2-M8` 또는 `local`)와 크기를 비교해보세요.
-- [x] 이미지 레이어 캐시를 고려해 Dockerfile을 수정해보세요.
+- [ ] 동일한 계정으로 동시 로그인할 수 없도록 설정하세요.
+    - `sessionConcurrency` 설정을 활용하세요.
+        ```
+        http
+            .sessionManagement(management -> management
+                .sessionConcurrency(concurrency -> concurrency
+                   ...
+                )
+            )
+        ```
+    - 세션의 동일성을 보장하기 위해 `DiscodeitUserDetails`의 `equals()`, `hashcode()` 메소드를 오버라이딩하세요.
+      > [공식 문서](https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html#ns-concurrent-sessions)
+      >
+      > If you are using a custom implementation of `UserDetails`, ensure you override the equals() and hashCode()
+      methods. The
+      > default `SessionRegistry` implementation in Spring Security relies on an in-memory Map that uses these methods
+      to
+      > correctly identify and manage user sessions. Failing to override them may lead to issues where session tracking
+      and user
+      > comparison behave unexpectedly.
+- [x] 권한이 변경된 사용자가 로그인 상태라면 세션을 무효화하세요.
+    - `sessionRegistry`를 활용하세요.
+    ```java
+    @Bean
+    public SecurityFilterChain filterChain(
+        // ...
+        HttpSecurity http,
+        SessionRegistry sessionRegistry
+    ) {
+        http
+            .sessionManagement(management -> management
+                .sessionConcurrency(concurrency -> concurrency
+                    // ...
+                    .sessionRegistry(sessionRegistry)
+                )
+            );
+        // ...
+    }
 
-- ## GitHub Actions를 활용한 CI/CD 파이프라인 구축
+    @Bean
+    public SessionRegistry sessionRegistry() { }
+    ```
+    - `httpSessionEventPublisher`: HttpSession이 만료된 경우 이벤트를 통해 SessionRegistry의 SessionInformation도 자동으로 만료하기 위해 필요한
+      Bean입니다.
+    ```java
+    @Service
+    public class BasicAuthService implements AuthService {
+        // ...
+        private final SessionRegistry sessionRegistry;
+        // ...
+    }
+    ```
+- [x] UserStatus 엔티티 대신 SessionRegistry를 활용해 사용자의 로그인 여부를 판단하도록 리팩토링하세요.
+    - UserStatus 엔티티와 관련된 코드는 모두 삭제하세요.
+        - (로그아웃처럼) `HttpSession` 만료 시 `SessionRegistry`의 `SessionInformation`도 자동으로 만료 처리할 수 있도록
+          `HttpSessionEventPublisher`를 Bean으로 등록합니다.
+        ```java
+        @Bean
+        public HttpSessionEventPublisher httpSessionEventPublisher() {
+            return new HttpSessionEventPublisher();
+        }
+        ```
 
-- [ ] CI(지속적 통합)를 위한 워크플로우를 설정하세요.
-    - [ ] `.github/workflows/test.yml` 파일을 생성하세요.
-    - [ ] `main` 브랜치에 PR이 생성되면 실행되도록 설정하세요.
-    - [ ] 테스트가 실행하는 Job을 정의하세요.
-    - [ ] [CodeCov](https://app.codecov.io/)를 통해 테스트 커버리지 뱃지를 README에 추가해보세요.
-      ![](readme3.png)
-- [ ] CD(지속적 배포)를 위한 워크플로우를 설정하세요.
-    - [ ] `.github/workflows/deploy.yml` 파일을 생성하세요.
-    - [ ] `release` 브랜치에 코드가 푸시되면 실행되도록 설정하세요.
-    - [ ] AWS 정보 설정
-        - [ ] GitHub 레포지토리 설정을 통해 시크릿을 추가하세요.
-            - `AWS_ACCESS_KEY`: IAM 사용자의 액세스 키
-            - `AWS_SECRET_KEY`: IAM 사용자의 시크릿 키
-        - [ ] GitHub 레포지토리 설정을 통해 변수를 추가하세요.
-            - `AWS_REGION`: AWS 리전(`ap-northeast-2`)
-            - `ECR_REPOSITORY_URI`: ECR 레포지토리 URI
-            - `ECS_CLUSTER`: ECS 클러스터 이름(`discodeit-cluster`)
-            - `ECS_SERVICE`: ECS 서비스 이름(`discodeit-service`)
-            - `ECS_TASK_DEFINITION`: ECS 태스크 정의 이름(`discodeit-task`)
-    - [ ] Docker 이미지 빌드 및 푸시
-        - [ ] Docker 이미지를 빌드하고 푸시하는 Job을 정의하세요.
-        - [ ] AWS CLI를 설정하는 Step을 추가하세요.
-            - Public ECR에 배포해야하므로 리전은 `us-east-1`으로 설정해야합니다.
-        - [ ] ECR 로그인 Step을 추가하세요.
-            - Public ECR에 로그인해야합니다.
-        - [ ] Docker 이미지 빌드 및 푸시하는 과정을 Step으로 추가하세요.
-            - 단, 빌드 시간 단축을 위해 멀티 플랫폼 옵션은 제외합니다.
-            - GitHub Actions의 런타임 OS와 우리가 배포할 ECS는 모두 `x86_64`입니다.
-        - [ ] 이미지 태그는 `latest`와 GitHub 커밋 해시를 사용하도록 설정하세요.
-    - [ ] ECS 서비스 업데이트
-        - [ ] ECS 서비스를 업데이트하는 Job을 정의하세요.
-        - [ ] AWS CLI를 설정하는 Step을 추가하세요.
-            - 우리의 ECS 클러스터에 접근해야하므로 리전은 `AWS_REGION`으로 설정해야합니다.
-        - [ ] 태스크 정의를 업데이트하는 Step을 추가하세요.
-            - 기존의 태스크 정의를 기반으로 새 이미지를 사용하도록 업데이트하세요.
-        - [ ] 프리티어 리소스를 고려해 AWS CLI를 사용해 기존에 구동 중인 서비스를 중단하는 Step을 추가하세요.
-            - `aws ecs update-service --desired-count` 옵션을 활용하세요.
-        - [ ] 새로 등록한 태스크 정의를 사용하도록 ECS 서비스를 업데이트하는 Step을 추가하세요.
-    - [ ] AWS 콘솔을 통해 새로 등록된 태스크 정의로 배포되었는지 확인하세요.
+## 로그인 고도화 — RememberMe
 
-# 리뷰를 위해 PR에 포함해야할 정보
+- [x] 로그인 요청 파라미터(`remember-me`)가 `true`인 경우 세션이 무효화되어도 자동으로 다시 로그인되도록 하세요.
+    - 로그인 화면에서 로그인 유지 체크 후 로그인하면 `remember-me` 파라미터가 `true`로 설정되어 요청합니다.
+      ![](readme5.png)
+    - `rememberMe` 설정을 활용하세요.
+        ```
+        http
+            .rememberMe(...)
+        ```
+    - 로그인 상태에서 `JESSIONID` 쿠키를 삭제 후 새로고침했을 때 인증 상태가 유지 되는지 확인해보세요.
+      ![](readme6.png)
 
-> 원활한 리뷰를 위해 PR에 다음과 같은 정보를 포함해주세요.
+## 권한 적용 고도화
 
-- [ ] `.env` 파일 (AWS 키는 제외)
-- [ ] RDS
-    - AWS 콘솔 인스턴스 상세 페이지 스크린샷 이미지
-    - SSH 터널링을 통해 연결한 DataGrip 스크린샷 이미지
-        - 생성한 테이블 목록이 보이도록 캡처해주세요.
-- [ ] ECR
-    - 푸시된 이미지가 보이는 AWS 콘솔 페이지 스크린샷 이미지
-- [ ] ECS
-    - 실행 중인 태스크 구성정보가 표시된 AWS 콘솔 페이지 스크린샷 이미지
-    - 배포된 EC2 엔드포인트
-- [ ] VPC
-    - 보안 그룹의 인바운드 규칙을 확인할 수 있는 AWS 콘솔 페이지 스크린샷 이미지
-- [ ] IAM
-    - 사용자의 권한 정책이 표시된 AWS 콘솔 페이지 스크린샷 이미지
+- [x] `SpEL`을 활용해 Method Security 기반 리소스 보호 정책을 강화해보세요.
+    - 사용자 정보 수정, 삭제는 본인만 할 수 있습니다.
+    - 메시지 수정, 삭제는 해당 메시지를 작성한 사람만 할 수 있습니다.

@@ -27,12 +27,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -158,7 +158,6 @@ public class MessageService {
             ));
 
         Map<UUID, UserDto> userCache = new HashMap<>();
-        Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
 
         List<MessageDto> result = messages.stream()
             .map(message -> {
@@ -167,7 +166,7 @@ public class MessageService {
                 if (author != null) {
                     authorDto = userCache.computeIfAbsent(
                         author.getId(),
-                        id -> userMapper.toDto(author, onlineSince)
+                        id -> userMapper.toDto(author)
                     );
                 }
                 return messageMapper.toDtoWithAuthorDto(
@@ -191,6 +190,7 @@ public class MessageService {
         );
     }
 
+    @PreAuthorize("@messageService.isAuthor(#messageId, authentication.principal.userDto.id)")
     @Transactional
     public MessageDto update(
         UUID messageId,
@@ -212,6 +212,7 @@ public class MessageService {
         return messageMapper.toDto(message, attachments);
     }
 
+    @PreAuthorize("@messageService.isAuthor(#messageId, authentication.principal.userDto.id)")
     @Transactional
     public void delete(UUID messageId) {
         log.debug("메시지 삭제 요청: messageId={}", messageId);
@@ -233,5 +234,11 @@ public class MessageService {
 
     private Message getMessageOrThrow(UUID messageId) {
         return messageRepository.findById(messageId).orElseThrow(MessageNotFoundException::new);
+    }
+
+    public boolean isAuthor(UUID messageId, UUID userId) {
+        return messageRepository.findById(messageId)
+            .map(msg -> msg.getAuthor().getId().equals(userId))
+            .orElse(false);
     }
 }

@@ -1,18 +1,19 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.auth.LoginRequest;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.auth.InvalidCredentialsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.SessionManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -29,143 +31,157 @@ class AuthServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private PasswordEncoder passwordEncoder;
+    private UserMapper userMapper;
 
     @Mock
-    private UserMapper userMapper;
+    private SessionManager sessionManager;
 
     @InjectMocks
     private AuthService authService;
 
     @Test
-    @DisplayName("login - 로그인 성공")
-    void login_Success() {
+    @DisplayName("updateRoleInternal - 성공: 사용자 권한을 CHANNEL_MANAGER로 변경")
+    void updateRoleInternal_ToChannelManager_Success() {
         // given
-        LoginRequest request = new LoginRequest("TestUser", "password123");
-        String encodedPassword = "$2a$10$encodedPassword";
-
-        User user = new User("testuser", "test@example.com", encodedPassword, null);
+        UUID userId = UUID.randomUUID();
+        User user = new User("testuser", "test@example.com", "encodedPassword", null);
+        RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.CHANNEL_MANAGER);
 
         UserDto expectedDto = new UserDto(
-            UUID.randomUUID(),
+            userId,
             "testuser",
             "test@example.com",
             null,
-            true
+            true,
+            Role.CHANNEL_MANAGER
         );
 
-        given(userRepository.findByUsername("testuser")).willReturn(Optional.of(user));
-        given(passwordEncoder.matches("password123", encodedPassword)).willReturn(true);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        willDoNothing().given(sessionManager).invalidateSessionsByUserId(userId);
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
         // when
-        UserDto result = authService.login(request);
+        UserDto result = authService.updateRoleInternal(request);
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.username()).isEqualTo("testuser");
+        assertThat(result.role()).isEqualTo(Role.CHANNEL_MANAGER);
 
-        then(userRepository).should().findByUsername("testuser");
-        then(passwordEncoder).should().matches("password123", encodedPassword);
+        then(userRepository).should().findById(userId);
+        then(sessionManager).should().invalidateSessionsByUserId(userId);
         then(userMapper).should().toDto(user);
     }
 
     @Test
-    @DisplayName("login - username을 소문자로 변환하고 공백 제거")
-    void login_NormalizesUsername() {
+    @DisplayName("updateRoleInternal - 성공: 사용자 권한을 ADMIN으로 변경")
+    void updateRoleInternal_ToAdmin_Success() {
         // given
-        LoginRequest request = new LoginRequest("  TestUser  ", "password123");
-        String encodedPassword = "$2a$10$encodedPassword";
-
-        User user = new User("testuser", "test@example.com", encodedPassword, null);
+        UUID userId = UUID.randomUUID();
+        User user = new User("testuser", "test@example.com", "encodedPassword", null);
+        RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.ADMIN);
 
         UserDto expectedDto = new UserDto(
-            UUID.randomUUID(),
+            userId,
             "testuser",
             "test@example.com",
             null,
-            true
+            true,
+            Role.ADMIN
         );
 
-        given(userRepository.findByUsername("testuser")).willReturn(Optional.of(user));
-        given(passwordEncoder.matches("password123", encodedPassword)).willReturn(true);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        willDoNothing().given(sessionManager).invalidateSessionsByUserId(userId);
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
         // when
-        UserDto result = authService.login(request);
+        UserDto result = authService.updateRoleInternal(request);
 
         // then
         assertThat(result).isNotNull();
-        then(userRepository).should().findByUsername("testuser");
+        assertThat(result.role()).isEqualTo(Role.ADMIN);
+
+        then(userRepository).should().findById(userId);
+        then(sessionManager).should().invalidateSessionsByUserId(userId);
+        then(userMapper).should().toDto(user);
     }
 
     @Test
-    @DisplayName("login - 존재하지 않는 사용자로 로그인 시 InvalidCredentialsException 발생")
-    void login_UserNotFound_ThrowsInvalidCredentialsException() {
+    @DisplayName("updateRoleInternal - 성공: ADMIN에서 USER로 권한 강등")
+    void updateRoleInternal_DemoteToUser_Success() {
         // given
-        LoginRequest request = new LoginRequest("nonexistent", "password123");
+        UUID userId = UUID.randomUUID();
+        User user = new User("adminuser", "admin@example.com", "encodedPassword", null);
+        user.updateRole(Role.ADMIN);
+        RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.USER);
 
-        given(userRepository.findByUsername("nonexistent")).willReturn(Optional.empty());
+        UserDto expectedDto = new UserDto(
+            userId,
+            "adminuser",
+            "admin@example.com",
+            null,
+            true,
+            Role.USER
+        );
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        willDoNothing().given(sessionManager).invalidateSessionsByUserId(userId);
+        given(userMapper.toDto(user)).willReturn(expectedDto);
+
+        // when
+        UserDto result = authService.updateRoleInternal(request);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.role()).isEqualTo(Role.USER);
+
+        then(userRepository).should().findById(userId);
+        then(sessionManager).should().invalidateSessionsByUserId(userId);
+        then(userMapper).should().toDto(user);
+    }
+
+    @Test
+    @DisplayName("updateRoleInternal - 실패: 존재하지 않는 사용자")
+    void updateRoleInternal_UserNotFound_ThrowsException() {
+        // given
+        UUID userId = UUID.randomUUID();
+        RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.CHANNEL_MANAGER);
+
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> authService.login(request))
-            .isInstanceOf(InvalidCredentialsException.class);
+        assertThatThrownBy(() -> authService.updateRoleInternal(request))
+            .isInstanceOf(UserNotFoundException.class);
 
-        then(userRepository).should().findByUsername("nonexistent");
-        then(passwordEncoder).shouldHaveNoInteractions();
+        then(userRepository).should().findById(userId);
+        then(sessionManager).shouldHaveNoInteractions();
         then(userMapper).shouldHaveNoInteractions();
     }
 
     @Test
-    @DisplayName("login - 잘못된 비밀번호로 로그인 시 InvalidCredentialsException 발생")
-    void login_WrongPassword_ThrowsInvalidCredentialsException() {
+    @DisplayName("updateRoleInternal - 성공: 권한 변경 후 세션 무효화 확인")
+    void updateRoleInternal_InvalidatesSession() {
         // given
-        LoginRequest request = new LoginRequest("testuser", "wrongPassword");
-        String encodedPassword = "$2a$10$encodedPassword";
-
-        User user = new User("testuser", "test@example.com", encodedPassword, null);
-
-        given(userRepository.findByUsername("testuser")).willReturn(Optional.of(user));
-        given(passwordEncoder.matches("wrongPassword", encodedPassword)).willReturn(false);
-
-        // when & then
-        assertThatThrownBy(() -> authService.login(request))
-            .isInstanceOf(InvalidCredentialsException.class);
-
-        then(userRepository).should().findByUsername("testuser");
-        then(passwordEncoder).should().matches("wrongPassword", encodedPassword);
-        then(userMapper).shouldHaveNoInteractions();
-    }
-
-    @Test
-    @DisplayName("login - 성공 시 UserStatus의 lastActiveAt을 현재 시간으로 업데이트")
-    void login_UpdatesLastActiveAt() {
-        // given
-        LoginRequest request = new LoginRequest("testuser", "password123");
-        String encodedPassword = "$2a$10$encodedPassword";
-
-        User user = new User("testuser", "test@example.com", encodedPassword, null);
+        UUID userId = UUID.randomUUID();
+        User user = new User("testuser", "test@example.com", "encodedPassword", null);
+        RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.CHANNEL_MANAGER);
 
         UserDto expectedDto = new UserDto(
-            UUID.randomUUID(),
+            userId,
             "testuser",
             "test@example.com",
             null,
-            true
+            false,
+            Role.CHANNEL_MANAGER
         );
 
-        given(userRepository.findByUsername("testuser")).willReturn(Optional.of(user));
-        given(passwordEncoder.matches("password123", encodedPassword)).willReturn(true);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        willDoNothing().given(sessionManager).invalidateSessionsByUserId(userId);
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
         // when
-        UserDto result = authService.login(request);
+        authService.updateRoleInternal(request);
 
         // then
-        assertThat(result).isNotNull();
-        assertThat(result.username()).isEqualTo("testuser");
-
-        then(userRepository).should().findByUsername("testuser");
-        then(passwordEncoder).should().matches("password123", encodedPassword);
+        then(sessionManager).should().invalidateSessionsByUserId(userId);
     }
 }

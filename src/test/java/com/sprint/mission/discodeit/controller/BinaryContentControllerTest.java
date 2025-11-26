@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.controller.advice.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
@@ -15,6 +16,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BinaryContentController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
 class BinaryContentControllerTest {
 
     @Autowired
@@ -44,6 +46,7 @@ class BinaryContentControllerTest {
     private BinaryContentStorage binaryContentStorage;
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/binaryContents - 성공: 바이너리 콘텐츠 목록 조회")
     void findAllByIdIn_Success() throws Exception {
         // given
@@ -72,6 +75,7 @@ class BinaryContentControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/binaryContents - 성공: 빈 목록")
     void findAllByIdIn_EmptyList() throws Exception {
         // given
@@ -87,6 +91,7 @@ class BinaryContentControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/binaryContents/{binaryContentId} - 성공: 바이너리 콘텐츠 조회")
     void find_Success() throws Exception {
         // given
@@ -112,6 +117,7 @@ class BinaryContentControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/binaryContents/{binaryContentId} - 실패: 존재하지 않는 바이너리 콘텐츠")
     void find_NotFound() throws Exception {
         // given
@@ -129,6 +135,7 @@ class BinaryContentControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/binaryContents/{binaryContentId}/download - 성공: 파일 다운로드")
     void download_Success() throws Exception {
         // given
@@ -164,6 +171,7 @@ class BinaryContentControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/binaryContents/{binaryContentId}/download - 성공: 파일 다운로드 (이미지)")
     void download_Image_Success() throws Exception {
         // given
@@ -199,6 +207,7 @@ class BinaryContentControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/binaryContents/{binaryContentId}/download - 성공: contentType이 없을 때 기본값 적용")
     void download_NoContentType_DefaultsToOctetStream() throws Exception {
         // given
@@ -234,6 +243,7 @@ class BinaryContentControllerTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("GET /api/binaryContents/{binaryContentId}/download - 실패: 존재하지 않는 바이너리 콘텐츠")
     void download_NotFound() throws Exception {
         // given

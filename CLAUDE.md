@@ -92,7 +92,6 @@ com.sprint.mission.discodeit/
 **Core Entities:**
 
 - **User**: Users with authentication (bcrypt password hashing)
-- **UserStatus**: User online/offline/away status
 - **Channel**: Two types - PUBLIC (named channels) and PRIVATE (direct messages)
 - **Message**: Messages in channels with optional file attachments
 - **BinaryContent**: File storage metadata (actual files stored in .discodeit/storage)
@@ -266,7 +265,6 @@ src/test/java/com/sprint/mission/discodeit/
 **Authentication:**
 
 - Basic authentication support via `AuthService` and `AuthController`
-- `LoginRequest` DTO for credentials
 - No JWT/session management visible in configuration
 
 ### Utilities and Tooling

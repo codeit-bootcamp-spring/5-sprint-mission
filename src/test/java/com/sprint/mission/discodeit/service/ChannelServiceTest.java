@@ -78,7 +78,7 @@ class ChannelServiceTest {
         );
 
         given(channelRepository.save(any(Channel.class))).willReturn(savedChannel);
-        given(channelMapper.toDto(any(Channel.class), anyList(), any(), any())).willReturn(expectedDto);
+        given(channelMapper.toDto(any(Channel.class), anyList(), any())).willReturn(expectedDto);
 
         // when
         ChannelDto result = channelService.create(request);
@@ -88,7 +88,7 @@ class ChannelServiceTest {
         assertThat(result.name()).isEqualTo("General");
 
         then(channelRepository).should().save(any(Channel.class));
-        then(channelMapper).should().toDto(any(Channel.class), anyList(), any(), any());
+        then(channelMapper).should().toDto(any(Channel.class), anyList(), any());
     }
 
     @Test
@@ -119,7 +119,7 @@ class ChannelServiceTest {
 
         given(userRepository.findAllByIdIn(participantIds)).willReturn(participants);
         given(channelRepository.save(any(Channel.class))).willReturn(savedChannel);
-        given(channelMapper.toDto(any(Channel.class), anyList(), any(), any())).willReturn(expectedDto);
+        given(channelMapper.toDto(any(Channel.class), anyList(), any())).willReturn(expectedDto);
 
         // when
         ChannelDto result = channelService.create(request);
@@ -208,7 +208,7 @@ class ChannelServiceTest {
         );
 
         given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
-        given(channelMapper.toDto(any(Channel.class), anyList(), any(), any())).willReturn(expectedDto);
+        given(channelMapper.toDto(any(Channel.class), anyList(), any())).willReturn(expectedDto);
 
         // when
         ChannelDto result = channelService.update(channelId, request);
@@ -218,7 +218,7 @@ class ChannelServiceTest {
 
         then(channelRepository).should().findById(channelId);
         then(messageRepository).should().findLastMessageAtByChannelId(channelId);
-        then(channelMapper).should().toDto(any(Channel.class), anyList(), any(), any());
+        then(channelMapper).should().toDto(any(Channel.class), anyList(), any());
     }
 
     @Test

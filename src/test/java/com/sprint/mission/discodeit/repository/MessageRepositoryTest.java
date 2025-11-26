@@ -88,11 +88,8 @@ class MessageRepositoryTest {
         assertThat(page.getContent()).extracting(Message::getContent)
             .containsExactly("Message 2", "Message 1"); // 최신순 정렬
 
-        // EntityGraph로 author, profile, userStatus가 함께 로드되었는지 확인
-        page.getContent().forEach(message -> {
-            assertThat(message.getAuthor()).isNotNull();
-            assertThat(message.getAuthor().getUserStatus()).isNotNull();
-        });
+        // EntityGraph로 author, profile이 함께 로드되었는지 확인
+        page.getContent().forEach(message -> assertThat(message.getAuthor()).isNotNull());
     }
 
     @Test
@@ -149,11 +146,8 @@ class MessageRepositoryTest {
         assertThat(page.getContent()).hasSize(1);
         assertThat(page.getContent().get(0).getContent()).isEqualTo("Message 1");
 
-        // EntityGraph로 author, profile, userStatus가 함께 로드되었는지 확인
-        page.getContent().forEach(message -> {
-            assertThat(message.getAuthor()).isNotNull();
-            assertThat(message.getAuthor().getUserStatus()).isNotNull();
-        });
+        // EntityGraph로 author, profile이 함께 로드되었는지 확인
+        page.getContent().forEach(message -> assertThat(message.getAuthor()).isNotNull());
     }
 
     @Test

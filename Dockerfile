@@ -17,7 +17,7 @@ FROM amazoncorretto:17-alpine3.21
 WORKDIR /app
 
 ENV PROJECT_NAME=discodeit \
-    PROJECT_VERSION=1.2-M8 \
+    PROJECT_VERSION=2.0-M9 \
     JVM_OPTS=""
 
 COPY --from=builder /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar ./
