@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 @Slf4j
@@ -29,10 +30,16 @@ public class JwtLogoutHandler implements LogoutHandler {
         response.addCookie(refreshTokenCookie);
 
         try {
-            if (authentication != null && authentication.getPrincipal() instanceof DiscodeitUserDetails userDetails) {
-                UUID userId = userDetails.getUserResponse().getId();
-                jwtRegistry.invalidateJwtInformationByUserId(userId);
-                log.info("로그아웃 성공: userId={}", userId);
+            if (request.getCookies() != null) {
+                Arrays.stream(request.getCookies())
+                        .filter(cookie -> cookie.getName().equals(JwtProperties.REFRESH_TOKEN_COOKIE_NAME))
+                        .findFirst()
+                        .ifPresent(cookie -> {
+                            String refreshToken = cookie.getValue();
+                            UUID userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
+                            jwtRegistry.invalidateJwtInformationByUserId(userId);
+                            log.info("쿠키 기반 로그아웃 성공: userId={}", userId);
+                        });
             }
         } catch (Exception e) {
             log.warn("로그아웃 중 Registry 무효화 실패: {}", e.getMessage());
