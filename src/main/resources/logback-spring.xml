@@ -33,7 +33,9 @@
     <springProfile name="local,dev">
         <logger name="com.sprint.mission.discodeit" level="DEBUG"/>
         <logger name="org.hibernate.SQL" level="OFF"/>
-        <logger name="net.ttddyy.dsproxy.listener" level="DEBUG"/>
+        <logger name="net.ttddyy.dsproxy.listener" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
@@ -53,7 +55,9 @@
     <springProfile name="test">
         <logger name="com.sprint.mission.discodeit" level="DEBUG"/>
         <logger name="org.hibernate.SQL" level="OFF"/>
-        <logger name="net.ttddyy.dsproxy.listener" level="DEBUG"/>
+        <logger name="net.ttddyy.dsproxy.listener" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
