@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -69,31 +68,20 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
                 log.info("JWT access and refresh tokens issued for user: {}", userDetails.getUsername());
             } catch (JOSEException e) {
-
                 log.error("Failed to generate JWT token for user: {}", userDetails.getUsername(), e);
 
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                ErrorCode errorCode = ErrorCode.JWT_GENERATION_FAILED;
-                ErrorResponse errorResponse = ErrorResponse.of(
-                    errorCode.name(),
-                    errorCode.getMessage(),
-                    Map.of(),
-                    e,
-                    errorCode.getHttpStatus()
-                );
+                DiscodeitException exception = new DiscodeitException(ErrorCode.JWT_GENERATION_FAILED, e);
+                ErrorResponse errorResponse = ErrorResponse.from(exception);
+
+                response.setStatus(exception.getErrorCode().getHttpStatus().value());
                 response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
             }
 
         } else {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            DiscodeitException exception = new InvalidCredentialsException();
-            ErrorResponse errorResponse = ErrorResponse.of(
-                exception.getErrorCode().name(),
-                exception.getMessage(),
-                Map.of(),
-                exception,
-                exception.getErrorCode().getHttpStatus()
-            );
+            InvalidCredentialsException exception = new InvalidCredentialsException();
+            ErrorResponse errorResponse = ErrorResponse.from(exception);
+
+            response.setStatus(exception.getErrorCode().getHttpStatus().value());
             response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
         }
     }

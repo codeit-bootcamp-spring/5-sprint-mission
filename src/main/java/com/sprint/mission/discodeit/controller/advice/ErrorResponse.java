@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller.advice;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.sprint.mission.discodeit.exception.DiscodeitException;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
@@ -15,6 +16,17 @@ public record ErrorResponse(
     String exceptionType,
     int status
 ) {
+
+    public static ErrorResponse from(DiscodeitException exception) {
+        return new ErrorResponse(
+            Instant.now(),
+            exception.getErrorCode().name(),
+            exception.getMessage(),
+            exception.getDetails(),
+            exception.getClass().getSimpleName(),
+            exception.getErrorCode().getHttpStatus().value()
+        );
+    }
 
     public static ErrorResponse of(
         String code,
