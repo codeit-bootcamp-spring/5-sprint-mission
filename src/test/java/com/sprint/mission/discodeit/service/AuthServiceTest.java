@@ -58,8 +58,8 @@ class AuthServiceTest {
     private AuthService authService;
 
     @Test
-    @DisplayName("updateRoleInternal - 성공: 사용자 권한을 CHANNEL_MANAGER로 변경")
-    void updateRoleInternal_ToChannelManager_Success() {
+    @DisplayName("updateRoleWithoutAuth - 성공: 사용자 권한을 CHANNEL_MANAGER로 변경")
+    void updateRoleWithoutAuth_ToChannelManager_Success() {
         // given
         UUID userId = UUID.randomUUID();
         User user = new User("testuser", "test@example.com", "encodedPassword", null);
@@ -79,7 +79,7 @@ class AuthServiceTest {
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
         // when
-        UserDto result = authService.updateRoleInternal(request);
+        UserDto result = authService.updateRoleWithoutAuth(request);
 
         // then
         assertThat(result).isNotNull();
@@ -91,8 +91,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("updateRoleInternal - 성공: 사용자 권한을 ADMIN으로 변경")
-    void updateRoleInternal_ToAdmin_Success() {
+    @DisplayName("updateRoleWithoutAuth - 성공: 사용자 권한을 ADMIN으로 변경")
+    void updateRoleWithoutAuth_ToAdmin_Success() {
         // given
         UUID userId = UUID.randomUUID();
         User user = new User("testuser", "test@example.com", "encodedPassword", null);
@@ -112,7 +112,7 @@ class AuthServiceTest {
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
         // when
-        UserDto result = authService.updateRoleInternal(request);
+        UserDto result = authService.updateRoleWithoutAuth(request);
 
         // then
         assertThat(result).isNotNull();
@@ -124,8 +124,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("updateRoleInternal - 성공: ADMIN에서 USER로 권한 강등")
-    void updateRoleInternal_DemoteToUser_Success() {
+    @DisplayName("updateRoleWithoutAuth - 성공: ADMIN에서 USER로 권한 강등")
+    void updateRoleWithoutAuth_DemoteToUser_Success() {
         // given
         UUID userId = UUID.randomUUID();
         User user = new User("adminuser", "admin@example.com", "encodedPassword", null);
@@ -146,7 +146,7 @@ class AuthServiceTest {
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
         // when
-        UserDto result = authService.updateRoleInternal(request);
+        UserDto result = authService.updateRoleWithoutAuth(request);
 
         // then
         assertThat(result).isNotNull();
@@ -158,8 +158,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("updateRoleInternal - 실패: 존재하지 않는 사용자")
-    void updateRoleInternal_UserNotFound_ThrowsException() {
+    @DisplayName("updateRoleWithoutAuth - 실패: 존재하지 않는 사용자")
+    void updateRoleWithoutAuth_UserNotFound_ThrowsException() {
         // given
         UUID userId = UUID.randomUUID();
         RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.CHANNEL_MANAGER);
@@ -167,7 +167,7 @@ class AuthServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> authService.updateRoleInternal(request))
+        assertThatThrownBy(() -> authService.updateRoleWithoutAuth(request))
             .isInstanceOf(UserNotFoundException.class);
 
         then(userRepository).should().findById(userId);
@@ -176,8 +176,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("updateRoleInternal - 성공: 권한 변경 후 JWT 무효화 확인")
-    void updateRoleInternal_InvalidatesJwt() {
+    @DisplayName("updateRoleWithoutAuth - 성공: 권한 변경 후 JWT 무효화 확인")
+    void updateRoleWithoutAuth_InvalidatesJwt() {
         // given
         UUID userId = UUID.randomUUID();
         User user = new User("testuser", "test@example.com", "encodedPassword", null);
@@ -197,7 +197,7 @@ class AuthServiceTest {
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
         // when
-        authService.updateRoleInternal(request);
+        authService.updateRoleWithoutAuth(request);
 
         // then
         then(jwtRegistry).should().invalidateJwtInformationByUserId(userId);

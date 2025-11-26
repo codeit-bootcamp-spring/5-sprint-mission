@@ -38,11 +38,14 @@ public class AuthService {
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public UserDto updateRole(RoleUpdateRequest request) {
-        return updateRoleInternal(request);
+        return updateRoleWithoutAuth(request);
     }
 
+    /**
+     * AdminInitializer에서 초기 관리자 설정 시 사용 (인증 컨텍스트 없음)
+     */
     @Transactional
-    public UserDto updateRoleInternal(RoleUpdateRequest request) {
+    public UserDto updateRoleWithoutAuth(RoleUpdateRequest request) {
         UUID userId = request.userId();
         User user = userRepository.findById(userId)
             .orElseThrow(UserNotFoundException::new);
@@ -79,13 +82,9 @@ public class AuthService {
                 newAccessToken,
                 newRefreshToken
             );
-            jwtRegistry.rotateJwtInformation(
-                refreshToken,
-                newJwtInformation
-            );
+            jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
 
             return newJwtInformation;
-
         } catch (JOSEException e) {
             log.error("Failed to generate new tokens for user: {}", username, e);
             throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR, e);

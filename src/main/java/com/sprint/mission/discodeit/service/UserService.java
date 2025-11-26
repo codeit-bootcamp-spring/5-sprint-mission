@@ -113,7 +113,7 @@ public class UserService {
         }
 
         String newEmail = null;
-        if (request.newEmail() != null && !request.newEmail().isBlank()) {
+        if (hasText(request.newEmail())) {
             newEmail = request.newEmail().strip().toLowerCase(Locale.ROOT);
         }
 
@@ -180,8 +180,7 @@ public class UserService {
         String newEmail
     ) {
         String newEncodedPassword = null;
-        if (request.newPassword() != null
-            && !request.newPassword().isBlank()
+        if (hasText(request.newPassword())
             && !passwordEncoder.matches(request.newPassword(), user.getPassword())) {
             newEncodedPassword = passwordEncoder.encode(request.newPassword());
         }
