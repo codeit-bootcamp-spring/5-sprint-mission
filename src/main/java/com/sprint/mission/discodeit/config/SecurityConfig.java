@@ -11,8 +11,6 @@ import com.sprint.mission.discodeit.security.jwt.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.jwt.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -33,13 +31,10 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
-import java.util.List;
-import java.util.stream.IntStream;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
-@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -81,12 +76,12 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/auth/csrf-token"),
-                    AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/users"),
-                    AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/login"),
-                    AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/logout"),
-                    AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/refresh"),
-                    new NegatedRequestMatcher(AntPathRequestMatcher.antMatcher("/api/**"))
+                    antMatcher(HttpMethod.GET, "/api/auth/csrf-token"),
+                    antMatcher(HttpMethod.POST, "/api/users"),
+                    antMatcher(HttpMethod.POST, "/api/auth/login"),
+                    antMatcher(HttpMethod.POST, "/api/auth/logout"),
+                    antMatcher(HttpMethod.POST, "/api/auth/refresh"),
+                    new NegatedRequestMatcher(antMatcher("/api/**"))
                 ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -105,18 +100,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CommandLineRunner debugFilterChain(SecurityFilterChain filterChain) {
-        return args -> {
-            int filterSize = filterChain.getFilters().size();
-            List<String> filterNames = IntStream.range(0, filterSize)
-                .mapToObj(idx -> String.format("\t[%s/%s] %s", idx + 1, filterSize,
-                    filterChain.getFilters().get(idx).getClass()))
-                .toList();
-            log.debug("Debug Filter Chain...\n{}", String.join(System.lineSeparator(), filterNames));
-        };
-    }
-
-    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -126,10 +109,8 @@ public class SecurityConfig {
         return RoleHierarchyImpl.withDefaultRolePrefix()
             .role(Role.ADMIN.name())
             .implies(Role.USER.name(), Role.CHANNEL_MANAGER.name())
-
             .role(Role.CHANNEL_MANAGER.name())
             .implies(Role.USER.name())
-
             .build();
     }
 
