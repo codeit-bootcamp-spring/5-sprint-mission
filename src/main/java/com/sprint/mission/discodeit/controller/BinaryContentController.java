@@ -2,14 +2,14 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.docs.BinaryContentControllerDocs;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import com.sprint.mission.discodeit.dto.binarycontent.FileDownloadResponse;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,25 +19,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+
+import static com.sprint.mission.discodeit.util.StringUtil.sanitizeFilename;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/binaryContents")
 public class BinaryContentController implements BinaryContentControllerDocs {
 
-    private final BinaryContentRepository binaryContentRepository;
-
-    private final BinaryContentStorage binaryContentStorage;
+    private final BinaryContentService binaryContentService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<BinaryContentDto> findAllByIn(@RequestParam Set<UUID> binaryContentIds) {
-        return binaryContentRepository.findAllToDtoByIdIn(binaryContentIds);
+    public List<BinaryContentDto> getAllBinaryContents(@RequestParam Collection<UUID> binaryContentIds) {
+        return binaryContentService.findAllByIdIn(binaryContentIds);
     }
 
     @GetMapping("/{binaryContentId}")
     @ResponseStatus(HttpStatus.OK)
-    public BinaryContentDto find(@PathVariable UUID binaryContentId) {
-        return binaryContentRepository.getOrThrowToDto(binaryContentId);
+    public BinaryContentDto getBinaryContent(@PathVariable UUID binaryContentId) {
+        return binaryContentService.getBinaryContent(binaryContentId);
     }
 
     @GetMapping(
@@ -45,8 +50,25 @@ public class BinaryContentController implements BinaryContentControllerDocs {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
     )
     public ResponseEntity<Resource> download(@PathVariable UUID binaryContentId) {
-        return binaryContentStorage.download(
-            binaryContentRepository.getOrThrowToDto(binaryContentId)
-        );
+        FileDownloadResponse fileDownloadResponse = binaryContentService.download(binaryContentId);
+
+        MediaType mediaType;
+        try {
+            mediaType = (fileDownloadResponse.contentType() != null && !fileDownloadResponse.contentType().isBlank())
+                ? MediaType.parseMediaType(fileDownloadResponse.contentType())
+                : MediaType.APPLICATION_OCTET_STREAM;
+        } catch (InvalidMediaTypeException e) {
+            mediaType = MediaType.APPLICATION_OCTET_STREAM;
+        }
+
+        ContentDisposition contentDisposition = ContentDisposition.attachment()
+            .filename(sanitizeFilename(fileDownloadResponse.fileName()), StandardCharsets.UTF_8)
+            .build();
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
+            .contentType(mediaType)
+            .contentLength(fileDownloadResponse.size())
+            .body(fileDownloadResponse.resource());
     }
 }

@@ -1,17 +1,9 @@
 package com.sprint.mission.discodeit.controller.advice;
 
-import com.sprint.mission.discodeit.exception.AccessDeniedException;
-import com.sprint.mission.discodeit.exception.NotFoundException;
-import com.sprint.mission.discodeit.exception.UnauthorizedException;
-import com.sprint.mission.discodeit.filter.RequestIdFilter;
+import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -22,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -35,70 +28,69 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-@Slf4j
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@Slf4j
 public class GlobalExceptionHandler {
 
-    private static final String REQ_ID_HEADER = RequestIdFilter.HEADER;
-    private static final String REQ_ID_ATTR = RequestIdFilter.ATTR;
+    private static final String MDC_REQUEST_ID_KEY = "requestId";
 
-    private ResponseEntity<ApiError> build(
-        String code,
-        String message,
-        Map<String, Object> details,
-        Throwable exception,
-        HttpStatus httpStatus,
-        HttpServletRequest req
+    @ExceptionHandler(DiscodeitException.class)
+    public ResponseEntity<ErrorResponse> handleDiscodeitException(
+        DiscodeitException exception,
+        HttpServletRequest request
     ) {
-        details.put("path", req.getRequestURI());
-        details.put("method", req.getMethod());
-        if (req.getQueryString() != null) {
-            details.put("query", req.getQueryString());
-        }
-
-        String requestId = (String) req.getAttribute(REQ_ID_ATTR);
-        ApiError body = ApiError.of(code, message, details, exception, httpStatus, requestId);
-
-        return ResponseEntity.status(httpStatus)
-            .header(REQ_ID_HEADER, requestId != null ? requestId : "")
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(body);
+        return createResponse(
+            exception.getErrorCode(),
+            exception.getErrorCode().getMessage(),
+            exception.getDetails(),
+            exception,
+            request
+        );
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiError> handleInvalidJson(
-        HttpMessageNotReadableException e,
-        HttpServletRequest req
+    public ResponseEntity<ErrorResponse> handleInvalidJson(
+        HttpMessageNotReadableException exception,
+        HttpServletRequest request
     ) {
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        String code = "INVALID_JSON";
-        String msg = "Unable to read request body, please check JSON format and field type";
-        String causeMsg = Optional.of(e.getMostSpecificCause())
+        ErrorCode errorCode = ErrorCode.INVALID_JSON;
+
+        String cause = Optional.of(exception.getMostSpecificCause())
             .map(Throwable::getMessage)
-            .orElse(e.getMessage());
+            .orElse(exception.getMessage());
 
         Map<String, Object> details = new HashMap<>();
-        if (causeMsg != null && !causeMsg.isBlank()) {
-            details.put("cause", causeMsg);
+        if (cause != null && !cause.isBlank()) {
+            details.put("cause", cause);
         }
 
-        log(httpStatus, code, req, causeMsg);
-
-        return build(code, msg, details, e, httpStatus, req);
+        return createResponse(
+            errorCode,
+            errorCode.getMessage(),
+            details,
+            exception,
+            request
+        );
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiError> handleConstraintViolation(
-        ConstraintViolationException e,
-        HttpServletRequest req
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(
+        ConstraintViolationException exception,
+        HttpServletRequest request
     ) {
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        String code = "INVALID_PARAMETER_VALUE";
-        String msg = "Request parameter value not valid";
-        List<Map<String, Object>> violations = e.getConstraintViolations().stream()
+        ErrorCode errorCode = ErrorCode.INVALID_PARAMETER_VALUE;
+
+        List<Map<String, Object>> violations = exception.getConstraintViolations().stream()
             .map(cv -> Map.of(
-                "property", propertyPath(cv),
+                "property", (cv.getPropertyPath() != null ? cv.getPropertyPath().toString() : ""),
                 "message", cv.getMessage(),
                 "invalid", cv.getInvalidValue()
             ))
@@ -107,34 +99,27 @@ public class GlobalExceptionHandler {
         Map<String, Object> details = new HashMap<>();
         details.put("violations", violations);
 
-        log(httpStatus, code, req, violations.toString());
+        String logMessage = "violations=%s".formatted(violations);
 
-        return build(code, msg, details, e, httpStatus, req);
+        return createResponse(
+            errorCode,
+            errorCode.getMessage(),
+            logMessage,
+            details,
+            exception,
+            request
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidation(
-        MethodArgumentNotValidException e,
-        HttpServletRequest req
+    public ResponseEntity<ErrorResponse> handleValidation(
+        MethodArgumentNotValidException exception,
+        HttpServletRequest request
     ) {
-        List<Map<String, Object>> fieldErrors = e.getBindingResult().getFieldErrors().stream()
-            .map(fe -> {
-                Map<String, Object> m = new HashMap<>();
-                m.put("field", fe.getField());
-                m.put("message", fe.getDefaultMessage());
-                m.put("rejected", fe.getRejectedValue());
-                return m;
-            })
-            .toList();
+        ErrorCode errorCode = ErrorCode.INVALID_BODY_VALUE;
 
-        List<Map<String, String>> globalErrors = e.getBindingResult().getGlobalErrors().stream()
-            .map(ge -> {
-                Map<String, String> m = new HashMap<>();
-                m.put("object", ge.getObjectName());
-                m.put("message", ge.getDefaultMessage());
-                return m;
-            })
-            .toList();
+        List<Map<String, Object>> fieldErrors = getFieldErrors(exception.getBindingResult());
+        List<Map<String, Object>> globalErrors = getGlobalErrors(exception.getBindingResult());
 
         Map<String, Object> details = new HashMap<>();
         details.put("fieldErrors", fieldErrors);
@@ -142,161 +127,129 @@ public class GlobalExceptionHandler {
             details.put("globalErrors", globalErrors);
         }
 
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        String code = "INVALID_BODY_VALUE";
-        String msg = "Request body value not valid";
+        String logMessage = "fieldErrors=%s, globalErrors=%s".formatted(fieldErrors, globalErrors);
 
-        log.warn("400({}) {} {} -> code, fields={}, globals={}", code,
-            req.getMethod(), req.getRequestURI(), fieldErrors, globalErrors);
-
-        return build(code, msg, details, e, httpStatus, req);
+        return createResponse(
+            errorCode,
+            errorCode.getMessage(),
+            logMessage,
+            details,
+            exception,
+            request
+        );
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiError> handleParameterTypeValidation(
-        MethodArgumentTypeMismatchException e,
-        HttpServletRequest req
+    public ResponseEntity<ErrorResponse> handleParameterTypeValidation(
+        MethodArgumentTypeMismatchException exception,
+        HttpServletRequest request
     ) {
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        String code = "INVALID_PARAMETER_TYPE";
-        String msg = "parameter=%s, value=%s, expectedType=%s".formatted(
-            e.getName(),
-            e.getValue(),
-            (e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "unknown")
+        ErrorCode errorCode = ErrorCode.INVALID_PARAMETER_VALUE;
+
+        String message = "%s: parameter=%s, value=%s, expectedType=%s".formatted(
+            errorCode.getMessage(),
+            exception.getName(),
+            exception.getValue(),
+            (exception.getRequiredType() != null ? exception.getRequiredType().getSimpleName() : "unknown")
         );
 
-        log(httpStatus, code, req, msg);
-
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
+        return createResponse(
+            errorCode,
+            message,
+            Map.of(),
+            exception,
+            request
+        );
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ApiError> handleMissingParameter(
-        MissingServletRequestParameterException e,
-        HttpServletRequest req
+    public ResponseEntity<ErrorResponse> handleMissingParameter(
+        MissingServletRequestParameterException exception,
+        HttpServletRequest request
     ) {
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        String code = "MISSING_PARAMETER";
-        String msg = "missing parameter: %s (required type: %s)".formatted(
-            e.getParameterName(),
-            e.getParameterType()
+        ErrorCode errorCode = ErrorCode.MISSING_PARAMETER;
+
+        String message = "%s: %s (필요한 매개변수: %s)".formatted(
+            errorCode.getMessage(),
+            exception.getParameterName(),
+            exception.getParameterType()
         );
 
-        log(httpStatus, code, req, msg);
-
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
+        return createResponse(
+            errorCode,
+            message,
+            Map.of(),
+            exception,
+            request
+        );
     }
 
     @ExceptionHandler(MissingServletRequestPartException.class)
-    public ResponseEntity<ApiError> handleMissingPart(
-        MissingServletRequestPartException e,
-        HttpServletRequest req
+    public ResponseEntity<ErrorResponse> handleMissingPart(
+        MissingServletRequestPartException exception,
+        HttpServletRequest request
     ) {
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        String code = "MISSING_PART";
-        String msg = "missing part: " + e.getRequestPartName();
+        ErrorCode errorCode = ErrorCode.MISSING_PART;
 
-        log(httpStatus, code, req, msg);
+        String message = errorCode.getMessage() + exception.getRequestPartName();
 
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
+        return createResponse(
+            errorCode,
+            message,
+            Map.of(),
+            exception,
+            request
+        );
     }
 
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ApiError> handleUnauthorized(
-        UnauthorizedException e,
-        HttpServletRequest req
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    public ResponseEntity<ErrorResponse> handleNoHandler(
+        Exception exception,
+        HttpServletRequest request
     ) {
-        HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
-        String code = "UNAUTHORIZED";
-        String msg = (e.getMessage() != null) ? e.getMessage() : "Invalid credentials";
+        ErrorCode errorCode = ErrorCode.ENDPOINT_NOT_FOUND;
 
-        log(httpStatus, code, req, msg);
-
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiError> handleForbidden(
-        AccessDeniedException e,
-        HttpServletRequest req
-    ) {
-        HttpStatus httpStatus = HttpStatus.FORBIDDEN;
-        String code = "FORBIDDEN";
-        String msg = (e.getMessage() != null) ? e.getMessage() : "Access denied";
-
-        log(httpStatus, code, req, msg);
-
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
-    }
-
-    @ExceptionHandler({ NoHandlerFoundException.class, NoResourceFoundException.class })
-    public ResponseEntity<ApiError> handleNoHandler(
-        Exception e,
-        HttpServletRequest req
-    ) {
-        HttpStatus httpStatus = HttpStatus.NOT_FOUND;
-        String code = "NOT_FOUND";
-        String msg = (e.getMessage() != null) ? e.getMessage() : "Endpoint not found";
-
-        log(httpStatus, code, req, msg);
-
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(
-        NotFoundException e,
-        HttpServletRequest req
-    ) {
-        HttpStatus httpStatus = HttpStatus.NOT_FOUND;
-        String code = "RESOURCE_NOT_FOUND";
-        String msg = (e.getMessage() != null) ? e.getMessage() : "Resource not found";
-
-        log(httpStatus, code, req, msg);
-
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
+        return createResponse(
+            errorCode,
+            errorCode.getMessage(),
+            exception.getMessage(),
+            Map.of(),
+            exception,
+            request
+        );
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ApiError> handleMethodNotAllowed(
-        HttpRequestMethodNotSupportedException e,
-        HttpServletRequest req
+    public ResponseEntity<ErrorResponse> handleMethodNotAllowed(
+        HttpRequestMethodNotSupportedException exception,
+        HttpServletRequest request
     ) {
-        HttpStatus httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
-        String code = "METHOD_NOT_ALLOWED";
-        String msg = "Method not allowed: %s".formatted(e.getMethod());
+        ErrorCode errorCode = ErrorCode.METHOD_NOT_ALLOWED;
+
+        String message = errorCode.getMessage() + ": %s".formatted(exception.getMethod());
+
         String allowed =
-            (e.getSupportedHttpMethods() == null || e.getSupportedHttpMethods().isEmpty())
+            (exception.getSupportedHttpMethods() == null || exception.getSupportedHttpMethods().isEmpty())
                 ? ""
-                : e.getSupportedHttpMethods().stream()
-                    .map(HttpMethod::name)
-                    .collect(Collectors.joining(", "));
+                : exception.getSupportedHttpMethods().stream()
+                .map(HttpMethod::name)
+                .collect(Collectors.joining(", "));
 
         Map<String, Object> details = new HashMap<>();
         if (!allowed.isBlank()) {
             details.put("allowed", allowed);
         }
 
-        log.warn("{}({}) {} {} -> {}, allowed: {}",
-            httpStatus,
-            code,
-            req.getMethod(),
-            req.getRequestURI(),
-            msg,
-            allowed
-        );
-
-        ResponseEntity<ApiError> body = build(
-            code,
-            msg,
+        ResponseEntity<ErrorResponse> body = createResponse(
+            errorCode,
+            message,
             details,
-            e,
-            httpStatus,
-            req
+            exception,
+            request
         );
 
         if (!allowed.isBlank()) {
-            return ResponseEntity.status(httpStatus)
+            return ResponseEntity.status(errorCode.getHttpStatus())
                 .headers(body.getHeaders())
                 .header(HttpHeaders.ALLOW, allowed)
                 .body(body.getBody());
@@ -306,40 +259,197 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
-    public ResponseEntity<ApiError> handleNotAcceptable(
-        HttpMediaTypeNotAcceptableException e,
-        HttpServletRequest req
+    public ResponseEntity<ErrorResponse> handleNotAcceptable(
+        HttpMediaTypeNotAcceptableException exception,
+        HttpServletRequest request
     ) {
-        HttpStatus httpStatus = HttpStatus.NOT_ACCEPTABLE;
-        String code = "NOT_ACCEPTABLE";
-        String supported = !e.getSupportedMediaTypes().isEmpty()
-            ? " Supported types: " + e.getSupportedMediaTypes().stream()
+        ErrorCode errorCode = ErrorCode.NOT_ACCEPTABLE;
+
+        String supported = !exception.getSupportedMediaTypes().isEmpty()
+            ? " 지원되는 타입들: " + exception.getSupportedMediaTypes().stream()
             .map(Object::toString)
             .collect(Collectors.joining(", "))
             : "";
-        String msg = "Media type not acceptable." + supported;
+        String message = errorCode.getMessage() + supported;
 
-        log(httpStatus, code, req, msg);
-
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
+        return createResponse(
+            errorCode,
+            message,
+            Map.of(),
+            exception,
+            request
+        );
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiError> handleDataIntegrity(
-        DataIntegrityViolationException e,
-        HttpServletRequest req
+    public ResponseEntity<ErrorResponse> handleDataIntegrity(
+        DataIntegrityViolationException exception,
+        HttpServletRequest request
     ) {
-        HttpStatus httpStatus = HttpStatus.CONFLICT;
-        String code = "CONFLICT";
-        String msg = Optional.ofNullable(sliceKeyToBracket(e.getMessage()))
-            .orElse("Data integrity violation");
+        ErrorCode errorCode = ErrorCode.CONFLICT;
+        String logMessage = Optional.ofNullable(sliceKeyToBracket(exception.getMessage()))
+            .orElse(errorCode.getMessage());
 
-        log(httpStatus, code, req, msg);
-
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
+        return createResponse(
+            errorCode,
+            errorCode.getMessage(),
+            logMessage,
+            Map.of(),
+            exception,
+            request
+        );
     }
 
-    private static String sliceKeyToBracket(String message) {
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxSizeExceeded(
+        MaxUploadSizeExceededException exception,
+        HttpServletRequest request
+    ) {
+        ErrorCode errorCode = ErrorCode.PAYLOAD_TOO_LARGE;
+
+        return createResponse(
+            errorCode,
+            errorCode.getMessage(),
+            exception.getMessage(),
+            Map.of(),
+            exception,
+            request
+        );
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMediaTypeNotSupported(
+        HttpMediaTypeNotSupportedException exception,
+        HttpServletRequest request
+    ) {
+        ErrorCode errorCode = ErrorCode.UNSUPPORTED_MEDIA_TYPE;
+
+        String supported = !exception.getSupportedMediaTypes().isEmpty()
+            ? " 지원되는 타입들: " + exception.getSupportedMediaTypes().stream()
+            .map(Object::toString)
+            .collect(Collectors.joining(", "))
+            : "";
+        String message = errorCode.getMessage() + supported;
+
+        return createResponse(
+            errorCode,
+            message,
+            Map.of(),
+            exception,
+            request
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleAny(
+        Exception exception,
+        HttpServletRequest request
+    ) {
+        return createResponse(
+            ErrorCode.INTERNAL_SERVER_ERROR,
+            ErrorCode.INTERNAL_SERVER_ERROR.getMessage(),
+            Collections.emptyMap(),
+            exception,
+            request
+        );
+    }
+
+    private ResponseEntity<ErrorResponse> createResponse(
+        ErrorCode errorCode,
+        String message,
+        Map<String, Object> details,
+        Exception exception,
+        HttpServletRequest request
+    ) {
+        return createResponse(
+            errorCode,
+            message,
+            message,
+            details,
+            exception,
+            request
+        );
+    }
+
+    private ResponseEntity<ErrorResponse> createResponse(
+        ErrorCode errorCode,
+        String message,
+        String logMessage,
+        Map<String, Object> details,
+        Exception exception,
+        HttpServletRequest request
+    ) {
+        Map<String, Object> mutableDetails = new HashMap<>(details);
+        mutableDetails.put("path", request.getRequestURI());
+        mutableDetails.put("method", request.getMethod());
+        if (request.getQueryString() != null) {
+            mutableDetails.put("query", request.getQueryString());
+        }
+
+        log(
+            errorCode.getHttpStatus(),
+            errorCode.name(),
+            logMessage,
+            exception,
+            request
+        );
+
+        ErrorResponse response = ErrorResponse.of(
+            errorCode.name(),
+            message,
+            mutableDetails,
+            exception,
+            errorCode.getHttpStatus()
+        );
+
+        return ResponseEntity
+            .status(errorCode.getHttpStatus())
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(response);
+    }
+
+
+    private void log(
+        HttpStatus status,
+        String code,
+        String message,
+        Exception exception,
+        HttpServletRequest request
+    ) {
+        String logMessage = String.format("%s(%s) %s %s -> %s",
+            status, code, request.getMethod(), request.getRequestURI(), message);
+
+        if (status.is4xxClientError()) {
+            log.warn(logMessage);
+        } else {
+            log.error(logMessage, exception);
+        }
+    }
+
+    private List<Map<String, Object>> getFieldErrors(BindingResult bindingResult) {
+        return bindingResult.getFieldErrors().stream()
+            .map(error -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("field", error.getField());
+                map.put("message", error.getDefaultMessage());
+                map.put("rejectedValue", error.getRejectedValue());
+                return map;
+            })
+            .collect(Collectors.toList());
+    }
+
+    private List<Map<String, Object>> getGlobalErrors(BindingResult bindingResult) {
+        return bindingResult.getGlobalErrors().stream()
+            .map(error -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("object", error.getObjectName());
+                map.put("message", error.getDefaultMessage());
+                return map;
+            })
+            .collect(Collectors.toList());
+    }
+
+    private String sliceKeyToBracket(String message) {
         if (message == null) {
             return null;
         }
@@ -353,65 +463,5 @@ public class GlobalExceptionHandler {
         }
         String s = message.substring(start + 3, end).strip();
         return s.isEmpty() ? null : s;
-    }
-
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ApiError> handleMaxSizeExceeded(
-        MaxUploadSizeExceededException e,
-        HttpServletRequest req
-    ) {
-        HttpStatus httpStatus = HttpStatus.PAYLOAD_TOO_LARGE;
-        String code = "PAYLOAD_TOO_LARGE";
-        String msg = (e.getMessage() != null) ? e.getMessage() : "File size exceeds limit";
-
-        log(httpStatus, code, req, msg);
-
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
-    }
-
-    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<ApiError> handleMediaTypeNotSupported(
-        HttpMediaTypeNotSupportedException e,
-        HttpServletRequest req
-    ) {
-        HttpStatus httpStatus = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
-        String code = "UNSUPPORTED_MEDIA_TYPE";
-        String supported = !e.getSupportedMediaTypes().isEmpty()
-            ? " Supported types: " + e.getSupportedMediaTypes().stream()
-            .map(Object::toString)
-            .collect(Collectors.joining(", "))
-            : "";
-        String msg = "Media type not allowed." + supported;
-
-        log(httpStatus, code, req, msg);
-
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleAny(
-        Exception e,
-        HttpServletRequest req
-    ) {
-        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        String code = "INTERNAL_ERROR";
-        String msg = "Unexpected error occurred";
-
-        log(httpStatus, code, req, e.toString());
-
-        return build(code, msg, new HashMap<>(), e, httpStatus, req);
-    }
-
-    private static String propertyPath(ConstraintViolation<?> cv) {
-        return cv.getPropertyPath() != null ? cv.getPropertyPath().toString() : "";
-    }
-
-    private static void log(
-        HttpStatus httpStatus,
-        String code,
-        HttpServletRequest req,
-        String msg
-    ) {
-        log.warn("{}({}) {} {} -> {}", httpStatus, code, req.getMethod(), req.getRequestURI(), msg);
     }
 }

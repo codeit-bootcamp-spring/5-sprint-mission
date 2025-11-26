@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+    <!-- Allow public constructors for Spring Boot Application classes -->
+    <suppress checks="HideUtilityClassConstructor" files=".*Application\.java"/>
+
+    <!-- Javadoc checks -->
+    <suppress checks="MissingJavadocMethod"/>
+    <suppress checks="MissingJavadocType"/>
+    <suppress checks="Indentation"/>
+
+    <!-- Line length for API documentation classes -->
+    <suppress checks="LineLength" files=".*[\\/]docs[\\/].*"/>
+
+    <!-- Allow utility class constructors for Application classes -->
+    <suppress checks="HideUtilityClassConstructor" files=".*Application\.java"/>
+
+    <!-- Allow underscores in test method names -->
+    <suppress checks="MethodName" files=".*Test\.java"/>
+</suppressions>

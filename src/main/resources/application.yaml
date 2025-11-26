@@ -1,43 +1,65 @@
 spring:
-  datasource:
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-
+  application:
+    name: discodeit
+  config:
+    import: optional:file:.env[.properties]
+  profiles:
+    default: local
+  output:
+    ansi:
+      enabled: always
   jpa:
     hibernate:
       ddl-auto: validate
     open-in-view: false
     properties:
       hibernate:
-        format_sql: true
-        highlight_sql: true
-        use_sql_comments: true
-        jdbc.lob.non_contextual_creation: true
-        jdbc.time_zone: UTC
-
-logging:
-  level:
-    org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo: OFF
-    org.hibernate.orm.connections.pooling: OFF
+        jdbc:
+          time_zone: UTC
+        default_batch_fetch_size: 100
+  jackson:
+    time-zone: UTC
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 server:
   shutdown: graceful
-  forward-headers-strategy: native
+  compression:
+    enabled: true
 
-springdoc:
-  api-docs:
-    path: /docs
-  swagger-ui:
-    path: /docs/ui
-    display-request-duration: true
+logging:
+  level:
+    org.hibernate.SQL: OFF
+    net.ttddyy.dsproxy.listener: OFF
 
-discodeit:
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Discodeit
+    version: 1.7.0
+    java-version: 17
+    spring-boot-version: 3.4.0
+  datasource:
+    url: ${spring.datasource.url:N/A}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    ddl-auto: ${spring.jpa.hibernate.ddl-auto}
   storage:
-    type: local
-    local:
-      root-path: ${user.dir}/storage
-      orphan-grace: 10m
+    type: ${discodeit.storage.type:N/A}
+    path: ${discodeit.storage.local.root-path:N/A}
+  multipart:
+    max-file-size: ${spring.servlet.multipart.max-file-size}
+    max-request-size: ${spring.servlet.multipart.max-request-size}

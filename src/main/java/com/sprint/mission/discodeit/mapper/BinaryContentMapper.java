@@ -4,8 +4,12 @@ import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import org.mapstruct.Mapper;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface BinaryContentMapper {
 
     BinaryContentDto toDto(BinaryContent entity);
+
+    List<BinaryContentDto> toDtoList(List<BinaryContent> entities);
 }

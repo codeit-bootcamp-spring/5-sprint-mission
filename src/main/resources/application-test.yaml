@@ -1,0 +1,46 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:discodeit-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: never
+
+logging:
+  level:
+    com.sprint.mission: DEBUG
+    net.ttddyy.dsproxy.listener: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+discodeit:
+  storage:
+    type: LOCAL
+    local:
+      root-path: ./build/test-storage
+      orphan-grace: 2s
+  api:
+    server-url: http://localhost:8080
+  datasource-proxy:
+    name: DS-Proxy-Test
+    log-level: DEBUG
+    slow-query-threshold: 5s
+    slow-query-log-level: WARN

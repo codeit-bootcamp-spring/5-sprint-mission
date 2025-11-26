@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
         }
         """
 )
-public record PublicChannelUpdateRequest(String newName, String newDescription) {
-
+public record PublicChannelUpdateRequest(
+    String newName,
+    String newDescription
+) {
 }

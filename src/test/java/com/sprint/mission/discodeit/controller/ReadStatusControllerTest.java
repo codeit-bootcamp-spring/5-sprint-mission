@@ -1,0 +1,220 @@
+package com.sprint.mission.discodeit.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.controller.advice.GlobalExceptionHandler;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.service.ReadStatusService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(ReadStatusController.class)
+@Import(GlobalExceptionHandler.class)
+class ReadStatusControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private ReadStatusService readStatusService;
+
+    @MockitoBean
+    private ReadStatusRepository readStatusRepository;
+
+    @Test
+    @DisplayName("POST /api/readStatuses - 성공: 읽음 상태 생성")
+    void create_Success() throws Exception {
+        // given
+        UUID userId = UUID.randomUUID();
+        UUID channelId = UUID.randomUUID();
+        Instant lastReadAt = Instant.now();
+        ReadStatusCreateRequest request = new ReadStatusCreateRequest(
+            userId,
+            channelId,
+            lastReadAt
+        );
+        ReadStatusDto response = new ReadStatusDto(
+            UUID.randomUUID(),
+            userId,
+            channelId,
+            lastReadAt
+        );
+
+        given(readStatusService.create(any(ReadStatusCreateRequest.class))).willReturn(response);
+
+        // when & then
+        mockMvc.perform(post("/api/readStatuses")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.userId").value(userId.toString()))
+            .andExpect(jsonPath("$.channelId").value(channelId.toString()))
+            .andExpect(jsonPath("$.lastReadAt").exists());
+
+        then(readStatusService).should().create(any(ReadStatusCreateRequest.class));
+    }
+
+    @Test
+    @DisplayName("POST /api/readStatuses - 실패: 잘못된 요청 데이터 (유효성 검증 실패)")
+    void create_InvalidData_BadRequest() throws Exception {
+        // given - userId가 null
+        ReadStatusCreateRequest request = new ReadStatusCreateRequest(
+            null,
+            UUID.randomUUID(),
+            Instant.now()
+        );
+
+        // when & then
+        mockMvc.perform(post("/api/readStatuses")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("GET /api/readStatuses - 성공: 사용자의 읽음 상태 목록 조회")
+    void findAllByUserId_Success() throws Exception {
+        // given
+        UUID userId = UUID.randomUUID();
+        UUID channel1Id = UUID.randomUUID();
+        UUID channel2Id = UUID.randomUUID();
+        List<ReadStatusDto> readStatuses = List.of(
+            new ReadStatusDto(UUID.randomUUID(), userId, channel1Id, Instant.now()),
+            new ReadStatusDto(UUID.randomUUID(), userId, channel2Id, Instant.now().minusSeconds(3600))
+        );
+
+        given(readStatusRepository.findAllByUserId(userId)).willReturn(readStatuses);
+
+        // when & then
+        mockMvc.perform(get("/api/readStatuses")
+                .param("userId", userId.toString()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].userId").value(userId.toString()))
+            .andExpect(jsonPath("$[0].channelId").value(channel1Id.toString()))
+            .andExpect(jsonPath("$[1].userId").value(userId.toString()))
+            .andExpect(jsonPath("$[1].channelId").value(channel2Id.toString()));
+
+        then(readStatusRepository).should().findAllByUserId(userId);
+    }
+
+    @Test
+    @DisplayName("GET /api/readStatuses - 성공: 빈 읽음 상태 목록")
+    void findAllByUserId_EmptyList() throws Exception {
+        // given
+        UUID userId = UUID.randomUUID();
+        given(readStatusRepository.findAllByUserId(userId)).willReturn(List.of());
+
+        // when & then
+        mockMvc.perform(get("/api/readStatuses")
+                .param("userId", userId.toString()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(0));
+
+        then(readStatusRepository).should().findAllByUserId(userId);
+    }
+
+    @Test
+    @DisplayName("PATCH /api/readStatuses/{readStatusId} - 성공: 읽음 상태 수정")
+    void update_Success() throws Exception {
+        // given
+        UUID readStatusId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        UUID channelId = UUID.randomUUID();
+        Instant newLastReadAt = Instant.now();
+        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(newLastReadAt);
+        ReadStatusDto response = new ReadStatusDto(
+            readStatusId,
+            userId,
+            channelId,
+            newLastReadAt
+        );
+
+        given(readStatusService.update(eq(readStatusId), any(ReadStatusUpdateRequest.class)))
+            .willReturn(response);
+
+        // when & then
+        mockMvc.perform(patch("/api/readStatuses/{readStatusId}", readStatusId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(readStatusId.toString()))
+            .andExpect(jsonPath("$.lastReadAt").exists());
+
+        then(readStatusService).should().update(eq(readStatusId), any(ReadStatusUpdateRequest.class));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/readStatuses/{readStatusId} - 실패: 존재하지 않는 읽음 상태")
+    void update_ReadStatusNotFound() throws Exception {
+        // given
+        UUID readStatusId = UUID.randomUUID();
+        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(Instant.now());
+
+        given(readStatusService.update(eq(readStatusId), any(ReadStatusUpdateRequest.class)))
+            .willThrow(new ReadStatusNotFoundException());
+
+        // when & then
+        mockMvc.perform(patch("/api/readStatuses/{readStatusId}", readStatusId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.code").value("READ_STATUS_NOT_FOUND"));
+
+        then(readStatusService).should().update(eq(readStatusId), any(ReadStatusUpdateRequest.class));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/readStatuses/{readStatusId} - 성공: 읽음 상태 수정 (null 값으로 업데이트)")
+    void update_WithNullValue_Success() throws Exception {
+        // given
+        UUID readStatusId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        UUID channelId = UUID.randomUUID();
+        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(null);
+        ReadStatusDto response = new ReadStatusDto(
+            readStatusId,
+            userId,
+            channelId,
+            Instant.now()
+        );
+
+        given(readStatusService.update(eq(readStatusId), any(ReadStatusUpdateRequest.class)))
+            .willReturn(response);
+
+        // when & then
+        mockMvc.perform(patch("/api/readStatuses/{readStatusId}", readStatusId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(readStatusId.toString()));
+
+        then(readStatusService).should().update(eq(readStatusId), any(ReadStatusUpdateRequest.class));
+    }
+}

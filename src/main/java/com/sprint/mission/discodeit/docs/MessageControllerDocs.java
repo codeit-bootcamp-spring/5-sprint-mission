@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.controller.advice.ApiError;
+import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
 import com.sprint.mission.discodeit.dto.message.MessageCreateMultipartForm;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
@@ -17,13 +17,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.web.multipart.MultipartFile;
 
-@SuppressWarnings("checkstyle:LineLength")
 @Tag(name = "Message")
+@SuppressWarnings("checkstyle:LineLength")
 public interface MessageControllerDocs {
 
     @Operation(summary = "Channel의 Message 목록 조회")
@@ -113,7 +114,7 @@ public interface MessageControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -121,8 +122,8 @@ public interface MessageControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T09:52:02.420208Z",
-                          "code": "INVALID_PARAMETER_TYPE",
-                          "message": "parameter=channelId, value=not-uuid, expectedType=UUID",
+                          "code": "INVALID_PARAMETER_VALUE",
+                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=channelId, value=not-uuid, expectedType=UUID",
                           "details": {
                             "path": "/api/messages",
                             "method": "GET",
@@ -141,7 +142,7 @@ public interface MessageControllerDocs {
                         {
                           "timestamp": "2025-09-04T09:48:50.140730Z",
                           "code": "MISSING_PARAMETER",
-                          "message": "missing parameter: channelId (required type: UUID)",
+                          "message": "요청 매개변수가 누락되었습니다.: channelId (필요한 매개변수: UUID)",
                           "details": {
                             "path": "/api/messages",
                             "method": "GET"
@@ -207,7 +208,7 @@ public interface MessageControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -216,7 +217,7 @@ public interface MessageControllerDocs {
                         {
                            "timestamp": "2025-09-03T15:44:53.822173Z",
                            "code": "INVALID_BODY_VALUE",
-                           "message": "Request body value not valid",
+                           "message": "요청 본문 값이 유효하지 않습니다.",
                            "details": {
                              "path": "/api/messages",
                              "fieldErrors": [
@@ -251,7 +252,7 @@ public interface MessageControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "channelNotFound",
@@ -259,13 +260,13 @@ public interface MessageControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T04:23:03.208002Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "Channel with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found",
+                          "code": "CHANNEL_NOT_FOUND",
+                          "message": "채널을 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/messages",
                             "method": "POST"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "ChannelNotFoundException",
                           "status": 404,
                           "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
                         }
@@ -277,13 +278,13 @@ public interface MessageControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T04:23:03.208002Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "User with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found",
+                          "code": "USER_NOT_FOUND",
+                          "message": "사용자를 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/messages",
                             "method": "DELETE"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "UserNotFoundException",
                           "status": 404,
                           "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
                         }
@@ -296,7 +297,7 @@ public interface MessageControllerDocs {
         responseCode = "413",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "payloadTooLarge",
@@ -305,7 +306,7 @@ public interface MessageControllerDocs {
                         {
                           "timestamp": "2025-09-04T04:23:03.208002Z",
                           "code": "PAYLOAD_TOO_LARGE",
-                          "message": "Maximum upload size exceeded",
+                          "message": "요청 본문 크기가 너무 큽니다.",
                           "details": {
                             "path": "/api/messages",
                             "method": "POST"
@@ -331,10 +332,37 @@ public interface MessageControllerDocs {
         description = "Message가 성공적으로 삭제됨"
     )
     @ApiResponse(
+        responseCode = "403",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class),
+            examples = {
+                @ExampleObject(
+                    name = "deleteNotAllowed",
+                    description = "Message를 삭제할 권한이 없음",
+                    value = """
+                        {
+                          "timestamp": "2025-09-04T04:23:03.208002Z",
+                          "code": "MESSAGE_FORBIDDEN_DELETE",
+                          "message": "메시지를 삭제할 수 있는 권한이 없습니다.",
+                          "details": {
+                            "path": "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327",
+                            "method": "DELETE"
+                          },
+                          "exceptionType": "MessageDeleteForbiddenException",
+                          "status": 403,
+                          "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
+                        }
+                        """
+                )
+            }
+        )
+    )
+    @ApiResponse(
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "messageNotFound",
@@ -342,13 +370,13 @@ public interface MessageControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T04:23:03.208002Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "Message with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found",
+                          "code": "MESSAGE_NOT_FOUND",
+                          "message": "메시지를 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327",
                             "method": "DELETE"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "MessageNotFoundException",
                           "status": 404,
                           "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
                         }
@@ -382,7 +410,7 @@ public interface MessageControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -391,7 +419,7 @@ public interface MessageControllerDocs {
                         {
                            "timestamp": "2025-09-03T15:44:53.822173Z",
                            "code": "INVALID_BODY_VALUE",
-                           "message": "Request body value not valid",
+                           "message": "요청 본문 값이 유효하지 않습니다.",
                            "details": {
                              "path": "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327",
                              "fieldErrors": [
@@ -413,10 +441,37 @@ public interface MessageControllerDocs {
         )
     )
     @ApiResponse(
+        responseCode = "403",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class),
+            examples = {
+                @ExampleObject(
+                    name = "editNotAllowed",
+                    description = "Message를 수정할 권한이 없음",
+                    value = """
+                        {
+                          "timestamp": "2025-09-04T04:23:03.208002Z",
+                          "code": "MESSAGE_FORBIDDEN_EDIT",
+                          "message": "메시지를 수정할 수 있는 권한이 없습니다.",
+                          "details": {
+                            "path": "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327",
+                            "method": "PATCH"
+                          },
+                          "exceptionType": "MessageEditForbiddenException",
+                          "status": 403,
+                          "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
+                        }
+                        """
+                )
+            }
+        )
+    )
+    @ApiResponse(
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "messageNotFound",
@@ -424,13 +479,13 @@ public interface MessageControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T04:23:03.208002Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "Message with id c9b4f154-145d-4372-ab9a-ca030e13b327 not found",
+                          "code": "MESSAGE_NOT_FOUND",
+                          "message": "메시지를 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327",
                             "method": "PATCH"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "MessageNotFoundException",
                           "status": 404,
                           "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
                         }

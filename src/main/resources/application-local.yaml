@@ -1,0 +1,48 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+  devtools:
+    restart:
+      enabled: true
+
+server:
+  port: 8081
+  error:
+    include-stacktrace: on_param
+    include-message: always
+  compression:
+    enabled: false
+
+logging:
+  level:
+    com.sprint.mission: DEBUG
+    org.springframework.web: DEBUG
+    net.ttddyy.dsproxy.listener: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+discodeit:
+  storage:
+    type: LOCAL
+    local:
+      root-path: ./storage
+      orphan-grace: 10m
+  api:
+    server-url: http://localhost:8081
+  datasource-proxy:
+    name: DS-Proxy-Local
+    log-level: DEBUG
+    slow-query-threshold: 5s
+    slow-query-log-level: WARN

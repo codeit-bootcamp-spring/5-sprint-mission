@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.controller.advice.ApiError;
+import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,14 +10,15 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
-@SuppressWarnings("checkstyle:LineLength")
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+
 @Tag(name = "BinaryContent")
+@SuppressWarnings("checkstyle:LineLength")
 public interface BinaryContentControllerDocs {
 
     @Operation(summary = "여러 첨부 파일 조회")
@@ -55,7 +56,7 @@ public interface BinaryContentControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -63,8 +64,8 @@ public interface BinaryContentControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T16:00:37.339821Z",
-                          "code": "INVALID_PARAMETER_TYPE",
-                          "message": "parameter=binaryContentIds, value=[Ljava.lang.String;@4df10515, expectedType=Set",
+                          "code": "INVALID_PARAMETER_VALUE",
+                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=binaryContentIds, value=[Ljava.lang.String;@4df10515, expectedType=Set",
                           "details": {
                             "path": "/api/binaryContents",
                             "method": "GET",
@@ -83,7 +84,7 @@ public interface BinaryContentControllerDocs {
                         {
                           "timestamp": "2025-09-03T16:03:12.387990Z",
                           "code": "MISSING_PARAMETER",
-                          "message": "missing parameter: binaryContentIds (required type: Set)",
+                          "message": "요청 매개변수가 누락되었습니다.: binaryContentIds (필요한 매개변수: Set)",
                           "details": {
                             "path": "/api/binaryContents",
                             "method": "GET"
@@ -97,7 +98,7 @@ public interface BinaryContentControllerDocs {
             }
         )
     )
-    List<BinaryContentDto> findAllByIn(Set<UUID> binaryContentIds);
+    List<BinaryContentDto> getAllBinaryContents(Collection<UUID> binaryContentIds);
 
     @Operation(summary = "첨부 파일 조회")
     @Parameter(
@@ -116,7 +117,7 @@ public interface BinaryContentControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -124,8 +125,8 @@ public interface BinaryContentControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T16:07:55.585502Z",
-                          "code": "INVALID_PARAMETER_TYPE",
-                          "message": "parameter=binaryContentId, value=not-uuid, expectedType=UUID",
+                          "code": "INVALID_PARAMETER_VALUE",
+                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=binaryContentId, value=not-uuid, expectedType=UUID",
                           "details": {
                             "path": "/api/binaryContents/not-uuid",
                             "method": "GET"
@@ -143,7 +144,7 @@ public interface BinaryContentControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "binaryContentNotFound",
@@ -151,13 +152,13 @@ public interface BinaryContentControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T16:08:40.117674Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "BinaryContent with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found",
+                          "code": "BINARY_CONTENT_NOT_FOUND",
+                          "message": "파일을 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/binaryContents/e6681542-a6b1-43f3-b759-6dc9cfebcf41",
                             "method": "GET"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "BinaryContentNotFoundException",
                           "status": 404,
                           "requestId": "1f485a6e-6293-4d5b-9cc1-5ec19969734e"
                         }
@@ -166,7 +167,7 @@ public interface BinaryContentControllerDocs {
             }
         )
     )
-    BinaryContentDto find(UUID binaryContentId);
+    BinaryContentDto getBinaryContent(UUID binaryContentId);
 
     @Operation(summary = "파일 다운로드")
     @Parameter(
@@ -181,7 +182,7 @@ public interface BinaryContentControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -189,8 +190,8 @@ public interface BinaryContentControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T16:07:55.585502Z",
-                          "code": "INVALID_PARAMETER_TYPE",
-                          "message": "parameter=binaryContentId, value=not-uuid, expectedType=UUID",
+                          "code": "INVALID_PARAMETER_VALUE",
+                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=binaryContentId, value=not-uuid, expectedType=UUID",
                           "details": {
                             "path": "/api/binaryContents/not-uuid/download",
                             "method": "GET"
@@ -208,7 +209,7 @@ public interface BinaryContentControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "binaryContentNotFound",
@@ -216,13 +217,13 @@ public interface BinaryContentControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T16:08:40.117674Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "BinaryContent with id e6681542-a6b1-43f3-b759-6dc9cfebcf41 not found",
+                          "code": "BINARY_CONTENT_NOT_FOUND",
+                          "message": "파일을 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/binaryContents/e6681542-a6b1-43f3-b759-6dc9cfebcf41/download",
                             "method": "GET"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "BinaryContentNotFoundException",
                           "status": 404,
                           "requestId": "1f485a6e-6293-4d5b-9cc1-5ec19969734e"
                         }

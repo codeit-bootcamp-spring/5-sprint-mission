@@ -1,19 +1,23 @@
 package com.sprint.mission.discodeit.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.context.annotation.Configuration;
 
+@Configuration
 @OpenAPIDefinition(
     info = @Info(
         title = "Discodeit API 문서",
         description = "Discodeit 프로젝트의 Swagger API 문서입니다.",
-        version = "1.2"
+        version = "0.0.1"
     ),
     servers = {
-        @Server(url = "http://localhost:8080", description = "로컬 서버")
+        @Server(url = "${discodeit.api.server-url}", description = "Discodeit API Server")
     },
     tags = {
         @Tag(name = "Channel", description = "Channel API"),
@@ -24,7 +28,12 @@ import org.springframework.context.annotation.Configuration;
         @Tag(name = "Auth", description = "인증 API")
     }
 )
-@Configuration
+@SecurityScheme(
+    name = "Bearer Authentication",
+    type = SecuritySchemeType.HTTP,
+    bearerFormat = "JWT",
+    scheme = "bearer",
+    in = SecuritySchemeIn.HEADER
+)
 public class OpenApiConfig {
-
 }

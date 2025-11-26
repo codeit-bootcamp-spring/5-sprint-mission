@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.controller.advice.ApiError;
+import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
 import com.sprint.mission.discodeit.dto.auth.LoginRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,8 +10,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@SuppressWarnings("checkstyle:LineLength")
 @Tag(name = "Auth")
+@SuppressWarnings("checkstyle:LineLength")
 public interface AuthControllerDocs {
 
     @Operation(summary = "로그인")
@@ -28,7 +28,7 @@ public interface AuthControllerDocs {
         description = "Request body가 유효하지 않음",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -37,7 +37,7 @@ public interface AuthControllerDocs {
                         {
                            "timestamp": "2025-09-03T15:44:53.822173Z",
                            "code": "INVALID_BODY_VALUE",
-                           "message": "Request body value not valid",
+                           "message": "요청 본문 값이 유효하지 않습니다.",
                            "details": {
                              "path": "/api/auth/login",
                              "fieldErrors": [
@@ -67,7 +67,7 @@ public interface AuthControllerDocs {
                         {
                           "timestamp": "2025-09-03T15:45:44.976824Z",
                           "code": "INVALID_JSON",
-                          "message": "Unable to read request body, please check JSON format and field type",
+                          "message": "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인해주세요.",
                           "details": {
                             "path": "/api/auth/login",
                             "method": "POST",
@@ -86,7 +86,7 @@ public interface AuthControllerDocs {
         responseCode = "401",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "unauthorized",
@@ -94,13 +94,13 @@ public interface AuthControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T15:47:16.592910Z",
-                          "code": "UNAUTHORIZED",
-                          "message": "Username or password incorrect",
+                          "code": "INVALID_CREDENTIALS",
+                          "message": "사용자 이름 또는 비밀번호가 올바르지 않습니다.",
                           "details": {
                             "path": "/api/auth/login",
                             "method": "POST"
                           },
-                          "exceptionType": "UnauthorizedException",
+                          "exceptionType": "InvalidCredentialsException",
                           "status": 401,
                           "requestId": "5667739b-beb7-490f-953c-89808ae8a09f"
                         }

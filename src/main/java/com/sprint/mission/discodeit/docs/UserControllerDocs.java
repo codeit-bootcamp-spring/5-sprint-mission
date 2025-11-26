@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.controller.advice.ApiError;
+import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
 import com.sprint.mission.discodeit.dto.user.UserCreateMultipartForm;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
@@ -18,12 +18,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
 
-@SuppressWarnings("checkstyle:LineLength")
+import java.util.List;
+import java.util.UUID;
+
 @Tag(name = "User")
+@SuppressWarnings("checkstyle:LineLength")
 public interface UserControllerDocs {
 
     @Operation(summary = "전체 User 목록 조회")
@@ -89,7 +90,7 @@ public interface UserControllerDocs {
         description = "Request body가 유효하지 않음",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -98,7 +99,7 @@ public interface UserControllerDocs {
                         {
                            "timestamp": "2025-09-03T08:52:56.103334Z",
                            "code": "INVALID_BODY_VALUE",
-                           "message": "Request body value not valid",
+                           "message": "요청 본문 값이 유효하지 않습니다.",
                            "details": {
                              "path": "/api/users",
                              "fieldErrors": [
@@ -133,7 +134,7 @@ public interface UserControllerDocs {
                         {
                           "timestamp": "2025-09-03T08:04:08.236418Z",
                           "code": "INVALID_JSON",
-                          "message": "Unable to read request body, please check JSON format and field type",
+                          "message": "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인해주세요.",
                           "details": {
                             "path": "/api/users",
                             "method": "POST",
@@ -152,7 +153,7 @@ public interface UserControllerDocs {
                         {
                           "timestamp": "2025-09-03T08:44:32.921900Z",
                           "code": "MISSING_PART",
-                          "message": "missing part: userCreateRequest",
+                          "message": "요청에 필요한 요소가 포함되어 있지 않습니다.userCreateRequest",
                           "details": {
                             "path": "/api/users",
                             "method": "POST"
@@ -170,7 +171,7 @@ public interface UserControllerDocs {
         responseCode = "409",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "duplicateUsername",
@@ -179,7 +180,7 @@ public interface UserControllerDocs {
                         {
                           "timestamp": "2025-09-03T08:05:41.768283Z",
                           "code": "CONFLICT",
-                          "message": "(username)=(test) already exists.",
+                          "message": "요청이 현재 리소스 상태와 충돌합니다.",
                           "details": {
                             "path": "/api/users",
                             "method": "POST"
@@ -197,7 +198,7 @@ public interface UserControllerDocs {
                         {
                           "timestamp": "2025-09-03T08:05:41.768283Z",
                           "code": "CONFLICT",
-                          "message": "(email)=(test@example.com) already exists.",
+                          "message": "요청이 현재 리소스 상태와 충돌합니다.",
                           "details": {
                             "path": "/api/users",
                             "method": "POST"
@@ -215,7 +216,7 @@ public interface UserControllerDocs {
         responseCode = "415",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidMediaType",
@@ -224,7 +225,7 @@ public interface UserControllerDocs {
                         {
                           "timestamp": "2025-09-03T09:21:03.545517Z",
                           "code": "UNSUPPORTED_MEDIA_TYPE",
-                          "message": "Media type not allowed. Supported types: application/json, application/yaml, application/*+json",
+                          "message": "지원하지 않는 미디어 타입입니다. 지원되는 타입들: application/json, application/yaml, application/*+json",
                           "details": {
                             "path": "/api/users",
                             "method": "POST"
@@ -253,7 +254,7 @@ public interface UserControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -261,8 +262,8 @@ public interface UserControllerDocs {
                     value = """
                         {
                            "timestamp": "2025-09-03T09:49:27.703663Z",
-                           "code": "INVALID_PARAMETER_TYPE",
-                           "message": "parameter=userId, value=not-uuid, expectedType=UUID",
+                           "code": "INVALID_PARAMETER_VALUE",
+                           "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=userId, value=not-uuid, expectedType=UUID",
                            "details": {
                              "path": "/api/users/not-uuid",
                              "method": "DELETE"
@@ -280,7 +281,7 @@ public interface UserControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "userNotFound",
@@ -288,13 +289,13 @@ public interface UserControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T09:48:06.598818Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "User with id 73c8f68b-0e72-4c46-b8e8-b3c2f570bac1 not found",
+                          "code": "USER_NOT_FOUND",
+                          "message": "사용자를 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/users/73c8f68b-0e72-4c46-b8e8-b3c2f570bac1",
                             "method": "DELETE"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "UserNotFoundException",
                           "status": 404,
                           "requestId": "a783f2f8-5340-4746-a7b1-da1adca3ef86"
                         }
@@ -335,7 +336,7 @@ public interface UserControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -343,8 +344,8 @@ public interface UserControllerDocs {
                     value = """
                         {
                            "timestamp": "2025-09-03T09:49:27.703663Z",
-                           "code": "INVALID_PARAMETER_TYPE",
-                           "message": "parameter=userId, value=not-uuid, expectedType=UUID",
+                           "code": "INVALID_PARAMETER_VALUE",
+                           "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=userId, value=not-uuid, expectedType=UUID",
                            "details": {
                              "path": "/api/users/not-uuid",
                              "method": "PATCH"
@@ -362,7 +363,7 @@ public interface UserControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "userNotFound",
@@ -370,13 +371,13 @@ public interface UserControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T09:48:06.598818Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "User with id 73c8f68b-0e72-4c46-b8e8-b3c2f570bac1 not found",
+                          "code": "USER_NOT_FOUND",
+                          "message": "사용자를 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/users/73c8f68b-0e72-4c46-b8e8-b3c2f570bac1",
                             "method": "PATCH"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "UserNotFoundException",
                           "status": 404,
                           "requestId": "a783f2f8-5340-4746-a7b1-da1adca3ef86"
                         }
@@ -415,7 +416,7 @@ public interface UserControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -423,8 +424,8 @@ public interface UserControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T09:49:27.703663Z",
-                          "code": "INVALID_PARAMETER_TYPE",
-                          "message": "parameter=userId, value=not-uuid, expectedType=UUID",
+                          "code": "INVALID_PARAMETER_VALUE",
+                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=userId, value=not-uuid, expectedType=UUID",
                           "details": {
                             "path": "/api/users/not-uuid/userStatus",
                             "method": "PATCH"
@@ -442,7 +443,7 @@ public interface UserControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "userNotFound",
@@ -450,13 +451,13 @@ public interface UserControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-03T09:48:06.598818Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "User with id 73c8f68b-0e72-4c46-b8e8-b3c2f570bac1 not found",
+                          "code": "USER_NOT_FOUND",
+                          "message": "사용자를 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/users/73c8f68b-0e72-4c46-b8e8-b3c2f570bac1/userStatus",
                             "method": "PATCH"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "UserNotFoundException",
                           "status": 404,
                           "requestId": "a783f2f8-5340-4746-a7b1-da1adca3ef86"
                         }

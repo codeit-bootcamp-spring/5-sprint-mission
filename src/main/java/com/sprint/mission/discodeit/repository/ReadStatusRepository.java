@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.NotFoundException;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -16,7 +15,7 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
     List<ReadStatusDto> findAllByUserId(UUID userId);
 
-    @EntityGraph(attributePaths = { "userStatus", "profile" })
+    @EntityGraph(attributePaths = { "user.userStatus", "user.profile" })
     @Query("""
             SELECT DISTINCT rs.user
             FROM ReadStatus rs
@@ -29,11 +28,4 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
     int deleteAllByChannelId(UUID channelId);
 
     int deleteAllByUser(User user);
-
-    default ReadStatus getOrThrow(UUID id) {
-        return findById(id).orElseThrow(() ->
-            new NotFoundException(
-                "ReadStatus with id %s not found".formatted(id))
-        );
-    }
 }

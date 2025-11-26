@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.dto.channel;
 
 import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.enums.ChannelType;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -52,5 +53,4 @@ public record ChannelDto(
     List<UserDto> participants,
     Instant lastMessageAt
 ) {
-
 }

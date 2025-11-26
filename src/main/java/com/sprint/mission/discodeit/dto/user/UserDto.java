@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.dto.user;
 
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.UUID;
 
 @Schema(
@@ -27,5 +28,4 @@ public record UserDto(
     BinaryContentDto profile,
     boolean online
 ) {
-
 }

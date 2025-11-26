@@ -10,5 +10,4 @@ public record PageResponse<T>(
     boolean hasNext,
     Long totalElements
 ) {
-
 }

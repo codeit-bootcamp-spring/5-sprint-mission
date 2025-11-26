@@ -8,6 +8,8 @@ import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserProfileUploadException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -15,36 +17,79 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+
+import static com.sprint.mission.discodeit.util.ExceptionUtil.handleDuplicateUserConstraint;
+import static org.springframework.util.StringUtils.hasText;
+
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Slf4j
 public class UserService {
 
-    private final BinaryContentRepository binaryContentRepository;
     private final UserRepository userRepository;
+    private final BinaryContentRepository binaryContentRepository;
+    private final MessageRepository messageRepository;
+    private final ReadStatusRepository readStatusRepository;
 
     private final BinaryContentStorage binaryContentStorage;
+    private final PasswordEncoder passwordEncoder;
 
     private final UserMapper userMapper;
     private final UserStatusMapper userStatusMapper;
 
-    private final PasswordEncoder passwordEncoder;
-    private final MessageRepository messageRepository;
-    private final ReadStatusRepository readStatusRepository;
+    @Transactional
+    public UserDto create(
+        UserCreateRequest request,
+        MultipartFile profile
+    ) {
+        String username = request.username().strip().toLowerCase(Locale.ROOT);
+        String email = request.email().strip().toLowerCase(Locale.ROOT);
 
+        log.debug("사용자 생성 요청: username={}, email={}", username, email);
+
+        String password = passwordEncoder.encode(request.password());
+
+        BinaryContent savedProfile = null;
+        if (profile != null && !profile.isEmpty()) {
+            savedProfile = saveProfileImage(profile);
+        }
+
+        User savedUser;
+        try {
+            savedUser = userRepository.save(
+                new User(
+                    username,
+                    email,
+                    password,
+                    savedProfile
+                )
+            );
+            userRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            handleDuplicateUserConstraint(e, username, email);
+            throw e;
+        }
+
+        log.info("사용자 생성 완료: userId={}, email={}", savedUser.getId(), savedUser.getEmail());
+
+        return userMapper.toDto(savedUser);
+    }
+
+    @Transactional(readOnly = true)
     public List<UserDto> findAll() {
         Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
 
@@ -55,97 +100,118 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto create(UserCreateRequest req, MultipartFile profile) {
-        String username = req.username().strip().toLowerCase(Locale.ROOT);
-        String email = req.email().strip().toLowerCase(Locale.ROOT);
-        String password = passwordEncoder.encode(req.password());
+    public UserDto update(
+        UUID userId,
+        UserUpdateRequest request,
+        MultipartFile profile
+    ) {
+        log.debug("사용자 수정 요청: userId={}", userId);
 
-        BinaryContent savedProfile = null;
+        User user = getUserOrThrow(userId);
+
+        BinaryContent newProfile = null;
         if (profile != null && !profile.isEmpty()) {
-            savedProfile = binaryContentRepository.save(
-                new BinaryContent(
-                    profile.getOriginalFilename(),
-                    profile.getSize(),
-                    profile.getContentType()
-                )
-            );
-
-            try {
-                binaryContentStorage.put(savedProfile.getId(), profile.getBytes());
-            } catch (IOException e) {
-                throw new UncheckedIOException("프로필 파일 저장 실패: " + savedProfile.getId(), e);
-            }
+            newProfile = saveProfileImage(profile);
         }
 
-        return userMapper.toDto(
-            userRepository.save(
-                new User(username, email, password, savedProfile)
-            )
-        );
+        String newUsername = null;
+        if (hasText(request.newUsername())) {
+            newUsername = request.newUsername().strip().toLowerCase(Locale.ROOT);
+        }
+
+        String newEmail = null;
+        if (request.newEmail() != null && !request.newEmail().isBlank()) {
+            newEmail = request.newEmail().strip().toLowerCase(Locale.ROOT);
+        }
+
+        try {
+            updateUser(user, request, newProfile, newUsername, newEmail);
+            userRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            handleDuplicateUserConstraint(e, newUsername, newEmail);
+            throw e;
+        }
+
+        log.info("사용자 수정 완료: userId={}", userId);
+        return userMapper.toDto(user);
     }
 
-    // 락을 걸어야하나?
-    // message author set null, readStatus set delete 또한 이벤트로
+    @Transactional
+    public UserStatusDto updateUserStatusByUserId(
+        UUID userId,
+        UserStatusUpdateRequest request
+    ) {
+        User user = getUserOrThrow(userId);
+        UserStatus userStatus = user.getUserStatus();
+
+        if (request.newLastActiveAt() != null) {
+            userStatus.update(request.newLastActiveAt());
+        }
+
+        return userStatusMapper.toDto(userStatus);
+    }
+
     @Transactional
     public void delete(UUID userId) {
-        User u = userRepository.getOrThrow(userId);
+        log.debug("사용자 삭제 요청: userId={}", userId);
 
-        messageRepository.nullifyAuthorByUser(u);
-        readStatusRepository.deleteAllByUser(u);
+        User user = getUserOrThrow(userId);
 
-        userRepository.delete(u);
+        messageRepository.nullifyAuthorByUser(user);
+        readStatusRepository.deleteAllByUser(user);
+
+        userRepository.delete(user);
+
+        log.info("사용자 삭제 완료: userId={}", userId);
     }
 
-    @Transactional
-    public UserDto update(UUID userId, UserUpdateRequest req, MultipartFile profile) {
-        User u = userRepository.getOrThrow(userId);
+    private BinaryContent saveProfileImage(MultipartFile profile) {
+        log.debug("프로필 이미지 업로드 시도: filename={}, size={}",
+            profile.getOriginalFilename(), profile.getSize());
 
-        if (req.newUsername() != null && !req.newUsername().isBlank()) {
-            u.setUsername(req.newUsername().strip().toLowerCase(Locale.ROOT));
+        BinaryContent savedProfile = binaryContentRepository.save(
+            new BinaryContent(
+                profile.getOriginalFilename(),
+                profile.getSize(),
+                profile.getContentType()
+            )
+        );
+
+        try {
+            binaryContentStorage.put(savedProfile.getId(), profile.getBytes());
+        } catch (IOException e) {
+            throw new UserProfileUploadException(e);
         }
 
-        if (req.newEmail() != null && !req.newEmail().isBlank()) {
-            u.setEmail(req.newEmail().strip().toLowerCase(Locale.ROOT));
-        }
+        log.info("프로필 이미지 저장 완료: binaryContentId={}, size={}",
+            savedProfile.getId(), savedProfile.getSize());
 
-        if (req.newPassword() != null
-            && !req.newPassword().isBlank()
-            && !passwordEncoder.matches(req.newPassword(), u.getPassword())
-        ) {
-            u.setPassword(passwordEncoder.encode(req.newPassword()));
-        }
-
-        if (profile != null && !profile.isEmpty()) {
-            BinaryContent newProfile = binaryContentRepository.save(
-                new BinaryContent(
-                    profile.getOriginalFilename(),
-                    profile.getSize(),
-                    profile.getContentType()
-                )
-            );
-
-            u.setProfile(newProfile);
-
-            try {
-                binaryContentStorage.put(newProfile.getId(), profile.getBytes());
-            } catch (IOException e) {
-                throw new UncheckedIOException("프로필 파일 저장 실패: " + newProfile.getId(), e);
-            }
-        }
-
-        return userMapper.toDto(u);
+        return savedProfile;
     }
 
-    @Transactional
-    public UserStatusDto updateUserStatusByUserId(UUID userId, UserStatusUpdateRequest req) {
-        User user = userRepository.getOrThrow(userId);
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    }
 
-        UserStatus us = user.getUserStatus();
-
-        if (req.newLastActiveAt() != null) {
-            us.setLastActiveAt(req.newLastActiveAt());
+    private void updateUser(
+        User user,
+        UserUpdateRequest request,
+        BinaryContent newProfile,
+        String newUsername,
+        String newEmail
+    ) {
+        String newEncodedPassword = null;
+        if (request.newPassword() != null
+            && !request.newPassword().isBlank()
+            && !passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            newEncodedPassword = passwordEncoder.encode(request.newPassword());
         }
 
-        return userStatusMapper.toDto(us);
+        user.update(
+            newUsername,
+            newEmail,
+            newEncodedPassword,
+            newProfile
+        );
     }
 }

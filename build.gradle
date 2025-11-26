@@ -1,8 +1,14 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.8'
+    id 'org.springframework.boot' version '3.4.0'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
+    id 'checkstyle'
+    id 'com.github.ben-manes.versions' version '0.51.0'
 }
+
+group = 'com.sprint.mission'
+version = '1.2-M7'
 
 java {
     toolchain {
@@ -20,38 +26,171 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    mapstructVersion = '1.6.3'
+    testcontainersVersion = '1.19.8'
+    springdocVersion = '2.8.11'
+    datasourceProxyVersion = '1.10'
+}
+
 dependencies {
+    // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.security:spring-security-crypto'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11'
 
-    implementation 'org.postgresql:postgresql:42.7.4'
-
-    implementation 'org.apache.commons:commons-lang3:3.18.0'
-
-    compileOnly 'org.projectlombok:lombok:1.18.38'
-    annotationProcessor 'org.projectlombok:lombok:1.18.38'
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-
-    implementation 'org.mapstruct:mapstruct:1.6.3'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-
+    // Development Tools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-
+    compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Database Drivers
+    runtimeOnly 'org.postgresql:postgresql'
+    testRuntimeOnly 'com.h2database:h2'
 
-    testCompileOnly 'org.projectlombok:lombok:1.18.38'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
-    testAnnotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-    testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation(platform("org.testcontainers:testcontainers-bom:${testcontainersVersion}"))
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+
+    // Security
+    implementation 'org.springframework.security:spring-security-crypto'
+
+    // API Documentation
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // MapStruct
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+    // Database Utilities
+    implementation "net.ttddyy:datasource-proxy:${datasourceProxyVersion}"
 }
 
+// Build Configuration
+tasks.named('jar') {
+    enabled = false
+}
+
+tasks.named('bootJar') {
+    archiveFileName = "${project.name}-${version}.jar"
+}
+
+// Test Configuration
 tasks.named('test') {
     useJUnitPlatform()
+
+    // Parallel test execution
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+
+    testLogging {
+        events = ['passed', 'skipped', 'failed']
+        exceptionFormat = 'full'
+        showStandardStreams = false
+    }
+
+    finalizedBy jacocoTestReport
+}
+
+// JaCoCo Coverage Configuration
+jacoco {
+    toolVersion = '0.8.14'
+}
+
+def jacocoExclusions = [
+        '**/config/**',
+        '**/dto/**',
+        '**/entity/**',
+        '**/exception/**',
+        '**/mapper/**',
+        '**/*MapperImpl.class',
+        '**/util/**',
+        '**/*Application.class'
+]
+
+tasks.named('jacocoTestReport') {
+    dependsOn test
+
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: jacocoExclusions)
+            })
+    )
+}
+
+tasks.named('jacocoTestCoverageVerification') {
+    dependsOn jacocoTestReport
+
+    violationRules {
+        rule {
+            element = 'CLASS'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.60
+            }
+        }
+    }
+
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: jacocoExclusions)
+            })
+    )
+}
+
+tasks.named('check') {
+    dependsOn jacocoTestCoverageVerification
+}
+
+// Checkstyle Configuration
+checkstyle {
+    toolVersion = '10.17.0'
+    configFile = file('config/checkstyle/checkstyle.xml')
+    configProperties = [
+            'suppressionFile': file('config/checkstyle/checkstyle-suppressions.xml')
+    ]
+    maxWarnings = 0
+    ignoreFailures = false
+}
+
+tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+// Dependency Updates Configuration
+tasks.named('dependencyUpdates').configure {
+    checkForGradleUpdate = true
+    outputFormatter = 'json'
+    outputDir = 'build/dependencyUpdates'
+    reportfileName = 'report'
+
+    rejectVersionIf {
+        def isNonStable = { String version ->
+            def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any {
+                it.toLowerCase() in version.toLowerCase()
+            }
+            def regex = /^[0-9,.v-]+(-r)?$/
+            return !stableKeyword && !(version ==~ regex)
+        }
+        isNonStable(candidate.version) && !isNonStable(currentVersion)
+    }
 }

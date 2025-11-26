@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.controller.advice.ApiError;
+import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
@@ -11,11 +11,12 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.List;
 import java.util.UUID;
 
-@SuppressWarnings("checkstyle:LineLength")
 @Tag(name = "ReadStatus")
+@SuppressWarnings("checkstyle:LineLength")
 public interface ReadStatusControllerDocs {
 
     @Operation(summary = "User의 Message 읽음 상태 목록 조회")
@@ -35,7 +36,7 @@ public interface ReadStatusControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -43,8 +44,8 @@ public interface ReadStatusControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T02:19:30.016741Z",
-                          "code": "INVALID_PARAMETER_TYPE",
-                          "message": "parameter=userId, value=not-uuid, expectedType=UUID",
+                          "code": "INVALID_PARAMETER_VALUE",
+                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=userId, value=not-uuid, expectedType=UUID",
                           "details": {
                             "path": "/api/readStatuses",
                             "method": "GET",
@@ -63,7 +64,7 @@ public interface ReadStatusControllerDocs {
                         {
                           "timestamp": "2025-09-04T02:18:20.915845Z",
                           "code": "MISSING_PARAMETER",
-                          "message": "missing parameter: userId (required type: UUID)",
+                          "message": "요청 매개변수가 누락되었습니다.: userId (필요한 매개변수: UUID)",
                           "details": {
                             "path": "/api/readStatuses",
                             "method": "GET"
@@ -93,7 +94,7 @@ public interface ReadStatusControllerDocs {
         description = "Request body가 유효하지 않음",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidField",
@@ -102,7 +103,7 @@ public interface ReadStatusControllerDocs {
                         {
                            "timestamp": "2025-09-04T06:15:35.838780Z",
                            "code": "INVALID_BODY_VALUE",
-                           "message": "Request body value not valid",
+                           "message": "요청 본문 값이 유효하지 않습니다.",
                            "details": {
                              "path": "/api/readStatuses",
                              "fieldErrors": [
@@ -137,7 +138,7 @@ public interface ReadStatusControllerDocs {
                         {
                           "timestamp": "2025-09-04T06:34:11.634992Z",
                           "code": "INVALID_JSON",
-                          "message": "Unable to read request body, please check JSON format and field type",
+                          "message": "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인해주세요.",
                           "details": {
                             "path": "/api/readStatuses",
                             "method": "POST",
@@ -156,7 +157,7 @@ public interface ReadStatusControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "userNotFound",
@@ -164,13 +165,13 @@ public interface ReadStatusControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T06:34:27.703602Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "User with id 4efc344f-350d-48b0-893e-320ef5f8ae62 not found",
+                          "code": "USER_NOT_FOUND",
+                          "message": "사용자를 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/readStatuses",
                             "method": "POST"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "UserNotFoundException",
                           "status": 404,
                           "requestId": "9b34eca0-03c5-4606-96bf-99162aaeeebb"
                         }
@@ -182,13 +183,13 @@ public interface ReadStatusControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T06:34:46.594489Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "Channel with id cce7f6a2-f709-4d43-a234-b18c5f43b663 not found",
+                          "code": "CHANNEL_NOT_FOUND",
+                          "message": "채널을 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/readStatuses",
                             "method": "POST"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "ChannelNotFoundException",
                           "status": 404,
                           "requestId": "fb9baee8-b8f9-4e95-8417-459814cf5cdd"
                         }
@@ -201,7 +202,7 @@ public interface ReadStatusControllerDocs {
         responseCode = "409",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     description = "이미 읽음 상태가 존재함",
@@ -209,7 +210,7 @@ public interface ReadStatusControllerDocs {
                         {
                           "timestamp": "2025-09-04T06:35:04.759575Z",
                           "code": "CONFLICT",
-                          "message": "(user_id, channel_id)=(4efc344f-350d-48b0-893e-320ef5f8ae61, cce7f6a2-f709-4d43-a234-b18c5f43b662) already exists.",
+                          "message": "요청이 현재 리소스 상태와 충돌합니다.",
                           "details": {
                             "path": "/api/readStatuses",
                             "method": "POST"
@@ -242,7 +243,7 @@ public interface ReadStatusControllerDocs {
         responseCode = "400",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "invalidParameterType",
@@ -250,8 +251,8 @@ public interface ReadStatusControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T02:19:30.016741Z",
-                          "code": "INVALID_PARAMETER_TYPE",
-                          "message": "parameter=readStatusId, value=not-uuid, expectedType=UUID",
+                          "code": "INVALID_PARAMETER_VALUE",
+                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=readStatusId, value=not-uuid, expectedType=UUID",
                           "details": {
                             "path": "/api/readStatuses/not-uuid",
                             "method": "PATCH"
@@ -269,7 +270,7 @@ public interface ReadStatusControllerDocs {
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ApiError.class),
+            schema = @Schema(implementation = ErrorResponse.class),
             examples = {
                 @ExampleObject(
                     name = "readStatusNotFound",
@@ -277,13 +278,13 @@ public interface ReadStatusControllerDocs {
                     value = """
                         {
                           "timestamp": "2025-09-04T06:36:36.374538Z",
-                          "code": "RESOURCE_NOT_FOUND",
-                          "message": "ReadStatus with id bc482f77-d3a9-43fd-a272-4da85df4f041 not found",
+                          "code": "READ_STATUS_NOT_FOUND",
+                          "message": "읽음 상태를 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/readStatuses/bc482f77-d3a9-43fd-a272-4da85df4f041",
                             "method": "PATCH"
                           },
-                          "exceptionType": "NotFoundException",
+                          "exceptionType": "ReadStatusNotFoundException",
                           "status": 404,
                           "requestId": "447352ac-c747-47df-b9f5-a3a03da8c636"
                         }

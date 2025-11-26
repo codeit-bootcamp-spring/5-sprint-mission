@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.dto.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Schema(
     example = """
@@ -13,9 +14,16 @@ import jakarta.validation.constraints.NotBlank;
         """
 )
 public record UserCreateRequest(
-    @NotBlank String username,
-    @NotBlank String email,
-    @NotBlank String password
-) {
+    @NotBlank
+    @Size(max = 50)
+    String username,
 
+    @NotBlank
+    @Size(max = 100)
+    String email,
+
+    @NotBlank
+    @Size(max = 50)
+    String password
+) {
 }

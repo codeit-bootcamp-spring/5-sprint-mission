@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.dto.channel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import java.util.Set;
 import java.util.UUID;
 
@@ -21,5 +22,4 @@ public record PrivateChannelCreateRequest(
     @Size(min = 2, max = 10)
     Set<UUID> participantIds
 ) {
-
 }

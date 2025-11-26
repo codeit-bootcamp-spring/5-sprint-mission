@@ -6,41 +6,62 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ReadStatusService {
 
-    private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
+    private final ChannelRepository channelRepository;
 
     private final ReadStatusMapper readStatusMapper;
 
     @Transactional
-    public ReadStatusDto create(ReadStatusCreateRequest req) {
-        User u = userRepository.getOrThrow(req.userId());
-        Channel c = channelRepository.getOrThrow(req.channelId());
-        return readStatusMapper.toDto(
-            readStatusRepository.save(new ReadStatus(u, c, req.lastReadAt()))
-        );
+    public ReadStatusDto create(ReadStatusCreateRequest request) {
+        User user = getUserOrThrow(request.userId());
+        Channel channel = getChannelOrThrow(request.channelId());
+
+        ReadStatus savedReadStatus = new ReadStatus(user, channel, request.lastReadAt());
+
+        return readStatusMapper.toDto(savedReadStatus);
     }
 
     @Transactional
-    public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest req) {
-        ReadStatus rs = readStatusRepository.getOrThrow(readStatusId);
-        if (req.newLastReadAt() != null) {
-            rs.setLastReadAt(req.newLastReadAt());
+    public ReadStatusDto update(
+        UUID readStatusId,
+        ReadStatusUpdateRequest request
+    ) {
+        ReadStatus readStatus = getReadStatusOrThrow(readStatusId);
+
+        if (request.newLastReadAt() != null) {
+            readStatus.update(request.newLastReadAt());
         }
-        return readStatusMapper.toDto(rs);
+
+        return readStatusMapper.toDto(readStatus);
+    }
+
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    }
+
+    private Channel getChannelOrThrow(UUID channelId) {
+        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
+    }
+
+    private ReadStatus getReadStatusOrThrow(UUID readStatusId) {
+        return readStatusRepository.findById(readStatusId).orElseThrow(ReadStatusNotFoundException::new);
     }
 }

@@ -11,6 +11,10 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentUploadException;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -19,16 +23,6 @@ import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,23 +31,97 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-@Slf4j
+import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Slf4j
 public class MessageService {
 
-    private final BinaryContentRepository binaryContentRepository;
-    private final ChannelRepository channelRepository;
     private final MessageRepository messageRepository;
+    private final ChannelRepository channelRepository;
+    private final BinaryContentRepository binaryContentRepository;
     private final MessageAttachmentRepository messageAttachmentRepository;
     private final UserRepository userRepository;
 
     private final BinaryContentStorage binaryContentStorage;
 
-    private final UserMapper userMapper;
     private final MessageMapper messageMapper;
+    private final UserMapper userMapper;
 
+    @Transactional
+    public MessageDto create(
+        MessageCreateRequest request,
+        List<MultipartFile> attachments
+    ) {
+        log.debug("메시지 생성 요청: channelId={}, authorId={}",
+            request.channelId(), request.authorId());
+
+        Channel channel = getChannelOrThrow(request.channelId());
+        User author = getUserOrThrow(request.authorId());
+
+        String content = request.content() != null ? request.content().strip() : null;
+
+        Message message = messageRepository.save(new Message(content, channel, author));
+
+        List<BinaryContent> binaryContents = new ArrayList<>();
+        if (attachments != null && !attachments.isEmpty()) {
+
+            int orderIndex = 0;
+            for (MultipartFile attachment : attachments) {
+                if (attachment == null || attachment.isEmpty()) {
+                    continue;
+                }
+
+                log.debug("메시지 첨부파일 업로드 시도: messageId={}, filename={}, size={}",
+                    message.getId(), attachment.getOriginalFilename(), attachment.getSize());
+
+                BinaryContent binaryContent = binaryContentRepository.save(
+                    new BinaryContent(
+                        attachment.getOriginalFilename(),
+                        attachment.getSize(),
+                        attachment.getContentType()
+                    )
+                );
+
+                try {
+                    binaryContentStorage.put(
+                        binaryContent.getId(),
+                        attachment.getBytes()
+                    );
+                } catch (IOException e) {
+                    throw new BinaryContentUploadException(e);
+                }
+
+                messageAttachmentRepository.save(
+                    new MessageAttachment(
+                        message,
+                        binaryContent,
+                        orderIndex++)
+                );
+
+                binaryContents.add(binaryContent);
+
+                log.info("메시지 첨부파일 저장 완료: messageId={}, binaryContentId={}",
+                    message.getId(), binaryContent.getId());
+            }
+        }
+
+        return messageMapper.toDto(
+            message,
+            binaryContents
+        );
+    }
+
+    @Transactional(readOnly = true)
     public PageResponse<MessageDto> findAllByChannelId(
         UUID channelId,
         Instant cursor,
@@ -93,8 +161,8 @@ public class MessageService {
         Instant onlineSince = Instant.now().minus(Duration.ofMinutes(5));
 
         List<MessageDto> result = messages.stream()
-            .map(m -> {
-                User author = m.getAuthor();
+            .map(message -> {
+                User author = message.getAuthor();
                 UserDto authorDto = null;
                 if (author != null) {
                     authorDto = userCache.computeIfAbsent(
@@ -103,9 +171,9 @@ public class MessageService {
                     );
                 }
                 return messageMapper.toDtoWithAuthorDto(
-                    m,
+                    message,
                     authorDto,
-                    messageIdToAttachments.get(m.getId())
+                    messageIdToAttachments.get(message.getId())
                 );
             })
             .toList();
@@ -124,63 +192,46 @@ public class MessageService {
     }
 
     @Transactional
-    public MessageDto create(MessageCreateRequest req, List<MultipartFile> attachments) {
-        Channel channel = channelRepository.getOrThrow(req.channelId());
-        User author = userRepository.getOrThrow(req.authorId());
+    public MessageDto update(
+        UUID messageId,
+        MessageUpdateRequest request
+    ) {
+        log.debug("메시지 수정 요청: messageId={}", messageId);
 
-        String content = req.content() != null ? req.content().strip() : null;
+        Message message = getMessageOrThrow(messageId);
 
-        Message m = messageRepository.save(new Message(content, channel, author));
-
-        List<BinaryContent> binaryContents = new ArrayList<>();
-        if (attachments != null && !attachments.isEmpty()) {
-
-            int orderIndex = 0;
-            for (MultipartFile attachment : attachments) {
-                if (attachment == null || attachment.isEmpty()) {
-                    continue;
-                }
-
-                BinaryContent bc = binaryContentRepository.save(
-                    new BinaryContent(
-                        attachment.getOriginalFilename(),
-                        attachment.getSize(),
-                        attachment.getContentType()
-                    )
-                );
-
-                try {
-                    binaryContentStorage.put(bc.getId(), attachment.getBytes());
-                } catch (IOException e) {
-                    throw new UncheckedIOException("첨부 파일 저장 실패: " + bc.getId(), e);
-                }
-
-                messageAttachmentRepository.save(new MessageAttachment(m, bc, orderIndex++));
-                binaryContents.add(bc);
-            }
-        }
-
-        return messageMapper.toDto(m, binaryContents);
-    }
-
-    @Transactional
-    public void delete(UUID messageId) {
-        messageRepository.getOrThrow(messageId);
-        messageAttachmentRepository.deleteAllByMessageId(messageId);
-        messageRepository.deleteById(messageId);
-    }
-
-    @Transactional
-    public MessageDto update(UUID messageId, MessageUpdateRequest req) {
-        Message m = messageRepository.getOrThrow(messageId);
-
-        if (req.newContent() != null) {
-            m.setContent(req.newContent().strip());
+        if (request.newContent() != null) {
+            message.update(request.newContent().strip());
         }
 
         List<BinaryContent> attachments =
             messageAttachmentRepository.findAttachmentsByMessageId(messageId);
 
-        return messageMapper.toDto(m, attachments);
+        log.info("메시지 수정 완료: messageId={}", messageId);
+
+        return messageMapper.toDto(message, attachments);
+    }
+
+    @Transactional
+    public void delete(UUID messageId) {
+        log.debug("메시지 삭제 요청: messageId={}", messageId);
+
+        getMessageOrThrow(messageId);
+        messageAttachmentRepository.deleteAllByMessageId(messageId);
+        messageRepository.deleteById(messageId);
+
+        log.debug("메시지 삭제 완료: messageId={}", messageId);
+    }
+
+    private Channel getChannelOrThrow(UUID channelId) {
+        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
+    }
+
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    }
+
+    private Message getMessageOrThrow(UUID messageId) {
+        return messageRepository.findById(messageId).orElseThrow(MessageNotFoundException::new);
     }
 }

@@ -1,20 +1,31 @@
 spring:
-  config:
-    activate:
-      on-profile: prod
-
   datasource:
     url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
     username: ${PGUSER}
     password: ${PGPASSWORD}
 
-management:
-  endpoint:
-    health:
-      show-details: when_authorized
+server:
+  error:
+    include-stacktrace: never
+    include-message: never
+    include-exception: false
 
 logging:
   level:
-    org.hibernate.SQL: off
-    org.hibernate.orm.jdbc.bind: off
-    org.hibernate.type.descriptor.sql: off
+    root: WARN
+    com.sprint.mission: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers,prometheus
+
+discodeit:
+  storage:
+    type: LOCAL
+    local:
+      root-path: /var/app/storage
+      orphan-grace: 1h
+  api:
+    server-url: ${API_SERVER_URL:https://discodeit.com}
