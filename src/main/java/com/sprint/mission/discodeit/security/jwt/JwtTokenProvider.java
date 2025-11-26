@@ -14,6 +14,7 @@ import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-@org.springframework.context.annotation.Profile("!test")
+@Profile("!test")
 public class JwtTokenProvider {
 
     public static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";

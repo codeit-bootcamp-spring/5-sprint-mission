@@ -24,6 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -189,7 +190,7 @@ class UserApiIntegrationTest {
         // given - 사용자 2명 생성
         User user1 = new User("listuser1", "list1@example.com", "encoded1", null);
         User user2 = new User("listuser2", "list2@example.com", "encoded2", null);
-        userRepository.saveAll(java.util.List.of(user1, user2));
+        userRepository.saveAll(List.of(user1, user2));
 
         // when & then
         mockMvc.perform(get("/api/users"))
@@ -377,7 +378,7 @@ class UserApiIntegrationTest {
         // given - 두 명의 사용자 생성
         User user1 = new User("user1", "user1@example.com", "encoded", null);
         User user2 = new User("user2", "user2@example.com", "encoded", null);
-        userRepository.saveAllAndFlush(java.util.List.of(user1, user2));
+        userRepository.saveAllAndFlush(List.of(user1, user2));
 
         // user2로 보안 컨텍스트 설정
         setSecurityContextForUser(user2);
@@ -414,7 +415,7 @@ class UserApiIntegrationTest {
         // given - 두 명의 사용자 생성
         User user1 = new User("user1", "user1@example.com", "encoded", null);
         User user2 = new User("user2", "user2@example.com", "encoded", null);
-        userRepository.saveAllAndFlush(java.util.List.of(user1, user2));
+        userRepository.saveAllAndFlush(List.of(user1, user2));
 
         // user2로 보안 컨텍스트 설정
         setSecurityContextForUser(user2);

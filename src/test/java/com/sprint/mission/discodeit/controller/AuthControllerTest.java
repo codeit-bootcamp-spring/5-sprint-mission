@@ -22,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -41,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(AuthController.class)
 @Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
-@org.springframework.test.context.ActiveProfiles("test")
+@ActiveProfiles("test")
 class AuthControllerTest {
 
     @Autowired
@@ -177,9 +179,7 @@ class AuthControllerTest {
 
         // Service의 @PreAuthorize에서 권한 검사 후 예외 발생 시뮬레이션
         given(authService.updateRole(any(RoleUpdateRequest.class)))
-            .willThrow(new org.springframework.security.authorization.AuthorizationDeniedException(
-                "Access Denied: hasRole('ADMIN')"
-            ));
+            .willThrow(new AuthorizationDeniedException("Access Denied: hasRole('ADMIN')"));
 
         // when & then
         mockMvc.perform(put("/api/auth/role")

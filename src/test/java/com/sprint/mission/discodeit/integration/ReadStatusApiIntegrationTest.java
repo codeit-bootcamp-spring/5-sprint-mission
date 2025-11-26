@@ -132,7 +132,7 @@ class ReadStatusApiIntegrationTest {
     @DisplayName("읽음 상태 수정 - 실패: 존재하지 않는 읽음 상태 수정 시도")
     void updateReadStatus_NotFound_Fails() throws Exception {
         // given
-        UUID nonExistentId = java.util.UUID.randomUUID();
+        UUID nonExistentId = UUID.randomUUID();
         ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(Instant.now());
 
         // when & then
