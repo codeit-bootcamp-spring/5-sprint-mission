@@ -11,11 +11,24 @@ spring:
       hibernate:
         format_sql: true
 
+discodeit:
+  admin:
+    username: admin
+    email: admin@test.com
+    password: admin
+  user:
+    username: user0
+    email: user0@test.com
+    password: test
+
 logging:
   level:
+    root: info
     com.sprint.mission.discodeit: debug
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+    org.springframework.security: TRACE
+    org.springframework.web: TRACE
 
 management:
   endpoint:
