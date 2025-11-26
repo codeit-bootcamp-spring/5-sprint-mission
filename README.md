@@ -6,11 +6,11 @@
 
 ## JWT 컴포넌트 구현
 
-- [ ] JWT 의존성을 추가하세요.
+- [x] JWT 의존성을 추가하세요.
     ```groovy
     implementation 'com.nimbusds:nimbus-jose-jwt:10.3'
     ```
-- [ ] 토큰을 발급, 갱신, 유효성 검사를 담당하는 컴포넌트(`JwtTokenProvider`)를 구현하세요.
+- [x] 토큰을 발급, 갱신, 유효성 검사를 담당하는 컴포넌트(`JwtTokenProvider`)를 구현하세요.
 
   ![](readme1.png)
 
