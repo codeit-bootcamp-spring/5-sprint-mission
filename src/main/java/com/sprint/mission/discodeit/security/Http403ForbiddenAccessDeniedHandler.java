@@ -11,6 +11,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public record Http403ForbiddenAccessDeniedHandler(
     ObjectMapper objectMapper
@@ -24,7 +25,7 @@ public record Http403ForbiddenAccessDeniedHandler(
 
         response.setStatus(exception.getErrorCode().getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }

@@ -17,18 +17,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
-@Profile("!test")
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final ObjectMapper objectMapper;
@@ -44,7 +43,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         Authentication authentication
     ) throws IOException, ServletException {
 
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         if (authentication.getPrincipal() instanceof DiscodeitUserDetails userDetails) {

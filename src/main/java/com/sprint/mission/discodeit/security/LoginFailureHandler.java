@@ -10,18 +10,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("!test")
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 
     private final ObjectMapper objectMapper;
@@ -45,7 +44,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
         response.setStatus(discodeitException.getErrorCode().getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }
