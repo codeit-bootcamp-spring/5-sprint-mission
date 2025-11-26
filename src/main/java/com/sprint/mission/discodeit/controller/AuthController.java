@@ -38,7 +38,7 @@ public class AuthController implements AuthControllerDocs {
     private final AuthMetricsService authMetricsService;
 
     @GetMapping("/csrf-token")
-    @ResponseStatus(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void getCsrfToken(CsrfToken csrfToken) {
         log.debug("CSRF 토큰 요청");
         log.trace("CSRF 토큰: {}", csrfToken.getToken());
