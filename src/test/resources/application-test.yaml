@@ -53,3 +53,15 @@ discodeit:
     username: test-admin
     email: test-admin@test.com
     password: test-password
+  jwt:
+    access-token:
+      secret: test-access-secret-key-must-be-at-least-32-characters
+      expiration-ms: 900000
+    refresh-token:
+      secret: test-refresh-secret-key-must-be-at-least-32-characters
+      expiration-ms: 604800000
+    max-sessions: 5
+  rate-limit:
+    max-attempts: 5
+    window-seconds: 60
+    block-seconds: 300
