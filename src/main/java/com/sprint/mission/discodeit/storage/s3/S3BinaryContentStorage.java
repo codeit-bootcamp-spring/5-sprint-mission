@@ -88,7 +88,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
         } catch (Exception e) {
             log.error("S3 스토리지 파일 조회 실패: key={}", key, e);
 
-            throw new BinaryContentNotFoundException();
+            throw new BinaryContentNotFoundException(binaryContentId);
         }
     }
 

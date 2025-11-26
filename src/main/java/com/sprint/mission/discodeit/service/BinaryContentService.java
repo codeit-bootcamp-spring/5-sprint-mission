@@ -39,6 +39,6 @@ public class BinaryContentService {
 
     private BinaryContent getOrThrow(UUID binaryContentId) {
         return binaryContentRepository.findById(binaryContentId)
-            .orElseThrow(BinaryContentNotFoundException::new);
+            .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
     }
 }

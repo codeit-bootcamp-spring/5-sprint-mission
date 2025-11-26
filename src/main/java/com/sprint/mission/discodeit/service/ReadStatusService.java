@@ -62,14 +62,17 @@ public class ReadStatusService {
     }
 
     private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     private Channel getChannelOrThrow(UUID channelId) {
-        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
+        return channelRepository.findById(channelId)
+            .orElseThrow(() -> new ChannelNotFoundException(channelId));
     }
 
     private ReadStatus getReadStatusOrThrow(UUID readStatusId) {
-        return readStatusRepository.findById(readStatusId).orElseThrow(ReadStatusNotFoundException::new);
+        return readStatusRepository.findById(readStatusId)
+            .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
     }
 }

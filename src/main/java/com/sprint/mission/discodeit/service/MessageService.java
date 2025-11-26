@@ -225,15 +225,18 @@ public class MessageService {
     }
 
     private Channel getChannelOrThrow(UUID channelId) {
-        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
+        return channelRepository.findById(channelId)
+            .orElseThrow(() -> new ChannelNotFoundException(channelId));
     }
 
     private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     private Message getMessageOrThrow(UUID messageId) {
-        return messageRepository.findById(messageId).orElseThrow(MessageNotFoundException::new);
+        return messageRepository.findById(messageId)
+            .orElseThrow(() -> new MessageNotFoundException(messageId));
     }
 
     public boolean isAuthor(UUID messageId, UUID userId) {

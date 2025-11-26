@@ -11,6 +11,10 @@ public class ReadStatusNotFoundException extends ReadStatusException {
         super(ErrorCode.READ_STATUS_NOT_FOUND);
     }
 
+    public ReadStatusNotFoundException(UUID readStatusId) {
+        super(ErrorCode.READ_STATUS_NOT_FOUND, Map.of("readStatusId", readStatusId));
+    }
+
     public ReadStatusNotFoundException(UUID userId, UUID channelId) {
         super(ErrorCode.READ_STATUS_NOT_FOUND, Map.of("userId", userId, "channelId", channelId));
     }

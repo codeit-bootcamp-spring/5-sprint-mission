@@ -169,7 +169,8 @@ public class UserService {
     }
 
     private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     private void updateUser(

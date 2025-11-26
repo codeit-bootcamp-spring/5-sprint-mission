@@ -188,7 +188,8 @@ public class ChannelService {
     }
 
     private Channel getChannelOrThrow(UUID channelId) {
-        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
+        return channelRepository.findById(channelId)
+            .orElseThrow(() -> new ChannelNotFoundException(channelId));
     }
 
     private void updateChannel(

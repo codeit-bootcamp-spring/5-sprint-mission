@@ -41,14 +41,11 @@ public class AuthService {
         return updateRoleWithoutAuth(request);
     }
 
-    /**
-     * AdminInitializer에서 초기 관리자 설정 시 사용 (인증 컨텍스트 없음)
-     */
     @Transactional
     public UserDto updateRoleWithoutAuth(RoleUpdateRequest request) {
         UUID userId = request.userId();
         User user = userRepository.findById(userId)
-            .orElseThrow(UserNotFoundException::new);
+            .orElseThrow(() -> new UserNotFoundException(userId));
 
         Role newRole = request.newRole();
         user.updateRole(newRole);
