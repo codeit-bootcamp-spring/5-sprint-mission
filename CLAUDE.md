@@ -16,7 +16,7 @@ custom exception handling, comprehensive logging, and monitoring capabilities.
 # Build the project
 ./gradlew build
 
-# Run the application (dev profile by default)
+# Run the application (local profile by default)
 ./gradlew bootRun
 
 # Run with specific profile

@@ -45,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(MessageController.class)
 @Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
+@org.springframework.test.context.ActiveProfiles("test")
 class MessageControllerTest {
 
     @Autowired

@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -25,8 +27,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -377,10 +379,10 @@ public class GlobalExceptionHandler {
         }
 
         // @PreAuthorize("hasRole('ROLE_NAME')") 패턴에서 역할 추출
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(
+        Pattern pattern = java.util.regex.Pattern.compile(
             "hasRole\\(['\"](?:ROLE_)?([^'\"]+)['\"]\\)"
         );
-        java.util.regex.Matcher matcher = pattern.matcher(message);
+        Matcher matcher = pattern.matcher(message);
         if (matcher.find()) {
             return matcher.group(1);
         }

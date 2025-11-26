@@ -3,19 +3,26 @@ package com.sprint.mission.discodeit.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.controller.advice.GlobalExceptionHandler;
+import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -26,12 +33,15 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
 @Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
+@org.springframework.test.context.ActiveProfiles("test")
 class AuthControllerTest {
 
     @Autowired
@@ -45,6 +55,15 @@ class AuthControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private JwtTokenProvider tokenProvider;
+
+    @MockitoBean
+    private JwtRegistry jwtRegistry;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService;
 
     @Test
     @WithMockDiscodeitUser
@@ -184,6 +203,89 @@ class AuthControllerTest {
         mockMvc.perform(put("/api/auth/role")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockDiscodeitUser
+    @DisplayName("POST /api/auth/refresh - 성공: 유효한 리프레시 토큰으로 새 토큰 발급")
+    void refresh_ValidToken_Success() throws Exception {
+        // given
+        String refreshToken = "valid-refresh-token";
+        String newAccessToken = "new-access-token";
+        String newRefreshToken = "new-refresh-token";
+        UUID userId = UUID.randomUUID();
+
+        UserDto userDto = new UserDto(
+            userId,
+            "testuser",
+            "test@example.com",
+            null,
+            true,
+            Role.USER
+        );
+        JwtInformation jwtInformation = new JwtInformation(userDto, newAccessToken, newRefreshToken);
+
+        Cookie refreshCookie = new Cookie("REFRESH_TOKEN", newRefreshToken);
+        refreshCookie.setHttpOnly(true);
+
+        given(authService.refreshToken(refreshToken)).willReturn(jwtInformation);
+        given(tokenProvider.genereateRefreshTokenCookie(newRefreshToken)).willReturn(refreshCookie);
+
+        // when & then
+        mockMvc.perform(post("/api/auth/refresh")
+                .cookie(new Cookie("REFRESH_TOKEN", refreshToken))
+                .with(csrf()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.userDto.id").value(userId.toString()))
+            .andExpect(jsonPath("$.userDto.username").value("testuser"))
+            .andExpect(jsonPath("$.accessToken").value(newAccessToken))
+            .andExpect(cookie().value("REFRESH_TOKEN", newRefreshToken));
+
+        then(authService).should().refreshToken(refreshToken);
+        then(tokenProvider).should().genereateRefreshTokenCookie(newRefreshToken);
+    }
+
+    @Test
+    @WithMockDiscodeitUser
+    @DisplayName("POST /api/auth/refresh - 실패: 리프레시 토큰 쿠키 없음")
+    void refresh_MissingCookie_InternalServerError() throws Exception {
+        // when & then - 쿠키 없이 요청 시 MissingRequestCookieException -> 500
+        mockMvc.perform(post("/api/auth/refresh")
+                .with(csrf()))
+            .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @WithMockDiscodeitUser
+    @DisplayName("POST /api/auth/refresh - 실패: 유효하지 않은 리프레시 토큰")
+    void refresh_InvalidToken_Unauthorized() throws Exception {
+        // given
+        String invalidRefreshToken = "invalid-refresh-token";
+
+        given(authService.refreshToken(invalidRefreshToken))
+            .willThrow(new DiscodeitException(ErrorCode.INVALID_TOKEN));
+
+        // when & then
+        mockMvc.perform(post("/api/auth/refresh")
+                .cookie(new Cookie("REFRESH_TOKEN", invalidRefreshToken))
+                .with(csrf()))
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.code").value("INVALID_TOKEN"));
+
+        then(authService).should().refreshToken(invalidRefreshToken);
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/refresh - 실패: 인증되지 않은 사용자")
+    void refresh_Unauthenticated_Forbidden() throws Exception {
+        // given
+        String refreshToken = "valid-refresh-token";
+
+        // when & then - Spring Security 기본 동작으로 익명 사용자는 403 반환
+        mockMvc.perform(post("/api/auth/refresh")
+                .cookie(new Cookie("REFRESH_TOKEN", refreshToken))
                 .with(csrf()))
             .andExpect(status().isForbidden());
     }

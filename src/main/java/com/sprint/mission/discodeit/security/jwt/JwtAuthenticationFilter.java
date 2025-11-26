@@ -27,11 +27,13 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Component
+@org.springframework.context.annotation.Profile("!test")
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtTokenProvider tokenProvider;
+    private final JwtRegistry jwtRegistry;
     private final UserDetailsService userDetailsService;
     private final ObjectMapper objectMapper;
 
@@ -51,8 +53,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             String token = authHeader.substring(BEARER_PREFIX.length());
-            if (!tokenProvider.validateAccessToken(token)) {
-                log.debug("INVALID JWT token: {}", token);
+            if (!tokenProvider.validateAccessToken(token)
+                || !jwtRegistry.hasActiveJwtInformationByAccessToken(token)
+            ) {
+                log.debug("Invalid JWT token: {}", token);
                 sendErrorResponse(response);
                 return;
             }

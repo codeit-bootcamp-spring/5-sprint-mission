@@ -19,6 +19,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -100,7 +101,7 @@ class MessageRepositoryTest {
 
         // when
         Page<Message> page = messageRepository.findPageWithoutCursorByChannelId(
-            java.util.UUID.randomUUID(),
+            UUID.randomUUID(),
             pageable
         );
 

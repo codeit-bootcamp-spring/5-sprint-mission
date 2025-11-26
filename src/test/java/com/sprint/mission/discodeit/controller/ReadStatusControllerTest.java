@@ -35,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ReadStatusController.class)
 @Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
+@org.springframework.test.context.ActiveProfiles("test")
 class ReadStatusControllerTest {
 
     @Autowired

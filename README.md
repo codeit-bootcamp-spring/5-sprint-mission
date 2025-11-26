@@ -102,7 +102,7 @@
 
 ## 리팩토링 - 로그아웃
 
-- [ ] 쿠키에 저장된 리프레시 토큰을 삭제하는 `LogoutHandler`를 구현하세요.
+- [x] 쿠키에 저장된 리프레시 토큰을 삭제하는 `LogoutHandler`를 구현하세요.
     ```java
     public class JwtLogoutHandler implements LogoutHandler {
 
@@ -113,7 +113,7 @@
         }
     }
     ```
-- [ ] 구현한 핸들러를 추가하세요.
+- [x] 구현한 핸들러를 추가하세요.
     ```
     http
         .logout(logout -> logout
@@ -128,7 +128,7 @@
 
 - 토큰 기반 인증 방식은 세션 기반 인증 방식과 달리 무상태(stateless)이기 때문에 사용자의 로그인 상태를 제어하기 어렵습니다.
 - 따라서 `SessionRegistry`를 통해 세션의 상태를 관리했던 것처럼, JWT의 상태를 관리할 수 있는 컴포넌트를 추가해야합니다.
-- [ ] 토큰의 상태를 관리하는 `JwtRegistry`를 구현하세요.
+- [x] 토큰의 상태를 관리하는 `JwtRegistry`를 구현하세요.
 
   ![](readme3.png)
     - `JwtRegistry`
@@ -154,12 +154,12 @@
                 // ...
             }
             ```
-- [ ] `JwtAuthenticationFilter`에서 `JwtRegistry`를 활용해 토큰의 상태를 검사하는 로직을 추가하세요.
-- [ ] `JwtRegistry`를 활용해 동시 로그인 제한 기능을 리팩토링하세요.
+- [x] `JwtAuthenticationFilter`에서 `JwtRegistry`를 활용해 토큰의 상태를 검사하는 로직을 추가하세요.
+- [x] `JwtRegistry`를 활용해 동시 로그인 제한 기능을 리팩토링하세요.
     - 동일한 계정으로 로그인 시 기존 로그인 세션을 무효화합니다.
-- [ ] `JwtRegistry`를 활용해 권한이 변경된 사용자가 로그인 상태라면 강제로 로그아웃되도록 하세요.
-- [ ] `JwtRegistry`를 활용해 사용자의 로그인 여부를 판단하도록 리팩토링하세요.
-- [ ] `JwtLogoutHandler`에서 `JwtRegistry`를 활용해 로그아웃 시 토큰을 무효화하세요.
+- [x] `JwtRegistry`를 활용해 권한이 변경된 사용자가 로그인 상태라면 강제로 로그아웃되도록 하세요.
+- [x] `JwtRegistry`를 활용해 사용자의 로그인 여부를 판단하도록 리팩토링하세요.
+- [x] `JwtLogoutHandler`에서 `JwtRegistry`를 활용해 로그아웃 시 토큰을 무효화하세요.
     ```java
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response,
@@ -176,7 +176,7 @@
     ```
     - 로그아웃 API는 인증이 필요없기 때문에 `Authentication` 정보가 없을 수 있습니다.
     - 따라서 요청 쿠키의 리프레시 토큰을 활용해 토큰을 무효화합니다.
-- [ ] 주기적으로 만료된 토큰 정보를 레지스트리에서 삭제하세요.
+- [x] 주기적으로 만료된 토큰 정보를 레지스트리에서 삭제하세요.
     - `@EnableScheduling`를 추가하세요.
         ```java
         @Configuration

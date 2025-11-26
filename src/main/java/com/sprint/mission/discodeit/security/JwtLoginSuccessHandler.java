@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
 import com.sprint.mission.discodeit.dto.data.JwtDto;
+import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.auth.InvalidCredentialsException;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -25,10 +27,12 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Component
+@org.springframework.context.annotation.Profile("!test")
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final ObjectMapper objectMapper;
     private final JwtTokenProvider tokenProvider;
+    private final JwtRegistry jwtRegistry;
 
     @Override
     public void onAuthenticationSuccess(
@@ -55,6 +59,13 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write(objectMapper.writeValueAsString(jwtDto));
+
+                JwtInformation jwtInformation = new JwtInformation(
+                    userDetails.getUserDto(),
+                    accessToken,
+                    refreshToken
+                );
+                jwtRegistry.registerJwtInformation(jwtInformation);
 
                 log.info("JWT access and refresh tokens issued for user: {}", userDetails.getUsername());
             } catch (JOSEException e) {

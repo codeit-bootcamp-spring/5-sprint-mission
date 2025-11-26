@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@org.springframework.context.annotation.Profile("!test")
 public class JwtTokenProvider {
 
     public static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";

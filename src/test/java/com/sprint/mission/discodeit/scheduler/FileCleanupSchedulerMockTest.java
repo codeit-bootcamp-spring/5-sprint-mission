@@ -19,6 +19,7 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -136,7 +137,7 @@ class FileCleanupSchedulerMockTest {
         BinaryContent binaryContent = new BinaryContent(
             "test.txt", 1024L, "text/plain"
         );
-        java.lang.reflect.Field idField = binaryContent.getClass()
+        Field idField = binaryContent.getClass()
             .getSuperclass().getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(binaryContent, existingId);

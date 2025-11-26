@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
@@ -171,7 +172,7 @@ class FileCleanupSchedulerTest {
         BinaryContent binaryContent = new BinaryContent(
             "test.txt", 1024L, "text/plain"
         );
-        java.lang.reflect.Field idField = binaryContent.getClass()
+        Field idField = binaryContent.getClass()
             .getSuperclass().getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(binaryContent, existingId);
@@ -284,7 +285,7 @@ class FileCleanupSchedulerTest {
             "existing.txt", 1024L, "text/plain"
         );
         try {
-            java.lang.reflect.Field idField = binaryContent.getClass()
+            Field idField = binaryContent.getClass()
                 .getSuperclass().getDeclaredField("id");
             idField.setAccessible(true);
             idField.set(binaryContent, existing);
