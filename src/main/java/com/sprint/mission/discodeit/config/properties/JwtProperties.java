@@ -19,20 +19,28 @@ public record JwtProperties(
         @NotBlank(message = "Access token secret must not be blank")
         String secret,
 
+        String previousSecret,
+
         @Positive(message = "Access token expiration must be positive")
         int expirationMs
     ) {
-
+        public boolean hasPreviousSecret() {
+            return previousSecret != null && !previousSecret.isBlank();
+        }
     }
 
     public record RefreshToken(
         @NotBlank(message = "Refresh token secret must not be blank")
         String secret,
 
+        String previousSecret,
+
         @Positive(message = "Refresh token expiration must be positive")
         int expirationMs
     ) {
-
+        public boolean hasPreviousSecret() {
+            return previousSecret != null && !previousSecret.isBlank();
+        }
     }
 
 }

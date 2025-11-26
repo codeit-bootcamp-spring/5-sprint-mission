@@ -19,7 +19,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,28 +33,56 @@ public class JwtTokenProvider {
     public static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
 
     private final JWSSigner accessTokenSigner;
-    private final JWSVerifier accessTokenVerifier;
+    private final List<JWSVerifier> accessTokenVerifiers;
     private final JWSSigner refreshTokenSigner;
-    private final JWSVerifier refreshTokenVerifier;
+    private final List<JWSVerifier> refreshTokenVerifiers;
 
     private final int accessTokenExpirationMs;
     private final int refreshTokenExpirationMs;
 
-
     public JwtTokenProvider(JwtProperties jwtProperties) throws JOSEException {
-        String accessTokenSecret = jwtProperties.accessToken().secret();
-        String refreshTokenSecret = jwtProperties.refreshToken().secret();
+        JwtProperties.AccessToken accessTokenConfig = jwtProperties.accessToken();
+        JwtProperties.RefreshToken refreshTokenConfig = jwtProperties.refreshToken();
 
-        byte[] accessSecretBytes = accessTokenSecret.getBytes(StandardCharsets.UTF_8);
-        byte[] refreshSecretBytes = refreshTokenSecret.getBytes(StandardCharsets.UTF_8);
+        byte[] accessSecretBytes = accessTokenConfig.secret().getBytes(StandardCharsets.UTF_8);
+        byte[] refreshSecretBytes = refreshTokenConfig.secret().getBytes(StandardCharsets.UTF_8);
 
         this.accessTokenSigner = new MACSigner(accessSecretBytes);
-        this.accessTokenVerifier = new MACVerifier(accessSecretBytes);
         this.refreshTokenSigner = new MACSigner(refreshSecretBytes);
-        this.refreshTokenVerifier = new MACVerifier(refreshSecretBytes);
 
-        this.accessTokenExpirationMs = jwtProperties.accessToken().expirationMs();
-        this.refreshTokenExpirationMs = jwtProperties.refreshToken().expirationMs();
+        this.accessTokenVerifiers = buildVerifiers(
+            accessSecretBytes,
+            accessTokenConfig.hasPreviousSecret() ? accessTokenConfig.previousSecret() : null,
+            "access"
+        );
+        this.refreshTokenVerifiers = buildVerifiers(
+            refreshSecretBytes,
+            refreshTokenConfig.hasPreviousSecret() ? refreshTokenConfig.previousSecret() : null,
+            "refresh"
+        );
+
+        this.accessTokenExpirationMs = accessTokenConfig.expirationMs();
+        this.refreshTokenExpirationMs = refreshTokenConfig.expirationMs();
+
+        log.info("JWT Token Provider initialized - Access token verifiers: {}, Refresh token verifiers: {}",
+            accessTokenVerifiers.size(), refreshTokenVerifiers.size());
+    }
+
+    private List<JWSVerifier> buildVerifiers(
+        byte[] currentSecret,
+        String previousSecret,
+        String tokenType
+    ) throws JOSEException {
+        List<JWSVerifier> verifiers = new ArrayList<>();
+        verifiers.add(new MACVerifier(currentSecret));
+
+        if (previousSecret != null && !previousSecret.isBlank()) {
+            byte[] previousSecretBytes = previousSecret.getBytes(StandardCharsets.UTF_8);
+            verifiers.add(new MACVerifier(previousSecretBytes));
+            log.info("Previous {} token secret configured for graceful rotation", tokenType);
+        }
+
+        return verifiers;
     }
 
     public String generateAccessToken(DiscodeitUserDetails userDetails) throws JOSEException {
@@ -100,19 +130,33 @@ public class JwtTokenProvider {
     }
 
     public boolean validateAccessToken(String token) {
-        return validateToken(token, accessTokenVerifier, "access");
+        return validateToken(token, accessTokenVerifiers, "access");
     }
 
     public boolean validateRefreshToken(String token) {
-        return validateToken(token, refreshTokenVerifier, "refresh");
+        return validateToken(token, refreshTokenVerifiers, "refresh");
     }
 
-    private boolean validateToken(String token, JWSVerifier verifier, String expectedType) {
+    private boolean validateToken(String token, List<JWSVerifier> verifiers, String expectedType) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
 
-            if (!signedJWT.verify(verifier)) {
-                log.debug("JWT signature verification failed for {} token", expectedType);
+            boolean signatureValid = false;
+            int verifierIndex = 0;
+            for (JWSVerifier verifier : verifiers) {
+                if (signedJWT.verify(verifier)) {
+                    signatureValid = true;
+                    if (verifierIndex > 0) {
+                        log.info("JWT {} token validated with previous secret (rotation in progress)", expectedType);
+                    }
+                    break;
+                }
+                verifierIndex++;
+            }
+
+            if (!signatureValid) {
+                log.debug("JWT signature verification failed for {} token with all {} verifiers",
+                    expectedType, verifiers.size());
                 return false;
             }
 
