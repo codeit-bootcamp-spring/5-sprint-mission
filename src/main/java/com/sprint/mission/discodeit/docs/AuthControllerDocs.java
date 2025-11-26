@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.docs;
 
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,13 +21,6 @@ public interface AuthControllerDocs {
         @ApiResponse(responseCode = "400", description = "CSRF 토큰 요청 실패")
     })
     void getCsrfToken(@Parameter(hidden = true) CsrfToken csrfToken);
-
-    @Operation(summary = "세션 정보를 활용한 현재 사용자 정보 조회")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = UserDto.class))),
-        @ApiResponse(responseCode = "401", description = "올바르지 않은 세션")
-    })
-    UserDto me(@Parameter(hidden = true) DiscodeitUserDetails userDetails);
 
     @Operation(summary = "사용자 권한 수정")
     @ApiResponses(value = {

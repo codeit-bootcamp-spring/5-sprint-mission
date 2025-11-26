@@ -30,9 +30,9 @@ import java.util.UUID;
 import static com.sprint.mission.discodeit.util.ExceptionUtil.handleDuplicateUserConstraint;
 import static org.springframework.util.StringUtils.hasText;
 
-@Service
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
+@Service
 public class UserService {
 
     private final UserRepository userRepository;
@@ -89,12 +89,6 @@ public class UserService {
             .stream()
             .map(userMapper::toDto)
             .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public UserDto find(UUID userId) {
-        User user = getUserOrThrow(userId);
-        return userMapper.toDto(user);
     }
 
     @PreAuthorize("authentication.principal.userDto.id == #userId")

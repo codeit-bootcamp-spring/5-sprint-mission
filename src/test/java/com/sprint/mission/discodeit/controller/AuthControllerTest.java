@@ -66,42 +66,6 @@ class AuthControllerTest {
     }
 
     @Test
-    @WithMockDiscodeitUser(userId = "11111111-1111-1111-1111-111111111111")
-    @DisplayName("GET /api/auth/me - 성공: 내 정보 조회")
-    void me_Success() throws Exception {
-        // given
-        UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        UserDto userDto = new UserDto(
-            userId,
-            "testuser",
-            "test@example.com",
-            null,
-            true,
-            Role.USER
-        );
-
-        given(userService.find(userId)).willReturn(userDto);
-
-        // when & then
-        mockMvc.perform(get("/api/auth/me"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(userId.toString()))
-            .andExpect(jsonPath("$.username").value("testuser"))
-            .andExpect(jsonPath("$.email").value("test@example.com"))
-            .andExpect(jsonPath("$.role").value("USER"));
-
-        then(userService).should().find(userId);
-    }
-
-    @Test
-    @DisplayName("GET /api/auth/me - 실패: 인증되지 않은 사용자")
-    void me_Unauthenticated_Forbidden() throws Exception {
-        // when & then - Spring Security 기본 동작으로 익명 사용자는 403 반환
-        mockMvc.perform(get("/api/auth/me"))
-            .andExpect(status().isForbidden());
-    }
-
-    @Test
     @WithMockDiscodeitUser(role = Role.ADMIN)
     @DisplayName("PUT /api/auth/role - 성공: 관리자가 사용자 권한 변경")
     void updateRole_AsAdmin_Success() throws Exception {
