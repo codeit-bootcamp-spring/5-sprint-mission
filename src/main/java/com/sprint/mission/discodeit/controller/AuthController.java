@@ -7,8 +7,9 @@ import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.service.AuthAuditService;
 import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.service.audit.AuthAuditService;
+import com.sprint.mission.discodeit.service.audit.AuthMetricsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,6 +35,7 @@ public class AuthController implements AuthControllerDocs {
     private final AuthService authService;
     private final JwtTokenProvider tokenProvider;
     private final AuthAuditService authAuditService;
+    private final AuthMetricsService authMetricsService;
 
     @GetMapping("/csrf-token")
     @ResponseStatus(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
@@ -65,6 +67,7 @@ public class AuthController implements AuthControllerDocs {
             jwtInformation.getUserDto().username(),
             request
         );
+        authMetricsService.recordTokenRefreshSuccess();
 
         log.info("토큰 재발급 완료 (Rotation 적용): {}", jwtInformation.getUserDto().username());
 

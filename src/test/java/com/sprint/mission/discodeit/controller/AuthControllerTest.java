@@ -13,9 +13,10 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.service.AuthAuditService;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.audit.AuthAuditService;
+import com.sprint.mission.discodeit.service.audit.AuthMetricsService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -70,6 +71,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthAuditService authAuditService;
+
+    @MockitoBean
+    private AuthMetricsService authMetricsService;
 
     @Test
     @WithMockDiscodeitUser

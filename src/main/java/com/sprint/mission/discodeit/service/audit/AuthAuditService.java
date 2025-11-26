@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service;
+package com.sprint.mission.discodeit.service.audit;
 
 import com.sprint.mission.discodeit.entity.AuthAuditLog;
 import com.sprint.mission.discodeit.repository.AuthAuditLogRepository;

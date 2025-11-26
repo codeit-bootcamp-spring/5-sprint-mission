@@ -3,7 +3,8 @@ package com.sprint.mission.discodeit.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.exception.auth.InvalidCredentialsException;
-import com.sprint.mission.discodeit.service.AuthAuditService;
+import com.sprint.mission.discodeit.service.audit.AuthAuditService;
+import com.sprint.mission.discodeit.service.audit.AuthMetricsService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,6 +26,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
     private final ObjectMapper objectMapper;
     private final AuthAuditService authAuditService;
+    private final AuthMetricsService authMetricsService;
 
     @Override
     public void onAuthenticationFailure(
@@ -36,6 +38,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
         String username = request.getParameter("username");
         authAuditService.logLoginFailure(username, request, exception.getMessage());
+        authMetricsService.recordLoginFailure();
 
         InvalidCredentialsException discodeitException = new InvalidCredentialsException();
         ErrorResponse errorResponse = ErrorResponse.from(discodeitException);
