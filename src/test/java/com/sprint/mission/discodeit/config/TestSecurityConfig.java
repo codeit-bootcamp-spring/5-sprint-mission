@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.config;
 import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.UUID;
+
+import static org.mockito.Mockito.mock;
 
 @Configuration
 @EnableWebSecurity
@@ -54,52 +57,52 @@ public class TestSecurityConfig {
         return RoleHierarchyImpl.withDefaultRolePrefix()
             .role(Role.ADMIN.name())
             .implies(Role.USER.name(), Role.CHANNEL_MANAGER.name())
-
             .role(Role.CHANNEL_MANAGER.name())
             .implies(Role.USER.name())
-
             .build();
     }
 
     @Bean
     public JwtRegistry jwtRegistry() {
-        return new JwtRegistry() {
-            @Override
-            public void registerJwtInformation(JwtInformation jwtInformation) {
-            }
-
-            @Override
-            public void invalidateJwtInformationByUserId(UUID userId) {
-            }
-
-            @Override
-            public boolean hasActiveJwtInformationByUserId(UUID userId) {
-                return false;
-            }
-
-            @Override
-            public boolean hasActiveJwtInformationByAccessToken(String accessToken) {
-                return false;
-            }
-
-            @Override
-            public boolean hasActiveJwtInformationByRefreshToken(String refreshToken) {
-                return false;
-            }
-
-            @Override
-            public void rotateJwtInformation(String refreshToken, JwtInformation newJwtInformation) {
-            }
-
-            @Override
-            public void clearExpiredJwtInformation() {
-            }
-        };
+        return new NoOpJwtRegistry();
     }
 
     @Bean
-    public com.sprint.mission.discodeit.security.jwt.JwtTokenProvider jwtTokenProvider() {
-        return org.mockito.Mockito.mock(
-            com.sprint.mission.discodeit.security.jwt.JwtTokenProvider.class);
+    public JwtTokenProvider jwtTokenProvider() {
+        return mock(JwtTokenProvider.class);
+    }
+
+    private static class NoOpJwtRegistry implements JwtRegistry {
+
+        @Override
+        public void registerJwtInformation(JwtInformation jwtInformation) {
+        }
+
+        @Override
+        public void invalidateJwtInformationByUserId(UUID userId) {
+        }
+
+        @Override
+        public boolean hasActiveJwtInformationByUserId(UUID userId) {
+            return false;
+        }
+
+        @Override
+        public boolean hasActiveJwtInformationByAccessToken(String accessToken) {
+            return false;
+        }
+
+        @Override
+        public boolean hasActiveJwtInformationByRefreshToken(String refreshToken) {
+            return false;
+        }
+
+        @Override
+        public void rotateJwtInformation(String refreshToken, JwtInformation newJwtInformation) {
+        }
+
+        @Override
+        public void clearExpiredJwtInformation() {
+        }
     }
 }

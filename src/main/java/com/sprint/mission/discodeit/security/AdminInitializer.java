@@ -4,7 +4,8 @@ import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
-import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
+import com.sprint.mission.discodeit.exception.user.DuplicateUsernameException;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +17,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Slf4j
+@ConditionalOnProperty(prefix = "discodeit.admin", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
 @Component
-@ConditionalOnProperty(prefix = "discodeit.admin", name = "enabled", havingValue = "true")
 public class AdminInitializer implements ApplicationRunner {
 
     private final UserService userService;
@@ -40,8 +41,8 @@ public class AdminInitializer implements ApplicationRunner {
             UserDto admin = userService.create(request, null);
             authService.updateRoleInternal(new RoleUpdateRequest(admin.id(), Role.ADMIN));
             log.info("관리자 계정이 성공적으로 생성되었습니다.");
-        } catch (UserAlreadyExistsException e) {
-            log.warn("관리자 계정이 이미 존재합니다");
+        } catch (DuplicateUsernameException | DuplicateEmailException e) {
+            log.warn("관리자 계정이 이미 존재합니다.");
         } catch (Exception e) {
             log.error("관리자 계정 생성 중 오류가 발생했습니다.: {}", e.getMessage());
         }
