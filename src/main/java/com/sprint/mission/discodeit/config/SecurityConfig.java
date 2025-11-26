@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.security.jwt.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.jwt.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.LoginRateLimitFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -57,7 +58,8 @@ public class SecurityConfig {
         LoginFailureHandler loginFailureHandler,
         ObjectMapper objectMapper,
         JwtAuthenticationFilter jwtAuthenticationFilter,
-        JwtLogoutHandler jwtLogoutHandler
+        JwtLogoutHandler jwtLogoutHandler,
+        LoginRateLimitFilter loginRateLimitFilter
     ) throws Exception {
         http
             .csrf(csrf -> csrf
@@ -95,6 +97,10 @@ public class SecurityConfig {
             )
             .addFilterBefore(
                 jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            )
+            .addFilterBefore(
+                loginRateLimitFilter,
                 UsernamePasswordAuthenticationFilter.class
             );
         return http.build();
