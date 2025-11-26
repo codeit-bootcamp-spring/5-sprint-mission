@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -199,6 +200,24 @@ public class GlobalExceptionHandler {
             errorCode,
             message,
             Map.of(),
+            exception,
+            request
+        );
+    }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<ErrorResponse> handleMissingCookie(
+        MissingRequestCookieException exception,
+        HttpServletRequest request
+    ) {
+        ErrorCode errorCode = ErrorCode.MISSING_COOKIE;
+
+        String message = "%s: %s".formatted(errorCode.getMessage(), exception.getCookieName());
+
+        return createResponse(
+            errorCode,
+            message,
+            Map.of("cookieName", exception.getCookieName()),
             exception,
             request
         );

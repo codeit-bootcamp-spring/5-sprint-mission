@@ -250,11 +250,12 @@ class AuthControllerTest {
     @Test
     @WithMockDiscodeitUser
     @DisplayName("POST /api/auth/refresh - 실패: 리프레시 토큰 쿠키 없음")
-    void refresh_MissingCookie_InternalServerError() throws Exception {
-        // when & then - 쿠키 없이 요청 시 MissingRequestCookieException -> 500
+    void refresh_MissingCookie_BadRequest() throws Exception {
+        // when & then - 쿠키 없이 요청 시 MissingRequestCookieException -> 400
         mockMvc.perform(post("/api/auth/refresh")
                 .with(csrf()))
-            .andExpect(status().isInternalServerError());
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("MISSING_COOKIE"));
     }
 
     @Test

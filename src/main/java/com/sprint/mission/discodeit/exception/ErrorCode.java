@@ -33,6 +33,7 @@ public enum ErrorCode {
     INVALID_BODY_VALUE(HttpStatus.BAD_REQUEST, "요청 본문 값이 유효하지 않습니다."),
     MISSING_PARAMETER(HttpStatus.BAD_REQUEST, "요청 매개변수가 누락되었습니다."),
     MISSING_PART(HttpStatus.BAD_REQUEST, "요청에 필요한 요소가 포함되어 있지 않습니다."),
+    MISSING_COOKIE(HttpStatus.BAD_REQUEST, "필수 쿠키가 누락되었습니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
     INSUFFICIENT_ROLE(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다."),
