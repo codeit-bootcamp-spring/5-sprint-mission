@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -45,7 +46,8 @@ public class AuthController implements AuthControllerDocs {
 
     @PostMapping("/refresh")
     @ResponseStatus(HttpStatus.OK)
-    public JwtDto refresh(HttpServletRequest request) throws JOSEException {
+    public JwtDto refresh(HttpServletRequest request, HttpServletResponse response)
+        throws JOSEException {
         log.debug("토큰 재발급 요청");
 
         Cookie[] cookies = request.getCookies();
@@ -68,8 +70,12 @@ public class AuthController implements AuthControllerDocs {
             (DiscodeitUserDetails) userDetailsService.loadUserByUsername(username);
 
         String accessToken = tokenProvider.generateAccessToken(userDetails);
+        String newRefreshToken = tokenProvider.generateRefreshToken(userDetails);
 
-        log.info("토큰 재발급 완료: {}", username);
+        Cookie refreshCookie = tokenProvider.genereateRefreshTokenCookie(newRefreshToken);
+        response.addCookie(refreshCookie);
+
+        log.info("토큰 재발급 완료 (Rotation 적용): {}", username);
         return new JwtDto(userDetails.getUserDto(), accessToken);
     }
 
