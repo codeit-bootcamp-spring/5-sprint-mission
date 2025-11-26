@@ -1,10 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
-    username: ${PGUSER}
-    password: ${PGPASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
 server:
+  port: 80
   error:
     include-stacktrace: never
     include-message: never
@@ -20,12 +21,14 @@ management:
     web:
       exposure:
         include: health,info,metrics,loggers,prometheus
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: false
 
 discodeit:
-  storage:
-    type: LOCAL
-    local:
-      root-path: /var/app/storage
-      orphan-grace: 1h
-  api:
-    server-url: ${API_SERVER_URL:https://discodeit.com}
+  datasource-proxy:
+    name: DS-Proxy-Prod
+    slow-query-threshold: 1s

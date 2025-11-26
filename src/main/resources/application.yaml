@@ -1,13 +1,12 @@
 spring:
   application:
     name: discodeit
-  config:
-    import: optional:file:.env[.properties]
-  profiles:
-    default: local
-  output:
-    ansi:
-      enabled: always
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
+  datasource:
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: validate
@@ -16,26 +15,26 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
         default_batch_fetch_size: 100
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   jackson:
     time-zone: UTC
     serialization:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+  profiles:
+    default: local
+  config:
+    import: optional:file:.env[.properties]
 
 server:
   shutdown: graceful
   compression:
     enabled: true
-
-logging:
-  level:
-    org.hibernate.SQL: OFF
-    net.ttddyy.dsproxy.listener: OFF
 
 management:
   endpoints:
@@ -46,20 +45,57 @@ management:
     env:
       enabled: true
 
-info:
-  app:
-    name: Discodeit
-    version: 1.7.0
-    java-version: 17
-    spring-boot-version: 3.4.0
-  datasource:
-    url: ${spring.datasource.url:N/A}
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    ddl-auto: ${spring.jpa.hibernate.ddl-auto}
+springdoc:
+  api-docs:
+    path: /docs
+    enabled: true
+  swagger-ui:
+    path: /docs/ui
+    enabled: true
+
+discodeit:
   storage:
-    type: ${discodeit.storage.type:N/A}
-    path: ${discodeit.storage.local.root-path:N/A}
-  multipart:
-    max-file-size: ${spring.servlet.multipart.max-file-size}
-    max-request-size: ${spring.servlet.multipart.max-request-size}
+    type: ${STORAGE_TYPE:local}
+    local:
+      root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
+    s3:
+      access-key: ${AWS_S3_ACCESS_KEY:}
+      secret-key: ${AWS_S3_SECRET_KEY:}
+      region: ${AWS_S3_REGION:}
+      bucket: ${AWS_S3_BUCKET:}
+      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
+    orphan-grace: ${STORAGE_ORPHAN_GRACE:1h}
+  api:
+    version: 1.2-M8
+    server-url: ${API_SERVER_URL:http://localhost:8080}
+  datasource-proxy:
+    name: DS-Proxy
+    log-level: DEBUG
+    slow-query-threshold: 200ms
+    slow-query-log-level: WARN
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: OFF
+    net.ttddyy.dsproxy.listener: WARN
+
+info:
+  name: Discodeit
+  version: ${discodeit.api.version}
+  java:
+    version: 17
+  spring-boot:
+    version: 3.4.5
+  config:
+    datasource:
+      url: ${spring.datasource.url}
+      driver-class-name: ${spring.datasource.driver-class-name}
+    jpa:
+      ddl-auto: ${spring.jpa.hibernate.ddl-auto}
+    storage:
+      type: ${discodeit.storage.type}
+      path: ${discodeit.storage.local.root-path}
+    multipart:
+      max-file-size: ${spring.servlet.multipart.max-file-size}
+      max-request-size: ${spring.servlet.multipart.max-request-size}

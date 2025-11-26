@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Discodeit is a Discord-like messaging application built with Spring Boot 3.4.0 and Java 17. It implements a chat system
+Discodeit is a Discord-like messaging application built with Spring Boot 3.4.5 and Java 17. It implements a chat system
 with channels (PUBLIC/PRIVATE), messages, users, and file attachments. The project follows a layered architecture with
 custom exception handling, comprehensive logging, and monitoring capabilities.
 
@@ -95,7 +95,7 @@ com.sprint.mission.discodeit/
 - **UserStatus**: User online/offline/away status
 - **Channel**: Two types - PUBLIC (named channels) and PRIVATE (direct messages)
 - **Message**: Messages in channels with optional file attachments
-- **BinaryContent**: File storage metadata (actual files stored in ./storage)
+- **BinaryContent**: File storage metadata (actual files stored in .discodeit/storage)
 - **MessageAttachment**: Junction table linking messages to files
 - **ReadStatus**: Tracks which messages users have read in channels
 
@@ -173,7 +173,7 @@ DiscodeitException (base)
 
 - Configured via `DataSourceProxyConfig` using `net.ttddyy:datasource-proxy`
 - Logs all SQL queries with execution time
-- Logs slow queries (>5 seconds) as warnings
+- Logs slow queries (>200ms) as warnings
 - Query logging level controlled by `net.ttddyy.dsproxy.listener` logger
 
 **Logging Strategy:**
@@ -187,15 +187,16 @@ DiscodeitException (base)
 
 **BinaryContentStorage Interface:**
 
-- Abstraction for file storage with LOCAL implementation (`LocalBinaryContentStorage`)
-- Configured via `discodeit.storage.type=LOCAL`
-- Files stored in `./storage` directory by default
-- Supports orphan file cleanup with configurable grace period (10m default)
+- Abstraction for file storage with LOCAL and S3 implementations
+- Configured via `discodeit.storage.type` (values: `local` or `s3`)
+- LOCAL: Files stored in `.discodeit/storage` directory by default
+- S3: Files stored in AWS S3 bucket (requires AWS credentials)
+- Supports orphan file cleanup with configurable grace period (1h default)
 
 **File Upload:**
 
 - Max file size: 10MB (configurable via `spring.servlet.multipart.max-file-size`)
-- Max request size: 10MB
+- Max request size: 30MB (configurable via `spring.servlet.multipart.max-request-size`)
 - Metadata stored in `binary_contents` table
 - Files identified by UUID
 
@@ -227,7 +228,7 @@ src/test/java/com/sprint/mission/discodeit/
 
 **JaCoCo Coverage:**
 
-- Excludes: config/, dto/, entity/, *Application.class
+- Excludes: config/, dto/, entity/, exception/, mapper/, scheduler/, storage/, util/, *Application.class
 - Minimum requirement: 60% line coverage for service layer
 - Run `./gradlew jacocoTestReport` to generate reports
 

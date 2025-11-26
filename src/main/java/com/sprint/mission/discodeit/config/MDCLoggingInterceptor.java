@@ -2,16 +2,14 @@ package com.sprint.mission.discodeit.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.UUID;
 
-/**
- * MDC(Mapped Diagnostic Context) Logging Interceptor.
- * Adds request metadata to MDC for enhanced logging context.
- */
+@Slf4j
 public class MDCLoggingInterceptor implements HandlerInterceptor {
 
     private static final String REQUEST_ID_KEY = "requestId";
@@ -21,9 +19,9 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull Object handler
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull Object handler
     ) {
         String requestId = UUID.randomUUID().toString();
         String requestMethod = request.getMethod();
@@ -35,16 +33,18 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
 
         response.setHeader(REQUEST_ID_HEADER, requestId);
 
+        log.debug("요청 시작: {} {}", requestMethod, requestUrl);
         return true;
     }
 
     @Override
     public void afterCompletion(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull Object handler,
-            Exception ex
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull Object handler,
+        Exception ex
     ) {
+        log.debug("요청 완료: {} {}", request.getMethod(), request.getRequestURI());
         MDC.clear();
     }
 }

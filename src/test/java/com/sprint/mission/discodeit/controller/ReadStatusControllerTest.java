@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,9 +42,6 @@ class ReadStatusControllerTest {
 
     @MockitoBean
     private ReadStatusService readStatusService;
-
-    @MockitoBean
-    private ReadStatusRepository readStatusRepository;
 
     @Test
     @DisplayName("POST /api/readStatuses - 성공: 읽음 상태 생성")
@@ -109,7 +105,7 @@ class ReadStatusControllerTest {
             new ReadStatusDto(UUID.randomUUID(), userId, channel2Id, Instant.now().minusSeconds(3600))
         );
 
-        given(readStatusRepository.findAllByUserId(userId)).willReturn(readStatuses);
+        given(readStatusService.findAllByUserId(userId)).willReturn(readStatuses);
 
         // when & then
         mockMvc.perform(get("/api/readStatuses")
@@ -121,7 +117,7 @@ class ReadStatusControllerTest {
             .andExpect(jsonPath("$[1].userId").value(userId.toString()))
             .andExpect(jsonPath("$[1].channelId").value(channel2Id.toString()));
 
-        then(readStatusRepository).should().findAllByUserId(userId);
+        then(readStatusService).should().findAllByUserId(userId);
     }
 
     @Test
@@ -129,7 +125,7 @@ class ReadStatusControllerTest {
     void findAllByUserId_EmptyList() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        given(readStatusRepository.findAllByUserId(userId)).willReturn(List.of());
+        given(readStatusService.findAllByUserId(userId)).willReturn(List.of());
 
         // when & then
         mockMvc.perform(get("/api/readStatuses")
@@ -137,7 +133,7 @@ class ReadStatusControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(0));
 
-        then(readStatusRepository).should().findAllByUserId(userId);
+        then(readStatusService).should().findAllByUserId(userId);
     }
 
     @Test

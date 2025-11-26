@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static org.springframework.util.StringUtils.hasText;
+
 @Entity
 @Table(name = "binary_contents")
 @Getter
@@ -28,11 +30,11 @@ public class BinaryContent extends BaseEntity {
         long size,
         String contentType
     ) {
-        if (fileName == null) {
-            throw new IllegalArgumentException("fileName cannot be null");
+        if (!hasText(fileName)) {
+            throw new IllegalArgumentException("fileName must not be blank.");
         }
         if (contentType == null) {
-            throw new IllegalArgumentException("contentType cannot be null");
+            throw new IllegalArgumentException("contentType must not be null.");
         }
         if (contentType.length() > 100) {
             throw new IllegalArgumentException("contentType length cannot exceed 100 characters");

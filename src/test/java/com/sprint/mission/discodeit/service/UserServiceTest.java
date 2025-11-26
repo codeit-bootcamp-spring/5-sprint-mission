@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -156,14 +157,13 @@ class UserServiceTest {
         given(passwordEncoder.encode("password123")).willReturn(encodedPassword);
         given(binaryContentRepository.save(any(BinaryContent.class))).willAnswer(invocation -> {
             BinaryContent bc = invocation.getArgument(0);
-            // 데이터베이스가 ID를 설정하는 것을 시뮬레이션
-            // 참고: 실제로는 JPA가 ID를 설정하지만, 여기서는 불가능
-            // 실제 호출에서는 savedProfile.getId()가 null을 반환함
-            return new BinaryContent(
+            BinaryContent saved = new BinaryContent(
                 bc.getFileName(),
                 bc.getSize(),
                 bc.getContentType()
             );
+            ReflectionTestUtils.setField(saved, "id", UUID.randomUUID());
+            return saved;
         });
         given(userRepository.save(any(User.class))).willReturn(savedUser);
         given(userMapper.toDto(savedUser)).willReturn(expectedDto);

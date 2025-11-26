@@ -189,6 +189,10 @@ public class ChannelService {
         log.info("채널 삭제 완료: channelId={}", channelId);
     }
 
+    private Channel getChannelOrThrow(UUID channelId) {
+        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
+    }
+
     private void updateChannel(
         Channel channel,
         PublicChannelUpdateRequest request
@@ -235,10 +239,6 @@ public class ChannelService {
                 throw new DuplicateChannelException(userId1, userId2);
             }
         }
-    }
-
-    private Channel getChannelOrThrow(UUID channelId) {
-        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
     }
 
     private void initializeReadStatuses(Channel channel, List<User> participants, Instant timestamp) {

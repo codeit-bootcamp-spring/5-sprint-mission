@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -159,14 +158,14 @@ class AuthServiceTest {
         given(passwordEncoder.matches("password123", encodedPassword)).willReturn(true);
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
-        Instant beforeLogin = user.getUserStatus().getLastActiveAt();
-
         // when
-        authService.login(request);
+        UserDto result = authService.login(request);
 
         // then
-        // UserStatus는 실제 엔티티이므로 update() 호출 검증은 불가능하지만
-        // 로그인 후 lastActiveAt이 업데이트되었는지 확인할 수 있음
-        assertThat(user.getUserStatus().getLastActiveAt()).isAfterOrEqualTo(beforeLogin);
+        assertThat(result).isNotNull();
+        assertThat(result.username()).isEqualTo("testuser");
+
+        then(userRepository).should().findByUsername("testuser");
+        then(passwordEncoder).should().matches("password123", encodedPassword);
     }
 }

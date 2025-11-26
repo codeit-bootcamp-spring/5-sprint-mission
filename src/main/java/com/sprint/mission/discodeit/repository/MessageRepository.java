@@ -76,18 +76,18 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     @Modifying
     @Query(
         value = """
+            DELETE FROM message_attachments ma
+            WHERE ma.message_id IN (
+                SELECT id
+                FROM messages
+                WHERE channel_id = :channelId
+            );
             DELETE FROM binary_contents bc
             WHERE bc.id IN (
                 SELECT ma.attachment_id
                 FROM message_attachments ma
                 INNER JOIN messages m ON ma.message_id = m.id
                 WHERE m.channel_id = :channelId
-            );
-            DELETE FROM message_attachments ma
-            WHERE ma.message_id IN (
-                SELECT id
-                FROM messages
-                WHERE channel_id = :channelId
             );
             DELETE FROM messages WHERE channel_id = :channelId;
             """,

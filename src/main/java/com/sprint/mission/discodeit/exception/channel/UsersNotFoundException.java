@@ -10,7 +10,7 @@ public class UsersNotFoundException extends ChannelException {
 
     public UsersNotFoundException(Collection<UUID> missingIds) {
         super(
-            ErrorCode.USER_NOT_FOUND,
+            ErrorCode.USERS_NOT_FOUND,
             Map.of("missingUserIds", missingIds.toString())
         );
     }

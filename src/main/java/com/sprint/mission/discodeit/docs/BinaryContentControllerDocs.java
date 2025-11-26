@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Collection;
@@ -98,7 +97,7 @@ public interface BinaryContentControllerDocs {
             }
         )
     )
-    List<BinaryContentDto> getAllBinaryContents(Collection<UUID> binaryContentIds);
+    List<BinaryContentDto> findAllByIdIn(Collection<UUID> binaryContentIds);
 
     @Operation(summary = "첨부 파일 조회")
     @Parameter(
@@ -167,7 +166,7 @@ public interface BinaryContentControllerDocs {
             }
         )
     )
-    BinaryContentDto getBinaryContent(UUID binaryContentId);
+    BinaryContentDto find(UUID binaryContentId);
 
     @Operation(summary = "파일 다운로드")
     @Parameter(
@@ -232,5 +231,5 @@ public interface BinaryContentControllerDocs {
             }
         )
     )
-    ResponseEntity<Resource> download(UUID binaryContentId);
+    ResponseEntity<?> download(UUID binaryContentId);
 }

@@ -282,7 +282,7 @@ public interface MessageControllerDocs {
                           "message": "사용자를 찾을 수 없습니다.",
                           "details": {
                             "path": "/api/messages",
-                            "method": "DELETE"
+                            "method": "POST"
                           },
                           "exceptionType": "UserNotFoundException",
                           "status": 404,

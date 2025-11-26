@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto.channel;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 
 @Schema(
     example = """
@@ -11,7 +12,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
         """
 )
 public record PublicChannelUpdateRequest(
+    @Size(max = 100)
     String newName,
+
     String newDescription
 ) {
 }
