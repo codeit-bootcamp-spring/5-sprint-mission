@@ -24,6 +24,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -39,7 +40,8 @@ public class GlobalExceptionHandler {
             MessageNotFoundException.class,
             BinaryContentNotFoundException.class,
             UserStatusNotFoundException.class,
-            ReadStatusNotFoundException.class
+            ReadStatusNotFoundException.class,
+            NoResourceFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFound(DiscodeitException e) {
         log.warn("[Exception] 리소스를 찾을 수 없음: {}", e.getMessage());

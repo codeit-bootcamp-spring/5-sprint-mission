@@ -39,12 +39,11 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     @Override
     public UUID put(UUID id, byte[] bytes) {
         log.info("로컬 파일 저장 시도");
-        log.debug("저장 시도하는 파일 ID: {}", id);
         Path filePath = resolvePath(id);
         try {
             Files.write(filePath, bytes);
         } catch (IOException e) {
-            log.warn("파일 저장 실패: {}", filePath, e);
+            log.warn("파일 저장 실패", e);
             throw FileIOErrorException.withStorage(filePath.toString(), e);
         }
         log.info("로컬 파일 저장 성공");
@@ -65,7 +64,6 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     @Transactional
     public ResponseEntity<Resource> download(BinaryContentDTO binaryContentDTO) {
         log.info("로컬 파일 다운로드 시도");
-        log.debug("다운로드 시도하는 파일 정보: {}", binaryContentDTO);
         Path filePath = resolvePath(binaryContentDTO.getId());
 
         if (!Files.exists(filePath)) {
@@ -87,7 +85,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
                     .body(resource);
 
         } catch (IOException e) {
-            log.warn("파일 다운로드 실패: {}", filePath, e);
+            log.warn("파일 다운로드 실패", e);
             throw FileIOErrorException.withStorage(binaryContentDTO.getFileName(), e);
         }
     }

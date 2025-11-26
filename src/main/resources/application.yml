@@ -9,6 +9,7 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+#      ddl-auto: create
     show-sql: false
     properties:
       hibernate:
@@ -75,6 +76,12 @@ info:
     multipart:
       max-file-size: ${spring.servlet.multipart.max-file-size}
       max-request-size: ${spring.servlet.multipart.max-request-size}
+
+admin:
+  username: ${ADMIN_USERNAME:admin}  # 환경변수 없으면 기본값 admin
+  password: ${ADMIN_PASSWORD:admin}  # 환경변수 없으면 기본값 admin
+  email: ${ADMIN_EMAIL:admin@discodeit.com}
+  nickname: ${ADMIN_NICKNAME:관리자}
 
 discodeit:
   storage:

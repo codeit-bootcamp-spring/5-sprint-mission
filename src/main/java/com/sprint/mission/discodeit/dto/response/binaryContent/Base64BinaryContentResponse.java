@@ -44,4 +44,15 @@ public class Base64BinaryContentResponse {
                 .success(response.isSuccess())
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return "Base64BinaryContentResponse(" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", fileName=" + fileName +
+                ", contentType=" + contentType +
+                ", size=" + size +
+                ')';
+    }
 }

@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.dto.request.user;
 
 import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
@@ -27,13 +28,13 @@ public class UserCreateRequest {
     @Nullable
     private UserProfileImageRequest profileImage;
 
-    public User toUser() {
-        return toUserWithProfile(null);
+    public User toUser(String safetyPassword) {
+        return toUserWithProfile(safetyPassword, null);
     }
 
-    public User toUserWithProfile(BinaryContent profile) {
+    public User toUserWithProfile(String safetyPassword,BinaryContent profile) {
         String nickname = (defaultNickname != null) ? defaultNickname : username;
-        return new User(username, password, nickname, email, profile);
+        return new User(username, safetyPassword, nickname, email, Role.USER, profile);
     }
 
 }

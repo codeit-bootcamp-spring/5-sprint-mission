@@ -11,24 +11,24 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class StorageConfig {
 
-    @Bean(name = "localBinaryContentStorage")
+    @Bean
     @ConditionalOnProperty(prefix = "discodeit.storage", name = "type",
             havingValue = "local", matchIfMissing = true)
-    public BinaryContentStorage local(
+    public BinaryContentStorage localBinaryContentStorage(
             @Value("${discodeit.storage.local.root-path:.discodeit/storage}") String root) {
         return new LocalBinaryContentStorage(root);
     }
 
-    @Bean(name = "s3BinaryContentStorage")
+    @Bean
     @ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "s3")
-    public BinaryContentStorage s3(
-            @Value("${discodeit.storage.s3.access-key:}") String accessKey,
-            @Value("${discodeit.storage.s3.secret-key:}") String secretKey,
-            @Value("${discodeit.storage.s3.region}") String region,
-            @Value("${discodeit.storage.s3.bucket}") String bucket,
-            @Value("${discodeit.storage.s3.presigned-url-expiration:600}") int expSec
-    ) {
-        return new S3BinaryContentStorage(accessKey, secretKey, region, bucket, expSec);
+    public BinaryContentStorage s3BinaryContentStorage(S3Properties s3) {
+        return new S3BinaryContentStorage(
+                s3.getAccessKey(),
+                s3.getSecretKey(),
+                s3.getRegion(),
+                s3.getBucket(),
+                s3.getPresignedUrlExpiration()
+        );
     }
 }
 

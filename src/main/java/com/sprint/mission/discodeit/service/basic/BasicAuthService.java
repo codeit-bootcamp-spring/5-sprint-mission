@@ -1,13 +1,15 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.auth.LoginRequest;
-import com.sprint.mission.discodeit.dto.response.auth.LoginResponse;
+import com.sprint.mission.discodeit.dto.request.user.UserRoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.user.InvalidCredentialsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.SessionManager;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,24 +18,24 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class BasicAuthService implements AuthService {
     private final UserRepository userRepository;
+    private final SessionManager sessionManager;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
-    @Transactional(readOnly = true)
-    public LoginResponse login(LoginRequest request) {
-        log.info("[Service] 로그인 시도");
-        log.debug("[Service] 로그인 요청 데이터: {}", request);
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> {
-                    log.warn("[Service] 존재하지 않는 사용자로 로그인 시도: username={}", request.getUsername());
-                    return InvalidCredentialsException.wrongUsername(request.getUsername());
-                });
+    @Transactional
+    public UserResponse updateUserRole(UserRoleUpdateRequest request) {
+        log.info("[AuthService] 사용자 권한 수정 시도: {}", request);
 
-        if (user.getPassword() == null || !user.getPassword().equals(request.getPassword())) {
-            log.warn("[Service] 잘못된 비밀번호 입력: userId={}, username={}", user.getId(), user.getUsername());
-            throw InvalidCredentialsException.wrongPassword();
-        }
+        User user = userRepository.findById(request.userId())
+                .orElseThrow(() -> UserNotFoundException.withId(request.userId()));
 
-        log.info("[Service] 로그인 성공: userId={}, username={}", user.getId(), user.getUsername());
-        return LoginResponse.success(user);
+        user.updateRole(request.newRole());
+        userRepository.save(user);
+
+        sessionManager.invalidateSessionsByUserId(user.getId());
+
+        log.info("[AuthService] 사용자 권한 수정 완료: {} -> {}", user.getUsername(), request.newRole());
+
+        return UserResponse.success(user);
     }
 }

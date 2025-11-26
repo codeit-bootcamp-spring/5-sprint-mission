@@ -26,6 +26,7 @@ import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -139,7 +140,7 @@ public class BasicMessageService implements MessageService {
         );
     }
 
-
+    @PreAuthorize("#request.authorId == authentication.principal.userDto.id()")
     @Override
     @Transactional
     public MessageResponse updateMessage(UUID messageId, MessageUpdateRequest request) {
@@ -170,6 +171,7 @@ public class BasicMessageService implements MessageService {
         return MessageResponse.success(message);
     }
 
+    @PreAuthorize("#authorId == authentication.principal.userDto.id()")
     @Override
     @Transactional
     public MessageDeleteResponse deleteMessage(UUID messageId, UUID authorId) {

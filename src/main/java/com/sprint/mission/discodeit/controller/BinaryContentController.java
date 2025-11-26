@@ -30,7 +30,7 @@ public class BinaryContentController {
         log.info("[controller] 파일 조회 요청 받음: {}", binaryContentId);
         BinaryContentResponse response = binaryContentService.getById(binaryContentId);
         Base64BinaryContentResponse base64Response = Base64BinaryContentResponse.fromResponse(response);
-        log.info("[controller] 파일 조회 응답: {}", base64Response);
+        log.info("[controller] 파일 조회 응답");
         return ResponseEntity.ok(base64Response);
     }
 
@@ -44,17 +44,17 @@ public class BinaryContentController {
                 .map(Base64BinaryContentResponse::fromResponse)
                 .toList();
 
-        log.info("[controller] 파일 리스트 조회 응답: {}", base64Responses);
+        log.info("[controller] 파일 리스트 조회 응답 수");
         return ResponseEntity.ok(base64Responses);
     }
 
     @RequestMapping(path = "/{binaryContentId}", method = RequestMethod.GET)
     public ResponseEntity<Base64BinaryContentResponse> findBinaryContent(
             @PathVariable UUID binaryContentId) throws IOException {
-        log.info("[binaryContentId] 파일 조회 요청 받음: {}", binaryContentId);
+        log.info("[binaryContentId] 파일 조회 요청 받음");
         BinaryContentResponse response = binaryContentService.getById(binaryContentId);
         Base64BinaryContentResponse base64Response = Base64BinaryContentResponse.fromResponse(response);
-        log.info("[binaryContentId] 파일 조회 응답: {}", base64Response);
+        log.info("[binaryContentId] 파일 조회 응답 수");
         return ResponseEntity.ok(base64Response);
     }
 
@@ -68,7 +68,7 @@ public class BinaryContentController {
                 .map(Base64BinaryContentResponse::fromResponse)
                 .toList();
 
-        log.info("[binaryContentIds] 파일 리스트 조회 응답: {}", base64Responses);
+        log.info("[binaryContentIds] 파일 리스트 조회 응답");
         return ResponseEntity.ok(base64Responses);
     }
 
@@ -76,7 +76,7 @@ public class BinaryContentController {
     public ResponseEntity<Resource> download(@PathVariable UUID binaryContentId) throws IOException {
         log.info("[controller] 파일 다운로드 요청 받음: {}", binaryContentId);
         BinaryContentDTO dto = binaryContentService.download(binaryContentId);
-        log.info("[controller] 파일 다운로드 응답 준비: {}", dto);
+        log.info("[controller] 파일 다운로드 응답 준비");
         return binaryContentStorage.download(dto);
     }
 }

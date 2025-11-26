@@ -4,10 +4,8 @@ import com.sprint.mission.discodeit.dto.BinaryContentDTO;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -102,10 +100,10 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
             byte[] bytes = s3Client.getObjectAsBytes(getRequest).asByteArray();
 
-            log.info("S3에서 파일 조회 성공: {}", key);
+            log.info("S3에서 파일 조회 성공");
             return new ByteArrayInputStream(bytes);
         } catch (Exception e) {
-            log.error("S3 조회 실패: {}", id, e);
+            log.error("S3 조회 실패", e);
             throw new RuntimeException("S3 조회 실패", e);
         }
     }

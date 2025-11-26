@@ -34,4 +34,15 @@ public class BinaryContentResponse {
     public static BinaryContentResponse success(BinaryContent binaryContent) {
         return new BinaryContentResponse(binaryContent);
     }
+
+    @Override
+    public String toString() {
+        return "BinaryContentResponse(" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", fileName=" + fileName +
+                ", contentType=" + contentType +
+                ", size=" + size +
+                ')';
+    }
 }
