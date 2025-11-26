@@ -10,7 +10,9 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public record JwtProperties(
     @Valid AccessToken accessToken,
-    @Valid RefreshToken refreshToken
+    @Valid RefreshToken refreshToken,
+    @Positive(message = "Max sessions must be positive")
+    int maxSessions
 ) {
 
     public record AccessToken(

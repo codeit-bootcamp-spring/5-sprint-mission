@@ -34,6 +34,7 @@ public class AuthService {
     private final JwtRegistry jwtRegistry;
     private final JwtTokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
+    private final AuthAuditService authAuditService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -47,10 +48,13 @@ public class AuthService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new UserNotFoundException(userId));
 
+        Role oldRole = user.getRole();
         Role newRole = request.newRole();
         user.updateRole(newRole);
 
         jwtRegistry.invalidateJwtInformationByUserId(userId);
+
+        authAuditService.logRoleChange(userId, user.getUsername(), oldRole.name(), newRole.name());
 
         return userMapper.toDto(user);
     }

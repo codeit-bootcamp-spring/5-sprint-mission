@@ -7,8 +7,10 @@ import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.service.AuthAuditService;
 import com.sprint.mission.discodeit.service.AuthService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ public class AuthController implements AuthControllerDocs {
 
     private final AuthService authService;
     private final JwtTokenProvider tokenProvider;
+    private final AuthAuditService authAuditService;
 
     @GetMapping("/csrf-token")
     @ResponseStatus(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
@@ -42,6 +45,7 @@ public class AuthController implements AuthControllerDocs {
     @PostMapping("/refresh")
     public JwtDto refresh(
         @CookieValue("REFRESH_TOKEN") String refreshToken,
+        HttpServletRequest request,
         HttpServletResponse response
     ) throws JOSEException {
         log.debug("토큰 재발급 요청");
@@ -54,6 +58,12 @@ public class AuthController implements AuthControllerDocs {
         JwtDto jwtDto = new JwtDto(
             jwtInformation.getUserDto(),
             jwtInformation.getAccessToken()
+        );
+
+        authAuditService.logTokenRefresh(
+            jwtInformation.getUserDto().id(),
+            jwtInformation.getUserDto().username(),
+            request
         );
 
         log.info("토큰 재발급 완료 (Rotation 적용): {}", jwtInformation.getUserDto().username());

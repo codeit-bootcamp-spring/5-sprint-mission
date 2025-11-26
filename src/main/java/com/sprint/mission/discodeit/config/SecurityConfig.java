@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.Http403ForbiddenAccessDeniedHandler;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
@@ -115,7 +116,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtRegistry jwtRegistry(JwtTokenProvider jwtTokenProvider) {
-        return new InMemoryJwtRegistry(jwtTokenProvider);
+    public JwtRegistry jwtRegistry(JwtTokenProvider jwtTokenProvider, JwtProperties jwtProperties) {
+        return new InMemoryJwtRegistry(jwtTokenProvider, jwtProperties);
     }
 }

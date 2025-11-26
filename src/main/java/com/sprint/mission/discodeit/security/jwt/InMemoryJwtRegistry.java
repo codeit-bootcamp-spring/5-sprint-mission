@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.security.jwt;
 
+import com.sprint.mission.discodeit.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -25,9 +26,10 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     private final int maxActiveJwtCount;
     private final JwtTokenProvider tokenProvider;
 
-    public InMemoryJwtRegistry(JwtTokenProvider tokenProvider) {
+    public InMemoryJwtRegistry(JwtTokenProvider tokenProvider, JwtProperties jwtProperties) {
         this.tokenProvider = tokenProvider;
-        this.maxActiveJwtCount = 1;
+        this.maxActiveJwtCount = jwtProperties.maxSessions();
+        log.info("JWT Registry initialized with max concurrent sessions: {}", maxActiveJwtCount);
     }
 
     @Override

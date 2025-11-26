@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS user_statuses CASCADE;
 DROP TABLE IF EXISTS messages CASCADE;
 DROP TABLE IF EXISTS read_statuses CASCADE;
+DROP TABLE IF EXISTS auth_audit_logs CASCADE;
 
 CREATE TABLE IF NOT EXISTS binary_contents
 (
@@ -76,3 +77,20 @@ CREATE TABLE IF NOT EXISTS users
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_profile ON users (profile_id);
+
+CREATE TABLE IF NOT EXISTS auth_audit_logs
+(
+    id         uuid PRIMARY KEY,
+    created_at timestamp WITH TIME ZONE NOT NULL,
+    event_type varchar(30)              NOT NULL,
+    user_id    uuid,
+    username   varchar(50),
+    ip_address varchar(45),
+    user_agent varchar(500),
+    details    varchar(500)
+);
+
+CREATE INDEX IF NOT EXISTS idx_auth_audit_logs_user_id ON auth_audit_logs (user_id);
+CREATE INDEX IF NOT EXISTS idx_auth_audit_logs_username ON auth_audit_logs (username);
+CREATE INDEX IF NOT EXISTS idx_auth_audit_logs_event_type ON auth_audit_logs (event_type);
+CREATE INDEX IF NOT EXISTS idx_auth_audit_logs_created_at ON auth_audit_logs (created_at DESC);

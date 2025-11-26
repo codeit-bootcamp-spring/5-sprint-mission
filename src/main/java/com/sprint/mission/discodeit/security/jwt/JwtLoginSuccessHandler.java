@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.exception.auth.InvalidCredentialsException;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.service.AuthAuditService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +33,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     private final ObjectMapper objectMapper;
     private final JwtTokenProvider tokenProvider;
     private final JwtRegistry jwtRegistry;
+    private final AuthAuditService authAuditService;
 
     @Override
     public void onAuthenticationSuccess(
@@ -65,6 +67,12 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                     refreshToken
                 );
                 jwtRegistry.registerJwtInformation(jwtInformation);
+
+                authAuditService.logLoginSuccess(
+                    userDetails.getUserDto().id(),
+                    userDetails.getUsername(),
+                    request
+                );
 
                 log.info("JWT access and refresh tokens issued for user: {}", userDetails.getUsername());
             } catch (JOSEException e) {

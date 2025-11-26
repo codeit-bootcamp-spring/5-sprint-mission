@@ -85,6 +85,7 @@ discodeit:
     refresh-token:
       secret: ${JWT_REFRESH_SECRET}
       expiration-ms: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
+    max-sessions: ${JWT_MAX_SESSIONS:1} # Maximum concurrent sessions per user
 
 logging:
   level:
