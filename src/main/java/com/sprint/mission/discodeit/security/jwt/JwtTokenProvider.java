@@ -12,6 +12,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.sprint.mission.discodeit.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -97,5 +98,23 @@ public class JwtTokenProvider {
 
         log.debug("Generated {} token for user: {}", tokenType, userDto.username());
         return token;
+    }
+
+    public Cookie genereateRefreshTokenCookie(String refreshToken) {
+        Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(refreshTokenExpirationMs / 1000);
+        return refreshCookie;
+    }
+
+    public Cookie genereateRefreshTokenExpirationCookie() {
+        Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, "");
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0);
+        return refreshCookie;
     }
 }

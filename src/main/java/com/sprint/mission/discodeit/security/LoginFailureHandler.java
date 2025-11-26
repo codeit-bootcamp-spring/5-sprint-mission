@@ -37,7 +37,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
         ErrorResponse errorResponse = ErrorResponse.of(
             errorCode.name(),
-            "로그아웃에 실패했습니다.",
+            "로그인에 실패했습니다.",
             Map.of(),
             exception,
             errorCode.getHttpStatus()

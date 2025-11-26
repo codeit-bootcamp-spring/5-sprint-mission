@@ -17,7 +17,7 @@
 ## 리팩토링 - 로그인
 
 - 미션 9와 마찬가지로 Spring Security의 formLogin + 미션 9의 인증 흐름은 그대로 유지하면서 필요한 부분만 대체합니다.
-- [ ] 세션 생성 정책을 `STATELESS`로 변경하고, `sessionConcurrency` 설정을 삭제하세요.
+- [x] 세션 생성 정책을 `STATELESS`로 변경하고, `sessionConcurrency` 설정을 삭제하세요.
     ```
     http
         .sessionManagement(session -> session
@@ -25,7 +25,7 @@
             .sessionCreationPolicy(...)
         )
     ```
-- [ ] `AuthenticationSuccessHandler` 컴포넌트를 대체하세요.
+- [x] `AuthenticationSuccessHandler` 컴포넌트를 대체하세요.
     - 기존 구현체는 `LoginSuccessHandler`입니다.
     - `JwtLoginSuccessHandler`를 정의하고 대체하세요.
         ```java
