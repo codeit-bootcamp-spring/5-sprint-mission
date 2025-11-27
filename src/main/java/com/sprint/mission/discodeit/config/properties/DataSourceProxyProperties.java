@@ -2,28 +2,19 @@ package com.sprint.mission.discodeit.config.properties;
 
 import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.Duration;
 
 @ConfigurationProperties(prefix = "discodeit.datasource-proxy")
 public record DataSourceProxyProperties(
+    @DefaultValue("DS-Proxy")
     String name,
+    @DefaultValue("DEBUG")
     SLF4JLogLevel logLevel,
+    @DefaultValue("500ms")
     Duration slowQueryThreshold,
+    @DefaultValue("WARN")
     SLF4JLogLevel slowQueryLogLevel
 ) {
-    public DataSourceProxyProperties {
-        if (name == null) {
-            name = "DS-Proxy";
-        }
-        if (logLevel == null) {
-            logLevel = SLF4JLogLevel.DEBUG;
-        }
-        if (slowQueryThreshold == null) {
-            slowQueryThreshold = Duration.ofMillis(500);
-        }
-        if (slowQueryLogLevel == null) {
-            slowQueryLogLevel = SLF4JLogLevel.WARN;
-        }
-    }
 }

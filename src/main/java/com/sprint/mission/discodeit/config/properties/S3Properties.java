@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.config.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.Duration;
 
@@ -12,14 +13,9 @@ public record S3Properties(
     String secretKey,
     String region,
     String bucket,
+    @DefaultValue("10m")
     Duration presignedUrlExpiration
 ) {
-    public S3Properties {
-        if (presignedUrlExpiration == null) {
-            presignedUrlExpiration = Duration.ofMinutes(10);
-        }
-    }
-
     public boolean isConfigured() {
         return hasText(accessKey)
             && hasText(secretKey)
