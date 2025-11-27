@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -115,7 +116,8 @@ class ReadStatusApiIntegrationTest {
         // when
         mockMvc.perform(patch("/api/readStatuses/{readStatusId}", readStatus.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.lastReadAt").exists());
 
@@ -135,7 +137,8 @@ class ReadStatusApiIntegrationTest {
         // when & then
         mockMvc.perform(patch("/api/readStatuses/{readStatusId}", nonExistentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("READ_STATUS_NOT_FOUND"));
     }
@@ -165,7 +168,8 @@ class ReadStatusApiIntegrationTest {
         // when
         mockMvc.perform(patch("/api/readStatuses/{readStatusId}", readStatus1.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request1)))
+                .content(objectMapper.writeValueAsString(request1))
+                .with(csrf()))
             .andExpect(status().isOk());
 
         // then - user1의 읽음 상태만 변경되고 user2는 영향받지 않음

@@ -140,7 +140,10 @@ def jacocoExclusions = [
         '**/config/**',
         '**/dto/**',
         '**/entity/**',
-        '**/exception/**'
+        '**/exception/**',
+        '**/security/**',
+        '**/storage/s3/**',
+        '**/*Application.class'
 ]
 
 tasks.named('jacocoTestReport') {

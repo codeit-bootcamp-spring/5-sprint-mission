@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -70,7 +71,8 @@ class ChannelApiIntegrationTest {
         // when
         String responseBody = mockMvc.perform(post("/api/channels/public")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.type").value("PUBLIC"))
             .andExpect(jsonPath("$.name").value("General"))
@@ -104,7 +106,8 @@ class ChannelApiIntegrationTest {
         // when
         String responseBody = mockMvc.perform(post("/api/channels/private")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.type").value("PRIVATE"))
             .andExpect(jsonPath("$.name").doesNotExist())
@@ -149,7 +152,8 @@ class ChannelApiIntegrationTest {
         // when & then
         mockMvc.perform(post("/api/channels/private")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DUPLICATE_PRIVATE_CHANNEL"));
     }
@@ -166,7 +170,8 @@ class ChannelApiIntegrationTest {
         // when & then
         mockMvc.perform(post("/api/channels/public")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isBadRequest());
     }
 
@@ -231,7 +236,8 @@ class ChannelApiIntegrationTest {
         // when
         mockMvc.perform(patch("/api/channels/{channelId}", channel.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.name").value("NewName"))
             .andExpect(jsonPath("$.description").value("NewDesc"));
@@ -253,7 +259,8 @@ class ChannelApiIntegrationTest {
         // when & then
         mockMvc.perform(patch("/api/channels/{channelId}", nonExistentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("CHANNEL_NOT_FOUND"));
     }
@@ -274,7 +281,8 @@ class ChannelApiIntegrationTest {
         UUID channelId = channel.getId();
 
         // when
-        mockMvc.perform(delete("/api/channels/{channelId}", channelId))
+        mockMvc.perform(delete("/api/channels/{channelId}", channelId)
+                .with(csrf()))
             .andExpect(status().isNoContent());
 
         // then - 채널과 ReadStatus가 모두 삭제되었는지 확인
@@ -289,7 +297,8 @@ class ChannelApiIntegrationTest {
         UUID nonExistentId = UUID.randomUUID();
 
         // when & then
-        mockMvc.perform(delete("/api/channels/{channelId}", nonExistentId))
+        mockMvc.perform(delete("/api/channels/{channelId}", nonExistentId)
+                .with(csrf()))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("CHANNEL_NOT_FOUND"));
     }

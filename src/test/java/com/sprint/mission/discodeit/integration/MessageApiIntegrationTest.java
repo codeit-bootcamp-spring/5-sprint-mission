@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -111,7 +112,8 @@ class MessageApiIntegrationTest {
 
         // when
         String responseBody = mockMvc.perform(multipart("/api/messages")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.content").value("Hello, World!"))
             .andExpect(jsonPath("$.author.id").value(author.getId().toString()))
@@ -164,7 +166,8 @@ class MessageApiIntegrationTest {
         // when
         String responseBody = mockMvc.perform(multipart("/api/messages")
                 .file(requestPart)
-                .file(attachment))
+                .file(attachment)
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.content").value("Message with files"))
             .andExpect(jsonPath("$.attachments").isArray())
@@ -212,7 +215,8 @@ class MessageApiIntegrationTest {
 
         // when & then
         mockMvc.perform(multipart("/api/messages")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isBadRequest());
     }
 
@@ -280,7 +284,8 @@ class MessageApiIntegrationTest {
         // when
         mockMvc.perform(patch("/api/messages/{messageId}", message.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").value("Updated content"));
 
@@ -301,7 +306,8 @@ class MessageApiIntegrationTest {
         // when & then - 작성자가 아니므로 AccessDenied (403)
         mockMvc.perform(patch("/api/messages/{messageId}", nonExistentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isForbidden());
     }
 
@@ -330,7 +336,8 @@ class MessageApiIntegrationTest {
         setSecurityContextForUser(author);
 
         // when
-        mockMvc.perform(delete("/api/messages/{messageId}", messageId))
+        mockMvc.perform(delete("/api/messages/{messageId}", messageId)
+                .with(csrf()))
             .andExpect(status().isNoContent());
 
         // then - 메시지와 첨부파일이 모두 삭제되었는지 확인
@@ -347,7 +354,8 @@ class MessageApiIntegrationTest {
         UUID nonExistentId = UUID.randomUUID();
 
         // when & then - 작성자가 아니므로 AccessDenied (403)
-        mockMvc.perform(delete("/api/messages/{messageId}", nonExistentId))
+        mockMvc.perform(delete("/api/messages/{messageId}", nonExistentId)
+                .with(csrf()))
             .andExpect(status().isForbidden());
     }
 }
