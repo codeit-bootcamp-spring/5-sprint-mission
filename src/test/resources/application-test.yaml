@@ -44,15 +44,8 @@ discodeit:
       bucket: test-bucket
       presigned-url-expiration: 5m
     orphan-grace: 2s
-  api:
-    server-url: http://localhost:8080
   datasource-proxy:
     name: DS-Proxy-Test
-  admin:
-    enabled: false
-    username: test-admin
-    email: test-admin@test.com
-    password: test-password
   jwt:
     access-token:
       secret: test-access-secret-key-must-be-at-least-32-characters

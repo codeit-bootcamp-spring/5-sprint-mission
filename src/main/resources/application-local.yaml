@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/discodeit}
-    username: ${POSTGRES_USER:discodeit_user}
-    password: ${POSTGRES_PASSWORD:discodeit1234}
+    url: ${SPRING_DATASOURCE_URL:}
+    username: ${POSTGRES_USER:}
+    password: ${POSTGRES_PASSWORD:}
 
 server:
   port: 8080

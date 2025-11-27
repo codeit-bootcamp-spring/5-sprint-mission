@@ -9,9 +9,7 @@ import org.springframework.validation.annotation.Validated;
 public record ApiProperties(
     @NotBlank
     String serverUrl,
-
     @NotBlank
     String version
 ) {
-
 }

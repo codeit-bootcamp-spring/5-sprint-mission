@@ -42,8 +42,8 @@ public class DataSourceProxyConfig {
             .multiline()
             .logQueryBySlf4j(proxyProperties.logLevel())
             .logSlowQueryBySlf4j(
-                proxyProperties.slowQueryThreshold().getSeconds(),
-                TimeUnit.SECONDS,
+                proxyProperties.slowQueryThreshold().toMillis(),
+                TimeUnit.MILLISECONDS,
                 proxyProperties.slowQueryLogLevel()
             )
             .countQuery()

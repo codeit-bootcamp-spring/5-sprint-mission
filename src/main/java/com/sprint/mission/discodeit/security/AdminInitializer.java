@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.security;
 
+import com.sprint.mission.discodeit.config.properties.AdminProperties;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
@@ -10,33 +11,32 @@ import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@ConditionalOnProperty(prefix = "discodeit.admin", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
 @Component
 public class AdminInitializer implements ApplicationRunner {
 
     private final UserService userService;
     private final AuthService authService;
-
-    @Value("${discodeit.admin.username}")
-    private String username;
-
-    @Value("${discodeit.admin.password}")
-    private String password;
-
-    @Value("${discodeit.admin.email}")
-    private String email;
+    private final AdminProperties adminProperties;
 
     @Override
     public void run(ApplicationArguments args) {
-        UserCreateRequest request = new UserCreateRequest(username, email, password);
+
+        if (!adminProperties.enabled()) {
+            return;
+        }
+
+        UserCreateRequest request = new UserCreateRequest(
+            adminProperties.username(),
+            adminProperties.email(),
+            adminProperties.password()
+        );
+
         try {
             UserDto admin = userService.create(request, null);
             authService.updateRoleWithoutAuth(new RoleUpdateRequest(admin.id(), Role.ADMIN));
