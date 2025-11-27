@@ -24,7 +24,7 @@ public record JwtProperties(
         int expirationMs
     ) {
         public boolean hasPreviousSecret() {
-            return hasText(previousSecret());
+            return hasText(previousSecret);
         }
     }
 
@@ -36,7 +36,7 @@ public record JwtProperties(
         int expirationMs
     ) {
         public boolean hasPreviousSecret() {
-            return previousSecret != null && !previousSecret.isBlank();
+            return hasText(previousSecret);
         }
     }
 }

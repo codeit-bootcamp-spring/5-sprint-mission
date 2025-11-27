@@ -1,25 +1,29 @@
 package com.sprint.mission.discodeit.config.properties;
 
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.DefaultValue;
-import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
 
-@ConfigurationProperties(prefix = "discodeit.storage.s3")
-@Validated
-public record S3Properties(
-    @NotBlank
-    String accessKey,
-    @NotBlank
-    String secretKey,
-    @NotBlank
-    String region,
-    @NotBlank
-    String bucket,
+import static org.springframework.util.StringUtils.hasText;
 
-    @DefaultValue("10m")
+@ConfigurationProperties(prefix = "discodeit.storage.s3")
+public record S3Properties(
+    String accessKey,
+    String secretKey,
+    String region,
+    String bucket,
     Duration presignedUrlExpiration
 ) {
+    public S3Properties {
+        if (presignedUrlExpiration == null) {
+            presignedUrlExpiration = Duration.ofMinutes(10);
+        }
+    }
+
+    public boolean isConfigured() {
+        return hasText(accessKey)
+            && hasText(secretKey)
+            && hasText(region)
+            && hasText(bucket);
+    }
 }

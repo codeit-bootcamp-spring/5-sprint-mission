@@ -23,6 +23,11 @@ public class AwsS3Config {
     private final String region;
 
     public AwsS3Config(S3Properties props) {
+        if (!props.isConfigured()) {
+            throw new IllegalStateException(
+                "S3 storage is enabled but not fully configured. "
+                    + "Please set accessKey, secretKey, region, and bucket.");
+        }
         this.accessKey = props.accessKey();
         this.secretKey = props.secretKey();
         this.region = props.region();
