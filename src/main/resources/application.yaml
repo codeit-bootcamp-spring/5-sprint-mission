@@ -66,8 +66,8 @@ discodeit:
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
     orphan-grace: ${STORAGE_ORPHAN_GRACE:1h}
   api:
-    version: ${API_VERSION:2.1-M10}
     server-url: ${API_SERVER_URL:}
+    version: ${API_VERSION:2.1-M10}
   datasource-proxy:
     name: DS-Proxy
     log-level: DEBUG
