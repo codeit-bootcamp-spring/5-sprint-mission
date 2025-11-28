@@ -8,6 +8,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -46,6 +47,7 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(
 	  HttpSecurity http,
 	  JwtLoginSuccessHandler jwtLoginSuccessHandler,
+	  JwtLogoutHandler jwtLogoutHandler,
 	  LoginFailureHandler loginFailureHandler,
 	  JwtAuthenticationFilter jwtAuthenticationFilter
 	) throws Exception {
@@ -64,11 +66,14 @@ public class SecurityConfig {
 		  )
 		  .logout(logout -> logout
 			.logoutUrl("/api/auth/logout")
-			.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(NO_CONTENT))
+			.addLogoutHandler(jwtLogoutHandler)
+			.logoutSuccessHandler(
+			  new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
 		  )
 		  .csrf(csrf -> csrf
 			.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 			.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+			.ignoringRequestMatchers("/api/auth/logout")
 
 		  )
 		  .exceptionHandling(ex -> ex
