@@ -5,11 +5,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.UUID;
 
 @Slf4j
+@Component
 public class MDCLoggingInterceptor implements HandlerInterceptor {
 
     private static final String REQUEST_ID = "requestId";
@@ -46,26 +48,23 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
         @NonNull Object handler,
         Exception exception
     ) {
+        String requestId = MDC.get(REQUEST_ID);
         String requestMethod = MDC.get(REQUEST_METHOD);
         String requestUri = MDC.get(REQUEST_URI);
         int status = response.getStatus();
-
-        long duration = -1;
-        String startTimeStr = MDC.get(REQUEST_START_TIME);
-        if (startTimeStr != null) {
-            try {
-                duration = System.currentTimeMillis() - Long.parseLong(startTimeStr);
-            } catch (NumberFormatException e) {
-                // Ignore if the start time is not a valid long
-            }
+        long duration;
+        try {
+            duration = System.currentTimeMillis() - Long.parseLong(MDC.get(REQUEST_START_TIME));
+        } catch (NumberFormatException e) {
+            duration = -1;
         }
 
         if (exception != null) {
-            log.error("Request failed: {} {} [status={}, duration={}ms]",
-                requestMethod, requestUri, status, duration, exception);
+            log.error("Request failed: {} {} [status={}, duration={}ms, id={}]",
+                requestMethod, requestUri, status, duration, requestId, exception);
         } else {
-            log.info("Request completed: {} {} [status={}, duration={}ms]",
-                requestMethod, requestUri, status, duration);
+            log.info("Request completed: {} {} [status={}, duration={}ms, id={}]",
+                requestMethod, requestUri, status, duration, requestId);
         }
 
         MDC.clear();
