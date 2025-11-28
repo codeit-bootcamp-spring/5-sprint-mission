@@ -24,12 +24,15 @@ public class AwsS3Config {
 
     @Bean
     public AwsCredentialsProvider awsCredentialsProvider() {
-        if (hasText(s3Properties.accessKey()) && hasText(s3Properties.secretKey())) {
-            return StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(s3Properties.accessKey(), s3Properties.secretKey())
-            );
+        String accessKey = s3Properties.accessKey();
+        String secretKey = s3Properties.secretKey();
+
+        if (!hasText(accessKey) || !hasText(secretKey)) {
+            return DefaultCredentialsProvider.create();
         }
-        return DefaultCredentialsProvider.create();
+
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        return StaticCredentialsProvider.create(credentials);
     }
 
     @Bean
