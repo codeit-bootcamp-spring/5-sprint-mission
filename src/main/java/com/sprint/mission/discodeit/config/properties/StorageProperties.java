@@ -9,7 +9,7 @@ import java.time.Duration;
 
 import static org.springframework.util.StringUtils.hasText;
 
-@ConfigurationProperties(prefix = "discodeit.storage")
+@ConfigurationProperties("discodeit.storage")
 @Validated
 public record StorageProperties(
     @NotBlank

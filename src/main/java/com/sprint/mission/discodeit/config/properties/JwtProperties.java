@@ -8,7 +8,7 @@ import org.springframework.validation.annotation.Validated;
 
 import static org.springframework.util.StringUtils.hasText;
 
-@ConfigurationProperties(prefix = "discodeit.jwt")
+@ConfigurationProperties("discodeit.jwt")
 @Validated
 public record JwtProperties(
     @Valid AccessToken accessToken,

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-@ConfigurationProperties(prefix = "discodeit.rate-limit")
+@ConfigurationProperties("discodeit.rate-limit")
 @Validated
 public record RateLimitProperties(
     @Positive(message = "discodeit.rate-limit.max-attempts must be positive")

@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import static org.springframework.util.StringUtils.hasText;
 
-@ConfigurationProperties(prefix = "discodeit.admin")
+@ConfigurationProperties("discodeit.admin")
 public record AdminProperties(
     boolean enabled,
     String username,

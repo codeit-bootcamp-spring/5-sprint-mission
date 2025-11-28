@@ -59,15 +59,7 @@ public final class SqlKeywordColorizer {
     }
 
     private static String highlightKeywords(String text) {
-        Matcher matcher = KEYWORD_PATTERN.matcher(text);
-        StringBuilder stringBuilder = new StringBuilder();
-
-        while (matcher.find()) {
-            String keyword = matcher.group(1).toUpperCase();
-            matcher.appendReplacement(stringBuilder, BLUE + keyword + RESET);
-        }
-        matcher.appendTail(stringBuilder);
-
-        return stringBuilder.toString();
+        return KEYWORD_PATTERN.matcher(text)
+            .replaceAll(match -> BLUE + match.group(1).toUpperCase() + RESET);
     }
 }

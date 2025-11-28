@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.Duration;
 
-@ConfigurationProperties(prefix = "discodeit.storage.s3")
+@ConfigurationProperties("discodeit.storage.s3")
 public record S3Properties(
     String accessKey,
     String secretKey,

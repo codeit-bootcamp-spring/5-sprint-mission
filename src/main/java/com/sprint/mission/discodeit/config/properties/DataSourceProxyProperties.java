@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.Duration;
 
-@ConfigurationProperties(prefix = "discodeit.datasource-proxy")
+@ConfigurationProperties("discodeit.datasource-proxy")
 public record DataSourceProxyProperties(
     @DefaultValue("DS-Proxy")
     String name,
