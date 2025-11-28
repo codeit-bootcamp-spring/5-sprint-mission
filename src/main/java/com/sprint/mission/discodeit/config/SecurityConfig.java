@@ -42,14 +42,6 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 public class SecurityConfig {
 
     @Bean
-    static MethodSecurityExpressionHandler methodSecurityExpressionHandler(
-        RoleHierarchy roleHierarchy) {
-        DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
-        handler.setRoleHierarchy(roleHierarchy);
-        return handler;
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(
         HttpSecurity http,
         JwtLoginSuccessHandler jwtLoginSuccessHandler,
@@ -73,7 +65,8 @@ public class SecurityConfig {
                 .logoutUrl("/api/auth/logout")
                 .addLogoutHandler(jwtLogoutHandler)
                 .logoutSuccessHandler(
-                    new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+                    new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
+                )
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
@@ -86,7 +79,7 @@ public class SecurityConfig {
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .exceptionHandling(ex -> ex
+            .exceptionHandling(exception -> exception
                 .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
                 .accessDeniedHandler(new Http403ForbiddenAccessDeniedHandler(objectMapper))
             )
@@ -99,17 +92,29 @@ public class SecurityConfig {
     }
 
     @Bean
+    public static MethodSecurityExpressionHandler methodSecurityExpressionHandler(
+        RoleHierarchy roleHierarchy
+    ) {
+        DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+        handler.setRoleHierarchy(roleHierarchy);
+        return handler;
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
     @Bean
     public RoleHierarchy roleHierarchy() {
         return RoleHierarchyImpl.withDefaultRolePrefix()
             .role(Role.ADMIN.name())
             .implies(Role.USER.name(), Role.CHANNEL_MANAGER.name())
+
             .role(Role.CHANNEL_MANAGER.name())
             .implies(Role.USER.name())
+
             .build();
     }
 
