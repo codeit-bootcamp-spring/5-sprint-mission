@@ -64,10 +64,13 @@ monitoring capabilities.
 
 ```
 com.sprint.mission.discodeit/
-├── config/               # Configuration classes (JPA, Security, OpenAPI, DataSource proxy, AWS S3)
-│   └── properties/      # @ConfigurationProperties classes
-├── controller/           # REST controllers
-├── docs/                # OpenAPI documentation interfaces
+├── config/               # Configuration classes
+│   ├── JpaConfig, SecurityConfig, OpenApiConfig, AwsS3Config
+│   ├── DataSourceProxyConfig, SchedulingConfig, WebMvcConfig
+│   ├── MDCLoggingInterceptor    # Request logging with MDC context
+│   └── properties/      # @ConfigurationProperties classes (7 record classes)
+├── controller/           # REST controllers (6 controllers)
+├── docs/                # OpenAPI documentation interfaces (6 doc interfaces)
 ├── dto/                 # Data Transfer Objects organized by domain
 │   ├── user/
 │   ├── channel/
@@ -89,12 +92,17 @@ com.sprint.mission.discodeit/
 ├── repository/          # Spring Data JPA repositories
 ├── scheduler/           # Scheduled tasks (FileCleanupScheduler)
 ├── security/            # Security components
-│   ├── jwt/            # JWT token handling (provider, filters, handlers)
-│   └── audit/          # Authentication audit and metrics
+│   ├── DiscodeitUserDetails, DiscodeitUserDetailsService
+│   ├── RateLimiterService, LoginRateLimitFilter, LoginFailureHandler
+│   ├── SpaCsrfTokenRequestHandler, Http403ForbiddenAccessDeniedHandler
+│   ├── AdminInitializer  # Optional admin user setup on startup
+│   ├── jwt/            # JWT token handling (provider, filters, handlers, registry)
+│   └── audit/          # Authentication audit and metrics (AuthAuditService, AuthMetricsService)
 ├── service/             # Business logic layer
-├── storage/             # File storage abstraction
-│   └── local/          # Local storage implementation
-└── util/               # Utility classes
+├── storage/             # File storage abstraction (BinaryContentStorage interface)
+│   ├── local/          # Local filesystem implementation
+│   └── s3/             # AWS S3 implementation with presigned URLs
+└── util/               # Utility classes (ExceptionUtil, SqlKeywordColorizer)
 ```
 
 ### Domain Model
@@ -174,20 +182,26 @@ DiscodeitException (base)
 - `application.yaml`: Base configuration, defaults to `local` profile
 - `application-local.yaml`: Local development settings (DEBUG logging, all Actuator endpoints exposed)
 - `application-prod.yaml`: Production settings (restricted logging, limited health endpoint details)
-- `application-test.yaml`: Test configuration with H2 database
+- `src/test/resources/application-test.yaml`: Test configuration with H2 database (note: in test resources)
 - `logback-spring.xml`: Custom logging configuration with daily rolling logs
 
 **Environment Variables:**
 
+Environment variables can be set directly or via a `.env` file in the project root (auto-imported).
+
 Database:
-- `SPRING_DATASOURCE_URL`: PostgreSQL connection URL
-- `SPRING_DATASOURCE_USERNAME`: Database username (local default: `discodeit_user`)
-- `SPRING_DATASOURCE_PASSWORD`: Database password (local default: `discodeit1234`)
+- `SPRING_DATASOURCE_URL`: PostgreSQL connection URL (used in prod)
+- `SPRING_DATASOURCE_USERNAME`: Database username (prod)
+- `SPRING_DATASOURCE_PASSWORD`: Database password (prod)
+- `POSTGRES_USER`: Database username (local profile)
+- `POSTGRES_PASSWORD`: Database password (local profile)
 
 Storage:
 - `STORAGE_TYPE`: Storage type (`local` or `s3`, default: `local`)
 - `STORAGE_LOCAL_ROOT_PATH`: Local storage path (default: `.discodeit/storage`)
+- `STORAGE_ORPHAN_GRACE`: Orphan file cleanup grace period (default: `1h`)
 - `AWS_S3_ACCESS_KEY`, `AWS_S3_SECRET_KEY`, `AWS_S3_REGION`, `AWS_S3_BUCKET`: S3 configuration
+- `AWS_S3_PRESIGNED_URL_EXPIRATION`: S3 presigned URL expiration in seconds (default: `600` = 10 min)
 
 JWT Authentication:
 - `JWT_ACCESS_SECRET`: Secret key for access token signing (required)
@@ -204,7 +218,12 @@ Rate Limiting:
 - `RATE_LIMIT_BLOCK_SECONDS`: Block duration after exceeding attempts (default: 300)
 
 Admin User:
+- `DISCODEIT_ADMIN_ENABLED`: Enable admin user initialization (default: `false`)
 - `DISCODEIT_ADMIN_USERNAME`, `DISCODEIT_ADMIN_EMAIL`, `DISCODEIT_ADMIN_PASSWORD`: Admin user credentials
+
+API Configuration:
+- `API_SERVER_URL`: Server URL for OpenAPI documentation
+- `API_VERSION`: API version (default: `2.1-M10`)
 
 ### Logging
 
@@ -218,9 +237,20 @@ Admin User:
 **DataSource Proxy:**
 
 - Configured via `DataSourceProxyConfig` using `net.ttddyy:datasource-proxy`
-- Logs all SQL queries with execution time
-- Logs slow queries (>200ms) as warnings
+- **Only active in `local` and `test` profiles** (disabled in prod to avoid overhead)
+- Logs all SQL queries with execution time and keyword colorization
+- Logs slow queries (>200ms default, configurable) as warnings
 - Query logging level controlled by `net.ttddyy.dsproxy.listener` logger
+- Configuration via `discodeit.datasource-proxy.*` properties:
+    - `name`: DataSource name for logs (default: `DS-Proxy`)
+    - `log-level`: Query log level (default: `DEBUG`)
+    - `slow-query-threshold`: Slow query threshold (default: `200ms` local, `500ms` in code default)
+    - `slow-query-log-level`: Slow query log level (default: `WARN`)
+
+**MDC Logging:**
+
+- `MDCLoggingInterceptor` captures request context (request ID, method, URL) in Mapped Diagnostic Context
+- Enables correlation of logs across a single request
 
 **Logging Strategy:**
 
@@ -237,6 +267,8 @@ Admin User:
 - Configured via `discodeit.storage.type` (values: `local` or `s3`)
 - LOCAL: Files stored in `.discodeit/storage` directory by default
 - S3: Files stored in AWS S3 bucket (requires AWS credentials)
+    - Presigned URLs generated for secure downloads (default: 10 minutes expiration)
+    - Configurable via `discodeit.storage.s3.presigned-url-expiration`
 - Supports orphan file cleanup with configurable grace period (1h default)
 
 **File Upload:**
@@ -349,6 +381,7 @@ src/test/java/com/sprint/mission/discodeit/
 - `JwtLogoutHandler`: Invalidates tokens on logout
 - `LoginRateLimitFilter`: Prevents brute force attacks
 - `RateLimiterService`: Tracks login attempts per IP/username
+- `AdminInitializer`: Optional admin user creation on startup (enabled via `DISCODEIT_ADMIN_ENABLED`)
 
 ### Utilities and Tooling
 
