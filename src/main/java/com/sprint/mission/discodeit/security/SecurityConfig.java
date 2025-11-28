@@ -47,8 +47,6 @@ public class SecurityConfig {
 	  HttpSecurity http,
 	  JwtLoginSuccessHandler jwtLoginSuccessHandler,
 	  LoginFailureHandler loginFailureHandler,
-	  DaoAuthenticationProvider daoAuthenticationProvider,
-	  SessionRegistry sessionRegistry,
 	  JwtAuthenticationFilter jwtAuthenticationFilter
 	) throws Exception {
 
@@ -57,7 +55,6 @@ public class SecurityConfig {
 			// permitAll 경로 설정
 			.requestMatchers(SecurityWhitelist.WHITE_LIST.toArray(String[]::new)).permitAll()
 			.requestMatchers(HttpMethod.POST, "/api/users").permitAll() // 회원 가입
-
 			.anyRequest().authenticated()
 		  )
 		  .formLogin(login -> login

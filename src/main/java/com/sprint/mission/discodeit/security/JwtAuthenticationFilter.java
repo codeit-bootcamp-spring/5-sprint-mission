@@ -36,6 +36,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 
 		String path = request.getServletPath();
+
+		String method = request.getMethod();
+		if (method.equals("POST") && path.equals("/api/users")) {
+			return true;
+		}
+
 		return SecurityWhitelist.matchesJwtWhiteList(path);
 	}
 

@@ -30,7 +30,6 @@ public class SecurityWhitelist {
 	// JWT_SKIP_LIST = 공통 + 추가 스킵 리스트
 	public static final List<String> JWT_SKIP_LIST = new ArrayList<>() {{
 		addAll(COMMON_LIST);
-		add("/api/users");
 	}};
 
 	public static final List<String> JWT_SKIP_LIST_START_WITH = List.of(
