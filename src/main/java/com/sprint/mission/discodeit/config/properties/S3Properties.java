@@ -5,8 +5,6 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.Duration;
 
-import static org.springframework.util.StringUtils.hasText;
-
 @ConfigurationProperties(prefix = "discodeit.storage.s3")
 public record S3Properties(
     String accessKey,
@@ -16,10 +14,4 @@ public record S3Properties(
     @DefaultValue("10m")
     Duration presignedUrlExpiration
 ) {
-    public boolean isConfigured() {
-        return hasText(accessKey)
-            && hasText(secretKey)
-            && hasText(region)
-            && hasText(bucket);
-    }
 }
