@@ -55,3 +55,9 @@ discodeit:
 logging:
   level:
     root: info
+
+  security:
+    jwt:
+      secret: CB29AB21F7B7BF4F353E13242AFAC
+      access-token-validity-seconds: 3600 # 1시간
+      refresh-token-validity-seconds: 86400 # 14일
