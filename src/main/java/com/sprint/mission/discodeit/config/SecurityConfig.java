@@ -93,14 +93,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
-            )
-            .addFilterBefore(
-                loginRateLimitFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
+            .addFilterBefore(loginRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtAuthenticationFilter, LoginRateLimitFilter.class);
         return http.build();
     }
 
