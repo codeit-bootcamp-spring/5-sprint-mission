@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -41,7 +43,7 @@ public class AuthController implements AuthControllerDocs {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void getCsrfToken(CsrfToken csrfToken) {
         log.debug("CSRF 토큰 요청");
-        log.trace("CSRF 토큰: {}", csrfToken.getToken());
+        log.trace("CSRF 토큰: {}", Optional.ofNullable(csrfToken.getToken()).orElse(""));
     }
 
     @PostMapping("/refresh")
