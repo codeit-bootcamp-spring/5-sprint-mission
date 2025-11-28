@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Default File Action
+
+When a file is tagged (using @filename) without any accompanying instructions, interpret this as a request to **review, revise, refactor, and reformat** the file.
+
 ## Project Overview
 
 Discodeit is a Discord-like messaging application built with Spring Boot 3.4.5 and Java 17. It implements a chat system
