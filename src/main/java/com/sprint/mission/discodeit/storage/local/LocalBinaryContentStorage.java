@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -88,12 +90,13 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         InputStream inputStream = get(metaData.id());
         Resource resource = new InputStreamResource(inputStream);
 
+        ContentDisposition contentDisposition = ContentDisposition.attachment()
+            .filename(metaData.fileName(), StandardCharsets.UTF_8)
+            .build();
+
         return ResponseEntity
             .status(HttpStatus.OK)
-            .header(
-                HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + metaData.fileName() + "\""
-            )
+            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
             .header(HttpHeaders.CONTENT_TYPE, metaData.contentType())
             .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
             .body(resource);
