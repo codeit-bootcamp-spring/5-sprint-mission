@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.time.Duration;
@@ -27,12 +28,13 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Slf4j
+@Component
 @ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "s3")
 @RequiredArgsConstructor
-@Component
+@Slf4j
 public class FileCleanupScheduler {
 
+    private static final int LIST_BATCH_SIZE = 1000;
     private static final Pattern UUID_PATTERN = Pattern.compile(
         "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     );
@@ -53,7 +55,7 @@ public class FileCleanupScheduler {
 
         ListObjectsV2Request request = ListObjectsV2Request.builder()
             .bucket(bucket)
-            .maxKeys(1000)
+            .maxKeys(LIST_BATCH_SIZE)
             .build();
 
         int totalDeleted = 0;
@@ -120,9 +122,9 @@ public class FileCleanupScheduler {
             }
 
             return deletedCount;
-        } catch (Exception e) {
-            log.error("S3 객체 삭제 실패: bucket={}, objectCount={}",
-                bucket, objects.size(), e);
+        } catch (S3Exception e) {
+            log.error("S3 객체 삭제 실패: bucket={}, objectCount={}, errorCode={}",
+                bucket, objects.size(), e.awsErrorDetails().errorCode(), e);
             return 0;
         }
     }
