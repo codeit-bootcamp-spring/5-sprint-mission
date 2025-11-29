@@ -13,16 +13,13 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public record Http403ForbiddenAccessDeniedHandler(
-    ObjectMapper objectMapper
-) implements AccessDeniedHandler {
+public record Http403ForbiddenAccessDeniedHandler(ObjectMapper objectMapper) implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
         InsufficientRoleException exception = new InsufficientRoleException();
         ErrorResponse errorResponse = ErrorResponse.from(exception);
-
         response.setStatus(exception.getErrorCode().getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
