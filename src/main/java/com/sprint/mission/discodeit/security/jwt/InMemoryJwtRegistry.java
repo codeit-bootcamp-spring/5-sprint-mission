@@ -27,29 +27,30 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     public InMemoryJwtRegistry(JwtTokenProvider tokenProvider, JwtProperties jwtProperties) {
         this.tokenProvider = tokenProvider;
         this.maxActiveJwtCount = jwtProperties.maxSessions();
-        log.info("JWT Registry initialized with max concurrent sessions: {}", maxActiveJwtCount);
+        log.info("InMemoryJwtRegistry 초기화: maxSessions={}", maxActiveJwtCount);
     }
 
     @Override
     public void registerJwtInformation(JwtInformation jwtInformation) {
         UUID userId = jwtInformation.userDto().id();
-        Queue<JwtInformation> queue = origin.computeIfAbsent(userId,
-            k -> new ConcurrentLinkedQueue<>());
+        Queue<JwtInformation> queue = origin.computeIfAbsent(
+            userId,
+            key -> new ConcurrentLinkedQueue<>()
+        );
 
         while (queue.size() >= maxActiveJwtCount) {
             JwtInformation removed = queue.poll();
             if (removed != null) {
                 accessTokenIndexes.remove(removed.accessToken());
                 refreshTokenIndexes.remove(removed.refreshToken());
-                log.debug("Removed old JWT for user {} due to max concurrent login limit",
-                    userId);
+                log.debug("최대 동시 로그인 제한으로 {} 사용자의 이전 JWT 제거", userId);
             }
         }
 
         queue.offer(jwtInformation);
         accessTokenIndexes.add(jwtInformation.accessToken());
         refreshTokenIndexes.add(jwtInformation.refreshToken());
-        log.debug("Registered JWT information for user: {}", userId);
+        log.debug("등록된 JWT 정보: {}", jwtInformation);
     }
 
     @Override
@@ -60,7 +61,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
                 accessTokenIndexes.remove(info.accessToken());
                 refreshTokenIndexes.remove(info.refreshToken());
             }
-            log.debug("Invalidated all JWT information for user: {}", userId);
+            log.debug("모든 JWT 정보가 무효화됨. 사용자: {}", userId);
         }
     }
 
@@ -96,12 +97,11 @@ public class InMemoryJwtRegistry implements JwtRegistry {
                 queue.offer(newJwtInformation);
                 accessTokenIndexes.add(newJwtInformation.accessToken());
                 refreshTokenIndexes.add(newJwtInformation.refreshToken());
-                log.debug("Rotated JWT information for user: {}",
-                    newJwtInformation.userDto().id());
+                log.debug("Rotated JWT 정보. 사용자: {}", newJwtInformation.userDto().id());
                 return;
             }
         }
-        log.warn("Failed to rotate JWT - refresh token not found in registry");
+        log.warn("JWT rotation 실패 - refresh token이 registry에 없습니다.");
     }
 
     @Scheduled(fixedDelay = 1000 * 60 * 5)
@@ -126,7 +126,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
             }
         }
         if (removedCount > 0) {
-            log.debug("Cleared {} expired JWT information entries", removedCount);
+            log.debug("{} 만료 JWT 정보 항목 정리", removedCount);
         }
     }
 }
