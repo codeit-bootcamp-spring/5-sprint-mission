@@ -33,15 +33,14 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         HttpServletResponse response,
         AuthenticationException exception
     ) throws IOException, ServletException {
-        log.error("Authentication failed: {}", exception.getMessage(), exception);
-
         String username = request.getParameter("username");
+        log.debug("로그인 실패: username={}, reason={}", username, exception.getMessage());
+
         authAuditService.logLoginFailure(username, request, exception.getMessage());
         authMetricsService.recordLoginFailure();
 
         InvalidCredentialsException discodeitException = new InvalidCredentialsException();
         ErrorResponse errorResponse = ErrorResponse.from(discodeitException);
-
         response.setStatus(discodeitException.getErrorCode().getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
