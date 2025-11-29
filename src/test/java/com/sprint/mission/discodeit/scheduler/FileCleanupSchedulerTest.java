@@ -46,7 +46,7 @@ class FileCleanupSchedulerTest {
 
     @Container
     static LocalStackContainer localStack = new LocalStackContainer(
-        DockerImageName.parse("localstack/localstack:3.0")
+        DockerImageName.parse("localstack/localstack:3.5.0")
     ).withServices(S3);
 
     private FileCleanupScheduler scheduler;
