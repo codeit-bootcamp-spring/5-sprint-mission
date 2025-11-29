@@ -1,15 +1,15 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
+import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.security.audit.AuthAuditService;
 import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
@@ -70,8 +70,6 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthMetricsService authMetricsService;
-
-    // Note: getCsrfToken 테스트는 실제 CSRF 필터가 필요하므로 통합 테스트에서 검증합니다.
 
     @Test
     @WithMockDiscodeitUser(role = Role.ADMIN)

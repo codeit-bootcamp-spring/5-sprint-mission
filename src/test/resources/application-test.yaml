@@ -33,6 +33,8 @@ springdoc:
     enabled: false
 
 discodeit:
+  admin:
+    enabled: false
   storage:
     type: local
     local:

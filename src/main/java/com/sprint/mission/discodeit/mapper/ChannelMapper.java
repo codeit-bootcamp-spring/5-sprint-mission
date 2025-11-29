@@ -4,29 +4,38 @@ import com.sprint.mission.discodeit.dto.channel.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
 
-@Mapper(
-    componentModel = "spring",
-    uses = UserMapper.class
-)
-public abstract class ChannelMapper {
+@Component
+@RequiredArgsConstructor
+public class ChannelMapper {
 
-    @Autowired
-    protected UserMapper userMapper;
+    private final UserMapper userMapper;
 
-    @Mapping(target = "participants", expression = "java(mapParticipants(participants))")
-    public abstract ChannelDto toDto(Channel channel, List<User> participants, Instant lastMessageAt);
+    public ChannelDto toDto(Channel channel, List<User> participants, Instant lastMessageAt) {
+        if (channel == null) {
+            return null;
+        }
 
-    protected List<UserDto> mapParticipants(List<User> participants) {
+        return new ChannelDto(
+            channel.getId(),
+            channel.getType(),
+            channel.getName(),
+            channel.getDescription(),
+            mapParticipants(participants),
+            lastMessageAt
+        );
+    }
+
+    private List<UserDto> mapParticipants(List<User> participants) {
         if (participants == null) {
             return List.of();
         }
+
         return participants.stream()
             .map(userMapper::toDto)
             .toList();
