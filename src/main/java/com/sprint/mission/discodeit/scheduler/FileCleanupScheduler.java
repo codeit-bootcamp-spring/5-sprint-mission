@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FileCleanupScheduler {
 
+    private static final long CLEANUP_INTERVAL_MS = 3600_000;
     private static final int LIST_BATCH_SIZE = 1000;
     private static final Pattern UUID_PATTERN = Pattern.compile(
         "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
@@ -45,7 +46,7 @@ public class FileCleanupScheduler {
     private final S3Client s3Client;
 
     @Transactional(readOnly = true)
-    @Scheduled(fixedDelay = 3600_000)
+    @Scheduled(fixedDelay = CLEANUP_INTERVAL_MS)
     public void cleanOrphanFiles() {
         log.info("S3 고아 파일 정리 작업 시작");
         String bucket = s3Properties.bucket();
