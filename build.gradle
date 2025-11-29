@@ -141,7 +141,6 @@ def jacocoExclusions = [
         '**/dto/**',
         '**/entity/**',
         '**/exception/**',
-        '**/security/**',
         '**/storage/s3/**',
         '**/*Application.class'
 ]
