@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.storage.s3;
 import com.sprint.mission.discodeit.config.properties.S3Properties;
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentStorageException;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,6 +15,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
@@ -61,10 +63,10 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
             log.info("S3 스토리지 파일 저장 완료: key={}", key);
 
             return binaryContentId;
-        } catch (Exception e) {
-            log.error("S3 스토리지 파일 저장 실패: key={}", key, e);
+        } catch (S3Exception e) {
+            log.error("S3 스토리지 파일 저장 실패: key={}, errorCode={}", key, e.awsErrorDetails().errorCode(), e);
 
-            throw new RuntimeException("파일 저장 실패: " + binaryContentId, e);
+            throw new BinaryContentStorageException(e);
         }
     }
 
@@ -80,13 +82,13 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
                 .key(key)
                 .build();
 
-            log.info("S3 스토리지 파일 조회 완료: key={}", key);
-
             byte[] bytes = s3Client.getObjectAsBytes(request).asByteArray();
 
+            log.info("S3 스토리지 파일 조회 완료: key={}", key);
+
             return new ByteArrayInputStream(bytes);
-        } catch (Exception e) {
-            log.error("S3 스토리지 파일 조회 실패: key={}", key, e);
+        } catch (S3Exception e) {
+            log.error("S3 스토리지 파일 조회 실패: key={}, errorCode={}", key, e.awsErrorDetails().errorCode(), e);
 
             throw new BinaryContentNotFoundException(binaryContentId);
         }
@@ -94,21 +96,13 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
     @Override
     public ResponseEntity<Void> download(BinaryContentDto metaData) {
-        try {
-            String key = metaData.id().toString();
-            String presignedUrl = generatePresignedUrl(key, metaData.contentType());
+        String key = metaData.id().toString();
+        String presignedUrl = generatePresignedUrl(key, metaData.contentType());
 
-            log.info("생성된 Presigned URL: {}", presignedUrl);
-
-            return ResponseEntity
-                .status(HttpStatus.FOUND)
-                .header(HttpHeaders.LOCATION, presignedUrl)
-                .build();
-        } catch (Exception e) {
-            log.error("Presigned URL 생성 실패: {}", e.getMessage());
-
-            throw new RuntimeException("Presigned URL 생성 실패", e);
-        }
+        return ResponseEntity
+            .status(HttpStatus.FOUND)
+            .header(HttpHeaders.LOCATION, presignedUrl)
+            .build();
     }
 
     private String generatePresignedUrl(String key, String contentType) {
@@ -128,13 +122,13 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
             String url = s3Presigner.presignGetObject(presignRequest).url().toString();
 
-            log.info("S3 Presigned URL 생성 완료: key={}, url={}", key, url);
+            log.info("S3 Presigned URL 생성 완료: key={}", key);
 
             return url;
-        } catch (Exception e) {
-            log.error("S3 Presigned URL 생성 실패: key={}", key, e);
+        } catch (S3Exception e) {
+            log.error("S3 Presigned URL 생성 실패: key={}, errorCode={}", key, e.awsErrorDetails().errorCode(), e);
 
-            throw new RuntimeException("Presigned URL 생성 실패: " + key, e);
+            throw new BinaryContentStorageException(e);
         }
     }
 }
