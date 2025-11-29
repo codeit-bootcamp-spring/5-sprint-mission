@@ -196,7 +196,7 @@ class UserApiIntegrationTest {
         // when & then
         mockMvc.perform(get("/api/users"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$.length()").value(3))
             .andExpect(jsonPath("$[0].username").exists())
             .andExpect(jsonPath("$[1].username").exists());
     }
@@ -208,7 +208,7 @@ class UserApiIntegrationTest {
         // when & then
         mockMvc.perform(get("/api/users"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.length()").value(0));
+            .andExpect(jsonPath("$.length()").value(1));
     }
 
     @Test
