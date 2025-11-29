@@ -1,7 +1,8 @@
-package com.sprint.mission.discodeit.storage.s3;
+package com.sprint.mission.discodeit.integration;
 
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
+import com.sprint.mission.discodeit.storage.s3.S3BinaryContentStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
