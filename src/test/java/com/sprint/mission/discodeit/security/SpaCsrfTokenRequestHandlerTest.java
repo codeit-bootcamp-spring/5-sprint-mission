@@ -38,6 +38,7 @@ class SpaCsrfTokenRequestHandlerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     @DisplayName("handle - csrfToken.get()을 호출하여 토큰을 로드한다")
     void handle_LoadsCsrfToken() {
         // given
