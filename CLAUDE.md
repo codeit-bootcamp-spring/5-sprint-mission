@@ -227,7 +227,7 @@ Admin User:
 
 API Configuration:
 - `API_SERVER_URL`: Server URL for OpenAPI documentation
-- `API_VERSION`: API version (default: `2.1-M10`)
+- `API_VERSION`: API version (default: `2.2-M11`)
 
 ### Logging
 

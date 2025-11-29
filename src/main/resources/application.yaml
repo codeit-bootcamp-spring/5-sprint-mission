@@ -67,7 +67,7 @@ discodeit:
     orphan-grace: ${STORAGE_ORPHAN_GRACE:1h}
   api:
     server-url: ${API_SERVER_URL:}
-    version: ${API_VERSION:2.1-M10}
+    version: ${API_VERSION:2.2-M11}
   datasource-proxy:
     name: DS-Proxy
     log-level: DEBUG
