@@ -1,11 +1,12 @@
 package com.sprint.mission.discodeit.security.jwt;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.audit.AuthAuditService;
 import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
 import jakarta.servlet.http.Cookie;
@@ -55,12 +56,12 @@ class JwtLoginSuccessHandlerTest {
     @Mock
     private Authentication authentication;
 
+    private ObjectMapper objectMapper;
     private JwtLoginSuccessHandler handler;
     private DiscodeitUserDetails userDetails;
 
     @BeforeEach
     void setUp() {
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         handler = new JwtLoginSuccessHandler(
             objectMapper, tokenProvider, jwtRegistry, authAuditService, authMetricsService);
@@ -209,8 +210,8 @@ class JwtLoginSuccessHandlerTest {
     }
 
     @Test
-    @DisplayName("onAuthenticationSuccess - Principal이 DiscodeitUserDetails가 아니면 아무것도 하지 않는다")
-    void onAuthenticationSuccess_InvalidPrincipal_DoesNothing() throws Exception {
+    @DisplayName("onAuthenticationSuccess - Principal이 DiscodeitUserDetails가 아니면 토큰을 생성하지 않는다")
+    void onAuthenticationSuccess_InvalidPrincipal_DoesNotGenerateToken() throws Exception {
         // given
         given(authentication.getPrincipal()).willReturn("invalid-principal");
 
@@ -240,6 +241,8 @@ class JwtLoginSuccessHandlerTest {
         assertThat(statusCaptor.getValue()).isEqualTo(500);
 
         String responseBody = responseWriter.toString();
-        assertThat(responseBody).contains("JWT_GENERATION_FAILED");
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+        assertThat(jsonNode.has("code")).isTrue();
+        assertThat(jsonNode.get("code").asText()).isEqualTo("JWT_GENERATION_FAILED");
     }
 }

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.mapper;
 
+import com.sprint.mission.discodeit.TestFixtures;
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.UUID;
 
@@ -32,26 +32,14 @@ class UserMapperTest {
     @InjectMocks
     private UserMapper userMapper;
 
-    private User createUserWithId(UUID id, String username, String email, BinaryContent profile) {
-        User user = new User(username, email, "encodedPassword123456", profile);
-        ReflectionTestUtils.setField(user, "id", id);
-        return user;
-    }
-
-    private BinaryContent createBinaryContentWithId(UUID id) {
-        BinaryContent content = new BinaryContent("profile.png", 1024L, "image/png");
-        ReflectionTestUtils.setField(content, "id", id);
-        return content;
-    }
-
     @Test
     @DisplayName("온라인 사용자를 DTO로 변환한다")
     void toDto_OnlineUser() {
         // given
         UUID userId = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
-        BinaryContent profile = createBinaryContentWithId(profileId);
-        User user = createUserWithId(userId, "testuser", "test@example.com", profile);
+        BinaryContent profile = TestFixtures.createBinaryContent(profileId, "profile.png", 1024L, "image/png");
+        User user = TestFixtures.createUser(userId, "testuser", "test@example.com", "encodedPassword123456", profile);
         BinaryContentDto profileDto = new BinaryContentDto(profileId, "profile.png", 1024L, "image/png");
 
         given(jwtRegistry.hasActiveJwtInformationByUserId(userId)).willReturn(true);
@@ -76,7 +64,7 @@ class UserMapperTest {
     void toDto_OfflineUser() {
         // given
         UUID userId = UUID.randomUUID();
-        User user = createUserWithId(userId, "offlineuser", "offline@example.com", null);
+        User user = TestFixtures.createUser(userId, "offlineuser", "offline@example.com", "encodedPassword123456");
 
         given(jwtRegistry.hasActiveJwtInformationByUserId(userId)).willReturn(false);
 
@@ -97,7 +85,7 @@ class UserMapperTest {
     void toDto_UserWithoutProfile() {
         // given
         UUID userId = UUID.randomUUID();
-        User user = createUserWithId(userId, "noprofile", "noprofile@example.com", null);
+        User user = TestFixtures.createUser(userId, "noprofile", "noprofile@example.com", "encodedPassword123456");
 
         given(jwtRegistry.hasActiveJwtInformationByUserId(userId)).willReturn(true);
 
@@ -117,8 +105,8 @@ class UserMapperTest {
         // given
         UUID userId = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
-        BinaryContent profile = createBinaryContentWithId(profileId);
-        User user = createUserWithId(userId, "withprofile", "profile@example.com", profile);
+        BinaryContent profile = TestFixtures.createBinaryContent(profileId, "profile.png", 1024L, "image/png");
+        User user = TestFixtures.createUser(userId, "withprofile", "profile@example.com", "encodedPassword123456", profile);
         BinaryContentDto profileDto = new BinaryContentDto(profileId, "profile.png", 1024L, "image/png");
 
         given(jwtRegistry.hasActiveJwtInformationByUserId(userId)).willReturn(false);

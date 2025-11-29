@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
@@ -144,7 +145,7 @@ class JwtLogoutHandlerTest {
         handler.logout(request, response, authentication);
 
         // then
-        then(jwtRegistry).should(never()).invalidateJwtInformationByUserId(org.mockito.ArgumentMatchers.any());
+        then(jwtRegistry).should(never()).invalidateJwtInformationByUserId(any());
     }
 
     @Test
@@ -161,7 +162,7 @@ class JwtLogoutHandlerTest {
         handler.logout(request, response, authentication);
 
         // then
-        then(jwtRegistry).should(never()).invalidateJwtInformationByUserId(org.mockito.ArgumentMatchers.any());
+        then(jwtRegistry).should(never()).invalidateJwtInformationByUserId(any());
     }
 
     @Test
@@ -181,6 +182,6 @@ class JwtLogoutHandlerTest {
 
         // then
         then(response).should().addCookie(expirationCookie);
-        then(jwtRegistry).should(never()).invalidateJwtInformationByUserId(org.mockito.ArgumentMatchers.any());
+        then(jwtRegistry).should(never()).invalidateJwtInformationByUserId(any());
     }
 }

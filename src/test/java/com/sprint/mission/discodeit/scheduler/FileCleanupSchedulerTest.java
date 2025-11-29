@@ -21,6 +21,7 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
@@ -103,7 +104,7 @@ class FileCleanupSchedulerTest {
     @AfterEach
     void tearDown() {
         // 버킷 내 모든 객체 삭제
-        var listResponse = s3Client.listObjectsV2(
+        ListObjectsV2Response listResponse = s3Client.listObjectsV2(
             ListObjectsV2Request.builder()
                 .bucket(BUCKET_NAME)
                 .build()

@@ -20,14 +20,18 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -229,7 +233,7 @@ final class S3BinaryContentStorageTest {
         @AfterEach
         void tearDown() {
             // 버킷 내 모든 객체 삭제
-            var listResponse = s3Client.listObjectsV2(ListObjectsV2Request.builder()
+            ListObjectsV2Response listResponse = s3Client.listObjectsV2(ListObjectsV2Request.builder()
                 .bucket(BUCKET_NAME)
                 .build());
 
@@ -255,7 +259,7 @@ final class S3BinaryContentStorageTest {
             assertThat(result).isEqualTo(id);
 
             // S3에 실제로 저장되었는지 확인
-            var headResponse = s3Client.headObject(HeadObjectRequest.builder()
+            HeadObjectResponse headResponse = s3Client.headObject(HeadObjectRequest.builder()
                 .bucket(BUCKET_NAME)
                 .key(id.toString())
                 .build());
@@ -277,7 +281,7 @@ final class S3BinaryContentStorageTest {
             storage.put(id, newContent);
 
             // then
-            var getResponse = s3Client.getObjectAsBytes(GetObjectRequest.builder()
+            ResponseBytes<GetObjectResponse> getResponse = s3Client.getObjectAsBytes(GetObjectRequest.builder()
                 .bucket(BUCKET_NAME)
                 .key(id.toString())
                 .build());

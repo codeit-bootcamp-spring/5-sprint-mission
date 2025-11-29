@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.security;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,12 +32,13 @@ class Http403ForbiddenAccessDeniedHandlerTest {
     @Mock
     private HttpServletResponse response;
 
+    private ObjectMapper objectMapper;
     private Http403ForbiddenAccessDeniedHandler handler;
     private StringWriter responseWriter;
 
     @BeforeEach
     void setUp() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         handler = new Http403ForbiddenAccessDeniedHandler(objectMapper);
         responseWriter = new StringWriter();
@@ -93,7 +95,9 @@ class Http403ForbiddenAccessDeniedHandlerTest {
 
         // then
         String responseBody = responseWriter.toString();
-        assertThat(responseBody).contains("INSUFFICIENT_ROLE");
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+        assertThat(jsonNode.has("code")).isTrue();
+        assertThat(jsonNode.get("code").asText()).isEqualTo("INSUFFICIENT_ROLE");
     }
 
     @Test
@@ -107,7 +111,41 @@ class Http403ForbiddenAccessDeniedHandlerTest {
 
         // then
         String responseBody = responseWriter.toString();
-        assertThat(responseBody).contains("exceptionType");
-        assertThat(responseBody).contains("InsufficientRoleException");
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+        assertThat(jsonNode.has("exceptionType")).isTrue();
+        assertThat(jsonNode.get("exceptionType").asText()).isEqualTo("InsufficientRoleException");
+    }
+
+    @Test
+    @DisplayName("handle - null 메시지 예외도 정상 처리한다")
+    void handle_NullMessage_HandlesGracefully() throws Exception {
+        // given
+        AccessDeniedException exception = new AccessDeniedException(null);
+
+        // when
+        handler.handle(request, response, exception);
+
+        // then
+        then(response).should().setStatus(HttpStatus.FORBIDDEN.value());
+        String responseBody = responseWriter.toString();
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+        assertThat(jsonNode.has("code")).isTrue();
+        assertThat(jsonNode.get("code").asText()).isEqualTo("INSUFFICIENT_ROLE");
+    }
+
+    @Test
+    @DisplayName("handle - 응답 본문에 status 필드가 포함된다")
+    void handle_ResponseContainsStatus() throws Exception {
+        // given
+        AccessDeniedException exception = new AccessDeniedException("Access denied");
+
+        // when
+        handler.handle(request, response, exception);
+
+        // then
+        String responseBody = responseWriter.toString();
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+        assertThat(jsonNode.has("status")).isTrue();
+        assertThat(jsonNode.get("status").asInt()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 }

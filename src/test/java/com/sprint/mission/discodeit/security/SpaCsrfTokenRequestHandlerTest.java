@@ -14,8 +14,7 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SpaCsrfTokenRequestHandler 단위 테스트")
@@ -30,6 +29,9 @@ class SpaCsrfTokenRequestHandlerTest {
     @Mock
     private CsrfToken csrfToken;
 
+    @Mock
+    private Supplier<CsrfToken> tokenSupplier;
+
     private SpaCsrfTokenRequestHandler handler;
 
     @BeforeEach
@@ -38,18 +40,16 @@ class SpaCsrfTokenRequestHandlerTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     @DisplayName("handle - csrfToken.get()을 호출하여 토큰을 로드한다")
     void handle_LoadsCsrfToken() {
         // given
-        Supplier<CsrfToken> tokenSupplier = mock(Supplier.class);
         given(tokenSupplier.get()).willReturn(csrfToken);
 
         // when
         handler.handle(request, response, tokenSupplier);
 
         // then
-        verify(tokenSupplier).get();
+        then(tokenSupplier).should().get();
     }
 
     @Test
@@ -87,4 +87,32 @@ class SpaCsrfTokenRequestHandlerTest {
         assertThat(result).isNull();
     }
 
+    @Test
+    @DisplayName("resolveCsrfTokenValue - 특수문자가 포함된 토큰을 처리한다")
+    void resolveCsrfTokenValue_SpecialCharacters_ReturnsHeaderValue() {
+        // given
+        String headerName = "X-CSRF-TOKEN";
+        String specialToken = "token+/=123!@#$%";
+        given(csrfToken.getHeaderName()).willReturn(headerName);
+        given(request.getHeader(headerName)).willReturn(specialToken);
+
+        // when
+        String result = handler.resolveCsrfTokenValue(request, csrfToken);
+
+        // then
+        assertThat(result).isEqualTo(specialToken);
+    }
+
+    @Test
+    @DisplayName("handle - null 토큰 공급자가 null을 반환하면 정상 처리한다")
+    void handle_NullTokenFromSupplier_HandlesGracefully() {
+        // given
+        given(tokenSupplier.get()).willReturn(null);
+
+        // when
+        handler.handle(request, response, tokenSupplier);
+
+        // then
+        then(tokenSupplier).should().get();
+    }
 }

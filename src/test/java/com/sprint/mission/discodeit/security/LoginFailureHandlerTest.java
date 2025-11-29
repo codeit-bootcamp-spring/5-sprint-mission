@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.security;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sprint.mission.discodeit.security.audit.AuthAuditService;
@@ -40,12 +41,12 @@ class LoginFailureHandlerTest {
     @Mock
     private HttpServletResponse response;
 
+    private ObjectMapper objectMapper;
     private LoginFailureHandler loginFailureHandler;
     private StringWriter responseWriter;
 
     @BeforeEach
     void setUp() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         loginFailureHandler = new LoginFailureHandler(objectMapper, authAuditService, authMetricsService);
         responseWriter = new StringWriter();
@@ -137,6 +138,8 @@ class LoginFailureHandlerTest {
 
         // then
         String responseBody = responseWriter.toString();
-        assertThat(responseBody).contains("INVALID_CREDENTIALS");
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+        assertThat(jsonNode.has("code")).isTrue();
+        assertThat(jsonNode.get("code").asText()).isEqualTo("INVALID_CREDENTIALS");
     }
 }

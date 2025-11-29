@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.TestFixtures;
 import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -19,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.sprint.mission.discodeit.entity.Role;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -55,6 +55,12 @@ class UserServiceTest {
 
     @Mock
     private UserMapper userMapper;
+
+    @Mock
+    private MultipartFile profileFile;
+
+    @Mock
+    private MultipartFile emptyProfileFile;
 
     @InjectMocks
     private UserService userService;
@@ -118,9 +124,7 @@ class UserServiceTest {
             "password123"
         );
 
-        MultipartFile profileFile = org.mockito.Mockito.mock(MultipartFile.class);
         byte[] fileBytes = "test-image-data".getBytes();
-        UUID profileId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
 
         given(profileFile.isEmpty()).willReturn(false);
@@ -156,13 +160,12 @@ class UserServiceTest {
         given(passwordEncoder.encode("password123")).willReturn(encodedPassword);
         given(binaryContentRepository.save(any(BinaryContent.class))).willAnswer(invocation -> {
             BinaryContent bc = invocation.getArgument(0);
-            BinaryContent saved = new BinaryContent(
+            return TestFixtures.createBinaryContent(
+                UUID.randomUUID(),
                 bc.getFileName(),
                 bc.getSize(),
                 bc.getContentType()
             );
-            ReflectionTestUtils.setField(saved, "id", UUID.randomUUID());
-            return saved;
         });
         given(userRepository.save(any(User.class))).willReturn(savedUser);
         given(userMapper.toDto(savedUser)).willReturn(expectedDto);
@@ -193,7 +196,6 @@ class UserServiceTest {
             "password123"
         );
 
-        MultipartFile emptyProfileFile = org.mockito.Mockito.mock(MultipartFile.class);
         given(emptyProfileFile.isEmpty()).willReturn(true);
 
         String encodedPassword = "$2a$10$encodedPassword";
@@ -239,9 +241,6 @@ class UserServiceTest {
             "Test@Example.com",
             "password123"
         );
-
-        MultipartFile profileFile = org.mockito.Mockito.mock(MultipartFile.class);
-        byte[] fileBytes = "test-image-data".getBytes();
 
         given(profileFile.isEmpty()).willReturn(false);
         given(profileFile.getOriginalFilename()).willReturn("profile.png");

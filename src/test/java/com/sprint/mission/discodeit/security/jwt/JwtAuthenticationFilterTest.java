@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.security.jwt;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -50,11 +51,11 @@ class JwtAuthenticationFilterTest {
     @Mock
     private FilterChain filterChain;
 
+    private ObjectMapper objectMapper;
     private JwtAuthenticationFilter filter;
 
     @BeforeEach
     void setUp() {
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         filter = new JwtAuthenticationFilter(tokenProvider, jwtRegistry, userDetailsService, objectMapper);
         SecurityContextHolder.clearContext();
@@ -185,6 +186,8 @@ class JwtAuthenticationFilterTest {
 
         // then
         String responseBody = responseWriter.toString();
-        assertThat(responseBody).contains("INVALID_TOKEN");
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+        assertThat(jsonNode.has("code")).isTrue();
+        assertThat(jsonNode.get("code").asText()).isEqualTo("INVALID_TOKEN");
     }
 }

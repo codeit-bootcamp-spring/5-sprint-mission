@@ -40,7 +40,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,6 +68,9 @@ class MessageServiceTest {
 
     @Mock
     private UserMapper userMapper;
+
+    @Mock
+    private MultipartFile attachmentFile;
 
     @InjectMocks
     private MessageService messageService;
@@ -132,12 +134,11 @@ class MessageServiceTest {
             authorId
         );
 
-        MultipartFile file = mock(MultipartFile.class);
-        given(file.isEmpty()).willReturn(false);
-        given(file.getOriginalFilename()).willReturn("image.png");
-        given(file.getSize()).willReturn(1024L);
-        given(file.getContentType()).willReturn("image/png");
-        given(file.getBytes()).willReturn(new byte[]{1, 2, 3});
+        given(attachmentFile.isEmpty()).willReturn(false);
+        given(attachmentFile.getOriginalFilename()).willReturn("image.png");
+        given(attachmentFile.getSize()).willReturn(1024L);
+        given(attachmentFile.getContentType()).willReturn("image/png");
+        given(attachmentFile.getBytes()).willReturn(new byte[]{1, 2, 3});
 
         Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
         User author = new User("testuser", "test@example.com", "encoded", null);
@@ -161,7 +162,7 @@ class MessageServiceTest {
         given(messageMapper.toDto(any(Message.class), anyList())).willReturn(expectedDto);
 
         // when
-        MessageDto result = messageService.create(request, List.of(file));
+        MessageDto result = messageService.create(request, List.of(attachmentFile));
 
         // then
         assertThat(result).isNotNull();
@@ -237,12 +238,11 @@ class MessageServiceTest {
             authorId
         );
 
-        MultipartFile file = mock(MultipartFile.class);
-        given(file.isEmpty()).willReturn(false);
-        given(file.getOriginalFilename()).willReturn("file.txt");
-        given(file.getSize()).willReturn(100L);
-        given(file.getContentType()).willReturn("text/plain");
-        given(file.getBytes()).willThrow(new IOException("Read error"));
+        given(attachmentFile.isEmpty()).willReturn(false);
+        given(attachmentFile.getOriginalFilename()).willReturn("file.txt");
+        given(attachmentFile.getSize()).willReturn(100L);
+        given(attachmentFile.getContentType()).willReturn("text/plain");
+        given(attachmentFile.getBytes()).willThrow(new IOException("Read error"));
 
         Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
         User author = new User("testuser", "test@example.com", "encoded", null);
@@ -255,7 +255,7 @@ class MessageServiceTest {
         given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(savedAttachment);
 
         // when & then
-        assertThatThrownBy(() -> messageService.create(request, List.of(file)))
+        assertThatThrownBy(() -> messageService.create(request, List.of(attachmentFile)))
             .isInstanceOf(BinaryContentUploadException.class)
             .hasCauseInstanceOf(IOException.class);
 

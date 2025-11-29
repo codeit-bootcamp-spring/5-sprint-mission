@@ -1,5 +1,6 @@
-package com.sprint.mission.discodeit.security;
+package com.sprint.mission.discodeit.security.userdetails;
 
+import com.sprint.mission.discodeit.TestFixtures;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
@@ -13,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -35,12 +35,6 @@ class DiscodeitUserDetailsServiceTest {
     @InjectMocks
     private DiscodeitUserDetailsService userDetailsService;
 
-    private User createUserWithId(UUID id, String username, String email, String password) {
-        User user = new User(username, email, password, null);
-        ReflectionTestUtils.setField(user, "id", id);
-        return user;
-    }
-
     @Test
     @DisplayName("loadUserByUsername - 존재하는 사용자를 조회하면 UserDetails를 반환한다")
     void loadUserByUsername_Success() {
@@ -48,7 +42,7 @@ class DiscodeitUserDetailsServiceTest {
         UUID userId = UUID.randomUUID();
         String username = "testuser";
         String password = "encodedPassword123456";
-        User user = createUserWithId(userId, username, "test@example.com", password);
+        User user = TestFixtures.createUser(userId, username, "test@example.com", password);
         UserDto userDto = new UserDto(userId, username, "test@example.com", null, true, Role.USER);
 
         given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
@@ -81,7 +75,7 @@ class DiscodeitUserDetailsServiceTest {
         // given
         UUID userId = UUID.randomUUID();
         String username = "admin";
-        User user = createUserWithId(userId, username, "admin@example.com", "password123456");
+        User user = TestFixtures.createUser(userId, username, "admin@example.com", "password123456");
         UserDto userDto = new UserDto(userId, username, "admin@example.com", null, true, Role.ADMIN);
 
         given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
