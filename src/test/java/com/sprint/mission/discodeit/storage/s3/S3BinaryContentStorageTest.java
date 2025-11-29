@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -42,19 +40,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
-/**
- * S3BinaryContentStorage 테스트.
- *
- * <p>두 가지 테스트 방식을 제공:
- * <ul>
- *   <li>실제 AWS S3 환경 테스트 (SpringBootTest 기반)</li>
- *   <li>LocalStack 기반 단위 테스트 (Testcontainers)</li>
- * </ul>
- */
 @DisplayName("S3BinaryContentStorage 테스트")
-public final class S3BinaryContentStorageTest {
+final class S3BinaryContentStorageTest {
 
-    // Test constants
+    private S3BinaryContentStorageTest() {
+    }
+
     private static final String TEST_CONTENT = "테스트 데이터";
     private static final String TEST_CONTENT_ENGLISH = "test content";
     private static final String ORIGINAL_CONTENT = "original content";
@@ -62,18 +53,12 @@ public final class S3BinaryContentStorageTest {
     private static final int LARGE_FILE_SIZE_MB = 1;
     private static final int BYTES_PER_MB = 1024 * 1024;
 
-    // Private constructor to prevent instantiation (this is a test container class)
-    private S3BinaryContentStorageTest() {
-        throw new UnsupportedOperationException("This is a test container class with nested tests");
-    }
-
-    // Helper methods
     static byte[] createTestContent(String content) {
         return content.getBytes();
     }
 
     static byte[] createLargeContent() {
-        byte[] content = new byte[S3BinaryContentStorageTest.LARGE_FILE_SIZE_MB * BYTES_PER_MB];
+        byte[] content = new byte[LARGE_FILE_SIZE_MB * BYTES_PER_MB];
         for (int i = 0; i < content.length; i++) {
             content[i] = (byte) (i % 256);
         }
@@ -91,14 +76,8 @@ public final class S3BinaryContentStorageTest {
         }
     }
 
-    /**
-     * 실제 AWS S3를 사용한 통합 테스트.
-     * application.yaml에 실제 AWS 자격증명이 설정되어 있어야 실행 가능.
-     */
     @Nested
     @SpringBootTest
-    @ActiveProfiles("prod")
-    @Disabled("실제 AWS S3 자격증명이 필요하므로 수동 실행 필요")
     @DisplayName("실제 AWS S3 통합 테스트")
     class RealS3IntegrationTest {
 
@@ -111,33 +90,12 @@ public final class S3BinaryContentStorageTest {
         @Value("${discodeit.storage.s3.bucket}")
         private String bucket;
 
-        @Value("${discodeit.storage.s3.access-key}")
-        private String accessKey;
-
-        @Value("${discodeit.storage.s3.secret-key}")
-        private String secretKey;
-
-        @Value("${discodeit.storage.s3.region}")
-        private String region;
-
         @Autowired
         private S3Client s3Client;
-
-        @Autowired
-        private S3Presigner s3Presigner;
 
         @AfterEach
         void tearDown() {
             try {
-                S3Client s3Client = S3Client.builder()
-                    .region(Region.of(region))
-                    .credentialsProvider(
-                        StaticCredentialsProvider.create(
-                            AwsBasicCredentials.create(accessKey, secretKey)
-                        )
-                    )
-                    .build();
-
                 DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
                     .bucket(bucket)
                     .key(testId.toString())
@@ -146,8 +104,6 @@ public final class S3BinaryContentStorageTest {
                 s3Client.deleteObject(deleteRequest);
             } catch (NoSuchKeyException e) {
                 // 객체가 이미 없는 경우는 무시
-            } catch (Exception e) {
-                System.err.println("테스트 객체 정리 실패: " + e.getMessage());
             }
         }
 
@@ -205,13 +161,8 @@ public final class S3BinaryContentStorageTest {
         }
     }
 
-    /**
-     * LocalStack을 사용한 단위 테스트.
-     * Docker가 필요하지만 실제 AWS 자격증명 없이 테스트 가능.
-     */
     @Nested
     @Testcontainers
-    @Disabled("LocalStack 컨테이너 시작 시간이 길어 CI/CD에서 제외. 로컬 환경에서 수동 실행 권장")
     @DisplayName("LocalStack 기반 단위 테스트")
     class LocalStackUnitTest {
 
