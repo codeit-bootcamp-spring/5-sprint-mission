@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

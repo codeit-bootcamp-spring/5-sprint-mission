@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.docs;
 
-import com.sprint.mission.discodeit.dto.user.UserCreateMultipartForm;
-import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.dto.user.UserUpdateMultipartForm;
-import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.request.UserCreateMultipartForm;
+import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.dto.user.request.UserUpdateMultipartForm;
+import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

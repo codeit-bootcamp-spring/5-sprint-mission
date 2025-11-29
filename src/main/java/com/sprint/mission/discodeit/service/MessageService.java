@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.MessageDto;
-import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
-import com.sprint.mission.discodeit.dto.response.Pageable;
-import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.data.MessageDto;
+import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.pagination.response.PageResponse;
+import com.sprint.mission.discodeit.dto.pagination.request.Pageable;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;

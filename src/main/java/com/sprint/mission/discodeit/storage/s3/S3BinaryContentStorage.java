@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.config.properties.S3Properties;
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.extern.slf4j.Slf4j;

@@ -2,10 +2,10 @@ package com.sprint.mission.discodeit.controller;
 
 import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.docs.AuthControllerDocs;
-import com.sprint.mission.discodeit.dto.data.JwtDto;
-import com.sprint.mission.discodeit.dto.data.JwtInformation;
-import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.jwt.data.JwtDto;
+import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
+import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.security.audit.AuthAuditService;
 import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
@@ -56,22 +56,22 @@ public class AuthController implements AuthControllerDocs {
 
         JwtInformation jwtInformation = authService.refreshToken(refreshToken);
 
-        Cookie refreshCookie = tokenProvider.generateRefreshTokenCookie(jwtInformation.getRefreshToken());
+        Cookie refreshCookie = tokenProvider.generateRefreshTokenCookie(jwtInformation.refreshToken());
         response.addCookie(refreshCookie);
 
         JwtDto jwtDto = new JwtDto(
-            jwtInformation.getUserDto(),
-            jwtInformation.getAccessToken()
+            jwtInformation.userDto(),
+            jwtInformation.accessToken()
         );
 
         authAuditService.logTokenRefresh(
-            jwtInformation.getUserDto().id(),
-            jwtInformation.getUserDto().username(),
+            jwtInformation.userDto().id(),
+            jwtInformation.userDto().username(),
             request
         );
         authMetricsService.recordTokenRefreshSuccess();
 
-        log.info("토큰 재발급 완료 (Rotation 적용): {}", jwtInformation.getUserDto().username());
+        log.info("토큰 재발급 완료 (Rotation 적용): {}", jwtInformation.userDto().username());
 
         return jwtDto;
     }

@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service;
 
 import com.nimbusds.jose.JOSEException;
-import com.sprint.mission.discodeit.dto.data.JwtInformation;
-import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
+import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.DiscodeitException;

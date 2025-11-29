@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.security;
 
-import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

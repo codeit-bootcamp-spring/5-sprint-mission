@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.Http403ForbiddenAccessDeniedHandler;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
-import com.sprint.mission.discodeit.security.LoginRateLimitFilter;
+import com.sprint.mission.discodeit.security.ratelimit.LoginRateLimitFilter;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
 import com.sprint.mission.discodeit.security.jwt.InMemoryJwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtAuthenticationFilter;

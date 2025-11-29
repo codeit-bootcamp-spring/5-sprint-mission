@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
@@ -109,7 +110,7 @@ class UserControllerTest {
             UUID.randomUUID(),
             "testuser",
             "test@example.com",
-            new com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto(
+            new BinaryContentDto(
                 profileId,
                 "profile.jpg",
                 1024L,

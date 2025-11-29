@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.security.jwt;
 
 import com.sprint.mission.discodeit.config.properties.JwtProperties;
-import com.sprint.mission.discodeit.dto.data.JwtInformation;
+import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -32,23 +32,23 @@ public class InMemoryJwtRegistry implements JwtRegistry {
 
     @Override
     public void registerJwtInformation(JwtInformation jwtInformation) {
-        UUID userId = jwtInformation.getUserDto().id();
+        UUID userId = jwtInformation.userDto().id();
         Queue<JwtInformation> queue = origin.computeIfAbsent(userId,
             k -> new ConcurrentLinkedQueue<>());
 
         while (queue.size() >= maxActiveJwtCount) {
             JwtInformation removed = queue.poll();
             if (removed != null) {
-                accessTokenIndexes.remove(removed.getAccessToken());
-                refreshTokenIndexes.remove(removed.getRefreshToken());
+                accessTokenIndexes.remove(removed.accessToken());
+                refreshTokenIndexes.remove(removed.refreshToken());
                 log.debug("Removed old JWT for user {} due to max concurrent login limit",
                     userId);
             }
         }
 
         queue.offer(jwtInformation);
-        accessTokenIndexes.add(jwtInformation.getAccessToken());
-        refreshTokenIndexes.add(jwtInformation.getRefreshToken());
+        accessTokenIndexes.add(jwtInformation.accessToken());
+        refreshTokenIndexes.add(jwtInformation.refreshToken());
         log.debug("Registered JWT information for user: {}", userId);
     }
 
@@ -57,8 +57,8 @@ public class InMemoryJwtRegistry implements JwtRegistry {
         Queue<JwtInformation> removed = origin.remove(userId);
         if (removed != null && !removed.isEmpty()) {
             for (JwtInformation info : removed) {
-                accessTokenIndexes.remove(info.getAccessToken());
-                refreshTokenIndexes.remove(info.getRefreshToken());
+                accessTokenIndexes.remove(info.accessToken());
+                refreshTokenIndexes.remove(info.refreshToken());
             }
             log.debug("Invalidated all JWT information for user: {}", userId);
         }
@@ -83,21 +83,22 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     @Override
     public void rotateJwtInformation(String refreshToken, JwtInformation newJwtInformation) {
         for (Queue<JwtInformation> queue : origin.values()) {
-            for (JwtInformation info : queue) {
-                if (refreshToken.equals(info.getRefreshToken())) {
-                    accessTokenIndexes.remove(info.getAccessToken());
-                    refreshTokenIndexes.remove(info.getRefreshToken());
-
-                    info.rotate(newJwtInformation.getAccessToken(),
-                        newJwtInformation.getRefreshToken());
-
-                    accessTokenIndexes.add(newJwtInformation.getAccessToken());
-                    refreshTokenIndexes.add(newJwtInformation.getRefreshToken());
-
-                    log.debug("Rotated JWT information for user: {}",
-                        info.getUserDto().id());
-                    return;
+            boolean removed = queue.removeIf(info -> {
+                if (refreshToken.equals(info.refreshToken())) {
+                    accessTokenIndexes.remove(info.accessToken());
+                    refreshTokenIndexes.remove(info.refreshToken());
+                    return true;
                 }
+                return false;
+            });
+
+            if (removed) {
+                queue.offer(newJwtInformation);
+                accessTokenIndexes.add(newJwtInformation.accessToken());
+                refreshTokenIndexes.add(newJwtInformation.refreshToken());
+                log.debug("Rotated JWT information for user: {}",
+                    newJwtInformation.userDto().id());
+                return;
             }
         }
         log.warn("Failed to rotate JWT - refresh token not found in registry");
@@ -111,10 +112,10 @@ public class InMemoryJwtRegistry implements JwtRegistry {
             Queue<JwtInformation> queue = entry.getValue();
             int beforeSize = queue.size();
             queue.removeIf(info -> {
-                boolean expired = !tokenProvider.validateRefreshToken(info.getRefreshToken());
+                boolean expired = !tokenProvider.validateRefreshToken(info.refreshToken());
                 if (expired) {
-                    accessTokenIndexes.remove(info.getAccessToken());
-                    refreshTokenIndexes.remove(info.getRefreshToken());
+                    accessTokenIndexes.remove(info.accessToken());
+                    refreshTokenIndexes.remove(info.refreshToken());
                 }
                 return expired;
             });

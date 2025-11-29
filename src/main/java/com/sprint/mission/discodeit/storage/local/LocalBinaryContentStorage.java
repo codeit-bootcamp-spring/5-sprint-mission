@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.storage.local;
 
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
