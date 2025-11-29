@@ -62,6 +62,7 @@ class JwtLoginSuccessHandlerTest {
 
     @BeforeEach
     void setUp() {
+        objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         handler = new JwtLoginSuccessHandler(
             objectMapper, tokenProvider, jwtRegistry, authAuditService, authMetricsService);

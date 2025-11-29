@@ -56,6 +56,7 @@ class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
+        objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         filter = new JwtAuthenticationFilter(tokenProvider, jwtRegistry, userDetailsService, objectMapper);
         SecurityContextHolder.clearContext();

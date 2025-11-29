@@ -47,6 +47,7 @@ class LoginFailureHandlerTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         loginFailureHandler = new LoginFailureHandler(objectMapper, authAuditService, authMetricsService);
         responseWriter = new StringWriter();
