@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +28,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
+@ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "s3")
 @DisplayName("AWS S3 통합 테스트")
-class RealS3IntegrationTest {
+class S3IntegrationTest {
 
     private final UUID testId = UUID.randomUUID();
     private final byte[] testData = createTestContent(TEST_CONTENT);
