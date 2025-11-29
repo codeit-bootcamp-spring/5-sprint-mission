@@ -7,29 +7,29 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.entity.AuthAuditEventType.LOGIN_FAILURE;
+import static com.sprint.mission.discodeit.entity.AuthAuditEventType.LOGIN_SUCCESS;
+import static com.sprint.mission.discodeit.entity.AuthAuditEventType.LOGOUT;
+import static com.sprint.mission.discodeit.entity.AuthAuditEventType.ROLE_CHANGE;
+import static com.sprint.mission.discodeit.entity.AuthAuditEventType.TOKEN_REFRESH;
+import static com.sprint.mission.discodeit.entity.AuthAuditEventType.TOKEN_REFRESH_FAILURE;
+
 @Entity
 @Table(name = "auth_audit_logs")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public final class AuthAuditLog extends BaseEntity {
-
-    public enum EventType {
-        LOGIN_SUCCESS,
-        LOGIN_FAILURE,
-        LOGOUT,
-        TOKEN_REFRESH,
-        TOKEN_REFRESH_FAILURE,
-        ROLE_CHANGE
-    }
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class AuthAuditLog extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private EventType eventType;
+    private AuthAuditEventType eventType;
 
     @Column
     private UUID userId;
@@ -46,53 +46,117 @@ public final class AuthAuditLog extends BaseEntity {
     @Column(length = 500)
     private String details;
 
-    private AuthAuditLog(EventType eventType, UUID userId, String username,
-                         String ipAddress, String userAgent, String details) {
-        this.eventType = eventType;
-        this.userId = userId;
-        this.username = username;
-        this.ipAddress = ipAddress;
-        this.userAgent = userAgent;
-        this.details = details;
+    public static AuthAuditLog of(
+        AuthAuditEventType eventType,
+        UUID userId,
+        String username,
+        String ipAddress,
+        String userAgent,
+        String details
+    ) {
+        return new AuthAuditLog(
+            eventType,
+            userId,
+            username,
+            ipAddress,
+            userAgent,
+            details
+        );
     }
 
-    public static AuthAuditLog of(EventType eventType, UUID userId, String username,
-                                  String ipAddress, String userAgent, String details) {
-        return new AuthAuditLog(eventType, userId, username, ipAddress, userAgent, details);
+    public static AuthAuditLog loginSuccess(
+        UUID userId,
+        String username,
+        String ipAddress,
+        String userAgent
+    ) {
+        return new AuthAuditLog(
+            LOGIN_SUCCESS,
+            userId,
+            username,
+            ipAddress,
+            userAgent,
+            null
+        );
     }
 
-    public static AuthAuditLog loginSuccess(UUID userId, String username,
-                                            String ipAddress, String userAgent) {
-        return new AuthAuditLog(EventType.LOGIN_SUCCESS, userId, username,
-            ipAddress, userAgent, null);
+    public static AuthAuditLog loginFailure(
+        String username,
+        String ipAddress,
+        String userAgent,
+        String reason
+    ) {
+        return new AuthAuditLog(
+            LOGIN_FAILURE,
+            null,
+            username,
+            ipAddress,
+            userAgent,
+            reason
+        );
     }
 
-    public static AuthAuditLog loginFailure(String username, String ipAddress,
-                                            String userAgent, String reason) {
-        return new AuthAuditLog(EventType.LOGIN_FAILURE, null, username,
-            ipAddress, userAgent, reason);
+    public static AuthAuditLog logout(
+        UUID userId,
+        String username,
+        String ipAddress,
+        String userAgent
+    ) {
+        return new AuthAuditLog(
+            LOGOUT,
+            userId,
+            username,
+            ipAddress,
+            userAgent,
+            null
+        );
     }
 
-    public static AuthAuditLog logout(UUID userId, String username,
-                                      String ipAddress, String userAgent) {
-        return new AuthAuditLog(EventType.LOGOUT, userId, username,
-            ipAddress, userAgent, null);
+    public static AuthAuditLog tokenRefresh(
+        UUID userId,
+        String username,
+        String ipAddress,
+        String userAgent
+    ) {
+        return new AuthAuditLog(
+            TOKEN_REFRESH,
+            userId,
+            username,
+            ipAddress,
+            userAgent,
+            null
+        );
     }
 
-    public static AuthAuditLog tokenRefresh(UUID userId, String username,
-                                            String ipAddress, String userAgent) {
-        return new AuthAuditLog(EventType.TOKEN_REFRESH, userId, username,
-            ipAddress, userAgent, null);
+    public static AuthAuditLog tokenRefreshFailure(
+        String ipAddress,
+        String userAgent,
+        String reason
+    ) {
+        return new AuthAuditLog(
+            TOKEN_REFRESH_FAILURE,
+            null,
+            null,
+            ipAddress,
+            userAgent,
+            reason
+        );
     }
 
-    public static AuthAuditLog tokenRefreshFailure(String ipAddress, String userAgent, String reason) {
-        return new AuthAuditLog(EventType.TOKEN_REFRESH_FAILURE, null, null,
-            ipAddress, userAgent, reason);
-    }
-
-    public static AuthAuditLog roleChange(UUID userId, String username, String oldRole, String newRole) {
+    public static AuthAuditLog roleChange(
+        UUID userId,
+        String username,
+        String oldRole,
+        String newRole
+    ) {
         String details = "Role changed from %s to %s".formatted(oldRole, newRole);
-        return new AuthAuditLog(EventType.ROLE_CHANGE, userId, username,
-            null, null, details);
+        return new AuthAuditLog(
+            ROLE_CHANGE,
+            userId,
+            username,
+            null,
+            null,
+            details
+        );
     }
 }
