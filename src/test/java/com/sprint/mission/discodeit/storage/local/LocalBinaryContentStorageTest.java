@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.storage.local;
 
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,6 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,30 +38,12 @@ class LocalBinaryContentStorageTest {
         storage.init();
     }
 
-    @AfterEach
-    void tearDown() throws IOException {
-        // 테스트 후 정리
-        if (Files.exists(tempDir)) {
-            try (var paths = Files.walk(tempDir)) {
-                paths.sorted(Comparator.reverseOrder()) // 역순으로 정렬하여 하위부터 삭제
-                    .forEach(path -> {
-                        try {
-                            Files.deleteIfExists(path);
-                        } catch (IOException e) {
-                            // ignore
-                        }
-                    });
-            }
-        }
-    }
-
-    // Helper methods
     private byte[] createTestContent(String content) {
         return content.getBytes();
     }
 
     private byte[] createLargeContent() {
-        byte[] content = new byte[LocalBinaryContentStorageTest.LARGE_FILE_SIZE_MB * BYTES_PER_MB];
+        byte[] content = new byte[LARGE_FILE_SIZE_MB * BYTES_PER_MB];
         for (int i = 0; i < content.length; i++) {
             content[i] = (byte) (i % 256);
         }
@@ -149,8 +129,10 @@ class LocalBinaryContentStorageTest {
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().exists()).isTrue();
-        byte[] readContent = response.getBody().getInputStream().readAllBytes();
-        assertThat(readContent).isEqualTo(content);
+        try (InputStream is = response.getBody().getInputStream()) {
+            byte[] readContent = is.readAllBytes();
+            assertThat(readContent).isEqualTo(content);
+        }
     }
 
     @Test
