@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class DiscodeitUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
-
     private final UserMapper userMapper;
 
     @Override
@@ -26,10 +25,6 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException(username));
         UserDto userDto = userMapper.toDto(user);
-
-        return new DiscodeitUserDetails(
-            userDto,
-            user.getPassword()
-        );
+        return new DiscodeitUserDetails(userDto, user.getPassword());
     }
 }
