@@ -38,7 +38,7 @@ public class JwtLogoutHandler implements LogoutHandler {
         }
 
         response.addCookie(tokenProvider.generateRefreshTokenExpirationCookie());
-        log.debug("JWT 로그아웃 핸들러 실행 - 리프레시 토큰 쿠키 삭제 완료");
+        log.debug("리프레시 토큰 쿠키 삭제 완료");
     }
 
     private void invalidateUserJwt(String refreshToken, HttpServletRequest request) {
@@ -50,9 +50,9 @@ public class JwtLogoutHandler implements LogoutHandler {
             authAuditService.logLogout(userId, username, request);
             authMetricsService.recordLogout();
 
-            log.debug("JWT 로그아웃 핸들러 실행 - 사용자 {} JWT 정보 삭제 완료", userId);
+            log.debug("JWT 로그아웃 완료: userId={}", userId);
         } catch (Exception e) {
-            log.debug("Failed to extract user ID from refresh token: {}", e.getMessage());
+            log.debug("리프레시 토큰에서 사용자 ID 추출 실패: {}", e.getMessage());
         }
     }
 }

@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (!tokenProvider.validateAccessToken(token)
                 || !jwtRegistry.hasActiveJwtInformationByAccessToken(token)
             ) {
-                log.debug("Invalid JWT token: {}", token);
+                log.debug("유효하지 않은 JWT 토큰");
                 sendErrorResponse(response);
                 return;
             }
@@ -73,11 +73,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("JWT authentication set for user: {}", username);
+            log.debug("JWT 인증 설정 완료: username={}", username);
         } catch (Exception e) {
-
-            log.debug("JWT authentication failed: {}", e.getMessage());
-
+            log.debug("JWT 인증 실패: {}", e.getMessage());
             SecurityContextHolder.clearContext();
             sendErrorResponse(response);
             return;

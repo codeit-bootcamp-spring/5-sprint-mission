@@ -47,7 +47,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         if (!(authentication.getPrincipal() instanceof DiscodeitUserDetails userDetails)) {
-            log.error("Authentication failed: {}", authentication.getPrincipal());
+            log.error("인증 실패: 예상치 못한 Principal 타입");
             return;
         }
 
@@ -80,9 +80,9 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             );
             authMetricsService.recordLoginSuccess();
 
-            log.info("JWT access and refresh tokens issued for user: {}", userDetails.getUsername());
+            log.info("JWT 토큰 발급 완료: username={}", userDetails.getUsername());
         } catch (JOSEException e) {
-            log.error("Failed to generate JWT token for user: {}", userDetails.getUsername(), e);
+            log.error("JWT 토큰 생성 실패: username={}", userDetails.getUsername(), e);
 
             DiscodeitException exception = new DiscodeitException(ErrorCode.JWT_GENERATION_FAILED, e);
             ErrorResponse errorResponse = ErrorResponse.from(exception);

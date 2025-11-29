@@ -62,7 +62,7 @@ public class JwtTokenProvider {
         this.accessTokenExpirationMs = accessTokenConfig.expirationMs();
         this.refreshTokenExpirationMs = refreshTokenConfig.expirationMs();
 
-        log.info("JWT Token Provider initialized - Access token verifiers: {}, Refresh token verifiers: {}",
+        log.info("JwtTokenProvider 초기화: accessVerifiers={}, refreshVerifiers={}",
             accessTokenVerifiers.size(), refreshTokenVerifiers.size());
     }
 
@@ -77,7 +77,7 @@ public class JwtTokenProvider {
         if (previousSecret != null && !previousSecret.isBlank()) {
             byte[] previousSecretBytes = previousSecret.getBytes(StandardCharsets.UTF_8);
             verifiers.add(new MACVerifier(previousSecretBytes));
-            log.info("Previous {} token secret configured for graceful rotation", tokenType);
+            log.info("이전 {} 토큰 시크릿 설정됨 (rotation 지원)", tokenType);
         }
 
         return verifiers;
@@ -123,7 +123,7 @@ public class JwtTokenProvider {
         signedJWT.sign(signer);
         String token = signedJWT.serialize();
 
-        log.debug("Generated {} token for user: {}", tokenType, userDto.username());
+        log.debug("{} 토큰 생성 완료: username={}", tokenType, userDto.username());
         return token;
     }
 
@@ -145,7 +145,7 @@ public class JwtTokenProvider {
                 if (signedJWT.verify(verifier)) {
                     signatureValid = true;
                     if (verifierIndex > 0) {
-                        log.info("JWT {} token validated with previous secret (rotation in progress)", expectedType);
+                        log.info("JWT {} 토큰이 이전 시크릿으로 검증됨 (rotation 진행 중)", expectedType);
                     }
                     break;
                 }
@@ -153,26 +153,25 @@ public class JwtTokenProvider {
             }
 
             if (!signatureValid) {
-                log.debug("JWT signature verification failed for {} token with all {} verifiers",
-                    expectedType, verifiers.size());
+                log.debug("JWT {} 토큰 서명 검증 실패: verifiers={}", expectedType, verifiers.size());
                 return false;
             }
 
             String tokenType = signedJWT.getJWTClaimsSet().getClaim("type").toString();
             if (!expectedType.equals(tokenType)) {
-                log.debug("JWT token type mismatch: expected {}, got {}", expectedType, tokenType);
+                log.debug("JWT 토큰 타입 불일치: expected={}, actual={}", expectedType, tokenType);
                 return false;
             }
 
             Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
             if (expirationTime == null || expirationTime.before(new Date())) {
-                log.debug("JWT {} token expired", expectedType);
+                log.debug("JWT {} 토큰 만료됨", expectedType);
                 return false;
             }
 
             return true;
         } catch (Exception e) {
-            log.debug("JWT {} token validation failed: {}", expectedType, e.getMessage());
+            log.debug("JWT {} 토큰 검증 실패: {}", expectedType, e.getMessage());
             return false;
         }
     }
