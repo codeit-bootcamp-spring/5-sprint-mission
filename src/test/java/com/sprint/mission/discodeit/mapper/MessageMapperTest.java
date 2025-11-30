@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
-import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.dto.message.data.MessageDto;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -39,8 +39,8 @@ class MessageMapperTest {
     @InjectMocks
     private MessageMapper messageMapper;
 
-    private User createUserWithId(UUID id, String username) {
-        User user = new User(username, username + "@example.com", "encodedPassword123456", null);
+    private User createUserWithId(UUID id) {
+        User user = new User("author", "author" + "@example.com", "encodedPassword123456", null);
         ReflectionTestUtils.setField(user, "id", id);
         return user;
     }
@@ -74,7 +74,7 @@ class MessageMapperTest {
         UUID authorId = UUID.randomUUID();
         UUID attachmentId = UUID.randomUUID();
 
-        User author = createUserWithId(authorId, "author");
+        User author = createUserWithId(authorId);
         Channel channel = createChannelWithId(channelId);
         Message message = createMessageWithId(messageId, "Hello, world!", channel, author);
         BinaryContent attachment = createBinaryContentWithId(attachmentId, "image.png");
@@ -108,7 +108,7 @@ class MessageMapperTest {
         UUID channelId = UUID.randomUUID();
         UUID authorId = UUID.randomUUID();
 
-        User author = createUserWithId(authorId, "author");
+        User author = createUserWithId(authorId);
         Channel channel = createChannelWithId(channelId);
         Message message = createMessageWithId(messageId, "No attachments", channel, author);
 
@@ -144,7 +144,7 @@ class MessageMapperTest {
         UUID channelId = UUID.randomUUID();
         UUID authorId = UUID.randomUUID();
 
-        User author = createUserWithId(authorId, "author");
+        User author = createUserWithId(authorId);
         Channel channel = createChannelWithId(channelId);
         Message message = createMessageWithId(messageId, "With author DTO", channel, author);
 
@@ -185,7 +185,7 @@ class MessageMapperTest {
         UUID attachment1Id = UUID.randomUUID();
         UUID attachment2Id = UUID.randomUUID();
 
-        User author = createUserWithId(authorId, "author");
+        User author = createUserWithId(authorId);
         Channel channel = createChannelWithId(channelId);
         Message message = createMessageWithId(messageId, "Multiple files", channel, author);
         BinaryContent attachment1 = createBinaryContentWithId(attachment1Id, "doc.pdf");
