@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +8,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public final class S3TestFixtures {
 
     public static final String TEST_CONTENT = "테스트 데이터";
@@ -20,6 +17,10 @@ public final class S3TestFixtures {
 
     private static final int LARGE_FILE_SIZE_MB = 1;
     private static final int BYTES_PER_MB = 1024 * 1024;
+
+    private S3TestFixtures() {
+        throw new AssertionError("Utility class");
+    }
 
     public static byte[] createTestContent(String content) {
         return content.getBytes();

@@ -106,7 +106,7 @@ class UserMapperTest {
         UUID userId = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
         BinaryContent profile = TestFixtures.createBinaryContent(profileId, "profile.png", 1024L, "image/png");
-        User user = TestFixtures.createUser(userId, "withprofile", "profile@example.com", "encodedPassword123456", profile);
+        User user = TestFixtures.createUser(userId, "withprofile", "profile@example.com", "encodedPass1234", profile);
         BinaryContentDto profileDto = new BinaryContentDto(profileId, "profile.png", 1024L, "image/png");
 
         given(jwtRegistry.hasActiveJwtInformationByUserId(userId)).willReturn(false);

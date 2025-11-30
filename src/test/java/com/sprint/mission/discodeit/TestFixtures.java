@@ -2,14 +2,15 @@ package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.UUID;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public final class TestFixtures {
+
+    private TestFixtures() {
+        throw new AssertionError("Utility class");
+    }
 
     public static User createUser(
         UUID userId,
