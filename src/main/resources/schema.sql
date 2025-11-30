@@ -81,6 +81,16 @@ CREATE TABLE IF NOT EXISTS users
 
 CREATE INDEX IF NOT EXISTS idx_users_profile ON users (profile_id);
 
+CREATE TABLE IF NOT EXISTS notifications
+(
+    id          uuid PRIMARY KEY,
+    created_at  timestamp WITH TIME ZONE NOT NULL,
+    receiver_id uuid                     NOT NULL,
+    title       varchar(100)             NOT NULL,
+    content     varchar(500)             NOT NULL,
+    checked     boolean                  NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS auth_audit_logs
 (
     id         uuid PRIMARY KEY,

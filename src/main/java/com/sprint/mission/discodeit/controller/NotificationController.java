@@ -1,0 +1,45 @@
+package com.sprint.mission.discodeit.controller;
+
+import com.sprint.mission.discodeit.docs.NotificationControllerDocs;
+import com.sprint.mission.discodeit.dto.notification.data.NotificationDto;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.service.NotificationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/notifications")
+public class NotificationController implements NotificationControllerDocs {
+
+    private final NotificationService notificationService;
+
+    @Override
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<NotificationDto> findAll(
+        @AuthenticationPrincipal DiscodeitUserDetails userDetails
+    ) {
+        return notificationService.findAllByReceiverId(userDetails.getUserDto().id());
+    }
+
+    @Override
+    @PatchMapping("/{notificationId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void check(
+        @AuthenticationPrincipal DiscodeitUserDetails userDetails,
+        @PathVariable UUID notificationId
+    ) {
+        notificationService.check(notificationId, userDetails.getUserDto().id());
+    }
+}

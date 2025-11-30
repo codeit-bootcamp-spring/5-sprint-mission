@@ -8,6 +8,7 @@ import java.util.Objects;
 @Getter
 public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
+    USER_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 정보만 수정하거나 삭제할 수 있습니다."),
     DUPLICATE_USERNAME(HttpStatus.CONFLICT, "중복된 사용자명입니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "중복된 이메일입니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "사용자 이름 또는 비밀번호가 올바르지 않습니다."),
@@ -27,6 +28,10 @@ public enum ErrorCode {
     BINARY_CONTENT_STORAGE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장소 오류가 발생했습니다."),
 
     READ_STATUS_NOT_FOUND(HttpStatus.NOT_FOUND, "읽음 상태를 찾을 수 없습니다."),
+    READ_STATUS_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 읽음 상태만 수정할 수 있습니다."),
+
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다."),
+    NOTIFICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 알림만 확인할 수 있습니다."),
 
     INVALID_JSON(HttpStatus.BAD_REQUEST, "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인해주세요."),
     INVALID_PARAMETER_VALUE(HttpStatus.BAD_REQUEST, "요청 매개변수 값이 유효하지 않습니다."),
