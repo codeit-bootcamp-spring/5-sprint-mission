@@ -25,6 +25,8 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,6 +37,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
@@ -64,6 +67,31 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthMetricsService authMetricsService;
+
+    @Test
+    @DisplayName("GET /api/auth/csrf-token - 성공: CSRF 토큰 요청")
+    void getCsrfToken_Success() throws Exception {
+        // given
+        CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "test-csrf-token");
+
+        // when & then
+        mockMvc.perform(get("/api/auth/csrf-token")
+                .requestAttr(CsrfToken.class.getName(), csrfToken))
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockDiscodeitUser
+    @DisplayName("GET /api/auth/csrf-token - 성공: 인증된 사용자의 CSRF 토큰 요청")
+    void getCsrfToken_Authenticated_Success() throws Exception {
+        // given
+        CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "test-csrf-token");
+
+        // when & then
+        mockMvc.perform(get("/api/auth/csrf-token")
+                .requestAttr(CsrfToken.class.getName(), csrfToken))
+            .andExpect(status().isNoContent());
+    }
 
     @Test
     @WithMockDiscodeitUser(role = Role.ADMIN)
