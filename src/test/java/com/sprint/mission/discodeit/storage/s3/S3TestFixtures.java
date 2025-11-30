@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +41,7 @@ public final class S3TestFixtures {
         long size,
         String contentType
     ) {
-        return new BinaryContentDto(binaryContentId, fileName, size, contentType);
+        return new BinaryContentDto(binaryContentId, fileName, size, contentType, BinaryContentStatus.SUCCESS);
     }
 
     public static void assertStreamContentEquals(

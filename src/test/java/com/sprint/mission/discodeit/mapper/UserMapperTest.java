@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.TestFixtures;
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Role;
@@ -40,7 +41,8 @@ class UserMapperTest {
         UUID profileId = UUID.randomUUID();
         BinaryContent profile = TestFixtures.createBinaryContent(profileId, "profile.png", 1024L, "image/png");
         User user = TestFixtures.createUser(userId, "testuser", "test@example.com", "encodedPassword123456", profile);
-        BinaryContentDto profileDto = new BinaryContentDto(profileId, "profile.png", 1024L, "image/png");
+        BinaryContentDto profileDto = new BinaryContentDto(
+            profileId, "profile.png", 1024L, "image/png", BinaryContentStatus.SUCCESS);
 
         given(jwtRegistry.hasActiveJwtInformationByUserId(userId)).willReturn(true);
         given(binaryContentMapper.toDto(profile)).willReturn(profileDto);
@@ -107,7 +109,8 @@ class UserMapperTest {
         UUID profileId = UUID.randomUUID();
         BinaryContent profile = TestFixtures.createBinaryContent(profileId, "profile.png", 1024L, "image/png");
         User user = TestFixtures.createUser(userId, "withprofile", "profile@example.com", "encodedPass1234", profile);
-        BinaryContentDto profileDto = new BinaryContentDto(profileId, "profile.png", 1024L, "image/png");
+        BinaryContentDto profileDto = new BinaryContentDto(
+            profileId, "profile.png", 1024L, "image/png", BinaryContentStatus.SUCCESS);
 
         given(jwtRegistry.hasActiveJwtInformationByUserId(userId)).willReturn(false);
         given(binaryContentMapper.toDto(profile)).willReturn(profileDto);

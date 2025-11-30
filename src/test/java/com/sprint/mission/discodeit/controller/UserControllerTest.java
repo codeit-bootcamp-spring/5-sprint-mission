@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
@@ -114,7 +115,8 @@ class UserControllerTest {
                 profileId,
                 "profile.jpg",
                 1024L,
-                "image/jpeg"
+                "image/jpeg",
+                BinaryContentStatus.SUCCESS
             ),
             true,
             Role.USER

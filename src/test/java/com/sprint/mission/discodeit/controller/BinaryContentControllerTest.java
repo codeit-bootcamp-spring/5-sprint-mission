@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.service.BinaryContentService;
@@ -58,8 +59,8 @@ class BinaryContentControllerTest {
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
         List<BinaryContentDto> contents = List.of(
-            new BinaryContentDto(id1, "file1.jpg", 1024L, "image/jpeg"),
-            new BinaryContentDto(id2, "file2.pdf", 2048L, "application/pdf")
+            new BinaryContentDto(id1, "file1.jpg", 1024L, "image/jpeg", BinaryContentStatus.SUCCESS),
+            new BinaryContentDto(id2, "file2.pdf", 2048L, "application/pdf", BinaryContentStatus.SUCCESS)
         );
 
         given(binaryContentService.findAllByIdIn(any())).willReturn(contents);
@@ -105,7 +106,8 @@ class BinaryContentControllerTest {
             contentId,
             "test.png",
             5120L,
-            "image/png"
+            "image/png",
+            BinaryContentStatus.SUCCESS
         );
 
         given(binaryContentService.find(contentId)).willReturn(content);
@@ -149,7 +151,8 @@ class BinaryContentControllerTest {
             contentId,
             "test.txt",
             17L,
-            "text/plain"
+            "text/plain",
+            BinaryContentStatus.SUCCESS
         );
         byte[] fileContent = "test file content".getBytes();
         Resource resource = new ByteArrayResource(fileContent);
@@ -185,7 +188,8 @@ class BinaryContentControllerTest {
             contentId,
             "image.jpg",
             4L,
-            "image/jpeg"
+            "image/jpeg",
+            BinaryContentStatus.SUCCESS
         );
         byte[] imageContent = new byte[]{0x12, 0x34, 0x56, 0x78};
         Resource resource = new ByteArrayResource(imageContent);
@@ -221,7 +225,8 @@ class BinaryContentControllerTest {
             contentId,
             "file.bin",
             12L,
-            null
+            null,
+            BinaryContentStatus.SUCCESS
         );
         byte[] fileContent = "test content".getBytes();
         Resource resource = new ByteArrayResource(fileContent);

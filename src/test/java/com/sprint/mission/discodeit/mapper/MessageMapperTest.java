@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.dto.message.data.MessageDto;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -80,7 +81,8 @@ class MessageMapperTest {
         List<BinaryContent> attachments = List.of(attachment);
 
         UserDto authorDto = new UserDto(authorId, "author", "author@example.com", null, true, Role.USER);
-        BinaryContentDto attachmentDto = new BinaryContentDto(attachmentId, "image.png", 1024L, "image/png");
+        BinaryContentDto attachmentDto = new BinaryContentDto(
+            attachmentId, "image.png", 1024L, "image/png", BinaryContentStatus.SUCCESS);
 
         given(userMapper.toDto(author)).willReturn(authorDto);
         given(binaryContentMapper.toDtoList(attachments)).willReturn(List.of(attachmentDto));
@@ -192,8 +194,8 @@ class MessageMapperTest {
 
         UserDto authorDto = new UserDto(authorId, "author", "author@example.com", null, true, Role.USER);
         List<BinaryContentDto> attachmentDtos = List.of(
-            new BinaryContentDto(attachment1Id, "doc.pdf", 1024L, "application/pdf"),
-            new BinaryContentDto(attachment2Id, "photo.jpg", 2048L, "image/jpeg")
+            new BinaryContentDto(attachment1Id, "doc.pdf", 1024L, "application/pdf", BinaryContentStatus.SUCCESS),
+            new BinaryContentDto(attachment2Id, "photo.jpg", 2048L, "image/jpeg", BinaryContentStatus.SUCCESS)
         );
 
         given(userMapper.toDto(author)).willReturn(authorDto);

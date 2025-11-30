@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.TestFixtures;
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentUploadException;
@@ -61,8 +62,10 @@ class BinaryContentServiceTest {
         BinaryContent bc2 = new BinaryContent("file2.jpg", 2048L, "image/jpeg");
         List<BinaryContent> binaryContents = List.of(bc1, bc2);
 
-        BinaryContentDto dto1 = new BinaryContentDto(id1, "file1.png", 1024L, "image/png");
-        BinaryContentDto dto2 = new BinaryContentDto(id2, "file2.jpg", 2048L, "image/jpeg");
+        BinaryContentDto dto1 = new BinaryContentDto(
+            id1, "file1.png", 1024L, "image/png", BinaryContentStatus.SUCCESS);
+        BinaryContentDto dto2 = new BinaryContentDto(
+            id2, "file2.jpg", 2048L, "image/jpeg", BinaryContentStatus.SUCCESS);
         List<BinaryContentDto> expectedDtos = List.of(dto1, dto2);
 
         given(binaryContentRepository.findAllById(ids)).willReturn(binaryContents);
@@ -107,7 +110,8 @@ class BinaryContentServiceTest {
             binaryContentId,
             "test.pdf",
             5120L,
-            "application/pdf"
+            "application/pdf",
+            BinaryContentStatus.SUCCESS
         );
 
         given(binaryContentRepository.findById(binaryContentId)).willReturn(Optional.of(binaryContent));
@@ -158,7 +162,7 @@ class BinaryContentServiceTest {
         );
 
         BinaryContentDto expectedDto = new BinaryContentDto(
-            binaryContentId, "test.png", 1024L, "image/png"
+            binaryContentId, "test.png", 1024L, "image/png", BinaryContentStatus.PROCESSING
         );
 
         given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(savedBinaryContent);
@@ -198,5 +202,45 @@ class BinaryContentServiceTest {
 
         then(binaryContentRepository).should().save(any(BinaryContent.class));
         then(eventPublisher).should(never()).publishEvent(any(BinaryContentCreatedEvent.class));
+    }
+
+    @Test
+    @DisplayName("updateStatus - 상태 업데이트 성공")
+    void updateStatus_Success() {
+        // given
+        UUID binaryContentId = UUID.randomUUID();
+        BinaryContent binaryContent = new BinaryContent("test.png", 1024L, "image/png");
+        BinaryContentDto expectedDto = new BinaryContentDto(
+            binaryContentId, "test.png", 1024L, "image/png", BinaryContentStatus.SUCCESS
+        );
+
+        given(binaryContentRepository.findById(binaryContentId)).willReturn(Optional.of(binaryContent));
+        given(binaryContentMapper.toDto(binaryContent)).willReturn(expectedDto);
+
+        // when
+        BinaryContentDto result = binaryContentService.updateStatus(binaryContentId, BinaryContentStatus.SUCCESS);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.status()).isEqualTo(BinaryContentStatus.SUCCESS);
+
+        then(binaryContentRepository).should().findById(binaryContentId);
+        then(binaryContentMapper).should().toDto(binaryContent);
+    }
+
+    @Test
+    @DisplayName("updateStatus - 존재하지 않는 파일 상태 업데이트 시 BinaryContentNotFoundException 발생")
+    void updateStatus_NotFound() {
+        // given
+        UUID binaryContentId = UUID.randomUUID();
+
+        given(binaryContentRepository.findById(binaryContentId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> binaryContentService.updateStatus(binaryContentId, BinaryContentStatus.FAIL))
+            .isInstanceOf(BinaryContentNotFoundException.class);
+
+        then(binaryContentRepository).should().findById(binaryContentId);
+        then(binaryContentMapper).shouldHaveNoInteractions();
     }
 }

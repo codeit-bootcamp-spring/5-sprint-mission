@@ -174,7 +174,7 @@ class FileCleanupSchedulerTest {
             "test.txt", 1024L, "text/plain"
         );
         Field idField = binaryContent.getClass()
-            .getSuperclass().getDeclaredField("id");
+            .getSuperclass().getSuperclass().getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(binaryContent, existingId);
 
@@ -287,7 +287,7 @@ class FileCleanupSchedulerTest {
         );
         try {
             Field idField = binaryContent.getClass()
-                .getSuperclass().getDeclaredField("id");
+                .getSuperclass().getSuperclass().getDeclaredField("id");
             idField.setAccessible(true);
             idField.set(binaryContent, existing);
         } catch (Exception e) {

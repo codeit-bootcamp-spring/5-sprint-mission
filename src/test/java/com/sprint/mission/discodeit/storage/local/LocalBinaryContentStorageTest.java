@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage.local;
 
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,7 +52,7 @@ class LocalBinaryContentStorageTest {
     }
 
     private BinaryContentDto createBinaryContentDto(UUID id, String fileName, long size, String contentType) {
-        return new BinaryContentDto(id, fileName, size, contentType);
+        return new BinaryContentDto(id, fileName, size, contentType, BinaryContentStatus.SUCCESS);
     }
 
     private void assertStreamContentEquals(InputStream stream, byte[] expected) throws IOException {
