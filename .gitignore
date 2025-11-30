@@ -22,3 +22,5 @@ out/
 .*
 !.gitignore
 !.github/
+AGENTS.md
+CLAUDE.md
