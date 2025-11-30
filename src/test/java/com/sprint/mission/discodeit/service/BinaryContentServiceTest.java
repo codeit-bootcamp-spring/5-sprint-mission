@@ -199,5 +199,4 @@ class BinaryContentServiceTest {
         then(binaryContentRepository).should().save(any(BinaryContent.class));
         then(eventPublisher).should(never()).publishEvent(any(BinaryContentCreatedEvent.class));
     }
-
 }
