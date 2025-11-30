@@ -197,19 +197,19 @@
 
 ### 비동기 설정
 
-- [ ] 비동기를 적용하기 위한 설정(`AsyncConfig`) 클래스를 구현하세요.
+- [x] 비동기를 적용하기 위한 설정(`AsyncConfig`) 클래스를 구현하세요.
     - `@EnableAsync` 어노테이션을 활용하세요.
     - `TaskExecutor`를 Bean으로 등록하세요.
     - `TaskDecorator`를 활용해 MDC의 Request ID, SecurityContext의 인증 정보가 비동기 스레드에서도 유지되도록 구현하세요.
 
 ### 비동기 이벤트 리스너
 
-- [ ] 앞서 구현한 Event Listener를 비동기적으로 처리하세요.
+- [x] 앞서 구현한 Event Listener를 비동기적으로 처리하세요.
     - `@Async` 어노테이션을 활용하세요.
 
 ### 성능 비교
 
-- [ ] 동기 처리와 비동기 처리 간 성능 차이를 비교해보세요.
+- [x] 동기 처리와 비동기 처리 간 성능 차이를 비교해보세요.
     - 파일 업로드 로직에 의도적인 지연(`Thread.sleep(...)`)을 발생시키세요.
 
       ```java

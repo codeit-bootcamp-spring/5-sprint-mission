@@ -46,6 +46,8 @@ discodeit:
     orphan-grace: 2s
   datasource-proxy:
     name: DS-Proxy-Test
+  admin:
+    enabled: true
   jwt:
     access-token:
       secret: test-access-secret-key-must-be-at-least-32-characters
