@@ -57,7 +57,7 @@ public class AuthService {
 
         authAuditService.logRoleChange(userId, user.getUsername(), oldRole.name(), newRole.name());
 
-        eventPublisher.publishEvent(new RoleUpdatedEvent(userId, newRole));
+        eventPublisher.publishEvent(new RoleUpdatedEvent(userId, oldRole, newRole));
 
         return userMapper.toDto(user);
     }

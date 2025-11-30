@@ -157,7 +157,7 @@
 
 ### 알림 이벤트 리스너 구현
 
-- [ ] 알림이 필요한 이벤트가 발행되었을 때 알림을 생성하세요.
+- [x] 알림이 필요한 이벤트가 발행되었을 때 알림을 생성하세요.
     - 이벤트를 처리할 리스너를 구현하세요.
         ```java
         public class NotificationRequiredEventListener {

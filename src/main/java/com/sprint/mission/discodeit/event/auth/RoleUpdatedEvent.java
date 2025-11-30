@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record RoleUpdatedEvent(
     UUID userId,
+    Role oldRole,
     Role newRole
 ) {
 }
