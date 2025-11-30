@@ -11,6 +11,8 @@ import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +28,10 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final NotificationMapper notificationMapper;
 
+    @Cacheable(value = "userNotifications", key = "#receiverId")
     @Transactional(readOnly = true)
     public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
+        log.debug("사용자 알림 목록 캐시 미스: receiverId={}", receiverId);
         User receiver = getUserOrThrow(receiverId);
         return notificationRepository.findAllByReceiverAndCheckedFalseOrderByCreatedAtDesc(receiver)
             .stream()
@@ -35,6 +39,7 @@ public class NotificationService {
             .toList();
     }
 
+    @CacheEvict(value = "userNotifications", key = "#requesterId")
     @Transactional
     public void check(UUID notificationId, UUID requesterId) {
         Notification notification = getOrThrow(notificationId);
@@ -47,6 +52,7 @@ public class NotificationService {
             notificationId, requesterId);
     }
 
+    @CacheEvict(value = "userNotifications", key = "#receiverId")
     @Transactional
     public NotificationDto create(UUID receiverId, String title, String content) {
         User receiver = getUserOrThrow(receiverId);

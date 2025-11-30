@@ -20,6 +20,8 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +52,7 @@ public class ChannelService {
     private final UserRepository userRepository;
     private final ChannelMapper channelMapper;
 
+    @CacheEvict(value = "userChannels", allEntries = true)
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     public ChannelDto create(PublicChannelCreateRequest request) {
@@ -74,6 +77,7 @@ public class ChannelService {
         );
     }
 
+    @CacheEvict(value = "userChannels", allEntries = true)
     @Transactional
     public ChannelDto create(PrivateChannelCreateRequest request) {
         log.debug("비공개 채널 생성 요청: participantIds={}", request.participantIds());
@@ -102,8 +106,10 @@ public class ChannelService {
         );
     }
 
+    @Cacheable(value = "userChannels", key = "#userId")
     @Transactional(readOnly = true)
     public List<ChannelDto> findAll(UUID userId) {
+        log.debug("사용자 채널 목록 캐시 미스: userId={}", userId);
         List<Channel> channels = channelRepository.findAllByUserId(userId);
         if (channels.isEmpty()) {
             return List.of();
@@ -149,6 +155,7 @@ public class ChannelService {
             .toList();
     }
 
+    @CacheEvict(value = "userChannels", allEntries = true)
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     public ChannelDto update(
@@ -172,6 +179,7 @@ public class ChannelService {
         return channelMapper.toDto(channel, new ArrayList<>(), lastMessageAt);
     }
 
+    @CacheEvict(value = "userChannels", allEntries = true)
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     public void delete(UUID channelId) {

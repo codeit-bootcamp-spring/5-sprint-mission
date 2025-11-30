@@ -17,6 +17,8 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,6 +48,7 @@ public class UserService {
 
     private final UserMapper userMapper;
 
+    @CacheEvict(value = "users")
     @Transactional
     public UserDto create(
         UserCreateRequest request,
@@ -86,14 +89,17 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    @Cacheable(value = "users")
     @Transactional(readOnly = true)
     public List<UserDto> findAll() {
+        log.debug("사용자 목록 캐시 미스");
         return userRepository.findAllGraph()
             .stream()
             .map(userMapper::toDto)
             .toList();
     }
 
+    @CacheEvict(value = "users")
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     public UserDto update(
@@ -138,6 +144,7 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    @CacheEvict(value = "users")
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     public void delete(UUID userId) {
