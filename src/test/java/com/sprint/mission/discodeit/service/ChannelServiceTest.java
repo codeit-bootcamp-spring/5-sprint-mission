@@ -23,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -108,6 +109,7 @@ class ChannelServiceTest {
         List<User> participants = List.of(user1, user2, user3);
 
         Channel savedChannel = new Channel(ChannelType.PRIVATE, null, null);
+        setField(savedChannel, "createdAt", Instant.now());
         ChannelDto expectedDto = new ChannelDto(
             UUID.randomUUID(),
             ChannelType.PRIVATE,
