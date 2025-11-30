@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.service.ChannelService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
 @ActiveProfiles("test")
 class ChannelControllerTest {
+
+    private static final UUID MOCK_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Autowired
     private MockMvc mockMvc;
@@ -163,11 +166,10 @@ class ChannelControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockDiscodeitUser
     @DisplayName("GET /api/channels - 성공: 채널 목록 조회")
     void findAll_Success() throws Exception {
         // given
-        UUID userId = UUID.randomUUID();
         List<ChannelDto> channels = List.of(
             new ChannelDto(
                 UUID.randomUUID(),
@@ -187,34 +189,31 @@ class ChannelControllerTest {
             )
         );
 
-        given(channelService.findAll(userId)).willReturn(channels);
+        given(channelService.findAll(MOCK_USER_ID)).willReturn(channels);
 
         // when & then
-        mockMvc.perform(get("/api/channels")
-                .param("userId", userId.toString()))
+        mockMvc.perform(get("/api/channels"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(2))
             .andExpect(jsonPath("$[0].type").value("PUBLIC"))
             .andExpect(jsonPath("$[1].type").value("PRIVATE"));
 
-        then(channelService).should().findAll(userId);
+        then(channelService).should().findAll(MOCK_USER_ID);
     }
 
     @Test
-    @WithMockUser
+    @WithMockDiscodeitUser
     @DisplayName("GET /api/channels - 성공: 빈 채널 목록")
     void findAll_EmptyList() throws Exception {
         // given
-        UUID userId = UUID.randomUUID();
-        given(channelService.findAll(userId)).willReturn(List.of());
+        given(channelService.findAll(MOCK_USER_ID)).willReturn(List.of());
 
         // when & then
-        mockMvc.perform(get("/api/channels")
-                .param("userId", userId.toString()))
+        mockMvc.perform(get("/api/channels"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(0));
 
-        then(channelService).should().findAll(userId);
+        then(channelService).should().findAll(MOCK_USER_ID);
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.channel.request.PrivateChannelCreateRequ
 import com.sprint.mission.discodeit.dto.channel.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
@@ -22,113 +24,73 @@ import java.util.UUID;
 @SuppressWarnings("checkstyle:LineLength")
 public interface ChannelControllerDocs {
 
-    @Operation(summary = "User가 참여 중인 Channel 목록 조회")
-    @Parameter(
-        name = "userId",
-        description = "조회할 User ID"
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Channel 목록 조회 성공",
-        content = @Content(
-            mediaType = "application/json",
-            array = @ArraySchema(schema = @Schema(implementation = ChannelDto.class)),
-            examples = @ExampleObject(
-                value = """
-                    [
-                      {
-                          "id": "7e297daa-aeec-47ae-b1e0-c63f7a8f9824",
-                          "type": "PRIVATE",
-                          "name": null,
-                          "description": null,
-                          "participants": [
-                            {
-                              "id": "dd210d1a-ebe6-499f-8936-859790fd3716",
-                              "username": "test",
-                              "email": "test@example.com",
-                              "profile": {
-                                "id": "957a0ce6-8fde-4397-bb9a-446dcb49578e",
-                                "fileName": "profile.png",
-                                "size": 32122,
-                                "contentType": "image/png"
-                              },
-                              "online": false
+    @Operation(summary = "현재 로그인한 User가 참여 중인 Channel 목록 조회")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Channel 목록 조회 성공",
+            content = @Content(
+                mediaType = "application/json",
+                array = @ArraySchema(schema = @Schema(implementation = ChannelDto.class)),
+                examples = @ExampleObject(
+                    value = """
+                        [
+                          {
+                              "id": "7e297daa-aeec-47ae-b1e0-c63f7a8f9824",
+                              "type": "PRIVATE",
+                              "name": null,
+                              "description": null,
+                              "participants": [
+                                {
+                                  "id": "dd210d1a-ebe6-499f-8936-859790fd3716",
+                                  "username": "test",
+                                  "email": "test@example.com",
+                                  "profile": {
+                                    "id": "957a0ce6-8fde-4397-bb9a-446dcb49578e",
+                                    "fileName": "profile.png",
+                                    "size": 32122,
+                                    "contentType": "image/png"
+                                  },
+                                  "online": false
+                                },
+                                {
+                                  "id": "8fb5dd71-b7a0-4b5d-bf37-ea410473c618",
+                                  "username": "test2",
+                                  "email": "test2@example.com",
+                                  "profile": {
+                                    "id": "3a44bc04-e179-4533-bcf1-cfdc3aa86a4a",
+                                    "fileName": "profile2.webp",
+                                    "size": 12529,
+                                    "contentType": "image/webp"
+                                  },
+                                  "online": true
+                                }
+                              ],
+                              "lastMessageAt": null
                             },
-                            {
-                              "id": "8fb5dd71-b7a0-4b5d-bf37-ea410473c618",
-                              "username": "test2",
-                              "email": "test2@example.com",
-                              "profile": {
-                                "id": "3a44bc04-e179-4533-bcf1-cfdc3aa86a4a",
-                                "fileName": "profile2.webp",
-                                "size": 12529,
-                                "contentType": "image/webp"
-                              },
-                              "online": true
-                            }
-                          ],
-                          "lastMessageAt": null
-                        },
-                      {
-                        "id": "6fb818cd-44f3-4289-bb83-fe49741c4de7",
-                        "type": "PUBLIC",
-                        "name": "Channel name",
-                        "description": "Channel description",
-                        "participants": [],
-                        "lastMessageAt": null
-                      }
-                    ]
-                    """
-            )
-        )
-    )
-    @ApiResponse(
-        responseCode = "400",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class),
-            examples = {
-                @ExampleObject(
-                    name = "invalidParameterType",
-                    description = "parameter(userId) 타입이 UUID가 아님",
-                    value = """
-                        {
-                          "timestamp": "2025-09-04T02:19:30.016741Z",
-                          "code": "INVALID_PARAMETER_VALUE",
-                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=userId, value=not-uuid, expectedType=UUID",
-                          "details": {
-                            "path": "/api/channels",
-                            "method": "GET",
-                            "query": "userId=not-uuid"
-                          },
-                          "exceptionType": "MethodArgumentTypeMismatchException",
-                          "status": 400,
-                          "requestId": "9271700d-6503-4956-851a-cdad15075631"
-                        }
-                        """
-                ),
-                @ExampleObject(
-                    name = "missingParameter",
-                    description = "요청에 parameter(userId)가 포함되지 않음",
-                    value = """
-                        {
-                          "timestamp": "2025-09-04T02:18:20.915845Z",
-                          "code": "MISSING_PARAMETER",
-                          "message": "요청 매개변수가 누락되었습니다.: userId (필요한 매개변수: UUID)",
-                          "details": {
-                            "path": "/api/channels",
-                            "method": "GET"
-                          },
-                          "exceptionType": "MissingServletRequestParameterException",
-                          "status": 400,
-                          "requestId": "8173f429-234d-4e17-919c-946573e23d89"
-                        }
+                          {
+                            "id": "6fb818cd-44f3-4289-bb83-fe49741c4de7",
+                            "type": "PUBLIC",
+                            "name": "Channel name",
+                            "description": "Channel description",
+                            "participants": [],
+                            "lastMessageAt": null
+                          }
+                        ]
                         """
                 )
-            }
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "인증되지 않은 요청",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
         )
-    )
-    List<ChannelDto> findAll(UUID userId);
+    })
+    List<ChannelDto> findAll(@Parameter(hidden = true) DiscodeitUserDetails userDetails);
 
     @Operation(summary = "Public Channel 생성")
     @RequestBody(

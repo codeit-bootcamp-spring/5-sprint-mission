@@ -11,12 +11,14 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,8 +43,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-@WithMockUser(roles = "CHANNEL_MANAGER")
 class ChannelApiIntegrationTest {
+
+    private static final UUID MOCK_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,7 +62,11 @@ class ChannelApiIntegrationTest {
     @Autowired
     private ReadStatusRepository readStatusRepository;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("공개 채널 생성 - 성공: 공개 채널을 생성하고 데이터베이스에 저장됨")
     void createPublicChannel_Success() throws Exception {
         // given
@@ -92,6 +99,7 @@ class ChannelApiIntegrationTest {
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("비공개 채널 생성 - 성공: 2인 비공개 채널을 생성하고 ReadStatus가 생성됨")
     void createPrivateChannel_Success() throws Exception {
         // given - 사용자 2명 생성
@@ -130,6 +138,7 @@ class ChannelApiIntegrationTest {
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("비공개 채널 생성 - 실패: 이미 존재하는 2인 채널 중복 생성 시도")
     void createPrivateChannel_Duplicate_Fails() throws Exception {
         // given - 사용자 2명과 기존 채널 생성
@@ -159,6 +168,7 @@ class ChannelApiIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("채널 생성 - 실패: 유효하지 않은 데이터로 생성 시도")
     void createChannel_InvalidData_Fails() throws Exception {
         // given - PUBLIC 채널인데 name이 빈 문자열
@@ -176,27 +186,32 @@ class ChannelApiIntegrationTest {
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("사용자의 채널 목록 조회 - 성공: 공개 채널과 참여중인 비공개 채널이 조회됨")
     void findChannelsByUserId_Success() throws Exception {
-        // given - 사용자와 채널 생성
-        User user = new User("user", "user@example.com", "encoded", null);
-        userRepository.save(user);
+        // given - mockUser 생성 (JDBC로 고정 ID 사용)
+        jdbcTemplate.update(
+            "INSERT INTO users (id, username, email, password, role, created_at, updated_at) "
+                + "VALUES (?, ?, ?, ?, ?, NOW(), NOW())",
+            MOCK_USER_ID, "testuser", "test@example.com", "encoded", "USER"
+        );
+        User mockUser = userRepository.findById(MOCK_USER_ID).orElseThrow();
 
+        // 채널 생성
         Channel publicChannel = new Channel(ChannelType.PUBLIC, "Public", null);
         Channel privateChannel = new Channel(ChannelType.PRIVATE, null, null);
         channelRepository.saveAll(List.of(publicChannel, privateChannel));
 
-        // 비공개 채널에 사용자 추가
+        // 비공개 채널에 mockUser 추가
         User otherUser = new User("other", "other@example.com", "encoded", null);
         userRepository.save(otherUser);
         readStatusRepository.saveAll(List.of(
-            new ReadStatus(user, privateChannel, Instant.now(), true),
+            new ReadStatus(mockUser, privateChannel, Instant.now(), true),
             new ReadStatus(otherUser, privateChannel, Instant.now(), true)
         ));
 
         // when & then
-        mockMvc.perform(get("/api/channels")
-                .param("userId", user.getId().toString()))
+        mockMvc.perform(get("/api/channels"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(2))
             .andExpect(jsonPath("$[0].type").exists())
@@ -204,24 +219,22 @@ class ChannelApiIntegrationTest {
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("채널 목록 조회 - 성공: 사용자의 모든 공개 채널 조회")
     void findAllPublicChannels_Success() throws Exception {
-        // given - 사용자와 공개 채널 2개 생성
-        User user = new User("user", "user@example.com", "encoded", null);
-        userRepository.save(user);
-
+        // given - 공개 채널 2개 생성
         Channel channel1 = new Channel(ChannelType.PUBLIC, "Channel1", null);
         Channel channel2 = new Channel(ChannelType.PUBLIC, "Channel2", null);
         channelRepository.saveAll(List.of(channel1, channel2));
 
         // when & then
-        mockMvc.perform(get("/api/channels")
-                .param("userId", user.getId().toString()))
+        mockMvc.perform(get("/api/channels"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(2));
     }
 
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("채널 수정 - 성공: 공개 채널 정보를 수정하고 데이터베이스에 반영됨")
     void updateChannel_Success() throws Exception {
         // given - 공개 채널 생성
@@ -250,6 +263,7 @@ class ChannelApiIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("채널 수정 - 실패: 존재하지 않는 채널 수정 시도")
     void updateChannel_NotFound_Fails() throws Exception {
         // given
@@ -266,6 +280,7 @@ class ChannelApiIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("채널 삭제 - 성공: 채널과 관련된 ReadStatus가 모두 삭제됨")
     void deleteChannel_Success() throws Exception {
         // given - 채널과 ReadStatus 생성
@@ -291,6 +306,7 @@ class ChannelApiIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("채널 삭제 - 실패: 존재하지 않는 채널 삭제 시도")
     void deleteChannel_NotFound_Fails() throws Exception {
         // given
