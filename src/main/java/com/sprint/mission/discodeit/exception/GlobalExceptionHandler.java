@@ -42,8 +42,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    private static final String MDC_REQUEST_ID_KEY = "requestId";
-
     @ExceptionHandler(DiscodeitException.class)
     public ResponseEntity<ErrorResponse> handleDiscodeitException(
         DiscodeitException exception,
