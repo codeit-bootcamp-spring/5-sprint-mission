@@ -30,6 +30,7 @@ public class UserController implements UserControllerDocs {
 
     private final UserService userService;
 
+    @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(
@@ -43,28 +44,25 @@ public class UserController implements UserControllerDocs {
         return userService.create(req, profile);
     }
 
+    @Override
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<UserDto> findAll() {
         return userService.findAll();
     }
 
+    @Override
     @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public UserDto update(
-        @PathVariable
-        UUID userId,
-
-        @RequestPart(value = "userUpdateRequest")
-        @Valid
-        UserUpdateRequest req,
-
-        @RequestPart(value = "profile", required = false)
-        MultipartFile profile
+        @PathVariable UUID userId,
+        @RequestPart(value = "userUpdateRequest") @Valid UserUpdateRequest req,
+        @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
         return userService.update(userId, req, profile);
     }
 
+    @Override
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID userId) {

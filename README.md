@@ -130,7 +130,7 @@
 
 ### 알림 API 구현
 
-- [ ] 알림 API를 구현하세요.
+- [x] 알림 API를 구현하세요.
     - `NotificationDto`를 정의하세요.
 
       ![](readme8.png)
