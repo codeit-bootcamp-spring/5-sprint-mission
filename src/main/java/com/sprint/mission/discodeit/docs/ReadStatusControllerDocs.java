@@ -4,12 +4,14 @@ import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusCreateReque
 import com.sprint.mission.discodeit.dto.readstatus.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
@@ -19,66 +21,26 @@ import java.util.UUID;
 @SuppressWarnings("checkstyle:LineLength")
 public interface ReadStatusControllerDocs {
 
-    @Operation(summary = "User의 Message 읽음 상태 목록 조회")
-    @Parameter(
-        name = "userId",
-        description = "조회할 User ID"
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Message 읽음 상태 목록 조회 성공",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ReadStatusDto.class)
+    @Operation(summary = "현재 로그인한 User의 Message 읽음 상태 목록 조회")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Message 읽음 상태 목록 조회 성공",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ReadStatusDto.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "인증되지 않은 요청",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
         )
-    )
-    @ApiResponse(
-        responseCode = "400",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class),
-            examples = {
-                @ExampleObject(
-                    name = "invalidParameterType",
-                    description = "parameter(userId) 타입이 UUID가 아님",
-                    value = """
-                        {
-                          "timestamp": "2025-09-04T02:19:30.016741Z",
-                          "code": "INVALID_PARAMETER_VALUE",
-                          "message": "요청 매개변수 값이 유효하지 않습니다.: parameter=userId, value=not-uuid, expectedType=UUID",
-                          "details": {
-                            "path": "/api/readStatuses",
-                            "method": "GET",
-                            "query": "userId=not-uuid"
-                          },
-                          "exceptionType": "MethodArgumentTypeMismatchException",
-                          "status": 400,
-                          "requestId": "9271700d-6503-4956-851a-cdad15075631"
-                        }
-                        """
-                ),
-                @ExampleObject(
-                    name = "missingParameter",
-                    description = "요청에 parameter(userId)가 포함되지 않음",
-                    value = """
-                        {
-                          "timestamp": "2025-09-04T02:18:20.915845Z",
-                          "code": "MISSING_PARAMETER",
-                          "message": "요청 매개변수가 누락되었습니다.: userId (필요한 매개변수: UUID)",
-                          "details": {
-                            "path": "/api/readStatuses",
-                            "method": "GET"
-                          },
-                          "exceptionType": "MissingServletRequestParameterException",
-                          "status": 400,
-                          "requestId": "8173f429-234d-4e17-919c-946573e23d89"
-                        }
-                        """
-                )
-            }
-        )
-    )
-    List<ReadStatusDto> findAllByUserId(UUID userId);
+    })
+    List<ReadStatusDto> findAllByUserId(@Parameter(hidden = true) DiscodeitUserDetails userDetails);
 
     @Operation(summary = "Message 읽음 상태 생성")
     @ApiResponse(
@@ -116,11 +78,6 @@ public interface ReadStatusControllerDocs {
                                  "field": "lastReadAt",
                                  "rejected": null,
                                  "message": "널이어서는 안됩니다"
-                               },
-                               {
-                                 "field": "userId",
-                                 "rejected": null,
-                                 "message": "널이어서는 안됩니다"
                                }
                              ],
                              "method": "POST"
@@ -154,29 +111,19 @@ public interface ReadStatusControllerDocs {
         )
     )
     @ApiResponse(
+        responseCode = "401",
+        description = "인증되지 않은 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
             examples = {
-                @ExampleObject(
-                    name = "userNotFound",
-                    description = "User를 찾을 수 없음",
-                    value = """
-                        {
-                          "timestamp": "2025-09-04T06:34:27.703602Z",
-                          "code": "USER_NOT_FOUND",
-                          "message": "사용자를 찾을 수 없습니다.",
-                          "details": {
-                            "path": "/api/readStatuses",
-                            "method": "POST"
-                          },
-                          "exceptionType": "UserNotFoundException",
-                          "status": 404,
-                          "requestId": "9b34eca0-03c5-4606-96bf-99162aaeeebb"
-                        }
-                        """
-                ),
                 @ExampleObject(
                     name = "channelNotFound",
                     description = "Channel을 찾을 수 없음",
@@ -224,7 +171,10 @@ public interface ReadStatusControllerDocs {
             }
         )
     )
-    ReadStatusDto create(ReadStatusCreateRequest req);
+    ReadStatusDto create(
+        @Parameter(hidden = true) DiscodeitUserDetails userDetails,
+        ReadStatusCreateRequest req
+    );
 
     @Operation(summary = "Message 읽음 상태 수정")
     @Parameter(
@@ -233,7 +183,7 @@ public interface ReadStatusControllerDocs {
     )
     @ApiResponse(
         responseCode = "200",
-        description = "Message 읽음 상태가 성공적으로 생성됨",
+        description = "Message 읽음 상태가 성공적으로 수정됨",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ReadStatusDto.class)
@@ -267,6 +217,34 @@ public interface ReadStatusControllerDocs {
         )
     )
     @ApiResponse(
+        responseCode = "403",
+        description = "본인의 읽음 상태만 수정할 수 있습니다",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class),
+            examples = {
+                @ExampleObject(
+                    name = "readStatusForbidden",
+                    description = "본인의 읽음 상태만 수정할 수 있음",
+                    value = """
+                        {
+                          "timestamp": "2025-09-04T06:36:36.374538Z",
+                          "code": "READ_STATUS_FORBIDDEN",
+                          "message": "본인의 읽음 상태만 수정할 수 있습니다.",
+                          "details": {
+                            "path": "/api/readStatuses/bc482f77-d3a9-43fd-a272-4da85df4f041",
+                            "method": "PATCH"
+                          },
+                          "exceptionType": "ReadStatusForbiddenException",
+                          "status": 403,
+                          "requestId": "447352ac-c747-47df-b9f5-a3a03da8c636"
+                        }
+                        """
+                )
+            }
+        )
+    )
+    @ApiResponse(
         responseCode = "404",
         content = @Content(
             mediaType = "application/json",
@@ -293,5 +271,9 @@ public interface ReadStatusControllerDocs {
             }
         )
     )
-    ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest req);
+    ReadStatusDto update(
+        @Parameter(hidden = true) DiscodeitUserDetails userDetails,
+        UUID readStatusId,
+        ReadStatusUpdateRequest req
+    );
 }

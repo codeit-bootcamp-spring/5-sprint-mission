@@ -4,17 +4,18 @@ import com.sprint.mission.discodeit.docs.ReadStatusControllerDocs;
 import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,25 +31,28 @@ public class ReadStatusController implements ReadStatusControllerDocs {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ReadStatusDto create(@RequestBody @Valid ReadStatusCreateRequest request) {
-        return readStatusService.create(request);
+    public ReadStatusDto create(
+        @AuthenticationPrincipal DiscodeitUserDetails userDetails,
+        @RequestBody @Valid ReadStatusCreateRequest request
+    ) {
+        return readStatusService.create(userDetails.getUserDto().id(), request);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ReadStatusDto> findAllByUserId(@RequestParam("userId") UUID userId) {
-        return readStatusService.findAllByUserId(userId);
+    public List<ReadStatusDto> findAllByUserId(
+        @AuthenticationPrincipal DiscodeitUserDetails userDetails
+    ) {
+        return readStatusService.findAllByUserId(userDetails.getUserDto().id());
     }
 
     @PatchMapping("/{readStatusId}")
     @ResponseStatus(HttpStatus.OK)
     public ReadStatusDto update(
-        @PathVariable
-        UUID readStatusId,
-        @RequestBody
-        @Valid
-        ReadStatusUpdateRequest request
+        @AuthenticationPrincipal DiscodeitUserDetails userDetails,
+        @PathVariable UUID readStatusId,
+        @RequestBody @Valid ReadStatusUpdateRequest request
     ) {
-        return readStatusService.update(readStatusId, request);
+        return readStatusService.update(readStatusId, userDetails.getUserDto().id(), request);
     }
 }

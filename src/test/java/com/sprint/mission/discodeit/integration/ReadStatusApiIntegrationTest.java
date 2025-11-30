@@ -9,13 +9,15 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +38,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-@WithMockUser
 class ReadStatusApiIntegrationTest {
+
+    private static final UUID MOCK_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,13 +57,27 @@ class ReadStatusApiIntegrationTest {
     @Autowired
     private ChannelRepository channelRepository;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    private User mockUser;
+
+    @BeforeEach
+    void setUp() {
+        // Insert user with the mock user ID using JDBC
+        jdbcTemplate.update(
+            "INSERT INTO users (id, username, email, password, role, created_at, updated_at) "
+                + "VALUES (?, ?, ?, ?, ?, NOW(), NOW())",
+            MOCK_USER_ID, "testuser", "test@example.com", "encoded", "USER"
+        );
+        mockUser = userRepository.findById(MOCK_USER_ID).orElseThrow();
+    }
+
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("읽음 상태 조회 - 성공: 사용자의 모든 읽음 상태를 조회")
     void findAllByUserId_Success() throws Exception {
-        // given - 사용자, 채널, 읽음 상태 생성
-        User user = new User("user", "user@example.com", "encoded", null);
-        userRepository.save(user);
-
+        // given - 채널, 읽음 상태 생성
         Channel channel1 = new Channel(ChannelType.PUBLIC, "Channel1", null);
         Channel channel2 = new Channel(ChannelType.PUBLIC, "Channel2", null);
         channelRepository.saveAll(List.of(channel1, channel2));
@@ -68,45 +85,38 @@ class ReadStatusApiIntegrationTest {
         Instant lastReadAt1 = Instant.now().minusSeconds(3600);
         Instant lastReadAt2 = Instant.now().minusSeconds(1800);
 
-        ReadStatus readStatus1 = new ReadStatus(user, channel1, lastReadAt1, false);
-        ReadStatus readStatus2 = new ReadStatus(user, channel2, lastReadAt2, false);
+        ReadStatus readStatus1 = new ReadStatus(mockUser, channel1, lastReadAt1, false);
+        ReadStatus readStatus2 = new ReadStatus(mockUser, channel2, lastReadAt2, false);
         readStatusRepository.saveAll(List.of(readStatus1, readStatus2));
 
         // when & then
-        mockMvc.perform(get("/api/readStatuses")
-                .param("userId", user.getId().toString()))
+        mockMvc.perform(get("/api/readStatuses"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(2))
-            .andExpect(jsonPath("$[0].userId").value(user.getId().toString()))
-            .andExpect(jsonPath("$[1].userId").value(user.getId().toString()));
+            .andExpect(jsonPath("$[0].userId").value(mockUser.getId().toString()))
+            .andExpect(jsonPath("$[1].userId").value(mockUser.getId().toString()));
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("읽음 상태 조회 - 성공: 읽음 상태가 없으면 빈 배열 반환")
     void findAllByUserId_EmptyList() throws Exception {
-        // given - 읽음 상태가 없는 사용자
-        User user = new User("user", "user@example.com", "encoded", null);
-        userRepository.save(user);
-
         // when & then
-        mockMvc.perform(get("/api/readStatuses")
-                .param("userId", user.getId().toString()))
+        mockMvc.perform(get("/api/readStatuses"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("읽음 상태 수정 - 성공: lastReadAt을 업데이트하고 데이터베이스에 반영됨")
     void updateReadStatus_Success() throws Exception {
         // given - 읽음 상태 생성
-        User user = new User("user", "user@example.com", "encoded", null);
-        userRepository.save(user);
-
         Channel channel = new Channel(ChannelType.PUBLIC, "Channel", null);
         channelRepository.save(channel);
 
         Instant oldLastReadAt = Instant.now().minusSeconds(7200);
-        ReadStatus readStatus = new ReadStatus(user, channel, oldLastReadAt, false);
+        ReadStatus readStatus = new ReadStatus(mockUser, channel, oldLastReadAt, false);
         readStatusRepository.save(readStatus);
 
         // 새로운 읽음 시간
@@ -128,6 +138,7 @@ class ReadStatusApiIntegrationTest {
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("읽음 상태 수정 - 실패: 존재하지 않는 읽음 상태 수정 시도")
     void updateReadStatus_NotFound_Fails() throws Exception {
         // given
@@ -144,12 +155,12 @@ class ReadStatusApiIntegrationTest {
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("읽음 상태 업데이트 - 성공: 여러 사용자가 같은 채널의 읽음 상태를 독립적으로 관리")
     void updateReadStatus_MultipleUsers_Success() throws Exception {
-        // given - 2명의 사용자가 같은 채널에 참여
-        User user1 = new User("user1", "user1@example.com", "encoded1", null);
+        // given - 다른 사용자 생성
         User user2 = new User("user2", "user2@example.com", "encoded2", null);
-        userRepository.saveAll(List.of(user1, user2));
+        userRepository.save(user2);
 
         Channel channel = new Channel(ChannelType.PUBLIC, "SharedChannel", null);
         channelRepository.save(channel);
@@ -157,11 +168,11 @@ class ReadStatusApiIntegrationTest {
         Instant time1 = Instant.now().minusSeconds(1000);
         Instant time2 = Instant.now().minusSeconds(2000);
 
-        ReadStatus readStatus1 = new ReadStatus(user1, channel, time1, false);
+        ReadStatus readStatus1 = new ReadStatus(mockUser, channel, time1, false);
         ReadStatus readStatus2 = new ReadStatus(user2, channel, time2, false);
         readStatusRepository.saveAll(List.of(readStatus1, readStatus2));
 
-        // user1의 읽음 시간 업데이트
+        // mockUser의 읽음 시간 업데이트
         Instant newTime1 = Instant.now();
         ReadStatusUpdateRequest request1 = new ReadStatusUpdateRequest(newTime1, false);
 
@@ -172,7 +183,7 @@ class ReadStatusApiIntegrationTest {
                 .with(csrf()))
             .andExpect(status().isOk());
 
-        // then - user1의 읽음 상태만 변경되고 user2는 영향받지 않음
+        // then - mockUser의 읽음 상태만 변경되고 user2는 영향받지 않음
         Optional<ReadStatus> updated1 = readStatusRepository.findById(readStatus1.getId());
         Optional<ReadStatus> updated2 = readStatusRepository.findById(readStatus2.getId());
 
@@ -184,25 +195,22 @@ class ReadStatusApiIntegrationTest {
     }
 
     @Test
+    @WithMockDiscodeitUser
     @DisplayName("읽음 상태 조회 - 성공: 채널별로 읽음 상태가 올바르게 구분됨")
     void findAllByUserId_MultipleChannels_Success() throws Exception {
-        // given - 한 사용자가 여러 채널에 참여
-        User user = new User("user", "user@example.com", "encoded", null);
-        userRepository.save(user);
-
+        // given - 여러 채널에 참여
         Channel channel1 = new Channel(ChannelType.PUBLIC, "Channel1", null);
         Channel channel2 = new Channel(ChannelType.PUBLIC, "Channel2", null);
         Channel channel3 = new Channel(ChannelType.PUBLIC, "Channel3", null);
         channelRepository.saveAll(List.of(channel1, channel2, channel3));
 
-        ReadStatus readStatus1 = new ReadStatus(user, channel1, Instant.now(), false);
-        ReadStatus readStatus2 = new ReadStatus(user, channel2, Instant.now(), false);
-        ReadStatus readStatus3 = new ReadStatus(user, channel3, Instant.now(), false);
+        ReadStatus readStatus1 = new ReadStatus(mockUser, channel1, Instant.now(), false);
+        ReadStatus readStatus2 = new ReadStatus(mockUser, channel2, Instant.now(), false);
+        ReadStatus readStatus3 = new ReadStatus(mockUser, channel3, Instant.now(), false);
         readStatusRepository.saveAll(List.of(readStatus1, readStatus2, readStatus3));
 
         // when & then
-        mockMvc.perform(get("/api/readStatuses")
-                .param("userId", user.getId().toString()))
+        mockMvc.perform(get("/api/readStatuses"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(3))
             .andExpect(jsonPath("$[0].channelId").exists())

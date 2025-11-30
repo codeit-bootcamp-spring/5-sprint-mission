@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusForbiddenException;
 import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
@@ -31,8 +32,8 @@ public class ReadStatusService {
     private final ReadStatusMapper readStatusMapper;
 
     @Transactional
-    public ReadStatusDto create(ReadStatusCreateRequest request) {
-        User user = getUserOrThrow(request.userId());
+    public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
+        User user = getUserOrThrow(requesterId);
         Channel channel = getChannelOrThrow(request.channelId());
 
         ReadStatus savedReadStatus = readStatusRepository.save(
@@ -55,9 +56,14 @@ public class ReadStatusService {
     @Transactional
     public ReadStatusDto update(
         UUID readStatusId,
+        UUID requesterId,
         ReadStatusUpdateRequest request
     ) {
         ReadStatus readStatus = getReadStatusOrThrow(readStatusId);
+
+        if (!readStatus.getUser().getId().equals(requesterId)) {
+            throw new ReadStatusForbiddenException(readStatusId, requesterId);
+        }
 
         if (request.newLastReadAt() != null) {
             readStatus.update(request.newLastReadAt(), request.newNotificationEnabled());

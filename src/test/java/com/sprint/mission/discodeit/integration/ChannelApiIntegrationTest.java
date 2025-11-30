@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,19 @@ class ChannelApiIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    private User mockUser;
+
+    @BeforeEach
+    void setUp() {
+        // Insert user with the mock user ID using JDBC
+        jdbcTemplate.update(
+            "INSERT INTO users (id, username, email, password, role, created_at, updated_at) "
+                + "VALUES (?, ?, ?, ?, ?, NOW(), NOW())",
+            MOCK_USER_ID, "testuser", "test@example.com", "encoded", "USER"
+        );
+        mockUser = userRepository.findById(MOCK_USER_ID).orElseThrow();
+    }
 
     @Test
     @WithMockUser(roles = "CHANNEL_MANAGER")
@@ -189,14 +203,7 @@ class ChannelApiIntegrationTest {
     @WithMockDiscodeitUser
     @DisplayName("사용자의 채널 목록 조회 - 성공: 공개 채널과 참여중인 비공개 채널이 조회됨")
     void findChannelsByUserId_Success() throws Exception {
-        // given - mockUser 생성 (JDBC로 고정 ID 사용)
-        jdbcTemplate.update(
-            "INSERT INTO users (id, username, email, password, role, created_at, updated_at) "
-                + "VALUES (?, ?, ?, ?, ?, NOW(), NOW())",
-            MOCK_USER_ID, "testuser", "test@example.com", "encoded", "USER"
-        );
-        User mockUser = userRepository.findById(MOCK_USER_ID).orElseThrow();
-
+        // given
         // 채널 생성
         Channel publicChannel = new Channel(ChannelType.PUBLIC, "Public", null);
         Channel privateChannel = new Channel(ChannelType.PRIVATE, null, null);
