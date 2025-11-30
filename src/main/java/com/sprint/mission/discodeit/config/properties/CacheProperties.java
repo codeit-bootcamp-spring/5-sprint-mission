@@ -13,24 +13,11 @@ import java.util.Map;
 @ConfigurationProperties("discodeit.cache")
 @Validated
 public record CacheProperties(
-    @NotNull(message = "discodeit.cache.default-spec must not be null")
-    @Valid
-    DefaultSpec defaultSpec,
-    Map<String, @Valid CacheSpec> caches
+    @NotNull @Valid CacheSpec defaultSpec,
+    @DefaultValue("{}") Map<String, @NotNull @Valid CacheSpec> caches
 ) {
-
-    public record DefaultSpec(
-        @Positive(message = "discodeit.cache.default-spec.maximum-size must be positive")
-        @DefaultValue("1000")
-        Integer maximumSize,
-        @NotNull(message = "discodeit.cache.default-spec.expire-after-access must not be null")
-        Duration expireAfterAccess
-    ) {
-    }
-
     public record CacheSpec(
-        @Positive(message = "discodeit.cache.maximum-size must be positive")
-        Integer maximumSize,
+        @Positive @DefaultValue("1000") Integer maximumSize,
         Duration expireAfterAccess,
         Duration expireAfterWrite
     ) {

@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.config;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.sprint.mission.discodeit.config.properties.CacheProperties;
 import com.sprint.mission.discodeit.config.properties.CacheProperties.CacheSpec;
-import com.sprint.mission.discodeit.config.properties.CacheProperties.DefaultSpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
@@ -11,6 +10,8 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.time.Duration;
 
 @Configuration
 @EnableCaching
@@ -22,36 +23,32 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        DefaultSpec defaultSpec = cacheProperties.defaultSpec();
+        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
+        caffeineCacheManager.setCaffeine(buildCaffeine(cacheProperties.defaultSpec()));
 
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCaffeine(Caffeine.newBuilder()
-            .recordStats()
-            .maximumSize(defaultSpec.maximumSize())
-            .expireAfterAccess(defaultSpec.expireAfterAccess()));
+        cacheProperties.caches().forEach((cacheName, spec) ->
+            caffeineCacheManager.registerCustomCache(cacheName, buildCaffeine(spec).build())
+        );
 
-        if (cacheProperties.caches() != null) {
-            cacheProperties.caches().forEach((name, spec) ->
-                cacheManager.registerCustomCache(name, buildCaffeine(spec, defaultSpec).build())
-            );
-        }
-
-        return cacheManager;
+        return caffeineCacheManager;
     }
 
-    private Caffeine<Object, Object> buildCaffeine(CacheSpec spec, DefaultSpec defaultSpec) {
-        Caffeine<Object, Object> builder = Caffeine.newBuilder().recordStats();
+    private Caffeine<Object, Object> buildCaffeine(CacheSpec spec) {
+        Caffeine<Object, Object> caffeine = Caffeine.newBuilder()
+            .recordStats()
+            .maximumSize(spec.maximumSize());
 
-        builder.maximumSize(spec.maximumSize() != null ? spec.maximumSize() : defaultSpec.maximumSize());
-
-        if (spec.expireAfterWrite() != null) {
-            builder.expireAfterWrite(spec.expireAfterWrite());
-        } else if (spec.expireAfterAccess() != null) {
-            builder.expireAfterAccess(spec.expireAfterAccess());
+        if (spec.expireAfterAccess() == null && spec.expireAfterWrite() == null) {
+            caffeine.expireAfterAccess(Duration.ofMinutes(5));
         } else {
-            builder.expireAfterAccess(defaultSpec.expireAfterAccess());
+            if (spec.expireAfterAccess() != null) {
+                caffeine.expireAfterAccess(spec.expireAfterAccess());
+            }
+            if (spec.expireAfterWrite() != null) {
+                caffeine.expireAfterWrite(spec.expireAfterWrite());
+            }
         }
 
-        return builder;
+        return caffeine;
     }
 }

@@ -44,14 +44,14 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
         S3Client s3Client,
         S3Presigner s3Presigner,
         CacheManager cacheManager,
-        S3Properties props
+        S3Properties s3Properties
     ) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
         this.cacheManager = cacheManager;
 
-        this.bucket = props.bucket();
-        this.presignedUrlExpiration = props.presignedUrlExpiration();
+        this.bucket = s3Properties.bucket();
+        this.presignedUrlExpiration = s3Properties.presignedUrlExpiration();
     }
 
     @Override
@@ -122,16 +122,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
             return generatePresignedUrl(key, contentType);
         }
 
-        String cacheKey = key + ":" + contentType;
-        String cachedUrl = cache.get(cacheKey, String.class);
-        if (cachedUrl != null) {
-            log.debug("S3 Presigned URL 캐시 히트: key={}", key);
-            return cachedUrl;
-        }
-
-        String url = generatePresignedUrl(key, contentType);
-        cache.put(cacheKey, url);
-        return url;
+        return cache.get(key, () -> generatePresignedUrl(key, contentType));
     }
 
     private String generatePresignedUrl(String key, String contentType) {
