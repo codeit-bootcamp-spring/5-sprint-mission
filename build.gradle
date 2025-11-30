@@ -48,6 +48,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // Retry
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework:spring-aspects'
+
     // Development Tools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
