@@ -41,12 +41,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * AuthController 단위 테스트.
- *
- * <p>@WebMvcTest를 사용하여 컨트롤러 로직만 테스트합니다.
- * 실제 인증/인가 동작(인증되지 않은 사용자 차단 등)은 통합 테스트에서 검증합니다.</p>
- */
 @WebMvcTest(value = AuthController.class, excludeFilters = @ComponentScan.Filter(
     type = FilterType.REGEX, pattern = ".*\\.security\\..*|.*\\.config\\.SecurityConfig"))
 @Import({GlobalExceptionHandler.class, TestSecurityConfig.class})

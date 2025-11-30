@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.security;
 
 import com.sprint.mission.discodeit.config.properties.AdminProperties;
-import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
 import com.sprint.mission.discodeit.exception.user.DuplicateUsernameException;
-import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,8 +17,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.ApplicationArguments;
 
+import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
@@ -33,7 +35,7 @@ class AdminInitializerTest {
     private UserService userService;
 
     @Mock
-    private AuthService authService;
+    private UserRepository userRepository;
 
     @Mock
     private AdminProperties adminProperties;
@@ -55,7 +57,7 @@ class AdminInitializerTest {
 
         // then
         then(userService).should(never()).create(any(), any());
-        then(authService).should(never()).updateRoleWithoutAuth(any());
+        then(userRepository).should(never()).findById(any());
     }
 
     @Test
@@ -73,14 +75,17 @@ class AdminInitializerTest {
         given(adminProperties.password()).willReturn(password);
 
         UserDto adminDto = new UserDto(adminId, username, email, null, false, Role.USER);
+        User adminUser = new User(username, email, "encoded", null);
         given(userService.create(any(UserCreateRequest.class), isNull())).willReturn(adminDto);
+        given(userRepository.findById(adminId)).willReturn(Optional.of(adminUser));
 
         // when
         adminInitializer.run(applicationArguments);
 
         // then
         then(userService).should().create(any(UserCreateRequest.class), isNull());
-        then(authService).should().updateRoleWithoutAuth(any(RoleUpdateRequest.class));
+        then(userRepository).should().findById(adminId);
+        assertThat(adminUser.getRole()).isEqualTo(Role.ADMIN);
     }
 
     @Test
@@ -98,7 +103,7 @@ class AdminInitializerTest {
         adminInitializer.run(applicationArguments);
 
         // then
-        then(authService).should(never()).updateRoleWithoutAuth(any());
+        then(userRepository).should(never()).findById(any());
     }
 
     @Test
@@ -116,6 +121,6 @@ class AdminInitializerTest {
         adminInitializer.run(applicationArguments);
 
         // then
-        then(authService).should(never()).updateRoleWithoutAuth(any());
+        then(userRepository).should(never()).findById(any());
     }
 }

@@ -1,19 +1,20 @@
 package com.sprint.mission.discodeit.security;
 
 import com.sprint.mission.discodeit.config.properties.AdminProperties;
-import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
 import com.sprint.mission.discodeit.exception.user.DuplicateUsernameException;
-import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -21,10 +22,11 @@ import org.springframework.stereotype.Component;
 public class AdminInitializer implements ApplicationRunner {
 
     private final UserService userService;
-    private final AuthService authService;
+    private final UserRepository userRepository;
     private final AdminProperties adminProperties;
 
     @Override
+    @Transactional
     public void run(ApplicationArguments args) {
         if (!adminProperties.enabled()) {
             return;
@@ -38,7 +40,8 @@ public class AdminInitializer implements ApplicationRunner {
 
         try {
             UserDto admin = userService.create(request, null);
-            authService.updateRoleWithoutAuth(new RoleUpdateRequest(admin.id(), Role.ADMIN));
+            User user = userRepository.findById(admin.id()).orElseThrow();
+            user.updateRole(Role.ADMIN);
             log.info("관리자 계정 생성 완료: username={}", admin.username());
         } catch (DuplicateUsernameException | DuplicateEmailException e) {
             log.debug("관리자 계정이 이미 존재합니다: {}", e.getMessage());

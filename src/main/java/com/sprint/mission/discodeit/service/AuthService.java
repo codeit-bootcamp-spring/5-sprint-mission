@@ -1,23 +1,25 @@
 package com.sprint.mission.discodeit.service;
 
 import com.nimbusds.jose.JOSEException;
-import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.audit.AuthAuditService;
 import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -38,15 +40,11 @@ public class AuthService {
     private final UserDetailsService userDetailsService;
     private final AuthAuditService authAuditService;
     private final AuthMetricsService authMetricsService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public UserDto updateRole(RoleUpdateRequest request) {
-        return updateRoleWithoutAuth(request);
-    }
-
-    @Transactional
-    public UserDto updateRoleWithoutAuth(RoleUpdateRequest request) {
         UUID userId = request.userId();
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new UserNotFoundException(userId));
@@ -58,6 +56,8 @@ public class AuthService {
         jwtRegistry.invalidateJwtInformationByUserId(userId);
 
         authAuditService.logRoleChange(userId, user.getUsername(), oldRole.name(), newRole.name());
+
+        eventPublisher.publishEvent(new RoleUpdatedEvent(userId, newRole));
 
         return userMapper.toDto(user);
     }

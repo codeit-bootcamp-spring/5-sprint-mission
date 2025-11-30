@@ -2,9 +2,9 @@ package com.sprint.mission.discodeit.controller;
 
 import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.docs.AuthControllerDocs;
+import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.jwt.data.JwtDto;
 import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
-import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.security.audit.AuthAuditService;
 import com.sprint.mission.discodeit.security.audit.AuthMetricsService;

@@ -1,28 +1,32 @@
 package com.sprint.mission.discodeit.service;
 
 import com.nimbusds.jose.JOSEException;
-import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.audit.AuthAuditService;
 import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Collections;
@@ -62,12 +66,18 @@ class AuthServiceTest {
     @Mock
     private AuthMetricsService authMetricsService;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
+    @Captor
+    private ArgumentCaptor<RoleUpdatedEvent> eventCaptor;
+
     @InjectMocks
     private AuthService authService;
 
     @Test
-    @DisplayName("updateRoleWithoutAuth - 성공: 사용자 권한을 CHANNEL_MANAGER로 변경")
-    void updateRoleWithoutAuth_ToChannelManager_Success() {
+    @DisplayName("updateRole - 성공: 사용자 권한을 CHANNEL_MANAGER로 변경")
+    void updateRole_ToChannelManager_Success() {
         // given
         UUID userId = UUID.randomUUID();
         User user = new User("testuser", "test@example.com", "encodedPassword", null);
@@ -87,7 +97,7 @@ class AuthServiceTest {
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
         // when
-        UserDto result = authService.updateRoleWithoutAuth(request);
+        UserDto result = authService.updateRole(request);
 
         // then
         assertThat(result).isNotNull();
@@ -99,8 +109,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("updateRoleWithoutAuth - 성공: 사용자 권한을 ADMIN으로 변경")
-    void updateRoleWithoutAuth_ToAdmin_Success() {
+    @DisplayName("updateRole - 성공: 사용자 권한을 ADMIN으로 변경")
+    void updateRole_ToAdmin_Success() {
         // given
         UUID userId = UUID.randomUUID();
         User user = new User("testuser", "test@example.com", "encodedPassword", null);
@@ -120,7 +130,7 @@ class AuthServiceTest {
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
         // when
-        UserDto result = authService.updateRoleWithoutAuth(request);
+        UserDto result = authService.updateRole(request);
 
         // then
         assertThat(result).isNotNull();
@@ -132,8 +142,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("updateRoleWithoutAuth - 성공: ADMIN에서 USER로 권한 강등")
-    void updateRoleWithoutAuth_DemoteToUser_Success() {
+    @DisplayName("updateRole - 성공: ADMIN에서 USER로 권한 강등")
+    void updateRole_DemoteToUser_Success() {
         // given
         UUID userId = UUID.randomUUID();
         User user = new User("adminuser", "admin@example.com", "encodedPassword", null);
@@ -154,7 +164,7 @@ class AuthServiceTest {
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
         // when
-        UserDto result = authService.updateRoleWithoutAuth(request);
+        UserDto result = authService.updateRole(request);
 
         // then
         assertThat(result).isNotNull();
@@ -166,8 +176,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("updateRoleWithoutAuth - 실패: 존재하지 않는 사용자")
-    void updateRoleWithoutAuth_UserNotFound_ThrowsException() {
+    @DisplayName("updateRole - 실패: 존재하지 않는 사용자")
+    void updateRole_UserNotFound_ThrowsException() {
         // given
         UUID userId = UUID.randomUUID();
         RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.CHANNEL_MANAGER);
@@ -175,7 +185,7 @@ class AuthServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> authService.updateRoleWithoutAuth(request))
+        assertThatThrownBy(() -> authService.updateRole(request))
             .isInstanceOf(UserNotFoundException.class);
 
         then(userRepository).should().findById(userId);
@@ -184,8 +194,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("updateRoleWithoutAuth - 성공: 권한 변경 후 JWT 무효화 확인")
-    void updateRoleWithoutAuth_InvalidatesJwt() {
+    @DisplayName("updateRole - 성공: 권한 변경 후 JWT 무효화 확인")
+    void updateRole_InvalidatesJwt() {
         // given
         UUID userId = UUID.randomUUID();
         User user = new User("testuser", "test@example.com", "encodedPassword", null);
@@ -205,10 +215,41 @@ class AuthServiceTest {
         given(userMapper.toDto(user)).willReturn(expectedDto);
 
         // when
-        authService.updateRoleWithoutAuth(request);
+        authService.updateRole(request);
 
         // then
         then(jwtRegistry).should().invalidateJwtInformationByUserId(userId);
+    }
+
+    @Test
+    @DisplayName("updateRole - 성공: 권한 변경 시 RoleUpdatedEvent 발행")
+    void updateRole_PublishesRoleUpdatedEvent() {
+        // given
+        UUID userId = UUID.randomUUID();
+        User user = new User("testuser", "test@example.com", "encodedPassword", null);
+        RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.ADMIN);
+
+        UserDto expectedDto = new UserDto(
+            userId,
+            "testuser",
+            "test@example.com",
+            null,
+            true,
+            Role.ADMIN
+        );
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        willDoNothing().given(jwtRegistry).invalidateJwtInformationByUserId(userId);
+        given(userMapper.toDto(user)).willReturn(expectedDto);
+
+        // when
+        authService.updateRole(request);
+
+        // then
+        then(eventPublisher).should().publishEvent(eventCaptor.capture());
+        RoleUpdatedEvent capturedEvent = eventCaptor.getValue();
+        assertThat(capturedEvent.userId()).isEqualTo(userId);
+        assertThat(capturedEvent.newRole()).isEqualTo(Role.ADMIN);
     }
 
     @Nested
