@@ -56,16 +56,16 @@ class ChannelRepositoryTest {
         privateChannel1 = new Channel(ChannelType.PRIVATE, null, null);
         channelRepository.save(privateChannel1);
         readStatusRepository.saveAll(List.of(
-            new ReadStatus(user1, privateChannel1, Instant.now()),
-            new ReadStatus(user2, privateChannel1, Instant.now())
+            new ReadStatus(user1, privateChannel1, Instant.now(), true),
+            new ReadStatus(user2, privateChannel1, Instant.now(), true)
         ));
 
         // given - 비공개 채널 생성 (user1 - user3)
         privateChannel2 = new Channel(ChannelType.PRIVATE, null, null);
         channelRepository.save(privateChannel2);
         readStatusRepository.saveAll(List.of(
-            new ReadStatus(user1, privateChannel2, Instant.now()),
-            new ReadStatus(user3, privateChannel2, Instant.now())
+            new ReadStatus(user1, privateChannel2, Instant.now(), true),
+            new ReadStatus(user3, privateChannel2, Instant.now(), true)
         ));
     }
 
@@ -155,9 +155,9 @@ class ChannelRepositoryTest {
         Channel threePersonChannel = new Channel(ChannelType.PRIVATE, null, null);
         channelRepository.save(threePersonChannel);
         readStatusRepository.saveAll(List.of(
-            new ReadStatus(user1, threePersonChannel, Instant.now()),
-            new ReadStatus(user2, threePersonChannel, Instant.now()),
-            new ReadStatus(user3, threePersonChannel, Instant.now())
+            new ReadStatus(user1, threePersonChannel, Instant.now(), true),
+            new ReadStatus(user2, threePersonChannel, Instant.now(), true),
+            new ReadStatus(user3, threePersonChannel, Instant.now(), true)
         ));
 
         // when - user1과 user2는 이미 privateChannel1에 함께 있지만, 3인 채널은 카운트 안됨

@@ -21,6 +21,7 @@ public record ReadStatusCreateRequest(
     @NotNull
     UUID channelId,
     @NotNull
-    Instant lastReadAt
+    Instant lastReadAt,
+    boolean notificationEnabled
 ) {
 }

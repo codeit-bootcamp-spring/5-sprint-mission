@@ -61,18 +61,20 @@ class ReadStatusServiceTest {
         ReadStatusCreateRequest request = new ReadStatusCreateRequest(
             userId,
             channelId,
-            lastReadAt
+            lastReadAt,
+            false
         );
 
         User user = new User("testuser", "test@example.com", "encoded", null);
         Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
-        ReadStatus savedReadStatus = new ReadStatus(user, channel, lastReadAt);
+        ReadStatus savedReadStatus = new ReadStatus(user, channel, lastReadAt, false);
 
         ReadStatusDto expectedDto = new ReadStatusDto(
             UUID.randomUUID(),
             userId,
             channelId,
-            lastReadAt
+            lastReadAt,
+            false
         );
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
@@ -104,7 +106,8 @@ class ReadStatusServiceTest {
         ReadStatusCreateRequest request = new ReadStatusCreateRequest(
             userId,
             channelId,
-            Instant.now()
+            Instant.now(),
+            false
         );
 
         given(userRepository.findById(userId)).willReturn(Optional.empty());
@@ -128,7 +131,8 @@ class ReadStatusServiceTest {
         ReadStatusCreateRequest request = new ReadStatusCreateRequest(
             userId,
             channelId,
-            Instant.now()
+            Instant.now(),
+            false
         );
 
         User user = new User("testuser", "test@example.com", "encoded", null);
@@ -152,7 +156,7 @@ class ReadStatusServiceTest {
         UUID readStatusId = UUID.randomUUID();
         Instant newLastReadAt = Instant.now();
 
-        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(newLastReadAt);
+        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(newLastReadAt, false);
 
         User user = new User("testuser", "test@example.com", "encoded", null);
         Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
@@ -162,7 +166,8 @@ class ReadStatusServiceTest {
             readStatusId,
             UUID.randomUUID(),
             UUID.randomUUID(),
-            newLastReadAt
+            newLastReadAt,
+            false
         );
 
         given(readStatusRepository.findById(readStatusId)).willReturn(Optional.of(readStatus));
@@ -176,7 +181,7 @@ class ReadStatusServiceTest {
         assertThat(result.lastReadAt()).isEqualTo(newLastReadAt);
 
         then(readStatusRepository).should().findById(readStatusId);
-        then(readStatus).should().update(newLastReadAt);
+        then(readStatus).should().update(newLastReadAt, false);
         then(readStatusMapper).should().toDto(readStatus);
     }
 
@@ -185,14 +190,15 @@ class ReadStatusServiceTest {
     void update_WithNull_DoesNotUpdate() {
         // given
         UUID readStatusId = UUID.randomUUID();
-        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(null);
+        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(null, false);
 
         ReadStatus readStatus = mock(ReadStatus.class);
         ReadStatusDto expectedDto = new ReadStatusDto(
             readStatusId,
             UUID.randomUUID(),
             UUID.randomUUID(),
-            Instant.now()
+            Instant.now(),
+            false
         );
 
         given(readStatusRepository.findById(readStatusId)).willReturn(Optional.of(readStatus));
@@ -214,7 +220,7 @@ class ReadStatusServiceTest {
     void update_ReadStatusNotFound_ThrowsReadStatusNotFoundException() {
         // given
         UUID readStatusId = UUID.randomUUID();
-        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(Instant.now());
+        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(Instant.now(), false);
 
         given(readStatusRepository.findById(readStatusId)).willReturn(Optional.empty());
 

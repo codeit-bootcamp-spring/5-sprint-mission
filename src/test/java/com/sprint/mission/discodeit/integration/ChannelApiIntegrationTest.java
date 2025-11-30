@@ -140,8 +140,8 @@ class ChannelApiIntegrationTest {
         Channel existingChannel = new Channel(ChannelType.PRIVATE, null, null);
         channelRepository.save(existingChannel);
         readStatusRepository.saveAll(List.of(
-            new ReadStatus(user1, existingChannel, Instant.now()),
-            new ReadStatus(user2, existingChannel, Instant.now())
+            new ReadStatus(user1, existingChannel, Instant.now(), true),
+            new ReadStatus(user2, existingChannel, Instant.now(), true)
         ));
 
         // 중복 생성 시도
@@ -190,8 +190,8 @@ class ChannelApiIntegrationTest {
         User otherUser = new User("other", "other@example.com", "encoded", null);
         userRepository.save(otherUser);
         readStatusRepository.saveAll(List.of(
-            new ReadStatus(user, privateChannel, Instant.now()),
-            new ReadStatus(otherUser, privateChannel, Instant.now())
+            new ReadStatus(user, privateChannel, Instant.now(), true),
+            new ReadStatus(otherUser, privateChannel, Instant.now(), true)
         ));
 
         // when & then
@@ -275,7 +275,7 @@ class ChannelApiIntegrationTest {
         Channel channel = new Channel(ChannelType.PUBLIC, "ToDelete", null);
         channelRepository.save(channel);
 
-        ReadStatus readStatus = new ReadStatus(user, channel, Instant.now());
+        ReadStatus readStatus = new ReadStatus(user, channel, Instant.now(), false);
         readStatusRepository.save(readStatus);
 
         UUID channelId = channel.getId();

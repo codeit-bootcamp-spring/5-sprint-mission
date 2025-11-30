@@ -68,8 +68,8 @@ class ReadStatusApiIntegrationTest {
         Instant lastReadAt1 = Instant.now().minusSeconds(3600);
         Instant lastReadAt2 = Instant.now().minusSeconds(1800);
 
-        ReadStatus readStatus1 = new ReadStatus(user, channel1, lastReadAt1);
-        ReadStatus readStatus2 = new ReadStatus(user, channel2, lastReadAt2);
+        ReadStatus readStatus1 = new ReadStatus(user, channel1, lastReadAt1, false);
+        ReadStatus readStatus2 = new ReadStatus(user, channel2, lastReadAt2, false);
         readStatusRepository.saveAll(List.of(readStatus1, readStatus2));
 
         // when & then
@@ -106,12 +106,12 @@ class ReadStatusApiIntegrationTest {
         channelRepository.save(channel);
 
         Instant oldLastReadAt = Instant.now().minusSeconds(7200);
-        ReadStatus readStatus = new ReadStatus(user, channel, oldLastReadAt);
+        ReadStatus readStatus = new ReadStatus(user, channel, oldLastReadAt, false);
         readStatusRepository.save(readStatus);
 
         // 새로운 읽음 시간
         Instant newLastReadAt = Instant.now();
-        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(newLastReadAt);
+        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(newLastReadAt, false);
 
         // when
         mockMvc.perform(patch("/api/readStatuses/{readStatusId}", readStatus.getId())
@@ -132,7 +132,7 @@ class ReadStatusApiIntegrationTest {
     void updateReadStatus_NotFound_Fails() throws Exception {
         // given
         UUID nonExistentId = UUID.randomUUID();
-        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(Instant.now());
+        ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(Instant.now(), false);
 
         // when & then
         mockMvc.perform(patch("/api/readStatuses/{readStatusId}", nonExistentId)
@@ -157,13 +157,13 @@ class ReadStatusApiIntegrationTest {
         Instant time1 = Instant.now().minusSeconds(1000);
         Instant time2 = Instant.now().minusSeconds(2000);
 
-        ReadStatus readStatus1 = new ReadStatus(user1, channel, time1);
-        ReadStatus readStatus2 = new ReadStatus(user2, channel, time2);
+        ReadStatus readStatus1 = new ReadStatus(user1, channel, time1, false);
+        ReadStatus readStatus2 = new ReadStatus(user2, channel, time2, false);
         readStatusRepository.saveAll(List.of(readStatus1, readStatus2));
 
         // user1의 읽음 시간 업데이트
         Instant newTime1 = Instant.now();
-        ReadStatusUpdateRequest request1 = new ReadStatusUpdateRequest(newTime1);
+        ReadStatusUpdateRequest request1 = new ReadStatusUpdateRequest(newTime1, false);
 
         // when
         mockMvc.perform(patch("/api/readStatuses/{readStatusId}", readStatus1.getId())
@@ -195,9 +195,9 @@ class ReadStatusApiIntegrationTest {
         Channel channel3 = new Channel(ChannelType.PUBLIC, "Channel3", null);
         channelRepository.saveAll(List.of(channel1, channel2, channel3));
 
-        ReadStatus readStatus1 = new ReadStatus(user, channel1, Instant.now());
-        ReadStatus readStatus2 = new ReadStatus(user, channel2, Instant.now());
-        ReadStatus readStatus3 = new ReadStatus(user, channel3, Instant.now());
+        ReadStatus readStatus1 = new ReadStatus(user, channel1, Instant.now(), false);
+        ReadStatus readStatus2 = new ReadStatus(user, channel2, Instant.now(), false);
+        ReadStatus readStatus3 = new ReadStatus(user, channel3, Instant.now(), false);
         readStatusRepository.saveAll(List.of(readStatus1, readStatus2, readStatus3));
 
         // when & then

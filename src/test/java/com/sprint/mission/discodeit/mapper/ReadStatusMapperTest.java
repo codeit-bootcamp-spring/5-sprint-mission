@@ -32,7 +32,8 @@ class ReadStatusMapperTest {
     }
 
     private ReadStatus createReadStatusWithId(UUID id, User user, Channel channel, Instant lastReadAt) {
-        ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt);
+        boolean notificationEnabled = channel.getType() == ChannelType.PRIVATE;
+        ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt, notificationEnabled);
         ReflectionTestUtils.setField(readStatus, "id", id);
         return readStatus;
     }

@@ -43,7 +43,8 @@ public class ReadStatus extends BaseUpdatableEntity {
     public ReadStatus(
         User user,
         Channel channel,
-        Instant lastReadAt
+        Instant lastReadAt,
+        boolean notificationEnabled
     ) {
         if (user == null) {
             throw new IllegalArgumentException("user must not be null");
@@ -58,6 +59,7 @@ public class ReadStatus extends BaseUpdatableEntity {
         this.user = user;
         this.channel = channel;
         this.lastReadAt = lastReadAt;
+        this.notificationEnabled = notificationEnabled;
     }
 
     public void update(Instant newLastReadAt, boolean newNotificationEnabled) {

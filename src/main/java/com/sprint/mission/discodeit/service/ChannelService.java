@@ -242,7 +242,7 @@ public class ChannelService {
 
     private void initializeReadStatuses(Channel channel, List<User> participants, Instant timestamp) {
         List<ReadStatus> readStatuses = participants.stream()
-            .map(user -> new ReadStatus(user, channel, timestamp))
+            .map(user -> new ReadStatus(user, channel, timestamp, true))
             .toList();
         readStatusRepository.saveAll(readStatuses);
     }

@@ -52,10 +52,10 @@ class ReadStatusRepositoryTest {
         channel2 = new Channel(ChannelType.PUBLIC, "Channel 2", null);
         channelRepository.saveAll(List.of(channel1, channel2));
 
-        // given - 읽음 상태 생성
-        readStatus1 = new ReadStatus(user1, channel1, Instant.now());
-        readStatus2 = new ReadStatus(user1, channel2, Instant.now());
-        readStatus3 = new ReadStatus(user2, channel1, Instant.now());
+        // given - 읽음 상태 생성 (PUBLIC 채널이므로 notificationEnabled = false)
+        readStatus1 = new ReadStatus(user1, channel1, Instant.now(), false);
+        readStatus2 = new ReadStatus(user1, channel2, Instant.now(), false);
+        readStatus3 = new ReadStatus(user2, channel1, Instant.now(), false);
         readStatusRepository.saveAll(List.of(readStatus1, readStatus2, readStatus3));
     }
 
@@ -232,7 +232,7 @@ class ReadStatusRepositoryTest {
         User newUser = new User("newuser", "new@example.com", "encoded", null);
         userRepository.save(newUser);
 
-        ReadStatus newReadStatus = new ReadStatus(newUser, channel1, Instant.now());
+        ReadStatus newReadStatus = new ReadStatus(newUser, channel1, Instant.now(), false);
 
         // when
         ReadStatus savedReadStatus = readStatusRepository.save(newReadStatus);
