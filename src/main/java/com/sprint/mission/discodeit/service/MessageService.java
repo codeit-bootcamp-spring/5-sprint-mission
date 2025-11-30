@@ -22,11 +22,12 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,7 +53,7 @@ public class MessageService {
     private final MessageAttachmentRepository messageAttachmentRepository;
     private final UserRepository userRepository;
 
-    private final BinaryContentStorage binaryContentStorage;
+    private final ApplicationEventPublisher eventPublisher;
 
     private final MessageMapper messageMapper;
     private final UserMapper userMapper;
@@ -93,9 +94,8 @@ public class MessageService {
                 );
 
                 try {
-                    binaryContentStorage.put(
-                        binaryContent.getId(),
-                        attachment.getBytes()
+                    eventPublisher.publishEvent(
+                        new BinaryContentCreatedEvent(binaryContent.getId(), attachment.getBytes())
                     );
                 } catch (IOException e) {
                     throw new BinaryContentUploadException(e);

@@ -5,13 +5,13 @@ import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.user.UserProfileUploadException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.sprint.mission.discodeit.entity.Role;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,7 +49,7 @@ class UserServiceTest {
     private ReadStatusRepository readStatusRepository;
 
     @Mock
-    private BinaryContentStorage binaryContentStorage;
+    private ApplicationEventPublisher eventPublisher;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -109,7 +110,7 @@ class UserServiceTest {
 
         then(passwordEncoder).should().encode("password123");
         then(binaryContentRepository).should(never()).save(any(BinaryContent.class));
-        then(binaryContentStorage).should(never()).put(any(UUID.class), any(byte[].class));
+        then(eventPublisher).should(never()).publishEvent(any(BinaryContentCreatedEvent.class));
         then(userRepository).should().save(any(User.class));
         then(userMapper).should().toDto(savedUser);
     }
@@ -180,8 +181,7 @@ class UserServiceTest {
 
         then(passwordEncoder).should().encode("password123");
         then(binaryContentRepository).should().save(any(BinaryContent.class));
-        // 참고: BinaryContent.getId()는 영속화 전에 null을 반환하므로 실제 호출은 null을 사용
-        then(binaryContentStorage).should().put(any(), any(byte[].class));
+        then(eventPublisher).should().publishEvent(any(BinaryContentCreatedEvent.class));
         then(userRepository).should().save(any(User.class));
         then(userMapper).should().toDto(savedUser);
     }
@@ -229,7 +229,7 @@ class UserServiceTest {
         assertThat(result.profile()).isNull();
 
         then(binaryContentRepository).should(never()).save(any(BinaryContent.class));
-        then(binaryContentStorage).should(never()).put(any(UUID.class), any(byte[].class));
+        then(eventPublisher).should(never()).publishEvent(any(BinaryContentCreatedEvent.class));
     }
 
     @Test

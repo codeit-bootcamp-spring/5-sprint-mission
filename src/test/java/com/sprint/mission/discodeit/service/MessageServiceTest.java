@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentUploadException;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
@@ -19,13 +20,13 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -61,7 +62,7 @@ class MessageServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private BinaryContentStorage binaryContentStorage;
+    private ApplicationEventPublisher eventPublisher;
 
     @Mock
     private MessageMapper messageMapper;
@@ -171,7 +172,7 @@ class MessageServiceTest {
         then(userRepository).should().findById(authorId);
         then(messageRepository).should().save(any(Message.class));
         then(binaryContentRepository).should().save(any(BinaryContent.class));
-        then(binaryContentStorage).should().put(any(), any(byte[].class));
+        then(eventPublisher).should().publishEvent(any(BinaryContentCreatedEvent.class));
         then(messageAttachmentRepository).should().save(any());
     }
 

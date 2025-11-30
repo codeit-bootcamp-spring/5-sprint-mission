@@ -14,11 +14,12 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,7 +41,7 @@ public class UserService {
     private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
 
-    private final BinaryContentStorage binaryContentStorage;
+    private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
 
     private final UserMapper userMapper;
@@ -166,7 +167,9 @@ public class UserService {
         );
 
         try {
-            binaryContentStorage.put(savedProfile.getId(), profile.getBytes());
+            eventPublisher.publishEvent(
+                new BinaryContentCreatedEvent(savedProfile.getId(), profile.getBytes())
+            );
         } catch (IOException e) {
             throw new UserProfileUploadException(e);
         }
