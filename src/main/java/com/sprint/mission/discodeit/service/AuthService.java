@@ -19,6 +19,8 @@ import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,7 +43,9 @@ public class AuthService {
     private final AuthAuditService authAuditService;
     private final AuthMetricsService authMetricsService;
     private final ApplicationEventPublisher eventPublisher;
+    private final CacheManager cacheManager;
 
+    @CacheEvict(value = "users", allEntries = true)
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public UserDto updateRole(RoleUpdateRequest request) {

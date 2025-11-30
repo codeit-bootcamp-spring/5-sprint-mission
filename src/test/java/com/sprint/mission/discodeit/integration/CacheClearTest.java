@@ -1,0 +1,24 @@
+package com.sprint.mission.discodeit.integration;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+
+@SpringBootTest
+public abstract class CacheClearTest {
+
+    @Autowired
+    protected CacheManager cacheManager;
+
+    @BeforeEach
+    void clearCaches() {
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                cache.clear();
+            }
+        }
+    }
+}

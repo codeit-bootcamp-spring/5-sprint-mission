@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @Transactional
 @WithMockUser
-class BinaryContentApiIntegrationTest {
+class BinaryContentApiIntegrationTest extends CacheClearTest {
 
     @Autowired
     private MockMvc mockMvc;

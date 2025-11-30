@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.config.properties.AdminProperties;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.entity.Role;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
 import com.sprint.mission.discodeit.exception.user.DuplicateUsernameException;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -40,8 +39,7 @@ public class AdminInitializer implements ApplicationRunner {
 
         try {
             UserDto admin = userService.create(request, null);
-            User user = userRepository.findById(admin.id()).orElseThrow();
-            user.updateRole(Role.ADMIN);
+            userRepository.findById(admin.id()).ifPresent(user -> user.updateRole(Role.ADMIN));
             log.info("관리자 계정 생성 완료: username={}", admin.username());
         } catch (DuplicateUsernameException | DuplicateEmailException e) {
             log.debug("관리자 계정이 이미 존재합니다: {}", e.getMessage());

@@ -15,6 +15,9 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,7 @@ public class ReadStatusService {
 
     private final ReadStatusMapper readStatusMapper;
 
+    @CacheEvict(value = "readStatuses", key = "#requesterId")
     @Transactional
     public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
         User user = getUserOrThrow(requesterId);
@@ -48,11 +52,13 @@ public class ReadStatusService {
         return readStatusMapper.toDto(savedReadStatus);
     }
 
+    @Cacheable(value = "readStatuses", key = "#userId")
     @Transactional(readOnly = true)
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId);
     }
 
+    @CachePut(value = "readStatuses", key = "#requesterId")
     @Transactional
     public ReadStatusDto update(
         UUID readStatusId,

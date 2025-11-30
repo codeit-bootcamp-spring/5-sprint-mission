@@ -99,9 +99,6 @@ discodeit:
     caches:
       presignedUrls:
         expire-after-write: 5m
-      users:
-        maximum-size: 1
-        expire-after-write: 10m
 
 logging:
   level:

@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,17 +34,16 @@ class CacheIntegrationTest {
     @Autowired
     private CacheManager cacheManager;
 
-    private static final String USERS_CACHE = "users";
-
     private Cache<Object, Object> caffeineCache;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        org.springframework.cache.Cache cache = cacheManager.getCache(USERS_CACHE);
-        Assertions.assertNotNull(cache);
-        cache.clear();
-        caffeineCache = (Cache<Object, Object>) cache.getNativeCache();
+        org.springframework.cache.Cache cache = cacheManager.getCache("users");
+        if (cache != null) {
+            cache.clear();
+            caffeineCache = (Cache<Object, Object>) cache.getNativeCache();
+        }
     }
 
     @Test

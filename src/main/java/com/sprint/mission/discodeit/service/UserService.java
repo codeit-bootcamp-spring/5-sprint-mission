@@ -17,6 +17,8 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -45,10 +47,11 @@ public class UserService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
+    private final CacheManager cacheManager;
 
     private final UserMapper userMapper;
 
-    @CacheEvict(value = "users")
+    @CacheEvict(value = "users", allEntries = true)
     @Transactional
     public UserDto create(
         UserCreateRequest request,
@@ -99,7 +102,7 @@ public class UserService {
             .toList();
     }
 
-    @CacheEvict(value = "users")
+    @CacheEvict(value = "users", allEntries = true)
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     public UserDto update(
@@ -139,23 +142,28 @@ public class UserService {
 
         updateUser(user, request, newProfile, newUsername, newEmail);
 
+        evictUserDetailsCache(oldUsername);
+
         log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
             oldUsername, oldEmail, newUsername, newEmail);
         return userMapper.toDto(user);
     }
 
-    @CacheEvict(value = "users")
+    @CacheEvict(value = "users", allEntries = true)
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     public void delete(UUID userId) {
         log.debug("사용자 삭제 요청: userId={}", userId);
 
         User user = getUserOrThrow(userId);
+        String username = user.getUsername();
 
         messageRepository.nullifyAuthorByUser(user);
         readStatusRepository.deleteAllByUser(user);
 
         userRepository.delete(user);
+
+        evictUserDetailsCache(username);
 
         log.info("사용자 삭제 완료: userId={}", userId);
     }
@@ -189,6 +197,13 @@ public class UserService {
     private User getUserOrThrow(UUID userId) {
         return userRepository.findById(userId)
             .orElseThrow(() -> new UserNotFoundException(userId));
+    }
+
+    private void evictUserDetailsCache(String username) {
+        Cache cache = cacheManager.getCache("userDetails");
+        if (cache != null) {
+            cache.evict(username);
+        }
     }
 
     private void updateUser(

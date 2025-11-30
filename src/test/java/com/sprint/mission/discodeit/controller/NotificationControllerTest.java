@@ -27,8 +27,8 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -92,7 +92,7 @@ class NotificationControllerTest {
 
     @Test
     @WithMockDiscodeitUser
-    @DisplayName("PATCH /api/notifications/{notificationId} - 성공: 알림 확인")
+    @DisplayName("DELETE /api/notifications/{notificationId} - 성공: 알림 확인")
     void check_Success() throws Exception {
         // given
         UUID notificationId = UUID.randomUUID();
@@ -100,7 +100,7 @@ class NotificationControllerTest {
         willDoNothing().given(notificationService).check(notificationId, MOCK_USER_ID);
 
         // when & then
-        mockMvc.perform(patch("/api/notifications/{notificationId}", notificationId)
+        mockMvc.perform(delete("/api/notifications/{notificationId}", notificationId)
                 .with(csrf()))
             .andExpect(status().isNoContent());
 
@@ -109,7 +109,7 @@ class NotificationControllerTest {
 
     @Test
     @WithMockDiscodeitUser
-    @DisplayName("PATCH /api/notifications/{notificationId} - 실패: 존재하지 않는 알림")
+    @DisplayName("DELETE /api/notifications/{notificationId} - 실패: 존재하지 않는 알림")
     void check_NotificationNotFound() throws Exception {
         // given
         UUID notificationId = UUID.randomUUID();
@@ -118,7 +118,7 @@ class NotificationControllerTest {
             .given(notificationService).check(notificationId, MOCK_USER_ID);
 
         // when & then
-        mockMvc.perform(patch("/api/notifications/{notificationId}", notificationId)
+        mockMvc.perform(delete("/api/notifications/{notificationId}", notificationId)
                 .with(csrf()))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("NOTIFICATION_NOT_FOUND"));
@@ -128,7 +128,7 @@ class NotificationControllerTest {
 
     @Test
     @WithMockDiscodeitUser
-    @DisplayName("PATCH /api/notifications/{notificationId} - 실패: 다른 사용자의 알림 확인 시도")
+    @DisplayName("DELETE /api/notifications/{notificationId} - 실패: 다른 사용자의 알림 확인 시도")
     void check_Forbidden() throws Exception {
         // given
         UUID notificationId = UUID.randomUUID();
@@ -137,7 +137,7 @@ class NotificationControllerTest {
             .given(notificationService).check(notificationId, MOCK_USER_ID);
 
         // when & then
-        mockMvc.perform(patch("/api/notifications/{notificationId}", notificationId)
+        mockMvc.perform(delete("/api/notifications/{notificationId}", notificationId)
                 .with(csrf()))
             .andExpect(status().isForbidden())
             .andExpect(jsonPath("$.code").value("NOTIFICATION_FORBIDDEN"));
