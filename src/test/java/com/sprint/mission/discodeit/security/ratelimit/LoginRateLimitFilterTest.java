@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -58,7 +59,7 @@ class LoginRateLimitFilterTest {
 
         // then
         then(filterChain).should().doFilter(request, response);
-        then(rateLimiterService).should(never()).isBlocked(org.mockito.ArgumentMatchers.anyString());
+        then(rateLimiterService).should(never()).isBlocked(ArgumentMatchers.anyString());
     }
 
     @Test
@@ -73,7 +74,7 @@ class LoginRateLimitFilterTest {
 
         // then
         then(filterChain).should().doFilter(request, response);
-        then(rateLimiterService).should(never()).isBlocked(org.mockito.ArgumentMatchers.anyString());
+        then(rateLimiterService).should(never()).isBlocked(ArgumentMatchers.anyString());
     }
 
     @Test
