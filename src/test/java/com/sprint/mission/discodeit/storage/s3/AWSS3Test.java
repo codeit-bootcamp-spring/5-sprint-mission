@@ -48,15 +48,15 @@ class AWSS3Test {
 
     @BeforeAll
     static void loadEnv() throws IOException {
-        Properties props = new Properties();
+        Properties properties = new Properties();
         try (FileInputStream fis = new FileInputStream(".env")) {
-            props.load(fis);
+            properties.load(fis);
         }
 
-        accessKey = props.getProperty("AWS_S3_ACCESS_KEY");
-        secretKey = props.getProperty("AWS_S3_SECRET_KEY");
-        region = props.getProperty("AWS_S3_REGION");
-        bucket = props.getProperty("AWS_S3_BUCKET");
+        accessKey = properties.getProperty("AWS_S3_ACCESS_KEY");
+        secretKey = properties.getProperty("AWS_S3_SECRET_KEY");
+        region = properties.getProperty("AWS_S3_REGION");
+        bucket = properties.getProperty("AWS_S3_BUCKET");
 
         if (accessKey == null || secretKey == null || region == null || bucket == null) {
             throw new IllegalStateException("AWS S3 설정이 .env 파일에 올바르게 정의되지 않았습니다.");
