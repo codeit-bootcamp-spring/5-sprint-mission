@@ -37,7 +37,7 @@ public class NotificationService {
 
     @Transactional
     public void check(UUID notificationId, UUID requesterId) {
-        Notification notification = getOrThrow(requesterId);
+        Notification notification = getOrThrow(notificationId);
         if (!notification.getReceiver().getId().equals(requesterId)) {
             throw new NotificationForbiddenException(notificationId, requesterId);
         }
