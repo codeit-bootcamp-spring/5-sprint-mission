@@ -45,7 +45,6 @@ public class ReadStatusController implements ReadStatusControllerDocs {
     public ReadStatusDto update(
         @PathVariable
         UUID readStatusId,
-
         @RequestBody
         @Valid
         ReadStatusUpdateRequest request

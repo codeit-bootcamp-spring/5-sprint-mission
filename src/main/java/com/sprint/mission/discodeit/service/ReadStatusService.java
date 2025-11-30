@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.data.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -55,7 +55,7 @@ public class ReadStatusService {
         ReadStatus readStatus = getReadStatusOrThrow(readStatusId);
 
         if (request.newLastReadAt() != null) {
-            readStatus.update(request.newLastReadAt());
+            readStatus.update(request.newLastReadAt(), request.newNotificationEnabled());
         }
 
         return readStatusMapper.toDto(readStatus);

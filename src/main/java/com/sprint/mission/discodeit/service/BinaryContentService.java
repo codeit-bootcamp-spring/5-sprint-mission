@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
-import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentUploadException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
@@ -66,7 +66,6 @@ public class BinaryContentService {
     @Transactional(readOnly = true)
     public BinaryContentDto find(UUID binaryContentId) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
-
         return binaryContentMapper.toDto(binaryContent);
     }
 

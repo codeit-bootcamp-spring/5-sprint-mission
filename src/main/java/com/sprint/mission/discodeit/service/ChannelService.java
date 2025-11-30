@@ -91,7 +91,7 @@ public class ChannelService {
             )
         );
 
-        initializeReadStatuses(savedChannel, participants, now);
+        initializeReadStatuses(savedChannel, participants, savedChannel.getCreatedAt());
 
         log.info("비공개 채널 생성 완료: channelId={}", savedChannel.getId());
 

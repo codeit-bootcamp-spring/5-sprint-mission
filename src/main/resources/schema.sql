@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS read_statuses
     user_id      uuid                     NOT NULL,
     channel_id   uuid                     NOT NULL,
     last_read_at timestamptz              NOT NULL,
+    notification_enabled boolean          NOT NULL,
     CONSTRAINT uq_read_statuses UNIQUE (user_id, channel_id)
 );
 
