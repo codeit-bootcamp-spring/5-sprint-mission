@@ -259,7 +259,7 @@
 
 ### 자동 재시도
 
-- [ ] S3를 활용해 바이너리 데이터 저장 시 자동 재시도 매커니즘을 구축하세요.
+- [x] S3를 활용해 바이너리 데이터 저장 시 자동 재시도 매커니즘을 구축하세요.
     - Spring Retry를 위한 환경을 구성하세요.
         - `org.springframework.retry:spring-retry` 의존성을 추가하세요.
         - `@EnableRetry` 어노테이션을 활용해 Spring Retry를 활성화하세요.
