@@ -267,7 +267,7 @@
 
 ### 실패 대응 전략
 
-- [ ] 재시도가 모두 실패했을 때 대응 전략을 구축하세요.
+- [x] 재시도가 모두 실패했을 때 대응 전략을 구축하세요.
     - `@Recover` 어노테이션을 활용하세요.
     - 실패 정보를 관리자에게 통지하세요.
 
@@ -291,7 +291,7 @@
 
 ### Caffeine 캐시 환경 구성
 
-- [ ] Caffeine 캐시를 위한 환경을 구성하세요.
+- [x] Caffeine 캐시를 위한 환경을 구성하세요.
     - `org.springframework.boot:spring-boot-starter-cache` 의존성을 추가하세요.
     - `com.github.ben-manes.caffeine:caffeine` 의존성을 추가하세요.
     - `application.yaml` 설정 또는 Bean을 통해 Caffeine 캐시를 설정하세요.

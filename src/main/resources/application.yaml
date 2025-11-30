@@ -92,6 +92,9 @@ discodeit:
     max-attempts: ${RATE_LIMIT_MAX_ATTEMPTS:5}
     window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:60}
     block-seconds: ${RATE_LIMIT_BLOCK_SECONDS:300}
+  cache:
+    maximum-size: 1000
+    expire-after-access: 5m
 
 logging:
   level:
