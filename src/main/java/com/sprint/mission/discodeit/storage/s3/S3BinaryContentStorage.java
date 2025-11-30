@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentStorage
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,15 +31,24 @@ import java.util.UUID;
 @Slf4j
 public class S3BinaryContentStorage implements BinaryContentStorage {
 
+    private static final String PRESIGNED_URL_CACHE = "presignedUrls";
+
     private final String bucket;
     private final Duration presignedUrlExpiration;
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
+    private final CacheManager cacheManager;
 
-    public S3BinaryContentStorage(S3Client s3Client, S3Presigner s3Presigner, S3Properties props) {
+    public S3BinaryContentStorage(
+        S3Client s3Client,
+        S3Presigner s3Presigner,
+        CacheManager cacheManager,
+        S3Properties props
+    ) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
+        this.cacheManager = cacheManager;
 
         this.bucket = props.bucket();
         this.presignedUrlExpiration = props.presignedUrlExpiration();
@@ -97,12 +108,30 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     @Override
     public ResponseEntity<Void> download(BinaryContentDto metaData) {
         String key = metaData.id().toString();
-        String presignedUrl = generatePresignedUrl(key, metaData.contentType());
+        String presignedUrl = getCachedPresignedUrl(key, metaData.contentType());
 
         return ResponseEntity
             .status(HttpStatus.FOUND)
             .header(HttpHeaders.LOCATION, presignedUrl)
             .build();
+    }
+
+    private String getCachedPresignedUrl(String key, String contentType) {
+        Cache cache = cacheManager.getCache(PRESIGNED_URL_CACHE);
+        if (cache == null) {
+            return generatePresignedUrl(key, contentType);
+        }
+
+        String cacheKey = key + ":" + contentType;
+        String cachedUrl = cache.get(cacheKey, String.class);
+        if (cachedUrl != null) {
+            log.debug("S3 Presigned URL 캐시 히트: key={}", key);
+            return cachedUrl;
+        }
+
+        String url = generatePresignedUrl(key, contentType);
+        cache.put(cacheKey, url);
+        return url;
     }
 
     private String generatePresignedUrl(String key, String contentType) {
