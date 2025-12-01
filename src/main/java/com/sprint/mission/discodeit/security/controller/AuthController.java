@@ -5,9 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
@@ -19,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController implements AuthApi {
@@ -42,10 +44,12 @@ public class AuthController implements AuthApi {
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
-	@GetMapping("role")
+	@PutMapping("role")
 	public UserDto role(
-		UserRoleUpdateRequest request
+		@RequestBody UserRoleUpdateRequest request
 	) {
+		log.debug("role update: {}", request.getUserId());
+		log.debug("role update: {}", request.getNewRole());
 		return authService.updateRole(request.getUserId(), request.getNewRole());
 	}
 }

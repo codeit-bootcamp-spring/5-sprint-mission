@@ -7,4 +7,7 @@ import com.sprint.mission.discodeit.entity.Role;
 
 public interface AuthService {
 	UserDto updateRole(UUID userId, Role role);
+
+	UserDto updateLogic(UUID userId, Role role);
+
 }

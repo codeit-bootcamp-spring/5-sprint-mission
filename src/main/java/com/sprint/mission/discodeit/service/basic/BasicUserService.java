@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,7 +14,6 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -65,11 +63,9 @@ public class BasicUserService implements UserService {
 				return binaryContent;
 			})
 			.orElse(null);
+		
 		String password = passwordEncoder.encode(userCreateRequest.password());
-
 		User user = new User(username, email, password, nullableProfile);
-		Instant now = Instant.now();
-		UserStatus userStatus = new UserStatus(user, now);
 
 		userRepository.save(user);
 		log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);

@@ -35,7 +35,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	private final SessionRegistry sessionRegistry;
 	private final LoginFailureHandler failureHandler;
 	private final LoginSuccessHandler successHandler;
 	private final ObjectMapper objectMapper;
@@ -74,7 +73,7 @@ public class SecurityConfig {
 			.sessionManagement(session -> session
 				.sessionConcurrency(concurrency -> concurrency
 					.maximumSessions(1)
-					.sessionRegistry(sessionRegistry)
+					.sessionRegistry(sessionRegistry())
 				)
 
 			)

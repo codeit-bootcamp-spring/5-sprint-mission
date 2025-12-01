@@ -36,7 +36,7 @@ public class AdminInitializer implements ApplicationRunner {
 		UserCreateRequest request = new UserCreateRequest(username, email, password);
 		try {
 			UserDto admin = userService.create(request, Optional.empty());
-			authService.updateRole(admin.id(), Role.ADMIN);
+			authService.updateLogic(admin.id(), Role.ADMIN);
 		} catch (UserAlreadyExistsException e) {
 			log.warn("관리자 계정이 이미 존재합니다");
 		} catch (Exception e) {
