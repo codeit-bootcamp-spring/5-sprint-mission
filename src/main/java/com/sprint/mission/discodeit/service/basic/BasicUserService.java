@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +64,7 @@ public class BasicUserService implements UserService {
 				return binaryContent;
 			})
 			.orElse(null);
-		
+
 		String password = passwordEncoder.encode(userCreateRequest.password());
 		User user = new User(username, email, password, nullableProfile);
 
@@ -95,6 +96,7 @@ public class BasicUserService implements UserService {
 		return userDtos;
 	}
 
+	@PreAuthorize("principal.userDto.id == #userId")
 	@Transactional
 	@Override
 	public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
@@ -139,6 +141,7 @@ public class BasicUserService implements UserService {
 		return userMapper.toDto(user);
 	}
 
+	@PreAuthorize("principal.userDto.id == #userId")
 	@Transactional
 	@Override
 	public void delete(UUID userId) {
