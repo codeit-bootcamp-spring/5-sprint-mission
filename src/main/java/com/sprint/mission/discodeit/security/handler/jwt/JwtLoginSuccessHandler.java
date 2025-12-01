@@ -13,7 +13,8 @@ import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.security.dto.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.dto.JwtDto;
 import com.sprint.mission.discodeit.security.dto.JwtInformation;
-import com.sprint.mission.discodeit.security.provider.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.jwt.JwtSession;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.registry.JwtRegistry;
 
 import jakarta.servlet.ServletException;
@@ -41,8 +42,9 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 		DiscodeitUserDetails userDetails = (DiscodeitUserDetails)authentication.getPrincipal();
 
 		try {
-			String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
-			String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+			JwtSession jwtSession = jwtTokenProvider.generateTokens(userDetails);
+			String accessToken = jwtSession.getAccessToken();
+			String refreshToken = jwtSession.getRefreshToken();
 
 			log.debug("Access token generated: {}",
 				accessToken.substring(0, Math.min(20, accessToken.length())) + "...");

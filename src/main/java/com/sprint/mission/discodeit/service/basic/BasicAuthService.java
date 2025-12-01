@@ -18,7 +18,8 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.dto.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.dto.JwtDto;
 import com.sprint.mission.discodeit.security.dto.JwtInformation;
-import com.sprint.mission.discodeit.security.provider.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.jwt.JwtSession;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.registry.JwtRegistry;
 import com.sprint.mission.discodeit.security.service.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.security.session.SessionManager;
@@ -69,8 +70,9 @@ public class BasicAuthService implements AuthService {
 
 		try {
 			DiscodeitUserDetails discodeitUserDetails = (DiscodeitUserDetails)userDetails;
-			String newAccessToken = jwtTokenProvider.generateAccessToken(discodeitUserDetails);
-			String newRefreshToken = jwtTokenProvider.generateRefreshToken(discodeitUserDetails);
+			JwtSession jwtSession = jwtTokenProvider.generateTokens(discodeitUserDetails);
+			String newAccessToken = jwtSession.getAccessToken();
+			String newRefreshToken = jwtSession.getRefreshToken();
 			JwtInformation newJwtInfo = JwtInformation.builder()
 				.userDto(discodeitUserDetails.getUserDto())
 				.accessToken(newAccessToken)

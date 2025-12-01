@@ -1,6 +1,7 @@
-package com.sprint.mission.discodeit.security.provider;
+package com.sprint.mission.discodeit.security.jwt;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -37,16 +38,21 @@ public class JwtTokenProvider {
 	private final JWSVerifier accessTokenVerifier;
 	private final JWSVerifier refreshTokenVerifier;
 
+	private final JwtSessionRepository jwtSessionRepository;
+
 	public JwtTokenProvider(
 		@Value("${security.jwt.secret}") String secret,
 		@Value("${security.jwt.access-token-validity-seconds}") long accessTokenValiditySeconds,
 		@Value("${security.jwt.refresh-token-validity-seconds}") long refreshTokenValiditySeconds,
-		@Value("${security.jwt.issuer}") String issuer
+		@Value("${security.jwt.issuer}") String issuer,
+		JwtSessionRepository jwtSessionRepository
+
 	) throws JOSEException {
 		this.issuer = issuer;
 		this.accessTokenValiditySeconds = accessTokenValiditySeconds * 1000L;
 		this.refreshTokenValiditySeconds = refreshTokenValiditySeconds * 1000L;
 
+		this.jwtSessionRepository = jwtSessionRepository;
 		byte[] secretBytes = secret.getBytes(StandardCharsets.UTF_8);
 
 		this.accessTokenSigner = new MACSigner(secretBytes);
@@ -55,12 +61,13 @@ public class JwtTokenProvider {
 		this.refreshTokenVerifier = new MACVerifier(secretBytes);
 	}
 
-	public String generateAccessToken(DiscodeitUserDetails userDetails) throws JOSEException {
-		return generateToken(userDetails, accessTokenValiditySeconds, accessTokenSigner, "ACCESS");
-	}
-
-	public String generateRefreshToken(DiscodeitUserDetails userDetails) throws JOSEException {
-		return generateToken(userDetails, refreshTokenValiditySeconds, refreshTokenSigner, "REFRESH");
+	public JwtSession generateTokens(DiscodeitUserDetails userDetails) throws JOSEException {
+		String accessToken = generateToken(userDetails, accessTokenValiditySeconds, accessTokenSigner, "ACCESS");
+		String refreshToken = generateToken(userDetails, refreshTokenValiditySeconds, refreshTokenSigner, "REFRESH");
+		JwtSession jwtSession = new JwtSession(userDetails.getUserDto().id(), accessToken, refreshToken,
+			Instant.now().plusSeconds(accessTokenValiditySeconds));
+		jwtSessionRepository.save(jwtSession);
+		return jwtSession;
 	}
 
 	public boolean validateAccessToken(String token) {
@@ -96,6 +103,10 @@ public class JwtTokenProvider {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	public void removeSessionByRefreshToken(String refreshToken) {
+		jwtSessionRepository.deleteByRefreshToken(refreshToken);
 	}
 
 	public Cookie generateRefreshTokenExpirationCookie() {

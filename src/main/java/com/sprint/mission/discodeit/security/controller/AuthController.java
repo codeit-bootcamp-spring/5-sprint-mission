@@ -16,7 +16,7 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.security.controller.api.AuthApi;
 import com.sprint.mission.discodeit.security.dto.JwtDto;
-import com.sprint.mission.discodeit.security.provider.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 
 import lombok.RequiredArgsConstructor;

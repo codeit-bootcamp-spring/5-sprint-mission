@@ -2,12 +2,14 @@ package com.sprint.mission.discodeit.security.handler.jwt;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 
-import com.sprint.mission.discodeit.security.provider.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.registry.JwtRegistry;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 @Component("logoutHandler")
 @RequiredArgsConstructor
 public class JwtLogoutHandler implements LogoutHandler {
+
+	private final JwtRegistry<UUID> jwtRegistry;
 
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response,

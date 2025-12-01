@@ -24,7 +24,7 @@ import com.sprint.mission.discodeit.security.filter.JsonUsernamePasswordAuthenti
 import com.sprint.mission.discodeit.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.handler.jwt.JwtLoginSuccessHandler;
-import com.sprint.mission.discodeit.security.provider.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.registry.JwtRegistry;
 
 import lombok.RequiredArgsConstructor;
