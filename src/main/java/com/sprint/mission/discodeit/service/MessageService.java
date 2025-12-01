@@ -116,9 +116,7 @@ public class MessageService {
             }
         }
 
-        eventPublisher.publishEvent(
-            new MessageCreatedEvent(message.getId())
-        );
+        eventPublisher.publishEvent(new MessageCreatedEvent(message.getId()));
 
         return messageMapper.toDto(
             message,

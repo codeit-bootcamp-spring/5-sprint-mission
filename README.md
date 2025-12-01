@@ -412,7 +412,7 @@
 
 ### Kafka 이벤트 발행
 
-- [ ] Spring Event를 Kafka로 발행하는 리스너를 구현하세요.
+- [x] Spring Event를 Kafka로 발행하는 리스너를 구현하세요.
     - `NotificationRequiredEventListener`는 비활성화하세요.
     - `KafkaProduceRequiredEventListener`를 구현하세요.
 
@@ -450,7 +450,7 @@
 
 ### Kafka 이벤트 확인
 
-- [ ] Kafka Console을 통해 Kafka 이벤트가 잘 발행되는지 확인해보세요.
+- [x] Kafka Console을 통해 Kafka 이벤트가 잘 발행되는지 확인해보세요.
     - broker 컨테이너 쉘 접속
 
       ```bash
@@ -476,7 +476,7 @@
 
 ### Kafka 이벤트 구독
 
-- [ ] Kafka 토픽을 구독해 알림을 생성하는 리스너를 구현하세요.
+- [x] Kafka 토픽을 구독해 알림을 생성하는 리스너를 구현하세요.
     - 이 리스너는 메인 서비스와 별도의 서버로 구성된 알림 서비스라고 가정합니다.
     - `NotificationRequiredTopicListener`를 구현하세요.
 
