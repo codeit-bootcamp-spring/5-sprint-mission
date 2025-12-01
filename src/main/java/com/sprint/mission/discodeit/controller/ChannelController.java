@@ -141,6 +141,7 @@ public class ChannelController {
 	public ResponseEntity<List<ChannelResponse>> getAllByUserId(
 	  @Parameter(description = "조회할 User ID")
 	  @RequestParam UUID userId) {
+
 		List<ChannelDto> channels = channelService.readAllByUserId(userId);
 
 		List<ChannelResponse> body = channels.stream().map(channelMapper::toResponse).toList();

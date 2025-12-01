@@ -13,6 +13,7 @@ discodeit:
       bucket: ${AWS_S3_BUCKET:AWS_S3_BUCKET} # 추가
       prefix: ${AWS_S3_PREFIX:defaultPrefix}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분) # 추가
+  max-login: 1
 
 spring:
   config:
@@ -91,6 +92,14 @@ management:
       enabled: true
     build:
       enabled: true
+
+security:
+  jwt:
+    issuer: codeit-blog
+    secret: your-jwt-secret-key-here-12345628219012345
+    access-token-validity-seconds: 3600 # 1시간
+    refresh-token-validity-seconds: 86400 # 1일
+
 
 server:
   servlet:

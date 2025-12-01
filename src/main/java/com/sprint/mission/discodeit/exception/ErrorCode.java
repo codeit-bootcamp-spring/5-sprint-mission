@@ -48,7 +48,10 @@ public enum ErrorCode {
 	READ_STATUS_DUPLICATE("이미 존재하는 읽음 상태입니다."),
 
 	// VALIDATION_ERROR
-	VALIDATION_ERROR("요청값이 잘못되었습니다.");
+	VALIDATION_ERROR("요청값이 잘못되었습니다."),
+
+	// JWT_ERROR
+	ACCESS_TOKEN_CREATE_FAIL("Access 토큰 생성에 실패했습니다.");
 
 	private final String message;
 }

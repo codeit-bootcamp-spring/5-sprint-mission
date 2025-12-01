@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.security;
 import static com.sprint.mission.discodeit.domain.enums.Role.*;
 import static com.sprint.mission.discodeit.exception.ErrorCode.*;
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.security.config.http.SessionCreationPolicy.*;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,12 +23,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.web.cors.CorsConfiguration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
+import com.sprint.mission.discodeit.security.jwt.JwtAuthenticationFilter;
+import com.sprint.mission.discodeit.security.jwt.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.jwt.JwtLogoutHandler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,43 +49,34 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(
 	  HttpSecurity http,
-	  LoginSuccessHandler loginSuccessHandler,
+	  JwtLoginSuccessHandler jwtLoginSuccessHandler,
+	  JwtLogoutHandler jwtLogoutHandler,
 	  LoginFailureHandler loginFailureHandler,
-	  DaoAuthenticationProvider daoAuthenticationProvider,
-	  SessionRegistry sessionRegistry
+	  JwtAuthenticationFilter jwtAuthenticationFilter
 	) throws Exception {
 
 		http
-		  .authenticationProvider(daoAuthenticationProvider)
 		  .authorizeHttpRequests(auth -> auth
 			// permitAll 경로 설정
-			.requestMatchers("/api/auth/login", "/error", "/", "/index.html").permitAll()
-			.requestMatchers("/api/auth/csrf-token").permitAll()
+			.requestMatchers(SecurityWhitelist.WHITE_LIST.toArray(String[]::new)).permitAll()
 			.requestMatchers(HttpMethod.POST, "/api/users").permitAll() // 회원 가입
-			.requestMatchers(
-			  "/css/**",
-			  "/js/**",
-			  "/images/**",
-			  "/webjars/**",
-			  "/favicon.ico",
-			  "/swagger-ui/**",
-			  "/assets/**",
-			  "/actuator/**"
-			).permitAll()
 			.anyRequest().authenticated()
 		  )
 		  .formLogin(login -> login
 			.loginProcessingUrl("/api/auth/login")
-			.successHandler(loginSuccessHandler)
+			.successHandler(jwtLoginSuccessHandler)
 			.failureHandler(loginFailureHandler)
 		  )
 		  .logout(logout -> logout
 			.logoutUrl("/api/auth/logout")
-			.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+			.addLogoutHandler(jwtLogoutHandler)
+			.logoutSuccessHandler(
+			  new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
 		  )
 		  .csrf(csrf -> csrf
 			.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 			.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+			.ignoringRequestMatchers("/api/auth/logout")
 
 		  )
 		  .exceptionHandling(ex -> ex
@@ -98,13 +95,23 @@ public class SecurityConfig {
 			})
 
 		  )
-		  .sessionManagement(session -> session
-			.maximumSessions(1)
-			.maxSessionsPreventsLogin(false)
-			.sessionRegistry(sessionRegistry)
+		  .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+		  .addFilterBefore(
+			jwtAuthenticationFilter,
+			UsernamePasswordAuthenticationFilter.class
 		  )
 		// .rememberMe(Customizer.withDefaults())
 		;
+
+		// 8) cors 설정 추가
+		http.cors(cors -> cors.configurationSource(request -> {
+			CorsConfiguration config = new CorsConfiguration();
+			config.addAllowedOriginPattern("*");  // 모든 Origin 허용
+			config.addAllowedHeader("*");         // 모든 Header 허용
+			config.addAllowedMethod("*");         // 모든 Method 허용
+			config.setAllowCredentials(true);     // 쿠키/인증정보 허용 (필요할 때만)
+			return config;
+		}));
 
 		return http.build();
 	}

@@ -1,22 +1,27 @@
 package com.sprint.mission.discodeit.controller;
 
+import static com.sprint.mission.discodeit.security.jwt.JwtTokenProvider.*;
 import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sprint.mission.discodeit.domain.dto.command.GetNewAccTokenCommand;
 import com.sprint.mission.discodeit.domain.dto.command.UpdateRoleCommand;
+import com.sprint.mission.discodeit.domain.dto.jwt.JwtDto;
 import com.sprint.mission.discodeit.domain.dto.request.UserRoleUpdateRequest;
+import com.sprint.mission.discodeit.domain.dto.response.JwtResponse;
 import com.sprint.mission.discodeit.domain.dto.user.UserDto;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.mapper.AuthMapper;
 import com.sprint.mission.discodeit.service.AuthService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 
 	private final AuthService authService;
+	private final AuthMapper authMapper;
 
 	@GetMapping("/csrf-token")
 	public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken, HttpServletResponse response) {
@@ -47,9 +53,8 @@ public class AuthController {
 	}
 
 	@GetMapping("/me")
-	private ResponseEntity<UserDto> me(@AuthenticationPrincipal DiscodeitUserDetails userDetails) {
-		UserDto userDto = userDetails.getUserDto();
-
+	private ResponseEntity<UserDto> me(@CookieValue(REFRESH_TOKEN_COOKIE_NAME) String refreshToken) {
+		UserDto userDto = authService.getProfile(refreshToken);
 		return ResponseEntity.ok(userDto);
 	}
 
@@ -59,6 +64,19 @@ public class AuthController {
 		UserDto userDto = authService.updateRole(UpdateRoleCommand.of(request));
 
 		return ResponseEntity.ok(userDto);
+
+	}
+
+	@PostMapping("/refresh")
+	ResponseEntity<JwtResponse> refresh(
+	  @CookieValue(REFRESH_TOKEN_COOKIE_NAME) String refreshToken,
+	  HttpServletResponse response
+	) {
+		GetNewAccTokenCommand command = GetNewAccTokenCommand.from(refreshToken, response);
+		JwtDto result = authService.getNewAccToken(command);
+		JwtResponse jwtResponse = authMapper.toResponse(result);
+
+		return ResponseEntity.ok(jwtResponse);
 
 	}
 
