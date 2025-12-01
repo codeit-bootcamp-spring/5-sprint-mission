@@ -141,7 +141,7 @@ public class BasicMessageService implements MessageService {
         );
     }
 
-    @PreAuthorize("#request.authorId == authentication.principal.userDto.id()")
+    @PreAuthorize("#request.authorId == authentication.principal.userResponse.id")
     @Override
     @Transactional
     public MessageResponse updateMessage(UUID messageId, MessageUpdateRequest request) {
@@ -172,7 +172,7 @@ public class BasicMessageService implements MessageService {
         return MessageResponse.success(message);
     }
 
-    @PreAuthorize("#authorId == authentication.principal.userDto.id()")
+    @PreAuthorize("#authorId == authentication.principal.userResponse.id")
     @Override
     @Transactional
     public MessageDeleteResponse deleteMessage(UUID messageId, UUID authorId) {

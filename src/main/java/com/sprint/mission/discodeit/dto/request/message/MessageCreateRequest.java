@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.dto.request.message;
 
 import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -23,9 +25,16 @@ public class MessageCreateRequest {
     @NotNull(message = "채널 ID는 필수")
     private UUID channelId;
 
-    @NotBlank(message = "메시지 내용은 필수")
     private String content;
 
+    @Valid
     @Builder.Default
     private List<BinaryContentCreateRequest> attachments = new ArrayList<>();
+
+    @AssertTrue(message = "메시지 내용 또는 첨부파일 중 하나는 필수입니다.")
+    public boolean isValidMessageContent() {
+        boolean hasContent = content != null && !content.isBlank();
+        boolean hasAttachments = attachments != null && !attachments.isEmpty();
+        return hasContent || hasAttachments;
+    }
 }
