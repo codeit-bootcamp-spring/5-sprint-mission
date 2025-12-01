@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
-import com.sprint.mission.discodeit.security.dto.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.dto.JwtDto;
 import com.sprint.mission.discodeit.security.dto.JwtInformation;
 import com.sprint.mission.discodeit.security.jwt.JwtSession;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.registry.JwtRegistry;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

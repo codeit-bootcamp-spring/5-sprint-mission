@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.security.controller.api;
+package com.sprint.mission.discodeit.controller.api;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;

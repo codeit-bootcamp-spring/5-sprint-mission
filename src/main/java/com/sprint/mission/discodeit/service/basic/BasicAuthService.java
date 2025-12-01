@@ -15,14 +15,14 @@ import com.sprint.mission.discodeit.exception.Auth.InvalidTokenException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.dto.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.dto.JwtDto;
 import com.sprint.mission.discodeit.security.dto.JwtInformation;
 import com.sprint.mission.discodeit.security.jwt.JwtSession;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.registry.JwtRegistry;
-import com.sprint.mission.discodeit.security.service.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.security.session.SessionManager;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.service.AuthService;
 
 import lombok.RequiredArgsConstructor;

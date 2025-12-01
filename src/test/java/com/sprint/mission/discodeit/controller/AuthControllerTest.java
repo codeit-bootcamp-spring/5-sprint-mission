@@ -20,7 +20,6 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.exception.user.InvalidCredentialsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.security.controller.AuthController;
 import com.sprint.mission.discodeit.service.AuthService;
 
 @WebMvcTest(AuthController.class)
