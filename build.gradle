@@ -95,6 +95,9 @@ dependencies {
     // Cache
     implementation "org.springframework.boot:spring-boot-starter-cache"
     implementation "com.github.ben-manes.caffeine:caffeine"
+
+    // message queue
+    implementation 'org.springframework.kafka:spring-kafka'
 }
 
 dependencyManagement {
