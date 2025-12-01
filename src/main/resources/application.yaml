@@ -68,10 +68,6 @@ springdoc:
 # log
 logging:
   level:
-    # Hibernate SQL
-    org.hibernate.SQL: off
-    org.hibernate.orm.jdbc.bind: trace
-    org.hibernate.type.descriptor.sql: trace
     root: info
     com.sprint.mission.discodeit: info
 

@@ -10,7 +10,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update       # 개발에선 편하게
-    show-sql: true
+    show-sql: false
     defer-datasource-initialization: true
     properties:
       hibernate:
