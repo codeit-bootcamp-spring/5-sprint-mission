@@ -1,4 +1,10 @@
 package com.sprint.mission.discodeit.event;
 
-public record RoleUpdatedEvent() {
+import java.util.UUID;
+
+public record RoleUpdatedEvent(
+	String oldRole,
+	String newRole,
+	UUID userId
+) {
 }
