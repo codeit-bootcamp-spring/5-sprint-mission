@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -30,15 +31,20 @@ public class ReadStatus extends BaseUpdatableEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Channel channel;
 
-	public void update(Instant newLastReadAt) {
-		boolean anyValueUpdated = false;
-		if (newLastReadAt != null && this.lastReadAt != newLastReadAt) {
-			this.lastReadAt = newLastReadAt;
-			anyValueUpdated = true;
-		}
+	@Column(nullable = false)
+	private boolean notificationEnabled;
 
-		if (anyValueUpdated) {
-			super.setUpdatedAt(Instant.now());
+	public ReadStatus(Instant lastReadAt, User user, Channel channel) {
+		this.lastReadAt = lastReadAt;
+		this.user = user;
+		this.channel = channel;
+		this.notificationEnabled = false;
+	}
+
+	public void update(Instant newLastReadAt, boolean newNotificationEnabled) {
+		if (newLastReadAt != null) {
+			this.lastReadAt = newLastReadAt;
 		}
+		this.notificationEnabled = newNotificationEnabled;
 	}
 }

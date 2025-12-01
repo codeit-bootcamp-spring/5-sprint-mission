@@ -46,19 +46,19 @@ msg AS (
 
 -- 5) 읽음 상태 (user_id + channel_id 유니크)
 rs AS (
-    INSERT INTO read_statuses (id, created_at, updated_at, user_id, channel_id, last_read_at)
+    INSERT INTO read_statuses (id, created_at, updated_at, user_id, channel_id, last_read_at, notification_enabled)
         VALUES (gen_random_uuid(), NOW(), NULL,
                 (SELECT id FROM u WHERE username = 'alice'),
                 (SELECT id FROM ch WHERE name = 'general'),
-                NOW()),
+                NOW(), false),
                (gen_random_uuid(), NOW(), NULL,
                 (SELECT id FROM u WHERE username = 'bob'),
                 (SELECT id FROM ch WHERE name = 'general'),
-                NOW()),
+                NOW(), false),
                (gen_random_uuid(), NOW(), NULL,
                 (SELECT id FROM u WHERE username = 'bob'),
                 (SELECT id FROM ch WHERE name = 'random'),
-                NOW())
+                NOW(), false)
         RETURNING id)
 SELECT 'OK (seeded without binary_contents & attachments)' AS status;
 

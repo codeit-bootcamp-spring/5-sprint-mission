@@ -80,7 +80,7 @@ public class BasicChannelService implements ChannelService {
 
 		for (User user : participants) {
 			ReadStatus readStatus = readStatusRepository.save(
-				new ReadStatus(channel.getCreatedAt(), user, channel));
+				new ReadStatus(channel.getCreatedAt(), user, channel, true));
 			log.debug("[ChannelService#create(private)] ReadStatus created: readStatusId={}",
 				readStatus.getId());
 		}
