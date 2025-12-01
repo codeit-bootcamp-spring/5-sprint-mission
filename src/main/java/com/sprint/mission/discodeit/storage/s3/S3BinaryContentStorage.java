@@ -7,8 +7,6 @@ import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentStorage
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,24 +29,19 @@ import java.util.UUID;
 @Slf4j
 public class S3BinaryContentStorage implements BinaryContentStorage {
 
-    private static final String PRESIGNED_URL_CACHE = "presignedUrls";
-
     private final String bucket;
     private final Duration presignedUrlExpiration;
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
-    private final CacheManager cacheManager;
 
     public S3BinaryContentStorage(
         S3Client s3Client,
         S3Presigner s3Presigner,
-        CacheManager cacheManager,
         S3Properties s3Properties
     ) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
-        this.cacheManager = cacheManager;
 
         this.bucket = s3Properties.bucket();
         this.presignedUrlExpiration = s3Properties.presignedUrlExpiration();
@@ -108,21 +101,12 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     @Override
     public ResponseEntity<Void> download(BinaryContentDto metaData) {
         String key = metaData.id().toString();
-        String presignedUrl = getCachedPresignedUrl(key, metaData.contentType());
+        String presignedUrl = generatePresignedUrl(key, metaData.contentType());
 
         return ResponseEntity
             .status(HttpStatus.FOUND)
             .header(HttpHeaders.LOCATION, presignedUrl)
             .build();
-    }
-
-    private String getCachedPresignedUrl(String key, String contentType) {
-        Cache cache = cacheManager.getCache(PRESIGNED_URL_CACHE);
-        if (cache == null) {
-            return generatePresignedUrl(key, contentType);
-        }
-
-        return cache.get(key, () -> generatePresignedUrl(key, contentType));
     }
 
     private String generatePresignedUrl(String key, String contentType) {

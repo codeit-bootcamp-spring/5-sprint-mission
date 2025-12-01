@@ -7,8 +7,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.localstack.LocalStackContainer;
@@ -106,11 +104,8 @@ class LocalStackS3BinaryContentStorageTest {
             Duration.ofMinutes(5)
         );
 
-        // CacheManager 생성
-        CacheManager cacheManager = new ConcurrentMapCacheManager("presignedUrls");
-
         // Storage 인스턴스 생성
-        storage = new S3BinaryContentStorage(s3Client, s3Presigner, cacheManager, s3Properties);
+        storage = new S3BinaryContentStorage(s3Client, s3Presigner, s3Properties);
     }
 
     @AfterEach
