@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.readstatus.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
@@ -45,7 +46,7 @@ public class ReadStatusService {
                 user,
                 channel,
                 request.lastReadAt(),
-                request.notificationEnabled()
+                channel.getType() == ChannelType.PRIVATE
             )
         );
 

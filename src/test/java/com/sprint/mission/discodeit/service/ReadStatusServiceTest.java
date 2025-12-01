@@ -61,12 +61,11 @@ class ReadStatusServiceTest {
 
         ReadStatusCreateRequest request = new ReadStatusCreateRequest(
             channelId,
-            lastReadAt,
-            false
+            lastReadAt
         );
 
         User user = new User("testuser", "test@example.com", "encoded", null);
-        Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
+        Channel channel = new Channel(ChannelType.PUBLIC, "general", null);  // PUBLIC → notificationEnabled=false
         ReadStatus savedReadStatus = new ReadStatus(user, channel, lastReadAt, false);
 
         ReadStatusDto expectedDto = new ReadStatusDto(
@@ -105,8 +104,7 @@ class ReadStatusServiceTest {
 
         ReadStatusCreateRequest request = new ReadStatusCreateRequest(
             channelId,
-            Instant.now(),
-            false
+            Instant.now()
         );
 
         given(userRepository.findById(requesterId)).willReturn(Optional.empty());
@@ -129,8 +127,7 @@ class ReadStatusServiceTest {
 
         ReadStatusCreateRequest request = new ReadStatusCreateRequest(
             channelId,
-            Instant.now(),
-            false
+            Instant.now()
         );
 
         User user = new User("testuser", "test@example.com", "encoded", null);

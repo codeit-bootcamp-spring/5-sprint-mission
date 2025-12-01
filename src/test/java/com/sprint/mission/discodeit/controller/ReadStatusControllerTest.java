@@ -63,8 +63,7 @@ class ReadStatusControllerTest {
         Instant lastReadAt = Instant.now();
         ReadStatusCreateRequest request = new ReadStatusCreateRequest(
             channelId,
-            lastReadAt,
-            false
+            lastReadAt
         );
         ReadStatusDto response = new ReadStatusDto(
             UUID.randomUUID(),
@@ -97,8 +96,7 @@ class ReadStatusControllerTest {
         // given - channelId가 null
         ReadStatusCreateRequest request = new ReadStatusCreateRequest(
             null,
-            Instant.now(),
-            false
+            Instant.now()
         );
 
         // when & then
