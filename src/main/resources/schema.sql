@@ -12,12 +12,15 @@ DROP TABLE IF EXISTS read_statuses CASCADE;
 DROP TABLE IF EXISTS message_attachments CASCADE;
 
 -- 1. binary_contents
-CREATE TABLE binary_contents (
-                                 id UUID PRIMARY KEY,
-                                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                                 file_name VARCHAR(255) NOT NULL,
-                                 size BIGINT NOT NULL,
-                                 content_type VARCHAR(100) NOT NULL
+CREATE TABLE binary_contents
+(
+    id           uuid PRIMARY KEY,
+    created_at   timestamp with time zone NOT NULL,
+    updated_at   timestamp with time zone,
+    file_name    varchar(255)             NOT NULL,
+    size         bigint                   NOT NULL,
+    content_type varchar(100)             NOT NULL,
+    status       varchar(20)              NOT NULL DEFAULT 'PROCESSING'
 );
 
 -- 2. users
