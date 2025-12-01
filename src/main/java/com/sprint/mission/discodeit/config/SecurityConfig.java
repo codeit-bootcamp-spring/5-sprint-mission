@@ -72,6 +72,7 @@ public class SecurityConfig {
 					AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/auth/csrf-token"),
 					AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/users"),
 					AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/login"),
+					AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/refresh"),
 					AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/logout"),
 					new NegatedRequestMatcher(AntPathRequestMatcher.antMatcher("/api/**"))
 				).permitAll()
