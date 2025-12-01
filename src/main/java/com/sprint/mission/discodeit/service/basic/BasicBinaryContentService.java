@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -10,11 +11,11 @@ import org.springframework.validation.annotation.Validated;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.binarycontent.NewBinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class BasicBinaryContentService implements BinaryContentService {
 
 	private final BinaryContentRepository binaryContentRepository;
-	private final BinaryContentStorage binaryContentStorage;
 	private final BinaryContentMapper binaryContentMapper;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Override
 	@Transactional
@@ -39,7 +40,8 @@ public class BasicBinaryContentService implements BinaryContentService {
 		BinaryContent binaryContent = new BinaryContent(fileName, contentType, size);
 		binaryContentRepository.save(binaryContent);
 
-		binaryContentStorage.put(binaryContent.getId(), bytes);
+		eventPublisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(), bytes));
+
 		return binaryContent;
 	}
 

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -30,7 +32,6 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,9 +46,9 @@ public class BasicMessageService implements MessageService {
 	private final ChannelRepository channelRepository;
 	private final UserRepository userRepository;
 	private final BinaryContentRepository binaryContentRepository;
-	private final BinaryContentStorage binaryContentStorage;
 	private final MessageMapper messageMapper;
 	private final PageResponseMapper pageResponseMapper;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Override
 	@Transactional
@@ -69,7 +70,7 @@ public class BasicMessageService implements MessageService {
 					request.bytes().length
 				);
 				binaryContentRepository.save(binaryContent);
-				binaryContentStorage.put(binaryContent.getId(), request.bytes());
+				eventPublisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(), request.bytes()));
 				log.debug(
 					"[BasicMessageService#create] BinaryContent created: filename={}, contentType={}, size={}",
 					binaryContent.getFileName(),
