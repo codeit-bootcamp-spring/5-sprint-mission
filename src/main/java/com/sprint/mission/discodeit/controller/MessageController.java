@@ -6,12 +6,17 @@ import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.message.MessageDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import com.sprint.mission.discodeit.dto.response.page.PageResponse;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +25,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -28,17 +34,25 @@ import java.util.UUID;
 public class MessageController {
 
     private final MessageService messageService;
+    private final Validator validator;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponse> createMessage(
-            @Valid @RequestPart("messageCreateRequest") MessageCreateRequest request,
+            @RequestPart("messageCreateRequest") MessageCreateRequest request,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> files
     ) {
+
         try {
             if (files != null && !files.isEmpty()) {
                 List<BinaryContentCreateRequest> attachments = convertFiles(files);
                 request.setAttachments(attachments);
             }
+
+            Set<ConstraintViolation<MessageCreateRequest>> violations = validator.validate(request);
+            if (!validator.validate(request).isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+
             MessageResponse response = messageService.create(request);
             URI location = URI.create("/api/messages/" + response.getId());
 
@@ -102,7 +116,8 @@ public class MessageController {
     @RequestMapping(path = "/{messageId}", method = RequestMethod.DELETE)
     public ResponseEntity<MessageDeleteResponse> deleteMessage(
             @PathVariable UUID messageId,
-            @RequestParam UUID authorId) {
+            @AuthenticationPrincipal DiscodeitUserDetails userDetails) {
+        UUID authorId = userDetails.getUserResponse().getId();
         MessageDeleteResponse response = messageService.deleteMessage(messageId, authorId);
         return ResponseEntity.ok(response);
     }
